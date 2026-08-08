@@ -3,8 +3,8 @@ import math
 
 from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QMenu, QHBoxLayout,
                              QPushButton, QSizePolicy, QSlider, QVBoxLayout)
-from PyQt6.QtGui import QAction
-from PyQt6.QtCore import Qt, QTimer, QPoint, QSize, QEvent
+from PyQt6.QtGui import QAction, QCursor
+from PyQt6.QtCore import Qt, QTimer, QPoint, QRect, QSize, QEvent
 from app.ui_components import ClickableSlider
 from app.ui_icons import make_media_icon
 from app.utils import format_time
@@ -16,6 +16,8 @@ OVERLAY_SIDE_PADDING = 28
 OVERLAY_NARROW_SIDE_PADDING = 12
 OVERLAY_NARROW_WIDTH = 560
 OVERLAY_ACCENT = "#F26A3D"
+# Oynatma sürerken etkileşimsizlik sonrası overlay'in gizlenme süresi.
+OVERLAY_AUTO_HIDE_MS = 2500
 
 class VideoFrame(QWidget):
     def __init__(self, parent=None):
@@ -25,6 +27,14 @@ class VideoFrame(QWidget):
         self.control_overlay = None
         self._overlay_updating_position = False
         self._overlay_updating_volume = False
+        # Otomatik gizlenme durumu. _overlay_auto_hidden yalnızca
+        # etkileşimsizlik nedeniyle gizlenmeyi işaretler; owner deactivate
+        # veya minimize nedeniyle gizlenme bundan ayrıdır.
+        self.overlay_hide_timer = None
+        self._overlay_auto_hidden = False
+        self._overlay_hover = False
+        self._overlay_event_targets = ()
+        self._last_cursor_pos = None
 
         # Mouse takibi için
         self.setMouseTracking(True)
@@ -236,8 +246,22 @@ class VideoFrame(QWidget):
 
         layout.addLayout(controls)
 
+        # Tek, singleShot auto-hide timer'ı. cursor_timer'dan bağımsızdır.
+        self.overlay_hide_timer = QTimer(self)
+        self.overlay_hide_timer.setSingleShot(True)
+        self.overlay_hide_timer.setInterval(OVERLAY_AUTO_HIDE_MS)
+        self.overlay_hide_timer.timeout.connect(self.hide_overlay_for_inactivity)
+
         self.main_window.installEventFilter(self)
         self.installEventFilter(self)
+
+        # Overlay ve child kontrollerinde etkileşim izleme. Her hedefe yalnızca
+        # bir kez filtre kurulur.
+        targets = [self.control_overlay] + self.control_overlay.findChildren(QWidget)
+        for target in targets:
+            target.installEventFilter(self)
+        self._overlay_event_targets = tuple(targets)
+        self._last_cursor_pos = QCursor.pos()
 
     def _make_overlay_button(self, object_name, icon_kind, label, size, icon_size,
                              colour="#FFFFFF"):
@@ -311,6 +335,8 @@ class VideoFrame(QWidget):
         if self.control_overlay is None:
             return
 
+        self._poll_cursor_interaction()
+
         try:
             duration = float(getattr(self.main_window, "duration", 0) or 0)
             position = float(getattr(self.main_window, "position", 0) or 0)
@@ -348,14 +374,108 @@ class VideoFrame(QWidget):
         paused = getattr(self.main_window, "is_paused", True)
         label = "Oynat" if paused else "Duraklat"
         button = self.overlay_play_pause_button
-        if button.accessibleName() == label:
+        if button.accessibleName() != label:
+            # Metin görünmez; durum ikon, tooltip ve accessibleName ile taşınır.
+            button.setAccessibleName(label)
+            button.setToolTip(label)
+            button.setIcon(make_media_icon(
+                "play" if paused else "pause", button.iconSize().width(),
+                OVERLAY_ACCENT))
+        # Bu metot yalnızca gerçek oynatma geçişlerinden çağrılır
+        # (play_pause, open_path, stop, playlist); periyodik update_ui'dan değil.
+        self._sync_overlay_auto_hide()
+
+    # --- Otomatik gizlenme ---
+
+    def _overlay_playback_active(self):
+        """Auto-hide yalnızca gerçekten oynatma sürerken anlamlıdır."""
+        return (bool(getattr(self.main_window, "current_file", ""))
+                and not getattr(self.main_window, "is_paused", True))
+
+    def _overlay_interaction_blocked(self):
+        if self._overlay_hover:
+            return True
+        for name in ("overlay_timeline", "overlay_volume_slider"):
+            slider = getattr(self, name, None)
+            if slider is not None and slider.isSliderDown():
+                return True
+        return False
+
+    def _poll_cursor_interaction(self):
+        """Native mpv yüzeyi VideoFrame'in mouse olaylarını yutabildiği için
+        imleç hareketi mevcut update_ui döngüsünden okunur. Yeni timer
+        oluşturulmaz; imleç kıpırdamadığında hiçbir şey tetiklenmez."""
+        if self.control_overlay is None:
             return
-        # Metin görünmez; durum ikon, tooltip ve accessibleName ile taşınır.
-        button.setAccessibleName(label)
-        button.setToolTip(label)
-        button.setIcon(make_media_icon(
-            "play" if paused else "pause", button.iconSize().width(),
-            OVERLAY_ACCENT))
+        position = QCursor.pos()
+        previous = self._last_cursor_pos
+        self._last_cursor_pos = position
+
+        # Hover durumu burada yetkili biçimde yeniden hesaplanır: native mpv
+        # yüzeyine geçişte overlay'e Leave olayı ulaşmayabiliyor ve hover
+        # takılı kalıyordu.
+        hover = (self.control_overlay.isVisible()
+                 and self.control_overlay.geometry().contains(position))
+        if hover != self._overlay_hover:
+            self._overlay_hover = hover
+            self.schedule_overlay_hide()
+
+        if previous is None or position == previous:
+            return
+        if not self._is_player_surface_active():
+            return
+        video_rect = QRect(self.mapToGlobal(QPoint(0, 0)), self.size())
+        if not video_rect.contains(position):
+            return
+        self.show_overlay_for_interaction()
+
+    def show_overlay_for_interaction(self):
+        """Kullanıcı etkileşiminde overlay'i hemen gösterir ve sayacı tazeler."""
+        if self.control_overlay is None:
+            return
+        self._overlay_auto_hidden = False
+        if self.main_window.isVisible() and not self.main_window.isMinimized():
+            self.update_overlay_geometry()
+            self.control_overlay.show()
+        self.schedule_overlay_hide()
+
+    def schedule_overlay_hide(self):
+        """Yalnızca oynatma sürüyorsa ve engel yoksa sayacı başlatır."""
+        if self.overlay_hide_timer is None:
+            return
+        if self._overlay_playback_active() and not self._overlay_interaction_blocked():
+            self.overlay_hide_timer.start(OVERLAY_AUTO_HIDE_MS)
+        else:
+            self.overlay_hide_timer.stop()
+
+    def cancel_overlay_hide(self):
+        if self.overlay_hide_timer is not None:
+            self.overlay_hide_timer.stop()
+
+    def hide_overlay_for_inactivity(self):
+        """Timer slotu. Engel varsa veya oynatma yoksa gizleme yapılmaz."""
+        if self.control_overlay is None:
+            return
+        if not self._overlay_playback_active():
+            return
+        if self._overlay_interaction_blocked():
+            return
+        self.control_overlay.hide()
+        self._overlay_auto_hidden = True
+
+    def _sync_overlay_auto_hide(self):
+        """Oynatma state geçişlerinde görünürlüğü ve sayacı hizalar."""
+        if self.control_overlay is None:
+            return
+        if self._overlay_playback_active():
+            self.show_overlay_for_interaction()
+            return
+        # Duraklatılmış, durdurulmuş veya medya yok: overlay görünür kalır.
+        self.cancel_overlay_hide()
+        self._overlay_auto_hidden = False
+        if self.main_window.isVisible() and not self.main_window.isMinimized():
+            self.update_overlay_geometry()
+            self.control_overlay.show()
 
     def _is_player_surface_active(self):
         return QApplication.activeWindow() in (
@@ -403,12 +523,42 @@ class VideoFrame(QWidget):
             QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
 
     def _restore_overlay_if_owner_visible(self):
+        # Etkileşimsizlik nedeniyle gizlenmiş overlay'i owner olayları
+        # (show/resize/state change) kendiliğinden geri getirmemeli.
+        if self._overlay_auto_hidden:
+            return
         if (self.control_overlay is not None and self.main_window.isVisible()
                 and not self.main_window.isMinimized()):
             self.update_overlay_geometry()
             self.control_overlay.show()
+            self.schedule_overlay_hide()
+
+    def _restore_overlay_after_activation(self):
+        # Ana pencere yeniden aktifleştiğinde overlay ilk anda görünür olur.
+        self._overlay_auto_hidden = False
+        self._restore_overlay_if_owner_visible()
+
+    def _handle_overlay_interaction_event(self, event_type):
+        if event_type == QEvent.Type.Enter:
+            self._overlay_hover = True
+            self.show_overlay_for_interaction()
+        elif event_type == QEvent.Type.Leave:
+            # Overlay'den bir child düğmeye geçişte de Leave gelir. underMouse()
+            # child üzerindeyken False dönebildiği için gerçek imleç konumu
+            # overlay dikdörtgeniyle karşılaştırılır.
+            self._overlay_hover = False
+            self.schedule_overlay_hide()
+        elif event_type in (QEvent.Type.MouseMove, QEvent.Type.MouseButtonPress,
+                            QEvent.Type.MouseButtonRelease,
+                            QEvent.Type.HoverMove):
+            self.show_overlay_for_interaction()
 
     def eventFilter(self, watched, event):
+        if (self.control_overlay is not None
+                and watched in self._overlay_event_targets):
+            self._handle_overlay_interaction_event(event.type())
+            return super().eventFilter(watched, event)
+
         if watched in (self.main_window, self):
             if (event.type() == QEvent.Type.Hide or
                     (event.type() == QEvent.Type.WindowDeactivate and
@@ -425,6 +575,9 @@ class VideoFrame(QWidget):
                                   QEvent.Type.ZOrderChange):
                 self.update_overlay_geometry()
             elif event.type() == QEvent.Type.WindowActivate:
+                # Aktivasyon senkron işlenir; gecikmeli çalışırsa aradaki
+                # otomatik gizlenmeyi geri alabilir.
+                self._restore_overlay_after_activation()
                 QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
             elif event.type() == QEvent.Type.Close:
                 self.close_control_overlay()
@@ -487,6 +640,7 @@ class VideoFrame(QWidget):
         self.setFocus()
         self.cursor_timer.start()
         self.update_overlay_geometry()
+        self.show_overlay_for_interaction()
 
     def exit_fullscreen(self):
         if not self.is_video_fullscreen:
@@ -515,6 +669,7 @@ class VideoFrame(QWidget):
 
         self.is_video_fullscreen = False
         self.update_overlay_geometry()
+        self.show_overlay_for_interaction()
 
     def closeEvent(self, event):
         self.osd_label.hide()
@@ -531,6 +686,8 @@ class VideoFrame(QWidget):
         if self.is_video_fullscreen:
             self.setCursor(Qt.CursorShape.ArrowCursor)
             self.cursor_timer.start()
+        # Video yüzeyindeki hareket overlay'i hemen geri getirir.
+        self.show_overlay_for_interaction()
         super().mouseMoveEvent(event)
 
     def mousePressEvent(self, event):
