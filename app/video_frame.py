@@ -1,12 +1,15 @@
-from PyQt6.QtWidgets import QWidget, QLabel, QMenu
+import os
+
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QMenu, QHBoxLayout, QPushButton, QSlider
 from PyQt6.QtGui import QAction
-from PyQt6.QtCore import Qt, QTimer, QPoint
+from PyQt6.QtCore import Qt, QTimer, QPoint, QEvent
 
 class VideoFrame(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.main_window = parent
         self.is_video_fullscreen = False
+        self.control_overlay = None
 
         # Mouse takibi için
         self.setMouseTracking(True)
@@ -51,10 +54,130 @@ class VideoFrame(QWidget):
         self.osd_timer.setSingleShot(True)
         self.osd_timer.timeout.connect(self.osd_label.hide)
 
+        if os.environ.get("MLCPLAYER_OVERLAY_PREVIEW") == "1":
+            self._create_control_overlay()
+
+    def _create_control_overlay(self):
+        if self.control_overlay is not None:
+            return
+
+        overlay_flags = (
+            Qt.WindowType.Tool |
+            Qt.WindowType.FramelessWindowHint |
+            Qt.WindowType.WindowStaysOnTopHint
+        )
+        self.control_overlay = QWidget(self.main_window, overlay_flags)
+        self.control_overlay.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.control_overlay.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        self.control_overlay.setWindowFlag(Qt.WindowType.WindowDoesNotAcceptFocus)
+        self.control_overlay.setObjectName("controlOverlayPreview")
+        self.control_overlay.setStyleSheet(
+            "QWidget#controlOverlayPreview { background: rgba(18, 24, 30, 225); "
+            "border: 1px solid rgba(255, 255, 255, 35); border-radius: 8px; } "
+            "QPushButton { color: white; background: transparent; border: none; "
+            "padding: 6px 10px; } QPushButton:hover { background: rgba(255,255,255,35); } "
+            "QSlider::groove:horizontal { height: 3px; background: #59636D; } "
+            "QSlider::sub-page:horizontal { background: #E06A3B; } "
+            "QSlider::handle:horizontal { width: 10px; margin: -4px 0; "
+            "background: #FFFFFF; border-radius: 5px; }"
+        )
+
+        layout = QHBoxLayout(self.control_overlay)
+        layout.setContentsMargins(8, 4, 8, 4)
+        layout.setSpacing(2)
+
+        previous = QPushButton("Önceki")
+        previous.setFixedWidth(60)
+        previous.clicked.connect(lambda: self.main_window.play_previous())
+        layout.addWidget(previous)
+
+        play_pause = QPushButton("Oynat")
+        play_pause.setFixedWidth(60)
+        play_pause.clicked.connect(lambda: self.main_window.play_pause())
+        layout.addWidget(play_pause)
+
+        next_button = QPushButton("Sonraki")
+        next_button.setFixedWidth(60)
+        next_button.clicked.connect(lambda: self.main_window.play_next())
+        layout.addWidget(next_button)
+
+        timeline = QSlider(Qt.Orientation.Horizontal)
+        timeline.setRange(0, 1000)
+        timeline.setMinimumWidth(30)
+        timeline.setObjectName("overlayTimeline")
+        timeline.valueChanged.connect(lambda value: self.main_window.seek_position(value))
+        layout.addWidget(timeline, 1)
+
+        fullscreen = QPushButton("Tam Ekran")
+        fullscreen.setFixedWidth(78)
+        fullscreen.clicked.connect(lambda: self.main_window.toggle_fullscreen())
+        layout.addWidget(fullscreen)
+
+        self.main_window.installEventFilter(self)
+        self.installEventFilter(self)
+
+    def _is_player_surface_active(self):
+        return QApplication.activeWindow() in (
+            self.main_window, self, self.control_overlay)
+
+    def update_overlay_geometry(self):
+        if self.control_overlay is None:
+            return
+        if not self.main_window.isVisible() or self.main_window.isMinimized():
+            self.control_overlay.hide()
+            return
+        self.control_overlay.adjustSize()
+        video_origin = self.mapToGlobal(QPoint(0, 0))
+        width = min(760, max(1, self.width() - 24))
+        height = self.control_overlay.sizeHint().height()
+        x = video_origin.x() + max(12, (self.width() - width) // 2)
+        y = video_origin.y() + max(12, self.height() - height - 12)
+        self.control_overlay.setGeometry(x, y, width, height)
+        self.control_overlay.raise_()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self.control_overlay is not None:
+            QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
+
+    def _restore_overlay_if_owner_visible(self):
+        if (self.control_overlay is not None and self.main_window.isVisible()
+                and not self.main_window.isMinimized()):
+            self.update_overlay_geometry()
+            self.control_overlay.show()
+
+    def eventFilter(self, watched, event):
+        if watched in (self.main_window, self):
+            if (event.type() == QEvent.Type.Hide or
+                    (event.type() == QEvent.Type.WindowDeactivate and
+                     not self._is_player_surface_active())):
+                self.control_overlay.hide()
+            elif event.type() == QEvent.Type.Show:
+                QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
+            elif event.type() == QEvent.Type.WindowStateChange:
+                if self.main_window.isMinimized():
+                    self.control_overlay.hide()
+                else:
+                    QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
+            elif event.type() in (QEvent.Type.Move, QEvent.Type.Resize,
+                                  QEvent.Type.ZOrderChange):
+                self.update_overlay_geometry()
+            elif event.type() == QEvent.Type.WindowActivate:
+                QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
+            elif event.type() == QEvent.Type.Close:
+                self.close_control_overlay()
+        return super().eventFilter(watched, event)
+
+    def close_control_overlay(self):
+        if self.control_overlay is not None:
+            self.control_overlay.hide()
+            self.control_overlay.close()
+
     def resizeEvent(self, event):
         self.placeholder_label.setGeometry(0, 0, self.width(), self.height())
         if self.osd_label.isVisible():
             self._center_osd()
+        self.update_overlay_geometry()
         super().resizeEvent(event)
 
     def _center_osd(self):
@@ -80,6 +203,7 @@ class VideoFrame(QWidget):
         self.is_video_fullscreen = True
         self.setFocus()
         self.cursor_timer.start()
+        self.update_overlay_geometry()
 
     def exit_fullscreen(self):
         if not self.is_video_fullscreen:
@@ -91,11 +215,13 @@ class VideoFrame(QWidget):
         self.main_window.main_layout.insertWidget(0, self)
         self.main_window.central_widget.show()
         self.is_video_fullscreen = False
+        self.update_overlay_geometry()
 
     def closeEvent(self, event):
         # Tam ekran widget'ı ana pencereden ayrıldığı için kendi kapatılması
         # ana pencereyi de kapatmalı; aksi halde süreç arka planda kalabilir.
         self.osd_label.hide()
+        self.close_control_overlay()
         if self.is_video_fullscreen:
             self.exit_fullscreen()
             if self.main_window:
