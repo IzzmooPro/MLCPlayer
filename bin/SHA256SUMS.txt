@@ -1,0 +1,4 @@
+# Third-party binary checksums; source/version is intentionally unspecified.
+# Format: filename | size_bytes | SHA-256
+mpv-2.dll | 99390990 | 9777C1899AAA9DB9C4F8806207855D273FC6599B0BE8453C280D2B50D8D5D3E1
+libmpv.dll.a | 172096 | 198409C06E06C3F83A51B54FAD6CCF4B54ABC0676F14E0084D5F49E650E2C619

@@ -1,0 +1,30 @@
+# Python cache and test cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Build outputs
+build/
+dist/
+
+# Temporary test/runtime folders
+tmp/
+temp/
+test_tmp/
+.tmp/
+tests/tmp/
+tests/.tmp/
+
+# Runtime logs and local user settings
+*.log
+logs/
+*.ini
+*.qsettings
+
+# Large third-party runtime binaries (tracked by checksum manifest only)
+bin/mpv-2.dll
+bin/libmpv.dll.a
