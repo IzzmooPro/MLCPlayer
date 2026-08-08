@@ -127,12 +127,12 @@ def test_overlay_play_pause_text_follows_player_state(monkeypatch, tmp_path):
     app, window, frame = make_sync_window(monkeypatch, tmp_path)
 
     frame.update_overlay_play_state()
-    assert frame.overlay_play_pause_button.text() == "Oynat"
+    assert frame.overlay_play_pause_button.accessibleName() == "Oynat"
 
     window.play_pause()
-    assert frame.overlay_play_pause_button.text() == "Duraklat"
+    assert frame.overlay_play_pause_button.accessibleName() == "Duraklat"
 
     window.play_pause()
-    assert frame.overlay_play_pause_button.text() == "Oynat"
+    assert frame.overlay_play_pause_button.accessibleName() == "Oynat"
     window.close()
     app.processEvents()

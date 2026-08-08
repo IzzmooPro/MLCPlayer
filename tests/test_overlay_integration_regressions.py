@@ -77,13 +77,13 @@ def test_product_file_open_and_stop_states_reach_overlay_on_update(monkeypatch, 
     window._audio_menu_file = window.current_file
     window._chapter_menu_file = window.current_file
     MPVPlayer.update_ui(window)
-    assert frame.overlay_play_pause_button.text() == "Duraklat"
+    assert frame.overlay_play_pause_button.accessibleName() == "Duraklat"
 
     window.is_paused = False
     frame.update_overlay_play_state()
     stop(window)
     MPVPlayer.update_ui(window)
-    assert frame.overlay_play_pause_button.text() == "Oynat"
+    assert frame.overlay_play_pause_button.accessibleName() == "Oynat"
     window.close()
     app.processEvents()
 
@@ -94,9 +94,9 @@ def test_product_play_pause_keeps_instant_overlay_update(monkeypatch, tmp_path):
     window.is_paused = True
 
     play_pause(window)
-    assert frame.overlay_play_pause_button.text() == "Duraklat"
+    assert frame.overlay_play_pause_button.accessibleName() == "Duraklat"
 
     play_pause(window)
-    assert frame.overlay_play_pause_button.text() == "Oynat"
+    assert frame.overlay_play_pause_button.accessibleName() == "Oynat"
     window.close()
     app.processEvents()

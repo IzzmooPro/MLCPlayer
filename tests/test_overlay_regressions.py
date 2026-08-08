@@ -72,9 +72,10 @@ def test_overlay_controls_call_existing_player_methods(monkeypatch):
     window.toggle_fullscreen = lambda: calls.append("fullscreen")
     overlay = frame.control_overlay
 
-    for text in ("Önceki", "Oynat", "Sonraki", "Tam Ekran"):
+    for name in ("overlayPrevious", "overlayPlayPause", "overlayNext",
+                 "overlayFullscreen"):
         button = next(button for button in overlay.findChildren(QPushButton)
-                      if button.text() == text)
+                      if button.objectName() == name)
         QTest.mouseClick(button, Qt.MouseButton.LeftButton)
 
     assert calls == ["previous", "play_pause", "next", "fullscreen"]
@@ -214,7 +215,7 @@ def test_overlay_hides_on_fullscreen_deactivation_and_restores_clickable(monkeyp
     app.processEvents()
     assert frame.control_overlay.isVisible()
     play_button = next(button for button in frame.control_overlay.findChildren(QPushButton)
-                       if button.text() == "Oynat")
+                       if button.objectName() == "overlayPlayPause")
     QTest.mouseClick(play_button, Qt.MouseButton.LeftButton)
     assert calls == ["play_pause"]
 

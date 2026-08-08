@@ -1,11 +1,18 @@
 import os
 import math
 
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QMenu, QHBoxLayout, QPushButton, QSlider
+from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QMenu, QHBoxLayout,
+                             QPushButton, QSlider, QVBoxLayout)
 from PyQt6.QtGui import QAction
-from PyQt6.QtCore import Qt, QTimer, QPoint, QEvent
+from PyQt6.QtCore import Qt, QTimer, QPoint, QSize, QEvent
 from app.ui_components import ClickableSlider
+from app.ui_icons import make_media_icon
 from app.utils import format_time
+
+# Sinematik kontrol katmanı ölçüleri (onaylanmış referans görsele göre).
+OVERLAY_HEIGHT = 110
+OVERLAY_SIDE_PADDING = 28
+OVERLAY_ACCENT = "#F26A3D"
 
 class VideoFrame(QWidget):
     def __init__(self, parent=None):
@@ -73,60 +80,130 @@ class VideoFrame(QWidget):
         self.control_overlay = QWidget(self.main_window, overlay_flags)
         self.control_overlay.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.control_overlay.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        # Düz QWidget'ta stylesheet arka planı ancak bu bayrakla boyanır;
+        # aksi halde sinematik gradient hiç çizilmez.
+        self.control_overlay.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         self.control_overlay.setWindowFlag(Qt.WindowType.WindowDoesNotAcceptFocus)
         self.control_overlay.setObjectName("controlOverlayPreview")
         self.control_overlay.setStyleSheet(
-            "QWidget#controlOverlayPreview { background: rgba(18, 24, 30, 225); "
-            "border: 1px solid rgba(255, 255, 255, 35); border-radius: 8px; } "
-            "QPushButton { color: white; background: transparent; border: none; "
-            "padding: 6px 10px; } QPushButton:hover { background: rgba(255,255,255,35); } "
-            "QSlider::groove:horizontal { height: 3px; background: #59636D; } "
-            "QSlider::sub-page:horizontal { background: #E06A3B; } "
-            "QSlider::handle:horizontal { width: 10px; margin: -4px 0; "
-            "background: #FFFFFF; border-radius: 5px; }"
+            # Üstte tamamen şeffaf başlayıp alta doğru koyulaşan sinematik
+            # gradient; kapsül görünümü ve kenarlık yok.
+            "QWidget#controlOverlayPreview { background: qlineargradient("
+            "x1:0, y1:0, x2:0, y2:1, "
+            "stop:0 rgba(12, 12, 14, 0), "
+            "stop:0.45 rgba(12, 12, 14, 120), "
+            "stop:1 rgba(12, 12, 14, 220)); } "
+            "QPushButton { background: transparent; border: none; padding: 0; } "
+            "QPushButton:hover { background: rgba(255, 255, 255, 28); "
+            "border-radius: 4px; } "
+            f"QPushButton#overlayPlayPause {{ border: 2px solid {OVERLAY_ACCENT}; "
+            "border-radius: 22px; background: transparent; } "
+            f"QPushButton#overlayPlayPause:hover {{ background: rgba(242, 106, 61, 45); }} "
+            "QSlider::groove:horizontal { height: 3px; background: "
+            "rgba(255, 255, 255, 70); border-radius: 1px; } "
+            f"QSlider::sub-page:horizontal {{ height: 3px; background: {OVERLAY_ACCENT}; "
+            "border-radius: 1px; } "
+            f"QSlider::handle:horizontal {{ width: 11px; height: 11px; "
+            f"margin: -4px 0; background: {OVERLAY_ACCENT}; border-radius: 5px; }}"
         )
 
-        layout = QHBoxLayout(self.control_overlay)
-        layout.setContentsMargins(4, 3, 4, 3)
-        layout.setSpacing(0)
+        layout = QVBoxLayout(self.control_overlay)
+        layout.setContentsMargins(OVERLAY_SIDE_PADDING, 10,
+                                  OVERLAY_SIDE_PADDING, 14)
+        layout.setSpacing(10)
 
-        previous = QPushButton("Önceki")
-        previous.setFixedWidth(50)
-        previous.clicked.connect(lambda: self.main_window.play_previous())
-        layout.addWidget(previous)
-
-        self.overlay_play_pause_button = QPushButton("Oynat")
-        self.overlay_play_pause_button.setFixedWidth(50)
-        self.overlay_play_pause_button.clicked.connect(lambda: self.main_window.play_pause())
-        layout.addWidget(self.overlay_play_pause_button)
-
-        next_button = QPushButton("Sonraki")
-        next_button.setFixedWidth(50)
-        next_button.clicked.connect(lambda: self.main_window.play_next())
-        layout.addWidget(next_button)
-
-        self.overlay_current_time_label = QLabel("00:00")
-        self.overlay_current_time_label.setFixedWidth(38)
-        layout.addWidget(self.overlay_current_time_label)
-
+        # Üst sıra: geniş timeline
         self.overlay_timeline = ClickableSlider(Qt.Orientation.Horizontal)
         self.overlay_timeline.setRange(0, 1000)
-        self.overlay_timeline.setMinimumWidth(20)
         self.overlay_timeline.setObjectName("overlayTimeline")
+        self.overlay_timeline.setFixedHeight(14)
         self.overlay_timeline.valueChanged.connect(self._overlay_seek)
-        layout.addWidget(self.overlay_timeline, 1)
+        layout.addWidget(self.overlay_timeline)
 
+        # Alt sıra: sol süre, orta medya kontrolleri, sağ tam ekran
+        controls = QHBoxLayout()
+        controls.setContentsMargins(0, 0, 0, 0)
+        controls.setSpacing(0)
+
+        time_row = QHBoxLayout()
+        time_row.setContentsMargins(0, 0, 0, 0)
+        time_row.setSpacing(4)
+        self.overlay_current_time_label = QLabel("00:00")
+        self.overlay_current_time_label.setStyleSheet(
+            f"color: {OVERLAY_ACCENT}; background: transparent; font-size: 13px;")
+        separator = QLabel("/")
+        separator.setStyleSheet(
+            "color: #B9BFC6; background: transparent; font-size: 13px;")
         self.overlay_total_time_label = QLabel("00:00")
-        self.overlay_total_time_label.setFixedWidth(38)
-        layout.addWidget(self.overlay_total_time_label)
+        self.overlay_total_time_label.setStyleSheet(
+            "color: #D6DBE1; background: transparent; font-size: 13px;")
+        for widget in (self.overlay_current_time_label, separator,
+                       self.overlay_total_time_label):
+            time_row.addWidget(widget)
+        time_container = QWidget(self.control_overlay)
+        time_container.setLayout(time_row)
+        time_container.setStyleSheet("background: transparent;")
+        # Sol ve sağ bloklar eşit stretch payı alır; böylece ortadaki medya
+        # kontrolleri katmanın gerçek yatay merkezine oturur ve dar pencerede
+        # ikisi birlikte küçülür.
+        time_container.setMinimumWidth(0)
+        controls.addWidget(time_container, 1, Qt.AlignmentFlag.AlignVCenter |
+                           Qt.AlignmentFlag.AlignLeft)
 
-        fullscreen = QPushButton("Tam Ekran")
-        fullscreen.setFixedWidth(65)
+        previous = self._make_overlay_button(
+            "overlayPrevious", "previous", "Önceki", 32, 18)
+        previous.clicked.connect(lambda: self.main_window.play_previous())
+        controls.addWidget(previous, 0, Qt.AlignmentFlag.AlignVCenter)
+        controls.addSpacing(14)
+
+        # Referans görselde merkez sembol de turuncudur.
+        self.overlay_play_pause_button = self._make_overlay_button(
+            "overlayPlayPause", "play", "Oynat", 44, 20, OVERLAY_ACCENT)
+        self.overlay_play_pause_button.clicked.connect(
+            lambda: self.main_window.play_pause())
+        controls.addWidget(self.overlay_play_pause_button, 0,
+                           Qt.AlignmentFlag.AlignVCenter)
+        controls.addSpacing(14)
+
+        next_button = self._make_overlay_button(
+            "overlayNext", "next", "Sonraki", 32, 18)
+        next_button.clicked.connect(lambda: self.main_window.play_next())
+        controls.addWidget(next_button, 0, Qt.AlignmentFlag.AlignVCenter)
+
+        fullscreen = self._make_overlay_button(
+            "overlayFullscreen", "fullscreen", "Tam Ekran", 30, 18)
         fullscreen.clicked.connect(lambda: self.main_window.toggle_fullscreen())
-        layout.addWidget(fullscreen)
+        right_row = QHBoxLayout()
+        right_row.setContentsMargins(0, 0, 0, 0)
+        right_row.setSpacing(0)
+        right_row.addStretch(1)
+        right_row.addWidget(fullscreen, 0, Qt.AlignmentFlag.AlignVCenter)
+        right_container = QWidget(self.control_overlay)
+        right_container.setLayout(right_row)
+        right_container.setStyleSheet("background: transparent;")
+        right_container.setMinimumWidth(0)
+        controls.addWidget(right_container, 1, Qt.AlignmentFlag.AlignVCenter |
+                           Qt.AlignmentFlag.AlignRight)
+
+        layout.addLayout(controls)
 
         self.main_window.installEventFilter(self)
         self.installEventFilter(self)
+
+    def _make_overlay_button(self, object_name, icon_kind, label, size, icon_size,
+                             colour="#FFFFFF"):
+        """Metinsiz, ikonlu ama erişilebilir kalan overlay düğmesi üretir."""
+        button = QPushButton(self.control_overlay)
+        button.setObjectName(object_name)
+        button.setText("")
+        button.setToolTip(label)
+        button.setAccessibleName(label)
+        button.setFixedSize(size, size)
+        button.setIconSize(QSize(icon_size, icon_size))
+        button.setIcon(make_media_icon(icon_kind, icon_size, colour))
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        return button
 
     def _overlay_seek(self, value):
         if not self._overlay_updating_position:
@@ -183,10 +260,17 @@ class VideoFrame(QWidget):
     def update_overlay_play_state(self):
         if self.control_overlay is None:
             return
-        play_pause_text = (
-            "Oynat" if getattr(self.main_window, "is_paused", True) else "Duraklat")
-        if self.overlay_play_pause_button.text() != play_pause_text:
-            self.overlay_play_pause_button.setText(play_pause_text)
+        paused = getattr(self.main_window, "is_paused", True)
+        label = "Oynat" if paused else "Duraklat"
+        button = self.overlay_play_pause_button
+        if button.accessibleName() == label:
+            return
+        # Metin görünmez; durum ikon, tooltip ve accessibleName ile taşınır.
+        button.setAccessibleName(label)
+        button.setToolTip(label)
+        button.setIcon(make_media_icon(
+            "play" if paused else "pause", button.iconSize().width(),
+            OVERLAY_ACCENT))
 
     def _is_player_surface_active(self):
         return QApplication.activeWindow() in (
@@ -198,12 +282,13 @@ class VideoFrame(QWidget):
         if not self.main_window.isVisible() or self.main_window.isMinimized():
             self.control_overlay.hide()
             return
-        self.control_overlay.adjustSize()
         video_origin = self.mapToGlobal(QPoint(0, 0))
-        width = min(760, max(1, self.width() - 24))
-        height = self.control_overlay.sizeHint().height()
-        x = video_origin.x() + max(12, (self.width() - width) // 2)
-        y = video_origin.y() + max(12, self.height() - height - 12)
+        # Referans: katman video alanının tüm genişliğini kaplar ve alta
+        # sıfır boşlukla oturur.
+        width = max(1, self.width())
+        height = max(1, min(OVERLAY_HEIGHT, self.height()))
+        x = video_origin.x()
+        y = video_origin.y() + self.height() - height
         self.control_overlay.setGeometry(x, y, width, height)
         self.control_overlay.raise_()
 
@@ -267,11 +352,32 @@ class VideoFrame(QWidget):
         self.osd_label.show()
         self.osd_timer.start(duration)
 
+    def _main_menu_bar(self):
+        menu_bar = getattr(self.main_window, "menuBar", None)
+        return menu_bar() if callable(menu_bar) else None
+
     def enter_fullscreen(self):
-        self.main_window.main_layout.removeWidget(self)
-        self.setParent(None)
-        self.showFullScreen()
-        self.main_window.central_widget.hide()
+        # NOT: VideoFrame ayrı bir top-level pencereye taşınmaz. Aksi halde
+        # eski ana pencere masaüstünde ikinci bir pencere olarak görünür kalır.
+        # Bunun yerine ana pencerenin kendisi tam ekran yapılır; böylece mpv
+        # wid değeri de değişmez.
+        if self.is_video_fullscreen:
+            return
+        window = self.main_window
+        self._pre_fullscreen_maximized = window.isMaximized()
+        self._pre_fullscreen_geometry = window.geometry()
+
+        menu_bar = self._main_menu_bar()
+        self._menu_was_visible = bool(menu_bar and menu_bar.isVisible())
+        if menu_bar:
+            menu_bar.hide()
+
+        panel = getattr(window, "control_container", None)
+        self._panel_was_visible = bool(panel and panel.isVisible())
+        if panel:
+            panel.hide()
+
+        window.showFullScreen()
         self.is_video_fullscreen = True
         self.setFocus()
         self.cursor_timer.start()
@@ -280,24 +386,36 @@ class VideoFrame(QWidget):
     def exit_fullscreen(self):
         if not self.is_video_fullscreen:
             return
+        window = self.main_window
         self.cursor_timer.stop()
         self.setCursor(Qt.CursorShape.ArrowCursor)
-        self.showNormal()
-        self.setParent(self.main_window.central_widget)
-        self.main_window.main_layout.insertWidget(0, self)
-        self.main_window.central_widget.show()
+
+        if getattr(self, "_pre_fullscreen_maximized", False):
+            window.showMaximized()
+        else:
+            window.showNormal()
+            geometry = getattr(self, "_pre_fullscreen_geometry", None)
+            if geometry is not None:
+                window.setGeometry(geometry)
+
+        menu_bar = self._main_menu_bar()
+        if menu_bar and getattr(self, "_menu_was_visible", True):
+            menu_bar.show()
+
+        # Klasik panel yalnızca fullscreen öncesinde görünürse geri gelir;
+        # preview açıkken gizli kalmaya devam eder.
+        panel = getattr(window, "control_container", None)
+        if panel and getattr(self, "_panel_was_visible", False):
+            panel.show()
+
         self.is_video_fullscreen = False
         self.update_overlay_geometry()
 
     def closeEvent(self, event):
-        # Tam ekran widget'ı ana pencereden ayrıldığı için kendi kapatılması
-        # ana pencereyi de kapatmalı; aksi halde süreç arka planda kalabilir.
         self.osd_label.hide()
         self.close_control_overlay()
         if self.is_video_fullscreen:
             self.exit_fullscreen()
-            if self.main_window:
-                self.main_window.close()
         event.accept()
 
     def hide_cursor(self):

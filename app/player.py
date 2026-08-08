@@ -77,7 +77,10 @@ class MPVPlayer(QMainWindow):
 
         # Video çerçevesi
         self.video_frame = VideoFrame(self)
-        self.video_frame.setMinimumSize(400, 300)
+        # NOT: Bu minimum, ana pencerenin 400x300 minimumundan küçük olmalıdır;
+        # aksi halde menü çubuğu ve klasik kontrol paneli eklendiğinde video
+        # alanı pencerenin dışına taşar.
+        self.video_frame.setMinimumSize(200, 120)
         self.video_frame.setStyleSheet("background-color: #000000;")
         self.main_layout.addWidget(self.video_frame)
 

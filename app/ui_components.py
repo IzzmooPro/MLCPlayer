@@ -1,3 +1,5 @@
+import os
+
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel, QSizePolicy, QSlider, QStyle
 from PyQt6.QtCore import Qt, QSize, QRectF
 from PyQt6.QtGui import QColor, QPainter
@@ -239,6 +241,15 @@ def setup_controls(player):
 
     # Ana düzene ekle
     player.main_layout.addWidget(control_container)
+
+    # Sinematik overlay preview açıkken tek görünen oynatma kontrol yüzeyi
+    # overlay olmalı. Klasik panel nesneleri (position_slider, play_button vb.)
+    # mevcut akışlar bozulmasın diye oluşturulmaya devam eder; yalnızca
+    # gizlenir ve layout'ta yer kaplamaz.
+    player.control_container = control_container
+    if os.environ.get("MLCPLAYER_OVERLAY_PREVIEW") == "1":
+        control_container.setFixedHeight(0)
+        control_container.hide()
 
     # Stil güncellemesi - daha küçük kontrollerle uyumlu
     additional_style = """
