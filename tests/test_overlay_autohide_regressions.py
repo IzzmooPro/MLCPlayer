@@ -8,7 +8,8 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import QEvent, QPoint, QSettings, Qt
+from PyQt6.QtCore import (QAbstractAnimation, QElapsedTimer, QEvent,
+                          QPoint, QSettings, Qt)
 from PyQt6.QtGui import QEnterEvent, QMouseEvent
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QSlider, QVBoxLayout, QWidget)
@@ -63,6 +64,7 @@ def video_window(monkeypatch, tmp_path):
         frame.update_overlay_geometry()
         if frame.control_overlay is not None:
             frame.show_overlay_for_interaction()
+            finish_fade(app, frame)
         app.processEvents()
         created.append((window, frame))
         return app, window, frame
@@ -76,6 +78,24 @@ def video_window(monkeypatch, tmp_path):
         frame.close_control_overlay()
         window.close()
         window.deleteLater()
+    app.processEvents()
+
+
+def finish_fade(app, frame, limit_ms=1500):
+    """Fade animasyonunu deterministik biçimde sonuna kadar sürer.
+
+    Auto-hide artık anında gizlemez; 180 ms fade-out sonunda gizler.
+    """
+    animation = getattr(frame, "overlay_fade", None)
+    if animation is None:
+        return
+    if animation.state() == QAbstractAnimation.State.Running:
+        animation.setCurrentTime(animation.duration())
+    clock = QElapsedTimer()
+    clock.start()
+    while (animation.state() == QAbstractAnimation.State.Running
+           and clock.elapsed() < limit_ms):
+        app.processEvents()
     app.processEvents()
 
 
@@ -131,7 +151,7 @@ def test_timeout_hides_overlay_while_video_plays(video_window):
     assert frame.control_overlay.isVisible()
 
     frame.hide_overlay_for_inactivity()
-    app.processEvents()
+    finish_fade(app, frame)
 
     assert not frame.control_overlay.isVisible()
 
@@ -193,10 +213,11 @@ def test_timer_is_cancelled_when_paused(video_window):
 def test_mouse_move_on_video_frame_restores_hidden_overlay(video_window):
     app, window, frame = video_window()
     frame.hide_overlay_for_inactivity()
-    app.processEvents()
+    finish_fade(app, frame)
     assert not frame.control_overlay.isVisible()
 
     send_mouse_move(frame, app)
+    finish_fade(app, frame)
 
     assert frame.control_overlay.isVisible()
     assert frame.overlay_hide_timer.isActive()
@@ -273,7 +294,7 @@ def test_slider_release_reschedules_hide(video_window, slider_name):
 def test_pause_keeps_overlay_visible_and_stops_timer(video_window):
     app, window, frame = video_window()
     frame.hide_overlay_for_inactivity()
-    app.processEvents()
+    finish_fade(app, frame)
 
     window.is_paused = True
     frame.update_overlay_play_state()
@@ -324,7 +345,7 @@ def test_periodic_state_update_does_not_restart_the_timer(video_window):
 def test_resize_does_not_reveal_auto_hidden_overlay(video_window):
     app, window, frame = video_window()
     frame.hide_overlay_for_inactivity()
-    app.processEvents()
+    finish_fade(app, frame)
 
     window.resize(1000, 640)
     app.processEvents()
@@ -337,7 +358,7 @@ def test_resize_does_not_reveal_auto_hidden_overlay(video_window):
 def test_geometry_is_updated_while_auto_hidden_and_correct_on_return(video_window):
     app, window, frame = video_window()
     frame.hide_overlay_for_inactivity()
-    app.processEvents()
+    finish_fade(app, frame)
 
     window.resize(1000, 640)
     app.processEvents()
@@ -358,7 +379,7 @@ def test_geometry_is_updated_while_auto_hidden_and_correct_on_return(video_windo
 def test_fullscreen_entry_shows_overlay_and_schedules_hide(video_window):
     app, window, frame = video_window()
     frame.hide_overlay_for_inactivity()
-    app.processEvents()
+    finish_fade(app, frame)
 
     frame.enter_fullscreen()
     app.processEvents()
@@ -373,10 +394,11 @@ def test_fullscreen_hide_and_restore_cycle(video_window):
     app.processEvents()
 
     frame.hide_overlay_for_inactivity()
-    app.processEvents()
+    finish_fade(app, frame)
     assert not frame.control_overlay.isVisible()
 
     send_mouse_move(frame, app)
+    finish_fade(app, frame)
     assert frame.control_overlay.isVisible()
 
     frame.exit_fullscreen()

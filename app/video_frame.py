@@ -4,7 +4,8 @@ import math
 from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QMenu, QHBoxLayout,
                              QPushButton, QSizePolicy, QSlider, QVBoxLayout)
 from PyQt6.QtGui import QAction, QCursor
-from PyQt6.QtCore import Qt, QTimer, QPoint, QRect, QSize, QEvent
+from PyQt6.QtCore import (Qt, QTimer, QPoint, QRect, QSize, QEvent,
+                          QEasingCurve, QPropertyAnimation)
 from app.ui_components import ClickableSlider
 from app.ui_icons import make_media_icon
 from app.utils import format_time
@@ -18,6 +19,9 @@ OVERLAY_NARROW_WIDTH = 560
 OVERLAY_ACCENT = "#F26A3D"
 # Oynatma sürerken etkileşimsizlik sonrası overlay'in gizlenme süresi.
 OVERLAY_AUTO_HIDE_MS = 2500
+# Göster/gizle geçişlerinin fade süreleri.
+OVERLAY_FADE_IN_MS = 140
+OVERLAY_FADE_OUT_MS = 180
 
 class VideoFrame(QWidget):
     def __init__(self, parent=None):
@@ -35,6 +39,8 @@ class VideoFrame(QWidget):
         self._overlay_hover = False
         self._overlay_event_targets = ()
         self._last_cursor_pos = None
+        self.overlay_fade = None
+        self._overlay_fade_target = 1.0
 
         # Mouse takibi için
         self.setMouseTracking(True)
@@ -246,6 +252,14 @@ class VideoFrame(QWidget):
 
         layout.addLayout(controls)
 
+        # Tek, yeniden kullanılan fade animasyonu.
+        self.overlay_fade = QPropertyAnimation(
+            self.control_overlay, b"windowOpacity", self)
+        self.overlay_fade.setDuration(OVERLAY_FADE_IN_MS)
+        self.overlay_fade.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self.overlay_fade.finished.connect(self._on_overlay_fade_finished)
+        self.control_overlay.setWindowOpacity(0.0)
+
         # Tek, singleShot auto-hide timer'ı. cursor_timer'dan bağımsızdır.
         self.overlay_hide_timer = QTimer(self)
         self.overlay_hide_timer.setSingleShot(True)
@@ -429,14 +443,69 @@ class VideoFrame(QWidget):
             return
         self.show_overlay_for_interaction()
 
+    def fade_overlay_in(self):
+        """Mevcut opaklıktan 1.0'a yumuşak geçiş; gerekiyorsa önce show()."""
+        if self.control_overlay is None or self.overlay_fade is None:
+            return
+        animation = self.overlay_fade
+        animation.stop()
+        if not self.control_overlay.isVisible():
+            self.control_overlay.show()
+        start = self.control_overlay.windowOpacity()
+        self._overlay_fade_target = 1.0
+        animation.setDuration(OVERLAY_FADE_IN_MS)
+        animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        animation.setStartValue(start)
+        animation.setEndValue(1.0)
+        if start >= 1.0:
+            # Zaten tam görünür; gereksiz animasyon başlatılmaz.
+            self.control_overlay.setWindowOpacity(1.0)
+            return
+        animation.start()
+
+    def fade_overlay_out(self):
+        """Mevcut opaklıktan 0.0'a geçiş; gizleme bitişte yapılır."""
+        if self.control_overlay is None or self.overlay_fade is None:
+            return
+        animation = self.overlay_fade
+        animation.stop()
+        start = self.control_overlay.windowOpacity()
+        self._overlay_fade_target = 0.0
+        animation.setDuration(OVERLAY_FADE_OUT_MS)
+        animation.setEasingCurve(QEasingCurve.Type.InCubic)
+        animation.setStartValue(start)
+        animation.setEndValue(0.0)
+        animation.start()
+
+    def _on_overlay_fade_finished(self):
+        if self.control_overlay is None:
+            return
+        if self._overlay_fade_target == 0.0:
+            self._finish_overlay_fade_out()
+        else:
+            self.control_overlay.setWindowOpacity(1.0)
+
+    def _finish_overlay_fade_out(self):
+        self.control_overlay.hide()
+        self.control_overlay.setWindowOpacity(0.0)
+
+    def hide_overlay_immediately(self):
+        """Owner/system olayları: fade kullanılmaz, anında gizlenir."""
+        if self.control_overlay is None:
+            return
+        if self.overlay_fade is not None:
+            self.overlay_fade.stop()
+        self.control_overlay.hide()
+        self.control_overlay.setWindowOpacity(0.0)
+
     def show_overlay_for_interaction(self):
-        """Kullanıcı etkileşiminde overlay'i hemen gösterir ve sayacı tazeler."""
+        """Kullanıcı etkileşiminde overlay'i gösterir ve sayacı tazeler."""
         if self.control_overlay is None:
             return
         self._overlay_auto_hidden = False
         if self.main_window.isVisible() and not self.main_window.isMinimized():
             self.update_overlay_geometry()
-            self.control_overlay.show()
+            self.fade_overlay_in()
         self.schedule_overlay_hide()
 
     def schedule_overlay_hide(self):
@@ -460,8 +529,8 @@ class VideoFrame(QWidget):
             return
         if self._overlay_interaction_blocked():
             return
-        self.control_overlay.hide()
         self._overlay_auto_hidden = True
+        self.fade_overlay_out()
 
     def _sync_overlay_auto_hide(self):
         """Oynatma state geçişlerinde görünürlüğü ve sayacı hizalar."""
@@ -475,7 +544,7 @@ class VideoFrame(QWidget):
         self._overlay_auto_hidden = False
         if self.main_window.isVisible() and not self.main_window.isMinimized():
             self.update_overlay_geometry()
-            self.control_overlay.show()
+            self.fade_overlay_in()
 
     def _is_player_surface_active(self):
         return QApplication.activeWindow() in (
@@ -485,7 +554,7 @@ class VideoFrame(QWidget):
         if self.control_overlay is None:
             return
         if not self.main_window.isVisible() or self.main_window.isMinimized():
-            self.control_overlay.hide()
+            self.hide_overlay_immediately()
             return
         # Dar pencerede sağ kontrol grubu sığsın diye yan iç boşluk daralır;
         # böylece hiçbir ikon kırpılmaz ve katman video genişliğini aşmaz.
@@ -530,7 +599,7 @@ class VideoFrame(QWidget):
         if (self.control_overlay is not None and self.main_window.isVisible()
                 and not self.main_window.isMinimized()):
             self.update_overlay_geometry()
-            self.control_overlay.show()
+            self.fade_overlay_in()
             self.schedule_overlay_hide()
 
     def _restore_overlay_after_activation(self):
@@ -563,12 +632,12 @@ class VideoFrame(QWidget):
             if (event.type() == QEvent.Type.Hide or
                     (event.type() == QEvent.Type.WindowDeactivate and
                      not self._is_player_surface_active())):
-                self.control_overlay.hide()
+                self.hide_overlay_immediately()
             elif event.type() == QEvent.Type.Show:
                 QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
             elif event.type() == QEvent.Type.WindowStateChange:
                 if self.main_window.isMinimized():
-                    self.control_overlay.hide()
+                    self.hide_overlay_immediately()
                 else:
                     QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
             elif event.type() in (QEvent.Type.Move, QEvent.Type.Resize,
@@ -585,6 +654,8 @@ class VideoFrame(QWidget):
 
     def close_control_overlay(self):
         if self.control_overlay is not None:
+            if self.overlay_fade is not None:
+                self.overlay_fade.stop()
             self.control_overlay.hide()
             self.control_overlay.close()
 
