@@ -1,8 +1,11 @@
 import os
+import math
 
 from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QMenu, QHBoxLayout, QPushButton, QSlider
 from PyQt6.QtGui import QAction
 from PyQt6.QtCore import Qt, QTimer, QPoint, QEvent
+from app.ui_components import ClickableSlider
+from app.utils import format_time
 
 class VideoFrame(QWidget):
     def __init__(self, parent=None):
@@ -10,6 +13,7 @@ class VideoFrame(QWidget):
         self.main_window = parent
         self.is_video_fullscreen = False
         self.control_overlay = None
+        self._overlay_updating_position = False
 
         # Mouse takibi için
         self.setMouseTracking(True)
@@ -83,38 +87,106 @@ class VideoFrame(QWidget):
         )
 
         layout = QHBoxLayout(self.control_overlay)
-        layout.setContentsMargins(8, 4, 8, 4)
-        layout.setSpacing(2)
+        layout.setContentsMargins(4, 3, 4, 3)
+        layout.setSpacing(0)
 
         previous = QPushButton("Önceki")
-        previous.setFixedWidth(60)
+        previous.setFixedWidth(50)
         previous.clicked.connect(lambda: self.main_window.play_previous())
         layout.addWidget(previous)
 
-        play_pause = QPushButton("Oynat")
-        play_pause.setFixedWidth(60)
-        play_pause.clicked.connect(lambda: self.main_window.play_pause())
-        layout.addWidget(play_pause)
+        self.overlay_play_pause_button = QPushButton("Oynat")
+        self.overlay_play_pause_button.setFixedWidth(50)
+        self.overlay_play_pause_button.clicked.connect(lambda: self.main_window.play_pause())
+        layout.addWidget(self.overlay_play_pause_button)
 
         next_button = QPushButton("Sonraki")
-        next_button.setFixedWidth(60)
+        next_button.setFixedWidth(50)
         next_button.clicked.connect(lambda: self.main_window.play_next())
         layout.addWidget(next_button)
 
-        timeline = QSlider(Qt.Orientation.Horizontal)
-        timeline.setRange(0, 1000)
-        timeline.setMinimumWidth(30)
-        timeline.setObjectName("overlayTimeline")
-        timeline.valueChanged.connect(lambda value: self.main_window.seek_position(value))
-        layout.addWidget(timeline, 1)
+        self.overlay_current_time_label = QLabel("00:00")
+        self.overlay_current_time_label.setFixedWidth(38)
+        layout.addWidget(self.overlay_current_time_label)
+
+        self.overlay_timeline = ClickableSlider(Qt.Orientation.Horizontal)
+        self.overlay_timeline.setRange(0, 1000)
+        self.overlay_timeline.setMinimumWidth(20)
+        self.overlay_timeline.setObjectName("overlayTimeline")
+        self.overlay_timeline.valueChanged.connect(self._overlay_seek)
+        layout.addWidget(self.overlay_timeline, 1)
+
+        self.overlay_total_time_label = QLabel("00:00")
+        self.overlay_total_time_label.setFixedWidth(38)
+        layout.addWidget(self.overlay_total_time_label)
 
         fullscreen = QPushButton("Tam Ekran")
-        fullscreen.setFixedWidth(78)
+        fullscreen.setFixedWidth(65)
         fullscreen.clicked.connect(lambda: self.main_window.toggle_fullscreen())
         layout.addWidget(fullscreen)
 
         self.main_window.installEventFilter(self)
         self.installEventFilter(self)
+
+    def _overlay_seek(self, value):
+        if not self._overlay_updating_position:
+            self.main_window.seek_position(value)
+
+    @staticmethod
+    def _format_overlay_time(seconds):
+        try:
+            seconds = float(seconds)
+            if not math.isfinite(seconds) or seconds < 0:
+                return "00:00"
+            seconds = int(seconds)
+        except (TypeError, ValueError):
+            return "00:00"
+        if seconds >= 3600:
+            hours, remainder = divmod(seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            return f"{hours}:{minutes:02d}:{seconds:02d}"
+        return format_time(seconds)
+
+    def update_overlay_state(self):
+        if self.control_overlay is None:
+            return
+
+        try:
+            duration = float(getattr(self.main_window, "duration", 0) or 0)
+            position = float(getattr(self.main_window, "position", 0) or 0)
+        except (TypeError, ValueError):
+            duration = 0
+            position = 0
+
+        valid_duration = math.isfinite(duration) and duration > 0
+        valid_position = math.isfinite(position) and position >= 0
+        if valid_duration:
+            position = min(position if valid_position else 0, duration)
+            timeline_value = int((position * 1000) / duration)
+        else:
+            position = 0
+            timeline_value = 0
+
+        if not self.overlay_timeline.isSliderDown():
+            if self.overlay_timeline.value() != timeline_value:
+                self._overlay_updating_position = True
+                self.overlay_timeline.setValue(timeline_value)
+                self._overlay_updating_position = False
+
+        current_text = self._format_overlay_time(position)
+        total_text = self._format_overlay_time(duration if valid_duration else 0)
+        if self.overlay_current_time_label.text() != current_text:
+            self.overlay_current_time_label.setText(current_text)
+        if self.overlay_total_time_label.text() != total_text:
+            self.overlay_total_time_label.setText(total_text)
+
+    def update_overlay_play_state(self):
+        if self.control_overlay is None:
+            return
+        play_pause_text = (
+            "Oynat" if getattr(self.main_window, "is_paused", True) else "Duraklat")
+        if self.overlay_play_pause_button.text() != play_pause_text:
+            self.overlay_play_pause_button.setText(play_pause_text)
 
     def _is_player_surface_active(self):
         return QApplication.activeWindow() in (

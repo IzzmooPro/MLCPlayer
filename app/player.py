@@ -200,6 +200,8 @@ class MPVPlayer(QMainWindow):
                         self.position_slider.setValue(relative_pos)
                         self._updating_position_slider = False
                 self.update_time_label()
+                if self.video_frame.control_overlay is not None:
+                    self.video_frame.update_overlay_state()
 
             # Dosya sonuna ulaşıldıysa oynatma listesinde otomatik sıradaki dosyaya geç
             # NOT: Bu mpv build'i vo=gpu+wid ile END_FILE event'i göndermiyor;

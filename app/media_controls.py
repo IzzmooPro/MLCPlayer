@@ -67,6 +67,8 @@ def open_path(player, path):
         player.mpv_player.play(path)
         player.play_button.setIcon(player.pause_icon)
         player.is_paused = False
+        if player.video_frame.control_overlay is not None:
+            player.video_frame.update_overlay_play_state()
         player.video_frame.placeholder_label.hide()
         player.set_title()
         player.add_recent_file(path)
@@ -103,6 +105,8 @@ def open_url(player):
             player.mpv_player.play(url)
             player.play_button.setIcon(player.pause_icon)
             player.is_paused = False
+            if player.video_frame.control_overlay is not None:
+                player.video_frame.update_overlay_play_state()
             player.video_frame.placeholder_label.hide()
             player.set_title()
             player.add_recent_file(url)
@@ -229,6 +233,8 @@ def play_pause(player):
         player.mpv_player.pause = False
         player.play_button.setIcon(player.pause_icon)
         player.is_paused = False
+    if player.video_frame.control_overlay is not None:
+        player.video_frame.update_overlay_play_state()
 
 def stop(player):
     try:
@@ -245,6 +251,8 @@ def stop(player):
     player._chapter_menu_file = ""
     player._pending_subs = []
     player.current_file = ""
+    if player.video_frame.control_overlay is not None:
+        player.video_frame.update_overlay_play_state()
     player.set_title()
     # duration'ı önce sıfırla ki slider sıfırlanması gereksiz seek tetiklemesin
     player._updating_position_slider = True
@@ -373,6 +381,8 @@ def play_from_playlist(player, index):
             player.mpv_player.play(file_path)
             player.play_button.setIcon(player.pause_icon)
             player.is_paused = False
+            if player.video_frame.control_overlay is not None:
+                player.video_frame.update_overlay_play_state()
             player.video_frame.placeholder_label.hide()
             player.set_title()
             player.add_recent_file(file_path)
