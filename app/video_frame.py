@@ -2,16 +2,19 @@ import os
 import math
 
 from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QMenu, QHBoxLayout,
-                             QPushButton, QSlider, QVBoxLayout)
+                             QPushButton, QSizePolicy, QSlider, QVBoxLayout)
 from PyQt6.QtGui import QAction
 from PyQt6.QtCore import Qt, QTimer, QPoint, QSize, QEvent
 from app.ui_components import ClickableSlider
 from app.ui_icons import make_media_icon
 from app.utils import format_time
+from app.config import MAX_VOLUME
 
 # Sinematik kontrol katmanı ölçüleri (onaylanmış referans görsele göre).
 OVERLAY_HEIGHT = 110
 OVERLAY_SIDE_PADDING = 28
+OVERLAY_NARROW_SIDE_PADDING = 12
+OVERLAY_NARROW_WIDTH = 560
 OVERLAY_ACCENT = "#F26A3D"
 
 class VideoFrame(QWidget):
@@ -21,6 +24,7 @@ class VideoFrame(QWidget):
         self.is_video_fullscreen = False
         self.control_overlay = None
         self._overlay_updating_position = False
+        self._overlay_updating_volume = False
 
         # Mouse takibi için
         self.setMouseTracking(True)
@@ -131,22 +135,28 @@ class VideoFrame(QWidget):
         self.overlay_current_time_label = QLabel("00:00")
         self.overlay_current_time_label.setStyleSheet(
             f"color: {OVERLAY_ACCENT}; background: transparent; font-size: 13px;")
-        separator = QLabel("/")
-        separator.setStyleSheet(
+        self.overlay_time_separator = QLabel("/")
+        self.overlay_time_separator.setStyleSheet(
             "color: #B9BFC6; background: transparent; font-size: 13px;")
+        separator = self.overlay_time_separator
         self.overlay_total_time_label = QLabel("00:00")
         self.overlay_total_time_label.setStyleSheet(
             "color: #D6DBE1; background: transparent; font-size: 13px;")
         for widget in (self.overlay_current_time_label, separator,
                        self.overlay_total_time_label):
             time_row.addWidget(widget)
-        time_container = QWidget(self.control_overlay)
+        self.overlay_time_container = QWidget(self.control_overlay)
+        time_container = self.overlay_time_container
         time_container.setLayout(time_row)
         time_container.setStyleSheet("background: transparent;")
         # Sol ve sağ bloklar eşit stretch payı alır; böylece ortadaki medya
         # kontrolleri katmanın gerçek yatay merkezine oturur ve dar pencerede
         # ikisi birlikte küçülür.
         time_container.setMinimumWidth(0)
+        # Dar pencerede tek esnek öğe süre metnidir; ikonlar tam boyutta
+        # kalabilsin diye bu blok sıkışabilir.
+        time_container.setSizePolicy(QSizePolicy.Policy.Ignored,
+                                     QSizePolicy.Policy.Preferred)
         controls.addWidget(time_container, 1, Qt.AlignmentFlag.AlignVCenter |
                            Qt.AlignmentFlag.AlignLeft)
 
@@ -170,13 +180,52 @@ class VideoFrame(QWidget):
         next_button.clicked.connect(lambda: self.main_window.play_next())
         controls.addWidget(next_button, 0, Qt.AlignmentFlag.AlignVCenter)
 
-        fullscreen = self._make_overlay_button(
-            "overlayFullscreen", "fullscreen", "Tam Ekran", 30, 18)
-        fullscreen.clicked.connect(lambda: self.main_window.toggle_fullscreen())
         right_row = QHBoxLayout()
         right_row.setContentsMargins(0, 0, 0, 0)
         right_row.setSpacing(0)
         right_row.addStretch(1)
+
+        # Referans sırası: CC, ses, ayarlar, ses çubuğu, tam ekran
+        subtitles = self._make_overlay_button(
+            "overlaySubtitles", "subtitles", "Altyazıları Göster/Gizle", 30, 18)
+        subtitles.clicked.connect(lambda: self.main_window.toggle_subtitles())
+        right_row.addWidget(subtitles, 0, Qt.AlignmentFlag.AlignVCenter)
+        right_row.addSpacing(10)
+
+        self.overlay_volume_button = self._make_overlay_button(
+            "overlayVolume", "volume", "Sessiz", 30, 18)
+        self.overlay_volume_button.clicked.connect(
+            lambda: self.main_window.toggle_mute())
+        right_row.addWidget(self.overlay_volume_button, 0,
+                            Qt.AlignmentFlag.AlignVCenter)
+        right_row.addSpacing(10)
+
+        settings = self._make_overlay_button(
+            "overlaySettings", "settings", "Video Ayarları", 30, 18)
+        settings.clicked.connect(lambda: self.main_window.setup_video_adjustments())
+        right_row.addWidget(settings, 0, Qt.AlignmentFlag.AlignVCenter)
+        right_row.addSpacing(10)
+
+        self.overlay_volume_slider = ClickableSlider(Qt.Orientation.Horizontal)
+        self.overlay_volume_slider.setObjectName("overlayVolumeSlider")
+        self.overlay_volume_slider.setRange(0, MAX_VOLUME)
+        self.overlay_volume_slider.setFixedHeight(14)
+        self.overlay_volume_slider.setMinimumWidth(40)
+        self.overlay_volume_slider.setMaximumWidth(96)
+        self.overlay_volume_slider.setToolTip("Ses Seviyesi")
+        self.overlay_volume_slider.valueChanged.connect(self._overlay_volume_changed)
+        source = getattr(self.main_window, "volume_slider", None)
+        if source is not None:
+            self._overlay_updating_volume = True
+            self.overlay_volume_slider.setValue(int(source.value()))
+            self._overlay_updating_volume = False
+        right_row.addWidget(self.overlay_volume_slider, 0,
+                            Qt.AlignmentFlag.AlignVCenter)
+        right_row.addSpacing(12)
+
+        fullscreen = self._make_overlay_button(
+            "overlayFullscreen", "fullscreen", "Tam Ekran", 30, 18)
+        fullscreen.clicked.connect(lambda: self.main_window.toggle_fullscreen())
         right_row.addWidget(fullscreen, 0, Qt.AlignmentFlag.AlignVCenter)
         right_container = QWidget(self.control_overlay)
         right_container.setLayout(right_row)
@@ -208,6 +257,40 @@ class VideoFrame(QWidget):
     def _overlay_seek(self, value):
         if not self._overlay_updating_position:
             self.main_window.seek_position(value)
+
+    def _overlay_volume_changed(self, value):
+        """Kullanıcı overlay ses çubuğunu değiştirdiğinde ürünün gerçek
+        ses akışını (klasik volume_slider -> set_volume) çalıştırır."""
+        if self._overlay_updating_volume:
+            return
+        source = getattr(self.main_window, "volume_slider", None)
+        if source is not None and source.value() != int(value):
+            source.setValue(int(value))
+
+    def _update_overlay_volume_state(self):
+        """Klasik slider, klavye, mute veya ayar geri yükleme kaynaklı ses
+        değişimlerini overlay'e yansıtır. Ek timer kullanmaz."""
+        slider = getattr(self, "overlay_volume_slider", None)
+        if slider is None:
+            return
+        source = getattr(self.main_window, "volume_slider", None)
+        if source is not None and not slider.isSliderDown():
+            value = int(source.value())
+            if slider.value() != value:
+                # Programatik güncelleme ikinci bir set_volume üretmemeli.
+                self._overlay_updating_volume = True
+                slider.setValue(value)
+                self._overlay_updating_volume = False
+
+        muted = (bool(getattr(self.main_window, "is_muted", False))
+                 or slider.value() == 0)
+        label = "Sesi Aç" if muted else "Sessiz"
+        button = self.overlay_volume_button
+        if button.accessibleName() != label:
+            button.setAccessibleName(label)
+            button.setToolTip(label)
+            button.setIcon(make_media_icon(
+                "volume_muted" if muted else "volume", button.iconSize().width()))
 
     @staticmethod
     def _format_overlay_time(seconds):
@@ -257,6 +340,8 @@ class VideoFrame(QWidget):
         if self.overlay_total_time_label.text() != total_text:
             self.overlay_total_time_label.setText(total_text)
 
+        self._update_overlay_volume_state()
+
     def update_overlay_play_state(self):
         if self.control_overlay is None:
             return
@@ -282,6 +367,26 @@ class VideoFrame(QWidget):
         if not self.main_window.isVisible() or self.main_window.isMinimized():
             self.control_overlay.hide()
             return
+        # Dar pencerede sağ kontrol grubu sığsın diye yan iç boşluk daralır;
+        # böylece hiçbir ikon kırpılmaz ve katman video genişliğini aşmaz.
+        narrow = self.width() < OVERLAY_NARROW_WIDTH
+        layout = self.control_overlay.layout()
+        if layout is not None:
+            padding = (OVERLAY_NARROW_SIDE_PADDING if narrow
+                       else OVERLAY_SIDE_PADDING)
+            current = layout.contentsMargins()
+            if current.left() != padding:
+                layout.setContentsMargins(padding, current.top(),
+                                          padding, current.bottom())
+
+        # Dar pencerede süre metni yarım gösterilmektense tamamen gizlenir;
+        # genişleyince kendiliğinden geri gelir.
+        for widget in (self.overlay_current_time_label,
+                       self.overlay_time_separator,
+                       self.overlay_total_time_label):
+            if widget.isVisibleTo(self.overlay_time_container) == narrow:
+                widget.setVisible(not narrow)
+
         video_origin = self.mapToGlobal(QPoint(0, 0))
         # Referans: katman video alanının tüm genişliğini kaplar ve alta
         # sıfır boşlukla oturur.

@@ -6,7 +6,8 @@ Windows tema ikonlarına bağımlı kalmamak için sade beyaz glifleri doğrudan
 from PyQt6.QtCore import QPointF, QRectF, Qt
 from PyQt6.QtGui import QColor, QIcon, QPainter, QPainterPath, QPen, QPixmap
 
-ICON_KINDS = ("play", "pause", "previous", "next", "fullscreen")
+ICON_KINDS = ("play", "pause", "previous", "next", "fullscreen",
+              "subtitles", "volume", "volume_muted", "settings")
 
 
 def _triangle(width, height, offset_x=0.0, pointing_right=True):
@@ -86,12 +87,98 @@ def _draw_fullscreen(painter, size, colour):
         painter.drawLine(QPointF(x, y), QPointF(x, y + arm * dy))
 
 
+def _draw_subtitles(painter, size, colour):
+    """Referanstaki gibi ince beyaz çerçeve içinde CC."""
+    pen = QPen(colour)
+    pen.setWidthF(max(1.1, size * 0.055))
+    painter.setPen(pen)
+    inset = size * 0.14
+    rect = QRectF(inset, inset + size * 0.06,
+                  size - inset * 2, size - inset * 2 - size * 0.12)
+    painter.drawRoundedRect(rect, size * 0.09, size * 0.09)
+
+    font = painter.font()
+    font.setPixelSize(max(6, int(size * 0.42)))
+    font.setBold(True)
+    painter.setFont(font)
+    painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, "CC")
+
+
+def _speaker_path(size):
+    path = QPainterPath()
+    body_h = size * 0.26
+    body_w = size * 0.16
+    left = size * 0.16
+    top = (size - body_h) / 2.0
+    path.addRect(QRectF(left, top, body_w, body_h))
+    cone = QPainterPath()
+    cone.moveTo(QPointF(left + body_w, top - size * 0.06))
+    cone.lineTo(QPointF(left + body_w + size * 0.20, top - size * 0.14))
+    cone.lineTo(QPointF(left + body_w + size * 0.20, top + body_h + size * 0.14))
+    cone.lineTo(QPointF(left + body_w, top + body_h + size * 0.06))
+    cone.closeSubpath()
+    return path.united(cone)
+
+
+def _draw_volume(painter, size, colour):
+    painter.fillPath(_speaker_path(size), colour)
+    pen = QPen(colour)
+    pen.setWidthF(max(1.1, size * 0.055))
+    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+    painter.setPen(pen)
+    centre_y = size / 2.0
+    for index, radius in enumerate((size * 0.14, size * 0.24)):
+        rect = QRectF(size * 0.56 - radius + index * size * 0.02,
+                      centre_y - radius, radius * 2, radius * 2)
+        painter.drawArc(rect, -55 * 16, 110 * 16)
+
+
+def _draw_volume_muted(painter, size, colour):
+    painter.fillPath(_speaker_path(size), colour)
+    pen = QPen(colour)
+    pen.setWidthF(max(1.2, size * 0.065))
+    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+    painter.setPen(pen)
+    left = size * 0.60
+    right = size * 0.86
+    top = size * 0.36
+    bottom = size * 0.64
+    painter.drawLine(QPointF(left, top), QPointF(right, bottom))
+    painter.drawLine(QPointF(right, top), QPointF(left, bottom))
+
+
+def _draw_settings(painter, size, colour):
+    """Sade dişli: dış dişler + orta halka."""
+    centre = size / 2.0
+    outer = size * 0.36
+    inner = size * 0.22
+    tooth = size * 0.09
+    pen = QPen(colour)
+    pen.setWidthF(max(1.2, size * 0.075))
+    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+    painter.setPen(pen)
+
+    import math
+    for index in range(8):
+        angle = math.radians(index * 45.0)
+        dx, dy = math.cos(angle), math.sin(angle)
+        painter.drawLine(
+            QPointF(centre + dx * (outer - tooth), centre + dy * (outer - tooth)),
+            QPointF(centre + dx * outer, centre + dy * outer))
+    painter.drawEllipse(QPointF(centre, centre), inner, inner)
+    painter.drawEllipse(QPointF(centre, centre), size * 0.08, size * 0.08)
+
+
 _PAINTERS = {
     "play": _draw_play,
     "pause": _draw_pause,
     "previous": lambda p, s, c: _draw_skip(p, s, c, forward=False),
     "next": lambda p, s, c: _draw_skip(p, s, c, forward=True),
     "fullscreen": _draw_fullscreen,
+    "subtitles": _draw_subtitles,
+    "volume": _draw_volume,
+    "volume_muted": _draw_volume_muted,
+    "settings": _draw_settings,
 }
 
 
