@@ -123,15 +123,6 @@ class MPVPlayer(QMainWindow):
         self.setStyleSheet(APP_STYLE)
         self._ui_ready = True
 
-    def get_watch_later_dir(self):
-        appdata = os.environ.get('APPDATA') or os.path.expanduser('~')
-        resume_dir = os.path.join(appdata, APP_NAME, 'watch_later')
-        try:
-            os.makedirs(resume_dir, exist_ok=True)
-        except Exception as e:
-            print(f"watch_later dizini oluşturulamadı: {e}")
-        return resume_dir
-
     def init_mpv_player(self):
         config = MPV_CONFIG.copy()
         config['wid'] = str(int(self.video_frame.winId()))
@@ -141,11 +132,6 @@ class MPVPlayer(QMainWindow):
         config['input_default_bindings'] = False
         config['input_vo_keyboard'] = False
         config['ytdl'] = True
-        # Kaldığı yerden devam için sabit watch-later dizini. mpv'nin varsayılan
-        # config-dir çözümlemesi bu taşınabilir build'de dosya yazdırmıyor;
-        # açıkça ayarlayınca yazıyor (write-watch-later-config ile birlikte).
-        config['watch_later_directory'] = self.get_watch_later_dir()
-
         self.mpv_player = mpv.MPV(**config)
         self.mpv_player.deinterlace = 'no'
         self.mpv_player.untimed = False
@@ -524,14 +510,6 @@ class MPVPlayer(QMainWindow):
             self.video_frame.exit_fullscreen()
         try:
             if self.mpv_player:
-                # Konumu kaydet (resume-playback için). NOT: python-mpv'nin
-                # terminate()'i quit dizisini çalıştırmaz, bu yüzden
-                # save_position_on_quit burada etkisizdir; açıkça kaydet.
-                try:
-                    if self.current_file and self.duration > 0 and self.position > 5:
-                        self.mpv_player.command('write-watch-later-config')
-                except Exception as e:
-                    print(f"Konum kaydetme hatası: {e}")
                 self.mpv_player.terminate()
                 self.mpv_player = None
         except Exception as e:
