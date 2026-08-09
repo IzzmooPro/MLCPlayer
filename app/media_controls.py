@@ -38,6 +38,24 @@ def toggle_mute(player):
         if getattr(player, '_ui_ready', False):
             player.video_frame.show_osd(f"Ses: %{int(restore)}")
 
+def _clear_title_bar_raise(player):
+    """Gerçek yeni yükleme girişimi başlarken eski pending'i temizler."""
+    clear = getattr(player, "clear_title_bar_raise_pending", None)
+    if callable(clear):
+        clear()
+
+
+def _mark_title_bar_raise(player):
+    """Başarılı oynatma sonrası tek seferlik başlık çubuğu z-order yenilemesi.
+
+    Ürün yaşam döngüsü bağlantısı; test double'ları bu metodu tanımlamak
+    zorunda değildir.
+    """
+    mark = getattr(player, "mark_title_bar_raise_pending", None)
+    if callable(mark):
+        mark()
+
+
 def open_file(player):
     file_path, _ = QFileDialog.getOpenFileName(
         player, "Dosya Aç", player.last_dir, f"Medya Dosyaları ({MEDIA_EXTENSIONS})"
@@ -64,7 +82,9 @@ def open_path(player, path):
         if os.path.isfile(path):
             player.last_dir = os.path.dirname(path)
         player._load_started_at = time.time()
+        _clear_title_bar_raise(player)
         player.mpv_player.play(path)
+        _mark_title_bar_raise(player)
         player.play_button.setIcon(player.pause_icon)
         player.is_paused = False
         if player.video_frame.control_overlay is not None:
@@ -102,7 +122,9 @@ def open_url(player):
             player.current_playlist_index = -1
             player.current_file = url
             player._load_started_at = time.time()
+            _clear_title_bar_raise(player)
             player.mpv_player.play(url)
+            _mark_title_bar_raise(player)
             player.play_button.setIcon(player.pause_icon)
             player.is_paused = False
             if player.video_frame.control_overlay is not None:
@@ -378,7 +400,9 @@ def play_from_playlist(player, index):
             player._pending_subs = []
             player.current_file = file_path
             player._load_started_at = time.time()
+            _clear_title_bar_raise(player)
             player.mpv_player.play(file_path)
+            _mark_title_bar_raise(player)
             player.play_button.setIcon(player.pause_icon)
             player.is_paused = False
             if player.video_frame.control_overlay is not None:

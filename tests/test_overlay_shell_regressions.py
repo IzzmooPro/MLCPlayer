@@ -141,10 +141,12 @@ def test_overlay_stays_owned_and_positioned_during_fullscreen(preview_on):
     assert overlay.bottom() == video.bottom()
 
 
-def test_exiting_fullscreen_restores_window_and_menu(preview_on):
+def test_exiting_fullscreen_restores_window_state(preview_on):
+    # NOT: Preview modunda klasik QMenuBar zaten gizlidir ve gizli kalmalıdır;
+    # yerine modern başlık çubuğu geri gelir (bkz. title bar shell testleri).
     assert preview_on["fullscreen_flag_after_exit"] is False
     assert preview_on["window_is_fullscreen_after_exit"] is False
-    assert preview_on["menu_visible_after_exit"] is True
+    assert preview_on["menu_visible_after_exit"] is False
     assert preview_on["geometry_after_exit"] == \
         preview_on["geometry_before_fullscreen"]
     assert len(preview_on["visible_top_levels_after_exit"]) == 1

@@ -7,7 +7,9 @@ from PyQt6.QtCore import QPointF, QRectF, Qt
 from PyQt6.QtGui import QColor, QIcon, QPainter, QPainterPath, QPen, QPixmap
 
 ICON_KINDS = ("play", "pause", "previous", "next", "fullscreen",
-              "subtitles", "volume", "volume_muted", "settings")
+              "subtitles", "volume", "volume_muted", "settings",
+              "open_folder", "playlist", "more", "minimize",
+              "maximize", "restore", "close")
 
 
 def _triangle(width, height, offset_x=0.0, pointing_right=True):
@@ -169,6 +171,82 @@ def _draw_settings(painter, size, colour):
     painter.drawEllipse(QPointF(centre, centre), size * 0.08, size * 0.08)
 
 
+
+def _stroke_pen(painter, size, colour, weight=0.065):
+    pen = QPen(colour)
+    pen.setWidthF(max(1.1, size * weight))
+    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+    pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+    painter.setPen(pen)
+    return pen
+
+
+def _draw_open_folder(painter, size, colour):
+    _stroke_pen(painter, size, colour)
+    left, right = size * 0.14, size * 0.86
+    top, bottom = size * 0.28, size * 0.76
+    path = QPainterPath()
+    path.moveTo(QPointF(left, bottom))
+    path.lineTo(QPointF(left, top))
+    path.lineTo(QPointF(left + size * 0.22, top))
+    path.lineTo(QPointF(left + size * 0.30, top + size * 0.10))
+    path.lineTo(QPointF(right, top + size * 0.10))
+    painter.drawPath(path)
+    painter.drawLine(QPointF(left, bottom), QPointF(right, bottom))
+    painter.drawLine(QPointF(right, top + size * 0.10), QPointF(right, bottom))
+
+
+def _draw_playlist(painter, size, colour):
+    _stroke_pen(painter, size, colour)
+    left, right = size * 0.16, size * 0.84
+    for index in range(3):
+        y = size * 0.30 + index * size * 0.20
+        painter.drawLine(QPointF(left, y), QPointF(right, y))
+
+
+def _draw_more(painter, size, colour):
+    painter.setPen(Qt.PenStyle.NoPen)
+    radius = size * 0.075
+    for index in range(3):
+        centre_y = size * 0.26 + index * size * 0.24
+        path = QPainterPath()
+        path.addEllipse(QPointF(size / 2.0, centre_y), radius, radius)
+        painter.fillPath(path, colour)
+
+
+def _draw_minimize(painter, size, colour):
+    _stroke_pen(painter, size, colour, 0.055)
+    painter.drawLine(QPointF(size * 0.22, size / 2.0),
+                     QPointF(size * 0.78, size / 2.0))
+
+
+def _draw_maximize(painter, size, colour):
+    _stroke_pen(painter, size, colour, 0.055)
+    inset = size * 0.24
+    painter.drawRect(QRectF(inset, inset, size - inset * 2, size - inset * 2))
+
+
+def _draw_restore(painter, size, colour):
+    _stroke_pen(painter, size, colour, 0.055)
+    inset = size * 0.20
+    span = size * 0.44
+    painter.drawRect(QRectF(inset, inset + size * 0.12, span, span))
+    path = QPainterPath()
+    path.moveTo(QPointF(inset + size * 0.12, inset + size * 0.12))
+    path.lineTo(QPointF(inset + size * 0.12, inset))
+    path.lineTo(QPointF(inset + span + size * 0.12, inset))
+    path.lineTo(QPointF(inset + span + size * 0.12, inset + span))
+    path.lineTo(QPointF(inset + span, inset + span))
+    painter.drawPath(path)
+
+
+def _draw_close(painter, size, colour):
+    _stroke_pen(painter, size, colour, 0.055)
+    left, right = size * 0.26, size * 0.74
+    painter.drawLine(QPointF(left, left), QPointF(right, right))
+    painter.drawLine(QPointF(right, left), QPointF(left, right))
+
+
 _PAINTERS = {
     "play": _draw_play,
     "pause": _draw_pause,
@@ -179,6 +257,13 @@ _PAINTERS = {
     "volume": _draw_volume,
     "volume_muted": _draw_volume_muted,
     "settings": _draw_settings,
+    "open_folder": _draw_open_folder,
+    "playlist": _draw_playlist,
+    "more": _draw_more,
+    "minimize": _draw_minimize,
+    "maximize": _draw_maximize,
+    "restore": _draw_restore,
+    "close": _draw_close,
 }
 
 

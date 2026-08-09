@@ -7,6 +7,8 @@ from PyQt6.QtCore import Qt, QTimer, QSettings
 
 from app.config import APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, APP_STYLE, DEFAULT_VOLUME, MAX_VOLUME, MPV_CONFIG, MEDIA_EXTENSIONS, SUBTITLE_EXTENSIONS, SUBTITLE_DEFAULTS
 from app.video_frame import VideoFrame
+from app.title_bar import (RESIZE_MARGIN, FramelessResizeFilter,
+                           TitleBar)
 from app.ui_components import setup_controls
 from app.menu_actions import setup_menu, setup_video_adjustments, show_subtitle_settings, refresh_audio_tracks, refresh_audio_devices, refresh_subtitle_tracks, refresh_chapters, select_chapter, select_audio_track, select_audio_device, show_shortcuts, show_about, update_recent_menu
 from app.errors import show_user_error, log
@@ -29,8 +31,15 @@ class MPVPlayer(QMainWindow):
         self.setMinimumSize(400, 300)  # Minimum pencere boyutu
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)  # Yeniden boyutlandırmaya izin ver
 
-        # Pencere bayraklarını ayarla
-        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Window)
+        # Preview modunda frameless bayrağı, herhangi bir native pencere
+        # oluşturulmadan ÖNCE ayarlanmalıdır. Aksi halde Qt show() sırasında
+        # top-level pencereyi yeniden yaratır, mpv'nin wid child penceresi
+        # geçersizleşir ve video başlık çubuğunun üstünü kaplar.
+        self.preview_mode = os.environ.get("MLCPLAYER_OVERLAY_PREVIEW") == "1"
+        window_flags = self.windowFlags() | Qt.WindowType.Window
+        if self.preview_mode:
+            window_flags |= Qt.WindowType.FramelessWindowHint
+        self.setWindowFlags(window_flags)
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
@@ -59,6 +68,8 @@ class MPVPlayer(QMainWindow):
         self._chapter_menu_file = ""
         # Medya ile birlikte bırakılan ama henüz yüklenmemiş dosyaya eklenemeyen altyazılar
         self._pending_subs = []
+        # Oynatma başlayınca başlık çubuğunu bir kez öne alma bayrağı
+        self._title_bar_raise_pending = False
         # Döngü ve karışık mod bayrakları
         self.loop_file = False
         self.loop_playlist = False
@@ -74,6 +85,24 @@ class MPVPlayer(QMainWindow):
 
         # Menü çubuğu
         setup_menu(self)
+
+        # Preview modunda klasik başlık çubuğu yerine modern özel çubuk.
+        # Normal (preview kapalı) davranış hiçbir şekilde değişmez.
+        self.title_bar = None
+        self.resize_filter = None
+        if self.preview_mode:
+            self.menuBar().hide()
+            self.title_bar = TitleBar(self)
+            self.main_layout.addWidget(self.title_bar)
+            # NOT: mpv native yüzeyi normal child widget'ların üstünü
+            # kapatabiliyor (projedeki OSD/overlay ile aynı sorun). Başlık
+            # çubuğuna kendi native penceresini verip z-order'da öne alıyoruz.
+            self.title_bar.setAttribute(Qt.WidgetAttribute.WA_NativeWindow, True)
+            self.title_bar.winId()
+            # Kenar resize bölgesi pencereye ait kalsın diye ince iç boşluk.
+            self.main_layout.setContentsMargins(
+                RESIZE_MARGIN, RESIZE_MARGIN, RESIZE_MARGIN, RESIZE_MARGIN)
+            self.setMouseTracking(True)
 
         # Video çerçevesi
         self.video_frame = VideoFrame(self)
@@ -124,7 +153,60 @@ class MPVPlayer(QMainWindow):
 
         # Stil
         self.setStyleSheet(APP_STYLE)
+
+        # mpv native yüzeyi kurulduktan SONRA başlık çubuğunu z-order'da
+        # tekrar öne al.
+        self.ensure_title_bar_on_top()
+
+        # Resize filtresi ancak pencere tamamen kurulduktan sonra takılır.
+        if self.preview_mode and self.title_bar is not None:
+            self.resize_filter = FramelessResizeFilter(self, self.title_bar)
+            self.resize_filter.install()
+
         self._ui_ready = True
+
+    def clear_title_bar_raise_pending(self):
+        """Yeni bir medya yükleme girişimi başladığında eski işareti siler.
+
+        Önceki medyanın pending'i (duration henüz pozitif olmadığı için)
+        tüketilmemiş olabilir; yeni deneme başarısız olursa bu bayrak açık
+        kalmamalıdır.
+        """
+        self._title_bar_raise_pending = False
+
+    def mark_title_bar_raise_pending(self):
+        """Oynatma başlangıcı için tek seferlik z-order yenilemesi işaretler.
+
+        Gerçek mpv_player.play() çağrısı BAŞARILI olduktan hemen sonra
+        çağrılır (open_path, open_url, play_from_playlist). Oynatma hata
+        verirse bayrak açılmaz, dolayısıyla stale pending oluşmaz.
+        """
+        if not getattr(self, "preview_mode", False):
+            return
+        if getattr(self, "title_bar", None) is None:
+            return
+        self._title_bar_raise_pending = True
+
+    def ensure_title_bar_on_top(self):
+        """Başlık çubuğunu güvenli biçimde göster ve z-order'da öne al.
+
+        mpv native yüzeyi normal child widget'ların üstünü kapatabildiği için
+        yaşam döngüsünün belirli noktalarında çağrılır: kurulum sonrası,
+        pencere durum/aktivasyon olaylarında, fullscreen çıkışında ve oynatma
+        başladığında. Sürekli polling yapılmaz; update_ui() içinden yalnızca
+        _title_bar_raise_pending bayrağı açıkken, dosya başına bir kez
+        çağrılır ve bayrak hemen temizlenir.
+        """
+        if not getattr(self, "preview_mode", False):
+            return
+        title_bar = getattr(self, "title_bar", None)
+        if title_bar is None:
+            return
+        if self.video_frame.is_video_fullscreen:
+            return
+        if not title_bar.isVisible():
+            title_bar.show()
+        title_bar.raise_()
 
     def init_mpv_player(self):
         config = MPV_CONFIG.copy()
@@ -205,6 +287,12 @@ class MPVPlayer(QMainWindow):
                 self.update_time_label()
                 if self.video_frame.control_overlay is not None:
                     self.video_frame.update_overlay_state()
+
+            # Oynatma gerçekten başladığında başlık çubuğunu bir kez öne al.
+            # Bayrak hemen temizlendiği için her 100 ms'de raise_ çağrılmaz.
+            if self._title_bar_raise_pending and self.duration > 0:
+                self._title_bar_raise_pending = False
+                self.ensure_title_bar_on_top()
 
             # Dosya sonuna ulaşıldıysa oynatma listesinde otomatik sıradaki dosyaya geç
             # NOT: Bu mpv build'i vo=gpu+wid ile END_FILE event'i göndermiyor;
@@ -511,6 +599,12 @@ class MPVPlayer(QMainWindow):
             print(f"Ayar kaydetme hatası: {e}")
 
         self.timer.stop()
+        # NOT: __dict__ üzerinden okunur; testlerdeki sip stub'larında
+        # normal öznitelik erişimi RuntimeError üretebiliyor.
+        resize_filter = self.__dict__.get("resize_filter")
+        if resize_filter is not None:
+            resize_filter.remove()
+            self.resize_filter = None
         if self.video_frame.is_video_fullscreen:
             self.video_frame.exit_fullscreen()
         try:

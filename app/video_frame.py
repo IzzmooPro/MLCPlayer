@@ -706,8 +706,24 @@ class VideoFrame(QWidget):
         if panel:
             panel.hide()
 
-        window.showFullScreen()
+        title_bar = getattr(window, "title_bar", None)
+        self._title_bar_was_visible = bool(title_bar and title_bar.isVisible())
+        if title_bar:
+            title_bar.hide()
+
+        # Frameless resize kenarı tam ekranda anlamsızdır; video ekranı
+        # tam olarak doldurmalı.
+        layout = getattr(window, "main_layout", None)
+        self._pre_fullscreen_margins = (
+            layout.contentsMargins() if layout is not None else None)
+        if layout is not None:
+            layout.setContentsMargins(0, 0, 0, 0)
+
+        # NOT: Bayrak showFullScreen()'den ÖNCE set edilir; aksi halde
+        # pencere durum olayı sırasında çalışan z-order yardımcısı hâlâ
+        # normal pencere sanıp başlık çubuğunu geri gösteriyordu.
         self.is_video_fullscreen = True
+        window.showFullScreen()
         self.setFocus()
         self.cursor_timer.start()
         self.update_overlay_geometry()
@@ -738,7 +754,24 @@ class VideoFrame(QWidget):
         if panel and getattr(self, "_panel_was_visible", False):
             panel.show()
 
+        title_bar = getattr(window, "title_bar", None)
+        if title_bar and getattr(self, "_title_bar_was_visible", False):
+            title_bar.show()
+
+        layout = getattr(window, "main_layout", None)
+        margins = getattr(self, "_pre_fullscreen_margins", None)
+        if layout is not None and margins is not None:
+            layout.setContentsMargins(margins)
+
+        # NOT: Bayrak, z-order yardımcısından ÖNCE temizlenmelidir; aksi
+        # halde ensure_title_bar_on_top() hâlâ fullscreen sanıp erken döner
+        # ve başlık çubuğunun öne alınması tesadüfi Qt olaylarına kalır.
         self.is_video_fullscreen = False
+
+        ensure = getattr(window, "ensure_title_bar_on_top", None)
+        if callable(ensure):
+            ensure()
+
         self.update_overlay_geometry()
         self.show_overlay_for_interaction()
 
