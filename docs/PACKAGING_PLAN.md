@@ -390,6 +390,106 @@ zaten icerir).
 - Bu bolum hukuki danismanlik DEGILDIR; MLC Player'in butununun lisans durumu
   hakkinda bu turda kesin hukum verilmemistir.
 
+## YAYIN ENGELI: paketlenen mpv-2.dll DAGITILAMAZ (16 Agustos 2026)
+
+**Bu, dagitimi durduran tek maddedir.** Tahmin degil, ikilinin KENDI icinden
+okundu.
+
+`bin/mpv-2.dll` (99.390.990 bayt, 25 Kasim 2024) icine gomulu FFmpeg
+`configure` dizesi:
+
+    --prefix=/__w/mpv-winbuild-cmake/mpv-winbuild-cmake/build64/install/mingw
+    ... --enable-gpl --enable-version3 --enable-nonfree ...
+    --enable-libx264 --enable-libx265 --enable-libxvid
+    --enable-cuda --enable-cuvid --enable-nvdec --enable-nvenc ...
+
+FFmpeg'in kendi `configure` yardim metni `--enable-nonfree` icin sunu der:
+*"allow use of nonfree code, the resulting libs and binaries will be
+unredistributable"*. Yani bu DLL kisisel kullanim icin derlenebilir ama
+**hicbir bicimde ucuncu kisilere dagitilamaz** — ne setup icinde, ne yaninda.
+
+- `--enable-lgpl` YOK; `--enable-gpl` + `--enable-version3` VAR. Yani LGPL
+  degil, GPLv3 tarafindadir. MLC Player da GPLv3 oldugu icin bu KISIM sorun
+  degildir; sorun yalniz `nonfree`dir.
+- nonfree'yi tetikleyen bilesen `fdk-aac` DEGIL: ikilide `libfdk` izi yok,
+  buna karsilik `nvenc`, `cuda`, `cuvid` var. Kaynak CUDA/NVENC tarafidir.
+- `bin/SHA256SUMS.txt` bu dosya icin kaynagi bilerek bos birakiyor
+  ("source/version is intentionally unspecified"). 99 MB'lik bir ikili
+  kaynagi kayitli olmadan dagitilamaz; `yt-dlp`/`deno` icin uygulanan
+  provenance disiplini buna da uygulanmalidir.
+
+**Cozum basit ve dogrulandi:** ayni yukari-akis projenin (`mpv-winbuild-cmake`)
+GUNCEL yapilandirmasi `--enable-nonfree` KULLANMIYOR; yalniz `--enable-gpl`
+ve `--enable-version3` geciyor. Elimizdeki DLL eski/varyant bir yapidir.
+
+Yapilacaklar (release turunda, sirasiyla):
+
+1. `mpv-2.dll` guncel ve `nonfree` ICERMEYEN bir yapiyla degistir.
+2. Degistirdikten SONRA ayni olcumu tekrarla: gomulu `configure` dizesinde
+   `--enable-nonfree` OLMADIGINI dogrula. Bu, kabul kriteridir.
+3. Surum, kaynak URL, boyut ve SHA-256'yi `bin/RUNTIME_MANIFEST.txt` icine
+   yaz; `SHA256SUMS.txt`teki "intentionally unspecified" notunu kaldir.
+4. mpv/FFmpeg icin GPLv3 lisans metnini ve karsilik gelen kaynak erisimini
+   pakete ekle.
+5. Codec/patent tarafi ayrica degerlendirilmeli: `libx264`, `libx265`,
+   `libxvid` GPL'dir (lisans tarafi GPLv3 ile uyumludur) ancak H.264/H.265
+   PATENT yukumlulukleri lisanstan AYRI bir konudur ve ticari dagitimda
+   avukata sorulmalidir.
+
+## Yayin oncesi uyumluluk kontrol listesi
+
+Asagidakiler somut ve dogrulanabilir maddelerdir. Hicbiri hukuki gorus
+degildir.
+
+### Kapatilmasi zorunlu
+
+- [ ] `mpv-2.dll` nonfree olmayan yapiyla degistirildi ve olcumle dogrulandi
+      (yukaridaki bolum).
+- [ ] GPLv3+ birlesik `yt-dlp.exe` ve GPLv3 mpv icin **karsilik gelen kaynak
+      erisimi**: kullaniciya, kullandigi ikiliyle ayni surumun kaynagini
+      sunma yukumlulugu. Pratik yol, her ikili icin surum + kaynak arsiv
+      URL'sini ve bir yedek kopyayi saklamaktir.
+- [ ] Kokteki `LICENSE` (GPLv3, 35.149 bayt) setup icine de girmeli;
+      `licenses/` klasoru pakete kopyalanmali.
+- [ ] GPLv3'un onerdigi dosya basi telif/lisans bildirimleri kaynak
+      dosyalara eklenmeli.
+
+### OpenSubtitles API (olculdu)
+
+Resmi sartlar: her istekte `Api-Key` basligi, uygulama adi + surum tasiyan
+benzersiz `User-Agent`, **saniyede 1 istek** sinirlamasi, indirme kotalari
+kullanici rutbesine bagli.
+
+- [x] `app/opensubtitles.py` `Api-Key` gonderiyor ve
+      `USER_AGENT = "MLC Player Subtitle Center v1"` kullaniyor — sartlara
+      uygun bicimde ad + surum tasiyor.
+- [x] API anahtari kullanicinin kendi anahtaridir; uygulamaya gomulu anahtar
+      YOKTUR.
+- [ ] **ACIK KUSUR:** istemcide ONLEYICI hiz sinirlamasi yok. `429/406`
+      yanitlari `RATE_LIMIT_STATUSES` ile TEPKISEL olarak ele aliniyor, ama
+      istekler arasinda >= 1 sn araligi garanti eden bir mekanizma
+      bulunmuyor. Arama + indirme ard arda tetiklenirse sinir asilabilir ve
+      erisim engellenebilir.
+- [ ] Indirilen altyazilarin yeniden dagitimi ve saklanmasi konusundaki
+      sartlar dogrulanmali (uygulama altyaziyi yalniz kullanicinin diskine
+      yaziyor; baska yere kopyalamiyor).
+
+### Kod imzalama ve SmartScreen
+
+- [ ] Kod imzalama sertifikasi arastirilmali. **Imza, lisans ve telif
+      yukumluluklerinin yerine GECMEZ**; yalnizca dagitim guvenini artirir.
+      Imzasiz setup Windows SmartScreen uyarisi uretir.
+
+### Avukata yoneltilecek acik sorular
+
+1. GPLv3 bir uygulamayla ayni pakette dagitilan GPLv3+ `yt-dlp.exe` icin
+   "karsilik gelen kaynak" yukumlulugunu, kaynak arsiv URL'si sunmak
+   karsiliyor mu, yoksa kopyayi bizim mi barindirmamiz gerekir?
+2. H.264/H.265 decode iceren bir masaustu oynaticinin Turkiye'den ucretsiz
+   dagitiminda patent havuzu (MPEG-LA / Access Advance) yukumlulugu dogar mi?
+3. Kullanicinin kendi OpenSubtitles anahtarini girdigi bir istemcide,
+   servisin "uygulama basina tek anahtar" kurali nasil yorumlanir?
+
 ### Boyut etkisi (olculdu)
 
 `mpv-2.dll` ~99 MB + `deno.exe` ~97 MB + `yt-dlp.exe` ~18 MB; yalnizca bu uc

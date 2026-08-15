@@ -1195,13 +1195,22 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
-**Aralıklı native child takılması** (`default_ui_child.py` /
-`main_entry_child.py`, 180 sn timeout). Tam paketin tek açık kalemi budur ve
-süre maliyetinin çoğunu o üretiyor. Sonraki tur: takılmanın gerçek noktasını
-tespit et, tekrar tekrar koşmadan mevcut çıktı ve kaynaktan hipotez kur.
+**YAYIN ENGELİ — `bin/mpv-2.dll` dağıtılamaz.** İkilinin içine gömülü FFmpeg
+`configure` dizesi `--enable-nonfree` taşıyor; FFmpeg'in kendi tanımıyla bu
+yapı "unredistributable". Ayrıntı, kanıt ve adım adım çözüm
+`docs/PACKAGING_PLAN.md` → "YAYIN ENGELİ: paketlenen mpv-2.dll DAĞITILAMAZ".
+Özet: DLL'i `nonfree` içermeyen güncel bir yapıyla değiştir, ölçümle doğrula,
+provenance'ı `RUNTIME_MANIFEST.txt`'e yaz. Bu kapanmadan setup/EXE turu
+BAŞLAMAZ.
 
-Ardından backlog maddeleri **8 (VLSub), 9 (VLC), 10 (hukuki/uyumluluk)** ve
-kökte eksik olan GPLv3 `LICENSE` + `README`.
+İkinci sırada: OpenSubtitles istemcisinde **önleyici hız sınırlaması yok**
+(servis saniyede 1 istek istiyor; bizde yalnız `429/406` tepkisel ele alınıyor).
+
+Sonra backlog **8 (VLSub)** ve **9 (VLC)** kaynak incelemesi.
+
+Açık ama proaktif iş gerektirmeyen: aralıklı native child takılması
+(`default_ui_child.py` / `main_entry_child.py`). Faz işaretleri yerinde; bir
+sonraki takılmada adım kendini gösterecek. Yeni hipotez olmadan koşma.
 
 DÜZELTME (15 Ağustos 2026): bu bölüm uzun süre "Medya Bilgisi ÖNCE
 tasarlanacak, kod yazılmadı" diyordu; kaynak doğrulamasında madde 5, 6 ve 7
