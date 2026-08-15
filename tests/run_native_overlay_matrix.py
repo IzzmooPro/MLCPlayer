@@ -26,6 +26,7 @@ DEFAULT_ROOT = os.path.dirname(HERE)
 
 MARKER_RE = re.compile(r"^(MARK_[A-Z_]+|RESULTS|VARIANT_APPLIED|SKIP_[A-Z_]+)")
 FOCUS_PID_RE = re.compile(r"^MARK_FOCUS_CHILD_STARTED\b.*\bpid=(\d+)\b", re.MULTILINE)
+RESULTS_RE = re.compile(r"^RESULTS:\s*(.*)$", re.MULTILINE)
 
 
 def parse_focus_child_pid(stdout):
@@ -72,6 +73,79 @@ def cleanup_tracked_child(pid):
         return {"leaked": [], "cleanup_error": f"{type(exc).__name__}: {exc}"}
 
 
+def parse_results_fields(stdout):
+    """Child'ın RESULTS satırındaki anahtar/değerleri tipli olarak okur."""
+    match = RESULTS_RE.search(stdout or "")
+    if not match:
+        return {}
+    fields = {}
+    for token in match.group(1).split():
+        if "=" not in token:
+            continue
+        key, value = token.split("=", 1)
+        if value == "True":
+            value = True
+        elif value == "False":
+            value = False
+        elif value == "None":
+            value = None
+        fields[key] = value
+    return fields
+
+
+def evaluate_behavior(case, fields):
+    """Süreç sağlığı dışında ürün kabul koşullarını da değerlendirir."""
+    if not fields:
+        return []  # no_results zaten ayrı bir başarısızlık nedenidir.
+
+    failures = []
+
+    # Video gerektiren senaryo gerçekten video oynatmalıdır. Aksi halde
+    # "SKIP_PLAY no-video" ile sessizce no-video testine dönüşüp geçiyordu.
+    if case.get("requires_video"):
+        if fields.get("video") is not True:
+            failures.append("video_scenario_without_video")
+        else:
+            def _positive(name):
+                try:
+                    return float(fields.get(name) or 0) > 0
+                except (TypeError, ValueError):
+                    return False
+
+            if not (_positive("playback_duration")
+                    and _positive("playback_time_pos")):
+                failures.append("video_scenario_without_playback_evidence")
+
+    expected_ui = case.get("ui", "cinematic")
+    actual_ui = fields.get("ui")
+    if actual_ui != expected_ui:
+        failures.append(
+            f"ui_mismatch_expected_{expected_ui}_got_{actual_ui or 'missing'}")
+
+    # İzolasyon varyantları özellikleri kasıtlı olarak devre dışı bırakabilir;
+    # davranış kabulü normal/sentetik temel matris için uygulanır.
+    if (expected_ui == "cinematic" and case.get("focus")
+            and case.get("variant", "none") == "none"):
+        # Harness ÖNKOŞULU: ilk ölçüm öncesi player gerçek foreground olmalı.
+        # Sağlanamazsa bu bir ürün hatası DEĞİLDİR; ayrı ve açık bir sonuç
+        # olarak raporlanır (sessizce atlanmaz, başarı da sayılmaz).
+        if fields.get("foreground_precondition") is False:
+            failures.append("foreground_precondition_failed")
+        if (not case.get("synthetic")
+                and fields.get("focus_foreground_confirmed") is not True):
+            failures.append("focus_child_not_foreground")
+        if fields.get("overlay_hidden_on_deactivate") is not True:
+            failures.append("overlay_not_hidden_on_deactivate")
+
+        # Player PID foreground değilken dönüş ölçümü yapılmamıştır; bu
+        # durumu ürün hatası gibi raporlamak yanlış olur.
+        if fields.get("overlay_return_evaluated") is False:
+            failures.append("foreground_not_regained_after_return")
+        elif fields.get("overlay_visible_after_return") is not True:
+            failures.append("overlay_not_restored_after_return")
+    return failures
+
+
 FAILURE_CHECKS = (
     ("timeout", lambda row: row["timed_out"]),
     ("exit_code", lambda row: row["exit_code"] not in (0, None) or
@@ -85,7 +159,10 @@ FAILURE_CHECKS = (
 
 
 def failure_reasons(row):
-    return [name for name, check in FAILURE_CHECKS if check(row)]
+    reasons = [name for name, check in FAILURE_CHECKS if check(row)]
+    reasons.extend(
+        f"behavior:{reason}" for reason in row.get("behavior_failures", []))
+    return reasons
 
 
 def matrix_exit_code(rows):
@@ -96,7 +173,10 @@ def run_case(case, project_root, timeout):
     env = dict(os.environ)
     env["MLC_NATIVE_SMOKE"] = "1"
     env["MLC_NATIVE_PROJECT_ROOT"] = project_root
-    env["MLCPLAYER_OVERLAY_PREVIEW"] = case["preview"]
+    # Sinematik arayüz ürünün TEK arayüzüdür. Klasik kabuğu açan legacy
+    # env matristen kaldırıldı; hiçbir senaryo eski pencereyi açamaz.
+    env.pop("MLCPLAYER_CLASSIC_UI", None)
+    env.pop("MLCPLAYER_OVERLAY_PREVIEW", None)
     env["MLC_NATIVE_FOCUS_HANDOFF"] = "1" if case["focus"] else "0"
     env["MLC_NATIVE_VARIANT"] = case.get("variant", "none")
     env["MLC_NATIVE_SYNTHETIC"] = "1" if case.get("synthetic") else "0"
@@ -137,9 +217,10 @@ def run_case(case, project_root, timeout):
     markers = [line.split()[0].rstrip(":") for line in out.splitlines()
                if MARKER_RE.match(line)]
     real_marks = [m for m in markers if m.startswith("MARK_") or m == "RESULTS"]
+    result_fields = parse_results_fields(out)
     return {
         "name": case["name"],
-        "preview": case["preview"],
+        "ui": case.get("ui", "cinematic"),
         "video": bool(case["video"]),
         "focus": case["focus"],
         "variant": case.get("variant", "none"),
@@ -153,30 +234,37 @@ def run_case(case, project_root, timeout):
         "cleanup_error": cleanup["cleanup_error"],
         "timed_out": timed_out,
         "python_exception": "PYTHON_EXCEPTION" in out or "Traceback (most recent" in err,
+        "result_fields": result_fields,
+        "behavior_failures": evaluate_behavior(case, result_fields),
         "stdout": out,
         "stderr": err,
     }
 
 
 def base_matrix(video):
-    return [
-        {"name": "preview_on_novideo_nofocus", "preview": "1", "video": "", "focus": False},
-        {"name": "preview_on_video_nofocus", "preview": "1", "video": video, "focus": False},
-        {"name": "preview_on_novideo_focus", "preview": "1", "video": "", "focus": True},
-        {"name": "preview_on_video_focus", "preview": "1", "video": video, "focus": True},
-        {"name": "preview_off_video_focus", "preview": "0", "video": video, "focus": True},
+    """Varsayılan sinematik matris: 6 senaryo. Görünür klasik senaryo YOKTUR."""
+    # NOT: `requires_video`, adı "video" olan senaryoların video yolu
+    # verilmediğinde sessizce no-video testine dönüşmesini engeller.
+    cases = [
+        {"name": "default_cinematic_novideo_nofocus", "video": "", "focus": False},
+        {"name": "default_cinematic_video_nofocus", "video": video,
+         "focus": False, "requires_video": True},
+        {"name": "default_cinematic_novideo_focus", "video": "", "focus": True},
+        {"name": "default_cinematic_video_focus", "video": video,
+         "focus": True, "requires_video": True},
         # Madde 4: sentetik aktivasyonun gerçek foreground devrinden farkını ölçer.
-        {"name": "synthetic_preview_on_novideo", "preview": "1", "video": "",
+        {"name": "synthetic_cinematic_novideo", "video": "",
          "focus": True, "synthetic": True},
-        {"name": "synthetic_preview_on_video", "preview": "1", "video": video,
-         "focus": True, "synthetic": True},
+        {"name": "synthetic_cinematic_video", "video": video,
+         "focus": True, "synthetic": True, "requires_video": True},
     ]
+    return cases
 
 
 def variant_matrix(video, variants):
     """İzolasyon varyantları: her koşum üründen tek bir özelliği çıkarır."""
     return [
-        {"name": f"variant_{v}", "preview": "1", "video": video, "focus": True, "variant": v}
+        {"name": f"variant_{v}", "video": video, "focus": True, "variant": v}
         for v in variants
     ]
 
@@ -200,7 +288,7 @@ def run_pyexc_demo(args):
     ok = True
     print("=== KONTROLLU PYEXC GOSTERIMI (normal matrix degildir) ===", flush=True)
     for label, no_excepthook, expected in expectations:
-        case = {"name": f"pyexc_{no_excepthook}", "preview": "1", "video": "",
+        case = {"name": f"pyexc_{no_excepthook}", "video": "",
                 "focus": False, "force_pyexc": True, "no_excepthook": no_excepthook,
                 "idle_ms": 500}
         row = run_case(case, args.project_root, args.timeout)
@@ -222,6 +310,8 @@ def main():
     parser.add_argument("--variants", default="")
     parser.add_argument("--only", default="")
     parser.add_argument("--json-out", default="")
+    # NOT: Klasik arayuzu matrise ekleyen secenek KALDIRILDI. Eski kabugu
+    # gercek Windows penceresinde aciyordu; sinematik tasarim tek arayuzdur.
     parser.add_argument(
         "--force-pyexc-demo", action="store_true",
         help="Kontrollü gösterim: slot içindeki Python istisnasının 0xC0000409 "

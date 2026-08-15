@@ -10,6 +10,8 @@ import os
 import pytest
 
 RUNNER_PATH = os.path.join(os.path.dirname(__file__), "run_native_overlay_matrix.py")
+SMOKE_CHILD_PATH = os.path.join(
+    os.path.dirname(__file__), "native_overlay_smoke_child.py")
 
 
 def load_runner():
@@ -39,6 +41,7 @@ def make_row(**overrides):
         "timed_out": False,
         "python_exception": False,
         "cleanup_error": None,
+        "behavior_failures": [],
         "stdout": "",
         "stderr": "",
     }
@@ -58,6 +61,12 @@ def make_row(**overrides):
 ])
 def test_failure_conditions_are_detected(overrides):
     assert runner.failure_reasons(make_row(**overrides))
+
+
+def test_behavior_failures_are_detected_and_named():
+    reasons = runner.failure_reasons(make_row(
+        behavior_failures=["overlay_not_hidden_on_deactivate"]))
+    assert "behavior:overlay_not_hidden_on_deactivate" in reasons
 
 
 def test_clean_row_has_no_failure_reasons():
@@ -84,7 +93,7 @@ def test_main_returns_non_zero_when_a_case_fails(monkeypatch):
     )
     monkeypatch.setattr(
         "sys.argv",
-        ["run_native_overlay_matrix.py", "--only", "preview_on_novideo_nofocus"],
+        ["run_native_overlay_matrix.py", "--only", "default_cinematic_novideo_nofocus"],
     )
     assert runner.main() != 0
 
@@ -97,7 +106,7 @@ def test_main_returns_zero_when_all_cases_pass(monkeypatch):
     )
     monkeypatch.setattr(
         "sys.argv",
-        ["run_native_overlay_matrix.py", "--only", "preview_on_novideo_nofocus"],
+        ["run_native_overlay_matrix.py", "--only", "default_cinematic_novideo_nofocus"],
     )
     assert runner.main() == 0
 
@@ -170,3 +179,132 @@ def test_runner_has_no_broad_process_scan():
         source = handle.read()
     assert "stray_focus_children" not in source
     assert "Win32_Process" not in source
+
+
+def test_base_matrix_default_never_opens_visible_classic_ui():
+    names = [case["name"] for case in runner.base_matrix("video.mkv")]
+    assert names == [
+        "default_cinematic_novideo_nofocus",
+        "default_cinematic_video_nofocus",
+        "default_cinematic_novideo_focus",
+        "default_cinematic_video_focus",
+        "synthetic_cinematic_novideo",
+        "synthetic_cinematic_video",
+    ]
+
+
+def test_matrix_can_no_longer_add_a_visible_classic_case():
+    """Ürün kararı: eski kabuk hiçbir matris senaryosunda açılmaz."""
+    import inspect
+
+    assert "include_classic" not in inspect.signature(
+        runner.base_matrix).parameters
+    cases = runner.base_matrix("video.mkv")
+    names = [case["name"] for case in cases]
+    assert "diagnostic_classic_video_focus" not in names
+    assert not [case for case in cases if case.get("ui") == "classic"]
+    assert len(cases) == 6, f"sinematik matris 6 senaryo olmalı: {names}"
+
+
+def test_cinematic_cases_do_not_set_the_classic_diagnostic_flag(monkeypatch):
+    monkeypatch.setenv("MLCPLAYER_CLASSIC_UI", "1")
+    captured = {}
+
+    def fake_run(argv, env=None, **kwargs):
+        captured["env"] = env
+        raise AssertionError("stop-before-launch")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    case = runner.base_matrix("")[0]
+    with pytest.raises(AssertionError):
+        runner.run_case(case, os.path.dirname(os.path.dirname(__file__)), 5)
+    assert "MLCPLAYER_CLASSIC_UI" not in captured["env"]
+    assert "MLCPLAYER_OVERLAY_PREVIEW" not in captured["env"]
+
+
+def test_every_case_clears_the_classic_env(monkeypatch):
+    """Kullanıcı ortamında legacy anahtar olsa bile matris onu temizler."""
+    monkeypatch.setenv("MLCPLAYER_CLASSIC_UI", "1")
+    root = os.path.dirname(os.path.dirname(__file__))
+
+    for case in runner.base_matrix("v.mkv"):
+        captured = {}
+
+        def fake_run(argv, env=None, **kwargs):
+            captured["env"] = env
+            raise AssertionError("stop-before-launch")
+
+        monkeypatch.setattr(runner.subprocess, "run", fake_run)
+        with pytest.raises(AssertionError):
+            runner.run_case(case, root, 5)
+        assert "MLCPLAYER_CLASSIC_UI" not in captured["env"], (
+            f"{case['name']} klasik kabuğu açabiliyor")
+
+
+def test_native_smoke_child_never_opens_the_classic_shell():
+    """Child hiçbir yerde klasik kabuğu açan env'i AYARLAMAMALI."""
+    with open(SMOKE_CHILD_PATH, encoding="utf-8") as handle:
+        source = handle.read()
+    assert 'env["MLCPLAYER_CLASSIC_UI"] = "1"' not in source
+    assert 'os.environ["MLCPLAYER_CLASSIC_UI"] = "1"' not in source
+
+
+def test_results_line_is_parsed_into_typed_fields():
+    stdout = (
+        "MARK_BUTTONS t=1.0\n"
+        "RESULTS: ui=cinematic video=True focus_handoff=True "
+        "overlay_hidden_on_deactivate=False "
+        "overlay_visible_after_return=True\n"
+        "MARK_DONE t=2.0\n"
+    )
+    assert runner.parse_results_fields(stdout) == {
+        "ui": "cinematic",
+        "video": True,
+        "focus_handoff": True,
+        "overlay_hidden_on_deactivate": False,
+        "overlay_visible_after_return": True,
+    }
+
+
+@pytest.mark.parametrize("fields, expected_reason", [
+    ({"ui": "cinematic", "overlay_hidden_on_deactivate": False,
+      "overlay_visible_after_return": True},
+     "overlay_not_hidden_on_deactivate"),
+    ({"ui": "cinematic", "overlay_hidden_on_deactivate": True,
+      "overlay_visible_after_return": False},
+     "overlay_not_restored_after_return"),
+])
+def test_cinematic_focus_behavior_must_hide_and_restore(fields, expected_reason):
+    case = {"name": "focus", "ui": "cinematic", "focus": True,
+            "synthetic": True}
+    assert expected_reason in runner.evaluate_behavior(case, fields)
+
+
+def test_diagnostic_classic_result_must_really_be_classic():
+    case = {"name": "classic", "ui": "classic", "focus": True}
+    reasons = runner.evaluate_behavior(case, {"ui": "cinematic"})
+    assert "ui_mismatch_expected_classic_got_cinematic" in reasons
+
+
+def test_clean_cinematic_focus_behavior_has_no_failure():
+    case = {"name": "focus", "ui": "cinematic", "focus": True,
+            "synthetic": False}
+    fields = {
+        "ui": "cinematic",
+        "focus_foreground_confirmed": True,
+        "overlay_hidden_on_deactivate": True,
+        "overlay_visible_after_return": True,
+    }
+    assert runner.evaluate_behavior(case, fields) == []
+
+
+def test_real_focus_case_requires_native_foreground_confirmation():
+    case = {"name": "focus", "ui": "cinematic", "focus": True,
+            "synthetic": False}
+    fields = {
+        "ui": "cinematic",
+        "focus_foreground_confirmed": False,
+        "overlay_hidden_on_deactivate": True,
+        "overlay_visible_after_return": True,
+    }
+    assert "focus_child_not_foreground" in runner.evaluate_behavior(case, fields)

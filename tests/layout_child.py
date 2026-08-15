@@ -142,4 +142,10 @@ def main():
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # ÜRÜNLE AYNI KAPANIŞ (`main.py` -> `os._exit(ret)`): libmpv yüklendikten
+    # sonra normal Python finalizasyonu takılabiliyor. Ölçüm JSON'u bu
+    # noktadan ÖNCE basılır.
+    _code = main()
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(_code)

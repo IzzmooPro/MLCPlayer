@@ -8,7 +8,8 @@ oluşturmaz.
 Ortam değişkenleri
 ------------------
 MLC_NATIVE_SMOKE          "1" olmalı; aksi halde script SKIPPED ile çıkar.
-MLCPLAYER_OVERLAY_PREVIEW "1" overlay preview açık, "0" kapalı.
+MLC_FOREGROUND_ATTEMPTS   Foreground önkoşulu için bounded retry sayısı (12).
+MLC_FOREGROUND_RETRY_MS   Denemeler arası bekleme (120 ms).
 MLC_NATIVE_TEST_VIDEO     Opsiyonel video yolu. Verilmezse videosuz mod.
 MLC_NATIVE_FOCUS_HANDOFF  "1" ise gerçek ayrı Qt süreciyle foreground devri.
 MLC_NATIVE_SYNTHETIC      "1" ise devir gerçek foreground yerine sentetik
@@ -35,6 +36,7 @@ import os
 import subprocess
 import sys
 import time
+import ctypes
 
 # --- 1. Opt-in güvenliği: bu noktadan önce Qt/mpv/pencere oluşturulmaz. ---
 if os.environ.get("MLC_NATIVE_SMOKE") != "1":
@@ -47,7 +49,6 @@ PROJECT_ROOT = os.environ.get(
 )
 sys.path.insert(0, PROJECT_ROOT)
 os.environ["PATH"] = os.path.join(PROJECT_ROOT, "bin") + os.pathsep + os.environ["PATH"]
-os.environ.setdefault("MLCPLAYER_OVERLAY_PREVIEW", "1")
 
 from PyQt6.QtCore import Qt, QEvent, QSettings, QTimer  # noqa: E402
 from PyQt6.QtWidgets import QApplication, QWidget  # noqa: E402
@@ -191,8 +192,18 @@ def start_focus_child():
     env = dict(os.environ)
     env["MLC_NATIVE_SMOKE"] = "1"
     env["MLC_FOCUS_CHILD_MS"] = str(FOCUS_CHILD_MS)
-    env.pop("MLCPLAYER_OVERLAY_PREVIEW", None)
+    # NOT: Burada eskiden MLCPLAYER_CLASSIC_UI=1 veriliyordu. Odak child'ı
+    # zaten sade bir QWidget'tir ve MPVPlayer oluşturmaz; bayrağın tek etkisi
+    # legacy klasik kabuğu miras olarak taşımaktı. Kaldırıldı.
+    env.pop("MLCPLAYER_CLASSIC_UI", None)
     focus_child = subprocess.Popen([sys.executable, script], env=env)
+    if os.name == "nt":
+        try:
+            # Foreground süreç olan player, yalnız kendi başlattığı child'a
+            # foreground alma izni verir. Başka hiçbir PID hedeflenmez.
+            ctypes.windll.user32.AllowSetForegroundWindow(focus_child.pid)
+        except Exception:
+            pass
     mark("MARK_FOCUS_CHILD_STARTED", f"pid={focus_child.pid}")
 
 
@@ -225,6 +236,123 @@ def active_window_name():
     return f"{type(active).__name__}:{active.windowTitle() or active.objectName()}"
 
 
+def native_foreground_pid():
+    """Windows foreground HWND'sinin süreç kimliğini döndürür."""
+    if os.name != "nt":
+        return None
+    try:
+        hwnd = native_foreground_hwnd()
+        pid = ctypes.c_ulong(0)
+        if hwnd:
+            ctypes.windll.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        return int(pid.value)
+    except Exception:
+        return None
+
+
+def native_foreground_hwnd():
+    """Foreground HWND'i int olarak dondurur; foreground yoksa 0.
+
+    URUN `app/video_frame.py` `GetForegroundWindow.restype` degerini
+    pointer-safe `wintypes.HWND` yapar ve `ctypes.windll.user32` surec
+    genelinde TEK nesnedir; NULL HWND Python'da `None` doner.
+    """
+    if os.name != "nt":
+        return None
+    try:
+        return int(ctypes.windll.user32.GetForegroundWindow() or 0)
+    except Exception:
+        return None
+
+
+def activate_player_native():
+    """Qt isteğini native foreground çağrısıyla güçlendirir."""
+    player.raise_()
+    player.activateWindow()
+    if os.name == "nt":
+        user32 = ctypes.windll.user32
+        hwnd = int(player.winId())
+        foreground = native_foreground_hwnd() or 0
+        foreground_thread = (user32.GetWindowThreadProcessId(foreground, None)
+                             if foreground else 0)
+        current_thread = ctypes.windll.kernel32.GetCurrentThreadId()
+        attached = False
+        try:
+            if foreground_thread and foreground_thread != current_thread:
+                attached = bool(user32.AttachThreadInput(
+                    current_thread, foreground_thread, True))
+            user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+            user32.BringWindowToTop(hwnd)
+            user32.SetForegroundWindow(hwnd)
+            user32.SetFocus(hwnd)
+        finally:
+            if attached:
+                user32.AttachThreadInput(current_thread, foreground_thread, False)
+
+
+# Foreground önkoşulu için sınırlı deneme bütçesi (periyodik timer DEĞİL;
+# yalnızca ölçüm anında çalışan bounded retry).
+FOREGROUND_ATTEMPTS = int(os.environ.get("MLC_FOREGROUND_ATTEMPTS", "12"))
+FOREGROUND_RETRY_MS = int(os.environ.get("MLC_FOREGROUND_RETRY_MS", "120"))
+
+
+def pump(milliseconds):
+    """Event loop'u bloklamadan kısa ve sınırlı süre işletir."""
+    deadline = time.time() + milliseconds / 1000.0
+    while time.time() < deadline:
+        app.processEvents()
+        time.sleep(0.01)
+    app.processEvents()
+
+
+def ensure_player_foreground(tag):
+    """Player'ı GERÇEK Windows foreground penceresi yapar ve PID ile doğrular.
+
+    Ölçüm önkoşuludur: player foreground değilken ürünün fail-closed kuralı
+    overlay'i haklı olarak gizli tutar. Bu durumu ürün hatası gibi raporlamak
+    yanlış olur; bu yüzden önkoşul ayrı ölçülür.
+
+    Bounded retry kullanır; sonsuz döngü veya periyodik timer yoktur.
+    """
+    if os.name != "nt":
+        return True, None
+    own_pid = os.getpid()
+    foreground_pid = None
+    for attempt in range(1, FOREGROUND_ATTEMPTS + 1):
+        activate_player_native()
+        pump(FOREGROUND_RETRY_MS)
+        foreground_pid = native_foreground_pid()
+        if foreground_pid == own_pid:
+            print(f"FOREGROUND_OK {tag} attempt={attempt} pid={foreground_pid} "
+                  f"hwnd={native_foreground_hwnd()}", flush=True)
+            return True, foreground_pid
+    print(f"FOREGROUND_FAILED {tag} attempts={FOREGROUND_ATTEMPTS} "
+          f"foreground_pid={foreground_pid} own_pid={own_pid} "
+          f"hwnd={native_foreground_hwnd()}", flush=True)
+    return False, foreground_pid
+
+
+def confirm_focus_child_foreground():
+    """Odak child'ının GERÇEKTEN foreground olduğunu PID/HWND ile doğrular."""
+    if SYNTHETIC:
+        return True, None
+    if focus_child is None:
+        return False, None
+    foreground_pid = None
+    for attempt in range(1, FOREGROUND_ATTEMPTS + 1):
+        foreground_pid = native_foreground_pid()
+        if foreground_pid == focus_child.pid:
+            print(f"FOCUS_CHILD_CONFIRMED attempt={attempt} "
+                  f"pid={foreground_pid} hwnd={native_foreground_hwnd()}",
+                  flush=True)
+            return True, foreground_pid
+        pump(FOREGROUND_RETRY_MS)
+    print(f"FOCUS_CHILD_NOT_FOREGROUND attempts={FOREGROUND_ATTEMPTS} "
+          f"foreground_pid={foreground_pid} child_pid={focus_child.pid}",
+          flush=True)
+    return False, foreground_pid
+
+
 # --- Qt başlatma ---
 app = QApplication(sys.argv)
 # Kapanış markerları (MARK_CLOSE/MARK_DONE) çalışabilsin diye son pencere
@@ -238,8 +366,11 @@ settings_dir = os.environ.get(
 QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope, settings_dir)
 
 player = MPVPlayer()
-mark("MARK_PLAYER_CREATED",
-     f"preview={os.environ.get('MLCPLAYER_OVERLAY_PREVIEW')} variant={VARIANT}")
+# NOT: Etiket ENV'den DEĞİL, gerçek ürün durumundan üretilir. Legacy anahtar
+# verilse bile ürün sinematik açıldığı için rapor da ui=cinematic olmalıdır.
+ACTUAL_UI = ("cinematic" if getattr(player, "cinematic_ui_enabled", True)
+             else "classic")
+mark("MARK_PLAYER_CREATED", f"ui={ACTUAL_UI} variant={VARIANT}")
 apply_variant(player)
 
 player.show()
@@ -248,7 +379,7 @@ player.activateWindow()
 mark("MARK_SHOWN")
 
 results = {
-    "preview": os.environ.get("MLCPLAYER_OVERLAY_PREVIEW"),
+    "ui": ACTUAL_UI,
     "variant": VARIANT,
     "video": bool(VIDEO_PATH),
     "focus_handoff": FOCUS_HANDOFF,
@@ -267,12 +398,24 @@ def step_open_video():
 
 
 def step_overlay_visible():
+    # ÖNKOŞUL: ilk görünürlük ölçümünden ÖNCE player gerçek foreground olmalı.
+    # Aksi halde ürünün (doğru) fail-closed kuralı overlay'i gizli tutar ve
+    # bu, ürün hatası gibi görünür.
+    ok, foreground_pid = ensure_player_foreground("before_overlay_measure")
+    results["foreground_precondition"] = ok
+    results["foreground_pid_before_measure"] = foreground_pid
+    if ok:
+        # Aktivasyon olaylarının işlenmesi için kısa, sınırlı süre.
+        pump(250)
+
     overlay = player.video_frame.control_overlay
     if overlay is None:
-        mark("MARK_OVERLAY_VISIBLE", "overlay=NONE(preview-off)")
+        mark("MARK_OVERLAY_VISIBLE", "overlay=NONE")
     else:
         mark("MARK_OVERLAY_VISIBLE",
-             f"visible={overlay.isVisible()} geo={overlay.geometry().getRect()}")
+             f"visible={overlay.isVisible()} "
+             f"foreground_ok={ok} foreground_pid={foreground_pid} "
+             f"geo={overlay.geometry().getRect()}")
     results["overlay_visible"] = overlay is not None and overlay.isVisible()
     if FOCUS_HANDOFF:
         if SYNTHETIC:
@@ -287,9 +430,16 @@ def step_overlay_visible():
 
 def step_deactivated():
     overlay = player.video_frame.control_overlay
+    # Child'ın gerçekten foreground olduğunu bounded retry ile doğrula.
+    focus_confirmed, foreground_pid = confirm_focus_child_foreground()
+    if foreground_pid is None:
+        foreground_pid = native_foreground_pid()
     mark("MARK_DEACTIVATED",
          f"active={active_window_name()} "
+         f"foreground_pid={foreground_pid} "
+         f"focus_confirmed={focus_confirmed} "
          f"overlay_visible={None if overlay is None else overlay.isVisible()}")
+    results["focus_foreground_confirmed"] = focus_confirmed
     results["overlay_hidden_on_deactivate"] = (
         overlay is None or not overlay.isVisible())
     # Odak penceresi kendi ömrü bitince kapanır; ardından foreground'u geri al.
@@ -302,22 +452,39 @@ def step_return_focus():
         QApplication.setActiveWindow(player)
         app.sendEvent(player, QEvent(QEvent.Type.WindowActivate))
         app.sendEvent(player.video_frame, QEvent(QEvent.Type.WindowActivate))
-    player.raise_()
-    player.activateWindow()
+    # Child kapandıktan sonra foreground AÇIKÇA geri alınır ve doğrulanır.
+    ok, foreground_pid = ensure_player_foreground("after_focus_child")
+    results["foreground_regained_after_return"] = ok
+    results["foreground_pid_after_return"] = foreground_pid
     if player.video_frame.is_video_fullscreen:
         player.video_frame.raise_()
         player.video_frame.activateWindow()
-    QTimer.singleShot(1200, step_active_read)
+    if ok:
+        # Gerçek foreground geri alındıktan sonra WindowActivate ve event
+        # loop işlerine KISA ve SINIRLI süre tanınır.
+        pump(400)
+    QTimer.singleShot(600, step_active_read)
 
 
 def step_active_read():
     overlay = player.video_frame.control_overlay
+    foreground_pid = native_foreground_pid()
+    own = os.getpid()
+    # Player PID foreground DEĞİLKEN overlay_visible_after_return
+    # değerlendirilmez; aksi halde harness eksikliği ürün hatası gibi görünür.
+    evaluated = (foreground_pid == own)
     mark("MARK_ACTIVE_READ",
          f"active={active_window_name()} "
+         f"foreground_pid={foreground_pid} own_pid={own} "
+         f"evaluated={evaluated} "
          f"overlay_visible={None if overlay is None else overlay.isVisible()} "
          f"geo={None if overlay is None else overlay.geometry().getRect()}")
-    results["overlay_visible_after_return"] = (
-        overlay is not None and overlay.isVisible())
+    results["overlay_return_evaluated"] = evaluated
+    if evaluated:
+        results["overlay_visible_after_return"] = (
+            overlay is not None and overlay.isVisible())
+    else:
+        results["overlay_visible_after_return"] = None
     QTimer.singleShot(400, step_buttons)
 
 
@@ -370,6 +537,22 @@ def step_buttons():
 
 
 def step_results():
+    # Gerçek oynatma KANITI: matris, adı "video" olan senaryonun gerçekten
+    # video açtığını bu alanlardan doğrular (bkz. requires_video).
+    duration = time_pos = None
+    try:
+        mpv = player.mpv_player
+        duration = mpv.duration
+        time_pos = mpv.time_pos
+    except Exception as exc:
+        print(f"PLAYBACK_READ_FAILED {exc}", flush=True)
+    results["playback_duration"] = 0 if duration is None else round(
+        float(duration), 3)
+    results["playback_time_pos"] = 0 if time_pos is None else round(
+        float(time_pos), 3)
+    mark("MARK_PLAYBACK_EVIDENCE",
+         f"duration={results['playback_duration']} "
+         f"time_pos={results['playback_time_pos']}")
     print("RESULTS: " + " ".join(f"{k}={v}" for k, v in results.items()), flush=True)
     QTimer.singleShot(200, step_shutdown)
 

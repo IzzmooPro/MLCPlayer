@@ -47,3 +47,11 @@ assert not slider.isSliderDown()
 player.close()
 QTimer.singleShot(100, app.quit)
 app.exec()
+
+# ÜRÜNLE AYNI KAPANIŞ (`main.py` -> `os._exit(ret)`): libmpv yüklendikten
+# sonra normal Python finalizasyonu takılabiliyor. Buraya ulaşmak bütün
+# assert'lerin geçtiği anlamına gelir; başarısızlıkta zaten istisna ile
+# non-zero exit üretilir.
+sys.stdout.flush()
+sys.stderr.flush()
+os._exit(0)
