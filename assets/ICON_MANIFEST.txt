@@ -1,0 +1,8 @@
+# MLC Player uygulama ikonu: kaynak ve turetilen asset manifesti.
+# Kaynak gorsel KULLANICI tarafindan saglandi ve degistirilmeden
+# projeye alindi (yeniden uretim, kirpma, renklendirme veya kayipli
+# sikistirma YAPILMADI). Gecici kaynak yolu bilerek KAYDEDILMEZ.
+# Bicim: dosya | olcu | ayrinti | SHA-256
+
+mlc-player-icon.png | 1254x1254 | RGBA, dort kose alfa=0 | 34a0cbd03f0a2365877e74337f62c6343d7974cd66fef80df6d7664871824c6c
+mlc-player-icon.ico | 16x16,20x20,24x24,32x32,40x40,48x48,64x64,128x128,256x256 | LANCZOS, alfa korundu | 0003dca928562083a3748befcdc7b69e4bffd4d2352b432f13b26a384ad0523c
