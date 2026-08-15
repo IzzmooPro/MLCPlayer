@@ -10,6 +10,7 @@ venv/
 # Build outputs
 build/
 dist/
+installer_output/
 
 # Temporary test/runtime folders
 tmp/
@@ -28,3 +29,10 @@ logs/
 # Large third-party runtime binaries (tracked by checksum manifest only)
 bin/mpv-2.dll
 bin/libmpv.dll.a
+bin/yt-dlp.exe
+bin/deno.exe
+
+# Rejected icon drafts (3.1 MB). The product ships only
+# assets/mlc-player-icon.png and .ico; the drafts stay on disk for
+# reference but are not repository content.
+assets/icon-concepts/
