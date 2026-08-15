@@ -8,12 +8,13 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import QEvent, QPoint, Qt
-from PyQt6.QtGui import QMouseEvent
+from PyQt6.QtCore import QEvent, QPoint, QSize, Qt
+from PyQt6.QtGui import QKeyEvent, QMouseEvent
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QMenu, QPushButton, QVBoxLayout, QWidget)
 
 from app.title_bar import (RESIZE_MARGIN, FramelessResizeFilter, TitleBar)
+from app.player import MPVPlayer
 
 
 @pytest.fixture
@@ -129,6 +130,108 @@ def test_press_inside_content_area_does_not_start_resize(frameless_window):
     app.processEvents()
 
     assert started == []
+
+
+def test_generous_corner_zone_resolves_to_diagonal_resize(frameless_window):
+    app, window, bar, resize_filter = frameless_window()
+    started = spy_on_resize(resize_filter)
+    point = QPoint(window.width() - 9, window.height() - 9)
+
+    app.sendEvent(window, press_on(window, (point.x(), point.y())))
+    app.processEvents()
+
+    assert started == [Qt.Edge.RightEdge | Qt.Edge.BottomEdge]
+
+
+def test_escape_exits_fullscreen_then_restores_balanced_default_size(
+        frameless_window):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    calls = []
+    window.video_frame = type("Frame", (), {
+        "is_video_fullscreen": True,
+        "exit_fullscreen": lambda self: (
+            calls.append("exit"), setattr(self, "is_video_fullscreen", False)),
+    })()
+    window.restore_default_window_size = lambda: (
+        MPVPlayer.restore_default_window_size(window))
+    event = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Escape,
+                      Qt.KeyboardModifier.NoModifier)
+
+    MPVPlayer.keyPressEvent(window, event)
+    assert calls == ["exit"]
+    assert window.size() == QSize(1250, 780)
+
+    event = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Escape,
+                      Qt.KeyboardModifier.NoModifier)
+    MPVPlayer.keyPressEvent(window, event)
+    app.processEvents()
+
+    available = window.screen().availableGeometry()
+    assert window.size() == QSize(min(960, available.width() - 40),
+                                  min(600, available.height() - 40))
+    assert event.isAccepted()
+
+
+def test_resize_filter_includes_native_overlay_and_playlist_edge_surfaces(
+        frameless_window):
+    app, window, bar, resize_filter = frameless_window()
+    resize_filter.remove()
+    window.media_container = QWidget(window.central_widget)
+    window.playlist_dock_host = QWidget(window.media_container)
+    window.video_frame = QWidget(window.media_container)
+    window.video_frame.control_overlay = QWidget(
+        window, Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint)
+    window.video_frame.playlist_panel = QWidget(
+        window, Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint)
+
+    targets = resize_filter.install()
+
+    assert window.media_container in targets
+    assert window.playlist_dock_host in targets
+    assert window.video_frame.control_overlay in targets
+    assert window.video_frame.playlist_panel in targets
+
+
+def test_right_edge_press_on_open_playlist_panel_starts_main_window_resize(
+        frameless_window):
+    """Panelin sağ kenarındaki basış ANA PENCERE resize'ını başlatmalı.
+
+    Eskiyen beklenti gevşetilmeden dönüştürüldü. Bu test yalnız
+    `startSystemResize` yolunu kabul ediyordu; oysa `playlist_panel` ayrı bir
+    top-level `Qt.Tool` penceresidir ve `_can_use_system_resize()` orada
+    bilerek `False` döner (`watched.window() is not player`). Ürün o durumda
+    sınırlı manuel yedek yolu kullanır — bkz. `app/title_bar.py`
+    `eventFilter` içindeki ölçülmüş kusur notu ve
+    `tests/test_frameless_resize_fallback_regressions.py`.
+
+    Kullanıcı sözleşmesi değişmedi ve DARALTILMADI: sağ kenar basışı hâlâ
+    doğru kenarla gerçek bir resize başlatır, olay yutulur ve fare yakalanır.
+    """
+    app, window, bar, resize_filter = frameless_window()
+    resize_filter.remove()
+    panel = QWidget(window, Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint)
+    window.video_frame = QWidget(window.central_widget)
+    window.video_frame.playlist_panel = panel
+    window.video_frame.control_overlay = None
+    panel.setGeometry(window.mapToGlobal(QPoint(window.width() - 360, 80)).x(),
+                      window.mapToGlobal(QPoint(0, 80)).y(), 360, 400)
+    panel.show()
+    resize_filter.install()
+
+    # NOT: Basıştan SONRA `processEvents()` çağrılmaz. Panelin gösterilmesi
+    # ana pencereye `WindowDeactivate` gönderiyor ve ürün bunu doğru biçimde
+    # "bekleyen sürüklemeyi bırak" olarak yorumluyor; kuyruk boşaltılırsa
+    # ölçülen şey basışın sonucu değil, o iptal olurdu.
+    point = QPoint(panel.width() - 1, panel.height() // 2)
+    app.sendEvent(panel, press_on(panel, (point.x(), point.y())))
+
+    try:
+        assert resize_filter.manual_resize_active()
+        assert resize_filter._manual["edges"] == Qt.Edge.RightEdge
+        assert resize_filter._manual["grabber"] is panel
+    finally:
+        resize_filter._end_manual_resize()
+        app.processEvents()
 
 
 def test_press_on_title_bar_button_does_not_start_resize(frameless_window):

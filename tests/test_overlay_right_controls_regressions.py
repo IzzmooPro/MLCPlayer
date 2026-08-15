@@ -1,4 +1,4 @@
-"""Overlay sağ kontrol grubu (CC, ses, ayarlar, ses slider'ı, tam ekran) testleri.
+"""Overlay sağ kontrol grubu (CC, ayarlar, ses, ses slider'ı, tam ekran) testleri.
 
 Gerçek widget geometrisi, gerçek QIcon pixmap'i ve gerçek ses akışı ölçülür.
 Modal Video Ayarları penceresi açılmaz; bağlantı geçici test fonksiyonuyla ölçülür.
@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
 from app.config import MAX_VOLUME
 from app.video_frame import VideoFrame
 
-RIGHT_ORDER = ("overlaySubtitles", "overlayVolume", "overlaySettings",
+RIGHT_ORDER = ("overlaySubtitles", "overlaySettings", "overlayVolume",
                "overlayVolumeSlider", "overlayFullscreen")
 
 
@@ -33,9 +33,9 @@ def video_window(monkeypatch, tmp_path):
 
     def factory(enabled=True, size=(1280, 720)):
         if enabled:
-            monkeypatch.setenv("MLCPLAYER_OVERLAY_PREVIEW", "1")
+            monkeypatch.delenv("MLCPLAYER_CLASSIC_UI", raising=False)
         else:
-            monkeypatch.delenv("MLCPLAYER_OVERLAY_PREVIEW", raising=False)
+            monkeypatch.setenv("MLCPLAYER_CLASSIC_UI", "1")
         # Kullanıcının gerçek ses ayarlarına dokunmamak için.
         QSettings.setDefaultFormat(QSettings.Format.IniFormat)
         QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,
@@ -177,7 +177,9 @@ def test_new_right_buttons_expose_tooltip_and_accessible_name(video_window):
     app, window, frame = video_window()
     overlay = frame.control_overlay
     expected = {
-        "overlaySubtitles": "Altyazıları Göster/Gizle",
+        # CC etiketi artık gerçek altyazı durumunu yansıtır
+        # (bkz. test_overlay_subtitle_state_regressions).
+        "overlaySubtitles": "Altyazıları Aç",
         "overlayVolume": "Sessiz",
         "overlaySettings": "Video Ayarları",
     }
@@ -315,11 +317,12 @@ def test_fullscreen_button_is_last_and_keeps_its_connection(video_window):
     assert ("toggle_fullscreen",) in window.calls
 
 
-def test_preview_disabled_creates_no_right_controls(video_window):
+def test_right_controls_exist_even_with_legacy_classic_env(video_window):
+    """Legacy klasik anahtar sağ kontrol grubunu artık kaldıramaz."""
     app, window, frame = video_window(enabled=False)
-    assert frame.control_overlay is None
-    assert not hasattr(frame, "overlay_volume_slider")
-    assert not hasattr(frame, "overlay_volume_button")
+    assert frame.control_overlay is not None
+    assert hasattr(frame, "overlay_volume_slider")
+    assert hasattr(frame, "overlay_volume_button")
 
 
 def test_fullscreen_enter_and_exit_still_work(video_window):

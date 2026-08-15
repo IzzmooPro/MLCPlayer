@@ -12,11 +12,14 @@ SUBTITLE_DEFAULTS = {
     "sub_delay": 0.0,
     "sub_scale": 1.0,
     "sub_pos": 100.0,
+    # MPV renk biçimi #AARRGGBB'dir (bkz. app/subtitle_style.py).
     "sub_color": "#FFFFFFFF",
     "sub_back_color": "#00000000",
-    "sub_border_color": "#000000FF",
+    "sub_border_color": "#FF000000",
     "sub_border_size": 3.0,
-    "sub_ass_override": True,
+    # ASS altyazıda normal stil seçeneklerinin uygulanması için "force"
+    # gerekir; bool True bütün seçenekleri zorlamaz.
+    "sub_ass_override": "force",
 }
 
 # MPV yapılandırma sabitleri
@@ -30,7 +33,11 @@ MPV_CONFIG = {
     "vo": "gpu",
     "keep_open": "yes",
     "video_sync": "audio",
-    "sub_auto": "fuzzy",
+    # Geniş `fuzzy` yerine mpv'nin resmî `exact` davranışı: yalnız tam video
+    # gövdesi ve dil/etiket sonekleri yüklenir (bkz. `app/local_subtitle.py`).
+    "sub_auto": "exact",
+    # Gömülü ve aynı adlı harici altyazıları bul; kullanıcı açana kadar gösterme.
+    "sub_visibility": "no",
     "scale": "spline36",
     "cscale": "spline36",
     "deband": "yes",
@@ -41,8 +48,16 @@ MPV_CONFIG = {
     "resume_playback": "no",
 }
 
-# Medya dosya uzantıları
-MEDIA_EXTENSIONS = "*.mp4 *.avi *.mkv *.mov *.wmv *.flv *.mpeg *.mpg *.m4v *.mp3 *.wav *.flac *.ogg *.m4a"
+# Medya dosya uzantıları. Dosya seçici, klasör taraması, playlist paneli ve
+# ana pencere sürükle-bırak yolu bu TEK kaynağı kullanır. Uzantının listede
+# olması dosyayı medya adayı yapar; gerçek container/codec desteğini libmpv
+# belirler ve açılamayan dosya mevcut güvenli hata yoluna düşer.
+MEDIA_EXTENSIONS = (
+    "*.mp4 *.avi *.mkv *.mov *.wmv *.flv *.mpeg *.mpg *.m4v "
+    "*.webm *.ts *.m2ts *.mts *.vob *.ogv *.3gp *.3g2 *.asf *.mxf "
+    "*.mp3 *.wav *.flac *.ogg *.m4a *.aac *.opus *.wma *.ape *.alac "
+    "*.aiff *.aif *.ac3 *.dts *.mka"
+)
 SUBTITLE_EXTENSIONS = "*.srt *.vtt *.ass *.ssa *.sub"
 
 # Uygulama stili - modern koyu tema
@@ -294,3 +309,26 @@ APP_STYLE = """
         background: transparent;
     }
 """
+
+
+# --- Arayüz modu ---
+# Sinematik arayüz ürünün TEK arayüzüdür. Eski klasik kabuk artık hiçbir
+# ürün, test veya native doğrulama koşumunda GÖRÜNÜR pencere olarak açılmaz.
+#
+# `MLCPLAYER_CLASSIC_UI` geçmişte klasik kabuğu açan bir teşhis kapısıydı ve
+# gerçek Windows koşumlarında eski pencerenin görünmesine yol açıyordu. Ad,
+# eski betikler ve kısayollar kırılmasın diye korunur ama ARTIK ETKİSİZDİR.
+CLASSIC_UI_ENV = "MLCPLAYER_CLASSIC_UI"
+
+
+def cinematic_ui_enabled():
+    """Sinematik arayüz açık mı? Üründe DAİMA True.
+
+    Değer artık ortam değişkenine bakmaz; legacy anahtar hangi değerle
+    verilirse verilsin ürün sinematik açılır.
+
+    NOT: Klasik QMenuBar aksiyonları, `control_container`, `position_slider`
+    ve `volume_slider` gibi gizli nesneler uyumluluk katmanı olarak yaşamaya
+    devam eder; yalnızca kullanıcıya görünmezler.
+    """
+    return True

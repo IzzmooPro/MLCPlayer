@@ -24,7 +24,11 @@ def test_resume_disabled_does_not_create_watch_later_directory(monkeypatch, tmp_
     monkeypatch.setattr(MPVPlayer, "refresh_audio_devices", lambda self: None)
 
     player = MPVPlayer.__new__(MPVPlayer)
-    player.video_frame = SimpleNamespace(winId=lambda: 1)
+    # `init_mpv_player()` artık altyazı parçası gözlemcisini de bağlar
+    # (güvenli bant HANGİ yoldan parça değişirse değişsin uygulanır);
+    # vekil bu sözleşmeyi karşılar.
+    player.video_frame = SimpleNamespace(
+        winId=lambda: 1, sync_subtitle_safe_band=lambda: None)
     MPVPlayer.init_mpv_player(player)
 
     assert "watch_later_directory" not in captured

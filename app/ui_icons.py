@@ -27,16 +27,16 @@ def _triangle(width, height, offset_x=0.0, pointing_right=True):
 
 
 def _draw_play(painter, size, colour):
-    width = size * 0.34
-    height = size * 0.42
+    width = size * 0.38
+    height = size * 0.48
     painter.translate((size - width) / 2.0 + size * 0.03, (size - height) / 2.0)
     painter.fillPath(_triangle(width, height), colour)
 
 
 def _draw_pause(painter, size, colour):
-    bar_width = size * 0.12
-    height = size * 0.42
-    gap = size * 0.12
+    bar_width = size * 0.14
+    height = size * 0.48
+    gap = size * 0.11
     top = (size - height) / 2.0
     left = (size - (bar_width * 2 + gap)) / 2.0
     radius = bar_width / 2.5
@@ -48,9 +48,9 @@ def _draw_pause(painter, size, colour):
 
 
 def _draw_skip(painter, size, colour, forward):
-    height = size * 0.40
-    triangle_width = size * 0.30
-    bar_width = size * 0.09
+    height = size * 0.48
+    triangle_width = size * 0.34
+    bar_width = size * 0.11
     total = triangle_width + bar_width + size * 0.04
     top = (size - height) / 2.0
     left = (size - total) / 2.0

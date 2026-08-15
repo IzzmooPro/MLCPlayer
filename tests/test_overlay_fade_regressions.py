@@ -33,9 +33,9 @@ def video_window(monkeypatch, tmp_path):
 
     def factory(enabled=True, playing=True, size=(1280, 720)):
         if enabled:
-            monkeypatch.setenv("MLCPLAYER_OVERLAY_PREVIEW", "1")
+            monkeypatch.delenv("MLCPLAYER_CLASSIC_UI", raising=False)
         else:
-            monkeypatch.delenv("MLCPLAYER_OVERLAY_PREVIEW", raising=False)
+            monkeypatch.setenv("MLCPLAYER_CLASSIC_UI", "1")
         QSettings.setDefaultFormat(QSettings.Format.IniFormat)
         QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,
                           str(tmp_path))
@@ -125,11 +125,11 @@ def test_fade_animation_exists_when_preview_enabled(video_window):
     assert frame.overlay_fade.targetObject() is frame.control_overlay
 
 
-def test_no_fade_animation_when_preview_disabled(video_window):
+def test_fade_animation_exists_even_with_legacy_classic_env(video_window):
+    """Legacy klasik anahtar artık fade/overlay kurulumunu engellemez."""
     app, window, frame = video_window(enabled=False)
-    assert frame.control_overlay is None
-    assert getattr(frame, "overlay_fade", None) is None
-    assert getattr(frame, "overlay_hide_timer", None) is None
+    assert frame.control_overlay is not None
+    assert getattr(frame, "overlay_hide_timer", None) is not None
 
 
 def test_fade_durations_match_constants(video_window):

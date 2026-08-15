@@ -8,7 +8,7 @@ from app.video_frame import VideoFrame
 
 
 def make_sync_window(monkeypatch, tmp_path):
-    monkeypatch.setenv("MLCPLAYER_OVERLAY_PREVIEW", "1")
+    monkeypatch.delenv("MLCPLAYER_CLASSIC_UI", raising=False)
     QSettings.setDefaultFormat(QSettings.Format.IniFormat)
     QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope, str(tmp_path))
     app = QApplication.instance() or QApplication([])

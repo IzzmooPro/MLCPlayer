@@ -37,9 +37,9 @@ def video_window(monkeypatch):
 
     def factory(enabled=True, size=(1280, 720)):
         if enabled:
-            monkeypatch.setenv("MLCPLAYER_OVERLAY_PREVIEW", "1")
+            monkeypatch.delenv("MLCPLAYER_CLASSIC_UI", raising=False)
         else:
-            monkeypatch.delenv("MLCPLAYER_OVERLAY_PREVIEW", raising=False)
+            monkeypatch.setenv("MLCPLAYER_CLASSIC_UI", "1")
         app = qt_app()
         window = QMainWindow()
         window.central_widget = QWidget(window)
@@ -141,7 +141,9 @@ def test_timeline_spans_the_padded_width(video_window):
     expected = overlay.width() - margins.left() - margins.right()
 
     assert abs(frame.overlay_timeline.width() - expected) <= 2
-    assert frame.overlay_timeline.height() <= 18
+    # NOT: Görsel groove 3 px kalır; widget yüksekliği gerçek kullanıcı
+    # tıklamaları için genişletildi (bkz. test_overlay_timeline_hit_regressions).
+    assert frame.overlay_timeline.height() <= 48
 
 
 def test_center_play_button_is_larger_than_other_media_buttons(video_window):
@@ -156,9 +158,27 @@ def test_center_play_button_is_larger_than_other_media_buttons(video_window):
     assert play.width() > previous.width()
     assert play.width() > next_button.width()
     assert play.width() > fullscreen.width()
-    assert 28 <= previous.width() <= 34
-    assert 28 <= next_button.width() <= 34
-    assert 28 <= fullscreen.width() <= 34
+    # Hit alanları büyütüldü (ikonlar 18 px aynı); play hâlâ en büyük.
+    assert 36 <= previous.width() <= 40
+    assert 36 <= next_button.width() <= 40
+    assert 36 <= fullscreen.width() <= 40
+
+
+def test_overlay_icons_and_time_text_use_the_approved_reference_scale(
+        video_window):
+    app, window, frame = video_window()
+    overlay = frame.control_overlay
+    assert button_by_name(overlay, "overlayPrevious").iconSize().width() == 25
+    assert button_by_name(overlay, "overlayNext").iconSize().width() == 25
+    assert button_by_name(overlay, "overlayPlayPause").iconSize().width() == 27
+    for name in ("overlaySubtitles", "overlayVolume", "overlaySettings",
+                 "overlayFullscreen"):
+        assert button_by_name(overlay, name).iconSize().width() == 22, name
+    assert frame._overlay_controls_row.spacing() == 8
+    for label in (frame.overlay_current_time_label,
+                  frame.overlay_time_separator,
+                  frame.overlay_total_time_label):
+        assert "font-size: 16px" in label.styleSheet()
 
 
 def test_media_buttons_are_horizontally_centred_in_overlay(video_window):
@@ -267,7 +287,8 @@ def test_overlay_controls_still_call_player_methods(video_window):
     assert calls == ["previous", "play_pause", "next", "fullscreen"]
 
 
-def test_preview_disabled_creates_no_overlay(video_window):
+def test_legacy_classic_env_still_creates_the_overlay(video_window):
+    """Ürün kararı: sinematik tasarım tek arayüz; overlay her zaman var."""
     app, window, frame = video_window(enabled=False)
-    assert frame.control_overlay is None
-    assert not hasattr(frame, "overlay_play_pause_button")
+    assert frame.control_overlay is not None
+    assert hasattr(frame, "overlay_play_pause_button")

@@ -31,9 +31,9 @@ def video_window(monkeypatch, tmp_path):
 
     def factory(enabled=True, playing=True, size=(1280, 720)):
         if enabled:
-            monkeypatch.setenv("MLCPLAYER_OVERLAY_PREVIEW", "1")
+            monkeypatch.delenv("MLCPLAYER_CLASSIC_UI", raising=False)
         else:
-            monkeypatch.delenv("MLCPLAYER_OVERLAY_PREVIEW", raising=False)
+            monkeypatch.setenv("MLCPLAYER_CLASSIC_UI", "1")
         QSettings.setDefaultFormat(QSettings.Format.IniFormat)
         QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,
                           str(tmp_path))
@@ -158,19 +158,20 @@ def test_timeout_hides_overlay_while_video_plays(video_window):
 
 # --- 2. Preview kapalı ---
 
-def test_no_auto_hide_timer_when_preview_disabled(video_window):
+def test_auto_hide_timer_exists_even_with_legacy_classic_env(video_window):
+    """Legacy klasik anahtar artık sinematik overlay'i kapatamaz."""
     app, window, frame = video_window(enabled=False)
-    assert frame.control_overlay is None
-    assert getattr(frame, "overlay_hide_timer", None) is None
+    assert frame.control_overlay is not None
+    assert getattr(frame, "overlay_hide_timer", None) is not None
 
 
-def test_helpers_are_safe_when_preview_disabled(video_window):
+def test_helpers_are_safe_with_legacy_classic_env(video_window):
     app, window, frame = video_window(enabled=False)
     frame.show_overlay_for_interaction()
     frame.schedule_overlay_hide()
     frame.cancel_overlay_hide()
     frame.hide_overlay_for_inactivity()
-    assert frame.control_overlay is None
+    assert frame.control_overlay is not None
 
 
 # --- 3. Video yok ---

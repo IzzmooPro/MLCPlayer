@@ -33,9 +33,9 @@ def product_window(monkeypatch, tmp_path):
 
     def factory(preview=True, play_fails=False, pending=False):
         if preview:
-            monkeypatch.setenv("MLCPLAYER_OVERLAY_PREVIEW", "1")
+            monkeypatch.delenv("MLCPLAYER_CLASSIC_UI", raising=False)
         else:
-            monkeypatch.delenv("MLCPLAYER_OVERLAY_PREVIEW", raising=False)
+            monkeypatch.setenv("MLCPLAYER_CLASSIC_UI", "1")
         QSettings.setDefaultFormat(QSettings.Format.IniFormat)
         QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,
                           str(tmp_path))
@@ -181,8 +181,8 @@ def test_preview_disabled_exit_fullscreen_is_unchanged(product_window):
     frame.exit_fullscreen()
 
     assert frame.is_video_fullscreen is False
-    assert frame.control_overlay is None
-    # Helper mevcutsa çağrılabilir; ancak preview kapalıyken iş yapmamalı.
+    # Ürün kararı: legacy anahtar sinematik overlay'i kaldıramaz.
+    assert frame.control_overlay is not None
     assert window._title_bar_raise_pending is False
 
 

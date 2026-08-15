@@ -11,9 +11,9 @@ from app.video_frame import VideoFrame
 
 def make_video_window(monkeypatch, enabled):
     if enabled:
-        monkeypatch.setenv("MLCPLAYER_OVERLAY_PREVIEW", "1")
+        monkeypatch.delenv("MLCPLAYER_CLASSIC_UI", raising=False)
     else:
-        monkeypatch.delenv("MLCPLAYER_OVERLAY_PREVIEW", raising=False)
+        monkeypatch.setenv("MLCPLAYER_CLASSIC_UI", "1")
     app = QApplication.instance() or QApplication([])
     window = QMainWindow()
     window.central_widget = QWidget(window)
@@ -28,10 +28,11 @@ def make_video_window(monkeypatch, enabled):
     return app, window, frame
 
 
-def test_overlay_preview_disabled_does_not_create_overlay(monkeypatch):
+def test_legacy_classic_env_still_creates_the_overlay(monkeypatch):
+    """Ürün kararı: sinematik overlay her koşulda kurulur."""
     app, window, frame = make_video_window(monkeypatch, False)
 
-    assert getattr(frame, "control_overlay", None) is None
+    assert getattr(frame, "control_overlay", None) is not None
     window.close()
     app.processEvents()
 
@@ -205,6 +206,7 @@ def test_overlay_hides_on_fullscreen_deactivation_and_restores_clickable(monkeyp
     QApplication.setActiveWindow(other)
     frame._is_player_surface_active = lambda: False
     frame.eventFilter(frame, QEvent(QEvent.Type.WindowDeactivate))
+    app.processEvents()
     assert not frame.control_overlay.isVisible()
 
     frame.activateWindow()

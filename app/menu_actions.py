@@ -1,13 +1,18 @@
 from PyQt6.QtWidgets import (
-    QMessageBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton,
-    QFormLayout, QDoubleSpinBox, QDialogButtonBox, QColorDialog
+    QMessageBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton
 )
-from PyQt6.QtGui import QAction, QColor
+from PyQt6.QtGui import QAction, QActionGroup, QColor
 from PyQt6.QtCore import Qt
 import os
 import sys
-from app.errors import show_user_error
+from app import track_labels
+from app.errors import show_user_error, safe_console
 from app.config import SUBTITLE_DEFAULTS
+from app.media_info import build_media_info, media_info_refresh_key
+from app.media_controls import is_remote_media_url, safe_media_host
+from app.subtitle_appearance_dialog import SubtitleAppearanceDialog
+from app.subtitle_style import (atomic_apply, mpv_argb_to_qcolor,
+                                qcolor_to_mpv_argb)
 from app.utils import format_time
 
 def setup_menu(player):
@@ -20,6 +25,10 @@ def setup_menu(player):
     open_action.setShortcut("Ctrl+O")
     open_action.triggered.connect(player.open_file)
     file_menu.addAction(open_action)
+
+    folder_action = QAction("Klasör Aç", player)
+    folder_action.triggered.connect(player.open_folder)
+    file_menu.addAction(folder_action)
 
     url_action = QAction("URL'den Oynat", player)
     url_action.setShortcut("Ctrl+U")
@@ -35,6 +44,17 @@ def setup_menu(player):
     # Son açılanlar alt menüsü
     recent_menu = file_menu.addMenu("Son Açılanlar")
     player.recent_menu = recent_menu
+
+    file_menu.addSeparator()
+
+    # Medya Bilgisi: TEK eylem. Üç nokta menüsü `build_overflow_menu()` ile
+    # menü çubuğunu miras aldığı için oraya AYRICA eklenmez.
+    media_info_action = QAction("Medya Bilgisi", player)
+    media_info_action.setEnabled(bool(getattr(player, "current_file", "")))
+    media_info_action.triggered.connect(
+        lambda _checked=False: player.show_media_info())
+    file_menu.addAction(media_info_action)
+    player.media_info_action = media_info_action
 
     exit_action = QAction("Çıkış", player)
     exit_action.setShortcut("Ctrl+Q")
@@ -168,17 +188,18 @@ def setup_menu(player):
     audio_menu.addAction(mute_action)
     audio_menu.addSeparator()
 
-    audio_track_menu = audio_menu.addMenu("Ses Kanalları")
-    audio_track_action = QAction("Ses Kanallarını Yenile", player)
-    audio_track_action.triggered.connect(player.refresh_audio_tracks)
-    audio_track_menu.addAction(audio_track_action)
+    # "Ses Parçası" = videonun içindeki ses akışları (İngilizce/Türkçe/yorum).
+    # "Ses Çıkışı"  = hoparlör/kulaklık/HDMI gibi aygıtlar. İkisi ayrı kavram.
+    # Elle yenileme satırları kaldırıldı: parçalar yeni medyada, çıkışlar
+    # açılışta otomatik doldurulur.
+    audio_track_menu = audio_menu.addMenu("Ses Parçası")
     player.audio_track_menu = audio_track_menu
 
-    audio_device_menu = audio_menu.addMenu("Ses Aygıtı")
-    audio_device_action = QAction("Aygıtları Yenile", player)
-    audio_device_action.triggered.connect(player.refresh_audio_devices)
-    audio_device_menu.addAction(audio_device_action)
+    audio_device_menu = audio_menu.addMenu("Ses Çıkışı")
     player.audio_device_menu = audio_device_menu
+    # NOT: Ses çıkışları BURADA algılanmaz — menü kurulumu MPV hazır olmadan
+    # önce çalışır. Algılama `MPVPlayer.init_mpv_player()` sonrasında bir kez
+    # yapılır; menü açılışında yeniden tarama YOKTUR.
 
     # Alt Yazı menüsü
     subtitle_menu = menu_bar.addMenu("Alt Yazı")
@@ -187,15 +208,19 @@ def setup_menu(player):
     subtitle_add_menu_action.triggered.connect(player.open_subtitle)
     subtitle_menu.addAction(subtitle_add_menu_action)
 
+    # Altyazı Merkezi: yerel dosya eklemenin hemen ardından, indirme yolu.
+    # Kısayol verilmez; mevcut kısayollarla çakışma üretmez.
+    subtitle_find_action = QAction("Altyazı Bul…", player)
+    subtitle_find_action.triggered.connect(player.open_subtitle_center)
+    subtitle_menu.addAction(subtitle_find_action)
+    player.subtitle_find_action = subtitle_find_action
+
     subtitle_toggle_action = QAction("Altyazıları Göster/Gizle", player)
     subtitle_toggle_action.setShortcut("S")
     subtitle_toggle_action.triggered.connect(player.toggle_subtitles)
     subtitle_menu.addAction(subtitle_toggle_action)
 
     subtitle_track_menu = subtitle_menu.addMenu("Altyazı Parçası")
-    subtitle_track_action = QAction("Altyazıları Yenile", player)
-    subtitle_track_action.triggered.connect(player.refresh_subtitle_tracks)
-    subtitle_track_menu.addAction(subtitle_track_action)
     player.subtitle_track_menu = subtitle_track_menu
 
     subtitle_settings_menu_action = QAction("Altyazı Ayarları", player)
@@ -246,6 +271,10 @@ def setup_menu(player):
     shortcuts_action.triggered.connect(player.show_shortcuts)
     help_menu.addAction(shortcuts_action)
 
+    log_action = QAction("Günlük Yönetimi", player)
+    log_action.triggered.connect(player.show_log_management)
+    help_menu.addAction(log_action)
+
     about_action = QAction("Hakkında", player)
     about_action.triggered.connect(player.show_about)
     help_menu.addAction(about_action)
@@ -262,171 +291,122 @@ def setup_menu(player):
 
 
 def _mpv_color_to_qcolor(value, fallback):
-    """mpv'nin #RRGGBBAA rengini QColor'a çevirir."""
-    text = str(value or "")
-    if len(text) == 9 and text.startswith("#"):
-        try:
-            return QColor(int(text[1:3], 16), int(text[3:5], 16),
-                          int(text[5:7], 16), int(text[7:9], 16))
-        except ValueError:
-            pass
-    color = QColor(text)
-    return color if color.isValid() else QColor(fallback)
+    """mpv'nin canonical #AARRGGBB rengini QColor'a çevirir."""
+    return mpv_argb_to_qcolor(value, fallback)
 
 
 def _qcolor_to_mpv(color):
-    return (f"#{color.red():02X}{color.green():02X}{color.blue():02X}"
-            f"{color.alpha():02X}")
+    """QColor → mpv'nin beklediği #AARRGGBB."""
+    return qcolor_to_mpv_argb(color)
+
+
+def _apply_subtitle_style(player, chosen):
+    """`atomic_apply()` + güvenli bandın YENİDEN uygulanması.
+
+    `atomic_apply()` kullanıcının HAM `sub_pos` değerini MPV'ye yazar;
+    ASS altyazıda güvenli bant efektif bir `sub_pos` gerektirdiği için
+    başarılı yazımdan sonra bant önbelleği geçersiz kılınıp yeniden
+    senkronlanır. Kullanıcının KAYITLI tercihi değişmez.
+    """
+    ok, error = atomic_apply(player.mpv_player, player.settings, chosen)
+    if ok:
+        try:
+            player.video_frame.invalidate_subtitle_band()
+            player.video_frame.sync_subtitle_safe_band()
+        except Exception as exc:
+            safe_console(f"Altyazı güvenli bandı yenilenemedi: {exc}")
+    return ok, error
 
 
 def show_subtitle_settings(player):
-    dialog = QDialog(player)
-    dialog.setWindowTitle("Altyazı Ayarları")
-    dialog.setMinimumWidth(440)
-    layout = QVBoxLayout(dialog)
-    form = QFormLayout()
-    form.setSpacing(10)
+    """Kompakt Altyazı Ayarları penceresini açar (ince entegrasyon noktası).
 
+    Görsel yerleşim `app/subtitle_appearance_dialog.py`, kalıcılık
+    sözleşmesi `app/subtitle_style.py` içindedir. Burada yalnız ikisi
+    birbirine bağlanır.
+    """
     def read_number(name, default):
         try:
             return float(getattr(player.mpv_player, name))
         except Exception:
             return float(default)
 
-    delay = QDoubleSpinBox()
-    delay.setRange(-120.0, 120.0)
-    delay.setSingleStep(0.1)
-    delay.setDecimals(1)
-    delay.setSuffix(" sn")
-    delay.setValue(read_number("sub_delay", 0.0))
-    delay.setToolTip("Pozitif değer altyazıyı geciktirir, negatif değer öne alır.")
+    values = {name: read_number(name, SUBTITLE_DEFAULTS[name])
+              for name in ("sub_delay", "sub_scale", "sub_pos",
+                           "sub_border_size")}
+    for key in ("sub_color", "sub_back_color", "sub_border_color"):
+        values[key] = _mpv_color_to_qcolor(
+            getattr(player.mpv_player, key, ""), SUBTITLE_DEFAULTS[key])
+    try:
+        tracks = list(player.mpv_player.track_list or [])
+    except Exception:
+        tracks = []
 
-    scale = QDoubleSpinBox()
-    scale.setRange(0.5, 3.0)
-    scale.setSingleStep(0.1)
-    scale.setDecimals(1)
-    scale.setSuffix("x")
-    scale.setValue(read_number("sub_scale", 1.0))
-
-    position_row = QHBoxLayout()
-    position = QSlider(Qt.Orientation.Horizontal)
-    position.setRange(0, 100)
-    position.setValue(int(read_number("sub_pos", 100.0)))
-    position_label = QLabel(f"%{position.value()}")
-    position_label.setMinimumWidth(42)
-    position.valueChanged.connect(lambda value: position_label.setText(f"%{value}"))
-    position_row.addWidget(position)
-    position_row.addWidget(position_label)
-
-    colors = {
-        "sub_color": _mpv_color_to_qcolor(
-            getattr(player.mpv_player, "sub_color", ""), "#FFFFFFFF"),
-        "sub_back_color": _mpv_color_to_qcolor(
-            getattr(player.mpv_player, "sub_back_color", ""), "#00000000"),
-        "sub_border_color": _mpv_color_to_qcolor(
-            getattr(player.mpv_player, "sub_border_color", ""), "#000000FF"),
-    }
-    color_buttons = {}
-
-    def refresh_color_button(key):
-        color = colors[key]
-        button = color_buttons[key]
-        button.setText("Renk seç")
-        button.setStyleSheet(
-            f"background-color: {color.name()}; color: "
-            f"{'black' if color.lightness() > 150 else 'white'};"
-        )
-
-    def add_color_row(label, key):
-        button = QPushButton()
-        color_buttons[key] = button
-
-        def choose_color():
-            selected = QColorDialog.getColor(
-                colors[key], dialog, label,
-                QColorDialog.ColorDialogOption.ShowAlphaChannel)
-            if selected.isValid():
-                colors[key] = selected
-                refresh_color_button(key)
-
-        button.clicked.connect(choose_color)
-        refresh_color_button(key)
-        form.addRow(label, button)
-
-    border_size = QDoubleSpinBox()
-    border_size.setRange(0.0, 10.0)
-    border_size.setSingleStep(0.5)
-    border_size.setDecimals(1)
-    border_size.setSuffix(" px")
-    border_size.setValue(read_number("sub_border_size", 3.0))
-
-    form.addRow("Senkron gecikmesi:", delay)
-    form.addRow("Yazı boyutu:", scale)
-    form.addRow("Dikey konum:", position_row)
-    add_color_row("Yazı rengi:", "sub_color")
-    add_color_row("Arka plan rengi:", "sub_back_color")
-    add_color_row("Kenarlık rengi:", "sub_border_color")
-    form.addRow("Kenarlık kalınlığı:", border_size)
-    layout.addLayout(form)
-
-    def reset_values():
-        delay.setValue(float(SUBTITLE_DEFAULTS["sub_delay"]))
-        scale.setValue(float(SUBTITLE_DEFAULTS["sub_scale"]))
-        position.setValue(int(SUBTITLE_DEFAULTS["sub_pos"]))
-        border_size.setValue(float(SUBTITLE_DEFAULTS["sub_border_size"]))
-        for key in colors:
-            colors[key] = _mpv_color_to_qcolor(SUBTITLE_DEFAULTS[key], "#00000000")
-            refresh_color_button(key)
-
-    reset_button = QPushButton("Varsayılana Dön")
-    reset_button.clicked.connect(reset_values)
-    layout.addWidget(reset_button)
-
-    buttons = QDialogButtonBox(
-        QDialogButtonBox.StandardButton.Ok |
-        QDialogButtonBox.StandardButton.Cancel |
-        QDialogButtonBox.StandardButton.Apply
-    )
-    layout.addWidget(buttons)
-
-    def apply_settings():
-        values = {
-            "sub_delay": delay.value(),
-            "sub_scale": scale.value(),
-            "sub_pos": float(position.value()),
-            "sub_border_size": border_size.value(),
-            "sub_color": _qcolor_to_mpv(colors["sub_color"]),
-            "sub_back_color": _qcolor_to_mpv(colors["sub_back_color"]),
-            "sub_border_color": _qcolor_to_mpv(colors["sub_border_color"]),
-        }
-        try:
-            for name, value in values.items():
-                setattr(player.mpv_player, name, value)
-                player.settings.setValue(f"subtitle/{name}", value)
-            player.settings.setValue("subtitle/sub_ass_override", True)
-            player.mpv_player.sub_ass_override = True
-        except Exception as e:
-            show_user_error(player, "Altyazı Ayarları Uygulanamadı",
-                            "Altyazı ayarları uygulanamadı. Lütfen tekrar deneyin.",
-                            exc=e)
-
-    buttons.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(apply_settings)
-    buttons.accepted.connect(lambda: (apply_settings(), dialog.accept()))
-    buttons.rejected.connect(dialog.reject)
+    dialog = SubtitleAppearanceDialog(
+        player, values=values, track_list=tracks,
+        apply_callback=lambda chosen: _apply_subtitle_style(player, chosen),
+        error_reporter=lambda title, message, exc=None: show_user_error(
+            player, title, message, exc=exc))
     dialog.exec()
 
-def update_recent_menu(player):
-    recent_menu = player.recent_menu
-    recent_menu.clear()
-    for path in player.recent_files:
-        action = QAction(os.path.basename(path), player)
-        action.setToolTip(path)
-        action.triggered.connect(lambda checked, p=path: player.open_path(p))
-        recent_menu.addAction(action)
-    if not player.recent_files:
-        empty_action = QAction("Son açılan dosya yok", player)
+
+# Ürün politikası: en fazla 10 son açılan girdi gösterilir
+# (`MPVPlayer.add_recent_file` de listeyi 10 ile sınırlar).
+RECENT_MENU_LIMIT = 10
+
+
+def recent_entry_label(path):
+    """Son açılan kaydın kullanıcıya gösterilecek adı.
+
+    UZAK adreste YALNIZ güvenli `host[:port]` gösterilir: `userinfo`,
+    `query`, `fragment`, yol ve video kimliği menüye HİÇ çıkmaz. Yerel
+    dosyada mevcut basename davranışı korunur.
+    """
+    if is_remote_media_url(path):
+        return safe_media_host(path) or "Bağlantı"
+    name = os.path.basename(str(path).split("?", 1)[0].rstrip("/\\"))
+    return name or str(path)
+
+
+def recent_entry_hint(path):
+    """Tooltip/statusTip metni. Uzak adreste tam hedef GÖRÜNMEZ."""
+    if is_remote_media_url(path):
+        return safe_media_host(path) or "Bağlantı"
+    return str(path)
+
+
+def populate_recent_menu(player, menu, owner=None):
+    """`Son Açılanlar` menüsünü doldurur (ana menü + sağ-tık ORTAK).
+
+    Aynı `player.recent_files` modeli okunur ama her menü KENDİ
+    QAction'larını üretir; aynı nesne iki menü arasında taşınmaz. Tam yol
+    yalnızca `data()`/tooltip'te taşınır ve girdi `p=path` ile bağlanır
+    (lambda late-binding YOK).
+    """
+    clear_dynamic_menu(menu)
+    recent_files = list(getattr(player, "recent_files", None) or [])
+    if not recent_files:
+        empty_action = QAction("Son açılan dosya yok", owner or player)
         empty_action.setEnabled(False)
-        recent_menu.addAction(empty_action)
+        menu.addAction(empty_action)
+        return
+    # Eksik yerel dosyayı temizleyen ürün yolu; test double'ları yalnız
+    # `open_path` tanımlayabilir.
+    open_entry = getattr(player, "open_recent", None) or player.open_path
+    for path in recent_files[:RECENT_MENU_LIMIT]:
+        action = QAction(recent_entry_label(path), owner or player)
+        hint = recent_entry_hint(path)
+        action.setToolTip(hint)
+        action.setStatusTip(hint)
+        # `data()` YALNIZ bellekte yasar; aynı oturumda yeniden açmak için
+        # gerçek hedefi taşır ve hiçbir görünür alana yazılmaz.
+        action.setData(path)
+        action.triggered.connect(lambda checked, p=path: open_entry(p))
+        menu.addAction(action)
+
+
+def update_recent_menu(player):
+    populate_recent_menu(player, player.recent_menu)
 
 def setup_video_adjustments(player):
     video_adj_dialog = QDialog(player)
@@ -448,7 +428,7 @@ def setup_video_adjustments(player):
         try:
             setattr(player.mpv_player, name, value)
         except Exception as e:
-            print(f"{name} ayarı uygulanamadı: {e}")
+            safe_console(f"{name} ayarı uygulanamadı: {e}")
 
     def reset_settings():
         # valueChanged sinyaline güvenme: slayt zaten 0 ise sinyal tetiklenmez,
@@ -521,81 +501,169 @@ def setup_video_adjustments(player):
 
     video_adj_dialog.exec()
 
+def clear_dynamic_menu(menu):
+    """Dinamik menüyü TAMAMEN boşaltır.
+
+    Eskiden `actions()[1:]` kullanılıyordu ("ilk satır sabit yenileme
+    eylemidir" varsayımı). Yenileme satırları kaldırıldığı için bu varsayım
+    artık geçersizdir ve bayat satır bırakırdı.
+    """
+    for action in list(menu.actions()):
+        menu.removeAction(action)
+
+
+def _exclusive_group(player, menu, attribute):
+    """Menü boyunca YAŞAYAN exclusive seçim grubu.
+
+    Grup player'a bağlanır; menü yenilendiğinde yenisi kurulur ve eskisi
+    action'larıyla birlikte bırakılır.
+    """
+    group = QActionGroup(menu)
+    group.setExclusive(True)
+    setattr(player, attribute, group)
+    return group
+
+
 def refresh_audio_tracks(player):
+    """Ses PARÇALARI (videonun içindeki ses akışları) menüsünü doldurur."""
+    menu = player.audio_track_menu
+    clear_dynamic_menu(menu)
     if not player.current_file:
-        QMessageBox.warning(player, "Uyarı", "Önce bir video dosyası açın.")
+        empty_action = QAction("Önce bir video açın.", player)
+        empty_action.setEnabled(False)
+        menu.addAction(empty_action)
         return
 
-    # Mevcut menü öğelerini temizle (ilk öğe hariç)
-    for action in player.audio_track_menu.actions()[1:]:
-        player.audio_track_menu.removeAction(action)
-
     try:
-        # Ses kanallarını al
         player.mpv_player.command('rescan-external-files')
-        track_list = player.mpv_player.track_list
-        audio_tracks = [track for track in track_list if track['type'] == 'audio']
+        track_list = player.mpv_player.track_list or []
+        audio_tracks = [track for track in track_list
+                        if isinstance(track, dict)
+                        and track.get('type') == 'audio']
         current_aid = player.mpv_player.aid
-
-        if not audio_tracks:
-            no_audio_action = QAction("Ses kanalı bulunamadı", player)
-            no_audio_action.setEnabled(False)
-            player.audio_track_menu.addAction(no_audio_action)
-        else:
-            # Kanalları menüye ekle
-            for track in audio_tracks:
-                track_name = track.get('title', f"Ses Kanalı {track['id']}")
-                track_action = QAction(f"{track_name} (ID: {track['id']})", player)
-                track_action.setCheckable(True)
-                if track['id'] == current_aid:
-                    track_action.setChecked(True)
-                track_action.triggered.connect(lambda checked, aid=track['id']: player.select_audio_track(aid))
-                player.audio_track_menu.addAction(track_action)
     except Exception as e:
-        print(f"Ses kanallarını listeleme hatası: {e}")
-        error_action = QAction("Ses kanalları yüklenemedi", player)
+        safe_console(f"Ses parçalarını listeleme hatası: {e}")
+        error_action = QAction("Ses parçaları yüklenemedi", player)
         error_action.setEnabled(False)
-        player.audio_track_menu.addAction(error_action)
+        menu.addAction(error_action)
+        return
+
+    if not audio_tracks:
+        no_audio_action = QAction("Ses parçası bulunamadı", player)
+        no_audio_action.setEnabled(False)
+        menu.addAction(no_audio_action)
+        return
+
+    group = _exclusive_group(player, menu, "_audio_track_group")
+    for track, label in zip(audio_tracks,
+                            track_labels.audio_track_labels(audio_tracks)):
+        track_id = track.get('id')
+        action = QAction(label, player)
+        action.setCheckable(True)
+        action.setChecked(track_id == current_aid)
+        # Teknik kimlik yalnızca veri tarafında; kullanıcı metnine YAZILMAZ.
+        action.setData(track_id)
+        full = _text_or_empty(track.get("title"))
+        if full and full not in label:
+            action.setToolTip(full)
+            action.setStatusTip(full)
+        action.triggered.connect(
+            lambda checked, aid=track_id: player.select_audio_track(aid))
+        group.addAction(action)
+        menu.addAction(action)
+
+
+def _text_or_empty(value):
+    return value.strip() if isinstance(value, str) else ""
 
 def select_audio_track(player, aid):
     try:
         player.mpv_player.aid = aid
-        print(f"Seçilen ses kanalı ID: {aid}")
+        safe_console(f"Seçilen ses kanalı ID: {aid}")
     except Exception as e:
-        print(f"Ses kanalı seçimi hatası: {e}")
+        safe_console(f"Ses kanalı seçimi hatası: {e}")
         show_user_error(player, "Ses Kanalı Seçilemedi",
                         "Ses kanalı değiştirilemedi. Lütfen başka bir kanal deneyin.",
                         exc=e)
 
 
-def refresh_audio_devices(player):
-    for action in player.audio_device_menu.actions()[1:]:
-        player.audio_device_menu.removeAction(action)
+def detect_audio_devices(player):
+    """Gerçek ses çıkışlarını BİR KEZ algılar ve player'a önbelleğe alır.
+
+    Menüler bu önbellekten okur; menü AÇILIŞINDA yeni tarama yapılmaz.
+    Dönen liste `(name, description)` çiftlerinden oluşur. Okunamazsa
+    `None` döner (menü güvenli bir disabled satır gösterir).
+    """
+    devices = []
+    try:
+        raw = player.mpv_player.audio_device_list or []
+    except Exception as e:
+        # MPV henüz hazır olmayabilir (menü kurulumu init'ten ÖNCE çalışır).
+        # Başarısızlık ÖNBELLEĞE ALINMAZ ki sonraki erişim yeniden denesin.
+        safe_console(f"Ses çıkışları listeleme hatası: {e}")
+        return None
+    for device in raw:
+        if not isinstance(device, dict):
+            continue
+        name = device.get("name", "")
+        if not name or name == "auto":
+            # `auto` gerçek bir aygıt değil, MPV pseudo-device'ıdır.
+            continue
+        if sys.platform == "win32" and not str(name).startswith("wasapi/"):
+            # OpenAL/SDL backend'leri Windows'ta gerçek çıkış aygıtı değildir.
+            continue
+        devices.append((name, device.get("description") or name))
+    player._audio_devices = devices
+    return devices
+
+
+def audio_devices(player):
+    """Önbellekteki ses çıkışları; hiç algılanmadıysa bir kez algılar."""
+    cached = getattr(player, "_audio_devices", "missing")
+    if cached == "missing":
+        return detect_audio_devices(player)
+    return cached
+
+
+def populate_audio_device_menu(player, menu, on_select=None, owner=None):
+    """Ses Çıkışı menüsünü ÖNBELLEKTEN doldurur (ana menü + sağ-tık ortak).
+
+    Her menü KENDİ QAction'larını üretir; aynı nesne iki menü arasında
+    taşınmaz.
+    """
+    clear_dynamic_menu(menu)
+    devices = audio_devices(player)
+    if devices is None:
+        error_action = QAction("Ses çıkışları yüklenemedi", owner or player)
+        error_action.setEnabled(False)
+        menu.addAction(error_action)
+        return
+    if not devices:
+        empty_action = QAction("Ses çıkışı bulunamadı", owner or player)
+        empty_action.setEnabled(False)
+        menu.addAction(empty_action)
+        return
     try:
         current = player.mpv_player.audio_device
-        devices = player.mpv_player.audio_device_list or []
-        if sys.platform == "win32":
-            # OpenAL/SDL mpv backend'leridir; Windows'taki gerçek çıkış aygıtı
-            # değildir. Gerçek donanım çıkışlarını WASAPI listesinde göster.
-            devices = [device for device in devices if (
-                device.get("name") == "auto" or
-                str(device.get("name", "")).startswith("wasapi/")
-            )]
-        for device in devices:
-            name = device.get("name", "auto")
-            description = ("Otomatik Seç" if name == "auto"
-                           else device.get("description") or name)
-            action = QAction(description, player)
-            action.setCheckable(True)
-            action.setChecked(name == current)
-            action.triggered.connect(
-                lambda checked, value=name: select_audio_device(player, value))
-            player.audio_device_menu.addAction(action)
-    except Exception as e:
-        print(f"Ses aygıtları listeleme hatası: {e}")
-        error_action = QAction("Ses aygıtları yüklenemedi", player)
-        error_action.setEnabled(False)
-        player.audio_device_menu.addAction(error_action)
+    except Exception:
+        current = None
+    select = on_select or (lambda value: select_audio_device(player, value))
+    group = QActionGroup(menu)
+    group.setExclusive(True)
+    for name, description in devices:
+        action = QAction(description, owner or player)
+        action.setCheckable(True)
+        action.setChecked(name == current)
+        action.setData(name)
+        action.triggered.connect(lambda checked, value=name: select(value))
+        group.addAction(action)
+        menu.addAction(action)
+
+
+def refresh_audio_devices(player):
+    """Ses ÇIKIŞLARI menüsünü yeniden algılayıp doldurur (açılışta bir kez)."""
+    detect_audio_devices(player)
+    populate_audio_device_menu(player, player.audio_device_menu)
 
 
 def select_audio_device(player, name):
@@ -609,34 +677,49 @@ def select_audio_device(player, name):
 
 
 def refresh_subtitle_tracks(player):
+    """Altyazı PARÇALARI menüsünü ortak etiket üreticisiyle doldurur."""
+    menu = player.subtitle_track_menu
+    clear_dynamic_menu(menu)
     if not player.current_file:
-        QMessageBox.warning(player, "Uyarı", "Önce bir video dosyası açın.")
+        empty_action = QAction("Önce bir video açın.", player)
+        empty_action.setEnabled(False)
+        menu.addAction(empty_action)
         return
-    for action in player.subtitle_track_menu.actions()[1:]:
-        player.subtitle_track_menu.removeAction(action)
     try:
         player.mpv_player.command("rescan-external-files")
         tracks = [track for track in (player.mpv_player.track_list or [])
-                  if track.get("type") == "sub"]
+                  if isinstance(track, dict) and track.get("type") == "sub"]
         current_sid = player.mpv_player.sid
-        if not tracks:
-            empty_action = QAction("Altyazı parçası bulunamadı", player)
-            empty_action.setEnabled(False)
-            player.subtitle_track_menu.addAction(empty_action)
-            return
-        for track in tracks:
-            title = track.get("title") or track.get("lang") or f"Altyazı {track['id']}"
-            action = QAction(f"{title} (ID: {track['id']})", player)
-            action.setCheckable(True)
-            action.setChecked(track["id"] == current_sid)
-            action.triggered.connect(
-                lambda checked, sid=track["id"]: player.select_subtitle_language(sid))
-            player.subtitle_track_menu.addAction(action)
     except Exception as e:
-        print(f"Altyazı parçaları listeleme hatası: {e}")
+        safe_console(f"Altyazı parçaları listeleme hatası: {e}")
         error_action = QAction("Altyazı parçaları yüklenemedi", player)
         error_action.setEnabled(False)
-        player.subtitle_track_menu.addAction(error_action)
+        menu.addAction(error_action)
+        return
+
+    if not tracks:
+        empty_action = QAction("Altyazı parçası bulunamadı", player)
+        empty_action.setEnabled(False)
+        menu.addAction(empty_action)
+        return
+
+    group = _exclusive_group(player, menu, "_subtitle_track_group")
+    for track, label in zip(tracks,
+                            track_labels.subtitle_track_labels(tracks)):
+        track_id = track.get("id")
+        action = QAction(label, player)
+        action.setCheckable(True)
+        action.setChecked(track_id == current_sid)
+        action.setData(track_id)
+        full = _text_or_empty(track.get("title")) or _text_or_empty(
+            track.get("external-filename"))
+        if full and full not in label:
+            action.setToolTip(full)
+            action.setStatusTip(full)
+        action.triggered.connect(
+            lambda checked, sid=track_id: player.select_subtitle_language(sid))
+        group.addAction(action)
+        menu.addAction(action)
 
 
 def refresh_chapters(player):
@@ -661,7 +744,7 @@ def refresh_chapters(player):
         refresh_action.triggered.connect(player.refresh_chapters)
         player.chapter_menu.addAction(refresh_action)
     except Exception as e:
-        print(f"Bölümler listelenemedi: {e}")
+        safe_console(f"Bölümler listelenemedi: {e}")
 
 
 def select_chapter(player, index):
@@ -671,7 +754,163 @@ def select_chapter(player, index):
         title = chapters[index].get("title") if index < len(chapters) else None
         player.video_frame.show_osd(title or f"Bölüm {index + 1:02d}")
     except Exception as e:
-        print(f"Bölüm seçilemedi: {e}")
+        safe_console(f"Bölüm seçilemedi: {e}")
+
+def show_log_management(player):
+    """Ayrı "Günlük Yönetimi" penceresini açar (ince entegrasyon noktası).
+
+    Saklama politikası ve temizleme sözleşmesi `app/errors.py`,
+    yerleşim `app/log_management_dialog.py` içindedir.
+    """
+    from app.log_management_dialog import LogManagementDialog
+
+    dialog = LogManagementDialog(player)
+    dialog.exec()
+
+
+def media_info_property_reader(player):
+    """python-mpv'nin GERÇEK okuma yolu.
+
+    Kurulu `mpv.py` kaynağında `MPV.__getattr__` yalnızca
+    `self._get_property(_py_to_mpv(name), ...)` çağırır; yani asıl API
+    `_get_property(<mpv adı>)` metodudur ve tire içeren adı doğrudan alır.
+    Tahmini `getattr` yerine önce o kullanılır; bulunmazsa öznitelik yolu
+    yedek kalır. Hangi anahtarların okunacağına BUILDER karar verir.
+    """
+    mpv_player = getattr(player, "mpv_player", None)
+    if mpv_player is None:
+        return None
+    getter = getattr(mpv_player, "_get_property", None)
+
+    def read(name):
+        if callable(getter):
+            return getter(name)
+        return getattr(mpv_player, str(name).replace("-", "_"))
+
+    return read
+
+
+def _media_info_inputs(player):
+    """Snapshot/anahtar girdileri; okuma hatası boş listeye düşer."""
+    try:
+        tracks = list(getattr(getattr(player, "mpv_player", None),
+                              "track_list", None) or [])
+    except Exception:
+        tracks = []
+    return (getattr(player, "current_file", ""),
+            getattr(player, "duration", 0), tracks)
+
+
+def _live_media_info_dialog(player):
+    """Silinmiş C++ sarmalayıcısını HAM hata üretmeden ayırt eder."""
+    dialog = player.__dict__.get("_media_info_dialog")
+    if dialog is None:
+        return None
+    try:
+        dialog.isVisible()
+    except RuntimeError:
+        _forget_media_info(player, dialog)
+        return None
+    return dialog
+
+
+def _forget_media_info(player, dialog):
+    """YALNIZ hâlâ aynı pencereyse temizler.
+
+    Eski pencerenin geç gelen `finished`/`destroyed` sinyali, yerine açılmış
+    YENİ pencerenin referansını silmemelidir.
+    """
+    if player.__dict__.get("_media_info_dialog") is not dialog:
+        return
+    player._media_info_dialog = None
+    player._media_info_refresh_key = None
+
+
+def show_media_info(player):
+    """Medya Bilgisi'nin TEK açma noktası (menü, sağ-tık ve facade).
+
+    Modeless ve tekildir: açık pencere varken ikinci çağrı yeni pencere
+    üretmez, gerekirse içeriği tazeler ve pencereyi öne alır. Medya yoksa
+    pencere OLUŞTURULMAZ.
+    """
+    from app.media_info_dialog import MediaInfoDialog
+
+    reader = media_info_property_reader(player)
+    current_file, duration, tracks = _media_info_inputs(player)
+    try:
+        snapshot = build_media_info(current_file, duration, tracks, reader)
+    except Exception:
+        snapshot = None
+    if snapshot is None:
+        close_media_info(player)
+        return None
+    dialog = _live_media_info_dialog(player)
+    if dialog is None:
+        dialog = MediaInfoDialog(snapshot, parent=player)
+        player._media_info_dialog = dialog
+        # `finished` kapanışta ANINDA gelir; `destroyed` yıkımda gelir.
+        # İkisi de kimlik korumalı olduğu için tekrar çalışması zararsızdır.
+        dialog.finished.connect(
+            lambda _code=0, target=dialog: _forget_media_info(player, target))
+        dialog.destroyed.connect(
+            lambda _obj=None, target=dialog: _forget_media_info(player, target))
+    else:
+        dialog.set_snapshot(snapshot)
+    try:
+        player._media_info_refresh_key = media_info_refresh_key(
+            current_file, duration, tracks, reader)
+    except Exception:
+        player._media_info_refresh_key = None
+    dialog.show()
+    dialog.raise_()
+    dialog.activateWindow()
+    return dialog
+
+
+def refresh_media_info(player):
+    """Açık pencereyi YALNIZ gerçekten değiştiyse tazeler.
+
+    Pencere kapalıysa hiçbir mpv property'si OKUNMAZ: genel oynatma
+    döngüsüne maliyet eklenmez. Yeni timer veya observer kurulmaz; çağrı
+    mevcut `update_ui` turundan gelir.
+    """
+    dialog = _live_media_info_dialog(player)
+    if dialog is None:
+        return False
+    reader = media_info_property_reader(player)
+    current_file, duration, tracks = _media_info_inputs(player)
+    try:
+        key = media_info_refresh_key(current_file, duration, tracks, reader)
+    except Exception:
+        return False
+    if key == player.__dict__.get("_media_info_refresh_key"):
+        return False
+    try:
+        snapshot = build_media_info(current_file, duration, tracks, reader)
+    except Exception:
+        snapshot = None
+    if snapshot is None:
+        # Eski medyayı göstermeye DEVAM ETMEZ.
+        close_media_info(player)
+        return False
+    dialog.set_snapshot(snapshot)
+    player._media_info_refresh_key = key
+    return True
+
+
+def close_media_info(player):
+    """Kapanış yolu: idempotent ve sessiz. Worker/thread yoktur."""
+    dialog = player.__dict__.get("_media_info_dialog")
+    player._media_info_dialog = None
+    player._media_info_refresh_key = None
+    if dialog is None:
+        return False
+    try:
+        dialog.close()
+    except Exception:
+        pass
+    return True
+
 
 def show_shortcuts(player):
     shortcut_dialog = QDialog(player)

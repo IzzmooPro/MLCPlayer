@@ -16,9 +16,9 @@ def run_child(preview, settings_dir):
     env["QT_QPA_PLATFORM"] = "offscreen"
     env["MLC_TITLEBAR_SETTINGS"] = str(settings_dir)
     if preview:
-        env["MLCPLAYER_OVERLAY_PREVIEW"] = "1"
+        env.pop("MLCPLAYER_CLASSIC_UI", None)
     else:
-        env.pop("MLCPLAYER_OVERLAY_PREVIEW", None)
+        env["MLCPLAYER_CLASSIC_UI"] = "1"
     proc = subprocess.run([sys.executable, CHILD], env=env, cwd=PROJECT_ROOT,
                           capture_output=True, text=True, timeout=180)
     line = next((l for l in proc.stdout.splitlines()
@@ -56,7 +56,7 @@ def test_preview_hides_the_classic_menu_bar(preview_on):
 
 def test_preview_creates_the_custom_title_bar(preview_on):
     assert preview_on["has_title_bar"] is True
-    assert preview_on["title_bar_height"] == 42
+    assert preview_on["title_bar_height"] == 48
     assert preview_on["title_bar_visible"] is True
 
 
@@ -67,26 +67,30 @@ def test_classic_menu_actions_stay_alive_in_overflow(preview_on):
         "Araçlar", "Gezinim", "Görünüm", "Yardım"]
 
 
-# --- Preview kapalı: mevcut davranış korunmalı ---
+# --- Legacy klasik anahtar: artık eski kabuğu GERİ GETİRMEZ ---
+#
+# Bu blok eskiden klasik kabuğun korunduğunu doğruluyordu. Kullanıcı eski
+# pencereyi gerçek Windows'ta gördüğü için ürün kararı değişti: sinematik
+# tasarım tek arayüzdür.
 
-def test_normal_mode_keeps_the_native_window_frame(preview_off):
-    assert preview_off["frameless"] is False
-
-
-def test_normal_mode_keeps_the_classic_menu_bar_visible(preview_off):
-    assert preview_off["menu_bar_visible"] is True
-
-
-def test_normal_mode_creates_no_title_bar(preview_off):
-    assert preview_off["has_title_bar"] is False
-    assert preview_off["overlay_created"] is False
+def test_legacy_env_still_yields_a_frameless_window(preview_off):
+    assert preview_off["frameless"] is True
 
 
-def test_normal_mode_menu_and_fullscreen_behaviour_unchanged(preview_off):
+def test_legacy_env_keeps_the_classic_menu_bar_hidden(preview_off):
+    assert preview_off["menu_bar_visible"] is False
+
+
+def test_legacy_env_still_creates_the_modern_title_bar(preview_off):
+    assert preview_off["has_title_bar"] is True
+    assert preview_off["overlay_created"] is True
+
+
+def test_legacy_env_fullscreen_never_reveals_the_menu_bar(preview_off):
     assert preview_off["window_is_fullscreen"] is True
     assert preview_off["menu_visible_fullscreen"] is False
     assert preview_off["window_is_fullscreen_after_exit"] is False
-    assert preview_off["menu_visible_after_exit"] is True
+    assert preview_off["menu_visible_after_exit"] is False
 
 
 # --- Minimum boyut ---
@@ -148,9 +152,9 @@ def test_ensure_helper_raises_and_shows_the_title_bar(preview_on):
     assert preview_on["title_bar_visible_after_helper"] is True
 
 
-def test_preview_off_has_no_title_bar_z_order_work(preview_off):
+def test_legacy_env_still_does_title_bar_z_order_work(preview_off):
     assert preview_off["has_ensure_helper"] is True
-    assert preview_off["has_title_bar"] is False
+    assert preview_off["has_title_bar"] is True
 
 
 def test_playback_start_raises_title_bar_exactly_once(preview_on):
@@ -163,5 +167,6 @@ def test_playback_start_raises_title_bar_exactly_once(preview_on):
     assert preview_on["ensure_calls_after_extra_updates"] == 1
 
 
-def test_preview_off_mark_helper_does_not_set_pending(preview_off):
-    assert preview_off["mark_sets_pending"] is False
+def test_legacy_env_mark_helper_still_sets_pending(preview_off):
+    """Sinematik kabuk her koşulda kurulduğu için bayrak da çalışır."""
+    assert preview_off["mark_sets_pending"] is True

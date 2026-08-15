@@ -21,9 +21,9 @@ def run_child(preview, settings_dir):
     env["QT_QPA_PLATFORM"] = "offscreen"
     env["MLC_LAYOUT_SETTINGS"] = str(settings_dir)
     if preview:
-        env["MLCPLAYER_OVERLAY_PREVIEW"] = "1"
+        env.pop("MLCPLAYER_CLASSIC_UI", None)
     else:
-        env.pop("MLCPLAYER_OVERLAY_PREVIEW", None)
+        env["MLCPLAYER_CLASSIC_UI"] = "1"
     proc = subprocess.run([sys.executable, CHILD], env=env, cwd=PROJECT_ROOT,
                           capture_output=True, text=True, timeout=180)
     line = next((l for l in proc.stdout.splitlines()
@@ -61,10 +61,11 @@ def test_classic_panel_takes_no_layout_height_when_preview_is_on(preview_on):
     assert preview_on["control_container_height_normal"] == 0
 
 
-def test_classic_panel_is_visible_when_preview_is_off(preview_off):
-    assert preview_off["overlay_created"] is False
-    assert preview_off["control_container_visible_normal"] is True
-    assert preview_off["control_container_height_normal"] == 54
+def test_legacy_env_still_yields_the_cinematic_shell(preview_off):
+    """Legacy klasik anahtarı verilse bile overlay kurulur, eski panel gizli."""
+    assert preview_off["overlay_created"] is True
+    assert preview_off["control_container_visible_normal"] is False
+    assert preview_off["control_container_height_normal"] == 0
 
 
 def test_product_control_objects_survive_with_preview_on(preview_on):
@@ -156,7 +157,7 @@ def test_classic_panel_stays_hidden_after_fullscreen_with_preview_on(preview_on)
     assert preview_on["control_container_visible_after_exit"] is False
 
 
-def test_classic_panel_returns_after_fullscreen_with_preview_off(preview_off):
+def test_classic_panel_stays_hidden_after_fullscreen_with_legacy_env(preview_off):
     assert preview_off["window_is_fullscreen_after_exit"] is False
-    assert preview_off["menu_visible_after_exit"] is True
-    assert preview_off["control_container_visible_after_exit"] is True
+    assert preview_off["menu_visible_after_exit"] is False
+    assert preview_off["control_container_visible_after_exit"] is False

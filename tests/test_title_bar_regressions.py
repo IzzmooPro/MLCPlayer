@@ -87,10 +87,22 @@ def press_event(widget, point, button_type=Qt.MouseButton.LeftButton):
 
 def test_title_bar_has_fixed_reference_height(title_bar):
     app, window, bar = title_bar()
-    assert TITLE_BAR_HEIGHT == 42
-    assert bar.height() == 42
-    assert bar.minimumHeight() == 42
-    assert bar.maximumHeight() == 42
+    assert TITLE_BAR_HEIGHT == 48
+    assert bar.height() == 48
+    assert bar.minimumHeight() == 48
+    assert bar.maximumHeight() == 48
+
+
+def test_title_bar_uses_the_approved_reference_scale(title_bar):
+    app, window, bar = title_bar()
+    assert TITLE_BAR_HEIGHT == 48
+    assert "font-size: 16px" in bar.title_label.styleSheet()
+    for name in LEFT_ORDER + RIGHT_ORDER:
+        widget = button(bar, name)
+        assert widget.width() == 34
+        assert widget.height() == 34
+        assert widget.iconSize().width() == 20
+        assert widget.iconSize().height() == 20
 
 
 def test_title_bar_shows_product_name(title_bar):
@@ -288,7 +300,7 @@ def test_double_click_toggles_maximized_state(title_bar):
 # --- Frameless resize bölgeleri ---
 
 def test_resize_margin_is_in_reference_range():
-    assert 5 <= RESIZE_MARGIN <= 7
+    assert 10 <= RESIZE_MARGIN <= 14
 
 
 @pytest.mark.parametrize("point,expected", [

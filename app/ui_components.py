@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLab
 from PyQt6.QtCore import Qt, QSize, QRectF
 from PyQt6.QtGui import QColor, QPainter
 from app.utils import create_colored_icon, format_time
-from app.config import DEFAULT_VOLUME, MAX_VOLUME
+from app.config import cinematic_ui_enabled, DEFAULT_VOLUME, MAX_VOLUME
 
 # Özel QSlider sınıfı - tıklama ve sürükleme olaylarını yakalayabilmek için
 class ClickableSlider(QSlider):
@@ -12,11 +12,21 @@ class ClickableSlider(QSlider):
         super().__init__(orientation)
         self.setMouseTracking(True)
 
+    def _value_at(self, x):
+        """Yatay konumu slider aralığına güvenli biçimde dönüştürür.
+
+        x, kullanılabilir genişliğe sınırlanır; böylece kenarlara yapılan
+        tıklamalar aralık dışına taşan değer üretmez.
+        """
+        width = max(1, self.width())
+        ratio = min(1.0, max(0.0, x / width))
+        span = self.maximum() - self.minimum()
+        return int(round(self.minimum() + span * ratio))
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.setSliderDown(True)
-            value = self.minimum() + ((self.maximum() - self.minimum()) * event.position().x()) / self.width()
-            self.setValue(int(value))
+            self.setValue(self._value_at(event.position().x()))
             event.accept()
         else:
             super().mousePressEvent(event)
@@ -30,8 +40,7 @@ class ClickableSlider(QSlider):
 
     def mouseMoveEvent(self, event):
         if event.buttons() & Qt.MouseButton.LeftButton:
-            value = self.minimum() + ((self.maximum() - self.minimum()) * event.position().x()) / self.width()
-            self.setValue(int(value))
+            self.setValue(self._value_at(event.position().x()))
             event.accept()
         else:
             super().mouseMoveEvent(event)
@@ -242,12 +251,15 @@ def setup_controls(player):
     # Ana düzene ekle
     player.main_layout.addWidget(control_container)
 
-    # Sinematik overlay preview açıkken tek görünen oynatma kontrol yüzeyi
-    # overlay olmalı. Klasik panel nesneleri (position_slider, play_button vb.)
-    # mevcut akışlar bozulmasın diye oluşturulmaya devam eder; yalnızca
+    # Sinematik arayüzde tek görünen oynatma kontrol yüzeyi overlay'dir.
+    # Klasik panel nesneleri (position_slider, volume_slider, play_button vb.)
+    # görünmez bir uyumluluk katmanı olarak yaşamaya devam eder; yalnızca
     # gizlenir ve layout'ta yer kaplamaz.
     player.control_container = control_container
-    if os.environ.get("MLCPLAYER_OVERLAY_PREVIEW") == "1":
+    enabled = getattr(player, "cinematic_ui_enabled", None)
+    if enabled is None:
+        enabled = cinematic_ui_enabled()
+    if enabled:
         control_container.setFixedHeight(0)
         control_container.hide()
 

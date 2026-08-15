@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
 from app.config import MAX_VOLUME
 from app.video_frame import VideoFrame
 
-RIGHT_CONTROLS = ("overlaySubtitles", "overlayVolume", "overlaySettings",
+RIGHT_CONTROLS = ("overlaySubtitles", "overlaySettings", "overlayVolume",
                   "overlayVolumeSlider", "overlayFullscreen")
 
 
@@ -32,7 +32,7 @@ def video_window(monkeypatch, tmp_path):
         return app
 
     def factory(size=(1280, 720)):
-        monkeypatch.setenv("MLCPLAYER_OVERLAY_PREVIEW", "1")
+        monkeypatch.delenv("MLCPLAYER_CLASSIC_UI", raising=False)
         QSettings.setDefaultFormat(QSettings.Format.IniFormat)
         QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,
                           str(tmp_path))

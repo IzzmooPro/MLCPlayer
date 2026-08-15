@@ -1,27 +1,279 @@
+import ctypes
 import os
 import math
+import threading
 
 from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QMenu, QHBoxLayout,
                              QPushButton, QSizePolicy, QSlider, QVBoxLayout)
-from PyQt6.QtGui import QAction, QCursor
+from PyQt6.QtGui import QAction, QActionGroup, QCursor
 from PyQt6.QtCore import (Qt, QTimer, QPoint, QRect, QSize, QEvent,
-                          QEasingCurve, QPropertyAnimation)
+                          QEasingCurve, QObject, QPropertyAnimation,
+                          pyqtSignal)
 from app.ui_components import ClickableSlider
 from app.ui_icons import make_media_icon
+from app.playlist_panel import PlaylistPanel
 from app.utils import format_time
-from app.config import MAX_VOLUME
+from app.config import APP_STYLE, cinematic_ui_enabled, MAX_VOLUME
+from app import track_labels
+from app.errors import safe_console
+from app.menu_actions import populate_audio_device_menu, populate_recent_menu
+
+# Ana menüyle AYNI hız seçenekleri.
+PLAYBACK_SPEEDS = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0)
+
+# Video sahnesi üzerinde fare tekerleği: standart bir kademe 120 birimdir
+# ve ses adımı ses çubuğunun kendi adımıyla (`VolumeSlider.wheelEvent`) aynıdır.
+WHEEL_ANGLE_PER_STEP = 120
+WHEEL_VOLUME_STEP = 5
+
+# Sağ-tık menüsü ürünün KOYU temasını kullanır. Stil TEK yerde tanımlanır;
+# alt menüler kök menüden miras alır (her alt menüye kopyalanmaz).
+CONTEXT_MENU_STYLE = APP_STYLE
+
+# --- Gerçek Windows foreground ölçümü ---
+# İmzalar açıkça tanımlanır: varsayılan ctypes dönüş tipi C int'tir ve 64-bit
+# HWND değerlerini kırpabilir. wintypes ile pointer-safe hale getirilir.
+if os.name == "nt":
+    from ctypes import wintypes
+
+    _REAL_USER32 = ctypes.windll.user32
+    _REAL_USER32.GetForegroundWindow.argtypes = []
+    _REAL_USER32.GetForegroundWindow.restype = wintypes.HWND
+    _REAL_USER32.GetWindowThreadProcessId.argtypes = [
+        wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+    _REAL_USER32.GetWindowThreadProcessId.restype = wintypes.DWORD
+else:  # pragma: no cover - ürün yalnızca Windows'ta çalışır
+    wintypes = None
+    _REAL_USER32 = None
+
+# Testlerin ölçüm yolunu yamalayabilmesi için ayrı ad.
+_user32 = _REAL_USER32
+
+
+def _foreground_measurement_supported():
+    """Gerçek foreground ölçümü bu platformda anlamlı mı?
+
+    Offscreen Qt platformunda foreground kavramı yoktur; ölçüm devre dışıdır
+    ve mevcut davranış korunur.
+    """
+    if os.name != "nt":
+        return False
+    app = QApplication.instance()
+    return not (app is not None and app.platformName() == "offscreen")
+
+
+def _measure_foreground_pid():
+    """Foreground penceresinin PID'i; ölçülemezse None.
+
+    Sıfır HWND, sıfır thread, sıfır PID ve her türlü Win32/ctypes hatası
+    "ölçülemedi" sayılır. Çağıran taraf bunu GÜVENLİ yönde (yüzeyleri gizli
+    tut) yorumlar.
+    """
+    if _user32 is None:
+        return None
+    try:
+        hwnd = _user32.GetForegroundWindow()
+        if not hwnd:
+            return None
+        pid = wintypes.DWORD(0)
+        thread = _user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        if not thread or not pid.value:
+            return None
+        return int(pid.value)
+    except Exception:
+        return None
+
 
 # Sinematik kontrol katmanı ölçüleri (onaylanmış referans görsele göre).
 OVERLAY_HEIGHT = 110
 OVERLAY_SIDE_PADDING = 28
-OVERLAY_NARROW_SIDE_PADDING = 12
+OVERLAY_NARROW_SIDE_PADDING = 8
 OVERLAY_NARROW_WIDTH = 560
 OVERLAY_ACCENT = "#F26A3D"
+# OSD, kontrol katmanının AYRILMIŞ bandının üstünde durur. Katman
+# auto-hide veya opacity=0 olsa bile bant korunur; aksi halde katman geri
+# geldiğinde mesaj düğmelerin arkasında kalıyordu.
+OSD_OVERLAY_GAP = 14
+
+# --- Altyazı için güvenli alt bant ---------------------------------------
+#
+# Ölçülen kusur (gerçek video, 1400x772 yüzey): `sub_pos=100` iken
+# altyazı bbox'ı (333, 635, 1065, 739), kontrol katmanının üst kenarı
+# 662 → altyazı bandın 77 px İÇİNE giriyor ve timeline ile kesişiyordu.
+#
+# Çözüm SABİT bir yüzde DEĞİLDİR: `sub_pos` kullanıcının tercihidir ve
+# 0-100 aralığı, varsayılan %100 korunur. Bunun yerine MPV'ye gerçek
+# ayrılmış banttan türetilen bir ALT MARJ verilir; böylece %100 "panele
+# en yakın GÜVENLİ konum" olur ve daha küçük değerler altyazıyı yukarı
+# taşımaya devam eder.
+#
+# NOT: bu libmpv'de (v0.36) `sub-margin-y-offset` YOKTUR; var olan
+# özellik `sub-margin-y`dir ve `sub-scale-by-window=yes` iken 720 px
+# referans yüksekliğine göre ölçeklenir.
+SUBTITLE_BAND_GAP = 12
+MPV_MARGIN_REFERENCE_HEIGHT = 720
+
+# ASS altyazıda `sub-margin-y` ETKİSİZDİR (ölçüldü: marj 116 → 300'de
+# altyazı 0 px hareket etti). Fakat `sub-pos` ÇALIŞIR (ölçüldü: 100 → 80
+# arasında ~149 px yukarı hareket). Bu yüzden ASS metin altyazılarında
+# güvenli bant, MPV'ye YALNIZ ÇALIŞMA ANINDA yazılan efektif bir
+# `sub_pos` ile sağlanır. Kullanıcının kayıtlı tercihi (QSettings ve
+# Altyazı Ayarları penceresi) DEĞİŞMEZ; düzeltme onun ÜZERİNE kontrollü
+# bir ofset olarak uygulanır.
+ASS_SUB_CODECS = frozenset({"ass", "ssa", "ass-text", "subst"})
+# Metin tabanlı olup ASS OLMAYAN codec'ler `sub-margin-y` yolunu kullanır.
+TEXT_SUB_CODECS = frozenset({"subrip", "srt", "text", "webvtt", "mov_text",
+                             "microdvd", "subviewer", "sami", "eia_608"})
+OSD_EDGE_MARGIN = 10
 # Oynatma sürerken etkileşimsizlik sonrası overlay'in gizlenme süresi.
 OVERLAY_AUTO_HIDE_MS = 2500
+# Timeline'ın görünmez tıklama alanı. Görsel çizgi yine 3 px'tir;
+# kullanıcı çizgiyi ~18 px yukarıdan/aşağıdan kaçırsa da seek çalışır.
+OVERLAY_TIMELINE_HIT_HEIGHT = 48
+# Windows, `WS_EX_LAYERED` olan overlay penceresinde fare hedefini PİKSEL
+# ALFASINA göre seçer: alfa=0 pikseller alttaki mpv `wid` yüzeyine düşer ve
+# kontrol gerçek tıklamayla ÇALIŞMAZ (ölçüm: `WindowFromPoint` overlay yerine
+# video yüzeyini döndürür, düğmeye hiç `MouseButtonPress` gelmez).
+# Bu yüzden bütün interaktif kontroller en düşük KANITLANMIŞ nötr alfayla
+# boyanır. Ölçülen minimum 2/255'tir; gözle fark edilmez ve gradient, turuncu
+# vurgu, ikon, hover ve geometri değişmez. TEK kaynak budur.
+OVERLAY_HIT_ALPHA = 2
+OVERLAY_HIT_BACKGROUND = f"rgba(0, 0, 0, {OVERLAY_HIT_ALPHA})"
+# Hover'da yalnızca çizim büyür (geometri değişmez).
+OVERLAY_ACCENT_HOVER = "#FF7A48"
+# CC durum etiketleri
+SUBTITLES_ACTIVE_LABEL = "Altyazıları Kapat"
+SUBTITLES_INACTIVE_LABEL = "Altyazıları Aç"
+# mpv `sid` bu değerlerde "seçili altyazı yok" demektir.
+DISABLED_SID_VALUES = frozenset({"no", "none", "", "0", "false"})
+# Görünmez hit alanları: ikonlar 18 px kalır, yalnızca tıklanabilir
+# yüzey büyür.
+OVERLAY_SIDE_BUTTON_SIZE = 40
+OVERLAY_SKIP_BUTTON_SIZE = 40
+# Satır aralıkları: geniş pencerede referans görünüm, dar pencerede
+# kontroller sığsın diye daraltılır (buton hit alanları sabit kalır).
+OVERLAY_CENTRE_SPACING = 8
+OVERLAY_RIGHT_SPACING = 10
+OVERLAY_NARROW_CENTRE_SPACING = 4
+OVERLAY_NARROW_RIGHT_SPACING = 4
 # Göster/gizle geçişlerinin fade süreleri.
 OVERLAY_FADE_IN_MS = 140
 OVERLAY_FADE_OUT_MS = 180
+
+class SubtitleTrackWatcher(QObject):
+    """MPV altyazı parçası değişimini ANA thread'e taşıyan tek nokta.
+
+    Neden merkezi: efektif ASS `sub_pos` düzeltmesi yalnız `sub_add`
+    çağrılarının yanına yamanırsa bir yol mutlaka unutulur. Ölçülen
+    açık tam da buydu — `select_subtitle_language()` yalnız `sid`
+    yazıyor, bant senkronlanmıyordu. Burada MPV'nin `sid` ve
+    `track-list` özellikleri gözlenir; hangi ürün yolu parçayı
+    değiştirirse değiştirsin bant uygulanır.
+
+    THREAD KURALI: MPV callback'i kendi olay thread'inden gelir. Qt
+    widget'larına oradan DOKUNULMAZ; iş bir sinyalle ana thread'e
+    aktarılır (`AutoConnection` farklı thread'de kuyruğa alır).
+    """
+
+    changed = pyqtSignal()
+
+    def __init__(self, on_changed, parent=None):
+        super().__init__(parent)
+        self._on_changed = on_changed
+        self._state_lock = threading.Lock()
+        self._mpv_player = None
+        self._observed = []
+        self._attached = False
+        self._notification_queued = False
+        # `python-mpv` gözlemciyi kaldırırken kayıt sırasında verilen
+        # callback'in AYNISINI ister. Bound-method özniteliğini her okumada
+        # yeniden üretmek yerine tek nesne saklanır.
+        self._mpv_callback = self._notify
+        # Açıkça queued: test/ürün hangi thread'den bildirirse bildirsin
+        # senkron aynı çağrı yığınının içinde çalışmaz; fırtına tek olaya
+        # birleşir ve QWidget erişimi daima watcher'ın Qt thread'indedir.
+        self.changed.connect(self._run, Qt.ConnectionType.QueuedConnection)
+
+    #: Gözlenen MPV özellikleri.
+    #:
+    #: - `sid`: kullanıcı parçayı değiştirir.
+    #: - `track-list`: codec bilgisi GECİKMELİ geldiğinde ikinci kez
+    #:   tetikler (dış dosya ekleme de buradan gelir).
+    #: - `osd-dimensions`: RENDER ALANI ölçek referansıdır. Tam ekran ve
+    #:   playlist geçişinde mpv yeni alanı Qt'nin resize olayından SONRA
+    #:   yerleştiriyor; yalnız geometriye bağlanan senkron eski alanla
+    #:   hesaplıyor ve boşluk kayıyordu (ölçüldü: tam ekranda 182 px,
+    #:   %150 playlistte -91 px).
+    OBSERVED = ("sid", "track-list", "osd-dimensions")
+
+    def attach(self, mpv_player):
+        """Altyazı parçası ve render alanı değişimlerini gözler."""
+        with self._state_lock:
+            if self._attached and self._mpv_player is mpv_player:
+                return self
+        self.detach()
+        observed = []
+        for name in self.OBSERVED:
+            try:
+                mpv_player.observe_property(name, self._mpv_callback)
+                observed.append(name)
+            except Exception as exc:
+                safe_console("Altyazı parçası gözlenemedi "
+                             f"({name}): {type(exc).__name__}")
+        with self._state_lock:
+            self._mpv_player = mpv_player
+            self._observed = observed
+            self._attached = True
+        return self
+
+    def detach(self):
+        """MPV gözlemcilerini tam bir kez ayırır; tekrar çağrı güvenlidir."""
+        with self._state_lock:
+            player = self._mpv_player
+            observed = tuple(self._observed)
+            self._mpv_player = None
+            self._observed = []
+            self._attached = False
+            # Kuyrukta bekleyen Qt sinyali `_run()` içinde no-op olur.
+            self._notification_queued = False
+        if player is None:
+            return
+        for name in observed:
+            try:
+                player.unobserve_property(name, self._mpv_callback)
+            except Exception as exc:
+                # Kapanış ENGELLENMEZ; ham libmpv metni/yolu yazdırılmaz.
+                safe_console("Altyazı gözlemcisi ayrılamadı "
+                             f"({name}): {type(exc).__name__}")
+
+    def _notify(self, _name, _value):
+        """MPV OLAY THREAD'İ. Yalnız sinyal yayınlar."""
+        # Bir olay fırtınasındaki ilk callback tek bir queued Qt sinyali
+        # üretir. Ana thread çalışana kadar sonraki bildirimler birleşir;
+        # senkron MPV'nin o andaki SON geometrisini okur.
+        with self._state_lock:
+            if not self._attached or self._notification_queued:
+                return
+            self._notification_queued = True
+        try:
+            self.changed.emit()
+        except RuntimeError:
+            with self._state_lock:
+                self._notification_queued = False
+
+    def _run(self):
+        """ANA THREAD. Bant senkronu burada çalışır."""
+        with self._state_lock:
+            if not self._attached:
+                self._notification_queued = False
+                return
+            self._notification_queued = False
+        try:
+            self._on_changed()
+        except Exception as exc:
+            safe_console("Altyazı bandı parça değişiminde yenilenemedi: "
+                         f"{type(exc).__name__}")
+
 
 class VideoFrame(QWidget):
     def __init__(self, parent=None):
@@ -29,18 +281,36 @@ class VideoFrame(QWidget):
         self.main_window = parent
         self.is_video_fullscreen = False
         self.control_overlay = None
+        self.playlist_panel = None
+        self._playlist_saved_minimum_width = None
+        self._playlist_user_width = None
+        self._updating_playlist_dock = False
         self._overlay_updating_position = False
         self._overlay_updating_volume = False
+        # Video sahnesi üzerindeki tekerlek kademesi için biriktirici.
+        self._wheel_angle_remainder = 0
         # Otomatik gizlenme durumu. _overlay_auto_hidden yalnızca
         # etkileşimsizlik nedeniyle gizlenmeyi işaretler; owner deactivate
         # veya minimize nedeniyle gizlenme bundan ayrıdır.
         self.overlay_hide_timer = None
+        # (mpv nesnesi, uygulanan marj). Yalnız BAŞARILI yazımdan sonra
+        # dolar; aynı geometride tekrar yazım yapılmaz.
+        self._subtitle_band_state = None
         self._overlay_auto_hidden = False
+        # Ürünün kendi yardımcı pencereleri (ör. Altyazı Merkezi) açıkken
+        # katman BASTIRILIR. `_player_owns_foreground()` yalnız SÜREÇ
+        # sahipliğini ölçer; aynı süreçteki bir dialog öne geldiğinde ölçüm
+        # hâlâ "player önde" der, owner olayları katmanı diriltir ve
+        # `raise_()` onu top-level Tool penceresi olarak dialogun ÜSTÜNE
+        # taşırdı (kullanıcının ekran görüntüsündeki hata).
+        self._overlay_suppressed = False
         self._overlay_hover = False
         self._overlay_event_targets = ()
         self._last_cursor_pos = None
         self.overlay_fade = None
         self._overlay_fade_target = 1.0
+        # CC göstergesi: None = henüz hiç hesaplanmadı
+        self.overlay_subtitles_active = None
 
         # Mouse takibi için
         self.setMouseTracking(True)
@@ -64,12 +334,8 @@ class VideoFrame(QWidget):
         # Tam ekranda kontrol çubuğu görünmediği için geçici durum bildirimi.
         # mpv native render alanı normal child widget'ların üstünü kapatabilir.
         # Bu nedenle OSD ayrı bir üst pencere olarak gösterilir.
-        osd_flags = (
-            Qt.WindowType.Tool |
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.WindowStaysOnTopHint
-        )
-        self.osd_label = QLabel(None, osd_flags)
+        osd_flags = Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint
+        self.osd_label = QLabel(self.main_window, osd_flags)
         self.osd_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.osd_label.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
         self.osd_label.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -85,18 +351,20 @@ class VideoFrame(QWidget):
         self.osd_timer.setSingleShot(True)
         self.osd_timer.timeout.connect(self.osd_label.hide)
 
-        if os.environ.get("MLCPLAYER_OVERLAY_PREVIEW") == "1":
+        # Arayüz kararı ana penceredeki tek merkezi durumdan gelir; burada
+        # doğrudan ortam değişkeni okunmaz.
+        enabled = getattr(self.main_window, "cinematic_ui_enabled", None)
+        if enabled is None:
+            enabled = cinematic_ui_enabled()
+        if enabled:
             self._create_control_overlay()
+            self._create_playlist_panel()
 
     def _create_control_overlay(self):
         if self.control_overlay is not None:
             return
 
-        overlay_flags = (
-            Qt.WindowType.Tool |
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.WindowStaysOnTopHint
-        )
+        overlay_flags = Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint
         self.control_overlay = QWidget(self.main_window, overlay_flags)
         self.control_overlay.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.control_overlay.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
@@ -113,51 +381,97 @@ class VideoFrame(QWidget):
             "stop:0 rgba(12, 12, 14, 0), "
             "stop:0.45 rgba(12, 12, 14, 120), "
             "stop:1 rgba(12, 12, 14, 220)); } "
-            "QPushButton { background: transparent; border: none; padding: 0; } "
+            # Interaktif kontrollerin TAMAMI en dusuk kanitlanmis notr
+            # alfayla boyanir (bkz. OVERLAY_HIT_ALPHA): layered pencerede
+            # alfa=0 pikseller Win32 hit-test'te mpv yuzeyine duserdi.
+            f"QPushButton {{ background: {OVERLAY_HIT_BACKGROUND}; "
+            "border: none; padding: 0; } "
             "QPushButton:hover { background: rgba(255, 255, 255, 28); "
             "border-radius: 4px; } "
             f"QPushButton#overlayPlayPause {{ border: 2px solid {OVERLAY_ACCENT}; "
-            "border-radius: 22px; background: transparent; } "
+            f"border-radius: 22px; background: {OVERLAY_HIT_BACKGROUND}; }} "
             f"QPushButton#overlayPlayPause:hover {{ background: rgba(242, 106, 61, 45); }} "
             "QSlider::groove:horizontal { height: 3px; background: "
             "rgba(255, 255, 255, 70); border-radius: 1px; } "
             f"QSlider::sub-page:horizontal {{ height: 3px; background: {OVERLAY_ACCENT}; "
             "border-radius: 1px; } "
             f"QSlider::handle:horizontal {{ width: 11px; height: 11px; "
-            f"margin: -4px 0; background: {OVERLAY_ACCENT}; border-radius: 5px; }}"
+            f"margin: -4px 0; background: {OVERLAY_ACCENT}; border-radius: 5px; }} "
+            # Hover yalnızca timeline'a özgüdür; genel QSlider ve ses çubuğu
+            # etkilenmez. Yalnızca subcontrol çizimi büyür, geometri değişmez.
+            # Hover vurgusu: yalnızca timeline widget'ında, dikey olarak
+            # kenarlarda tamamen şeffaf, merkeze doğru hafif belirginleşen
+            # nötr ve düşük opaklıklı gradient. Turuncu yalnızca asıl çizgi
+            # ve tutamaçta kalır; çevrede turuncu hale oluşmaz.
+            # Genel kural: HER slider hit-test alfasi alir. Ses cubugu ADIYLA
+            # anilmaz; boylece timeline'a ozgu hover/gradient kurallarinin
+            # ses cubuguna sizmadigi mevcut degismezi korunur.
+            f"QSlider {{ background: {OVERLAY_HIT_BACKGROUND}; }} "
+            f"QSlider#overlayTimeline {{ background: {OVERLAY_HIT_BACKGROUND}; }} "
+            "QSlider#overlayTimeline[timelineHover=\"true\"] { background: "
+            "qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+            f"stop:0 rgba(255, 255, 255, {OVERLAY_HIT_ALPHA}), "
+            "stop:0.28 rgba(255, 255, 255, 4), "
+            "stop:0.44 rgba(255, 255, 255, 10), "
+            "stop:0.5 rgba(255, 255, 255, 18), "
+            "stop:0.56 rgba(255, 255, 255, 10), "
+            "stop:0.72 rgba(255, 255, 255, 4), "
+            f"stop:1 rgba(255, 255, 255, {OVERLAY_HIT_ALPHA})); "
+            "border-radius: 4px; } "
+            "QSlider#overlayTimeline[timelineHover=\"true\"]::groove:horizontal "
+            "{ height: 5px; "
+            "background: rgba(255, 255, 255, 95); border-radius: 2px; } "
+            f"QSlider#overlayTimeline[timelineHover=\"true\"]::sub-page:horizontal "
+            f"{{ height: 5px; "
+            f"background: {OVERLAY_ACCENT_HOVER}; border-radius: 2px; }} "
+            f"QSlider#overlayTimeline[timelineHover=\"true\"]::handle:horizontal "
+            f"{{ width: 15px; "
+            f"height: 15px; margin: -5px 0; background: {OVERLAY_ACCENT_HOVER}; "
+            "border-radius: 7px; }"
         )
 
         layout = QVBoxLayout(self.control_overlay)
-        layout.setContentsMargins(OVERLAY_SIDE_PADDING, 10,
-                                  OVERLAY_SIDE_PADDING, 14)
-        layout.setSpacing(10)
+        # Geniş timeline hit alanı alt kontrol satırını aşağı itmesin diye üst
+        # boşluk sıfırlanır ve aradaki boşluk daraltılır; alt satırın dikey
+        # konumu (merkez y=66) değişmez.
+        layout.setContentsMargins(OVERLAY_SIDE_PADDING, 0,
+                                  OVERLAY_SIDE_PADDING, 18)
+        layout.setSpacing(0)
 
         # Üst sıra: geniş timeline
         self.overlay_timeline = ClickableSlider(Qt.Orientation.Horizontal)
         self.overlay_timeline.setRange(0, 1000)
         self.overlay_timeline.setObjectName("overlayTimeline")
-        self.overlay_timeline.setFixedHeight(14)
+        # Görsel groove 3 px kalır; tıklanabilir dikey alan kullanıcı için
+        # yeterli olsun diye widget yüksekliği büyütülür (ses çubuğu 14 px).
+        self.overlay_timeline.setFixedHeight(OVERLAY_TIMELINE_HIT_HEIGHT)
+        self.overlay_timeline.setCursor(Qt.CursorShape.PointingHandCursor)
+        # NOT: QSS :hover sözde durumu WA_Hover olmadan bu slider'a ulaşmıyor;
+        # bayrak olmadan hover büyümesi hiç çizilmiyordu.
+        self.overlay_timeline.setAttribute(Qt.WidgetAttribute.WA_Hover, True)
+        self.overlay_timeline.setProperty("timelineHover", "false")
         self.overlay_timeline.valueChanged.connect(self._overlay_seek)
         layout.addWidget(self.overlay_timeline)
 
         # Alt sıra: sol süre, orta medya kontrolleri, sağ tam ekran
         controls = QHBoxLayout()
         controls.setContentsMargins(0, 0, 0, 0)
-        controls.setSpacing(0)
+        controls.setSpacing(OVERLAY_CENTRE_SPACING)
+        self._overlay_controls_row = controls
 
         time_row = QHBoxLayout()
         time_row.setContentsMargins(0, 0, 0, 0)
         time_row.setSpacing(4)
         self.overlay_current_time_label = QLabel("00:00")
         self.overlay_current_time_label.setStyleSheet(
-            f"color: {OVERLAY_ACCENT}; background: transparent; font-size: 13px;")
+            f"color: {OVERLAY_ACCENT}; background: transparent; font-size: 16px;")
         self.overlay_time_separator = QLabel("/")
         self.overlay_time_separator.setStyleSheet(
-            "color: #B9BFC6; background: transparent; font-size: 13px;")
+            "color: #B9BFC6; background: transparent; font-size: 16px;")
         separator = self.overlay_time_separator
         self.overlay_total_time_label = QLabel("00:00")
         self.overlay_total_time_label.setStyleSheet(
-            "color: #D6DBE1; background: transparent; font-size: 13px;")
+            "color: #D6DBE1; background: transparent; font-size: 16px;")
         for widget in (self.overlay_current_time_label, separator,
                        self.overlay_total_time_label):
             time_row.addWidget(widget)
@@ -177,56 +491,64 @@ class VideoFrame(QWidget):
                            Qt.AlignmentFlag.AlignLeft)
 
         previous = self._make_overlay_button(
-            "overlayPrevious", "previous", "Önceki", 32, 18)
-        previous.clicked.connect(lambda: self.main_window.play_previous())
+            "overlayPrevious", "previous", "Önceki",
+            OVERLAY_SKIP_BUTTON_SIZE, 25)
+        previous.clicked.connect(
+            lambda: self._run_overlay_action(self.main_window.play_previous))
         controls.addWidget(previous, 0, Qt.AlignmentFlag.AlignVCenter)
-        controls.addSpacing(14)
 
         # Referans görselde merkez sembol de turuncudur.
         self.overlay_play_pause_button = self._make_overlay_button(
-            "overlayPlayPause", "play", "Oynat", 44, 20, OVERLAY_ACCENT)
+            "overlayPlayPause", "play", "Oynat", 44, 27, OVERLAY_ACCENT)
         self.overlay_play_pause_button.clicked.connect(
-            lambda: self.main_window.play_pause())
+            lambda: self._run_overlay_action(self.main_window.play_pause))
         controls.addWidget(self.overlay_play_pause_button, 0,
                            Qt.AlignmentFlag.AlignVCenter)
-        controls.addSpacing(14)
 
         next_button = self._make_overlay_button(
-            "overlayNext", "next", "Sonraki", 32, 18)
-        next_button.clicked.connect(lambda: self.main_window.play_next())
+            "overlayNext", "next", "Sonraki",
+            OVERLAY_SKIP_BUTTON_SIZE, 25)
+        next_button.clicked.connect(
+            lambda: self._run_overlay_action(self.main_window.play_next))
         controls.addWidget(next_button, 0, Qt.AlignmentFlag.AlignVCenter)
 
         right_row = QHBoxLayout()
         right_row.setContentsMargins(0, 0, 0, 0)
-        right_row.setSpacing(0)
+        right_row.setSpacing(OVERLAY_RIGHT_SPACING)
+        self._overlay_right_row = right_row
         right_row.addStretch(1)
 
-        # Referans sırası: CC, ses, ayarlar, ses çubuğu, tam ekran
-        subtitles = self._make_overlay_button(
-            "overlaySubtitles", "subtitles", "Altyazıları Göster/Gizle", 30, 18)
-        subtitles.clicked.connect(lambda: self.main_window.toggle_subtitles())
-        right_row.addWidget(subtitles, 0, Qt.AlignmentFlag.AlignVCenter)
-        right_row.addSpacing(10)
-
-        self.overlay_volume_button = self._make_overlay_button(
-            "overlayVolume", "volume", "Sessiz", 30, 18)
-        self.overlay_volume_button.clicked.connect(
-            lambda: self.main_window.toggle_mute())
-        right_row.addWidget(self.overlay_volume_button, 0,
+        # İşlevsel sıra: CC, ayarlar, ses, ses çubuğu, tam ekran.
+        # Ses düğmesi ses çubuğunun hemen yanında kalır.
+        self.overlay_subtitles_button = self._make_overlay_button(
+            "overlaySubtitles", "subtitles", SUBTITLES_INACTIVE_LABEL,
+            OVERLAY_SIDE_BUTTON_SIZE, 22)
+        self.overlay_subtitles_button.clicked.connect(
+            self._on_overlay_subtitles_clicked)
+        right_row.addWidget(self.overlay_subtitles_button, 0,
                             Qt.AlignmentFlag.AlignVCenter)
-        right_row.addSpacing(10)
 
         settings = self._make_overlay_button(
-            "overlaySettings", "settings", "Video Ayarları", 30, 18)
-        settings.clicked.connect(lambda: self.main_window.setup_video_adjustments())
+            "overlaySettings", "settings", "Video Ayarları",
+            OVERLAY_SIDE_BUTTON_SIZE, 22)
+        settings.clicked.connect(lambda: self._run_overlay_action(
+            self.main_window.setup_video_adjustments))
         right_row.addWidget(settings, 0, Qt.AlignmentFlag.AlignVCenter)
-        right_row.addSpacing(10)
+
+        self.overlay_volume_button = self._make_overlay_button(
+            "overlayVolume", "volume", "Sessiz",
+            OVERLAY_SIDE_BUTTON_SIZE, 22)
+        self.overlay_volume_button.clicked.connect(
+            lambda: self._run_overlay_action(self.main_window.toggle_mute))
+        right_row.addWidget(self.overlay_volume_button, 0,
+                            Qt.AlignmentFlag.AlignVCenter)
 
         self.overlay_volume_slider = ClickableSlider(Qt.Orientation.Horizontal)
         self.overlay_volume_slider.setObjectName("overlayVolumeSlider")
         self.overlay_volume_slider.setRange(0, MAX_VOLUME)
         self.overlay_volume_slider.setFixedHeight(14)
-        self.overlay_volume_slider.setMinimumWidth(40)
+        # Dar pencerede bile kullanılabilir kalsın (aşırı daralmasın).
+        self.overlay_volume_slider.setMinimumWidth(36)
         self.overlay_volume_slider.setMaximumWidth(96)
         self.overlay_volume_slider.setToolTip("Ses Seviyesi")
         self.overlay_volume_slider.valueChanged.connect(self._overlay_volume_changed)
@@ -237,15 +559,22 @@ class VideoFrame(QWidget):
             self._overlay_updating_volume = False
         right_row.addWidget(self.overlay_volume_slider, 0,
                             Qt.AlignmentFlag.AlignVCenter)
-        right_row.addSpacing(12)
 
         fullscreen = self._make_overlay_button(
-            "overlayFullscreen", "fullscreen", "Tam Ekran", 30, 18)
-        fullscreen.clicked.connect(lambda: self.main_window.toggle_fullscreen())
+            "overlayFullscreen", "fullscreen", "Tam Ekran",
+            OVERLAY_SIDE_BUTTON_SIZE, 22)
+        fullscreen.clicked.connect(lambda: self._run_overlay_action(
+            self.main_window.toggle_fullscreen))
         right_row.addWidget(fullscreen, 0, Qt.AlignmentFlag.AlignVCenter)
         right_container = QWidget(self.control_overlay)
         right_container.setLayout(right_row)
-        right_container.setStyleSheet("background: transparent;")
+        # NOT: kapsayicinin stylesheet'i cocuklarina da uygulanir. Duz
+        # `transparent` verilirse icindeki CC/ayarlar/ses/tam ekran
+        # dugmeleri alfa=0 kalir ve Win32 hit-test'te mpv yuzeyine duser
+        # (bkz. OVERLAY_HIT_ALPHA). Bu yuzden ayni en dusuk notr alfa
+        # kullanilir.
+        right_container.setStyleSheet(
+            f"background: {OVERLAY_HIT_BACKGROUND};")
         right_container.setMinimumWidth(0)
         controls.addWidget(right_container, 1, Qt.AlignmentFlag.AlignVCenter |
                            Qt.AlignmentFlag.AlignRight)
@@ -277,6 +606,145 @@ class VideoFrame(QWidget):
         self._overlay_event_targets = tuple(targets)
         self._last_cursor_pos = QCursor.pos()
 
+    def _create_playlist_panel(self):
+        if self.playlist_panel is None:
+            self.playlist_panel = PlaylistPanel(self.main_window, self)
+
+    def toggle_playlist_panel(self):
+        """Sinematik playlist'i aynı ikonla açar/kapatır."""
+        if self.playlist_panel is None:
+            return
+        if self.playlist_panel.is_open:
+            self.playlist_panel.close_animated()
+        else:
+            # NOT: Yer ayırmayı open_animated TEK SEFER yapar; burada ayrıca
+            # reserve etmek gereksiz bir layout/video resize turu ekliyordu.
+            self.playlist_panel.open_animated()
+            # Panel açıkken kontrol overlay'i kendi kendine gizlenmemelidir.
+            self.cancel_overlay_hide()
+
+    def refresh_playlist_panel(self):
+        if self.playlist_panel is not None:
+            self.playlist_panel.refresh()
+
+    def playlist_dock_target_width(self):
+        """Panelin açıkken alması gereken genişlik (tek doğruluk kaynağı).
+
+        Hem yer ayırma hem açılış animasyonu bu değeri kullanır; böylece host
+        ile panel arasında iki ayrı hesap oluşup bayat genişlik üretemez.
+        """
+        container = getattr(self.main_window, "media_container", None)
+        if container is None:
+            return 0
+        total_width = max(1, container.width())
+        if total_width < 720:
+            # Yan yana iki yüzey okunamayacak kadar daralır; playlist içerik
+            # alanını devralır.
+            return total_width
+        preferred = max(360, int(total_width * 0.42))
+        requested = (self._playlist_user_width
+                     if self._playlist_user_width is not None
+                     else min(560, preferred))
+        return max(320, min(int(requested), total_width - 200))
+
+    def reserve_playlist_dock(self):
+        """Video üstüne binmeden panel için içerik satırında gerçek yer ayırır."""
+        host = getattr(self.main_window, "playlist_dock_host", None)
+        container = getattr(self.main_window, "media_container", None)
+        if host is None or container is None or self._updating_playlist_dock:
+            return
+        self._updating_playlist_dock = True
+        try:
+            compact = max(1, container.width()) < 720
+            if self._playlist_saved_minimum_width is None:
+                self._playlist_saved_minimum_width = self.minimumWidth()
+
+            if compact:
+                # Video widget'ı görünür kalır ama genişliği 0'dır.
+                self.setMinimumWidth(0)
+                self.setMaximumWidth(0)
+            else:
+                self.setMaximumWidth(16777215)
+                self.setMinimumWidth(self._playlist_saved_minimum_width)
+
+            host.show()
+            self.apply_playlist_dock_width(self.playlist_dock_target_width(),
+                                           minimum=1)
+            panel = self.playlist_panel
+            if panel is not None and hasattr(panel, "resize_handle"):
+                panel.resize_handle.setVisible(not compact)
+        finally:
+            self._updating_playlist_dock = False
+
+    def apply_playlist_dock_width(self, width, minimum=0):
+        """Dock genişliğini uygular ve layout'u KONUMLARIYLA birlikte tazeler.
+
+        Hem yer ayırma hem açılış/kapanış animasyonu bu tek yolu kullanır.
+
+        NOT: setFixedWidth sonrası tek başına activate(), host'u yeni
+        genişlikle ama ESKİ x konumunda bırakabiliyordu; panel bu yüzden
+        videoyla kesişiyordu. invalidate() konumları da tazeler. İki ayrı
+        genişlik uygulama yolunun ayrışmaması için burada birleştirildi.
+        """
+        host = getattr(self.main_window, "playlist_dock_host", None)
+        if host is None:
+            return
+        host.setFixedWidth(max(minimum, int(width)))
+        container = getattr(self.main_window, "media_container", None)
+        layout = container.layout() if container is not None else None
+        if layout is not None:
+            layout.invalidate()
+            layout.activate()
+        panel = self.playlist_panel
+        apply_geometry = getattr(panel, "apply_panel_geometry", None)
+        if callable(apply_geometry):
+            apply_geometry()
+
+    def set_playlist_panel_width(self, width):
+        """Kullanıcının sürüklediği ayırıcıya göre dock genişliğini uygular."""
+        container = getattr(self.main_window, "media_container", None)
+        if container is None or container.width() < 720:
+            return
+        maximum = max(320, container.width() - 200)
+        self._playlist_user_width = max(320, min(int(width), maximum))
+        self.reserve_playlist_dock()
+        self.update_playlist_panel_geometry()
+
+    def release_playlist_dock(self):
+        host = getattr(self.main_window, "playlist_dock_host", None)
+        container = getattr(self.main_window, "media_container", None)
+        if host is None:
+            return
+        host.setFixedWidth(0)
+        host.hide()
+        self.setMaximumWidth(16777215)
+        if self._playlist_saved_minimum_width is not None:
+            self.setMinimumWidth(self._playlist_saved_minimum_width)
+        if container is not None and container.layout() is not None:
+            container.layout().activate()
+        # Video yeniden genişledikten sonra alt kontrol overlay'i yeni geometriyi
+        # hemen takip etsin.
+        self.update_overlay_geometry()
+
+    def update_playlist_panel_geometry(self):
+        """Panelin yerini layout'a bırakır; global geometri hesabı yapmaz.
+
+        Panel `playlist_dock_host`'un child'ı olduğu için konumu yalnızca
+        ayrılan dock genişliğine bağlıdır. Bayat global dikdörtgen üretecek
+        ikinci bir hesap kasıtlı olarak yoktur.
+        """
+        panel = self.playlist_panel
+        if panel is None or not panel.is_open:
+            return
+        container = getattr(self.main_window, "media_container", None)
+        self.reserve_playlist_dock()
+        if container is not None and container.layout() is not None:
+            container.layout().activate()
+        # Panel host layout'unda olmadığı için boyut/konumu açıkça tazelenir.
+        apply_geometry = getattr(panel, "apply_panel_geometry", None)
+        if callable(apply_geometry):
+            apply_geometry()
+
     def _make_overlay_button(self, object_name, icon_kind, label, size, icon_size,
                              colour="#FFFFFF"):
         """Metinsiz, ikonlu ama erişilebilir kalan overlay düğmesi üretir."""
@@ -296,6 +764,43 @@ class VideoFrame(QWidget):
         if not self._overlay_updating_position:
             self.main_window.seek_position(value)
 
+    def _wheel_targets_video_scene(self, event):
+        """Teker YALNIZ açık videonun çıplak sahnesinde ele alınır.
+
+        Yer tutucu ekranda (medya yok) ve playlist paneli gibi kaydırılabilir
+        çocuk yüzeylerin üzerinde olay ürüne bırakılır; kontrol katmanı ve
+        menüler ayrı pencerelerdir, zaten buraya düşmez.
+        """
+        if not getattr(self.main_window, "current_file", None):
+            return False
+        return self.childAt(event.position().toPoint()) is None
+
+    def wheelEvent(self, event):
+        """Video sahnesinde dikey teker sesi bir kademe değiştirir.
+
+        Ses TEK kaynaktan geçer: `change_volume()` -> `volume_slider` ->
+        `set_volume()`. Sınırlar, etiket, mute durumu, overlay slider'ı ve
+        OSD o ortak akıştan gelir; burada ikinci bir ses yolu yoktur.
+        """
+        angle = event.angleDelta()
+        if (not self._wheel_targets_video_scene(event)
+                or angle.y() == 0 or abs(angle.y()) <= abs(angle.x())):
+            self._wheel_angle_remainder = 0
+            super().wheelEvent(event)
+            return
+        # Yüksek çözünürlüklü fareler 120'den küçük artıklar gönderir; her
+        # olay tek tek kademe saymaz, standart 120 birimde birikir.
+        self._wheel_angle_remainder += angle.y()
+        steps = int(self._wheel_angle_remainder / WHEEL_ANGLE_PER_STEP)
+        if steps:
+            self._wheel_angle_remainder -= steps * WHEEL_ANGLE_PER_STEP
+            try:
+                self.main_window.change_volume(steps * WHEEL_VOLUME_STEP)
+            except Exception as e:
+                # Kullanıcıya ham teknik metin çıkmaz.
+                safe_console(f"Ses tekerleği hatası: {type(e).__name__}")
+        event.accept()
+
     def _overlay_volume_changed(self, value):
         """Kullanıcı overlay ses çubuğunu değiştirdiğinde ürünün gerçek
         ses akışını (klasik volume_slider -> set_volume) çalıştırır."""
@@ -304,6 +809,91 @@ class VideoFrame(QWidget):
         source = getattr(self.main_window, "volume_slider", None)
         if source is not None and source.value() != int(value):
             source.setValue(int(value))
+
+    def _subtitles_are_visible(self):
+        """Gerçek MPV durumu: görünürlük + gerçekten seçili altyazı parçası.
+
+        mpv `sid` özelliği "no"/"auto"/0/"0"/"" gibi değerler döndürebildiği
+        için sadece sid'in dolu olması yeterli değildir; seçim track_list ile
+        doğrulanır. Herhangi bir özellik okunamazsa güvenli tarafta kalınır.
+        """
+        player = getattr(self.main_window, "mpv_player", None)
+        if player is None:
+            return False
+        try:
+            if not bool(player.sub_visibility):
+                return False
+            sid = getattr(player, "sid", None)
+        except Exception:
+            return False
+
+        if sid is None or sid is False:
+            return False
+        if isinstance(sid, str) and sid.strip().lower() in DISABLED_SID_VALUES:
+            return False
+        if isinstance(sid, bool):
+            return False
+        if isinstance(sid, int) and sid <= 0:
+            return False
+
+        try:
+            tracks = list(getattr(player, "track_list", None) or [])
+        except Exception:
+            return False
+        if not tracks:
+            return False
+
+        subtitle_tracks = [track for track in tracks
+                           if isinstance(track, dict)
+                           and track.get("type") == "sub"]
+        if not subtitle_tracks:
+            return False
+
+        if isinstance(sid, str) and sid.strip().lower() == "auto":
+            return any(bool(track.get("selected")) for track in subtitle_tracks)
+
+        try:
+            wanted = int(sid)
+        except (TypeError, ValueError):
+            return False
+        return any(track.get("id") == wanted for track in subtitle_tracks)
+
+    def _update_overlay_subtitle_state(self):
+        """CC ikonunu gerçek altyazı durumuna göre renklendirir."""
+        button = getattr(self, "overlay_subtitles_button", None)
+        if button is None:
+            return
+        active = self._subtitles_are_visible()
+        if active == self.overlay_subtitles_active:
+            return
+        self.overlay_subtitles_active = active
+        label = SUBTITLES_ACTIVE_LABEL if active else SUBTITLES_INACTIVE_LABEL
+        button.setAccessibleName(label)
+        button.setToolTip(label)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        button.setIcon(make_media_icon(
+            "subtitles", button.iconSize().width(),
+            OVERLAY_ACCENT if active else "#FFFFFF"))
+
+    def _overlay_action_allowed(self):
+        """Tamamen gizli overlay'in kontrolleri işlem üretmemeli."""
+        return (self.control_overlay is not None
+                and self.control_overlay.isVisible())
+
+    def _run_overlay_action(self, action):
+        """Görünür overlay üzerinde çalışan kontrol eylemi."""
+        if not self._overlay_action_allowed():
+            return
+        # Etkileşim overlay'i görünür tutar; fade-out sürüyorsa tersine döner.
+        self.show_overlay_for_interaction()
+        action()
+
+    def _on_overlay_subtitles_clicked(self):
+        if not self._overlay_action_allowed():
+            return
+        self.show_overlay_for_interaction()
+        self.main_window.toggle_subtitles()
+        self._update_overlay_subtitle_state()
 
     def _update_overlay_volume_state(self):
         """Klasik slider, klavye, mute veya ayar geri yükleme kaynaklı ses
@@ -381,6 +971,7 @@ class VideoFrame(QWidget):
             self.overlay_total_time_label.setText(total_text)
 
         self._update_overlay_volume_state()
+        self._update_overlay_subtitle_state()
 
     def update_overlay_play_state(self):
         if self.control_overlay is None:
@@ -407,6 +998,9 @@ class VideoFrame(QWidget):
                 and not getattr(self.main_window, "is_paused", True))
 
     def _overlay_interaction_blocked(self):
+        panel = getattr(self, "playlist_panel", None)
+        if panel is not None and panel.isVisible() and panel.is_open:
+            return True
         if self._overlay_hover:
             return True
         for name in ("overlay_timeline", "overlay_volume_slider"):
@@ -434,6 +1028,13 @@ class VideoFrame(QWidget):
             self._overlay_hover = hover
             self.schedule_overlay_hide()
 
+        # Timeline'ın GENİŞ hit alanının tamamı hover görünümünü tetikler.
+        # Qt'nin ::groove:hover durumu yalnızca 3 px'lik çizgide çalıştığı
+        # için dinamik property kullanılır; geometri değişmez.
+        self.set_timeline_hover(
+            self.control_overlay.isVisible()
+            and self._timeline_global_rect().contains(position))
+
         if previous is None or position == previous:
             return
         if not self._is_player_surface_active():
@@ -443,16 +1044,49 @@ class VideoFrame(QWidget):
             return
         self.show_overlay_for_interaction()
 
+    def overlay_suppressed(self):
+        """Yardımcı bir ürün penceresi katmanı bastırıyor mu?"""
+        return bool(self._overlay_suppressed)
+
+    def set_overlay_suppressed(self, suppressed):
+        """Katmanı yardımcı pencere süresince gizler ve gizli TUTAR.
+
+        Bastırma AÇIKKEN hiçbir owner olayı (show/resize/move/activation)
+        katmanı geri getiremez ve `raise_()` çağrılmaz; böylece katman
+        Altyazı Merkezi'nin üstüne çıkmaz. Kapatıldığında katman normal
+        auto-hide akışına döner.
+        """
+        suppressed = bool(suppressed)
+        if suppressed == self._overlay_suppressed:
+            return
+        self._overlay_suppressed = suppressed
+        if suppressed:
+            self.hide_overlay_immediately()
+            return
+        self._restore_overlay_after_activation()
+
     def fade_overlay_in(self):
-        """Mevcut opaklıktan 1.0'a yumuşak geçiş; gerekiyorsa önce show()."""
+        """Mevcut opaklıktan 1.0'a yumuşak geçiş; gerekiyorsa önce show().
+
+        Altyazı, katman GÖSTERİLMEDEN ve fade-in BAŞLAMADAN önce yukarı
+        alınır; aksi halde tek karelik bir kesişme oluşuyordu. Tüm
+        gösterme yolları (etkileşim, aktivasyon, duraklatma) buradan
+        geçtiği için karar tek noktadadır.
+        """
+        if self._overlay_suppressed:
+            return
         if self.control_overlay is None or self.overlay_fade is None:
             return
+        self._overlay_auto_hide_pending = False
+        self._set_subtitle_band_collapsed(False)
         animation = self.overlay_fade
         animation.stop()
         if not self.control_overlay.isVisible():
             self.control_overlay.show()
         start = self.control_overlay.windowOpacity()
         self._overlay_fade_target = 1.0
+        # CC göstergesi: None = henüz hiç hesaplanmadı
+        self.overlay_subtitles_active = None
         animation.setDuration(OVERLAY_FADE_IN_MS)
         animation.setEasingCurve(QEasingCurve.Type.OutCubic)
         animation.setStartValue(start)
@@ -488,9 +1122,24 @@ class VideoFrame(QWidget):
     def _finish_overlay_fade_out(self):
         self.control_overlay.hide()
         self.control_overlay.setWindowOpacity(0.0)
+        # Altyazı YALNIZ animasyon tamamen bittikten sonra aşağı iner ve
+        # yalnız GERÇEK auto-hide için: minimize, odak kaybı, yardımcı
+        # dialog ve kapanış gizlemeleri `hide_overlay_immediately()`
+        # yolundan gelir ve `_overlay_auto_hidden` işaretlemez.
+        if self._overlay_auto_hide_pending:
+            self._overlay_auto_hide_pending = False
+            self._set_subtitle_band_collapsed(True)
 
     def hide_overlay_immediately(self):
-        """Owner/system olayları: fade kullanılmaz, anında gizlenir."""
+        """Owner/system olayları: fade kullanılmaz, anında gizlenir.
+
+        Bekleyen auto-hide tamamlanması İPTAL edilir: bu yol minimize, odak
+        kaybı, yardımcı dialog ve kapanış içindir, "timeline auto-hide oldu"
+        anlamına GELMEZ. `_overlay_auto_hidden` bilerek korunur; aksi halde
+        gerçekten tamamlanmış bir auto-hide'dan sonra aktivasyonda timeline
+        kendiliğinden geri gelirdi.
+        """
+        self._overlay_auto_hide_pending = False
         if self.control_overlay is None:
             return
         if self.overlay_fade is not None:
@@ -498,9 +1147,26 @@ class VideoFrame(QWidget):
         self.control_overlay.hide()
         self.control_overlay.setWindowOpacity(0.0)
 
+    def _timeline_global_rect(self):
+        origin = self.overlay_timeline.mapToGlobal(QPoint(0, 0))
+        return QRect(origin, self.overlay_timeline.size())
+
+    def set_timeline_hover(self, hovered):
+        """Timeline'ın hover görünümünü açar/kapatır (yalnızca çizim)."""
+        timeline = getattr(self, "overlay_timeline", None)
+        if timeline is None:
+            return
+        value = "true" if hovered else "false"
+        if timeline.property("timelineHover") == value:
+            return
+        timeline.setProperty("timelineHover", value)
+        timeline.style().unpolish(timeline)
+        timeline.style().polish(timeline)
+        timeline.update()
+
     def show_overlay_for_interaction(self):
         """Kullanıcı etkileşiminde overlay'i gösterir ve sayacı tazeler."""
-        if self.control_overlay is None:
+        if self.control_overlay is None or self._overlay_suppressed:
             return
         self._overlay_auto_hidden = False
         if self.main_window.isVisible() and not self.main_window.isMinimized():
@@ -530,6 +1196,7 @@ class VideoFrame(QWidget):
         if self._overlay_interaction_blocked():
             return
         self._overlay_auto_hidden = True
+        self._overlay_auto_hide_pending = True
         self.fade_overlay_out()
 
     def _sync_overlay_auto_hide(self):
@@ -546,12 +1213,43 @@ class VideoFrame(QWidget):
             self.update_overlay_geometry()
             self.fade_overlay_in()
 
+    def _player_owns_foreground(self):
+        """Gerçek Windows foreground penceresi bu sürece mi ait?
+
+        `QApplication.activeWindow()` tek başına yeterli kanıt değildir: bir
+        Tool yüzeyi döndürebilir ve Qt aktivasyon isteği Windows tarafından
+        reddedildiğinde gerçekle çelişebilir. Kullanıcının 1. ekran
+        görüntüsünde kontrol katmanının başka uygulamanın üstünde kalması tam
+        olarak bu ayrışmadan kaynaklanıyordu.
+
+        Ölçüm anlıktır ve yalnızca mevcut aktivasyon olaylarından çağrılır;
+        periyodik yoklama timer'ı YOKTUR. Offscreen platformda gerçek
+        foreground kavramı bulunmadığı için ölçüm devre dışıdır.
+
+        Windows'ta ölçüm BAŞARISIZ olursa (sıfır HWND/PID veya API hatası)
+        sonuç False'tur. "Ölçemedim -> göster" yönü, yüzen bir katman için
+        güvensizdir: başka uygulamanın üstünde asılı kalan kontrol katmanı
+        hatasını geri getirir.
+        """
+        if not _foreground_measurement_supported():
+            return True
+        return _measure_foreground_pid() == os.getpid()
+
     def _is_player_surface_active(self):
+        # Karar önce gerçek foreground sahipliğine, sonra Qt'nin hangi
+        # yüzeyi aktif saydığına bakar. Playlist artık ana pencerenin
+        # child'ı olduğu için ayrı bir yüzey olarak listelenmez.
+        if not self._player_owns_foreground():
+            return False
         return QApplication.activeWindow() in (
             self.main_window, self, self.control_overlay)
 
     def update_overlay_geometry(self):
         if self.control_overlay is None:
+            return
+        if self._overlay_suppressed:
+            # Bastırılmışken geometri güncellemesi de `raise_()` etmemeli.
+            self.hide_overlay_immediately()
             return
         if not self.main_window.isVisible() or self.main_window.isMinimized():
             self.hide_overlay_immediately()
@@ -567,6 +1265,17 @@ class VideoFrame(QWidget):
             if current.left() != padding:
                 layout.setContentsMargins(padding, current.top(),
                                           padding, current.bottom())
+
+        centre_spacing = (OVERLAY_NARROW_CENTRE_SPACING if narrow
+                          else OVERLAY_CENTRE_SPACING)
+        right_spacing = (OVERLAY_NARROW_RIGHT_SPACING if narrow
+                         else OVERLAY_RIGHT_SPACING)
+        controls_row = getattr(self, "_overlay_controls_row", None)
+        if controls_row is not None and controls_row.spacing() != centre_spacing:
+            controls_row.setSpacing(centre_spacing)
+        right_row = getattr(self, "_overlay_right_row", None)
+        if right_row is not None and right_row.spacing() != right_spacing:
+            right_row.setSpacing(right_spacing)
 
         # Dar pencerede süre metni yarım gösterilmektense tamamen gizlenir;
         # genişleyince kendiliğinden geri gelir.
@@ -585,6 +1294,223 @@ class VideoFrame(QWidget):
         y = video_origin.y() + self.height() - height
         self.control_overlay.setGeometry(x, y, width, height)
         self.control_overlay.raise_()
+        self.update_playlist_panel_geometry()
+        # Bant değiştiyse altyazı marjı da güncellenir (pencere boyutu,
+        # tam ekran, playlist ve DPI değişimi bu yoldan geçer).
+        self.sync_subtitle_safe_band()
+
+    def _device_ratio(self):
+        """Mantıksal → cihaz piksel oranı (%150 DPI'da 1.5)."""
+        try:
+            return float(self.devicePixelRatioF() or 1.0)
+        except Exception:
+            return 1.0
+
+    def selected_subtitle_codec(self):
+        """SEÇİLİ altyazı parçasının codec'i (yoksa boş dize)."""
+        player = getattr(self.main_window, "mpv_player", None)
+        if player is None:
+            return ""
+        try:
+            sid = getattr(player, "sid", None)
+            if not sid or sid in ("no", "auto"):
+                return ""
+            # MPV `sid`i bazı yollarda DİZE döndürür; karşılaştırma
+            # güvenli biçimde tam sayıya çevrilerek yapılır.
+            try:
+                sid_number = int(sid)
+            except (TypeError, ValueError):
+                return ""
+            for track in list(getattr(player, "track_list", None) or []):
+                if track.get("type") != "sub":
+                    continue
+                try:
+                    track_id = int(track.get("id"))
+                except (TypeError, ValueError):
+                    continue
+                if track_id == sid_number:
+                    return str(track.get("codec") or "").lower()
+        except Exception:
+            return ""
+        return ""
+
+    def subtitle_uses_ass_positioning(self):
+        """Seçili altyazı ASS betiği mi? (marj yerine `sub-pos` yolu)"""
+        return self.selected_subtitle_codec() in ASS_SUB_CODECS
+
+    def user_subtitle_position(self):
+        """Kullanıcının KAYITLI `sub_pos` tercihi (MPV'deki efektif değil)."""
+        from app.config import SUBTITLE_DEFAULTS
+        from app.subtitle_style import normalise_subtitle_numeric
+
+        default = float(SUBTITLE_DEFAULTS["sub_pos"])
+        settings = getattr(self.main_window, "settings", None)
+        if settings is None:
+            return default
+        try:
+            stored = settings.value("subtitle/sub_pos", default)
+        except Exception:
+            return default
+        return normalise_subtitle_numeric("sub_pos", stored)
+
+    def subtitle_surface_reference(self):
+        """ASS `sub-pos` yüzdesinin haritalandığı YÜKSEKLİK (cihaz px).
+
+        ÖLÇÜLDÜ: `sub-pos` puanı VİDEO ALANINA değil MPV PENCERESİNE
+        oranlanıyor. Playlist açıkken (alan 454, pencere 772) `sub_pos`
+        100 → 84,2 arası hareket 202 px çıktı; bu 7,43 px/puan, yani
+        pencere yüksekliği/100. Alan referansı kullanılırsa düzeltme
+        yetersiz ya da aşırı olur (ölçüldü: -83 px ve +119 px).
+        """
+        player = getattr(self.main_window, "mpv_player", None)
+        if player is not None:
+            try:
+                height = int(dict(player.osd_dimensions or {}).get("h") or 0)
+                if height > 0:
+                    return height
+            except Exception:
+                pass
+        return max(1, int(self.height() * self._device_ratio()))
+
+    def subtitle_position_offset(self, reference_height=None):
+        """ASS için efektif `sub_pos` düşüşü (yüzde puan).
+
+        Ayrılmış bant + boşluk, PENCERE yüksekliğine oranlanır.
+        `sub-pos` %100 = altyazı en altta demektir; bu yüzde kadar
+        düşmek altyazıyı tam bandın üstüne taşır.
+
+        NOT: `reference_height` yalnız marj yolu için anlamlıdır ve
+        burada KULLANILMAZ; konum yüzdesinin referansı farklıdır.
+        """
+        needed = (self.subtitle_reserved_bottom() + SUBTITLE_BAND_GAP)             * self._device_ratio()
+        reference = self.subtitle_surface_reference()
+        return max(0.0, min(100.0, needed * 100.0 / max(1, reference)))
+
+    def effective_subtitle_position(self, reference_height=None):
+        """MPV'ye YAZILACAK `sub_pos`. Kayıtlı tercih değişmez.
+
+        - ASS betiği: kullanıcı değeri - bant ofseti (0'ın altına inmez).
+        - Diğer metin altyazılar: kullanıcı değeri AYNEN (bant zaten
+          `sub-margin-y` ile sağlanır; ikinci kez yukarı taşınmaz).
+        """
+        user_value = self.user_subtitle_position()
+        if not self.subtitle_uses_ass_positioning():
+            return user_value
+        offset = self.subtitle_position_offset(reference_height)
+        return max(0.0, round(user_value - offset, 2))
+
+    def subtitle_scale_reference(self):
+        """MPV'nin altyazı ölçeğinde kullandığı GERÇEK yükseklik.
+
+        ÖLÇÜLEN KÖK NEDEN: `sub-margin-y` pencere yüksekliğine değil
+        RENDER EDİLEN VİDEO ALANI yüksekliğine göre ölçekleniyor.
+        Playlist açıldığında yüzey daralıyor, video letterbox oluyor
+        (`osd-dimensions`: `mt=mb=159`, alan 772 → 454) ve sabit kalan
+        marj gerçek piksel karşılığını kaybediyordu: boşluk -27 px.
+
+        Kaynak `osd-dimensions`tır; okunamazsa widget yüksekliğine
+        düşülür (tek bir sihirli sabit varsayılmaz).
+        """
+        player = getattr(self.main_window, "mpv_player", None)
+        if player is not None:
+            try:
+                osd = dict(player.osd_dimensions or {})
+                area = (int(osd.get("h") or 0) - int(osd.get("mt") or 0)
+                        - int(osd.get("mb") or 0))
+                if area > 0:
+                    return area
+            except Exception:
+                pass
+        return max(1, self.height())
+
+    def subtitle_safe_margin(self, reference_height=None):
+        """MPV `sub-margin-y` değeri; GERÇEK ayrılmış banttan türetilir.
+
+        Ölçünün tek kaynağı `_osd_reserved_bottom()`tur: aynı ölçü OSD
+        ile paylaşılır, ikinci bir kopya tutulmaz. Altyazının kullandığı
+        bant ise `subtitle_reserved_bottom()` üzerinden türetilir:
+        timeline auto-hide ile TAMAMEN gizlendiğinde (fade bittikten
+        sonra) ayrılan yükseklik 0 olur ve altyazı aşağı iner; katman geri
+        gelirken gösterilmeden ÖNCE yeniden yukarı alınır.
+        `SUBTITLE_BAND_GAP` her iki durumda da korunur, bu yüzden altyazı
+        ekranın dibine yapışmaz. Bastırma, minimize ve odak kaybı
+        nedeniyle gizlenme auto-hide SAYILMAZ; bant korunur.
+
+        `reference_height` MPV'nin ölçek referansıdır; bant ise PENCERE
+        pikseliyle ölçülür (altyazı letterbox bandına da düşebilir).
+        """
+        reference = int(reference_height or max(1, self.height()))
+        reserved = self.subtitle_reserved_bottom()
+        # BİRİM UYUMU: ayrılmış bant MANTIKSAL, `osd-dimensions` ise
+        # CİHAZ pikselindedir. %150 DPI'da ikisini karıştırmak marjı 1,5
+        # kat küçük hesaplatıyor ve altyazı banda 19 px giriyordu
+        # (ölçüldü). Bant, referansla aynı birime çevrilir.
+        needed = (reserved + SUBTITLE_BAND_GAP) * self._device_ratio()
+        margin = int(round(needed * MPV_MARGIN_REFERENCE_HEIGHT
+                           / max(1, reference)))
+        # Çok kısa video alanında marj yüzeyi yutmasın.
+        return max(0, min(margin, MPV_MARGIN_REFERENCE_HEIGHT // 2))
+
+    def invalidate_subtitle_band(self):
+        """Bant önbelleğini geçersiz kılar.
+
+        ÖLÇÜLEN KUSUR: `atomic_apply()` (Uygula) kullanıcının HAM
+        `sub_pos` değerini doğrudan MPV'ye yazıyor. Önbellek "durum
+        değişmedi" dediği için efektif ASS düzeltmesi yeniden
+        uygulanmıyor ve altyazı bandın içine düşüyordu (ölçüldü:
+        gap +47 → -73). Dışarıdan yazan her yol bu metodu çağırır.
+        """
+        self._subtitle_band_state = None
+
+    def sync_subtitle_safe_band(self):
+        """Güvenli bandı GERÇEK MPV'ye yazar; DEĞİŞMEDİYSE yazmaz.
+
+        ÖLÇÜLEN KUSUR: `update_overlay_geometry()` overlay üzerindeki
+        FARE HAREKETLERİNDE de çağrılıyor ve geometri hiç değişmese bile
+        her çağrıda üç libmpv özelliği yeniden yazılıyordu — 100 senkron
+        = 300 property yazımı. Oynatma sırasında gereksiz ctypes/libmpv
+        trafiği ve takılma riski.
+
+        Önbellek YALNIZ başarılı yazımdan sonra güncellenir; hata
+        durumunda kayıt tutulmaz ve sonraki çağrı yeniden dener. MPV
+        nesnesi değişirse (yeni oturum) sözleşmenin tamamı yeni nesneye
+        yazılır.
+        """
+        player = getattr(self.main_window, "mpv_player", None)
+        if player is None:
+            return None
+        reference = self.subtitle_scale_reference()
+        margin = self.subtitle_safe_margin(reference)
+        is_ass = self.subtitle_uses_ass_positioning()
+        position = self.effective_subtitle_position(reference)
+        state = (margin, is_ass, position)
+        cached = self._subtitle_band_state
+        # Kimlik karşılaştırması: aynı nesne mi? (yeni mpv oturumu eski
+        # önbelleği geçersiz kılar). Önbellek altyazı TÜRÜNÜ ve efektif
+        # konumu da içerir; ASS/SRT geçişi kaçırılmaz.
+        same_player = cached is not None and cached[0] is player
+        try:
+            if not same_player:
+                # Düz metin altyazılarda marj varsayılan olarak etkindir;
+                # ASS altyazıda da geçerli olması için açıkça zorlanır.
+                player.sub_use_margins = True
+                player.sub_ass_force_margins = True
+                player.sub_margin_y = margin
+                player.sub_pos = position
+            else:
+                if cached[1][0] != margin:
+                    player.sub_margin_y = margin
+                # ASS → SRT geçişinde kullanıcının GERÇEK değeri geri
+                # yazılır; SRT → ASS geçişinde düzeltme uygulanır.
+                if cached[1][1:] != state[1:]:
+                    player.sub_pos = position
+        except Exception as exc:
+            # Başarısızlık ÖNBELLEKLENMEZ; durum bilinmiyor sayılır.
+            self._subtitle_band_state = None
+            safe_console(f"Altyazı güvenli bandı uygulanamadı: {exc}")
+            return None
+        self._subtitle_band_state = (player, state)
+        return margin
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -592,8 +1518,20 @@ class VideoFrame(QWidget):
             QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
 
     def _restore_overlay_if_owner_visible(self):
+        if self._overlay_suppressed:
+            self.hide_overlay_immediately()
+            return
         # Etkileşimsizlik nedeniyle gizlenmiş overlay'i owner olayları
         # (show/resize/state change) kendiliğinden geri getirmemeli.
+        # NOT: Playlist artık ana pencerenin child'ıdır; görünürlüğü Qt
+        # tarafından otomatik yönetilir, geri yükleme makyajı gerekmez.
+        if self.playlist_panel is not None:
+            self.update_playlist_panel_geometry()
+        # Foreground gerçekte başka bir süreçteyse owner olayları yüzen
+        # yüzeyleri diriltmemelidir.
+        if not self._player_owns_foreground():
+            self.hide_overlay_immediately()
+            return
         if self._overlay_auto_hidden:
             return
         if (self.control_overlay is not None and self.main_window.isVisible()
@@ -604,10 +1542,26 @@ class VideoFrame(QWidget):
 
     def _restore_overlay_after_activation(self):
         # Ana pencere yeniden aktifleştiğinde overlay ilk anda görünür olur.
+        # Qt aktivasyon olayı gerçek foreground devrini garanti etmediği için
+        # ölçüm burada da tekrarlanır.
+        if self._overlay_suppressed:
+            self.hide_overlay_immediately()
+            return
+        if not self._player_owns_foreground():
+            self.hide_overlay_immediately()
+            return
         self._overlay_auto_hidden = False
         self._restore_overlay_if_owner_visible()
 
-    def _handle_overlay_interaction_event(self, event_type):
+    def _handle_overlay_interaction_event(self, watched, event_type):
+        # Timeline'ın 48 px'lik alanına giriş/çıkış anında yansır;
+        # 100 ms imleç yoklaması yalnızca güvenli fallback'tir.
+        if watched is getattr(self, "overlay_timeline", None):
+            if event_type == QEvent.Type.Enter:
+                self.set_timeline_hover(True)
+            elif event_type == QEvent.Type.Leave:
+                self.set_timeline_hover(False)
+
         if event_type == QEvent.Type.Enter:
             self._overlay_hover = True
             self.show_overlay_for_interaction()
@@ -620,19 +1574,26 @@ class VideoFrame(QWidget):
         elif event_type in (QEvent.Type.MouseMove, QEvent.Type.MouseButtonPress,
                             QEvent.Type.MouseButtonRelease,
                             QEvent.Type.HoverMove):
-            self.show_overlay_for_interaction()
+            # NOT: Tamamen gizli overlay bir fare basışıyla geri getirilmez.
+            # Aksi halde görünmeyen kontroller tıklamayı işleyebiliyordu.
+            # Geri getirme yolu VideoFrame üzerindeki fare hareketidir.
+            if self.control_overlay.isVisible():
+                self.show_overlay_for_interaction()
 
     def eventFilter(self, watched, event):
         if (self.control_overlay is not None
                 and watched in self._overlay_event_targets):
-            self._handle_overlay_interaction_event(event.type())
+            self._handle_overlay_interaction_event(watched, event.type())
             return super().eventFilter(watched, event)
 
         if watched in (self.main_window, self):
-            if (event.type() == QEvent.Type.Hide or
-                    (event.type() == QEvent.Type.WindowDeactivate and
-                     not self._is_player_surface_active())):
+            if event.type() == QEvent.Type.Hide:
                 self.hide_overlay_immediately()
+            elif event.type() == QEvent.Type.WindowDeactivate:
+                # Ana pencere -> owner'lı playlist/overlay geçişinde Qt kısa
+                # süre activeWindow=None raporlayabilir. Bir event turu bekleyip
+                # gerçek hedef belli olduktan sonra dış uygulama kararını ver.
+                QTimer.singleShot(0, self._hide_owned_surfaces_if_inactive)
             elif event.type() == QEvent.Type.Show:
                 QTimer.singleShot(0, self._restore_overlay_if_owner_visible)
             elif event.type() == QEvent.Type.WindowStateChange:
@@ -652,7 +1613,87 @@ class VideoFrame(QWidget):
                 self.close_control_overlay()
         return super().eventFilter(watched, event)
 
+    def release_overlay_surfaces(self):
+        """Kapanışta YÜZEN overlay/OSD pencerelerini sahipli biçimde bırakır.
+
+        `control_overlay` ve `osd_label` ayrı top-level (Tool) pencerelerdir:
+        ana pencere kapanınca Qt onları kapatmaz ve sahipsiz kalırlar.
+        Burada, MPV'ye dokunulmadan ÖNCE düzenli biçimde bırakılırlar:
+        overlay/OSD timer'ları durur, fade animasyonu durur ve geç olayların
+        tutunabileceği widget referansları temizlenir.
+
+        KAPSAM NOTU: bu, düzenli UI teardown'udur. Native `0xC0000005`
+        hatasının kök nedeninin bu yüzeyler olduğu KANITLANMADI; ölçülen
+        tek kesin tetikleyici Qt + libmpv + `audio-device-list` okumasının
+        ardından gelen DOĞAL Python finalizasyonudur ve ürün (bkz.
+        `main.py`) o faza hiç girmez.
+
+        Yalnız yüzen yüzeyler bırakılır; mpv `wid` yüzeyi (bu widget) ve
+        gömülü playlist paneli DOKUNULMAZ. Çağrı idempotenttir ve bırakma
+        sonrası gelen geç olaylar mevcut `is None` korumalarına düşer.
+        """
+        for timer_name in ("overlay_hide_timer", "osd_timer", "cursor_timer"):
+            timer = self.__dict__.get(timer_name)
+            if timer is None:
+                continue
+            try:
+                timer.stop()
+            except RuntimeError:
+                pass
+        fade = self.__dict__.get("overlay_fade")
+        if fade is not None:
+            try:
+                fade.stop()
+            except RuntimeError:
+                pass
+            self.overlay_fade = None
+        # Overlay'in ÇOCUK widget referansları da bırakılır; aksi halde
+        # üst yüzey silindikten sonra bunlara dokunan geç bir çağrı
+        # "wrapped C/C++ object has been deleted" hatası verirdi.
+        for name in ("overlay_timeline", "overlay_volume_slider",
+                     "overlay_play_pause_button", "overlay_subtitles_button",
+                     "overlay_volume_button", "overlay_time_container",
+                     "overlay_current_time_label", "overlay_time_separator",
+                     "overlay_total_time_label"):
+            if name in self.__dict__:
+                setattr(self, name, None)
+        for name in ("control_overlay", "osd_label"):
+            widget = self.__dict__.get(name)
+            if widget is None:
+                continue
+            # Referans ÖNCE bırakılır: silme sırasında tetiklenen geç bir
+            # olay silinmiş C++ nesnesine ulaşamasın.
+            setattr(self, name, None)
+            try:
+                widget.hide()
+                widget.setParent(None)
+                widget.deleteLater()
+            except RuntimeError:
+                pass
+        # `deleteLater()` kapanış sırasında işlenmeyebilir (event loop
+        # birazdan biter) ve yüzeyler yorumlayıcı kapanışına kalırdı.
+        # Bekleyen silme olayları BURADA, tek seferde boşaltılır: yeni
+        # timer veya bekleme süresi eklenmez.
+        app = QApplication.instance()
+        if app is not None:
+            app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+    def _hide_owned_surfaces_if_inactive(self):
+        # Playlist artık ana pencerenin child'ı olduğu için ayrıca gizlenmez;
+        # yalnızca gerçekten yüzen yüzeyler (overlay, OSD) gizlenir.
+        if self._is_player_surface_active():
+            return
+        self.hide_overlay_immediately()
+        if self.osd_label is None:
+            return
+        self.osd_timer.stop()
+        self.osd_label.hide()
+
     def close_control_overlay(self):
+        if self.playlist_panel is not None:
+            self.playlist_panel.animation.stop()
+            self.playlist_panel.hide()
+            self.playlist_panel.close()
         if self.control_overlay is not None:
             if self.overlay_fade is not None:
                 self.overlay_fade.stop()
@@ -661,20 +1702,113 @@ class VideoFrame(QWidget):
 
     def resizeEvent(self, event):
         self.placeholder_label.setGeometry(0, 0, self.width(), self.height())
-        if self.osd_label.isVisible():
-            self._center_osd()
+        # ÖNCE katman geometrisi: OSD konumu katmanın gerçek bandına göre
+        # hesaplanır, bu yüzden eski geometriyle yerleştirilmemelidir.
         self.update_overlay_geometry()
+        if self.osd_label is not None and self.osd_label.isVisible():
+            self._center_osd()
         super().resizeEvent(event)
+
+    # (mpv nesnesi, uygulanan marj) — sınıf düzeyinde varsayılan, böylece
+    # `__init__` tamamlanmadan gelen bir çağrı da güvenlidir.
+    _subtitle_band_state = None
+
+    def _osd_reserved_bottom(self):
+        """Kontrol katmanının ayrılmış bant yüksekliği (px).
+
+        Gerçek `control_overlay.geometry()` esas alınır; katman henüz
+        yerleşmemişse referans `OVERLAY_HEIGHT` kullanılır. Yükseklik
+        kullanılır (konum değil), böylece pencere taşınmış ama katman
+        geometrisi henüz güncellenmemişken de doğru bant bulunur.
+        """
+        if self.control_overlay is None:
+            return 0
+        height = self.control_overlay.geometry().height()
+        if height <= 0:
+            height = OVERLAY_HEIGHT
+        return max(0, min(int(height), self.height()))
+
+    # Timeline'ın auto-hide ile TAMAMEN gizlendiği durum. Fade sürerken ve
+    # suppression/minimize/odak kaybı nedeniyle gizlemede FALSE kalır;
+    # yalnız gerçek auto-hide fade'i bittiğinde TRUE olur.
+    _overlay_band_hidden = False
+    # Auto-hide fade'i BASLADI ama henuz bitmedi. Bastirma/minimize araya
+    # girerse bu bekleme IPTAL edilir; kuyrukta kalmis eski fade-finished
+    # geri cagrisi bandi cokertemez.
+    _overlay_auto_hide_pending = False
+    # MPV'ye BASARIYLA uygulanmis bant durumu. Hedef durumdan (
+    # `_overlay_band_hidden`) AYRIDIR: yazim basarisizsa burasi dolmaz ve
+    # ayni hedef durum bir sonraki cagride yeniden denenir.
+    _overlay_band_applied = None
+
+    def subtitle_reserved_bottom(self):
+        """Altyazı için ayrılan alt bant yüksekliği (px).
+
+        `_osd_reserved_bottom()` GERÇEK katman yüksekliğinin tek kaynağı
+        olarak kalır ve bu karardan etkilenmez (OSD onu kullanmaya devam
+        eder). Burada yalnız altyazının kullanacağı bant türetilir:
+        timeline auto-hide ile tamamen gizlendiğinde ayrılan yükseklik
+        0'dır. `SUBTITLE_BAND_GAP` çağıran taraflarda korunur, bu yüzden
+        altyazı ekranın dibine YAPIŞMAZ.
+        """
+        if self._overlay_band_hidden:
+            return 0
+        return self._osd_reserved_bottom()
+
+    def _set_subtitle_band_collapsed(self, collapsed):
+        """Bant durumunu değiştirir ve YALNIZ gerçek geçişte MPV'ye yazar.
+
+        Aynı durumdaki tekrar çağrılar hiçbir property yazımı üretmez.
+        Yazım başarısız olursa `sync_subtitle_safe_band()` önbelleği
+        güncellemez; sonraki gerçek olayda yeniden denenir.
+        """
+        collapsed = bool(collapsed)
+        if (collapsed == self._overlay_band_hidden
+                and self._overlay_band_applied is collapsed):
+            # Durum aynı VE gerçekten uygulanmış: tek bir property bile
+            # yeniden yazılmaz.
+            return False
+        self._overlay_band_hidden = collapsed
+        self.invalidate_subtitle_band()
+        try:
+            applied = self.sync_subtitle_safe_band()
+        except Exception as e:
+            # Geç gelen kapanış olayları videoyu/kapanışı KESMEZ.
+            safe_console(f"Altyazı bandı güncellenemedi: {type(e).__name__}")
+            applied = None
+        # Başarısız yazım UYGULANMIŞ sayılmaz; sonraki gerçek olayda aynı
+        # hedef durum yeniden denenir.
+        self._overlay_band_applied = collapsed if applied is not None else None
+        return True
 
     def _center_osd(self):
         self.osd_label.adjustSize()
+        # Uzun metin video alanını aşmasın.
+        max_width = max(1, self.width() - 2 * OSD_EDGE_MARGIN)
+        if self.osd_label.width() > max_width:
+            self.osd_label.resize(max_width, self.osd_label.height())
         video_origin = self.mapToGlobal(QPoint(0, 0))
+        # OSD'nin ALT kenarı, katmanın üst kenarından OSD_OVERLAY_GAP kadar
+        # yukarıda kalır. Çok kısa video alanında güvenli üst sınıra clamp
+        # edilir; mesaj her hâlükârda video alanının içinde kalır.
+        band_top = self.height() - self._osd_reserved_bottom()
+        top = band_top - OSD_OVERLAY_GAP - self.osd_label.height()
+        top = max(OSD_EDGE_MARGIN, top)
+        top = min(top, max(0, self.height() - self.osd_label.height()))
         self.osd_label.move(
             video_origin.x() + max(0, (self.width() - self.osd_label.width()) // 2),
-            video_origin.y() + max(10, self.height() - self.osd_label.height() - 24),
+            video_origin.y() + top,
         )
 
     def show_osd(self, text, duration=1200):
+        # OSD yüzen bir yüzeydir; yalnızca oynatıcı gerçekten öndeyken
+        # görünür. Aksi halde başka uygulamanın üstünde asılı kalıyordu.
+        # Kapanışta yüzey bırakıldıysa (bkz. `release_overlay_surfaces`)
+        # geç gelen OSD isteği sessizce yok sayılır.
+        if self.osd_label is None:
+            return
+        if not self._player_owns_foreground():
+            return
         self.osd_label.setText(text)
         self._center_osd()
         self.osd_label.raise_()
@@ -818,103 +1952,237 @@ class VideoFrame(QWidget):
             super().keyPressEvent(event)
 
     def contextMenuEvent(self, event):
+        # Menü KURULUMU ile GÖSTERİMİ ayrıldı: `build_context_menu()` saf
+        # biçimde menüyü döndürür, böylece etiketler testte bloklayıcı
+        # `exec()` çağrılmadan ölçülebilir.
+        self.build_context_menu().exec(self.mapToGlobal(event.pos()))
+
+    def build_context_menu(self):
+        """Sağ-tık menüsünü KURAR ve döndürür (göstermez).
+
+        Düz liste yerine gruplanmış hiyerarşi. Her satır MEVCUT bir player
+        metodunu çağırır; metin ve işaret durumları gerçek oynatıcı
+        durumundan okunur. Ses/altyazı satırları ana menüyle AYNI
+        `track_labels` üreticisinden gelir.
+        """
         # NOT: Parent olarak self (VideoFrame) kullanılamaz — mpv render'ı için
         # native pencere sahibi (winId'li) bir çocuk widget'tır. Qt, menü popup'ını
         # gösterirken QWindow::setTransientParent(parent) çağırır ve parent top-level
         # değilse "must be a top level window" uyarısı basar. Top-level pencereye parent et.
-        context_menu = QMenu(self.window())
-        context_menu.setStyleSheet("QMenu { background-color: #1C2526; color: white; }")
+        menu = QMenu(self.window())
+        # TEK noktadan tema; alt menüler bu stil sayfasını miras alır.
+        menu.setStyleSheet(CONTEXT_MENU_STYLE)
 
-        # Dosya Aç menüsü
-        open_action = context_menu.addAction("Dosya Aç (Ctrl+O)")
-        open_action.triggered.connect(self.main_window.open_file)
+        player = self.main_window
+        has_media = bool(getattr(player, "current_file", ""))
 
-        # URL'den Oynat
-        url_action = context_menu.addAction("URL'den Oynat (Ctrl+U)")
-        url_action.triggered.connect(self.main_window.open_url)
+        play_text = "Duraklat" if (has_media and not getattr(
+            player, "is_paused", True)) else "Oynat"
+        self._add_action(menu, play_text, player.play_pause)
+        self._add_action(menu, "Durdur", player.stop, enabled=has_media)
+        self._add_action(menu, "Önceki", player.play_previous,
+                         enabled=self._can_step(-1))
+        self._add_action(menu, "Sonraki", player.play_next,
+                         enabled=self._can_step(1))
+        menu.addSeparator()
 
-        # Ekran Görüntüsü Al
-        screenshot_action = context_menu.addAction("Ekran Görüntüsü Al (Ctrl+S)")
-        screenshot_action.triggered.connect(self.main_window.take_screenshot)
+        media_menu = menu.addMenu("Medya Aç")
+        self._add_action(media_menu, "Dosya Aç", player.open_file)
+        self._add_action(media_menu, "Klasör Aç", player.open_folder)
+        self._add_action(media_menu, "Bağlantıdan Oynat", player.open_url)
+        media_menu.addSeparator()
+        # Ana menüyle AYNI üretici; satırlar menü her açıldığında taze okunur.
+        populate_recent_menu(player, media_menu.addMenu("Son Açılanlar"),
+                             owner=media_menu)
+        menu.addSeparator()
 
-        # Oynatma Listesi
-        playlist_action = context_menu.addAction("Oynatma Listesi (Ctrl+P)")
-        playlist_action.triggered.connect(self.main_window.show_playlist)
+        self._add_action(menu, "Oynatma Listesi", player.show_playlist)
+        menu.addSeparator()
 
-        # Video Ayarları
-        video_adj_action = context_menu.addAction("Video Ayarları")
-        video_adj_action.triggered.connect(self.main_window.setup_video_adjustments)
+        self._build_audio_menu(menu.addMenu("Ses"))
+        self._build_subtitle_menu(menu.addMenu("Altyazı"))
+        self._build_video_menu(menu.addMenu("Görüntü"), has_media)
+        self._build_playback_menu(menu.addMenu("Oynatma"), has_media)
 
-        # Ses Kanalı menüsü (canlı doldurulur)
-        audio_menu = context_menu.addMenu("Ses Kanalı")
-        audio_menu.setStyleSheet("QMenu { background-color: #1C2526; color: white; }")
-        if self.main_window.current_file:
-            try:
-                track_list = self.main_window.mpv_player.track_list
-                audio_tracks = [t for t in track_list if t['type'] == 'audio']
-                current_aid = self.main_window.mpv_player.aid
-                if not audio_tracks:
-                    na_action = QAction("Ses kanalı bulunamadı", self)
-                    na_action.setEnabled(False)
-                    audio_menu.addAction(na_action)
-                else:
-                    for track in audio_tracks:
-                        lang = track.get('lang') or track.get('title') or f"Ses Kanalı {track['id']}"
-                        track_action = QAction(f"{lang} (ID: {track['id']})", self)
-                        track_action.setCheckable(True)
-                        if track['id'] == current_aid:
-                            track_action.setChecked(True)
-                        track_action.triggered.connect(lambda checked, aid=track['id']: self.main_window.select_audio_track(aid))
-                        audio_menu.addAction(track_action)
-            except Exception as e:
-                print(f"Ses kanalı listeleme hatası: {e}")
-                error_action = QAction("Ses kanalları yüklenemedi", self)
-                error_action.setEnabled(False)
-                audio_menu.addAction(error_action)
+        # Ana menüyle AYNI facade; ayrı dialog yolu veya alt menü yoktur.
+        self._add_action(menu, "Medya Bilgisi", player.show_media_info,
+                         enabled=has_media)
 
-        # Altyazılar menüsü
-        subtitle_menu = context_menu.addMenu("Altyazılar")
+        menu.addSeparator()
+        self._add_action(menu, "Uygulamadan Çık", player.close)
+        return menu
 
-        # Dili Seç (S yalnızca altyazıları göster/gizle kısayoludur.)
-        select_language_menu = subtitle_menu.addMenu("Dili Seç")
-        select_language_menu.setStyleSheet("QMenu { background-color: #1C2526; color: white; }")
+    # --- Menü yardımcıları ---
 
-        # Mevcut altyazıları al ve alt menüye ekle
-        if self.main_window.current_file:
-            try:
+    def _add_action(self, menu, text, slot, enabled=True, checkable=False,
+                    checked=False, pass_checked=False):
+        """Tek satır: gerçek ürün metodunu TAM BİR KEZ çağırır.
+
+        `pass_checked=True` yalnızca ZORUNLU bir bool bekleyen metotlar
+        içindir (`set_loop_file`, `set_loop_playlist`, `toggle_shuffle`).
+        Diğer metotlar parametresizdir; `triggered(bool)` argümanı onlara
+        GEÇİRİLMEZ.
+        """
+        action = QAction(text, menu)
+        action.setEnabled(enabled)
+        if checkable:
+            action.setCheckable(True)
+            action.setChecked(bool(checked))
+        if pass_checked:
+            action.triggered.connect(lambda value: slot(bool(value)))
+        else:
+            action.triggered.connect(lambda _checked=False: slot())
+        menu.addAction(action)
+        return action
+
+    def _can_step(self, delta):
+        """Playlist'te önceki/sonraki satır GERÇEKTEN var mı?"""
+        player = self.main_window
+        playlist = getattr(player, "playlist", None) or []
+        if not playlist:
+            return False
+        index = getattr(player, "current_playlist_index", 0)
+        if not isinstance(index, int):
+            index = 0
+        if index < 0:
+            # Henüz hiçbir parça başlamadı: "önceki"nin anlamı yok. Liste
+            # tekrarı açık olsa bile son parçaya SARILMAZ; "sonraki" ilk
+            # parçayı başlatır.
+            return delta > 0
+        if getattr(player, "loop_playlist", False):
+            return True
+        return 0 <= index + delta < len(playlist)
+
+    def _build_audio_menu(self, menu):
+        player = self.main_window
+        mute_text = "Sesi Aç" if getattr(player, "is_muted", False) else "Sessiz"
+        self._add_action(menu, mute_text, player.toggle_mute)
+        self._populate_track_menu(
+            menu.addMenu("Ses Parçası"), "audio",
+            track_labels.audio_track_labels,
+            lambda: self.main_window.mpv_player.aid,
+            player.select_audio_track,
+            "Ses parçası bulunamadı", "Ses parçaları yüklenemedi")
+        # Ses çıkışları ana menüyle ORTAK önbellekten gelir; menü açılışında
+        # yeni aygıt taraması YAPILMAZ.
+        populate_audio_device_menu(
+            player, menu.addMenu("Ses Çıkışı"),
+            on_select=player.select_audio_device, owner=menu)
+
+    def _build_subtitle_menu(self, menu):
+        player = self.main_window
+        try:
+            visible = bool(player.mpv_player.sub_visibility)
+        except Exception:
+            visible = False
+        toggle_text = "Altyazıları Gizle" if visible else "Altyazıları Göster"
+        self._add_action(menu, toggle_text, player.toggle_subtitles)
+        self._populate_track_menu(
+            menu.addMenu("Altyazı Parçası"), "sub",
+            track_labels.subtitle_track_labels,
+            lambda: self.main_window.mpv_player.sid,
+            player.select_subtitle_language,
+            "Altyazı parçası bulunamadı", "Altyazı parçaları yüklenemedi",
+            rescan=True)
+        self._add_action(menu, "Altyazı Dosyası Ekle", player.open_subtitle)
+        self._add_action(menu, "Altyazı Bul", player.open_subtitle_center)
+        self._add_action(menu, "Altyazı Ayarları",
+                         player.show_subtitle_settings)
+
+    def _build_video_menu(self, menu, has_media):
+        player = self.main_window
+        self._add_action(menu, "Tam Ekran", player.toggle_fullscreen,
+                         checkable=True,
+                         checked=bool(self.is_video_fullscreen))
+        self._add_action(menu, "Ekran Görüntüsü Al", player.take_screenshot,
+                         enabled=has_media)
+        self._add_action(menu, "Video Ayarları",
+                         player.setup_video_adjustments)
+
+    def _build_playback_menu(self, menu, has_media):
+        player = self.main_window
+        for text, delta in (("5 Saniye Geri", -5), ("5 Saniye İleri", 5),
+                            ("30 Saniye Geri", -30), ("30 Saniye İleri", 30)):
+            action = QAction(text, menu)
+            action.setEnabled(has_media)
+            action.triggered.connect(
+                lambda _checked=False, value=delta: player.seek_relative(value))
+            menu.addAction(action)
+        self._add_action(menu, "Zamana Git", player.goto_time,
+                         enabled=has_media)
+        self._build_speed_menu(menu.addMenu("Oynatma Hızı"))
+        menu.addSeparator()
+        # Bu üçü ZORUNLU bir bool alır; checked değeri metoda GEÇİRİLİR.
+        self._add_action(menu, "Tek Dosyayı Tekrarla", player.set_loop_file,
+                         checkable=True, pass_checked=True,
+                         checked=bool(getattr(player, "loop_file", False)))
+        self._add_action(menu, "Oynatma Listesini Tekrarla",
+                         player.set_loop_playlist, checkable=True,
+                         pass_checked=True,
+                         checked=bool(getattr(player, "loop_playlist", False)))
+        self._add_action(menu, "Karıştır", player.toggle_shuffle,
+                         checkable=True, pass_checked=True,
+                         checked=bool(getattr(player, "shuffle", False)))
+
+    def _build_speed_menu(self, menu):
+        """Ana menüyle AYNI hız seçenekleri; işaret gerçek state'ten okunur."""
+        player = self.main_window
+        try:
+            current = float(player.mpv_player.speed)
+        except Exception:
+            current = 1.0
+        group = QActionGroup(menu)
+        group.setExclusive(True)
+        for speed in PLAYBACK_SPEEDS:
+            action = QAction(f"{speed}x", menu)
+            action.setCheckable(True)
+            action.setChecked(abs(current - speed) < 0.001)
+            action.setData(speed)
+            action.triggered.connect(
+                lambda _checked=False, value=speed:
+                player.set_playback_speed(value))
+            group.addAction(action)
+            menu.addAction(action)
+
+    def _populate_track_menu(self, menu, kind, label_builder, current_getter,
+                             on_select, empty_text, error_text, rescan=False):
+        """Sağ-tık menüsündeki dinamik parça satırlarını kurar.
+
+        Ana menüyle AYNI etiket üreticisini kullanır; seçim exclusive bir
+        `QActionGroup` ile yönetilir ve teknik kimlik yalnız `data()` içinde
+        taşınır.
+        """
+        if not self.main_window.current_file:
+            return
+        try:
+            if rescan:
                 self.main_window.mpv_player.command('rescan-external-files')
-                track_list = self.main_window.mpv_player.track_list
-                subtitles = [track for track in track_list if track['type'] == 'sub']
-                current_sub_id = self.main_window.mpv_player.sid
+            track_list = self.main_window.mpv_player.track_list or []
+            tracks = [track for track in track_list
+                      if isinstance(track, dict) and track.get('type') == kind]
+            current = current_getter()
+        except Exception as e:
+            safe_console(f"Parça listeleme hatası: {e}")
+            error_action = QAction(error_text, self)
+            error_action.setEnabled(False)
+            menu.addAction(error_action)
+            return
 
-                if not subtitles:
-                    no_sub_action = QAction("Altyazı Bulunamadı", self)
-                    no_sub_action.setEnabled(False)
-                    select_language_menu.addAction(no_sub_action)
-                else:
-                    for sub in subtitles:
-                        sub_label = sub.get('title') or sub.get('lang') or f"Altyazı {sub['id']}"
-                        sub_action = QAction(f"{sub_label} (ID: {sub['id']})", self)
-                        sub_action.setCheckable(True)
-                        if sub['id'] == current_sub_id:
-                            sub_action.setChecked(True)
-                        sub_action.triggered.connect(lambda checked, sid=sub['id']: self.main_window.select_subtitle_language(sid))
-                        select_language_menu.addAction(sub_action)
-            except Exception as e:
-                print(f"Altyazı listeleme hatası: {e}")
-                error_action = QAction("Altyazılar yüklenemedi", self)
-                error_action.setEnabled(False)
-                select_language_menu.addAction(error_action)
+        if not tracks:
+            empty_action = QAction(empty_text, self)
+            empty_action.setEnabled(False)
+            menu.addAction(empty_action)
+            return
 
-        # Altyazıları Göster (Alt+H)
-        toggle_subtitles_action = subtitle_menu.addAction("Altyazıları Göster (Alt+H)")
-        toggle_subtitles_action.setShortcut("Alt+H")
-        toggle_subtitles_action.triggered.connect(self.main_window.toggle_subtitles)
-
-        # Altyazı Ekle (Alt+E)
-        subtitle_add_action = subtitle_menu.addAction("Altyazı Ekle (Alt+E)")
-        subtitle_add_action.setShortcut("Alt+E")
-        subtitle_add_action.triggered.connect(self.main_window.open_subtitle)
-
-        # Menüyü göster
-        context_menu.exec(self.mapToGlobal(event.pos()))
+        group = QActionGroup(menu)
+        group.setExclusive(True)
+        for track, label in zip(tracks, label_builder(tracks)):
+            track_id = track.get('id')
+            action = QAction(label, self)
+            action.setCheckable(True)
+            action.setChecked(track_id == current)
+            action.setData(track_id)
+            action.triggered.connect(
+                lambda checked, value=track_id: on_select(value))
+            group.addAction(action)
+            menu.addAction(action)
