@@ -1195,16 +1195,21 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
-**YAYIN ENGELİ — `bin/mpv-2.dll` dağıtılamaz.** İkilinin içine gömülü FFmpeg
-`configure` dizesi `--enable-nonfree` taşıyor; FFmpeg'in kendi tanımıyla bu
-yapı "unredistributable". Ayrıntı, kanıt ve adım adım çözüm
-`docs/PACKAGING_PLAN.md` → "YAYIN ENGELİ: paketlenen mpv-2.dll DAĞITILAMAZ".
-Özet: DLL'i `nonfree` içermeyen güncel bir yapıyla değiştir, ölçümle doğrula,
-provenance'ı `RUNTIME_MANIFEST.txt`'e yaz. Bu kapanmadan setup/EXE turu
-BAŞLAMAZ.
+**Altyazı güvenli bandının GERÇEK VİDEO ile yeniden kabulü.** Yayın engeli
+olan nonfree mpv değiştirildi (bkz. `docs/PACKAGING_PLAN.md` → "YAYIN
+ENGELİ … → ÇÖZÜLDÜ"): artık **mpv v0.41.0-923 / FFmpeg N-126125**
+kullanılıyor. Offscreen paket **3158 passed** ile temiz, API ve stil
+değerleri 14/14 doğrulandı — ama bu, bandın PİKSEL düzeyinde korunduğunu
+kanıtlamaz. mpv 0.36 → 0.41 ve FFmpeg 6 → 8 atlamasından sonra `o_band` ve
+`p_ass_band` gerçek video koşumları tekrarlanmalı. Bu yapılana kadar güvenli
+bant "doğrulanmış" SAYILMAZ. Koşum kullanıcı onayı, gerçek pencere ve gerçek
+MKV gerektirir.
 
 İkinci sırada: OpenSubtitles istemcisinde **önleyici hız sınırlaması yok**
 (servis saniyede 1 istek istiyor; bizde yalnız `429/406` tepkisel ele alınıyor).
+
+Not: `sub-margin-y-offset` v0.36'da yoktu ve mevcut tasarımın gerekçesiydi;
+v0.41'de artık var. Bu turda hiçbir altyazı yolu değiştirilmedi.
 
 Sonra backlog **8 (VLSub)** ve **9 (VLC)** kaynak incelemesi.
 

@@ -390,10 +390,12 @@ zaten icerir).
 - Bu bolum hukuki danismanlik DEGILDIR; MLC Player'in butununun lisans durumu
   hakkinda bu turda kesin hukum verilmemistir.
 
-## YAYIN ENGELI: paketlenen mpv-2.dll DAGITILAMAZ (16 Agustos 2026)
+## YAYIN ENGELI: mpv-2.dll DAGITILAMAZ -> COZULDU (16 Agustos 2026)
 
-**Bu, dagitimi durduran tek maddedir.** Tahmin degil, ikilinin KENDI icinden
-okundu.
+**DURUM: kapatildi.** Asagidaki teshis kayit olarak korunuyor; en altta
+degisim ve dogrulama sonuclari var.
+
+**Tahmin degil, ikilinin KENDI icinden okundu.**
 
 `bin/mpv-2.dll` (99.390.990 bayt, 25 Kasim 2024) icine gomulu FFmpeg
 `configure` dizesi:
@@ -435,6 +437,55 @@ Yapilacaklar (release turunda, sirasiyla):
    `libxvid` GPL'dir (lisans tarafi GPLv3 ile uyumludur) ancak H.264/H.265
    PATENT yukumlulukleri lisanstan AYRI bir konudur ve ticari dagitimda
    avukata sorulmalidir.
+
+### YAPILDI: degisim ve dogrulama (16 Agustos 2026)
+
+Yeni ikili: `mpv v0.41.0-923-g7b8915bc1`, FFmpeg `N-126125-g1d7b14f61`,
+libass `0x1705000`. Kaynak arsiv, boyut ve SHA-256 artik
+`bin/RUNTIME_MANIFEST.txt` icinde; `SHA256SUMS.txt`teki "intentionally
+unspecified" notu KALDIRILDI. Eski nonfree DLL silinmedi, `bin/_old/` altina
+alindi ve `.gitignore` ile hem depodan hem pakete girmekten uzak tutuldu
+(`MLCPlayer.spec` acik dosya listesi kullanir, `bin/` glob'u YOKTUR).
+
+**Lisans dogrulamasi (kabul kriteri yeniden tanimlandi).** Ilk kriter
+"ikilide `--enable-nonfree` dizesi aranir" idi; yeni yapida FFmpeg'in
+`configure`/lisans SABITLERI hic bulunmuyor (linker kullanilmayanlari
+atmis), bu yuzden o kriter bu yapi icin GECERSIZDIR — "bulamadim" ile "yok"
+ayni sey degildir. Bunun yerine uc bagimsiz kanit kullanildi:
+
+1. Nonfree'yi ZORUNLU kilan bilesenlerin hicbiri ikilide yok:
+   `libfdk` / `fdk_aac` / `libnpp` / `nppi_` / `cuda-nvcc` / `decklink`.
+2. Etiketin (`20260814`) RESMI build tarifi yalniz `--enable-gpl` ve
+   `--enable-version3` geciyor; `--enable-nonfree`, `--enable-libnpp` ve
+   `--enable-cuda-nvcc` YOK. CUDA serbest `--enable-cuda-llvm` yolundan.
+3. Eski ikilide FFmpeg'in kendi lisans sabiti literal olarak
+   `nonfree and unredistributable` yaziyordu; yeni ikilide boyle bir sabit
+   YOK ve nonfree bilesen izi de yok.
+
+Sonuc: yeni yapi GPL(v3) tarafindadir ve MLC Player'in GPLv3 lisansiyla
+uyumludur; dagitilabilir.
+
+**API uyumlulugu olculdu.** Urunun bagli oldugu 31 secenek/ozelligin TAMAMI
+yeni surumde mevcut (eksik yok). Altyazi stil sozlesmesinin kritik DEGERLERI
+de yazilip geri okundu: `sub-ass-override=force`, `sub-border-style=
+background-box` ve `outline-and-shadow`, `#AARRGGBB` renkler
+(`#FFF26A3D`, `#C80020A0`), `sub-shadow-offset`, `sub-use-margins`,
+`sub-ass-force-margins`, `sub-margin-y`, `sub-pos`, `sub-scale`,
+`sub-border-size` — 14/14 dogru geri okundu.
+
+**Not (davranis DEGISTIRILMEDI):** `sub-margin-y-offset` v0.36'da YOKTU ve
+mevcut `sub-margin-y` tasariminin gerekcesi buydu. v0.41'de bu ozellik ARTIK
+VAR. Gerekce eskidi ama bu turda hicbir altyazi yolu degistirilmedi; olasi
+sadelestirme ayri bir turun konusudur.
+
+**Test:** `pytest -q tests` -> **3158 passed, 17 skipped** (degisimden onceki
+sonucun birebir aynisi).
+
+**ACIK KALAN — fiziksel dogrulama.** Offscreen paketin gecmesi, altyazi
+guvenli bandinin PIKSEL duzeyinde korundugunu KANITLAMAZ. mpv 0.36 -> 0.41
+ve FFmpeg 6 -> 8 atlamasindan sonra `o_band` / `p_ass_band` gercek video
+kabulu yeniden kosulmalidir (gercek pencere + gercek MKV, kullanici onayiyla).
+Bu kosum yapilana kadar guvenli bant "dogrulanmis" SAYILMAZ.
 
 ## Yayin oncesi uyumluluk kontrol listesi
 

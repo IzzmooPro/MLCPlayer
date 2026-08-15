@@ -4,6 +4,17 @@
 # icinde `yt-dlp -U` / `deno upgrade` CALISTIRILMAZ.
 # Bicim: dosya | surum | kaynak_url | boyut_bayt | SHA-256
 
+# mpv/libmpv. ONCEKI yapi `--enable-nonfree` tasidigi ve FFmpeg'in kendi
+# lisans sabitinde "nonfree and unredistributable" yazdigi icin DAGITILAMAZDI;
+# 16 Agustos 2026'da degistirildi. Eski dosya `bin/_old/` altinda duruyor,
+# yerel kullanim icin gecerlidir ama ASLA dagitilmaz.
+# Kabul kriteri: bu yapida nonfree gerektiren bilesen (fdk-aac, libnpp,
+# cuda-nvcc) YOKTUR ve etiketin resmi tarifi yalniz --enable-gpl
+# --enable-version3 gecer. Lisans: GPLv3 (MLC Player ile uyumlu).
+mpv-2.dll | mpv v0.41.0-923-g7b8915bc1 (FFmpeg N-126125-g1d7b14f61) | https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20260814/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z | 119757824 | F709C7CA8B183BEC76B8158BF0C45C53018C63366750729352612F228FF7BDEA
+libmpv.dll.a | 20260814 | (ayni arsiv) | 53308 | BEF1B89F534BC86B33135E1F04FA2D5064B9D48B5DE8BC9866665BBF43DEF793
+mpv-dev-x86_64-20260814-git-7b8915bc1d.7z | 20260814 | https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20260814/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z | 31181976 | 0AF22B28E920620036D3AE08FD9283156DC9AF0420BF4DF84B0E02282094599C
+
 yt-dlp.exe | 2026.07.04 | https://github.com/yt-dlp/yt-dlp/releases/download/2026.07.04/yt-dlp.exe | 18226085 | 52fe3c26dcf71fbdc85b528589020bb0b8e383155cfa81b64dd447bbe35e24b8
 deno.exe | v2.9.5 | https://github.com/denoland/deno/releases/download/v2.9.5/deno-x86_64-pc-windows-msvc.zip | 97408288 | 98f8c2a2d470e4ccb04c935c86ff8050817d877762aec5eaeeb9e409ccb3b9fd
 

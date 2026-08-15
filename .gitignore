@@ -32,6 +32,10 @@ bin/libmpv.dll.a
 bin/yt-dlp.exe
 bin/deno.exe
 
+# Replaced nonfree mpv build. Kept on disk because local use is fine; it must
+# never be distributed and must never enter the repository.
+bin/_old/
+
 # Rejected icon drafts (3.1 MB). The product ships only
 # assets/mlc-player-icon.png and .ico; the drafts stay on disk for
 # reference but are not repository content.
