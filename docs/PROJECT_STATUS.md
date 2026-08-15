@@ -74,6 +74,52 @@ Güncelleme: 15 Ağustos 2026
   aşağıdaki "Tam paket kırmızısı" bölümünde.
 - Commit/push/EXE/setup yapılmadı.
 
+## Aralıklı child takılması — KISMİ (15 Ağustos 2026)
+
+**Kök neden BULUNAMADI. Bu bölüm ne bulunduğunu ve neyin elenmiş
+olduğunu kaydeder; sorun AÇIK.**
+
+Belirti: `pytest -q tests` turlarında aralıklarla bir ölçüm child'ı
+`subprocess.TimeoutExpired` ile düşüyor (180 sn). Dört kez görüldü;
+iki farklı dosyada (`test_default_cinematic_ui_regressions`,
+`test_classic_ui_removal_regressions`) ve iki farklı child'da
+(`default_ui_child.py`, `main_entry_child.py`).
+
+**Elenen hipotezler (ölçümle):**
+
+- Child'ın kendisi yavaş/bozuk DEĞİL: doğrudan çalıştırıldığında
+  **36/36** koşumda 0,3-0,5 sn, exit=0.
+- Boru (`capture_output=True`) yolu değil: aynı çağrı biçimiyle **6/6** temiz.
+- libmpv ses aygıtı çekişmesi değil: **4 paralel × 5 tur = 20 child**,
+  takılma 0.
+- Kapanış (finalizasyon) fazı değil: yeni teşhis `olcum uretilmis mi:
+  HAYIR` dedi — child HİÇ çıktı üretmeden asılı kalıyor, yani takılma
+  AÇILIŞ fazında.
+
+**Bu turda yapılanlar (hepsi harness):**
+
+- `test_default_cinematic_ui_regressions.py`: child timeout'u **180 → 60 sn**
+  (ölçülen gerçek süre 0,3-1,4 sn). Timeout artık çıplak `TimeoutExpired`
+  değil; ölçümün üretilip üretilmediğini, SON FAZI, bütün fazları ve env'i
+  taşıyan bir `AssertionError` veriyor.
+- `default_ui_child.py`: açılış fazı işaretleri (`PHASE qapplication` →
+  `mpvplayer_init` → `mpvplayer_ready` → `shown`), STDERR'e. Ölçüm
+  sözleşmesi (stdout'taki tek JSON satırı) DEĞİŞMEDİ. Bir sonraki
+  takılmada faz doğrudan görünecek.
+- **Ayrı ve gerçek bir risk kapatıldı:** libmpv yükleyen 6 varsayılan child
+  (`default_ui`, `layout`, `main_entry`, `smoke`, `timeline`, `title_bar`)
+  normal Python finalizasyonuna giriyordu. `main.py:130` bu tehlikeyi
+  ürünün kendi sözleriyle belgeliyor ("mpv DLL'leri interpreter kapanışında
+  TAKILIYOR") ve `os._exit(ret)` kullanıyor. Child'lar artık flush + `os._exit`
+  ile aynı politikayı izliyor. `startup_audio_device_scan_child.py` BİLİNÇLİ
+  istisnadır: o fazdaki çökmeyi ölçmek için finalizasyona girer.
+  Sözleşme: `tests/test_child_shutdown_contract_regressions.py`.
+  **Bu değişiklik gözlenen takılmayı ÇÖZMEZ**; ayrı bir riski kapatır.
+
+**Sonraki adım:** takılma bir daha görüldüğünde raporlanan SON FAZ okunacak.
+Faz `mpvplayer_init` ise şüphe libmpv/ses aygıtı açılışında, `qapplication`
+ise Qt platform kurulumundadır. Yeni hipotez olmadan tekrar koşulmayacak.
+
 ## Tam paket kırmızısı — Qt platform sızıntısı (15 Ağustos 2026)
 
 **Kırmızı kanıt:** `pytest -q tests` 78 / 54 / 78 FAIL (koşuma göre değişken).
