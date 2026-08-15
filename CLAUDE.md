@@ -3,10 +3,16 @@
 Bu dosya yalnız kalıcı kuralları içerir. Güncel durum ve sıradaki iş için
 `docs/PROJECT_STATUS.md` dosyasını oku.
 
+Aşağıdaki kuralların üçü `.claude/settings.json` içindeki hook'larla
+mekanik olarak da uygulanır: `git stash/reset/checkout/restore` engellenir,
+her Python düzenlemesinden sonra `compileall` çalışır ve oturum başında
+git durumu ile sıradaki adım okunur. Hook'lar kuralın yerine geçmez;
+unutulma ihtimalini kapatır.
+
 ## Başlangıç
 
 1. `CLAUDE.md` ve `docs/PROJECT_STATUS.md` dosyalarını oku.
-2. `git status --short --branch` çalıştır.
+2. `git status --short --branch` çalıştır (oturum hook'u bunu zaten sunar).
 3. Yalnız görevle ilgili kaynak, test ve diff bölümlerini incele. Tüm depoyu veya eski raporları baştan okuma.
 4. Kaynak ile rapor çelişirse kaynak ve yeniden üretilen davranış esas alınır.
 
