@@ -1249,8 +1249,15 @@ korunur (eski kareler kaybolmasın diye) — ölü veri değildir. `watch_later`
 kalıntısı resume kapatılmadan önceki dönemden; `save-position-on-quit` ve
 `resume-playback` ölçümle `False`, yani oraya artık yazılmıyor.
 
-Yapılacak iş: yalnızca kullanıcı isterse tarihsel artıkların silinmesi.
-Ürün kodunda değişiklik GEREKMİYOR.
+KAPANDI (16 Ağustos 2026, kullanıcı onayı): tarihsel artıklar temizlendi ve
+kare KAYBI OLMADI. `find_cached_thumbnail()` iki dizinde de AYNI dosya adını
+aradığı için eski kareler yeni konuma birebir taşınabildi:
+
+    ÖNCE : 55 kare (28,6 KB) yeni + 7 kare (1.372,3 KB) eski + 2 watch_later
+    SONRA: 62 kare (1.400,9 KB) tek konumda; `MLC Player` klasörleri YOK
+
+Ürün kodu DEĞİŞMEDİ. `legacy_cache_dirs()` yerinde bırakıldı: bu makinede
+artık boş, ama eski kurulumdan yükselten başka kullanıcılar için gerekli.
 
 PASS — **kaldırma kabulü (16 Ağustos 2026, kullanıcı koşumu).**
 `C:\Program Files\MLC Player` KALMADI, kaldırma kaydı YOK, masaüstü ve
