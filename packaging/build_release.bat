@@ -65,6 +65,10 @@ if not defined ISCC (
 echo ADIM 1/5  On kontrol
 python "%VERIFY%" --pre
 if errorlevel 1 goto :fail
+rem Yayimlanabilirlik: kurulu istemcilerin GOREMEYECEGI bir surum uretilmesin
+rem (surum karsilastirmasi sayisaldir; v0.31 varken v0.4 gorunmez).
+python "packaging\check_publishable.py"
+if errorlevel 1 goto :fail
 echo.
 
 echo ADIM 2/5  Onceki ciktilarin temizligi
