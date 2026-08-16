@@ -48,14 +48,20 @@ def large_image(width, height):
     return canvas
 
 
+#: Inno'nun modern sihirbaz başlığının zemini beyazdır.
+HEADER_BACKGROUND = (255, 255, 255)
+
+
 def small_image(width, height):
-    """Küçük görsel: zemin + logo, kenar boşluğu dar."""
-    canvas = Image.new("RGB", (width, height), BACKGROUND)
-    logo_size = int(min(width, height) * 0.86)
-    logo = _logo(logo_size)
-    canvas.paste(logo, ((width - logo_size) // 2, (height - logo_size) // 2),
-                 logo)
-    return canvas
+    """İç sayfaların sağ üst köşesi: GÖRSEL İSTENMİYOR.
+
+    KULLANICI KARARI: ilk sayfadaki boydan boya sol panel kimliği zaten
+    veriyor; iç sayfalarda ikinci bir logo fazlalık. Inno'da küçük görseli
+    kapatan bir anahtar YOKTUR — `WizardSmallImageFile` verilmezse Inno
+    KENDİ varsayılan görselini koyar. Bu yüzden başlık zeminiyle aynı
+    renkte düz bir görsel verilir ve köşe boş görünür.
+    """
+    return Image.new("RGB", (width, height), HEADER_BACKGROUND)
 
 
 def build():

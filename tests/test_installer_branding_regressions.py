@@ -57,6 +57,41 @@ def test_wizard_images_use_the_product_identity():
     assert image.getpixel((2, 313)) == generator.ACCENT
 
 
+def test_inner_pages_have_no_second_logo():
+    """KULLANICI KARARI: sağ üstteki küçük logo KALDIRILDI.
+
+    Inno'da küçük görseli kapatan anahtar yoktur; verilmezse Inno KENDİ
+    varsayılan görselini koyar. Bu yüzden başlık zeminiyle aynı renkte düz
+    bir görsel verilir — dosya var olmalı ama üzerinde logo OLMAMALIDIR.
+    """
+    generator = _generator()
+    image = generator.small_image(55, 55)
+    colours = image.getcolors(maxcolors=16)
+    assert colours == [(55 * 55, generator.HEADER_BACKGROUND)], (
+        f"küçük görsel düz değil: {colours}")
+
+
+def test_windows_gets_the_friendly_name_explicitly():
+    """ÖLÇÜLEN KUSUR: sürüm kaynağı doğruyken bile liste ".exe" gösterdi.
+
+    Kurulu exe'nin `FileDescription` alanı 'MLC Player' idi, buna rağmen
+    Explorer "Birlikte aç" listesinde dosya adını gösterdi (önbellek +
+    çıkarım). Ad artık AÇIKÇA kaydedilir.
+    """
+    text = _iss()
+    assert "[Registry]" in text, "kayıt bölümü yok"
+    assert re.search(
+        r'ValueName: "FriendlyAppName"; ValueData: "\{#MyAppName\}"', text), (
+        "FriendlyAppName açıkça yazılmıyor")
+
+
+def test_registry_entries_are_removed_on_uninstall():
+    """Kaldırma kabulünün ölçütü: geride kayıt KALMAZ."""
+    for line in _iss().splitlines():
+        if line.startswith("Root: HK") and "FriendlyAppName" in line:
+            assert "uninsdeletekey" in line, line
+
+
 def test_installer_points_at_the_repository():
     text = _iss()
     for key in ("AppPublisherURL", "AppSupportURL", "AppUpdatesURL"):
