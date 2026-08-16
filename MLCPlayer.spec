@@ -3,9 +3,32 @@
 # Not: python-mpv mpv-2.dll'i dışarıdan yükler (add_dll_directory ile),
 # bu yüzden DLL'i datalar ile birlikte paketlemek yeterlidir.
 
+import importlib.util
+import os
+import sys
+
 from PyInstaller.utils.hooks import collect_data_files
 
 block_cipher = None
+
+# Windows sürüm kaynağı (VS_VERSION_INFO). Olmadığında Windows "Birlikte aç"
+# listesinde programı DOSYA ADIYLA ("MLC Player.exe") gösteriyordu.
+# Değerler app/config.py'deki tek sürüm kaynağından türer.
+_project_root = os.path.abspath(os.getcwd())
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+from app.config import APP_VERSION, WINDOWS_VERSION      # noqa: E402
+
+# `packaging` adı kurulu bir dağıtımla çakıştığı için yol üzerinden yüklenir.
+_resource_spec = importlib.util.spec_from_file_location(
+    'mlc_version_resource',
+    os.path.join(_project_root, 'packaging', 'version_resource.py'))
+version_resource = importlib.util.module_from_spec(_resource_spec)
+_resource_spec.loader.exec_module(version_resource)
+
+VERSION_FILE = os.path.join(_project_root, 'build', 'file_version_info.txt')
+os.makedirs(os.path.dirname(VERSION_FILE), exist_ok=True)
+version_resource.write(VERSION_FILE, APP_VERSION, WINDOWS_VERSION)
 
 a = Analysis(
     ['main.py'],
@@ -88,6 +111,8 @@ exe = EXE(
     # varsayimina birakilmaz.
     contents_directory='_internal',
     icon='assets/mlc-player-icon.ico',
+    # Windows'un gösterdiği ad ve sürüm alanları buradan gelir.
+    version=VERSION_FILE,
     console=False,                # GUI uygulaması - konsol penceresi açmasın
     disable_windowed_traceback=False,
     argv_emulation=False,

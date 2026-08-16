@@ -111,6 +111,15 @@ if __name__ == "__main__":
         os._exit(generate_thumbnail(sys.argv[2], sys.argv[3]))
 
     app = QApplication(sys.argv)
+
+    # TEK KOPYA: ikinci başlatma yeni pencere açmaz. Ağır kurulumdan ÖNCE
+    # karar verilir; devreden süreç hemen kapanır. İşçi süreçler yukarıda
+    # zaten dönmüştür, bu satıra hiç gelmezler.
+    from app.single_instance import SingleInstanceGuard, activate_window
+    instance_guard = SingleInstanceGuard()
+    if not instance_guard.acquire(sys.argv[1] if len(sys.argv) > 1 else ""):
+        sys.exit(0)
+
     # Ortak gorsel kimlik: ana pencere veya herhangi bir dialog
     # OLUSTURULMADAN once kurulur. Boylece butun ust seviye pencereler
     # ayni ikonu miras alir.
@@ -123,6 +132,9 @@ if __name__ == "__main__":
         from app.player import MPVPlayer
         player = MPVPlayer()
         player.show()
+        # Başka bir başlatma isteği: pencere öne gelir, dosya BURAYA yüklenir.
+        instance_guard.activation_requested.connect(
+            lambda payload: activate_window(player, payload))
         # Açılışta SESSİZ güncelleme kontrolü: güncelleme yoksa hiçbir şey
         # gösterilmez. YALNIZ paketlenmiş kopyada çalışır — kaynaktan çalışan
         # kopya kurulumla güncellenemez ve her geliştirme koşumunda ağa

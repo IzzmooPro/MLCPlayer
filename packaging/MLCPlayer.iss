@@ -1,8 +1,9 @@
 #define MyAppName "MLC Player"
 ; SÜRÜM TEK KAYNAK: app/config.py → APP_VERSION. Burası onun kopyasıdır ve
 ; tests/test_version_consistency.py ikisini birbirine bağlar; elle ayrışamaz.
-#define MyAppVersion "v0.2"
+#define MyAppVersion "v0.3"
 #define MyAppPublisher "IzzmooPro"
+#define MyAppUrl "https://github.com/IzzmooPro/MLCPlayer"
 #define MyAppExeName "MLC Player.exe"
 
 [Setup]
@@ -11,7 +12,11 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion} sürümü
 AppPublisher={#MyAppPublisher}
-AppPublisherURL=mailto:IzzmooPro@gmail.com
+; Depo adresi: "Uygulamalar ve Özellikler" listesinde ve kurulum bilgisinde
+; görünür; GPLv3 kaynak yükümlülüğünün de adresidir.
+AppPublisherURL={#MyAppUrl}
+AppSupportURL={#MyAppUrl}/issues
+AppUpdatesURL={#MyAppUrl}/releases/latest
 DefaultDirName={autopf}\MLC Player
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
@@ -25,6 +30,13 @@ LicenseFile=..\LICENSE
 ; Tek görsel kimlik: setup, kaldırıcı ve kısayollar aynı logoyu kullanır.
 SetupIconFile=..\assets\mlc-player-icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
+
+; Sihirbaz görselleri ürünün kendi ikonundan üretilir
+; (packaging\make_wizard_images.py). Aksi hâlde sol taraf boş gri kalıyordu.
+; Çoklu boyut yüksek DPI'da bulanıklığı önler; Inno 24-bit BMP ister.
+WizardImageFile=wizard\wizard-large.bmp,wizard\wizard-large-1.bmp,wizard\wizard-large-2.bmp
+WizardSmallImageFile=wizard\wizard-small.bmp,wizard\wizard-small-1.bmp,wizard\wizard-small-2.bmp
+WizardImageStretch=yes
 
 ; ASIL SIKIŞTIRMA BURADA. onedir çıktısı ~268 MB; solid LZMA2 ile tek
 ; kurulum dosyası belirgin biçimde küçülür. EXE tarafında UPX BİLEREK
@@ -45,11 +57,11 @@ UsePreviousAppDir=yes
 UsePreviousTasks=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-VersionInfoVersion=0.2.0.0
+VersionInfoVersion=0.3.0.0
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription={#MyAppName} Kurulumu
 VersionInfoProductName={#MyAppName}
-VersionInfoProductVersion=0.2.0.0
+VersionInfoProductVersion=0.3.0.0
 
 [Languages]
 Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
@@ -75,6 +87,9 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDi
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{#MyAppName} uygulamasını başlat"; Flags: nowait postinstall skipifsilent
+; Kurulum sonu sayfasında GitHub sayfasına gitme seçeneği. VARSAYILAN
+; İŞARETSİZ: kullanıcı istemeden tarayıcı açılmaz.
+Filename: "{#MyAppUrl}"; Description: "MLC Player GitHub sayfasını aç"; Flags: shellexec nowait postinstall skipifsilent unchecked
 
 [Code]
 // Inno Setup 7 BUG ATLATMASI — SİLME!
