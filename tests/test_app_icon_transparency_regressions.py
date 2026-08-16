@@ -62,7 +62,10 @@ def test_the_background_is_empty(point):
 def test_the_mark_itself_survived():
     """Plakayı silerken işaret de silinmiş olmasın."""
     image = Image.open(TRANSPARENT_PNG).convert("RGBA")
-    opaque = sum(1 for pixel in image.getdata() if pixel[3] > 200)
+    # `getdata()` Pillow 14'te kaldırılıyor; alfa kanalı histogramı aynı
+    # ölçümü verir ve sürüm değişiminde kırılmaz.
+    alpha_histogram = image.getchannel("A").histogram()
+    opaque = sum(alpha_histogram[201:])
     ratio = opaque / (image.size[0] * image.size[1])
     assert 0.15 < ratio < 0.60, f"işaret oranı beklenmedik: {ratio:.2f}"
 
