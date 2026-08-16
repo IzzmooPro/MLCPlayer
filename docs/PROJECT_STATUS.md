@@ -1226,6 +1226,47 @@ alan banda yansıyor. Kullanıcı gerçek pencerede onayladı.
 
 ---
 
+**AÇIK ARAŞTIRMA — harness gerçek kullanıcı ayarlarını kirletmiş.**
+Kullanıcı ekran görüntüsünde altyazıların YEŞİL göründüğünü bildirdi.
+Ürün varsayılanı `#FFFFFFFF` (beyaz); ölçülen gerçek kayıt:
+
+    HKCU\Software\MLCPlayer\MLCPlayer\subtitle
+      sub_color = #FF00FF00      <- tests/subtitle_visual_acceptance_child.py
+                                    PROBE_GREEN = QColor(0, 255, 0, 255)
+
+Bu, CLAUDE.md'nin açık yasağıdır: "Qt/QSettings testleri benzersiz geçici
+dizin kullanmalı; gerçek kullanıcı ayarlarını kirletmemeli."
+
+Bilinenler: görsel kabul child'ı `MPVPlayer()` oluşturmadan ÖNCE
+`QSettings.setDefaultFormat(IniFormat)` + `setPath(...)` çağırıyor (satır
+2661-2663, player 2677'de kuruluyor) — yani izolasyon DOĞRU sırada. Ama
+`%TEMP%\mlc_subtitle_settings\*` dizinleri oluşmuş ve İÇLERİ BOŞ: hiç `.ini`
+yazılmamış. Yazımlar `player.settings` (`QSettings("MLCPlayer","MLCPlayer")`,
+`player.py:148`) üzerinden `atomic_apply()`e gidiyor. Kaçağın tam yolu
+KANITLANMADI; hangi child ve hangi koşumda olduğu da kesin değil (bugünkü
+koşumlar veya izolasyon eklenmeden önceki bir oturum olabilir).
+
+Sonraki tur: child'ı izole ayar dizinine yazıp yazmadığını doğrulayan
+deterministik bir test yaz (koşum sonrası dizinde `.ini` VAR olmalı ve
+gerçek kayıt defteri anahtarı DEĞİŞMEMİŞ olmalı), sonra kök nedeni kapat.
+Bu kapanana kadar hiçbir görsel kabul koşumu "kullanıcı ayarına dokunmaz"
+sayılmaz.
+
+Kullanıcı onayıyla düzeltildi (16 Ağustos 2026): `sub_color` beyaza,
+`sub_pos` 90 → 100. Diğer değerlere DOKUNULMADI.
+
+ÖLÇÜLDÜ — **seek gecikmesi ürün kusuru DEĞİL.** Kullanıcı atlamaların
+"tak diye" olmadığını bildirdi. Gerçek 4K HEVC dosyada ölçüm:
+anahtar kare aralığı 1,01 sn; `absolute+exact` (ürünün yolu) ortalama
+294 ms, `absolute+keyframes` ortalama 296 ms — İKİSİ AYNI. Gecikme seek
+türünden değil, 31 GB'lık 2160p HEVC'nin okuma+çözme maliyetinden geliyor.
+Seek modunu değiştirmek kazanç sağlamaz.
+
+PASS — **`dragdrop/explorer_multi_drop` (16 Ağustos 2026, kullanıcı onayı).**
+Explorer'dan 3-4 video seçilip oynatıcıya bırakıldı: hepsi listeye girdi,
+sıralama doğru, ilki kendiliğinden oynadı, hata penceresi ve takılma yok.
+Manuel kabul listesinde AÇIK MADDE KALMADI.
+
 **Setup/EXE turu — kullanıcı kararıyla BURADA DURULDU (16 Ağustos 2026).**
 Teknik engel kalmadı: dağıtılamaz mpv değişti, güvenli bant iki motorda da
 doğrulandı, OpenSubtitles hız sınırı kapandı. Paketleme başlamadan ÖNCE
