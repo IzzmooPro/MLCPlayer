@@ -1217,7 +1217,17 @@ Sıra bağımlılığa göre kuruldu, keyfî değil:
    betiği Python'u içe aktaramadığı için bağ testle korunur, ayrışırsa kırılır.
 3. **Ayar kirlenmesi kusuru** (aşağıda "AÇIK ARAŞTIRMA" bölümü).
    Yayından önce kapanmalı: paketlenmiş sürümde de aynı harness koşulabilir.
-4. **GitHub deposu.** Üç şeyi birden çözer: güncelleme kontrolünün adresi,
+4. **GitHub deposu.** ÖN DENETİM YAPILDI (16 Ağustos 2026): remote yok,
+   sır taraması temiz (API anahtarı/parola/token deseni yok), takip edilen
+   tek büyük dosya `assets/mlc-player-icon.png` (1,4 MB), `bin/` ikilileri
+   izlenmiyor (yalnız manifest + SHA256SUMS), GPLv3 `LICENSE` ve README
+   lisans bölümü yerinde. PUBLIC yapmadan önce KARAR GEREKEN 4 kişisel yol:
+   `docs/PACKAGING_PLAN.md:53` (başka projenin tam yolu),
+   `tests/native_player_shutdown_child.py:105` (`<medya>\Film` varsayılanı),
+   `tests/test_error_redaction_hardening_regressions.py:177,195`
+   (redaction fixture'ı; Windows kullanıcı adını içerir). Engelleyici
+   değil ama depo herkese açıksa kullanıcı adı görünür.
+   Üç şeyi birden çözer: güncelleme kontrolünün adresi,
    GPLv3'ün karşılık gelen kaynak yükümlülüğü, yedek. Hesap: `IzzmooPro`.
    KULLANICI KİMLİK DOĞRULAMASI GEREKİR; ayrıca ikili dağıtılacaksa depo
    PUBLIC olmalıdır (private, kaynak erişimi yükümlülüğünü karşılamaz).
