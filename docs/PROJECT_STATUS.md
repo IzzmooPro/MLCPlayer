@@ -1278,11 +1278,17 @@ ASS efektif `sub-pos`; ikisi de gerçek ayrılmış banttan türetiliyor ve
 merkezi `SubtitleTrackWatcher` ile her parça/geometri değişiminde
 uygulanıyor. Kullanıcının kayıtlı `sub_pos` tercihi DEĞİŞMİYOR.
 
-Final kullanıcı manuel kabulü (kullanıcı kararı, 15 Ağustos 2026):
-**frameless pencere fiziksel resize'ı** — sağ/sol kenar, alt kenar, sağ-alt ve
-sol-alt köşe gerçek Windows penceresinde elle sürüklenerek doğrulanacak.
-Kaynak düzeltmesi ve offscreen kanıtı tamam (madde 3); otomatik fiziksel koşum
-`BLOCKED: INPUT_CONTRACT` olduğu için tekrarlanmayacak.
+Final kullanıcı manuel kabulü — **PASS (16 Ağustos 2026, kullanıcı onayı).**
+**Frameless pencere fiziksel resize'ı** gerçek Windows penceresinde elle
+doğrulandı: sağ kenar, sol kenar, alt kenar, sağ-alt köşe, sol-alt köşe,
+**playlist paneli açıkken sağ kenar** (ayrı top-level `Qt.Tool` yüzeyi,
+sınırlı manuel yedek yolu) ve bırakma sonrası sürüklemenin bitmesi. Kullanıcı
+raporu: hepsi düzgün; imleç kenara gelince şekil değişiyor, kayma/sıçrama
+yok. Otomatik fiziksel koşum `BLOCKED: INPUT_CONTRACT` olarak KALIR ve
+tekrarlanmaz; kabul bu manuel doğrulamayla kapanmıştır.
+
+Bu maddeyle birlikte manuel kabul listesinde AÇIK kalan tek madde
+`dragdrop/explorer_multi_drop`tur (aşağıda).
 
 Ertelendi (kullanıcı kararı): `dragdrop/explorer_multi_drop`: Explorer'dan gerçek çoklu sürükle-bırakın güvenilir otomasyonu araştırılsın. Otomasyon güvenilir değilse madde BLOCKED kalmalı ve manuel kabul maddesi olarak yazılmalı; `add_external_files()` çağırmak fiziksel PASS sayılmaz.
 
