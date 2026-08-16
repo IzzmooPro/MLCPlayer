@@ -1195,8 +1195,28 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
-**KALDIRMA KABULÜ (madde 6'nın kalanı).** 1-5 TAMAMLANDI; kurma ve
-güncelleme kabulü GEÇTİ, yalnız kaldırma ölçümü açık.
+**KULLANICI VERİSİ TEK KİMLİK ALTINDA TOPLANMALI.** Yayın planının
+6 maddesi de TAMAMLANDI; aşağıdaki kusur bu turda ÖLÇÜLDÜ ve açıktır.
+
+ÖLÇÜLEN KUSUR — uygulama verisi İKİ ayrı kimliğe dağılıyor:
+
+    %APPDATA%\MLCPlayer\logs                 1 dosya   117,1 KB  (app/errors.py sabiti)
+    %LOCALAPPDATA%\MLCPlayer\cache\thumbnails 54 dosya    3,5 KB
+    %APPDATA%\MLC Player\watch_later          2 dosya    0,1 KB  (Qt/mpv, APP_NAME)
+    %LOCALAPPDATA%\MLC Player\MLC Player\cache\thumbnails 7 dosya 1.372,3 KB
+
+`app/errors.py` yolu `MLCPlayer` sabitinden, Qt tarafı ise `APP_NAME`
+("MLC Player") üzerinden türüyor. Sonuç: İKİ küçük resim önbelleği
+(eski konum 1,4 MB ile hâlâ duruyor) ve programı tamamen kaldırmak
+isteyen kullanıcının İKİ farklı klasör adını bilmesi gerekiyor.
+Sıradaki tur bunu tek kimliğe indirmeli ve eski konumu bir kez
+göç ettirip silmelidir.
+
+PASS — **kaldırma kabulü (16 Ağustos 2026, kullanıcı koşumu).**
+`C:\Program Files\MLC Player` KALMADI, kaldırma kaydı YOK, masaüstü ve
+başlat menüsü kısayolları YOK. Kullanıcı verisi ve ayarları KORUNDU
+(`sub_color=#FFFFFFFF`, `sub_pos=100`) — kaldırma kullanıcı tercihini
+silmemelidir, doğru davranış budur.
 
 PASS — **güncelleme uçtan uca (16 Ağustos 2026, kullanıcı koşumu).**
 Depoda `v0.2` release'i + `MLCPlayer_Setup_v0.2.exe` yayımlandı; kurulu
