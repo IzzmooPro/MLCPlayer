@@ -70,6 +70,7 @@ from PyQt6.QtGui import QColor, QImage  # noqa: E402
 from PyQt6.QtTest import QTest  # noqa: E402
 from PyQt6.QtWidgets import QApplication, QDialog  # noqa: E402
 
+from app.local_subtitle import suppress_local_subtitle  # noqa: E402
 from app.player import MPVPlayer  # noqa: E402
 from app.subtitle_appearance_dialog import SubtitleAppearanceDialog  # noqa: E402
 from app.subtitle_style import (ASS_OVERRIDE_FORCE, BACKGROUND_BOX,  # noqa: E402
@@ -411,14 +412,81 @@ def write_green_ass(path):
     return path
 
 
+# Olcumun sahiplendigi altyazi parcasinin id'si. `sub-add ... select` TEK
+# BASINA yeterli DEGILDIR: medyanin yanindaki bir `.srt` varsa urun
+# `activate_local_subtitle()` ile onu etkinlestirip secimi devralabilir.
+ADDED_SUB_ID = None
+ADDED_SUB_PATH = None
+
+
+def _find_track_id(path):
+    """Verilen dosyaya ait dis altyazi parcasinin id'si (tam yol eslesmesi)."""
+    target = os.path.normcase(os.path.abspath(path))
+    try:
+        tracks = list(mpv().track_list or [])
+    except Exception:
+        return None
+    for track in tracks:
+        if track.get("type") != "sub":
+            continue
+        name = track.get("external-filename") or ""
+        if name and os.path.normcase(os.path.abspath(name)) == target:
+            return track.get("id")
+    return None
+
+
+def ensure_added_subtitle_selected():
+    """Olcum ANINDA secili parca bizimki mi? Degilse geri alinir.
+
+    Urunun yerel-SRT etkinlestirmesi mesrudur ve DEGISTIRILMEZ; olcum kendi
+    parcasinin sahipligini acikca korur. Aksi halde yandaki dosyanin o anda
+    cue'su yoksa `sub-text` bos doner ve hata altyazi motorundaymis gibi
+    gorunur (olculdu: sid=5 disaridan yuklenmis film altyazisi).
+    """
+    if ADDED_SUB_ID is None:
+        return False
+    try:
+        if mpv().sid == ADDED_SUB_ID:
+            return True
+        mpv().sid = ADDED_SUB_ID
+        mpv().sub_visibility = True
+    except Exception:
+        return False
+    return wait_for(lambda: mpv().sid == ADDED_SUB_ID, 3000)
+
+
 def add_subtitle(path):
+    global ADDED_SUB_ID, ADDED_SUB_PATH
+    ADDED_SUB_ID = None
+    ADDED_SUB_PATH = path
     try:
         mpv().command("sub-add", path, "select")
     except Exception as exc:
         print(f"SUB_ADD_FAILED {type(exc).__name__}", flush=True)
         return False
     mpv().sub_visibility = True
-    return wait_for(lambda: bool(mpv().sid), 8000)
+    if not wait_for(lambda: bool(mpv().sid), 8000):
+        return False
+    # Parca listesi yerlesene kadar bekle, sonra KENDI parcamizi sahiplen.
+    wait_for(lambda: _find_track_id(path) is not None, 8000)
+    ADDED_SUB_ID = _find_track_id(path)
+    if ADDED_SUB_ID is None:
+        print("SUB_ADD_TRACK_NOT_FOUND", flush=True)
+        return False
+    # URUNUN KENDI SOZLESMESI. `open_subtitle()` basarili eklemeden sonra
+    # `suppress_local_subtitle()` cagirir: acik kullanici secimi o medya icin
+    # otomatik yerel-SRT secimini TUKETIR. Harness ham `sub-add` kullandigi
+    # icin urun bir secim yapildigini ogrenemiyordu; medyanin yanindaki
+    # `.srt` bekleyen `pending` durumdan sonra secimi geri aliyordu
+    # (olculdu: sid bizim parcamizdan 5'e donuyor, o dosyanin t=60'ta cue'su
+    # olmadigi icin `sub-text` bos). Urun DOGRU davraniyor; eksik olan
+    # harness'in sozlesmeyi kullanmamasiydi.
+    if PLAYER is not None:
+        try:
+            suppress_local_subtitle(PLAYER)
+        except Exception as exc:
+            print(f"SUPPRESS_LOCAL_FAILED {type(exc).__name__}", flush=True)
+    return ensure_added_subtitle_selected()
 
 
 def selected_sub_info():
@@ -2450,11 +2518,57 @@ def prepare_subtitle():
            "metin tabanlı (subrip)", str(codec), text_based)
     if not text_based:
         return False
-    seek_exact(SEEK_TIME)
+    if not seek_exact(SEEK_TIME):
+        # Eskiden donus degeri YOK SAYILIYORDU; seek tutmadiginda hata
+        # `sub-text bos` gibi gorunuyor ve yanlis yere bakiliyordu.
+        record("subtitle_seek_before_measure", "seek absolute+exact",
+               f"t={SEEK_TIME}", f"time_pos={safe_time_pos()}", None,
+               "BLOCKED: SEEK_FAILED")
+        return False
+    # Seek sirasinda urunun yerel-SRT etkinlestirmesi araya girmis olabilir;
+    # olcumden HEMEN once sahiplik yeniden dogrulanir.
+    owned = ensure_added_subtitle_selected()
+    record("measurement_owns_its_subtitle", "sid == eklenen parca",
+           f"id={ADDED_SUB_ID}", selected_sub_debug().strip(), owned)
+    if not owned:
+        return False
     visible = wait_for(subtitle_visible_now, 8000)
     record("subtitle_text_on_screen", "mpv sub-text",
-           "dolu", repr((mpv().sub_text or "")[:40]), visible)
+           "dolu", repr((mpv().sub_text or "")[:40]) + selected_sub_debug(),
+           visible)
     return visible
+
+
+def safe_time_pos():
+    try:
+        return mpv().time_pos
+    except Exception:
+        return None
+
+
+def selected_sub_debug():
+    """Hangi altyazi parcasi SECILI? Bos `sub-text` tek basina yaniltici.
+
+    Olculen olay: medyanin YANINDA duran bir `.srt` varsa mpv onu
+    `sub_auto` ile yukluyor ve urun `activate_local_subtitle()` ile onu
+    etkinlestiriyor; harness'in `sub-add ... select` ile ekledigi parca
+    seciminini kaybediyor. O dosyanin olcum aninda cue'su yoksa `sub-text`
+    bos doner ve hata altyazi motorundaymis gibi gorunur. Bu ek, secili
+    parcanin KIMLIGINI rapora yazar.
+    """
+    try:
+        sid = mpv().sid
+        tracks = list(mpv().track_list or [])
+    except Exception:
+        return " [secili parca okunamadi]"
+    current = next((t for t in tracks
+                    if t.get("type") == "sub" and t.get("id") == sid), None)
+    if current is None:
+        return f" [sid={sid} parca bulunamadi]"
+    name = os.path.basename(current.get("external-filename") or "") or "(gomulu)"
+    return (f" [sid={sid} external={bool(current.get('external'))} "
+            f"dosya={name} sub_sayisi="
+            f"{sum(1 for t in tracks if t.get('type') == 'sub')}]")
 
 
 def run_body(args):
