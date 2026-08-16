@@ -50,7 +50,10 @@ def test_the_addon_refuses_to_run_without_the_player():
     """Oynatıcı kurulu değilse dosyalar rastgele bir yere bırakılmamalı."""
     iss = ADDON_ISS.read_text(encoding="utf-8-sig")
     assert "function InitializeSetup" in iss
-    assert "Once MLC Player kurulmalidir" in iss
+    # Uyarı metni artık ÇEVRİLEBİLİR: sabit Türkçe cümle yerine dil
+    # dosyasından gelir (bkz. tests/test_installer_language_regressions.py).
+    assert "{cm:PlayerRequired}" in iss
+    assert "english.PlayerRequired=" in iss
 
 
 def test_the_addon_has_its_own_identity():

@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import (
-    QMessageBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton
+    QMessageBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QSlider,
+    QPushButton, QMenu
 )
 from PyQt6.QtGui import QAction, QActionGroup, QColor
 from PyQt6.QtCore import Qt
@@ -7,6 +8,7 @@ import os
 import sys
 from app import track_labels
 from app.errors import show_user_error, safe_console
+from app import i18n
 from app.config import APP_VERSION, SUBTITLE_DEFAULTS
 from app.updater import check_for_updates
 from app.media_info import build_media_info, media_info_refresh_key
@@ -264,6 +266,10 @@ def setup_menu(player):
     video_adj_action = QAction("Video Ayarları", player)
     video_adj_action.triggered.connect(player.setup_video_adjustments)
     tools_menu.addAction(video_adj_action)
+
+    # Dil: varsayılan Windows'un dilidir; kullanıcı buradan sabitleyebilir.
+    # Değişiklik yeniden başlatmada geçerli olur (bkz. app/i18n.py).
+    tools_menu.addMenu(build_language_menu(player))
 
     # Yardım menüsü
     help_menu = menu_bar.addMenu("Yardım")
@@ -958,6 +964,50 @@ def show_shortcuts(player):
     layout.addWidget(ok_button)
 
     shortcut_dialog.exec()
+
+def build_language_menu(player):
+    """`Araçlar → Dil` alt menüsü.
+
+    "Sistem dili" seçeneği tercihi SİLER; program yeniden Windows'u izler.
+    Her dil KENDİ dilinde yazılır, yoksa kullanıcı kendi dilini seçemez.
+    """
+    menu = QMenu("Dil", player)
+    group = QActionGroup(menu)
+    group.setExclusive(True)
+    current = i18n.stored_language()
+
+    system_action = QAction(f"Sistem dili ({i18n.language_name(i18n.detect_language())})",
+                            player)
+    system_action.setCheckable(True)
+    system_action.setChecked(current == "")
+    system_action.triggered.connect(lambda: choose_language(player, ""))
+    group.addAction(system_action)
+    menu.addAction(system_action)
+    menu.addSeparator()
+
+    for code in i18n.SUPPORTED_LANGUAGES:
+        action = QAction(i18n.language_name(code), player)
+        action.setCheckable(True)
+        action.setChecked(current == code)
+        action.setData(code)
+        action.triggered.connect(lambda _checked=False, value=code:
+                                 choose_language(player, value))
+        group.addAction(action)
+        menu.addAction(action)
+    return menu
+
+
+def choose_language(player, code):
+    """Dili kaydeder ve yeniden başlatma gerektiğini SÖYLER.
+
+    Sessizce kaydedip hiçbir şey değişmemesi, kullanıcıya "çalışmadı" gibi
+    görünürdü.
+    """
+    if code == i18n.stored_language():
+        return
+    i18n.store_language(code)
+    QMessageBox.information(player, "Dil", i18n.RESTART_REQUIRED_MESSAGE)
+
 
 def show_about(player):
     about_text = f"""

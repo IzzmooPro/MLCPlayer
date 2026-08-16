@@ -112,6 +112,14 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
+    # DİL: Windows'un dilinden seçilir; kullanıcı ayarlardan sabitleyebilir
+    # (Araçlar → Dil). Çeviri dosyası yoksa program kaynak dilde (Türkçe)
+    # açılır ve ÇÖKMEZ. Pencere kurulmadan ÖNCE yapılır ki menüler doğru
+    # dille oluşsun.
+    from app.i18n import apply_language
+    _language, _translated = apply_language(app)
+    safe_console(f"Arayüz dili: {_language} (çeviri yüklendi: {_translated})")
+
     # TEK KOPYA: ikinci başlatma yeni pencere açmaz. Ağır kurulumdan ÖNCE
     # karar verilir; devreden süreç hemen kapanır. İşçi süreçler yukarıda
     # zaten dönmüştür, bu satıra hiç gelmezler.
