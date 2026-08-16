@@ -1208,6 +1208,30 @@ doğruyken bile (`FileDescription='MLC Player'` ölçüldü) Explorer adı
 AÇIK — kapaklı bir ses dosyasıyla albüm kapağı henüz kullanıcı gözüyle
 doğrulanmadı (otomatik testler gerçek libmpv ile geçiyor).
 
+## Kapanış erişim ihlali — ÖLÇÜLDÜ, TEŞHİS DÜZELTİLDİ (17 Ağustos 2026)
+
+Önceki kayıt "aralıklı Python 3.14/ctypes/python-mpv riski" diyordu; bu
+teşhis YANLIŞTI. Ölçümler:
+
+1. `0xE24C4A02` kodu ZARARSIZDIR. Penceresiz düz mpv koşumunda da yazılıyor,
+   süreç sağ kalıyor ve çıkış kodu 0. `faulthandler` yakalanan bir yapısal
+   istisnayı raporluyor; çökme DEĞİL.
+2. GERÇEK çökme ayrı bir şeydir: koşum sonunda, `terminate()` çağrısından
+   HEMEN SONRA, `MPVEventHandlerThread` içinde `access violation`. Süreç
+   orada ölüyor; bu yüzden `MARK_APP_EXEC_RETURNED` ve `MARK_DONE` hiç
+   yazılmıyor ve koşum sözleşme gereği INCOMPLETE sayılıyor.
+3. Gözlemciler (`time-pos`, `duration`, `core-idle`) SUÇLU DEĞİL: penceresiz
+   koşumda (`vo=null`) gözlemciler kayıtlıyken kapanış 3/3 TEMİZ.
+
+Kalan şüphe: gerçek pencere + `vo=gpu` yolunda video çıkışının yıkımı.
+Üretimde etkisi görünmez, çünkü `main.py` zaten `os._exit()` ile çıkar ve
+pencere kapanmıştır; bedeli YALNIZ native kabul koşumlarının INCOMPLETE
+sayılmasıdır.
+
+Sıradaki aday düzeltme (YAPILMADI, ürün değişmezi gereği testsiz
+dokunulmamalı): `terminate()` öncesinde video çıkışının pencereden
+ayrılması. Denemesi iki GUI child koşumu gerektirir.
+
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 
 Sıra: `v0.3` → **`v0.31`** → `v0.32` … Ara sürümler ikinci haneye eklenir.
