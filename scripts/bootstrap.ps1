@@ -23,7 +23,7 @@ $RequiredBinaries = @("mpv-2.dll", "yt-dlp.exe", "deno.exe")
 
 # Import adi <-> pip paketi. Kontrol import adiyla yapilir, cunku
 # python-mpv paketinin modul adi "mpv"dir.
-$RequiredModules = @("PyQt6", "mpv")
+$RequiredModules = @("PyQt6", "mpv", "cryptography")
 
 function Install-PythonFromOfficialSite {
     Write-Host "[BILGI] Python resmi sitesinden indiriliyor..."

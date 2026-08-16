@@ -42,6 +42,7 @@ from PyQt6.QtCore import QThread, Qt, pyqtSignal
 from PyQt6.QtWidgets import (QDialog, QHBoxLayout, QLabel, QMessageBox,
                              QProgressBar, QPushButton, QVBoxLayout)
 
+from app import release_signature as signing
 from app.config import APP_VERSION
 from app.errors import log
 
@@ -78,8 +79,9 @@ CHECK_FAILED_MESSAGE = "Güncelleme kontrol edilemedi."
 BUSY_MESSAGE = ("Program şu anda kapanamıyor (süren bir işlem var). "
                 "İşlem bitince güncellemeyi yeniden başlatın.")
 
-#: Doğrulanmış güncelleme asset'i.
-UpdateAsset = namedtuple("UpdateAsset", "name url sha256 size")
+#: Doğrulanmış güncelleme asset'i. `signature_url`, yayıncı imzasının
+#: (`<kurulum>.sig`) adresidir; imza katmanı açıkken ZORUNLUDUR.
+UpdateAsset = namedtuple("UpdateAsset", "name url sha256 size signature_url")
 
 
 class VerificationError(Exception):
@@ -126,8 +128,12 @@ def is_allowed_download_host(url):
     return host.lower() in _ALLOWED_DOWNLOAD_HOSTS
 
 
-def is_release_download_url(url, tag):
-    """API'den gelen indirme URL'i: şema, host, repo/tag yolu ve dosya adı."""
+def is_release_download_url(url, tag, name=None):
+    """API'den gelen indirme URL'i: şema, host, repo/tag yolu ve dosya adı.
+
+    `name` verilmezse kurulum dosyası beklenir; imza dosyası için
+    `<kurulum>.sig` adı geçirilir.
+    """
     if not (tag or "").strip():
         return False
     scheme, host, port, path = _parts(url)
@@ -136,7 +142,7 @@ def is_release_download_url(url, tag):
     if host.lower() != _RELEASE_HOST:
         return False
     expected = (f"/{GITHUB_REPO}/releases/download/"
-                f"{tag.strip()}/{expected_asset_name(tag)}")
+                f"{tag.strip()}/{name or expected_asset_name(tag)}")
     return path == expected
 
 
@@ -189,7 +195,22 @@ def select_update_asset(data):
     if size is None:
         return None, "size alanı pozitif tam sayı değil"
 
-    return UpdateAsset(expected, url, digest, size), ""
+    signature_url = ""
+    if signing.signing_enabled():
+        # İmza katmanı açıkken imzasız release KABUL EDİLMEZ (fail-closed):
+        # aksi hâlde saldırgan imzayı silerek korumayı devre dışı bırakırdı.
+        wanted = signing.signature_asset_name(expected)
+        matching_signature = [a for a in assets
+                              if isinstance(a, dict) and a.get("name") == wanted]
+        if not matching_signature:
+            return None, f"yayıncı imzası yok: {wanted}"
+        if len(matching_signature) > 1:
+            return None, f"aynı adlı {len(matching_signature)} imza var"
+        signature_url = matching_signature[0].get("browser_download_url")
+        if not is_release_download_url(signature_url, tag, wanted):
+            return None, "imza URL'i beklenen release yoluna uymuyor"
+
+    return UpdateAsset(expected, url, digest, size, signature_url), ""
 
 
 def _verified_asset(data, source):
@@ -220,7 +241,7 @@ class UpdateChecker(QThread):
     varken "günceldesiniz" demek yanlış olur.
     """
 
-    update_available = pyqtSignal(str, str, str, int)
+    update_available = pyqtSignal(str, str, str, int, str)
     no_update = pyqtSignal()
     check_failed = pyqtSignal(str)
 
@@ -245,7 +266,7 @@ class UpdateChecker(QThread):
                 self.check_failed.emit(ASSET_VERIFY_FAILED_MESSAGE)
                 return
             self.update_available.emit(tag, choice.url, choice.sha256,
-                                       choice.size)
+                                       choice.size, choice.signature_url)
         except Exception as exc:
             # Ham istisna metni (URL, yol, backend ayrıntısı) kullanıcıya
             # gösterilmez; yalnız günlüğe yazılır (orada da maskelenir).
@@ -269,12 +290,14 @@ class UpdateDownloader(QThread):
     download_finished = pyqtSignal(str)
     failed = pyqtSignal(str)
 
-    def __init__(self, url, dest, expected_sha256, expected_size, parent=None):
+    def __init__(self, url, dest, expected_sha256, expected_size, parent=None,
+                 signature_url=""):
         super().__init__(parent)
         self._url = url
         self._dest = dest
         self._expected_sha256 = (expected_sha256 or "").lower()
         self._expected_size = expected_size
+        self._signature_url = signature_url
 
     def run(self):
         try:
@@ -328,6 +351,30 @@ class UpdateDownloader(QThread):
             raise VerificationError(f"eksik indirme: {written}/{expected} bayt")
         if digest.hexdigest() != self._expected_sha256:
             raise VerificationError("SHA-256 beklenen değerle uyuşmuyor")
+        self._verify_publisher_signature(digest.hexdigest())
+
+    def _verify_publisher_signature(self, sha256_hex):
+        """BAĞIMSIZ güven kökü: özeti yayıncı mı imzalamış?
+
+        SHA-256 tek başına yetmez; o özet de release metadata'sından gelir.
+        İmza, depoya erişimin TEK BAŞINA geçerli güncelleme üretmeye
+        yetmemesini sağlar.
+        """
+        if not signing.signing_enabled():
+            return
+        if not self._signature_url:
+            raise VerificationError("yayıncı imzası adresi yok")
+
+        import urllib.request
+        with urllib.request.urlopen(self._signature_url, timeout=30) as response:
+            if not is_allowed_download_host(response.geturl()):
+                raise VerificationError("imza beklenmeyen hedeften geldi")
+            # İmza dosyası küçüktür; büyük yanıt kabul edilmez.
+            body = response.read(4096)
+        try:
+            signing.verify(sha256_hex, body.decode("ascii", "replace").strip())
+        except signing.SignatureError as exc:
+            raise VerificationError(f"yayıncı imzası geçersiz: {exc}")
 
     def _remove_partial_file(self):
         """Doğrulanmamış dosyayı kaldırır.
@@ -402,12 +449,13 @@ class UpdateDialog(QDialog):
     """"Yeni bir sürüm bulundu." — Güncelle / Daha sonra."""
 
     def __init__(self, version, download_url, parent=None, *,
-                 expected_sha256="", expected_size=0):
+                 expected_sha256="", expected_size=0, signature_url=""):
         super().__init__(parent)
         self._version = version
         self._download_url = download_url
         self._expected_sha256 = expected_sha256
         self._expected_size = expected_size
+        self._signature_url = signature_url
         self._downloader = None
         #: Kullanıcı indirme sürerken kapatmak istedi mi? `download_finished`
         #: run() İÇİNDE gelir, yerleşik `finished` ise SONRA; bu bayrak
@@ -471,7 +519,8 @@ class UpdateDialog(QDialog):
         destination = os.path.join(folder, expected_asset_name(self._version))
         self._downloader = UpdateDownloader(self._download_url, destination,
                                             self._expected_sha256,
-                                            self._expected_size, self)
+                                            self._expected_size, self,
+                                            signature_url=self._signature_url)
         self._downloader.progress.connect(self._progress.setValue)
         self._downloader.download_finished.connect(self.on_downloaded)
         self._downloader.failed.connect(self.on_download_failed)
@@ -574,9 +623,9 @@ def start_startup_check(player):
     """Açılışta SESSİZ kontrol. Güncelleme yoksa hiçbir şey gösterilmez."""
     checker = UpdateChecker(player, timeout=STARTUP_CHECK_TIMEOUT, silent=True)
 
-    def _show(version, url, sha256, size):
+    def _show(version, url, sha256, size, signature_url):
         UpdateDialog(version, url, player, expected_sha256=sha256,
-                     expected_size=size).exec()
+                     expected_size=size, signature_url=signature_url).exec()
 
     checker.update_available.connect(_show, Qt.ConnectionType.QueuedConnection)
     checker.start()
@@ -587,9 +636,9 @@ def check_for_updates(player):
     """`Yardım → Güncellemeleri Denetle`: sonuç HER durumda bildirilir."""
     checker = UpdateChecker(player, timeout=MANUAL_CHECK_TIMEOUT)
 
-    def _show(version, url, sha256, size):
+    def _show(version, url, sha256, size, signature_url):
         UpdateDialog(version, url, player, expected_sha256=sha256,
-                     expected_size=size).exec()
+                     expected_size=size, signature_url=signature_url).exec()
 
     def _up_to_date():
         QMessageBox.information(

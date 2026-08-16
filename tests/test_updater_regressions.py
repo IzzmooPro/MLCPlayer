@@ -4,13 +4,16 @@ Bu testler AĞA ÇIKMAZ. HTTP katmanı sahte `urlopen` ile değiştirilir; asset
 seçimi ve URL doğrulaması zaten saf fonksiyonlardır.
 """
 
+import base64
 import hashlib
 import io
 import re
 from pathlib import Path
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+from app import release_signature as signing
 from app import updater
 from app.config import APP_VERSION
 
@@ -21,12 +24,30 @@ URL = f"https://github.com/{updater.GITHUB_REPO}/releases/download/{TAG}/{NAME}"
 PAYLOAD = b"kurulum-icerigi" * 10
 DIGEST = hashlib.sha256(PAYLOAD).hexdigest()
 
+# Yayinci imzasi: guven kokunu test icinde uretilen anahtar saglar; urunun
+# gomulu anahtari testlerde KULLANILMAZ (ozel anahtari yok, olmamali da).
+SIGNATURE_NAME = NAME + ".sig"
+SIGNATURE_URL = URL + ".sig"
+TEST_KEY = Ed25519PrivateKey.generate()
+TEST_PUBLIC = base64.b64encode(
+    TEST_KEY.public_key().public_bytes_raw()).decode()
+SIGNATURE = base64.b64encode(TEST_KEY.sign(DIGEST.encode("ascii"))).decode()
+
+
+@pytest.fixture(autouse=True)
+def publisher_key(monkeypatch):
+    """Urun anahtari yerine test anahtari; imza katmani ACIK kalir."""
+    monkeypatch.setattr(signing, "RELEASE_PUBLIC_KEY", TEST_PUBLIC)
+
 
 def release(**overrides):
     asset = {"name": NAME, "browser_download_url": URL,
              "digest": f"sha256:{DIGEST}", "size": len(PAYLOAD)}
     asset.update(overrides.pop("asset", {}))
-    data = {"tag_name": TAG, "assets": [asset]}
+    signature = {"name": SIGNATURE_NAME, "browser_download_url": SIGNATURE_URL}
+    signature.update(overrides.pop("signature", {}))
+    assets = [asset] if signature.get("name") is None else [asset, signature]
+    data = {"tag_name": TAG, "assets": assets}
     data.update(overrides)
     return data
 
@@ -62,6 +83,7 @@ def test_valid_release_is_accepted():
     assert reason == ""
     assert asset.name == NAME and asset.sha256 == DIGEST
     assert asset.size == len(PAYLOAD)
+    assert asset.signature_url == SIGNATURE_URL
 
 
 @pytest.mark.parametrize("data,hint", [
@@ -129,12 +151,22 @@ class FakeResponse(io.BytesIO):
 
 
 def run_downloader(monkeypatch, tmp_path, response, *, sha=DIGEST,
-                   size=len(PAYLOAD)):
+                   size=len(PAYLOAD), signature=SIGNATURE,
+                   signature_url=SIGNATURE_URL):
+    """Sahte `urlopen` iki adresi de sunar: kurulum ve YAYINCI IMZASI."""
     import urllib.request
-    monkeypatch.setattr(urllib.request, "urlopen",
-                        lambda *a, **k: response)
+
+    def fake_urlopen(url, *args, **kwargs):
+        target = url if isinstance(url, str) else getattr(url, "full_url", "")
+        if target.endswith(".sig"):
+            return FakeResponse(signature.encode("ascii"),
+                                final_url=SIGNATURE_URL)
+        return response
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
     destination = tmp_path / "setup.exe"
-    downloader = updater.UpdateDownloader(URL, str(destination), sha, size)
+    downloader = updater.UpdateDownloader(URL, str(destination), sha, size,
+                                          signature_url=signature_url)
     results = {"ok": None, "error": None}
     downloader.download_finished.connect(
         lambda path: results.__setitem__("ok", path))
@@ -270,3 +302,55 @@ def test_asset_name_matches_the_installer_output_name():
     expected = base.strip().replace("{#MyAppVersion}", define) + ".exe"
     assert updater.expected_asset_name(define) == expected
     assert define == APP_VERSION
+
+
+# ── Yayıncı imzası: bağımsız güven kökü ──────────────────────────────────
+
+def test_release_without_a_publisher_signature_is_rejected():
+    """Saldırgan imzayı SİLEREK korumayı kapatamamalı (fail-closed)."""
+    asset, reason = updater.select_update_asset(release(signature={"name": None}))
+    assert asset is None
+    assert "imza" in reason.lower(), reason
+
+
+def test_signature_url_must_point_at_the_release_path():
+    asset, reason = updater.select_update_asset(
+        release(signature={"browser_download_url":
+                           "https://evil.example/" + SIGNATURE_NAME}))
+    assert asset is None
+    assert "imza URL" in reason
+
+
+def test_a_forged_signature_stops_the_installation(monkeypatch, tmp_path):
+    """ASIL KORUMA: dosya ve özet doğru olsa bile imza tutmuyorsa kurulmaz."""
+    attacker = Ed25519PrivateKey.generate()
+    forged = base64.b64encode(attacker.sign(DIGEST.encode("ascii"))).decode()
+    results, destination = run_downloader(
+        monkeypatch, tmp_path,
+        FakeResponse(PAYLOAD, content_length=len(PAYLOAD)), signature=forged)
+    assert results["ok"] is None
+    assert results["error"] == updater.VERIFY_FAILED_MESSAGE
+    assert not destination.exists(), "imzasız dosya diskte kalmamalı"
+
+
+def test_a_signature_served_from_a_foreign_host_is_rejected(monkeypatch,
+                                                            tmp_path):
+    import urllib.request
+
+    def fake_urlopen(url, *args, **kwargs):
+        target = url if isinstance(url, str) else getattr(url, "full_url", "")
+        if target.endswith(".sig"):
+            return FakeResponse(SIGNATURE.encode("ascii"),
+                                final_url="https://evil.example/x.sig")
+        return FakeResponse(PAYLOAD, content_length=len(PAYLOAD))
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    destination = tmp_path / "setup.exe"
+    downloader = updater.UpdateDownloader(URL, str(destination), DIGEST,
+                                          len(PAYLOAD),
+                                          signature_url=SIGNATURE_URL)
+    results = {"error": None}
+    downloader.failed.connect(lambda msg: results.__setitem__("error", msg))
+    downloader.run()
+    assert results["error"] == updater.VERIFY_FAILED_MESSAGE
+    assert not destination.exists()

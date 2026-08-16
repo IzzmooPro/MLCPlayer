@@ -40,3 +40,7 @@ bin/_old/
 # assets/mlc-player-icon.png and .ico; the drafts stay on disk for
 # reference but are not repository content.
 assets/icon-concepts/
+
+# Yayin imzalama ozel anahtari ASLA depoya girmez (bkz. packaging/sign_release.py).
+*.key
+.mlcplayer/
