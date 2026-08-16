@@ -1195,7 +1195,45 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
-**Altyazı güvenli bandının GERÇEK VİDEO ile yeniden kabulü.** Yayın engeli
+**SRT güvenli bandını yeni motora göre yeniden kalibre et.** Gerçek video
+kabulü koşuldu (16 Ağustos 2026, mpv v0.41). ASS tarafı **9/10 PASS** ve
+tablo iki DPI'da birebir kararlı. SRT (`o_band`) tarafında **deterministik
+bir konum regresyonu** var — iki DPI'da da birebir aynı sayılar:
+
+| durum | ölçülen | beklenen | eski (v0.36) |
+|---|---|---|---|
+| `stress_2x_5px` | **gap=153** | 10–36 | 33 |
+| `playlist_open` | **gap=105** | 10–28 | 23 |
+| `fullscreen` | gap=30 ✅ | 10–36 | 31 |
+| `single_line` | gap=15 ✅ | 10–36 | 12 |
+
+Altyazı bandın İÇİNE girmiyor (güvenlik ihlali YOK); **çok yukarıda**
+duruyor. Bozulan iki durumun ortak yanı, render edilen video alanının
+pencereden farklı olması (2,00× yazı ve dar playlist yüzeyi). Şüphe
+`sync_subtitle_safe_band()` içindeki `osd-dimensions` ölçek referansında:
+v0.36 için kalibre edilmiş türetme v0.41'de aşırı marj üretiyor. Not:
+v0.41'de `sub-margin-y-offset` ARTIK VAR; mevcut tasarımın gerekçesi
+(o özelliğin yokluğu) ortadan kalktı, çözüm bu yolu kullanabilir.
+Sıra: tek kırmızı ölçüm → minimum ürün düzeltmesi → `o_band` tekrar.
+
+ASS tarafı doğrulandı (kayıt): normal 42, playlist 33, tam ekran 69,
+dönüş 42 px; `sub_pos` 84,2 / 91,53. %150 DPI'da 41/33/49/41. Hepsi
+pozitif ve ASS üst sınırı 90'ın altında.
+
+Ayrıca bir koşumda (`P-r01`) kapanışta `access violation` görüldü ve
+INCOMPLETE sayıldı; bu, PROJECT_STATUS'ta zaten izlenen aralıklı
+Python 3.14/ctypes/python-mpv riskiyle aynı sınıftadır.
+
+ÇÖZÜLDÜ (bu turda, harness): kabul 10/10'dan 2/10'a düşmüştü ve motor
+suçlu görünüyordu. Değilmiş — 15 Ağustos 23:44'te test videosunun yanına
+bir `.srt` gelmiş; ürün onu doğru biçimde etkinleştirip harness'in ham
+`sub-add` ile eklediği parçanın seçimini alıyordu. Harness artık ürünün
+kendi `suppress_local_subtitle()` sözleşmesini kullanıyor. Ürün kodu
+DEĞİŞMEDİ.
+
+---
+
+Önceki kayıt: **Altyazı güvenli bandının GERÇEK VİDEO ile yeniden kabulü.** Yayın engeli
 olan nonfree mpv değiştirildi (bkz. `docs/PACKAGING_PLAN.md` → "YAYIN
 ENGELİ … → ÇÖZÜLDÜ"): artık **mpv v0.41.0-923 / FFmpeg N-126125**
 kullanılıyor. Offscreen paket **3158 passed** ile temiz, API ve stil
