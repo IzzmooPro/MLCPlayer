@@ -28,7 +28,29 @@ unutulma ihtimalini kapatır.
 ## Token tasarrufu
 
 - Aramada önce `rg`; dosya okumada yalnız ilgili satır aralığını kullan.
-- Geliştirme sırasında hedef testi çalıştır. Kapsam için `## Test stratejisi` bölümüne uy.
+- Geliştirme sırasında hedef testi çalıştır. Kapsam için `## Çeviri kuralları (kullanıcı kararı, 17 Ağustos 2026)
+
+- **Yalnız kullanıcının GÖRDÜĞÜ metin çevrilir.** `safe_console` çıktıları,
+  günlük satırları, mpv özellik değerleri ve geliştirici tanıları Türkçe
+  KALIR. Ölçüm: kaynakta 615+ sarmalanmamış Türkçe metin var ve çoğu bu
+  sınıftandır; toplu sarmalama YANLIŞ olur.
+- **Bir dil TAMAMEN bitmeden diğerine geçilmez.** Önce o dilin bütün
+  eksikleri bulunur ve kapatılır; parça parça ilerlemek yarım kalmış altı
+  dil üretir. Sıra: İngilizce (bitti) → sonraki dil → sonraki.
+- **Terminoloji uydurulmaz, DOĞRULANIR.** Yerleşmiş oynatıcıların
+  (VLC, mpv, MPC-HC) yayımlanmış çevirilerine bakılır; kullanıcı o
+  terimleri bekler. Dosyaları BİREBİR KOPYALAMA: VLC çevirileri GPLv2+
+  lisanslıdır, terminoloji referans alınır, metin kopyalanmaz.
+- **Sarmalama toplu regex ile YAPILMAZ.** Bu yöntem 17 Ağustos 2026'da iki
+  çok satırlı metin birleştirmesini bölüp programı açılamaz hâle getirdi.
+  Dosya dosya ilerlenir ve HER dosyadan sonra AST ile ayrıştırma
+  doğrulanır (`python -m compileall` yetmez, sözdizimi geçerli ama anlam
+  bozuk kalabilir).
+- Metin eklendikten sonra `python packaging/extract_translations.py`
+  çalıştırılır; `--check` ile CI benzeri doğrulama yapılır. Çevrilemeyen
+  (`tr(değişken)`) çağrılar RAPOR EDİLİR, sessizce atlanmaz.
+
+## Test stratejisi` bölümüne uy.
 - Aynı başarısız komutu yeni hipotez olmadan tekrarlama.
 - Terminal çıktısının tamamını rapora kopyalama; komut, sonuç, önemli hata ve exit code yeterlidir.
 - Önceki raporları tekrar etme. Yalnız bu turdaki farkı ve devam eden riski yaz.
@@ -66,6 +88,28 @@ imzası olmayan release REDDEDİLİR. Bu yüzden:
 - **Sürüm numarası:** `v0.3 → v0.31 → v0.32`. Karşılaştırma sayısaldır;
   `v0.31` varken `v0.4` yayımlanamaz (`31 > 4`, istemciler göremez); büyük
   adım için `v0.40`. `packaging/check_publishable.py` bunu zincirde durdurur.
+
+## Çeviri kuralları (kullanıcı kararı, 17 Ağustos 2026)
+
+- **Yalnız kullanıcının GÖRDÜĞÜ metin çevrilir.** `safe_console` çıktıları,
+  günlük satırları, mpv özellik değerleri ve geliştirici tanıları Türkçe
+  KALIR. Ölçüm: kaynakta 615+ sarmalanmamış Türkçe metin var ve çoğu bu
+  sınıftandır; toplu sarmalama YANLIŞ olur.
+- **Bir dil TAMAMEN bitmeden diğerine geçilmez.** Önce o dilin bütün
+  eksikleri bulunur ve kapatılır; parça parça ilerlemek yarım kalmış altı
+  dil üretir. Sıra: İngilizce (bitti) → sonraki dil → sonraki.
+- **Terminoloji uydurulmaz, DOĞRULANIR.** Yerleşmiş oynatıcıların
+  (VLC, mpv, MPC-HC) yayımlanmış çevirilerine bakılır; kullanıcı o
+  terimleri bekler. Dosyaları BİREBİR KOPYALAMA: VLC çevirileri GPLv2+
+  lisanslıdır, terminoloji referans alınır, metin kopyalanmaz.
+- **Sarmalama toplu regex ile YAPILMAZ.** Bu yöntem 17 Ağustos 2026'da iki
+  çok satırlı metin birleştirmesini bölüp programı açılamaz hâle getirdi.
+  Dosya dosya ilerlenir ve HER dosyadan sonra AST ile ayrıştırma
+  doğrulanır (`python -m compileall` yetmez, sözdizimi geçerli ama anlam
+  bozuk kalabilir).
+- Metin eklendikten sonra `python packaging/extract_translations.py`
+  çalıştırılır; `--check` ile CI benzeri doğrulama yapılır. Çevrilemeyen
+  (`tr(değişken)`) çağrılar RAPOR EDİLİR, sessizce atlanmaz.
 
 ## Test stratejisi
 
