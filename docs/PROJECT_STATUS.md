@@ -1193,6 +1193,21 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 - `MLC_NO_SUB_VIDEO` sözleşmesi: dosyanın var olması yetmez; grup içinde gerçek yükleme, `video track > 0` ve `sub track == 0` doğrulanır, aksi halde `BLOCKED: NO_REAL_SUBTITLE_FREE_VIDEO`. Tıklama önkoşulu sağlanmazsa `BLOCKED: CLICK_TARGET`.
 - Medya keşfi opt-in (`MLC_MEDIA_PROBE=1`): `tests/find_subtitle_free_media.py` → aday başına ayrı, timeout'lu `tests/media_track_probe_child.py` (`vo=null`, `ao=null`, yalnız `track_list`). Recursive tarama, kopyalama, dönüştürme ve ağ erişimi yok; en fazla 20 aday. Karar mantığı saf modülde: `tests/media_probe_rules.py`.
 
+PASS — **v0.31 kabulü (16 Ağustos 2026, kullanıcı koşumu).** Dört madde de
+geçti: (1) kurulu v0.3 güncellemeyi buldu, indirdi, doğruladı ve kurdu —
+yani `v0.3 → v0.31` şeması güncelleyicide GERÇEK koşulda doğrulandı;
+(2) kurulum sihirbazının ilk sayfasında boydan boya markalı panel var,
+iç sayfalarda sağ üst logo YOK; (3) lisans onay sayfası çıkmıyor;
+(4) Windows "Birlikte aç" listesi artık **MLC Player** gösteriyor.
+
+4. madde iki ayrı düzeltme gerektirdi ve ilki YETMEDİ: EXE sürüm kaynağı
+doğruyken bile (`FileDescription='MLC Player'` ölçüldü) Explorer adı
+çıkarımla bulup önbelleğe aldığı için ".exe" göstermeye devam etti.
+Çözüm, adın kuruluma AÇIKÇA yazılması oldu (`FriendlyAppName`).
+
+AÇIK — kapaklı bir ses dosyasıyla albüm kapağı henüz kullanıcı gözüyle
+doğrulanmadı (otomatik testler gerçek libmpv ile geçiyor).
+
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 
 Sıra: `v0.3` → **`v0.31`** → `v0.32` … Ara sürümler ikinci haneye eklenir.
