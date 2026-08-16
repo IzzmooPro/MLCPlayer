@@ -1195,6 +1195,82 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
+**SÜRÜM TEK KAYNAK → v0.1 (madde 2).** Aşağıdaki 6 maddelik yayın planının
+2. adımıdır; 1. adım (klasör taşıma) TAMAMLANDI.
+
+### Yayın planı — 16 Ağustos 2026 kullanıcı kararı
+
+Sıra bağımlılığa göre kuruldu, keyfî değil:
+
+1. ~~**Klasör taşıma + ad**~~ → **YAPILDI.** Proje artık
+   `C:\Users\<kullanici>\Desktop\Programlar TEST\2026 YENİLER\MLC Player`
+   altında. Her şeyden önce yapıldı ki GitHub remote, installer yolları ve
+   belgeler nihai konumu referans alsın.
+2. **Sürüm tek kaynak → v0.1.** Şu an installer `v1.0` üretiyor; yanlış.
+   Referans desen: `Offer Management System` içinde `core/constants.py`
+   `APP_VERSION` tek kaynaktır ve `tests/test_version_consistency.py`
+   installer adı + Windows sayısal sürümü + ürün sürümünü birbirine bağlar.
+   Bizde karşılığı: `app/config.py` → `APP_VERSION = "v0.1"`,
+   `MLCPlayer.iss` ondan türer, aynı mantıkta tutarlılık testi yazılır.
+   GitHub'dan ÖNCE yapılmalı ki ilk release etiketi doğru çıksın.
+3. **Ayar kirlenmesi kusuru** (aşağıda "AÇIK ARAŞTIRMA" bölümü).
+   Yayından önce kapanmalı: paketlenmiş sürümde de aynı harness koşulabilir.
+4. **GitHub deposu.** Üç şeyi birden çözer: güncelleme kontrolünün adresi,
+   GPLv3'ün karşılık gelen kaynak yükümlülüğü, yedek. Hesap: `IzzmooPro`.
+   KULLANICI KİMLİK DOĞRULAMASI GEREKİR; ayrıca ikili dağıtılacaksa depo
+   PUBLIC olmalıdır (private, kaynak erişimi yükümlülüğünü karşılamaz).
+5. **Güncelleme denetimi** (buton + açılışta kontrol). 4'e bağımlı.
+   Referans: `2026 YENİLER\Offer Management System\ui\utils\updater.py`
+   (693 satır) + `tests/test_updater_asset_verification.py`,
+   `test_update_dialog_lifecycle.py`. Oradan TAŞINACAK özellikler:
+   `UpdateChecker(QThread)` (arayüz donmaz), `STARTUP_CHECK_TIMEOUT = 3`,
+   izinli host listesi + `is_release_download_url()`, indirilen setup'ın
+   **SHA-256 doğrulaması**, yarım indirmenin silinmesi, indirme sürerken
+   pencere kapanışının güvenli ele alınması.
+   BİZE UYARLANACAK: hata metinleri güvenli hata sisteminden geçer (ham
+   URL/yol loglanmaz), YENİ TIMER EKLENMEZ (ürün değişmezi), kapanış
+   kooperatiftir (`terminate()` yok). Asset adı `MLCPlayer_Setup_v0.1.exe`.
+6. **Gerçek build → kurma/kaldırma kabulü.** En sona: 1-5'in hepsini
+   içermeli. Kurma VE kaldırma sorunsuz mu, artık dosya kalıyor mu.
+
+### ÖLÇÜLDÜ — codec kapsamı (kullanıcı sorusu: "her şeyi oynatabiliyor mu?")
+
+Ölçüt kullanıcı kararıyla **VLC** alındı. Kullanıcının gerçek kütüphanesi
+(`<medya>\Film` + `<medya>\Dizi`, 43 dosya) tek tek açıldı ve GERÇEK çözüm doğrulandı:
+
+| | |
+|---|---|
+| Toplam dosya | 43 |
+| Açılan + çözülen | **37** |
+| Bozuk (VLC de açamıyor) | 6 |
+| **Codec kaynaklı başarısızlık** | **0** |
+
+Çalışan kombinasyonlar: `mkv/hevc/eac3` (20), `mkv/h264/eac3` (10),
+`mkv/h264/dts` (2), `mkv/hevc/ac3`, `mkv/hevc/dts`, `mkv/hevc/pcm_s24le`,
+`mp4/hevc/eac3` (2).
+
+Açılmayan 6 dosya BOZUK: VLC de aynı hatayı veriyor —
+`0x00 at pos 0 invalid as first byte of an EBML number`, `EBML header
+parsing failed`. Dosyalar sıfır baytla başlıyor. Kontrol olarak bizim
+açtığımız S02E12'de VLC "broken seekhead" uyarısı veriyor ama oynatıyor;
+biz de oynatıyoruz — yani o dosyada VLC kadar toleranslıyız.
+
+Decoder listesi **520 kayıt**; H.264, HEVC, AV1, VP9, VP8, MPEG-2/4, VC-1,
+WMV3, ProRes, DNxHD, Theora / AAC, AC3, E-AC3, DTS, TrueHD, MLP, MP3, FLAC,
+Opus, Vorbis, ALAC, WMA, APE, PCM — hepsi mevcut.
+
+**Sonuç: codec kapsamında VLC'ye göre pratik fark YOK.** Fark yalnız
+DVD/Blu-ray menüsü ve egzotik ağ protokollerinde olur; ikisi de ürünün
+kapsamında değildir (arayüzde disk açma yok, ağ tarafı HTTP/HLS + yt-dlp).
+
+YÖNTEM NOTU: ilk iki tarama 18 ve 22 SAHTE başarısızlık üretti. Sebep tek
+süreçte 43 mpv nesnesi oluşturup yok etmek ve ardından 43 kez seek
+zorlamaktı; ikisi de belgede izlenen Python 3.14/ctypes/python-mpv
+kararsızlığını tetikliyor. ÜRÜN bunu yapmaz (oturum başına tek oynatıcı).
+Güvenilir ölçüm seek KULLANMADAN, oynatmanın ilerlemesiyle yapılandır.
+
+---
+
 ÇÖZÜLDÜ (16 Ağustos 2026) — **boyutlandırmada video donması.** Kullanıcı
 raporu: oynatma sırasında pencere boyutlandırılınca video "donuk donuk"
 geçiyor; kullanıcı bunun mpv değişiminden önce olmadığını düşünüyordu ve
