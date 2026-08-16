@@ -21,7 +21,7 @@ kalıcılık ve çevirmen kurulumu yapar.
 import os
 import sys
 
-from PyQt6.QtCore import QLocale, QTranslator
+from PyQt6.QtCore import QCoreApplication, QLocale, QTranslator
 
 from app.settings_store import user_settings
 
@@ -59,6 +59,23 @@ TRANSLATIONS_DIR_NAME = "translations"
 
 RESTART_REQUIRED_MESSAGE = (
     "Dil değişikliği MLC Player yeniden başlatıldığında geçerli olur.")
+
+
+#: Bütün ürün metinlerinin ortak çeviri bağlamı. Tek bağlam, çevirmenin
+#: aynı metni iki kez çevirmesini önler.
+TRANSLATION_CONTEXT = "MLCPlayer"
+
+
+def tr(text):
+    """Kullanıcıya görünen metin. Çeviri yoksa KAYNAK metni döndürür.
+
+    Çalışma zamanı standart Qt'dir (`QTranslator` + `QCoreApplication`).
+    Metin çıkarma ise `packaging/extract_translations.py` ile yapılır:
+    `pylupdate6` yalnız `QCoreApplication.translate(...)` biçimini tanıyor,
+    bu sarmalayıcıyı GÖREMİYOR (ölçüldü). Çağrı yerlerine o uzun ifadeyi
+    yazmak menü kodunu okunmaz hâle getirirdi.
+    """
+    return QCoreApplication.translate(TRANSLATION_CONTEXT, text)
 
 
 def _settings():

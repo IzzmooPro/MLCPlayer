@@ -9,6 +9,7 @@ import sys
 from app import track_labels
 from app.errors import show_user_error, safe_console
 from app import i18n
+from app.i18n import tr
 from app.config import APP_VERSION, SUBTITLE_DEFAULTS
 from app.updater import check_for_updates
 from app.media_info import build_media_info, media_info_refresh_key
@@ -22,115 +23,115 @@ def setup_menu(player):
     menu_bar = player.menuBar()
 
     # Ortam menüsü
-    file_menu = menu_bar.addMenu("Ortam")
+    file_menu = menu_bar.addMenu(tr("Ortam"))
 
-    open_action = QAction("Dosya Aç", player)
+    open_action = QAction(tr("Dosya Aç"), player)
     open_action.setShortcut("Ctrl+O")
     open_action.triggered.connect(player.open_file)
     file_menu.addAction(open_action)
 
-    folder_action = QAction("Klasör Aç", player)
+    folder_action = QAction(tr("Klasör Aç"), player)
     folder_action.triggered.connect(player.open_folder)
     file_menu.addAction(folder_action)
 
-    url_action = QAction("URL'den Oynat", player)
+    url_action = QAction(tr("URL'den Oynat"), player)
     url_action.setShortcut("Ctrl+U")
     url_action.triggered.connect(player.open_url)
     file_menu.addAction(url_action)
 
-    subtitle_action = QAction("Altyazı Ekle", player)
+    subtitle_action = QAction(tr("Altyazı Ekle"), player)
     subtitle_action.triggered.connect(player.open_subtitle)
     file_menu.addAction(subtitle_action)
 
     file_menu.addSeparator()
 
     # Son açılanlar alt menüsü
-    recent_menu = file_menu.addMenu("Son Açılanlar")
+    recent_menu = file_menu.addMenu(tr("Son Açılanlar"))
     player.recent_menu = recent_menu
 
     file_menu.addSeparator()
 
     # Medya Bilgisi: TEK eylem. Üç nokta menüsü `build_overflow_menu()` ile
     # menü çubuğunu miras aldığı için oraya AYRICA eklenmez.
-    media_info_action = QAction("Medya Bilgisi", player)
+    media_info_action = QAction(tr("Medya Bilgisi"), player)
     media_info_action.setEnabled(bool(getattr(player, "current_file", "")))
     media_info_action.triggered.connect(
         lambda _checked=False: player.show_media_info())
     file_menu.addAction(media_info_action)
     player.media_info_action = media_info_action
 
-    exit_action = QAction("Çıkış", player)
+    exit_action = QAction(tr("Çıkış"), player)
     exit_action.setShortcut("Ctrl+Q")
     exit_action.triggered.connect(player.close)
     file_menu.addAction(exit_action)
 
     # Görünüm menüsü
-    view_menu = menu_bar.addMenu("Görünüm")
-    add_to_playlist_action = QAction("Oynatma Listesine Ekle", player)
+    view_menu = menu_bar.addMenu(tr("Görünüm"))
+    add_to_playlist_action = QAction(tr("Oynatma Listesine Ekle"), player)
     add_to_playlist_action.triggered.connect(player.add_to_playlist)
     view_menu.addAction(add_to_playlist_action)
 
-    save_playlist_action = QAction("Oynatma Listesini Kaydet", player)
+    save_playlist_action = QAction(tr("Oynatma Listesini Kaydet"), player)
     save_playlist_action.triggered.connect(player.save_playlist)
     view_menu.addAction(save_playlist_action)
 
-    load_playlist_action = QAction("Oynatma Listesi Aç", player)
+    load_playlist_action = QAction(tr("Oynatma Listesi Aç"), player)
     load_playlist_action.triggered.connect(player.load_playlist)
     view_menu.addAction(load_playlist_action)
 
-    show_playlist_action = QAction("Oynatma Listesini Göster", player)
+    show_playlist_action = QAction(tr("Oynatma Listesini Göster"), player)
     show_playlist_action.setShortcut("Ctrl+P")
     show_playlist_action.triggered.connect(player.show_playlist)
     view_menu.addAction(show_playlist_action)
 
     # Görüntü menüsü
-    video_menu = menu_bar.addMenu("Görüntü")
-    screenshot_action = QAction("Ekran Görüntüsü Al", player)
+    video_menu = menu_bar.addMenu(tr("Görüntü"))
+    screenshot_action = QAction(tr("Ekran Görüntüsü Al"), player)
     screenshot_action.setShortcut("Ctrl+S")
     screenshot_action.triggered.connect(player.take_screenshot)
     video_menu.addAction(screenshot_action)
 
-    fullscreen_action = QAction("Tam Ekran", player)
+    fullscreen_action = QAction(tr("Tam Ekran"), player)
     fullscreen_action.setShortcut("F")
     fullscreen_action.triggered.connect(player.toggle_fullscreen)
     video_menu.addAction(fullscreen_action)
 
-    video_settings_action = QAction("Video Ayarları", player)
+    video_settings_action = QAction(tr("Video Ayarları"), player)
     video_settings_action.triggered.connect(player.setup_video_adjustments)
     video_menu.addAction(video_settings_action)
 
     # Oynatma menüsü
-    play_menu = menu_bar.addMenu("Oynatma")
+    play_menu = menu_bar.addMenu(tr("Oynatma"))
 
-    play_pause_action = QAction("Oynat/Duraklat", player)
+    play_pause_action = QAction(tr("Oynat/Duraklat"), player)
     play_pause_action.setShortcut("Space")
     play_pause_action.triggered.connect(player.play_pause)
     play_menu.addAction(play_pause_action)
 
-    stop_action = QAction("Durdur", player)
+    stop_action = QAction(tr("Durdur"), player)
     stop_action.triggered.connect(player.stop)
     play_menu.addAction(stop_action)
 
     play_menu.addSeparator()
 
-    next_track_action = QAction("Sonraki Parça", player)
+    next_track_action = QAction(tr("Sonraki Parça"), player)
     next_track_action.setShortcut("Ctrl+Right")
     next_track_action.triggered.connect(player.play_next)
     play_menu.addAction(next_track_action)
 
-    prev_track_action = QAction("Önceki Parça", player)
+    prev_track_action = QAction(tr("Önceki Parça"), player)
     prev_track_action.setShortcut("Ctrl+Left")
     prev_track_action.triggered.connect(player.play_previous)
     play_menu.addAction(prev_track_action)
 
-    chapter_menu = play_menu.addMenu("Bölüm")
-    previous_chapter_action = QAction("Önceki Bölüm", player)
+    chapter_menu = play_menu.addMenu(tr("Bölüm"))
+    previous_chapter_action = QAction(tr("Önceki Bölüm"), player)
     previous_chapter_action.triggered.connect(lambda: player.seek_chapter(-1))
     chapter_menu.addAction(previous_chapter_action)
-    next_chapter_action = QAction("Sonraki Bölüm", player)
+    next_chapter_action = QAction(tr("Sonraki Bölüm"), player)
     next_chapter_action.triggered.connect(lambda: player.seek_chapter(1))
     chapter_menu.addAction(next_chapter_action)
-    chapter_refresh_action = QAction("Bölümleri Yenile", player)
+    chapter_refresh_action = QAction(tr("Bölümleri Yenile"), player)
     chapter_refresh_action.triggered.connect(player.refresh_chapters)
     chapter_menu.addAction(chapter_refresh_action)
     player.chapter_menu = chapter_menu
@@ -138,19 +139,19 @@ def setup_menu(player):
     play_menu.addSeparator()
 
     # Oynatma modları
-    loop_file_action = QAction("Tek Dosyayı Tekrarla", player)
+    loop_file_action = QAction(tr("Tek Dosyayı Tekrarla"), player)
     loop_file_action.setCheckable(True)
     loop_file_action.setChecked(player.loop_file)
     loop_file_action.toggled.connect(player.set_loop_file)
     play_menu.addAction(loop_file_action)
 
-    loop_playlist_action = QAction("Listeyi Tekrarla", player)
+    loop_playlist_action = QAction(tr("Listeyi Tekrarla"), player)
     loop_playlist_action.setCheckable(True)
     loop_playlist_action.setChecked(player.loop_playlist)
     loop_playlist_action.toggled.connect(player.set_loop_playlist)
     play_menu.addAction(loop_playlist_action)
 
-    shuffle_action = QAction("Karışık Oynat", player)
+    shuffle_action = QAction(tr("Karışık Oynat"), player)
     shuffle_action.setCheckable(True)
     shuffle_action.setChecked(player.shuffle)
     shuffle_action.toggled.connect(player.toggle_shuffle)
@@ -159,7 +160,7 @@ def setup_menu(player):
     play_menu.addSeparator()
 
     # Hız ayarı alt menüsü
-    speed_menu = play_menu.addMenu("Oynatma Hızı")
+    speed_menu = play_menu.addMenu(tr("Oynatma Hızı"))
 
     speed_actions = {}
     for speed in [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]:
@@ -174,18 +175,18 @@ def setup_menu(player):
     player.speed_actions = speed_actions  # Oynatıcıda saklıyoruz
 
     # Ses menüsü
-    audio_menu = menu_bar.addMenu("Ses")
-    volume_up_action = QAction("Sesi Aç", player)
+    audio_menu = menu_bar.addMenu(tr("Ses"))
+    volume_up_action = QAction(tr("Sesi Aç"), player)
     volume_up_action.setShortcut("Up")
     volume_up_action.triggered.connect(lambda: player.change_volume(5))
     audio_menu.addAction(volume_up_action)
 
-    volume_down_action = QAction("Sesi Kıs", player)
+    volume_down_action = QAction(tr("Sesi Kıs"), player)
     volume_down_action.setShortcut("Down")
     volume_down_action.triggered.connect(lambda: player.change_volume(-5))
     audio_menu.addAction(volume_down_action)
 
-    mute_action = QAction("Sesi Kapat/Aç", player)
+    mute_action = QAction(tr("Sesi Kapat/Aç"), player)
     mute_action.setShortcut("M")
     mute_action.triggered.connect(player.toggle_mute)
     audio_menu.addAction(mute_action)
@@ -195,75 +196,75 @@ def setup_menu(player):
     # "Ses Çıkışı"  = hoparlör/kulaklık/HDMI gibi aygıtlar. İkisi ayrı kavram.
     # Elle yenileme satırları kaldırıldı: parçalar yeni medyada, çıkışlar
     # açılışta otomatik doldurulur.
-    audio_track_menu = audio_menu.addMenu("Ses Parçası")
+    audio_track_menu = audio_menu.addMenu(tr("Ses Parçası"))
     player.audio_track_menu = audio_track_menu
 
-    audio_device_menu = audio_menu.addMenu("Ses Çıkışı")
+    audio_device_menu = audio_menu.addMenu(tr("Ses Çıkışı"))
     player.audio_device_menu = audio_device_menu
     # NOT: Ses çıkışları BURADA algılanmaz — menü kurulumu MPV hazır olmadan
     # önce çalışır. Algılama `MPVPlayer.init_mpv_player()` sonrasında bir kez
     # yapılır; menü açılışında yeniden tarama YOKTUR.
 
     # Alt Yazı menüsü
-    subtitle_menu = menu_bar.addMenu("Alt Yazı")
-    subtitle_add_menu_action = QAction("Altyazı Ekle", player)
+    subtitle_menu = menu_bar.addMenu(tr("Alt Yazı"))
+    subtitle_add_menu_action = QAction(tr("Altyazı Ekle"), player)
     subtitle_add_menu_action.setShortcut("Alt+E")
     subtitle_add_menu_action.triggered.connect(player.open_subtitle)
     subtitle_menu.addAction(subtitle_add_menu_action)
 
     # Altyazı Merkezi: yerel dosya eklemenin hemen ardından, indirme yolu.
     # Kısayol verilmez; mevcut kısayollarla çakışma üretmez.
-    subtitle_find_action = QAction("Altyazı Bul…", player)
+    subtitle_find_action = QAction(tr("Altyazı Bul…"), player)
     subtitle_find_action.triggered.connect(player.open_subtitle_center)
     subtitle_menu.addAction(subtitle_find_action)
     player.subtitle_find_action = subtitle_find_action
 
-    subtitle_toggle_action = QAction("Altyazıları Göster/Gizle", player)
+    subtitle_toggle_action = QAction(tr("Altyazıları Göster/Gizle"), player)
     subtitle_toggle_action.setShortcut("S")
     subtitle_toggle_action.triggered.connect(player.toggle_subtitles)
     subtitle_menu.addAction(subtitle_toggle_action)
 
-    subtitle_track_menu = subtitle_menu.addMenu("Altyazı Parçası")
+    subtitle_track_menu = subtitle_menu.addMenu(tr("Altyazı Parçası"))
     player.subtitle_track_menu = subtitle_track_menu
 
-    subtitle_settings_menu_action = QAction("Altyazı Ayarları", player)
+    subtitle_settings_menu_action = QAction(tr("Altyazı Ayarları"), player)
     subtitle_settings_menu_action.triggered.connect(player.show_subtitle_settings)
     subtitle_menu.addAction(subtitle_settings_menu_action)
 
     # Gezinim menüsü
-    nav_menu = menu_bar.addMenu("Gezinim")
+    nav_menu = menu_bar.addMenu(tr("Gezinim"))
 
-    forward_5s_action = QAction("5 Saniye İleri", player)
+    forward_5s_action = QAction(tr("5 Saniye İleri"), player)
     forward_5s_action.setShortcut("Right")
     forward_5s_action.triggered.connect(lambda: player.seek_relative(5))
     nav_menu.addAction(forward_5s_action)
 
-    backward_5s_action = QAction("5 Saniye Geri", player)
+    backward_5s_action = QAction(tr("5 Saniye Geri"), player)
     backward_5s_action.setShortcut("Left")
     backward_5s_action.triggered.connect(lambda: player.seek_relative(-5))
     nav_menu.addAction(backward_5s_action)
 
-    forward_30s_action = QAction("30 Saniye İleri", player)
+    forward_30s_action = QAction(tr("30 Saniye İleri"), player)
     forward_30s_action.setShortcut("Shift+Right")
     forward_30s_action.triggered.connect(lambda: player.seek_relative(30))
     nav_menu.addAction(forward_30s_action)
 
-    backward_30s_action = QAction("30 Saniye Geri", player)
+    backward_30s_action = QAction(tr("30 Saniye Geri"), player)
     backward_30s_action.setShortcut("Shift+Left")
     backward_30s_action.triggered.connect(lambda: player.seek_relative(-30))
     nav_menu.addAction(backward_30s_action)
 
     nav_menu.addSeparator()
 
-    goto_time_action = QAction("Zamana Git...", player)
+    goto_time_action = QAction(tr("Zamana Git..."), player)
     goto_time_action.setShortcut("Ctrl+G")
     goto_time_action.triggered.connect(player.goto_time)
     nav_menu.addAction(goto_time_action)
 
     # Araçlar menüsü
-    tools_menu = menu_bar.addMenu("Araçlar")
+    tools_menu = menu_bar.addMenu(tr("Araçlar"))
 
-    video_adj_action = QAction("Video Ayarları", player)
+    video_adj_action = QAction(tr("Video Ayarları"), player)
     video_adj_action.triggered.connect(player.setup_video_adjustments)
     tools_menu.addAction(video_adj_action)
 
@@ -272,21 +273,21 @@ def setup_menu(player):
     tools_menu.addMenu(build_language_menu(player))
 
     # Yardım menüsü
-    help_menu = menu_bar.addMenu("Yardım")
+    help_menu = menu_bar.addMenu(tr("Yardım"))
 
-    shortcuts_action = QAction("Klavye Kısayolları", player)
+    shortcuts_action = QAction(tr("Klavye Kısayolları"), player)
     shortcuts_action.triggered.connect(player.show_shortcuts)
     help_menu.addAction(shortcuts_action)
 
-    log_action = QAction("Günlük Yönetimi", player)
+    log_action = QAction(tr("Günlük Yönetimi"), player)
     log_action.triggered.connect(player.show_log_management)
     help_menu.addAction(log_action)
 
-    update_action = QAction("Güncellemeleri Denetle", player)
+    update_action = QAction(tr("Güncellemeleri Denetle"), player)
     update_action.triggered.connect(lambda: check_for_updates(player))
     help_menu.addAction(update_action)
 
-    about_action = QAction("Hakkında", player)
+    about_action = QAction(tr("Hakkında"), player)
     about_action.triggered.connect(player.show_about)
     help_menu.addAction(about_action)
 

@@ -44,3 +44,6 @@ assets/icon-concepts/
 # Yayin imzalama ozel anahtari ASLA depoya girmez (bkz. packaging/sign_release.py).
 *.key
 .mlcplayer/
+
+# Derlenmis ceviriler uretilmis ciktidir; kaynak `.ts` depodadir.
+*.qm

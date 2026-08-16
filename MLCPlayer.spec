@@ -53,6 +53,11 @@ a = Analysis(
         # yalniz installer'a birakilmaz. Setup ayrica kok dizine kopyalar
         # ve kurulum ekraninda gosterir (bkz. packaging/MLCPlayer.iss).
         ('LICENSE', '.'),
+        # Derlenmis ceviriler; kaynak `.ts` dosyalari PAKETE GIRMEZ.
+        *[(f'translations/{name}', 'translations')
+          for name in sorted(os.listdir(os.path.join(_project_root,
+                                                     'translations')))
+          if name.endswith('.qm')],
         ('README.md', '.'),
         ('README.tr.md', '.'),
     ],
