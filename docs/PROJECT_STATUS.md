@@ -1226,7 +1226,42 @@ alan banda yansıyor. Kullanıcı gerçek pencerede onayladı.
 
 ---
 
-**SRT güvenli bandını yeni motora göre yeniden kalibre et.** Gerçek video
+ÇÖZÜLDÜ (16 Ağustos 2026) — **SRT güvenli bandı yeni motora kalibre edildi.**
+`o_band` **17/17 PASS**, iki DPI'da da:
+
+| durum | önce | sonra | marj |
+|---|---|---|---|
+| `playlist_open` | 105 px | **20 px** | 193 → 114 |
+| `stress_2x_5px` | 153 px | **24 px** | → 57 |
+| `fullscreen` | 30 px | **25 px** | 63 → 61 |
+| `single_line` | 15 px | **12 px** | 116 → 114 |
+
+İKİ ayrı kusur vardı ve ikisi de ölçümle ayrıldı:
+
+1. **`sub-scale` çarpanı (yeni).** mpv 0.41 `sub-margin-y`yi yazı ölçeğiyle
+   ÇARPIYOR, 0.36 çarpmıyordu. Ekran görüntüsünden piksel taramasıyla
+   ölçüldü: 0.36'da ölçek 1,0→2,0 eğimi 2,888→2,881 (oran 0,998);
+   0.41'de 2,881→5,769 (oran 2,003). Taban eğim iki motorda AYNI.
+2. **Ölçek referansı (eskiden beri yanlış).** Referans olarak RENDER ALANI
+   (`h - mt - mb`) besleniyordu. Aynı pencerede letterbox değiştirilip
+   ölçüldü: eğim SABİT kalıyor (`osd h=1360 → 2,881`, `h=639 → 2,881`;
+   iki motorda da). Yani referans YÜZEY yüksekliğidir. Eski varsayım yalnız
+   letterbox payı küçükken (`mt=mb=8`/`28`) doğru sonuç veriyordu; playlist
+   açıkken pay 159 olunca marj 193'e şişiyordu.
+
+Doğrulanan model: `alt_kenar = yüzey - marj × (yüzey/720) × sub_scale`.
+`single_line`: 772 − 116×(772/720) = 647,6; ölçülen bbox alt kenarı 647.
+
+Eskiyen testler gevşetilmeden dönüştürüldü ve gerekçeleri dosyalarına
+yazıldı: `test_the_scale_reference_is_the_rendered_video_area` →
+`..._is_the_surface_height_not_the_video_area`; letterbox değişiminin marjı
+değiştirmesini şart koşan iki test artık "hiçbir şey yazılmaz" diyor
+(ölçülen doğru davranış); DPI ve dpr testlerindeki sayılar 1142→1158 ve
+116→114 olarak güncellendi.
+
+---
+
+Önceki kayıt: **SRT güvenli bandını yeni motora göre yeniden kalibre et.** Gerçek video
 kabulü koşuldu (16 Ağustos 2026, mpv v0.41). ASS tarafı **9/10 PASS** ve
 tablo iki DPI'da birebir kararlı. SRT (`o_band`) tarafında **deterministik
 bir konum regresyonu** var — iki DPI'da da birebir aynı sayılar:

@@ -1466,13 +1466,27 @@ class VideoFrame(QWidget):
     def subtitle_scale_reference(self):
         """MPV'nin altyazı ölçeğinde kullandığı GERÇEK yükseklik.
 
-        ÖLÇÜLEN KÖK NEDEN: `sub-margin-y` pencere yüksekliğine değil
-        RENDER EDİLEN VİDEO ALANI yüksekliğine göre ölçekleniyor.
-        Playlist açıldığında yüzey daralıyor, video letterbox oluyor
-        (`osd-dimensions`: `mt=mb=159`, alan 772 → 454) ve sabit kalan
-        marj gerçek piksel karşılığını kaybediyordu: boşluk -27 px.
+        DÜZELTİLDİ (16 Ağustos 2026). Buraya uzun süre RENDER EDİLEN VİDEO
+        ALANI (`h - mt - mb`) yazılıyordu. Ölçüm bunun yanlış olduğunu
+        gösterdi: motor marjı YÜZEY yüksekliğine göre ölçekliyor ve
+        `osd-dimensions` letterbox paylarından BAĞIMSIZ.
 
-        Kaynak `osd-dimensions`tır; okunamazsa widget yüksekliğine
+        Kanıt 1 — aynı pencerede letterbox değiştirildi, eğim sabit kaldı
+        (iki motorda da): `osd h=1360 → 2,881 px/birim`,
+        `osd h=639 → 2,881 px/birim`.
+
+        Kanıt 2 — model gerçek kabul ölçümleriyle birebir tutuyor:
+        `alt_kenar = yüzey - marj × (yüzey / 720) × sub_scale`.
+        `single_line`: marj 116 × (772/720) = 124,4 → alt kenar 647,6;
+        ÖLÇÜLEN bbox alt kenarı 647.
+
+        Eski (alan) referansı yalnız letterbox payı KÜÇÜK olduğunda doğru
+        sonuç veriyordu (`mt=mb=8` veya `28`). Playlist açıkken pay 159'a
+        çıkıyor, alan 772 → 454 düşüyor ve marj ~1,7 kat şişiyordu:
+        `o_case_playlist_open` boşluk 105 px (beklenen 10-28). Bu, bozulan
+        TEK durumdu ve aynı zamanda letterbox'ı büyük olan TEK durumdu.
+
+        Kaynak `osd-dimensions.h`tır; okunamazsa widget yüksekliğine
         düşülür (tek bir sihirli sabit varsayılmaz).
         """
         player = getattr(self.main_window, "mpv_player", None)
@@ -1482,10 +1496,9 @@ class VideoFrame(QWidget):
                 if raw is self._OBSERVED_MISSING:
                     raw = player.osd_dimensions
                 osd = dict(raw or {})
-                area = (int(osd.get("h") or 0) - int(osd.get("mt") or 0)
-                        - int(osd.get("mb") or 0))
-                if area > 0:
-                    return area
+                surface = int(osd.get("h") or 0)
+                if surface > 0:
+                    return surface
             except Exception:
                 pass
         return max(1, self.height())

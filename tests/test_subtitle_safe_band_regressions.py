@@ -18,12 +18,14 @@ iken 720 px referans yüksekliğine göre ölçeklenir.
 Ölçüm sonrası (aynı yüzey): bbox alt kenarı 642, boşluk **20 px**;
 `%90` → bbox alt kenarı 577, boşluk 85 px.
 
-İKİNCİ KIRMIZI KANIT (genişletilmiş matris): playlist açılınca boşluk
-**-27 px**e düştü. `osd-dimensions` teşhisi kök nedeni gösterdi —
-`sub-margin-y` PENCERE yüksekliğine değil RENDER EDİLEN VİDEO ALANI
-yüksekliğine göre ölçekleniyor: playlist açıkken `mt=mb=159`, alan
-772 → 454 düşüyor ama marj 114'te kalıyordu. Ölçek referansı
-`osd-dimensions`tan alınınca boşluk **+23 px** oldu.
+DÜZELTME (16 Ağustos 2026): bir dönem ölçek referansı RENDER EDİLEN
+VİDEO ALANI (`h - mt - mb`) sanıldı. Ölçüm bunun yanlış olduğunu
+gösterdi: aynı pencerede letterbox değiştirildiğinde marj eğimi SABİT
+kalıyor (`osd h=1360 → 2,881`, `h=639 → 2,881`; iki motorda da).
+Referans YÜZEY yüksekliğidir. Eski varsayım yalnız letterbox payı
+küçükken (`mt=mb=8`/`28`) doğru sonuç veriyordu; playlist açıkken pay
+159 olunca marj 193'e şişip altyazıyı 105 px yukarı atıyordu.
+Ayrıca mpv 0.41 marjı `sub-scale` ile ÇARPAR (0.36 çarpmıyordu).
 """
 import os
 
@@ -299,32 +301,43 @@ def test_no_overlay_means_no_reserved_band():
 # --- MPV'ye yazma ------------------------------------------------------
 
 def test_the_band_is_written_to_mpv_with_the_margin_contract():
-    # Letterbox yok: render alanı = 772 - 8 - 8 = 756.
+    # Referans YUZEY yuksekligidir (772); letterbox payi marji
+    # ETKILEMEZ (olculdu: egim osd h'den bagimsiz).
     mpv = FakeMpv(osd={"w": 1400, "h": 772, "mt": 8, "mb": 8})
     frame = Frame(772, mpv=mpv)
 
     applied = frame.sync_subtitle_safe_band()
 
-    assert applied == round((110 + SUBTITLE_BAND_GAP) * 720 / 756) == 116
+    assert applied == round((110 + SUBTITLE_BAND_GAP) * 720 / 772) == 114
     assert mpv.written["sub_margin_y"] == applied
     assert mpv.written["sub_use_margins"] is True
     # ASS altyazıda da marjın geçerli olması için ZORUNLU.
     assert mpv.written["sub_ass_force_margins"] is True
 
 
-def test_the_scale_reference_is_the_rendered_video_area():
-    """KÖK NEDEN: ölçek referansı pencere değil, RENDER ALANIDIR.
+def test_the_scale_reference_is_the_surface_height_not_the_video_area():
+    """DÖNÜŞTÜRÜLDÜ (16 Ağustos 2026) — gevşetilmedi, DÜZELTİLDİ.
 
-    Playlist açıkken ölçülen gerçek değerler: `h=772`, `mt=mb=159`
-    → alan 454. Referans yanlış alınırsa marj 114'te kalıyor ve
-    altyazı kontrol bandına -27 px giriyordu.
+    Bu test eskiden referansın RENDER ALANI (`h - mt - mb` = 454) olmasını
+    şart koşuyordu. Ölçüm bunun yanlış olduğunu gösterdi:
+
+    1) Aynı pencerede letterbox değiştirildi, marj eğimi SABİT kaldı —
+       `osd h=1360 → 2,881 px/birim`, `osd h=639 → 2,881 px/birim`
+       (mpv 0.36 ve 0.41'de aynı). Eğim alana bağlı olsaydı değişirdi.
+    2) Model gerçek kabul ölçümüyle birebir tutuyor:
+       `alt_kenar = yüzey - marj × (yüzey/720) × sub_scale`.
+       `single_line`: 772 - 116×(772/720) = 647,6; ÖLÇÜLEN 647.
+
+    Eski referans yalnız letterbox payı küçükken (`mt=mb=8`/`28`) doğru
+    sonuç veriyordu; playlist açıkken pay 159 olunca marj 193'e şişip
+    altyazıyı 105 px yukarı atıyordu (beklenen 10-28).
     """
     mpv = FakeMpv(osd={"w": 840, "h": 772, "mt": 159, "mb": 159})
     frame = Frame(772, mpv=mpv)
 
-    assert frame.subtitle_scale_reference() == 454
+    assert frame.subtitle_scale_reference() == 772
     applied = frame.sync_subtitle_safe_band()
-    assert applied == round((110 + SUBTITLE_BAND_GAP) * 720 / 454) == 193
+    assert applied == round((110 + SUBTITLE_BAND_GAP) * 720 / 772) == 114
 
 
 def test_the_scale_reference_falls_back_to_the_widget_height():
@@ -832,12 +845,15 @@ def test_a_changed_margin_writes_only_the_margin():
     frame.sync_subtitle_safe_band()
     mpv.writes.clear()
 
-    # Playlist açıldı: render alanı 756 → 454, marj değişmeli.
-    mpv.osd_dimensions = {"w": 840, "h": 772, "mt": 159, "mb": 159}
+    # DONUSTURULDU: eskiden "playlist acilinca (letterbox) marj
+    # degismeli" deniyordu. Olcum bunun YANLIS oldugunu gosterdi;
+    # marj yalniz YUZEY yuksekligine baglidir. Gercek marj degisimi
+    # yuzey yuksekligi degistiginde olur (tam ekran gibi).
+    mpv.osd_dimensions = {"w": 1400, "h": 1440, "mt": 28, "mb": 28}
     applied = frame.sync_subtitle_safe_band()
 
     assert [name for name, _ in mpv.writes] == ["sub_margin_y"]
-    assert applied == round((110 + SUBTITLE_BAND_GAP) * 720 / 454)
+    assert applied == round((110 + SUBTITLE_BAND_GAP) * 720 / 1440)
 
 
 def test_a_real_margin_change_is_never_missed():
@@ -846,12 +862,14 @@ def test_a_real_margin_change_is_never_missed():
     frame = band_frame(mpv=mpv)
     seen = [frame.sync_subtitle_safe_band()]
 
-    for area in (454, 1384, 756, 300):
-        mpv.osd_dimensions = {"w": 1400, "h": 772, "mt": 0, "mb": 772 - area}
+    # DONUSTURULDU: supurulen buyukluk artik RENDER ALANI degil YUZEY
+    # yuksekligidir; marj yalniz ona baglidir.
+    for surface in (454, 1384, 756, 300):
+        mpv.osd_dimensions = {"w": 1400, "h": surface, "mt": 8, "mb": 8}
         seen.append(frame.sync_subtitle_safe_band())
 
-    assert seen[1:] == [round((110 + SUBTITLE_BAND_GAP) * 720 / area)
-                        for area in (454, 1384, 756, 300)]
+    assert seen[1:] == [round((110 + SUBTITLE_BAND_GAP) * 720 / surface)
+                        for surface in (454, 1384, 756, 300)]
     assert mpv.written["sub_margin_y"] == seen[-1]
 
 
@@ -883,7 +901,7 @@ def test_a_failed_write_is_not_cached():
     working = CountingMpv(osd={"w": 1400, "h": 772, "mt": 8, "mb": 8})
     frame.main_window.mpv_player = working
 
-    assert frame.sync_subtitle_safe_band() == 116
+    assert frame.sync_subtitle_safe_band() == 114
     assert [name for name, _ in working.writes] == [
         "sub_use_margins", "sub_ass_force_margins", "sub_margin_y",
         "sub_pos"]
@@ -899,19 +917,20 @@ def test_the_band_is_converted_to_device_pixels_at_high_dpi():
     normal = Frame(772, mpv=FakeMpv(osd=dict(osd)), dpr=1.0)
     high = Frame(772, mpv=FakeMpv(osd=dict(osd)), dpr=1.5)
 
-    assert high.subtitle_scale_reference() == 1142
-    assert normal.sync_subtitle_safe_band() == round(122 * 720 / 1142)
-    assert high.sync_subtitle_safe_band() == round(122 * 1.5 * 720 / 1142)
+    # Referans YÜZEY yüksekliğidir; letterbox payı çıkarılmaz.
+    assert high.subtitle_scale_reference() == 1158
+    assert normal.sync_subtitle_safe_band() == round(122 * 720 / 1158)
+    assert high.sync_subtitle_safe_band() == round(122 * 1.5 * 720 / 1158)
     # %150'de marj tam 1,5 kat büyük olmalı.
     assert high.sync_subtitle_safe_band() > normal.sync_subtitle_safe_band()
 
 
 def test_dpr_one_keeps_the_measured_values_unchanged():
-    """Regresyon güvenliği: dpr=1.0 önceki ölçümleri DEĞİŞTİRMEZ."""
+    """dpr=1.0 ölçümleri: referans artık YÜZEY (772), alan (756) değil."""
     frame = Frame(772, mpv=FakeMpv(osd={"w": 1400, "h": 772, "mt": 8,
                                         "mb": 8}), dpr=1.0)
 
-    assert frame.sync_subtitle_safe_band() == 116
+    assert frame.sync_subtitle_safe_band() == 114
 
 
 # --- ASS: `sub-margin-y` etkisiz, `sub-pos` etkili ---------------------
@@ -1030,14 +1049,14 @@ def test_a_geometry_change_updates_both_margin_and_position():
     mpv = frame.main_window.mpv_player
     mpv.writes.clear()
 
-    # Playlist açıldı: render alanı 756 → 454.
+    # DÖNÜŞTÜRÜLDÜ: playlist yalnız letterbox payını değiştirir
+    # (`mt/mb` 8 → 159), YÜZEY 772'de kalır. Ölçüm marjın letterbox'tan
+    # BAĞIMSIZ olduğunu gösterdi, bu yüzden artık hiçbir şey yeniden
+    # yazılmaz. Marjı gerçekten değiştiren şey yüzey yüksekliğidir.
     mpv.osd_dimensions = {"w": 840, "h": 772, "mt": 159, "mb": 159}
     frame.sync_subtitle_safe_band()
 
-    # Playlist: render ALANI 454'e düşer ama PENCERE 772'de kalır.
-    # Marj alan referansına bağlıdır → yeniden yazılır; konum yüzdesi
-    # pencereye oranlandığı için DEĞİŞMEZ → yeniden YAZILMAZ.
-    assert [name for name, _ in mpv.writes] == ["sub_margin_y"]
+    assert [name for name, _ in mpv.writes] == []
     assert mpv.written["sub_pos"] == round(
         100.0 - (110 + SUBTITLE_BAND_GAP) * 100 / 772, 2)
 
@@ -1128,10 +1147,11 @@ def test_the_observed_value_is_what_the_band_actually_uses():
 
     frame.note_observed_property("osd-dimensions",
                                  {"w": 1400, "h": 772, "mt": 8, "mb": 8})
-    wide = frame.sync_subtitle_safe_band()
-    # Playlist acildi: render alani daraldi. Gozlemci bunu bildirir.
+    windowed = frame.sync_subtitle_safe_band()
+    # Tam ekrana gecildi: YUZEY yuksekligi degisti. Gozlemci bunu bildirir.
+    # (Letterbox payi degisimi marji ETKILEMEZ; olculdu.)
     frame.note_observed_property("osd-dimensions",
-                                 {"w": 840, "h": 772, "mt": 159, "mb": 159})
-    narrow = frame.sync_subtitle_safe_band()
+                                 {"w": 2560, "h": 1440, "mt": 28, "mb": 28})
+    fullscreen = frame.sync_subtitle_safe_band()
 
-    assert narrow != wide, "gozlenen yeni alan banda YANSIMADI"
+    assert fullscreen != windowed, "gozlenen yeni yuzey banda YANSIMADI"

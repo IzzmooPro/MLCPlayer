@@ -1847,9 +1847,38 @@ def measure_band_case(label, values, shot, expect_gap=True,
                f"{SAFE_GAP_MIN} <= boşluk <= {max_gap} px",
                f"gap={gap} bbox={result.get('logical_bbox')} "
                f"band_top={overlay['local'][1] if overlay else None} "
-               f"surface={result['surface']} dpr={result['dpr']}",
+               f"surface={result['surface']} dpr={result['dpr']} "
+               f"{margin_inputs()}",
                gap is not None and SAFE_GAP_MIN <= gap <= max_gap)
     return result
+
+
+def margin_inputs():
+    """Marj hesabinin GIRDILERI. Boslugu gormek nedenini gostermiyor.
+
+    `o_case_playlist_open` 105 px cikiyor (beklenen 10-28). Olculdu:
+    motor marji PENCERE yuksekligine gore olcekliyor ve `osd-dimensions`
+    yuksekliginden BAGIMSIZ (egim h=1360 ve h=639'da ayni 2,881), ama urun
+    referans olarak RENDER ALANINI besliyor. Bu satir dort durumun gercek
+    girdilerini yan yana koyar; referansi degistirmeden once beklenen kaymayi
+    hesaplayabilmek icin gereklidir.
+    """
+    frame = PLAYER.video_frame if PLAYER is not None else None
+    if frame is None:
+        return "margin_inputs=(frame yok)"
+    try:
+        reference = frame.subtitle_scale_reference()
+        reserved = frame.subtitle_reserved_bottom()
+        margin = frame.subtitle_safe_margin(reference)
+        scale = frame.subtitle_margin_scale()
+        osd = dict(getattr(mpv(), "osd_dimensions", None) or {})
+        written = getattr(mpv(), "sub_margin_y", None)
+        return (f"reference={reference} reserved={reserved} "
+                f"margin_hesap={margin} margin_mpv={written} "
+                f"sub_scale={scale} osd_h={osd.get('h')} "
+                f"osd_mt={osd.get('mt')} osd_mb={osd.get('mb')}")
+    except Exception as exc:
+        return f"margin_inputs=HATA({type(exc).__name__})"
 
 
 def scenario_o_band(base):
