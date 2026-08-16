@@ -556,3 +556,92 @@ def test_user_messages_never_contain_secrets():
 
     for secret in (API_KEY, TOKEN, PASSWORD):
         assert secret not in blob
+
+
+# --------------------------------------------------------------------------
+# Hiz siniri: servis SANIYEDE 1 istek istiyor
+# --------------------------------------------------------------------------
+
+class FakeClock:
+    """Deterministik monotonik saat + uyku defteri."""
+
+    def __init__(self):
+        self.now = 1000.0
+        self.slept = []
+
+    def monotonic(self):
+        return self.now
+
+    def sleep(self, seconds):
+        self.slept.append(round(seconds, 3))
+        self.now += seconds
+
+
+def throttled_client(clock, transport=None, **kwargs):
+    transport = transport or RecordingTransport(payload={"data": []})
+    client = osub.OpenSubtitlesClient(api_key="k", transport=transport,
+                                      **kwargs)
+    client._monotonic = clock.monotonic
+    client._sleep = clock.sleep
+    return client, transport
+
+
+def test_back_to_back_requests_are_spaced_by_the_service_limit():
+    """RESMI SART: en fazla saniyede 1 istek.
+
+    Urun bugune kadar YALNIZ tepkisel davraniyordu: `429/406` gelince
+    `RateLimitError`. Onleyici araliklama YOKTU; arama ve indirme arka
+    arkaya tetiklendiginde sinir asilabiliyor ve servis erisimi
+    engelleyebiliyordu ("using one key per application is mandatory ...
+    the service will ban access otherwise").
+    """
+    clock = FakeClock()
+    client, transport = throttled_client(clock)
+
+    client._call("GET", "/subtitles")
+    client._call("GET", "/subtitles")
+    client._call("GET", "/subtitles")
+
+    assert len(transport.calls) == 3
+    # Ilk istek beklemez; sonraki her istek TAM aralik kadar bekler.
+    assert clock.slept == [osub.MIN_REQUEST_INTERVAL_S,
+                           osub.MIN_REQUEST_INTERVAL_S]
+
+
+def test_a_slow_request_consumes_the_interval_and_no_sleep_is_added():
+    """Istek zaten uzun surduyse BOSA beklenmez."""
+    clock = FakeClock()
+    client, _ = throttled_client(clock)
+
+    client._call("GET", "/subtitles")
+    # Cagri disinda gecen sure araligi doldurur.
+    clock.now += osub.MIN_REQUEST_INTERVAL_S + 0.5
+    client._call("GET", "/subtitles")
+
+    assert clock.slept == []
+
+
+def test_the_throttle_never_sleeps_longer_than_the_interval():
+    """Saat geri giderse (NTP/uyku) sonsuz bekleme olusmamali."""
+    clock = FakeClock()
+    client, _ = throttled_client(clock)
+
+    client._call("GET", "/subtitles")
+    clock.now -= 3600.0
+    client._call("GET", "/subtitles")
+
+    assert clock.slept
+    assert max(clock.slept) <= osub.MIN_REQUEST_INTERVAL_S
+
+
+def test_a_missing_key_is_rejected_before_any_throttling():
+    """Anahtar yoksa aga cikilmaz; bosuna da beklenmez."""
+    clock = FakeClock()
+    client, transport = throttled_client(clock)
+    client._api_key = ""
+
+    with pytest.raises(osub.MissingCredentialsError):
+        client._call("GET", "/subtitles")
+
+    assert transport.calls == []
+    assert clock.slept == []

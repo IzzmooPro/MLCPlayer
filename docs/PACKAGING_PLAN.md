@@ -516,11 +516,16 @@ kullanici rutbesine bagli.
       uygun bicimde ad + surum tasiyor.
 - [x] API anahtari kullanicinin kendi anahtaridir; uygulamaya gomulu anahtar
       YOKTUR.
-- [ ] **ACIK KUSUR:** istemcide ONLEYICI hiz sinirlamasi yok. `429/406`
-      yanitlari `RATE_LIMIT_STATUSES` ile TEPKISEL olarak ele aliniyor, ama
-      istekler arasinda >= 1 sn araligi garanti eden bir mekanizma
-      bulunmuyor. Arama + indirme ard arda tetiklenirse sinir asilabilir ve
-      erisim engellenebilir.
+- [x] **KAPANDI (16 Agustos 2026):** onleyici hiz sinirlamasi eklendi.
+      `MIN_REQUEST_INTERVAL_S = 1.0` ve `_respect_rate_limit()`, butun
+      isteklerin gectigi TEK bogaz noktasi olan `_call()` icinde. Bekleme
+      QThread worker'indadir, GUI donmaz; kilit es zamanli worker'larin ayni
+      pencerede iki istek gondermesini engeller; saat GERI giderse bekleme
+      aralikla SINIRLANIR. `429/406` tepkisel yolu AYNEN korunur — onleyici
+      sinir onu degil, servise gereksiz yuku engeller.
+      Sozlesme: 4 test (arka arkaya istekler araliklanir, yavas istek
+      araligi tuketir ve bosa beklenmez, saat geri giderse ust sinir,
+      anahtar yoksa aga cikilmadan once beklenmez).
 - [ ] Indirilen altyazilarin yeniden dagitimi ve saklanmasi konusundaki
       sartlar dogrulanmali (uygulama altyaziyi yalniz kullanicinin diskine
       yaziyor; baska yere kopyalamiyor).

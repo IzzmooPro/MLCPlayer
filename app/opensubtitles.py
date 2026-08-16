@@ -16,6 +16,7 @@ import json
 import os
 import ssl
 import threading
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -28,6 +29,14 @@ _SRT_FORMATS = {"srt", "subrip"}
 
 # OpenSubtitles kota aşımını 406 ile de bildirir; 429 ile aynı anlamdadır.
 RATE_LIMIT_STATUSES = (406, 429)
+
+#: Servisin RESMI siniri: en fazla saniyede 1 istek. Bugune kadar yalniz
+#: TEPKISEL davraniliyordu (`429/406` -> `RateLimitError`); onleyici
+#: araliklama YOKTU ve arama + indirme arka arkaya tetiklendiginde sinir
+#: asilabiliyordu. Servis "uygulama basina tek anahtar" kuralini ihlal eden
+#: istemcilerin erisimini engelleyebiliyor, bu yuzden sinir istemci
+#: tarafinda da korunur.
+MIN_REQUEST_INTERVAL_S = 1.0
 
 # Altyazı dosyası için makul üst sınır. Daha büyük yanıt altyazı değildir;
 # belleğe alınmaz ve diske yazılmaz.
@@ -392,6 +401,14 @@ class OpenSubtitlesClient:
         self._token = None            # YALNIZ bellekte tutulur
         self._base_url = API_ROOT
         self._login_rejected = False  # 401 sonrasi tekrar giris denenmez
+        # HIZ SINIRI durumu. Ag cagrilari QThread worker'larinda calisir
+        # (bkz. `subtitle_search_controller`); GUI thread'i BLOKLANMAZ.
+        # Saat ve uyku ayri isim olarak tutulur: testler gercek zaman
+        # beklemeden deterministik olcum yapabilsin.
+        self._monotonic = time.monotonic
+        self._sleep = time.sleep
+        self._request_lock = threading.Lock()
+        self._last_request_at = None
 
     def has_token(self):
         return bool(self._token)
@@ -443,6 +460,28 @@ class OpenSubtitlesClient:
             headers["Authorization"] = f"Bearer {self._token}"
         return headers
 
+    def _respect_rate_limit(self):
+        """Bir onceki istekten bu yana ARALIK dolmadiysa bekler.
+
+        Servisin resmi siniri saniyede 1 istektir. Bekleme worker
+        thread'indedir; GUI donmaz (bkz. `__init__` notu). Kilit, es
+        zamanli worker'larin ayni pencerede iki istek gondermesini
+        engeller.
+
+        Saat GERI giderse (NTP duzeltmesi, uyku) fark negatif cikar ve
+        sinirsiz bekleme dogardi; bu yuzden bekleme aralikla SINIRLANIR.
+        """
+        with self._request_lock:
+            now = self._monotonic()
+            previous = self._last_request_at
+            if previous is not None:
+                waited = now - previous
+                remaining = MIN_REQUEST_INTERVAL_S - waited
+                if remaining > 0:
+                    self._sleep(min(remaining, MIN_REQUEST_INTERVAL_S))
+                    now = self._monotonic()
+            self._last_request_at = now
+
     def _call(self, method, path, params=None, body=None, retry=True,
               use_base=True):
         if not self._api_key:
@@ -459,6 +498,8 @@ class OpenSubtitlesClient:
         headers = self._headers()
         if payload is not None:
             headers["Content-Type"] = "application/json"
+
+        self._respect_rate_limit()
 
         # KOTA GÜVENLİĞİ: yalnız idempotent GET tekrar denenir. POST
         # (/download, /login) timeout veya 5xx sonrasi ASLA tekrarlanmaz.

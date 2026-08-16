@@ -1226,6 +1226,25 @@ alan banda yansıyor. Kullanıcı gerçek pencerede onayladı.
 
 ---
 
+**Setup/EXE turu — kullanıcı kararıyla BURADA DURULDU (16 Ağustos 2026).**
+Teknik engel kalmadı: dağıtılamaz mpv değişti, güvenli bant iki motorda da
+doğrulandı, OpenSubtitles hız sınırı kapandı. Paketleme başlamadan ÖNCE
+`docs/PACKAGING_PLAN.md` içindeki uyumluluk kontrol listesi kapatılmalı
+(karşılık gelen kaynak erişimi, `licenses/` klasörünün setup'a girmesi,
+dosya başı GPLv3 bildirimleri, kod imzalama). Bunlar kullanıcı/avukat
+kararıdır.
+
+Kalan küçük işler: `dragdrop/explorer_multi_drop` (manuel, kullanıcı elinde)
+ve backlog 8/9 (VLSub ve VLC kaynak incelemesi; yayını bloke etmez).
+
+ÇÖZÜLDÜ (16 Ağustos 2026) — **OpenSubtitles önleyici hız sınırı.** Servisin
+resmî sınırı saniyede 1 istek; ürün bugüne kadar YALNIZ tepkisel davranıyordu
+(`429/406` → `RateLimitError`). Artık bütün isteklerin geçtiği tek boğaz
+noktası `_call()` içinde `_respect_rate_limit()` var: bekleme QThread
+worker'ındadır (GUI donmaz), kilit eş zamanlı worker'ları ayırır, saat geri
+giderse bekleme aralıkla sınırlanır. Tepkisel yol aynen korundu.
+Sözleşme: 4 test. Tam paket süresine etkisi +4 sn.
+
 ÇÖZÜLDÜ (16 Ağustos 2026) — **SRT güvenli bandı yeni motora kalibre edildi.**
 `o_band` **17/17 PASS**, iki DPI'da da:
 
