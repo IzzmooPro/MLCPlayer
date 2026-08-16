@@ -1320,7 +1320,11 @@ riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
    TÜRKÇE KALIR (`tr()` çeviri yoksa kaynağı döndürür) ve mevcut testler
    kırılmaz; İngilizce ve diğer diller ÜSTÜNE eklenir.
 
-**AÇIK MADDE YOK (16 Ağustos 2026).** Yayın planının 6 maddesi de bitti;
+**DEVİR NOTU (17 Ağustos 2026).** Ağaç temiz, `origin/master` ile aynı
+hizada, tam paket 3347 passed, `v0.33` yayında (imzalı, ek paketiyle).
+Açık kusur YOK; kalan işler yukarıdaki i18n maddesi ve VLC incelemesidir.
+
+(eski kayıt) **AÇIK MADDE YOK (16 Ağustos 2026).** Yayın planının 6 maddesi de bitti;
 `v0.31` yayında, güncelleme sistemi iki kez gerçek koşulda çalıştı ve
 kullanıcı kabulleri geçti. Sıradaki iş kullanıcıdan gelecek.
 
