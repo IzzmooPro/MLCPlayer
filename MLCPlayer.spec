@@ -52,6 +52,7 @@ a = Analysis(
         # ve kurulum ekraninda gosterir (bkz. packaging/MLCPlayer.iss).
         ('LICENSE', '.'),
         ('README.md', '.'),
+        ('README.tr.md', '.'),
     ],
     hiddenimports=[
         'mpv',

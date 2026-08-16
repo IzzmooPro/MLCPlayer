@@ -87,6 +87,7 @@ Source: "..\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesu
 ; içine bakmak zorunda kalmadan lisansa ulaşabilmelidir.
 Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\README.tr.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
 ; ÖLÇÜLEN KUSUR: EXE sürüm kaynağı düzeltildikten SONRA bile Windows

@@ -1,132 +1,164 @@
 # MLC Player
 
-Windows için sinematik arayüzlü, libmpv tabanlı medya oynatıcı.
+**A cinematic media player for Windows, built on libmpv.**
 
-Tek bir arayüz vardır: çerçevesiz pencere, video üzerinde otomatik gizlenen
-kontrol katmanı, geniş zaman çizgisi ve gömülü oynatma listesi paneli.
-Klasik menü/panel görünümü kaldırılmıştır.
+[![Latest release](https://img.shields.io/github/v/release/IzzmooPro/MLCPlayer)](https://github.com/IzzmooPro/MLCPlayer/releases/latest)
+[![Licence: GPL v3](https://img.shields.io/badge/licence-GPLv3-blue)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-informational)](https://github.com/IzzmooPro/MLCPlayer/releases/latest)
 
-## Öne çıkanlar
+MLC Player has one interface and commits to it: a frameless window, an
+auto-hiding control layer drawn over the video, a wide timeline, and a
+playlist docked inside the main window rather than floating above it. There
+is no classic menu-and-panel mode to fall back to.
 
-- **Oynatma:** libmpv ile geniş kapsayıcı ve codec desteği. Video için
-  MP4/MKV/AVI/MOV/WMV/FLV/MPEG/M4V/WEBM/TS/M2TS/VOB/OGV/3GP/ASF/MXF, ses için
-  MP3/WAV/FLAC/OGG/M4A/AAC/OPUS/WMA/APE/ALAC/AIFF/AC3/DTS/MKA. Uzantı yalnız
-  aday belirler; gerçek desteği libmpv verir.
-- **Oynatma listesi:** ana pencereye gömülü, genişliği sürüklenebilir panel;
-  küçük resim üretimi, doğal `1-2-10` sıralaması, klasör açma ve sürükle-bırak.
-- **Albüm kapağı:** ses dosyalarında gömülü kapak (yoksa klasördeki resim)
-  video alanında gösterilir; siyah kare kalmaz.
-- **Tek kopya:** ikinci başlatma yeni pencere açmaz; açık pencere öne gelir ve
-  dosya oraya yüklenir. Böylece iki kopya birbirinin ayarlarını ezmez.
-- **Güncelleme denetimi:** açılışta sessiz kontrol ve `Yardım → Güncellemeleri
-  Denetle`. İndirilen kurulum SHA-256 ile doğrulanır; doğrulanamayan dosya
-  çalıştırılmaz ve silinir. Kapanış üründen geçer, süreç zorla öldürülmez.
-- **Altyazı Merkezi:** OpenSubtitles üzerinden arama, indirme ve uygulama.
-  İndirilen altyazı medyanın yanına atomik `.srt` olarak yazılır.
-- **Altyazı görünümü:** yazı/kenarlık/arka plan rengi, boyut, kenarlık
-  kalınlığı, dikey konum ve senkron. Canlı temsili önizleme içerir.
-- **Güvenli alt bant:** altyazı hiçbir durumda kontrol katmanıyla çakışmaz;
-  kullanıcının kayıtlı konum tercihi değiştirilmeden korunur.
-- **Yerel altyazı:** medyanın yanındaki eşleşen `.srt` bulunur, kullanıcı
-  açana kadar gizli başlar; her parça kendi altyazısını etkinleştirir.
-- **Medya Bilgisi:** dosya, video, ses ve altyazı parçaları için tek ve
-  okunabilir görünüm. Ham MPV anahtarı veya teknik iç metin gösterilmez.
-- **Güvenli hata sistemi:** kullanıcıya giden metinlerde gerçek dosya yolu,
-  adres ve iz kaydı maskelenir; ayrıntılar ayrı pencerede ve kopyalanabilir
-  güvenli gövde olarak sunulur.
-- **Gizlilik:** uzak adresler pencere başlığında ve `Son Açılanlar` içinde
-  tam hâliyle saklanmaz; yalnız güvenli `host[:port]` gösterilir.
+*[Türkçe README](README.tr.md)*
 
-## Kurulum (hazır sürüm)
+---
 
-Son kurulum dosyası: [Releases](https://github.com/IzzmooPro/MLCPlayer/releases/latest)
-(`MLCPlayer_Setup_v*.exe`, kurulu boyut ~295 MB). Kurulu bir sürüm varsa
-`Yardım → Güncellemeleri Denetle` ile de yükseltilebilir; indirilen dosya
-SHA-256 ile doğrulanmadan çalıştırılmaz.
+## Features
 
-## Çalıştırma (kaynaktan)
+**Playback.** libmpv provides the container and codec coverage: MP4, MKV,
+AVI, MOV, WMV, FLV, MPEG, M4V, WEBM, TS, M2TS, VOB, OGV, 3GP, ASF and MXF for
+video; MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, ALAC, AIFF, AC3, DTS and
+MKA for audio. The extension only marks a file as a candidate — libmpv decides
+what actually plays. Audio files show their embedded cover art, or a matching
+image beside the file, instead of a black frame.
 
-En kolay yol `Baslat.bat` dosyasına çift tıklamaktır: Python 3.12+ yoksa
-kurar, eksik paketleri `requirements.txt` üzerinden yükler ve programı açar.
-Her şey hazırsa hiçbir kurulum yapmadan doğrudan başlatır. Yalnızca kontrol
-için `Baslat.bat -CheckOnly` (program açılmaz).
+**Playlist.** Docked in the main window with a draggable width, thumbnails
+generated in the background, natural `1-2-10` ordering, folder opening and
+drag-and-drop.
 
-Elle kurulum gereksinimleri: Windows, Python 3.12+ ve `bin/mpv-2.dll`.
+**Subtitle Centre.** Search, download and apply subtitles from OpenSubtitles.
+A downloaded subtitle is written next to the media as an atomic `.srt`.
+Local subtitles matching the media are found automatically and stay hidden
+until you ask for them, so a file never opens with unexpected text on screen.
+
+**Subtitle appearance.** Text, outline and background colour, size, outline
+width, vertical position and synchronisation, with a live preview. A safe
+band keeps subtitles clear of the control layer without overwriting the
+position you chose.
+
+**Signed updates.** The player checks for updates quietly at start-up, and
+`Help → Check for updates` reports every outcome. A downloaded installer must
+match the published size and SHA-256, *and* carry a valid Ed25519 signature
+from the publisher, before it is allowed to run; anything unverified is
+deleted. Access to this repository alone cannot produce an accepted update —
+the private key is not in it. Shutdown goes through the player's own closing
+sequence, so nothing is force-killed mid-write.
+
+**One instance.** Launching the player again raises the open window and loads
+the file there, instead of opening a second copy that would overwrite the
+first one's settings on exit.
+
+**Media information.** One readable view of the file, video, audio and
+subtitle tracks — no raw mpv property names.
+
+**Careful with your data.** User-facing errors mask real paths, addresses and
+tracebacks, with details available separately; remote addresses appear as
+`host[:port]` in the window title and recent files rather than in full.
+
+---
+
+## Install
+
+Download the latest `MLCPlayer_Setup_v*.exe` from
+**[Releases](https://github.com/IzzmooPro/MLCPlayer/releases/latest)** and run
+it. Windows 10 or 11, 64-bit. Installed size is roughly 300 MB, most of it
+libmpv and the media tooling.
+
+Each release also carries a `.sig` file — the publisher's signature over the
+installer's SHA-256. The player uses it to verify updates automatically; you
+can also check the digest by hand against the one printed in the release notes.
+
+The installer is not yet code-signed, so Windows SmartScreen will warn about
+an unknown publisher on first run.
+
+Already installed? `Help → Check for updates` does the rest.
+
+---
+
+## Build and run from source
+
+The quickest path is `Baslat.bat`: it locates Python 3.12+, installs it only
+if missing, installs the packages from `requirements.txt` only if they are
+absent, and starts the player. `Baslat.bat -CheckOnly` verifies everything
+without launching.
+
+Manually:
 
 ```bash
 pip install -r requirements.txt
-```
-
-```bash
 python main.py
 ```
 
-`bin/` dizinindeki çalışma zamanı ikilileri (`mpv-2.dll`, `yt-dlp.exe`,
-`deno.exe`) boyutları nedeniyle depoda tutulmaz; sağlamaları
-`bin/RUNTIME_MANIFEST.txt` ve `bin/SHA256SUMS.txt` içinde izlenir.
+Requirements: Windows, Python 3.12+, and the runtime binaries in `bin/`
+(`mpv-2.dll`, `yt-dlp.exe`, `deno.exe`). Those binaries are not stored in the
+repository because of their size; their versions and SHA-256 digests are
+tracked in `bin/RUNTIME_MANIFEST.txt` and `bin/SHA256SUMS.txt`.
 
-## Testler
+### Tests
 
 ```bash
 python -m pytest -q tests
 ```
 
-Varsayılan paket tamamen offscreen çalışır ve gerçek kullanıcı ayarlarına
-dokunmaz. Gerçek pencere ve gerçek video gerektiren native/fiziksel kabul
-koşumları ayrıca opt-in ortam değişkenleriyle açılır; bunlar varsayılan
-pakete dahil değildir.
+The default suite runs entirely offscreen, never touches your real settings
+or application log, and does not reach the network. Runs that need a real
+window and real video are opt-in through environment variables and are not
+part of the default suite.
 
-## Paketleme
+### Packaging
 
-Release zinciri `packaging/` altındadır: `build_release.bat`,
-`MLCPlayer.iss` ve ölçümlü doğrulama adımlarıyla `verify_build.py`.
-Kararların gerekçesi `docs/PACKAGING_PLAN.md` içindedir.
+The release chain lives in `packaging/`: `build_release.bat` drives
+PyInstaller, Inno Setup, the publisher signature and the verification steps in
+`verify_build.py`. It refuses to build a version that installed clients could
+not see as an update, and it stops if the installer cannot be signed. The
+reasoning behind the packaging decisions is in `docs/PACKAGING_PLAN.md`.
 
-## Lisans
+---
 
-Copyright (C) 2026 MLC Player katkıcıları.
+## Contributing
 
-MLC Player **GNU General Public License v3.0** ile lisanslanmıştır; tam metin
-[`LICENSE`](LICENSE) dosyasındadır (gnu.org kanonik metni, 35 149 bayt,
-değiştirilmeden).
+Issues and pull requests are welcome at
+[github.com/IzzmooPro/MLCPlayer](https://github.com/IzzmooPro/MLCPlayer).
 
-Bu program özgür yazılımdır: GNU GPL sürüm 3 şartları altında
-yeniden dağıtabilir ve/veya değiştirebilirsiniz. Hiçbir GARANTİ verilmez;
-satılabilirlik veya belirli bir amaca uygunluk zımni garantisi dahi yoktur.
-Ayrıntılar için GNU GPL'e bakınız.
+Two things are worth knowing before you send a change:
 
-Dağıtılan pakette üçüncü taraf bileşenler bulunur ve kendi lisanslarıyla
-gelirler:
+- The project works defect-first. A fix starts with a failing test that
+  measures the real behaviour, then the smallest change that turns it green.
+- Some behaviour is deliberately fixed: the cinematic interface is the only
+  interface, the playlist stays embedded in the main window, mpv and the
+  subtitle workers are shut down cooperatively rather than terminated, and no
+  new always-on-top flags or timers are introduced. `CLAUDE.md` records these
+  invariants and the reasons behind them.
 
-| Bileşen | Lisans | Metin |
+---
+
+## Licence
+
+Copyright (C) 2026 MLC Player contributors.
+
+MLC Player is licensed under the **GNU General Public License v3.0**; the full
+text is in [`LICENSE`](LICENSE) (the canonical gnu.org text, unmodified).
+
+This program is free software: you may redistribute it and/or modify it under
+the terms of the GNU GPL version 3. It comes with **no warranty** — not even
+the implied warranty of merchantability or fitness for a particular purpose.
+See the GNU GPL for details.
+
+The distributed package includes third-party components under their own
+licences:
+
+| Component | Licence | Text |
 |---|---|---|
 | mpv / libmpv | **GPLv3** (FFmpeg `--enable-gpl --enable-version3`) | `bin/RUNTIME_MANIFEST.txt` |
-| yt-dlp (kaynak) | Unlicense | `licenses/yt-dlp-LICENSE.txt` |
-| yt-dlp (resmî ikili) | GPLv3+ | `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` |
+| yt-dlp (source) | Unlicense | `licenses/yt-dlp-LICENSE.txt` |
+| yt-dlp (official binary) | GPLv3+ | `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` |
 | deno | MIT | `licenses/deno-LICENSE.txt` |
 
-Resmî `yt-dlp.exe` üçüncü taraf GPLv3+ kod içerir; bu nedenle **birleşik
-executable GPLv3+ kapsamındadır**. Kaynak lisansı ile dağıtılan ikilinin
-lisansı aynı şey değildir.
+The official `yt-dlp.exe` contains third-party GPLv3+ code, which makes the
+**combined executable GPLv3+**. A project's source licence and the licence of
+a binary it ships are not the same thing.
 
-### Yayın öncesi açık maddeler
-
-Bunlar bilerek açık bırakılmıştır ve dağıtımdan önce kapatılmalıdır:
-
-- GPLv3+ kapsamındaki birleşik executable için **karşılık gelen kaynak
-  erişimi** yükümlülüğünün nasıl sağlanacağı.
-- FFmpeg codec'lerinin **patent** tarafı (H.264/H.265). Lisans sorunu
-  değildir — `libx264`/`libx265` GPL'dir ve GPLv3 ile uyumludur — ama
-  patent havuzu yükümlülüğü lisanstan ayrı bir konudur.
-- OpenSubtitles API kullanım şartlarının gözden geçirilmesi.
-
-Kapanan madde: pakete giren `mpv-2.dll` derlemesinin lisansı **doğrulandı**.
-Yapı `--enable-gpl --enable-version3` taşıyor, `--enable-nonfree` TAŞIMIYOR
-ve nonfree gerektiren hiçbir bileşen (fdk-aac, libnpp, cuda-nvcc) içermiyor.
-Sürüm, kaynak URL ve SHA-256 `bin/RUNTIME_MANIFEST.txt` içindedir. Önceki
-derleme `nonfree` taşıdığı için dağıtılamazdı ve 16 Ağustos 2026'da
-değiştirildi.
-- GPLv3'ün önerdiği **dosya başı telif/lisans bildirimlerinin** kaynak
-  dosyalara eklenmesi (şu an yalnız kök `LICENSE` ve bu bölüm vardır).
-
-Bu bölüm hukuki danışmanlık değildir; yayın öncesi kontrol listesidir.
+Open licensing items are tracked in [`README.tr.md`](README.tr.md#yayın-öncesi-açık-maddeler);
+that section is a pre-release checklist, not legal advice.
