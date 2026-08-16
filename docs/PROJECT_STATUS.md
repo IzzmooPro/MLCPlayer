@@ -1275,7 +1275,28 @@ riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
    (eski kayıt) — Inno çoklu dil + Windows dilinden otomatik seçim,
    kullanıcıya sorulmaz. Küçük ve bağımsız; uygulama i18n'inden ÖNCE
    yapılır ki dil/locale kararları orada bir kez sınansın.
-4. **Uygulama çoklu dil (i18n)** — EN BÜYÜK ve EN RİSKLİ iş; aşamalı.
+4. **Uygulama çoklu dil (i18n)** — SÜRÜYOR. Bitenler ve kalanlar:
+
+   - ✅ **A. Altyapı**: `app/i18n.py` — Windows'tan algılama, `Araçlar → Dil`
+     menüsü (Sistem dili + 8 dil, her biri kendi dilinde), kalıcılık,
+     yeniden başlatma bildirimi. Yedek dil İNGİLİZCE.
+   - ✅ **B1. Menüler + diyaloglar**: 75 metin `tr()` ile sarmalandı.
+     Kaynak dil Türkçe olduğu için davranış DEĞİŞMEDİ.
+   - ✅ **C. Boru hattı**: `packaging/extract_translations.py` (AST tabanlı;
+     `pylupdate6` sarmalayıcıyı GÖREMİYOR — ölçüldü) → `.ts` →
+     `pyside6-lrelease` → `.qm`. İngilizce 75/75 TAM ve testle kanıtlı.
+   - ⬜ **B2. Kalan kullanıcı metinleri**: ÖLÇÜLDÜ — 615+ sarmalanmamış
+     Türkçe metin var, EN YOĞUN: `media_controls.py` (115),
+     `video_frame.py` (73), `player.py` (56), `errors.py` (50).
+     UYARI: bunların ÇOĞU kullanıcıya görünmez (`safe_console`, günlük,
+     mpv değerleri) ve çevrilmemelidir. Toplu regex BU TURDA İKİ KEZ kod
+     kırdı (çok satırlı metin birleştirmesini böldü); dosya dosya ve
+     karar vererek ilerlenmeli, her dosyadan sonra AST doğrulaması.
+   - ⬜ **D. Diğer 6 dil**: `.ts` dosyaları hazır ve boş. ÖNCE B2 bitmeli,
+     yoksa aynı metinler iki kez çevrilir.
+   - ⬜ **E. Arapça (RTL)**: ayrı tur; yerleşim aynalanmalı.
+
+   (eski plan) — EN BÜYÜK ve EN RİSKLİ iş; aşamalı.
    ÖLÇÜLEN RİSK: 38 ürün dosyasında Türkçe arayüz metni var ve **105 test
    dosyasında 453 assert bu metinlere bakıyor**. Bu yüzden KAYNAK DİL
    TÜRKÇE KALIR (`tr()` çeviri yoksa kaynağı döndürür) ve mevcut testler
