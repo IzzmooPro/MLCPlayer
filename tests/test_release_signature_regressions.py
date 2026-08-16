@@ -96,3 +96,44 @@ def test_private_key_is_not_in_the_repository():
         if ".git" in path.parts:
             continue
         pytest.fail(f"depoda anahtar dosyası var: {path}")
+
+
+# ── Kuralın kendisi korunur (devralan kişi/asistan için) ─────────────────
+
+def _root():
+    from pathlib import Path
+    return Path(__file__).resolve().parent.parent
+
+
+def test_the_build_chain_signs_the_installer():
+    """İmzalama insan hafızasına bırakılmaz; zincirin adımıdır.
+
+    İmzasız yayımlanan bir sürümü güncelleyici REDDEDER ve kullanıcı sebebini
+    göremez. Bu yüzden `build_release.bat` imzayı kendisi üretir.
+    """
+    chain = (_root() / "packaging" / "build_release.bat").read_text(
+        encoding="utf-8", errors="ignore")
+    assert "sign_release.py" in chain, "zincir kurulumu imzalamıyor"
+    index = chain.index("sign_release.py")
+    assert "goto :fail" in chain[index:index + 400], (
+        "imzalama başarısız olursa zincir DURMALI")
+
+
+def test_the_signing_rules_are_written_where_they_are_read():
+    """Devralan kişi/asistan kuralı görmeli: CLAUDE.md her oturumda okunur."""
+    rules = (_root() / "CLAUDE.md").read_text(encoding="utf-8")
+    for expected in ("sign_release.py", ".sig", "RELEASE_PUBLIC_KEY",
+                     "MLC_SIGNING_KEY"):
+        assert expected in rules, f"kural eksik: {expected}"
+
+
+def test_verification_cannot_be_disabled_by_emptying_the_key():
+    """`RELEASE_PUBLIC_KEY` boşaltılırsa doğrulama SESSİZCE geçmez."""
+    original = signing.RELEASE_PUBLIC_KEY
+    signing.RELEASE_PUBLIC_KEY = ""
+    try:
+        assert signing.signing_enabled() is False
+        with pytest.raises(signing.SignatureError):
+            signing.verify(DIGEST, "imza")
+    finally:
+        signing.RELEASE_PUBLIC_KEY = original

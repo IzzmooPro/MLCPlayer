@@ -62,7 +62,7 @@ if not defined ISCC (
     goto :fail
 )
 
-echo ADIM 1/5  On kontrol
+echo ADIM 1/6  On kontrol
 python "%VERIFY%" --pre
 if errorlevel 1 goto :fail
 rem Yayimlanabilirlik: kurulu istemcilerin GOREMEYECEGI bir surum uretilmesin
@@ -71,13 +71,13 @@ python "packaging\check_publishable.py"
 if errorlevel 1 goto :fail
 echo.
 
-echo ADIM 2/5  Onceki ciktilarin temizligi
+echo ADIM 2/6  Onceki ciktilarin temizligi
 if exist "build" rmdir /s /q "build"
 if exist "dist"  rmdir /s /q "dist"
 echo   OK  build\ ve dist\ temizlendi
 echo.
 
-echo ADIM 3/5  PyInstaller (onedir)  -  birkac dakika surebilir
+echo ADIM 3/6  PyInstaller (onedir)  -  birkac dakika surebilir
 python -m PyInstaller "%SPEC%" --noconfirm --clean --log-level WARN
 if errorlevel 1 (
     echo HATA: PyInstaller basarisiz oldu.
@@ -87,7 +87,7 @@ python "%VERIFY%" --post
 if errorlevel 1 goto :fail
 echo.
 
-echo ADIM 4/5  Inno Setup kurulum dosyasi
+echo ADIM 4/6  Inno Setup kurulum dosyasi
 echo   Derleyici: %ISCC%
 "%ISCC%" /Q "%ISS%"
 if errorlevel 1 (
@@ -97,7 +97,20 @@ if errorlevel 1 (
 echo   OK  derleme tamamlandi
 echo.
 
-echo ADIM 5/5  Sonuc
+echo ADIM 5/6  Yayinci imzasi
+rem UNUTULAMAZ OLMASI ICIN ZINCIRDE: imzasiz yayimlanan bir surumu
+rem guncelleyici REDDEDER (fail-closed) ve kullanici sebebini goremez.
+set "SETUP_TO_SIGN="
+for %%F in ("installer_output\MLCPlayer_Setup_*.exe") do set "SETUP_TO_SIGN=installer_output\%%~nxF"
+python "packaging\sign_release.py" "%SETUP_TO_SIGN%"
+if errorlevel 1 (
+    echo HATA: Kurulum imzalanamadi. Ozel anahtar yoksa once:
+    echo        python packaging\sign_release.py --init
+    goto :fail
+)
+echo.
+
+echo ADIM 6/6  Sonuc
 set "SETUP="
 for %%F in ("installer_output\MLCPlayer_Setup_*.exe") do set "SETUP=installer_output\%%~nxF"
 if not defined SETUP (
@@ -113,6 +126,7 @@ echo   TAMAMLANDI
 echo.
 echo   Klasor : dist\MLC Player\        (tamamini birlikte tasiyin)
 echo   Kurulum: %SETUP%
+echo   Imza   : %SETUP%.sig   (release'e MUTLAKA birlikte yuklenir)
 echo.
 echo   Arkadasiniza GONDERECEGINIZ dosya kurulum dosyasidir.
 echo ============================================================

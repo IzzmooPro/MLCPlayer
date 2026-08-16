@@ -44,6 +44,29 @@ unutulma ihtimalini kapatır.
 - Altyazı Merkezi worker'larını zorla `terminate()` etme; kooperatif kapanış ve tek sahiplik korunmalıdır.
 - Yeni timer, always-on-top bayrağı veya geniş süreç temizliği ekleme.
 
+## Yayın kuralları (imza zinciri — BOZULURSA KULLANICI GÜNCELLEME ALAMAZ)
+
+Güncelleme, kurulum dosyasının SHA-256 özetinin yayıncı anahtarıyla
+imzalanmasına dayanır (`app/release_signature.py`). Doğrulama fail-closed'dur:
+imzası olmayan release REDDEDİLİR. Bu yüzden:
+
+- **Her release'e İKİ dosya yüklenir:** `MLCPlayer_Setup_vX.exe` ve
+  `MLCPlayer_Setup_vX.exe.sig`. İmza `packaging/build_release.bat` içinde
+  otomatik üretilir (ADIM 5/6); zincir dışında elle derleme yapıldıysa
+  `python packaging/sign_release.py <kurulum.exe>` çalıştırılır.
+- **Özel anahtar depoya GİRMEZ.** Konum: `%USERPROFILE%\.mlcplayer\release_ed25519.key`
+  (veya `MLC_SIGNING_KEY`). `.gitignore` ve
+  `tests/test_release_signature_regressions.py` bunu korur.
+- **Anahtar YENİDEN ÜRETİLMEZ.** Yeni anahtar, kurulu bütün kopyalar için
+  güncellemeyi keser; kullanıcılar geçiş sürümünü ELLE kurmak zorunda kalır.
+  Zorunluysa bu bedel kullanıcıya açıkça söylenir.
+- **İmza denetimi devre dışı bırakılarak "düzeltme" yapılmaz.**
+  `RELEASE_PUBLIC_KEY` boşaltmak veya doğrulama hatasını yutmak fail-open
+  demektir; güncelleme kırıksa önce imzanın yüklenip yüklenmediğine bakılır.
+- **Sürüm numarası:** `v0.3 → v0.31 → v0.32`. Karşılaştırma sayısaldır;
+  `v0.31` varken `v0.4` yayımlanamaz (`31 > 4`, istemciler göremez); büyük
+  adım için `v0.40`. `packaging/check_publishable.py` bunu zincirde durdurur.
+
 ## Test stratejisi
 
 Test kapsamı etki alanına göre nokta atışıdır.
