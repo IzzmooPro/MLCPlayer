@@ -1195,7 +1195,22 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
-**BUILD + KURMA/KALDIRMA KABULÜ (madde 6).** 1-5 TAMAMLANDI.
+**KALDIRMA KABULÜ (madde 6'nın kalanı).** 1-5 TAMAMLANDI; kurma ve
+güncelleme kabulü GEÇTİ, yalnız kaldırma ölçümü açık.
+
+PASS — **güncelleme uçtan uca (16 Ağustos 2026, kullanıcı koşumu).**
+Depoda `v0.2` release'i + `MLCPlayer_Setup_v0.2.exe` yayımlandı; kurulu
+`v0.1` istemcisi güncellemeyi buldu, indirdi, doğruladı ve kurdu.
+Ölçülen sonuç: `DisplayVersion=v0.2`, TEK kaldırma kaydı (v0.1 üzerine
+yazıldı, çift kayıt yok), kullanıcı ayarları KORUNDU
+(`sub_color=#FFFFFFFF`, `sub_pos=100`). Ağ tarafı ayrıca gerçek release
+metadata'sıyla doğrulandı: asset adı birebir eşleşti, digest yerelde
+hesaplanan SHA-256 ile aynı, URL yol denetimi geçti.
+
+PASS — **yeşil altyazı kapandı (kullanıcı onayı).** Güncellemeden sonra
+gerçek video + altyazıda renk BEYAZ ve konum ALTTA. Kusur üründe değil,
+gerçek hive'da kalan eski harness değerindeydi (yukarıdaki ölçüm aracı
+tuzağına bakınız).
 
 Madde 5 kapandı (16 Ağustos 2026): `app/updater.py` +
 `tests/test_updater_regressions.py` (35 test, ağa çıkmaz).
