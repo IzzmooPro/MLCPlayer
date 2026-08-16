@@ -1205,12 +1205,22 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
     %APPDATA%\MLC Player\watch_later          2 dosya    0,1 KB  (Qt/mpv, APP_NAME)
     %LOCALAPPDATA%\MLC Player\MLC Player\cache\thumbnails 7 dosya 1.372,3 KB
 
-`app/errors.py` yolu `MLCPlayer` sabitinden, Qt tarafı ise `APP_NAME`
-("MLC Player") üzerinden türüyor. Sonuç: İKİ küçük resim önbelleği
-(eski konum 1,4 MB ile hâlâ duruyor) ve programı tamamen kaldırmak
-isteyen kullanıcının İKİ farklı klasör adını bilmesi gerekiyor.
-Sıradaki tur bunu tek kimliğe indirmeli ve eski konumu bir kez
-göç ettirip silmelidir.
+DÜZELTME (aynı turda ölçüldü): ilk kayıt ABARTILIYDI. Aktif bölünme YOK.
+Bugün yazılan her şey tek kimlik altında:
+
+    %APPDATA%\MLCPlayer\logs\uygulama.log          son yazma 19:58  CANLI
+    %LOCALAPPDATA%\MLCPlayer\cache\thumbnails      son yazma 18:34  CANLI
+    %LOCALAPPDATA%\MLC Player\...\thumbnails       son yazma 09:21  DURMUŞ
+    %APPDATA%\MLC Player\watch_later               8 Ağustos        DURMUŞ
+
+`thumbnail_service.default_cache_dir()` kimlikten bağımsızdır ve eski Qt
+türevli dizin `legacy_cache_dirs()` ile BİLEREK yalnız-okunur kaynak olarak
+korunur (eski kareler kaybolmasın diye) — ölü veri değildir. `watch_later`
+kalıntısı resume kapatılmadan önceki dönemden; `save-position-on-quit` ve
+`resume-playback` ölçümle `False`, yani oraya artık yazılmıyor.
+
+Yapılacak iş: yalnızca kullanıcı isterse tarihsel artıkların silinmesi.
+Ürün kodunda değişiklik GEREKMİYOR.
 
 PASS — **kaldırma kabulü (16 Ağustos 2026, kullanıcı koşumu).**
 `C:\Program Files\MLC Player` KALMADI, kaldırma kaydı YOK, masaüstü ve

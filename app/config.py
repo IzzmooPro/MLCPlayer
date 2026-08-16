@@ -42,6 +42,13 @@ MPV_CONFIG = {
     "sub_auto": "exact",
     # Gömülü ve aynı adlı harici altyazıları bul; kullanıcı açana kadar gösterme.
     "sub_visibility": "no",
+    # Ses dosyalarında albüm kapağı video alanında gösterilir; aksi hâlde
+    # siyah kare kalıyordu. ÖLÇÜLDÜ: bu libmpv sürümünde varsayılan KAPALI
+    # (`audio-display=False`) ve kabul edilen değerler yalnız
+    # `embedded-first` / `external-first`; `attachment` ve `yes` reddediliyor.
+    # Gömülü kapak önceliklidir, yoksa dosyanın yanındaki resim kullanılır
+    # (`cover-art-auto=exact`).
+    "audio_display": "embedded-first",
     "scale": "spline36",
     "cscale": "spline36",
     "deband": "yes",
