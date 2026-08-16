@@ -1403,8 +1403,17 @@ yalnız `python -c "import winreg..."` ile yapılır; `Get-ItemProperty`,
 
 Düzeltme uygulandı (gerçek hive): `sub_color=#FFFFFFFF`, `sub_pos=100`.
 Ayrıca harness'ten kalan 21 çöp anahtar (`MLCTest-*`, `MLCPlayerTest`)
-silindi. AÇIK KUSUR: bu anahtarları üreten testler kendi anahtarlarını
-temizlemiyor; her tam koşumda yeniden oluşuyorlar.
+silindi. ÖLÇÜLDÜ: bu adlar bugünkü kodun hiçbir yerinde YOK ve dört ilgili
+test dosyası koşulduktan sonra yeniden OLUŞMUYOR — eski bir test
+sürümünden kalan artıktı, açık kusur değil.
+
+KAPANDI — günlük kirlenmesi. `tests/conftest.py` artık import anında
+(`app.errors` ve QApplication yüklenmeden ÖNCE) `APPDATA`/`LOCALAPPDATA`
+değişkenlerini geçici dizine yönlendirir, Qt test kipini açar ve varsayılan
+QSettings biçimini Ini yapar; dizin koşum sonunda `atexit` ile silinir
+(eski harness `%TEMP%` altında 439 boş klasör bırakmıştı). Ölçüm: tam
+paket öncesi/sonrası gerçek `uygulama.log` 119.129 baytta SABİT kaldı ve
+gerçek kayıt defteri `#FFFFFFFF`/`100` olarak DEĞİŞMEDİ.
 
 İzolasyon düzeltmesinin ÇALIŞTIĞININ kanıtı: gerçek hive'da kalan değer
 bugünkü izole koşumun ürettiği turuncu `#FFF26A3D` DEĞİL, düzeltmeden

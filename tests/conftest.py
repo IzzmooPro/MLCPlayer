@@ -1,6 +1,9 @@
+import atexit
 import gc
 import os
+import shutil
 import sys
+import tempfile
 
 import pytest
 
@@ -8,6 +11,33 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 project_root = os.path.dirname(os.path.dirname(__file__))
 sys.path.insert(0, project_root)
 os.environ["PATH"] = os.path.join(project_root, "bin") + os.pathsep + os.environ["PATH"]
+
+# ── Kullanıcı alanı izolasyonu (import anında, HER ŞEYDEN ÖNCE) ──────────
+#
+# ÖLÇÜLEN KUSUR: paket, kullanıcının GERÇEK `%APPDATA%\MLCPlayer\logs\
+# uygulama.log` dosyasına yazıyordu; kullanıcının günlüğünde test
+# koşumundan gelen satırlar bulundu. Günlük yolu ve Qt'nin standart
+# dizinleri ortam değişkenlerinden türer, bu yüzden yönlendirme burada —
+# `app.errors` veya QApplication yüklenmeden ÖNCE — yapılır.
+#
+# Kayıt defteri tarafı `app/settings_store.user_settings()` ile çözüldü:
+# varsayılan biçim Ini olduğunda ürün de izole dosyaya yazar (bkz.
+# tests/test_settings_isolation_regressions.py).
+_isolated_appdata = tempfile.mkdtemp(prefix="mlc_test_appdata_")
+os.environ["MLC_REAL_APPDATA"] = os.environ.get("APPDATA", "")
+os.environ["APPDATA"] = _isolated_appdata
+os.environ["LOCALAPPDATA"] = _isolated_appdata
+
+from PyQt6.QtCore import QSettings, QStandardPaths  # noqa: E402
+
+QStandardPaths.setTestModeEnabled(True)
+QSettings.setDefaultFormat(QSettings.Format.IniFormat)
+QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,
+                  _isolated_appdata)
+
+# Geçici dizin koşum sonunda silinir: eski harness `%TEMP%` altında 439 boş
+# klasör bırakmıştı.
+atexit.register(shutil.rmtree, _isolated_appdata, True)
 
 
 @pytest.fixture(autouse=True)

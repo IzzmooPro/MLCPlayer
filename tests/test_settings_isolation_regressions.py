@@ -17,6 +17,7 @@ BU testler hicbir sey yazmaz; yalnizca izole dizine yazip dogrular.
 """
 
 import json
+import os
 import subprocess
 import sys
 import textwrap
@@ -97,6 +98,30 @@ def test_product_run_still_uses_native_settings(tmp_path):
 
     assert "NativeFormat" in result["format"], result
     assert result["fileName"].endswith(r"Software\MLCPlayer\MLCPlayer"), result
+
+
+def test_test_session_never_writes_to_the_real_application_log():
+    """ÖLÇÜLEN KUSUR: pytest gerçek `%APPDATA%\\MLCPlayer\\logs` dosyasına yazdı.
+
+    Kullanıcının günlüğünde test koşumundan gelen satırlar bulundu
+    (`'types.SimpleNamespace' object has no attribute 'video_frame'`).
+    Günlük yolu `%APPDATA%` ortam değişkeninden türer; harness bu değişkeni
+    kendi geçici dizinine yönlendirmelidir.
+    """
+    from app import errors
+
+    real_appdata = os.environ.get("MLC_REAL_APPDATA")
+    assert real_appdata, "conftest gerçek APPDATA'yı kaydetmeli"
+
+    log_directory = Path(errors.get_log_directory()).resolve()
+    assert not str(log_directory).startswith(str(Path(real_appdata).resolve())), (
+        f"test günlüğü gerçek kullanıcı dizinine yazıyor: {log_directory}")
+
+    errors.log("izolasyon testi satiri", "INFO")
+    real_log = Path(real_appdata) / "MLCPlayer" / "logs" / "uygulama.log"
+    if real_log.exists():
+        assert "izolasyon testi satiri" not in real_log.read_text(
+            encoding="utf-8", errors="ignore")
 
 
 def test_product_code_has_single_settings_entry_point():
