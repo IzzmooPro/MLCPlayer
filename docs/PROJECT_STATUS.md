@@ -1195,9 +1195,21 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
-**GITHUB DEPOSU (madde 4) — KULLANICI KİMLİK DOĞRULAMASI GEREKİR.**
-1. (klasör taşıma), 2. (sürüm tek kaynak) ve 3. (ayar kirlenmesi kök nedeni)
-TAMAMLANDI ve madde 3 GERÇEK KOŞUMLA DOĞRULANDI (aşağıya bakınız).
+**GÜNCELLEME DENETİMİ (madde 5).** 1-4 TAMAMLANDI.
+
+Madde 4 kapandı (16 Ağustos 2026): depo **public** olarak açıldı —
+`https://github.com/IzzmooPro/MLCPlayer` (master, GPLv3 tanındı, 221 dosya).
+Push'tan ÖNCE geçmiş `git filter-repo` ile yeniden yazıldı: Windows kullanıcı
+adı ve medya klasörü yolları 38 commit'in tamamından silindi (commit hash'leri
+değişti; yedek bundle alındı). Ölçüm: `git log -S` üç desen için de 0.
+
+Madde 5'in referansı `Offer Management System\ui\utils\updater.py`. Taşınacak:
+`UpdateChecker(QThread)`, `STARTUP_CHECK_TIMEOUT = 3`, izinli host + tam yol
+eşleşmesi, SHA-256 + boyut doğrulaması, yarım indirmenin silinmesi.
+BİZE UYARLANACAK ve OLDUĞU GİBİ ALINMAYACAK: referans kurulumu başlatınca
+süreci `os._exit(0)` ile öldürüyor; MLC Player'da mpv ve Altyazı Merkezi
+worker'ları kooperatif kapanışa bağlıdır (ürün değişmezi), bu yüzden kapanış
+ürünün kendi sırasından geçmelidir. `GITHUB_REPO` artık gerçek adrese bakar.
 
 ### Yayın planı — 16 Ağustos 2026 kullanıcı kararı
 
