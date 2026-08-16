@@ -24,6 +24,11 @@ SOURCE_FILES = (
     os.path.join("licenses", "yt-dlp-THIRD_PARTY_LICENSES.txt"),
     os.path.join("licenses", "deno-LICENSE.txt"),
     os.path.join("assets", "mlc-player-icon.ico"),
+    # GPLv3: lisans metni ve README dagitima ESLIK ETMELIDIR. Spec bunlari
+    # `dist` agacina koyar, setup ayrica kok dizine kopyalar ve kurulum
+    # ekraninda gosterir. Eksikse build BASLAMADAN durur.
+    "LICENSE",
+    "README.md",
     "MLCPlayer.spec",
     "main.py",
 )

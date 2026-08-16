@@ -81,7 +81,7 @@ gelirler:
 
 | Bileşen | Lisans | Metin |
 |---|---|---|
-| mpv / libmpv | kendi dağıtım lisansı | ilgili mpv derlemesiyle gelir |
+| mpv / libmpv | **GPLv3** (FFmpeg `--enable-gpl --enable-version3`) | `bin/RUNTIME_MANIFEST.txt` |
 | yt-dlp (kaynak) | Unlicense | `licenses/yt-dlp-LICENSE.txt` |
 | yt-dlp (resmî ikili) | GPLv3+ | `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` |
 | deno | MIT | `licenses/deno-LICENSE.txt` |
@@ -96,9 +96,17 @@ Bunlar bilerek açık bırakılmıştır ve dağıtımdan önce kapatılmalıdı
 
 - GPLv3+ kapsamındaki birleşik executable için **karşılık gelen kaynak
   erişimi** yükümlülüğünün nasıl sağlanacağı.
-- Pakete giren `mpv-2.dll` derlemesinin GPL mi LGPL mi olduğunun ve
-  FFmpeg/codec dağıtım şartlarının doğrulanması.
+- FFmpeg codec'lerinin **patent** tarafı (H.264/H.265). Lisans sorunu
+  değildir — `libx264`/`libx265` GPL'dir ve GPLv3 ile uyumludur — ama
+  patent havuzu yükümlülüğü lisanstan ayrı bir konudur.
 - OpenSubtitles API kullanım şartlarının gözden geçirilmesi.
+
+Kapanan madde: pakete giren `mpv-2.dll` derlemesinin lisansı **doğrulandı**.
+Yapı `--enable-gpl --enable-version3` taşıyor, `--enable-nonfree` TAŞIMIYOR
+ve nonfree gerektiren hiçbir bileşen (fdk-aac, libnpp, cuda-nvcc) içermiyor.
+Sürüm, kaynak URL ve SHA-256 `bin/RUNTIME_MANIFEST.txt` içindedir. Önceki
+derleme `nonfree` taşıdığı için dağıtılamazdı ve 16 Ağustos 2026'da
+değiştirildi.
 - GPLv3'ün önerdiği **dosya başı telif/lisans bildirimlerinin** kaynak
   dosyalara eklenmesi (şu an yalnız kök `LICENSE` ve bu bölüm vardır).
 

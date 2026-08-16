@@ -22,6 +22,12 @@ a = Analysis(
         ('licenses/deno-LICENSE.txt', 'licenses'),
         # Qt calisma zamani ikonu `_internal\assets` altindan okunur.
         ('assets/mlc-player-icon.ico', 'assets'),
+        # MLC Player GPLv3'tur; lisans metni dagitima ESLIK ETMELIDIR.
+        # `dist` agacinin kendisi de dagitilabilir bir bicimdir, bu yuzden
+        # yalniz installer'a birakilmaz. Setup ayrica kok dizine kopyalar
+        # ve kurulum ekraninda gosterir (bkz. packaging/MLCPlayer.iss).
+        ('LICENSE', '.'),
+        ('README.md', '.'),
     ],
     hiddenimports=[
         'mpv',

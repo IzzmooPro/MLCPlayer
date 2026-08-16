@@ -16,6 +16,9 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=admin
 OutputDir=..\installer_output
 OutputBaseFilename=MLCPlayer_Setup_{#MyAppVersion}
+; GPLv3: lisans metni kurulum sırasında GÖSTERİLİR ve pakete girer.
+; Metin gnu.org kanonik hâlidir, değiştirilmemiştir (35.149 bayt).
+LicenseFile=..\LICENSE
 
 ; Tek görsel kimlik: setup, kaldırıcı ve kısayollar aynı logoyu kullanır.
 SetupIconFile=..\assets\mlc-player-icon.ico
@@ -58,6 +61,10 @@ Name: "desktopicon"; Description: "Masaüstü kısayolu oluştur"; GroupDescript
 ; `_internal\bin` içindeki mpv-2.dll, yt-dlp.exe ve deno.exe olmadan
 ; program çalışmaz; alt klasörler birlikte taşınır.
 Source: "..\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; GPLv3 metni ve README kurulum KÖKÜNDE de dursun: kullanıcı `_internal`
+; içine bakmak zorunda kalmadan lisansa ulaşabilmelidir.
+Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
