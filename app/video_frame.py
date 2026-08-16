@@ -185,6 +185,11 @@ class SubtitleTrackWatcher(QObject):
         self._observed = []
         self._attached = False
         self._notification_queued = False
+        # Son GÖZLENEN property değerleri. Bunlar olmadan bant hesabı aynı
+        # değerleri libmpv'den SENKRON okumak zorunda kalıyordu; yeniden
+        # boyutlandırma sırasında bu okuma mpv'nin core lock'unu bekleyip
+        # GUI thread'ini 80 ms'ye kadar durduruyordu (ölçüldü).
+        self._values = {}
         # `python-mpv` gözlemciyi kaldırırken kayıt sırasında verilen
         # callback'in AYNISINI ister. Bound-method özniteliğini her okumada
         # yeniden üretmek yerine tek nesne saklanır.
@@ -234,6 +239,8 @@ class SubtitleTrackWatcher(QObject):
             self._mpv_player = None
             self._observed = []
             self._attached = False
+            # Yeni oturum eski oturumun değerlerini DEVRALMAZ.
+            self._values = {}
             # Kuyrukta bekleyen Qt sinyali `_run()` içinde no-op olur.
             self._notification_queued = False
         if player is None:
@@ -246,12 +253,22 @@ class SubtitleTrackWatcher(QObject):
                 safe_console("Altyazı gözlemcisi ayrılamadı "
                              f"({name}): {type(exc).__name__}")
 
-    def _notify(self, _name, _value):
-        """MPV OLAY THREAD'İ. Yalnız sinyal yayınlar."""
+    def latest(self, name, default=None):
+        """Son GÖZLENEN değer; henüz bildirim gelmediyse `default`.
+
+        Bant hesabı bu değeri kullanır ve libmpv'yi SENKRON okumaz — bkz.
+        `VideoFrame._observed_property()` içindeki ölçüm.
+        """
+        with self._state_lock:
+            return self._values.get(name, default)
+
+    def _notify(self, name, value):
+        """MPV OLAY THREAD'İ. Değeri saklar ve yalnız sinyal yayınlar."""
         # Bir olay fırtınasındaki ilk callback tek bir queued Qt sinyali
         # üretir. Ana thread çalışana kadar sonraki bildirimler birleşir;
-        # senkron MPV'nin o andaki SON geometrisini okur.
+        # SON değer burada saklandığı için senkron okumaya gerek kalmaz.
         with self._state_lock:
+            self._values[name] = value
             if not self._attached or self._notification_queued:
                 return
             self._notification_queued = True
@@ -1306,13 +1323,53 @@ class VideoFrame(QWidget):
         except Exception:
             return 1.0
 
+    # Gözlemciden GELEN son değerler. Ürün yolunda bunları
+    # `SubtitleTrackWatcher` doldurur; test/erken çağrı yollarında boştur ve
+    # davranış eskisi gibi senkron okumaya düşer.
+    _observed_mpv_values = None
+
+    def note_observed_property(self, name, value):
+        """Gözlemcinin bildirdiği son değeri kaydeder (ANA THREAD)."""
+        if self._observed_mpv_values is None:
+            self._observed_mpv_values = {}
+        self._observed_mpv_values[name] = value
+
+    _OBSERVED_MISSING = object()
+
+    def _observed_property(self, name):
+        """Gözlenen değer; bilinmiyorsa `_OBSERVED_MISSING`.
+
+        ÖLÇÜLEN KUSUR (16 Ağustos 2026): bant hesabı her çağrısında
+        `osd-dimensions`, `sid` ve `track-list` özelliklerini libmpv'den
+        SENKRON okuyordu. Okumaların kendisi ucuz (boştayken üçü 0,2 ms),
+        ama yeniden boyutlandırma sırasında mpv swapchain'i kurarken core
+        lock'u tutuyor ve GUI thread'i o kilidi bekliyor. Gerçek pencerede
+        aynı prob: mpv 0.36'da p95 0,42 ms / max 1,24 ms; mpv 0.41'de
+        p95 41,70 ms / max 84,55 ms — 60 Hz'de beş kare. Değerler zaten
+        gözlendiği için senkron okumaya GEREK YOKTUR.
+        """
+        values = self._observed_mpv_values
+        if values is not None and name in values:
+            return values[name]
+        watcher = getattr(self.main_window, "_subtitle_watcher", None)
+        if watcher is not None:
+            try:
+                found = watcher.latest(name, self._OBSERVED_MISSING)
+            except Exception:
+                return self._OBSERVED_MISSING
+            if found is not self._OBSERVED_MISSING:
+                return found
+        return self._OBSERVED_MISSING
+
     def selected_subtitle_codec(self):
         """SEÇİLİ altyazı parçasının codec'i (yoksa boş dize)."""
         player = getattr(self.main_window, "mpv_player", None)
         if player is None:
             return ""
         try:
-            sid = getattr(player, "sid", None)
+            sid = self._observed_property("sid")
+            if sid is self._OBSERVED_MISSING:
+                sid = getattr(player, "sid", None)
             if not sid or sid in ("no", "auto"):
                 return ""
             # MPV `sid`i bazı yollarda DİZE döndürür; karşılaştırma
@@ -1321,7 +1378,10 @@ class VideoFrame(QWidget):
                 sid_number = int(sid)
             except (TypeError, ValueError):
                 return ""
-            for track in list(getattr(player, "track_list", None) or []):
+            tracks = self._observed_property("track-list")
+            if tracks is self._OBSERVED_MISSING:
+                tracks = getattr(player, "track_list", None)
+            for track in list(tracks or []):
                 if track.get("type") != "sub":
                     continue
                 try:
@@ -1414,7 +1474,10 @@ class VideoFrame(QWidget):
         player = getattr(self.main_window, "mpv_player", None)
         if player is not None:
             try:
-                osd = dict(player.osd_dimensions or {})
+                raw = self._observed_property("osd-dimensions")
+                if raw is self._OBSERVED_MISSING:
+                    raw = player.osd_dimensions
+                osd = dict(raw or {})
                 area = (int(osd.get("h") or 0) - int(osd.get("mt") or 0)
                         - int(osd.get("mb") or 0))
                 if area > 0:

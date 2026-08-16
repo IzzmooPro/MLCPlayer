@@ -145,6 +145,12 @@ class Frame:
         video_frame_module.VideoFrame.sync_subtitle_safe_band)
     selected_subtitle_codec = (
         video_frame_module.VideoFrame.selected_subtitle_codec)
+    # Gözlenen değer yolu: senkron libmpv okumasını gereksiz kılar.
+    note_observed_property = (
+        video_frame_module.VideoFrame.note_observed_property)
+    _observed_property = video_frame_module.VideoFrame._observed_property
+    _observed_mpv_values = video_frame_module.VideoFrame._observed_mpv_values
+    _OBSERVED_MISSING = video_frame_module.VideoFrame._OBSERVED_MISSING
     subtitle_uses_ass_positioning = (
         video_frame_module.VideoFrame.subtitle_uses_ass_positioning)
     user_subtitle_position = (
@@ -1041,3 +1047,89 @@ def test_a_failed_position_write_is_not_cached():
 
     assert frame.sync_subtitle_safe_band() is None
     assert frame._subtitle_band_state is None
+
+
+# --------------------------------------------------------------------------
+# Boyutlandirma donmasi: senkron libmpv OKUMALARI
+# --------------------------------------------------------------------------
+
+class ReadCountingMpv(FakeMpv):
+    """Her property OKUMASINI sayar (yazim degil).
+
+    KULLANICI RAPORU (16 Agustos 2026): oynatma sirasinda pencere
+    boyutlandirilinca video donuk donuk geciyor.
+
+    OLCULEN KANIT (gercek pencere, gercek 4K video, ayni prob, arka arkaya):
+
+        sync_subtitle_safe_band()   ortalama  medyan   p95     max
+          mpv v0.36 (eski)           0,37 ms   0,35    0,42    1,24
+          mpv v0.41 (yeni)           3,84 ms   0,41   41,70   84,55
+
+    Medyan neredeyse ayni; p95 100 kat, en kotu durum 68 kat kotulesti.
+    60 Hz'de 84 ms = BES kare. Sebep okumalarin kendisi DEGIL (bostayken
+    ucu toplam 0,2 ms): boyutlandirma sirasinda yeni mpv swapchain'i
+    yeniden kurarken core lock'u uzun tutuyor ve GUI thread'indeki senkron
+    okuma o kilidi bekliyor.
+
+    `SubtitleTrackWatcher` bu uc ozelligi (`sid`, `track-list`,
+    `osd-dimensions`) ZATEN gozluyor ve degerler push ile geliyor. Sozlesme:
+    gozlemci degeri biliyorsa senkron okuma YAPILMAZ.
+    """
+
+    def __init__(self, fail=False, osd=None, codec="subrip", sid=1):
+        object.__setattr__(self, "reads", [])
+        super().__init__(fail=fail, osd=osd, codec=codec, sid=sid)
+
+    def __getattribute__(self, name):
+        if name in ("osd_dimensions", "sid", "track_list"):
+            object.__getattribute__(self, "reads").append(name)
+        return object.__getattribute__(self, name)
+
+
+def test_a_sync_reads_libmpv_when_no_observed_value_is_available():
+    """Gozlemci yoksa DAVRANIS DEGISMEZ: senkron okuma mesrudur."""
+    mpv = ReadCountingMpv(osd={"w": 1400, "h": 772, "mt": 8, "mb": 8})
+    frame = band_frame(mpv=mpv)
+
+    frame.sync_subtitle_safe_band()
+
+    assert mpv.reads, "gozlemci yokken senkron okuma beklenir"
+
+
+def test_repeated_syncs_do_not_read_libmpv_when_the_watcher_knows():
+    """Bir boyutlandirma firtinasinda TEK bir senkron okuma bile olmamali."""
+    osd = {"w": 1400, "h": 772, "mt": 8, "mb": 8}
+    mpv = ReadCountingMpv(osd=osd)
+    frame = band_frame(mpv=mpv)
+    frame.note_observed_property("osd-dimensions", osd)
+    frame.note_observed_property("sid", 1)
+    frame.note_observed_property("track-list",
+                                 [{"type": "sub", "id": 1, "codec": "subrip"}])
+
+    frame.sync_subtitle_safe_band()
+    mpv.reads.clear()
+    for _ in range(100):
+        frame.sync_subtitle_safe_band()
+
+    assert mpv.reads == [], (
+        f"100 senkronda {len(mpv.reads)} senkron libmpv okumasi yapildi; "
+        "boyutlandirma sirasinda bunlar core lock'u bekleyip GUI'yi donduruyor")
+
+
+def test_the_observed_value_is_what_the_band_actually_uses():
+    """Onbellek yalnız hizli degil, DOGRU olmali: yeni alan hemen etkili."""
+    mpv = ReadCountingMpv(osd={"w": 1400, "h": 772, "mt": 8, "mb": 8})
+    frame = band_frame(mpv=mpv)
+    frame.note_observed_property("sid", 1)
+    frame.note_observed_property("track-list",
+                                 [{"type": "sub", "id": 1, "codec": "subrip"}])
+
+    frame.note_observed_property("osd-dimensions",
+                                 {"w": 1400, "h": 772, "mt": 8, "mb": 8})
+    wide = frame.sync_subtitle_safe_band()
+    # Playlist acildi: render alani daraldi. Gozlemci bunu bildirir.
+    frame.note_observed_property("osd-dimensions",
+                                 {"w": 840, "h": 772, "mt": 159, "mb": 159})
+    narrow = frame.sync_subtitle_safe_band()
+
+    assert narrow != wide, "gozlenen yeni alan banda YANSIMADI"

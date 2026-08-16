@@ -1195,6 +1195,37 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
+ÇÖZÜLDÜ (16 Ağustos 2026) — **boyutlandırmada video donması.** Kullanıcı
+raporu: oynatma sırasında pencere boyutlandırılınca video "donuk donuk"
+geçiyor; kullanıcı bunun mpv değişiminden önce olmadığını düşünüyordu ve
+HAKLIYDI. Aynı prob, aynı makine, arka arkaya:
+
+| `sync_subtitle_safe_band()` | ortalama | medyan | p95 | max |
+|---|---|---|---|---|
+| mpv 0.36 (eski) | 0,37 ms | 0,35 | 0,42 | 1,24 |
+| mpv 0.41 (düzeltmeden önce) | 3,84 ms | 0,41 | **41,70** | **84,55** |
+| mpv 0.41 (düzeltmeden sonra) | 0,05 ms | 0,04 | **0,07** | **0,12** |
+
+Medyan hep aynıydı; bozulan KUYRUKTU — bu yüzden "bazen var bazen yok"
+hissediliyordu. 84 ms = 60 Hz'de beş kare.
+
+Kök neden: bant hesabı her çağrıda `osd-dimensions`, `sid` ve `track-list`
+özelliklerini libmpv'den GUI thread'inde SENKRON okuyordu. Okumaların kendisi
+ucuz (boştayken üçü 0,2 ms); pahalı olan KİLİT BEKLEMESİ — yeni mpv
+boyutlandırma sırasında swapchain'i kurarken core lock'u eskisinden çok daha
+uzun tutuyor. Elenen iki hipotez: property okuma maliyeti (karenin %1,2'si)
+ve `control_overlay.raise_()` Z-sırası (0,03 ms).
+
+Düzeltme: `SubtitleTrackWatcher` bu üç özelliği ZATEN gözlüyordu ama gelen
+değeri atıyordu (`_notify(self, _name, _value)`). Artık saklıyor;
+`VideoFrame._observed_property()` önce gözlenen değeri kullanıyor, yoksa eski
+senkron yola düşüyor. Yeni timer/thread YOK, bant hesabı DEĞİŞMEDİ (52 mevcut
+bant testi yeşil). Sözleşme: 3 yeni test — gözlemci varken 100 senkronda
+sıfır libmpv okuması, gözlemci yokken senkron okuma hâlâ meşru, gözlenen yeni
+alan banda yansıyor. Kullanıcı gerçek pencerede onayladı.
+
+---
+
 **SRT güvenli bandını yeni motora göre yeniden kalibre et.** Gerçek video
 kabulü koşuldu (16 Ağustos 2026, mpv v0.41). ASS tarafı **9/10 PASS** ve
 tablo iki DPI'da birebir kararlı. SRT (`o_band`) tarafında **deterministik
