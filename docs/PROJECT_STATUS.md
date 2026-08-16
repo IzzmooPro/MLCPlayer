@@ -1388,6 +1388,28 @@ koşum doğrudan HKCU'ya yazıyordu. Düzeltme: `app/settings_store.py` →
 artık gerçekten işe yarıyor). `tests/test_settings_isolation_regressions.py`
 kaçağı ve "ürün kodu QSettings'i doğrudan kurmaz" kuralını korur.
 
+ÖLÇÜM ARACI TUZAĞI (16 Ağustos 2026, kullanıcı "hâlâ yeşil" dedi):
+Ajanın PowerShell aracından yapılan KAYIT DEFTERİ YAZMALARI sanal bir
+katmanda kalır; gerçek hive'a ULAŞMAZ. Çapraz test:
+
+    reg.exe'nin yazdığı değer -> python winreg GÖREMİYOR (WinError 2)
+    python'un yazdığı değer   -> reg.exe GÖRÜYOR
+
+Sonuç: "sub_color beyaza çevrildi" kayıtları YANLIŞTI; gerçek değer
+`#FF00FF00` + `sub_pos=90` olarak kalmıştı ve kullanıcı yeşil altyazıyı
+görmeye devam etti. Kayıt defteri ölçümü ve düzeltmesi BUNDAN SONRA
+yalnız `python -c "import winreg..."` ile yapılır; `Get-ItemProperty`,
+`Set-ItemProperty` ve `reg.exe` bu depoda GÜVENİLİR DEĞİLDİR.
+
+Düzeltme uygulandı (gerçek hive): `sub_color=#FFFFFFFF`, `sub_pos=100`.
+Ayrıca harness'ten kalan 21 çöp anahtar (`MLCTest-*`, `MLCPlayerTest`)
+silindi. AÇIK KUSUR: bu anahtarları üreten testler kendi anahtarlarını
+temizlemiyor; her tam koşumda yeniden oluşuyorlar.
+
+İzolasyon düzeltmesinin ÇALIŞTIĞININ kanıtı: gerçek hive'da kalan değer
+bugünkü izole koşumun ürettiği turuncu `#FFF26A3D` DEĞİL, düzeltmeden
+önceki dönemden kalan yeşildi. Bugünkü koşum sızsaydı turuncu olurdu.
+
 GERÇEK KOŞUMLA DOĞRULANDI (kullanıcı izniyle, tek child,
 `a_text_color`, gerçek 4K video): izole dizinde artık `.ini` VAR —
 `<izole>\a_text_color-<pid>\MLCPlayer\MLCPlayer.ini` (565 bayt,
