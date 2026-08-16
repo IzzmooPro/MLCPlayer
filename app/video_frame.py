@@ -130,6 +130,30 @@ OVERLAY_AUTO_HIDE_MS = 2500
 # Timeline'ın görünmez tıklama alanı. Görsel çizgi yine 3 px'tir;
 # kullanıcı çizgiyi ~18 px yukarıdan/aşağıdan kaçırsa da seek çalışır.
 OVERLAY_TIMELINE_HIT_HEIGHT = 48
+#: Timeline'ın GÖRÜNEN çubuk (groove) yüksekliği; stylesheet ile aynı değer.
+#: Hover'da 5 px'e çıkar, ama bant hesabı NORMAL hâli esas alır: hover
+#: geçici bir durumdur ve altyazıyı oynatırken oynatmamalıdır.
+OVERLAY_TIMELINE_GROOVE_HEIGHT = 3
+
+
+def overlay_timeline_top_padding():
+    """Timeline'ın ÇİZİLEN çubuğu ile tıklama alanının üstü arasındaki pay.
+
+    ÖLÇÜLEN KUSUR (kullanıcı raporu, 16 Ağustos 2026): altyazı doğru
+    hesaplanıyordu ama gözle "gereksiz yukarıda" duruyordu. Gerçek pencerede
+    ölçüldü (1376×790): katman 110 px ve `overlay_timeline` katmanın EN
+    ÜSTÜNDEN başlıyor (y=0..47). O 47 px'in çoğu TIKLAMA alanıdır
+    (`OVERLAY_TIMELINE_HIT_HEIGHT`); kullanıcının gördüğü çubuk yalnız 3 px
+    ve dikeyde ORTALANMIŞ. Yani çizilen çubuğun üstünde ~22 px GÖRÜNMEZ pay
+    var ve ayrılan bant onu da temizliyordu: altyazının altı 672, görünen
+    çubuk 708 → 36 px boşluk.
+
+    Bant artık bu görünmez payı saymaz. Kullanıcının GÖRDÜĞÜ hiçbir kontrolle
+    çakışma imkânı doğmaz; yalnız boşa harcanan pay geri verilir. Tıklama
+    alanı KÜÇÜLTÜLMEZ — o bilerek geniştir (bkz. `OVERLAY_TIMELINE_HIT_HEIGHT`).
+    """
+    return max(0, (OVERLAY_TIMELINE_HIT_HEIGHT
+                   - OVERLAY_TIMELINE_GROOVE_HEIGHT) // 2)
 # Windows, `WS_EX_LAYERED` olan overlay penceresinde fare hedefini PİKSEL
 # ALFASINA göre seçer: alfa=0 pikseller alttaki mpv `wid` yüzeyine düşer ve
 # kontrol gerçek tıklamayla ÇALIŞMAZ (ölçüm: `WindowFromPoint` overlay yerine
@@ -1867,7 +1891,11 @@ class VideoFrame(QWidget):
         """
         if self._overlay_band_hidden:
             return 0
-        return self._osd_reserved_bottom()
+        # GÖRÜNMEZ tıklama payı sayılmaz: altyazı kullanıcının GÖRDÜĞÜ
+        # çubuğu temizler, onun üstündeki boş alanı değil
+        # (bkz. `overlay_timeline_top_padding()`).
+        return max(0, self._osd_reserved_bottom()
+                   - overlay_timeline_top_padding())
 
     def _set_subtitle_band_collapsed(self, collapsed):
         """Bant durumunu değiştirir ve YALNIZ gerçek geçişte MPV'ye yazar.

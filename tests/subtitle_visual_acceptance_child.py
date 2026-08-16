@@ -71,6 +71,7 @@ from PyQt6.QtTest import QTest  # noqa: E402
 from PyQt6.QtWidgets import QApplication, QDialog  # noqa: E402
 
 from app.local_subtitle import suppress_local_subtitle  # noqa: E402
+from app.video_frame import overlay_timeline_top_padding  # noqa: E402
 from app.player import MPVPlayer  # noqa: E402
 from app.subtitle_appearance_dialog import SubtitleAppearanceDialog  # noqa: E402
 from app.subtitle_style import (ASS_OVERRIDE_FORCE, BACKGROUND_BOX,  # noqa: E402
@@ -1779,6 +1780,23 @@ def subtitle_only_mask(tag, shot, probe_colour=None):
     return result
 
 
+def painted_controls_top(overlay):
+    """Altyazının temizlemesi gereken sınır: ÇİZİLEN kontrollerin üstü.
+
+    Katmanın kendi üst kenarı DEĞİLDİR. `overlay_timeline` katmanın en
+    üstünden başlar ama o alanın çoğu TIKLAMA payıdır: alan 48 px,
+    kullanıcının gördüğü çubuk 3 px ve ortalanmış → üstte ~22 px görünmez
+    boşluk. Ürün altyazıyı 16 Ağustos 2026'da bu payın içine kadar
+    indirdi (kullanıcı raporu: gereksiz yukarıda duruyordu); ölçüt de aynı
+    yere taşınır, yoksa görünmez boşluğu "çakışma" sayar.
+
+    GEVŞETME DEĞİLDİR: `SAFE_GAP_MIN` aynen korunur, yalnız sıfır noktası
+    görünmez paydan görünen çubuğa taşınır. Tek kaynak ürünün kendi
+    `overlay_timeline_top_padding()` fonksiyonudur.
+    """
+    return overlay["local"][1] + overlay_timeline_top_padding()
+
+
 def band_gap_plain(result):
     """Boşluk, RENK FİLTRESİZ eşlenik-kare farkından (MANTIKSAL px).
 
@@ -1793,7 +1811,7 @@ def band_gap_plain(result):
     overlay = result["overlay_before"]
     if not overlay or not result["stable_overlay"]:
         return None
-    return overlay["local"][1] - result["logical_plain_bbox"][3]
+    return painted_controls_top(overlay) - result["logical_plain_bbox"][3]
 
 
 def band_gap(result):
@@ -1807,7 +1825,7 @@ def band_gap(result):
     overlay = result["overlay_before"]
     if not overlay:
         return None
-    return overlay["local"][1] - result["logical_bbox"][3]
+    return painted_controls_top(overlay) - result["logical_bbox"][3]
 
 
 def measure_band_case(label, values, shot, expect_gap=True,
@@ -2051,13 +2069,33 @@ def scenario_o_band(base):
 
 
 def reserved_band_top():
-    """Ayrılmış kontrol bandının ÜST kenarı (katman GİZLİ olsa da).
+    """Altyazının temizlemesi gereken bandın ÜST kenarı (katman gizli olsa da).
 
-    Bant görünürlükten bağımsızdır; `_osd_reserved_bottom()` yüksekliği
-    kullanır. Ölçüm sırasında katman gizlenebilir, bant yine geçerlidir.
+    Bant görünürlükten bağımsızdır. Ölçüm sırasında katman gizlenebilir,
+    bant yine geçerlidir.
+
+    DEĞİŞTİ (16 Ağustos 2026): eskiden `_osd_reserved_bottom()` (katmanın
+    TAMAMI) kullanılıyordu. Ürün artık altyazıyı timeline'ın GÖRÜNMEZ
+    tıklama payının içine kadar indiriyor: tıklama alanı 48 px, kullanıcının
+    gördüğü çubuk 3 px ve ortalanmış, yani üstte ~22 px boş pay var
+    (bkz. `video_frame.overlay_timeline_top_padding()`). Kullanıcı raporu:
+    altyazı gereksiz yukarıda duruyordu.
+
+    Ölçüt ÜRÜNLE AYNI kaynaktan gelir (`subtitle_reserved_bottom()`), ikinci
+    bir kopya tutulmaz. GEVŞETME DEĞİLDİR: çakışma hâlâ imkânsızdır, yalnız
+    referans görünmez paydan görünen çubuğa taşındı. `SAFE_GAP_MIN` aynen
+    korunur.
     """
     frame = PLAYER.video_frame
-    return int(frame.height() - frame._osd_reserved_bottom())
+    reserved = frame._osd_reserved_bottom()
+    try:
+        # Katman auto-hide ile gizliyken ürün bandı 0'a düşürür; ÖLÇÜM
+        # bandı ise görünürlükten bağımsız olmalı, bu yüzden görünür
+        # durumdaki değer yeniden türetilir.
+        reserved = max(0, reserved - overlay_timeline_top_padding())
+    except Exception:
+        pass
+    return int(frame.height() - reserved)
 
 
 def hide_overlay_for_measurement():

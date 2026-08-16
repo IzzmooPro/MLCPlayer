@@ -36,7 +36,14 @@ from PyQt6.QtWidgets import QApplication, QWidget
 
 from app import video_frame as video_frame_module
 from app.video_frame import (MPV_MARGIN_REFERENCE_HEIGHT, OVERLAY_HEIGHT,
-                             SUBTITLE_BAND_GAP)
+                             SUBTITLE_BAND_GAP,
+                             overlay_timeline_top_padding)
+
+#: Altyazinin GERCEKTEN temizledigi bant. Katmanin tamami DEGILDIR:
+#: timeline'in gorunmez tiklama payi (bkz. `overlay_timeline_top_padding`)
+#: sayilmaz, cunku kullanici orada bir sey GORMUYOR. OSD bandi ise
+#: `OVERLAY_HEIGHT` olarak KALIR.
+SUBTITLE_RESERVED = OVERLAY_HEIGHT - overlay_timeline_top_padding()
 
 
 class FakeOverlay:
@@ -245,16 +252,25 @@ def test_the_reserved_band_is_the_single_source_of_truth():
     """Ölçü `_osd_reserved_bottom()`tan gelir; ikinci kopya YOK."""
     frame = Frame(772)
 
-    assert frame._osd_reserved_bottom() == OVERLAY_HEIGHT == 110
+    # OSD bandi DEGISMEDI; ALTYAZI bandi gorunmez tiklama payi kadar
+    # kucuktur (bkz. `overlay_timeline_top_padding()`).
+    assert frame._osd_reserved_bottom() == OVERLAY_HEIGHT
+    assert frame.subtitle_reserved_bottom() == SUBTITLE_RESERVED
+    assert SUBTITLE_RESERVED < OVERLAY_HEIGHT
     assert SUBTITLE_BAND_GAP == 12
 
 
 def test_the_margin_matches_the_measured_real_video_value():
-    """1400×772 yüzey, letterbox yokken referans = yüzey yüksekliği."""
-    frame = Frame(772)
+    """1400×772 yüzey, letterbox yokken referans = yüzey yüksekliği.
 
-    assert frame.subtitle_safe_margin() == 114
-    assert frame.subtitle_safe_margin(772) == 114
+    Beklenen değer 114 → 93: bant artık timeline'ın GÖRÜNMEZ tıklama
+    payını saymıyor (bkz. `overlay_timeline_top_padding()`).
+    """
+    frame = Frame(772)
+    expected = round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / 772)
+
+    assert frame.subtitle_safe_margin() == expected == 93
+    assert frame.subtitle_safe_margin(772) == expected
 
 
 @pytest.mark.parametrize("height", [772, 600, 1080, 1440, 2160])
@@ -262,7 +278,9 @@ def test_the_margin_scales_with_the_surface_height(height):
     """`sub-scale-by-window` referansı 720 px'dir; marj oranlıdır."""
     frame = Frame(height)
 
-    expected = round((OVERLAY_HEIGHT + SUBTITLE_BAND_GAP)
+    # OSD bandı `OVERLAY_HEIGHT`tır; ALTYAZI bandı görünmez tıklama
+    # payını saymaz, bu yüzden `SUBTITLE_RESERVED` kullanılır.
+    expected = round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP)
                      * MPV_MARGIN_REFERENCE_HEIGHT / height)
 
     assert frame.subtitle_safe_margin() == expected
@@ -308,7 +326,7 @@ def test_the_band_is_written_to_mpv_with_the_margin_contract():
 
     applied = frame.sync_subtitle_safe_band()
 
-    assert applied == round((110 + SUBTITLE_BAND_GAP) * 720 / 772) == 114
+    assert applied == round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / 772) == round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / 772)
     assert mpv.written["sub_margin_y"] == applied
     assert mpv.written["sub_use_margins"] is True
     # ASS altyazıda da marjın geçerli olması için ZORUNLU.
@@ -337,7 +355,7 @@ def test_the_scale_reference_is_the_surface_height_not_the_video_area():
 
     assert frame.subtitle_scale_reference() == 772
     applied = frame.sync_subtitle_safe_band()
-    assert applied == round((110 + SUBTITLE_BAND_GAP) * 720 / 772) == 114
+    assert applied == round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / 772) == round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / 772)
 
 
 def test_the_scale_reference_falls_back_to_the_widget_height():
@@ -400,7 +418,7 @@ def test_the_band_follows_the_band_state_not_raw_visibility():
     down._overlay_band_hidden = True
 
     assert up._osd_reserved_bottom() == down._osd_reserved_bottom()
-    assert up.subtitle_reserved_bottom() == OVERLAY_HEIGHT
+    assert up.subtitle_reserved_bottom() == SUBTITLE_RESERVED
     assert down.subtitle_reserved_bottom() == 0
     assert down.sync_subtitle_safe_band() < up.sync_subtitle_safe_band()
 
@@ -853,7 +871,7 @@ def test_a_changed_margin_writes_only_the_margin():
     applied = frame.sync_subtitle_safe_band()
 
     assert [name for name, _ in mpv.writes] == ["sub_margin_y"]
-    assert applied == round((110 + SUBTITLE_BAND_GAP) * 720 / 1440)
+    assert applied == round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / 1440)
 
 
 def test_a_real_margin_change_is_never_missed():
@@ -868,7 +886,7 @@ def test_a_real_margin_change_is_never_missed():
         mpv.osd_dimensions = {"w": 1400, "h": surface, "mt": 8, "mb": 8}
         seen.append(frame.sync_subtitle_safe_band())
 
-    assert seen[1:] == [round((110 + SUBTITLE_BAND_GAP) * 720 / surface)
+    assert seen[1:] == [round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / surface)
                         for surface in (454, 1384, 756, 300)]
     assert mpv.written["sub_margin_y"] == seen[-1]
 
@@ -901,7 +919,7 @@ def test_a_failed_write_is_not_cached():
     working = CountingMpv(osd={"w": 1400, "h": 772, "mt": 8, "mb": 8})
     frame.main_window.mpv_player = working
 
-    assert frame.sync_subtitle_safe_band() == 114
+    assert frame.sync_subtitle_safe_band() == round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / 772)
     assert [name for name, _ in working.writes] == [
         "sub_use_margins", "sub_ass_force_margins", "sub_margin_y",
         "sub_pos"]
@@ -919,8 +937,8 @@ def test_the_band_is_converted_to_device_pixels_at_high_dpi():
 
     # Referans YÜZEY yüksekliğidir; letterbox payı çıkarılmaz.
     assert high.subtitle_scale_reference() == 1158
-    assert normal.sync_subtitle_safe_band() == round(122 * 720 / 1158)
-    assert high.sync_subtitle_safe_band() == round(122 * 1.5 * 720 / 1158)
+    assert normal.sync_subtitle_safe_band() == round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / 1158)
+    assert high.sync_subtitle_safe_band() == round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 1.5 * 720 / 1158)
     # %150'de marj tam 1,5 kat büyük olmalı.
     assert high.sync_subtitle_safe_band() > normal.sync_subtitle_safe_band()
 
@@ -930,7 +948,7 @@ def test_dpr_one_keeps_the_measured_values_unchanged():
     frame = Frame(772, mpv=FakeMpv(osd={"w": 1400, "h": 772, "mt": 8,
                                         "mb": 8}), dpr=1.0)
 
-    assert frame.sync_subtitle_safe_band() == 114
+    assert frame.sync_subtitle_safe_band() == round((SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 720 / 772)
 
 
 # --- ASS: `sub-margin-y` etkisiz, `sub-pos` etkili ---------------------
@@ -963,9 +981,10 @@ def test_the_effective_position_moves_ass_up_by_the_band():
     frame = ass_frame()
 
     offset = frame.subtitle_position_offset()
-    # Bant 110 + 12 = 122 px; ASS yüzdesi PENCERE yüksekliğine (772)
-    # oranlanır → %15,8 (ölçüldü: 7,43 px/puan).
-    assert round(offset, 1) == round(122 * 100 / 772, 1)
+    # ASS yüzdesi PENCERE yüksekliğine (772) oranlanır (ölçüldü:
+    # 7,43 px/puan). Bant artık görünmez tıklama payını saymaz.
+    assert round(offset, 1) == round(
+        (SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 100 / 772, 1)
     assert frame.effective_subtitle_position() == round(100.0 - offset, 2)
     assert frame.effective_subtitle_position() < 100.0
 
@@ -1058,7 +1077,7 @@ def test_a_geometry_change_updates_both_margin_and_position():
 
     assert [name for name, _ in mpv.writes] == []
     assert mpv.written["sub_pos"] == round(
-        100.0 - (110 + SUBTITLE_BAND_GAP) * 100 / 772, 2)
+        100.0 - (SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 100 / 772, 2)
 
 
 def test_a_failed_position_write_is_not_cached():
@@ -1155,3 +1174,51 @@ def test_the_observed_value_is_what_the_band_actually_uses():
     fullscreen = frame.sync_subtitle_safe_band()
 
     assert fullscreen != windowed, "gozlenen yeni yuzey banda YANSIMADI"
+
+
+# --------------------------------------------------------------------------
+# Bant GORUNMEZ tiklama alanini degil, CIZILEN kontrolleri temizler
+# --------------------------------------------------------------------------
+
+def test_the_band_clears_the_painted_groove_not_the_invisible_hit_area():
+    """KULLANICI RAPORU: "guzel konumlandirma ama biraz daha asagiya".
+
+    OLCULDU (gercek pencere, 1376x790): katman yuksekligi 110 px ve
+    `overlay_timeline` katmanin EN USTUNDEN basliyor (y=0..47). Ama o 47
+    px'in cogu TIKLAMA alanidir: `OVERLAY_TIMELINE_HIT_HEIGHT = 48`,
+    gorunen groove ise 3 px ve ORTALANMIS. Yani cizilen cubugun ustunde
+    ~22 px GORUNMEZ pay var ve altyazi onu da temizledigi icin gereksiz
+    yukarida duruyordu (altyazi alti 672, gorunen cubuk 708 -> 36 px).
+
+    Sozlesme: ayrilan bant gorunmez tiklama payini SAYMAZ. Kullanicinin
+    gordugu kontrollerle cakisma yine imkansizdir; yalnizca bosa harcanan
+    pay geri verilir.
+    """
+    frame = band_frame()
+
+    reserved = frame.subtitle_reserved_bottom()
+    osd_reserved = frame._osd_reserved_bottom()
+
+    padding = video_frame_module.overlay_timeline_top_padding()
+    assert padding > 0, "gorunmez tiklama payi sifir olamaz"
+    # OSD bandi DEGISMEZ: `_osd_reserved_bottom()` OSD ile paylasilan olcudur.
+    assert osd_reserved == OVERLAY_HEIGHT
+    assert reserved == OVERLAY_HEIGHT - padding
+
+
+def test_the_invisible_padding_comes_from_the_real_constants():
+    """Pay elle uydurulmaz; tiklama alani ve groove yuksekliginden turer."""
+    padding = video_frame_module.overlay_timeline_top_padding()
+
+    expected = (video_frame_module.OVERLAY_TIMELINE_HIT_HEIGHT
+                - video_frame_module.OVERLAY_TIMELINE_GROOVE_HEIGHT) // 2
+
+    assert padding == expected
+
+
+def test_a_collapsed_band_is_still_zero():
+    """Katman TAMAMEN gizliyken bant 0 kalir; kullanici bunu onayladi."""
+    frame = band_frame()
+    frame._overlay_band_hidden = True
+
+    assert frame.subtitle_reserved_bottom() == 0

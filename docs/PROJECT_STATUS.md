@@ -1226,6 +1226,36 @@ alan banda yansıyor. Kullanıcı gerçek pencerede onayladı.
 
 ---
 
+ÇÖZÜLDÜ (16 Ağustos 2026) — **altyazı görünmez tıklama payını da
+temizliyordu.** Kullanıcı raporu: "güzel konumlandırma ama biraz daha
+aşağıya almamız gerek."
+
+Gerçek pencerede ölçüldü (1376×790): katman 110 px ve `overlay_timeline`
+katmanın EN ÜSTÜNDEN başlıyor (y=0..47). Ama o 47 px'in çoğu TIKLAMA
+alanıdır (`OVERLAY_TIMELINE_HIT_HEIGHT = 48`); kullanıcının GÖRDÜĞÜ çubuk
+yalnız 3 px ve dikeyde ortalanmış. Yani çizilen çubuğun üstünde
+**~22 px görünmez pay** var ve ayrılan bant onu da temizliyordu:
+altyazının altı 672, görünen çubuk 708 → 36 px boşluk.
+
+Düzeltme: `overlay_timeline_top_padding()` = `(48 - 3) // 2` = 22.
+`subtitle_reserved_bottom()` bu payı SAYMAZ. Pay elle uydurulmadı, mevcut
+iki sabitten türüyor; stylesheet'teki groove yüksekliği değişirse bant
+kendiliğinden uyar.
+
+DOKUNULMAYANLAR: tıklama alanı KÜÇÜLMEDİ (bilerek geniştir), OSD bandı
+`_osd_reserved_bottom()` = 110 olarak KALDI (OSD yerleşimi değişmedi),
+katman gizliyken bant hâlâ 0 (kullanıcının onayladığı davranış).
+
+Ölçüt de aynı yere taşındı: `painted_controls_top()` katmanın üst kenarına
+payı ekler. GEVŞETME DEĞİLDİR — `SAFE_GAP_MIN` aynen korundu, yalnız sıfır
+noktası görünmez paydan görünen çubuğa taşındı.
+
+`o_band` **17/17 PASS ×2 DPI**; boşluklar (çizilen çubuğa göre):
+`stress_2x_5px` 25, `playlist_open` 20, `fullscreen` 28, `single_line` 13.
+17 eskiyen test gevşetilmeden dönüştürüldü: sabit `110` yerine türetilmiş
+`SUBTITLE_RESERVED` kullanılıyor, böylece bir daha elle güncelleme
+gerekmeyecek. Kullanıcı gerçek pencerede onayladı.
+
 **AÇIK ARAŞTIRMA — harness gerçek kullanıcı ayarlarını kirletmiş.**
 Kullanıcı ekran görüntüsünde altyazıların YEŞİL göründüğünü bildirdi.
 Ürün varsayılanı `#FFFFFFFF` (beyaz); ölçülen gerçek kayıt:

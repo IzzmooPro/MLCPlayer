@@ -25,8 +25,15 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 import pytest
 from PyQt6.QtWidgets import QApplication
 
-from app.video_frame import SUBTITLE_BAND_GAP, SubtitleTrackWatcher
+from app.video_frame import (OVERLAY_HEIGHT, SUBTITLE_BAND_GAP,
+                             SubtitleTrackWatcher,
+                             overlay_timeline_top_padding)
+
 from tests.test_subtitle_safe_band_regressions import CountingMpv, Frame
+
+#: Altyazinin temizledigi bant: katmanin tamami DEGIL, timeline'in
+#: gorunmez tiklama payi cikarilmis hali.
+SUBTITLE_RESERVED = OVERLAY_HEIGHT - overlay_timeline_top_padding()
 
 
 class ObservingMpv(CountingMpv):
@@ -106,7 +113,7 @@ def test_a_render_area_change_recomputes_the_band(bench):
     app.processEvents()
     mpv.writes.clear()
 
-    # Tam ekran: render alanı 756 -> 1384.
+    # Tam ekran: yüzey 772 -> 1440.
     mpv.osd_dimensions = {"w": 2560, "h": 1440, "mt": 28, "mb": 28}
     mpv.notify("osd-dimensions")
     app.processEvents()
@@ -114,7 +121,7 @@ def test_a_render_area_change_recomputes_the_band(bench):
     assert sorted(name for name, _ in mpv.writes) == ["sub_margin_y",
                                                       "sub_pos"]
     assert mpv.written["sub_pos"] == round(
-        100.0 - (110 + SUBTITLE_BAND_GAP) * 100 / 1440, 2)
+        100.0 - (SUBTITLE_RESERVED + SUBTITLE_BAND_GAP) * 100 / 1440, 2)
 
 
 def test_the_callback_never_touches_qt_from_the_mpv_thread(bench):
