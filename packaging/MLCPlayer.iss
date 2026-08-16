@@ -10,7 +10,7 @@
 AppId={{EB0DD5CF-F20B-4B23-A1C9-2C23A83A8758}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppVerName={#MyAppName} {#MyAppVersion} sürümü
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 ; Depo adresi: "Uygulamalar ve Özellikler" listesinde ve kurulum bilgisinde
 ; görünür; GPLv3 kaynak yükümlülüğünün de adresidir.
@@ -45,6 +45,9 @@ WizardImageStretch=yes
 ; büyük görsel hiç çizilmiyordu (ölçüldü: kullanıcı yalnız sağ üstteki küçük
 ; logoyu gördü). Referans VLC kurulumundaki markalı şeridin karşılığı budur.
 DisableWelcomePage=no
+; Kurulum dili Windows'un dilinden seçilir; kullanıcıya dil sorulmaz.
+; Program içindeki dil AYRI bir tercihtir ve ayarlardan değiştirilir.
+ShowLanguageDialog=no
 
 ; ASIL SIKIŞTIRMA BURADA. onedir çıktısı ~268 MB; solid LZMA2 ile tek
 ; kurulum dosyası belirgin biçimde küçülür. EXE tarafında UPX BİLEREK
@@ -72,11 +75,49 @@ VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion=0.33.0.0
 
 [Languages]
+; DİL WINDOWS'TAN SEÇİLİR, KULLANICIYA SORULMAZ (`ShowLanguageDialog=no`).
+; İngilizce ilk sırada: sistem dili listede yoksa Inno İLK dile düşer ve
+; Türkçe kurulum ekranı, Türkçe bilmeyen kullanıcı için çıkmaz sokaktır.
+Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
+Name: "german"; MessagesFile: "compiler:Languages\German.isl"
+Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
+Name: "french"; MessagesFile: "compiler:Languages\French.isl"
+Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
+Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
+
+[CustomMessages]
+; Bizim yazdığımız metinler .isl dosyalarında YOKTUR; her dil için burada
+; verilir. Verilmezse Inno İngilizce kurulumda Türkçe cümle gösterirdi.
+english.DesktopIcon=Create a desktop shortcut
+english.LaunchApp=Launch %1
+english.OpenRepository=Open the MLC Player page on GitHub
+turkish.DesktopIcon=Masaüstü kısayolu oluştur
+turkish.LaunchApp=%1 uygulamasını başlat
+turkish.OpenRepository=MLC Player GitHub sayfasını aç
+german.DesktopIcon=Desktopverknüpfung erstellen
+german.LaunchApp=%1 starten
+german.OpenRepository=MLC Player auf GitHub öffnen
+spanish.DesktopIcon=Crear un acceso directo en el escritorio
+spanish.LaunchApp=Iniciar %1
+spanish.OpenRepository=Abrir la página de MLC Player en GitHub
+french.DesktopIcon=Créer un raccourci sur le Bureau
+french.LaunchApp=Lancer %1
+french.OpenRepository=Ouvrir la page MLC Player sur GitHub
+italian.DesktopIcon=Crea un collegamento sul desktop
+italian.LaunchApp=Avvia %1
+italian.OpenRepository=Apri la pagina di MLC Player su GitHub
+russian.DesktopIcon=Создать ярлык на рабочем столе
+russian.LaunchApp=Запустить %1
+russian.OpenRepository=Открыть страницу MLC Player на GitHub
+brazilianportuguese.DesktopIcon=Criar um atalho na área de trabalho
+brazilianportuguese.LaunchApp=Iniciar %1
+brazilianportuguese.OpenRepository=Abrir a página do MLC Player no GitHub
 
 [Tasks]
 ; Varsayılan İŞARETLİ; kullanıcı istemezse kaldırır.
-Name: "desktopicon"; Description: "Masaüstü kısayolu oluştur"; GroupDescription: "Ek görevler:"
+Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
 ; onedir: PyInstaller çıktısının TAMAMI kurulur (exe + _internal\).
@@ -118,10 +159,10 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{#MyAppName} uygulamasını başlat"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchApp,{#MyAppName}}"; Flags: nowait postinstall skipifsilent
 ; Kurulum sonu sayfasında GitHub sayfasına gitme seçeneği. VARSAYILAN
 ; İŞARETSİZ: kullanıcı istemeden tarayıcı açılmaz.
-Filename: "{#MyAppUrl}"; Description: "MLC Player GitHub sayfasını aç"; Flags: shellexec nowait postinstall skipifsilent unchecked
+Filename: "{#MyAppUrl}"; Description: "{cm:OpenRepository}"; Flags: shellexec nowait postinstall skipifsilent unchecked
 
 [Code]
 // Inno Setup 7 BUG ATLATMASI — SİLME!

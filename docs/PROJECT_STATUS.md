@@ -1253,11 +1253,26 @@ güncellemeyi hiç görmez, sessizce "güncelsiniz" der. Büyük sürüme geçer
 riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
 
 1. **README (İngilizce, VLC deposu düzeninde)** — ürün koduna dokunmaz.
-2. **Paket boyutu** — yalnız paketleme; her sonraki sürüm yararlanır.
+2. ~~**Paket boyutu**~~ → **YAPILDI (v0.33).** İndirme 101,7 → **57,0 MB**
+   (%44 küçük), kurulu 304,7 → **194,2 MB**. `yt-dlp.exe` + `deno.exe`
+   (110,3 MB) ayrı "İnternet Videosu" ek paketine taşındı; ek paket 47,0 MB.
+   `libcrypto` çift kopyası SAHTE ALARM çıktı: iki dosyanın SHA-256'sı
+   farklı, biri Python `_ssl` bağımlılığı — yanlışını silmek TLS'i kırardı,
+   5 MB için alınmadı.
+   **libmpv (114,2 MB) BİLEREK BIRAKILDI.** Paketin %59'u odur, ama küçük
+   varyantlar codec kapsamını düşürebilir ve "falanca video artık açılmıyor"
+   kullanıcı için 40 MB'dan kötüdür. Denenecekse önce aday derleme bulunup
+   43 dosyalık codec ölçümü yeniden koşulmalıdır.
+   (eski kayıt) — yalnız paketleme; her sonraki sürüm yararlanır.
    ÖLÇÜLDÜ (304,7 MB / 124 dosya): `mpv-2.dll` 114,2 MB · `deno.exe`
    92,9 MB · `yt-dlp.exe` 17,4 MB → %74'ü bu üç dosya. Ayrıca `libcrypto`
    İKİ kez var (5,5 + 5,0 MB) ve `cryptography\_rust.pyd` 9,5 MB.
-3. **Kurulum dili** — Inno çoklu dil + Windows dilinden otomatik seçim,
+3. ~~**Kurulum dili**~~ → **YAPILDI.** 8 dil (İngilizce, Türkçe, Almanca,
+   İspanyolca, Fransızca, İtalyanca, Rusça, Brezilya Portekizcesi),
+   `ShowLanguageDialog=no` ile Windows dilinden seçim. Kendi metinlerimiz
+   `[CustomMessages]` altında her dile çevrildi; İngilizce İLK sırada
+   (sistem dili listede yoksa Inno ilk dile düşer). Ek paket de aynı küme.
+   (eski kayıt) — Inno çoklu dil + Windows dilinden otomatik seçim,
    kullanıcıya sorulmaz. Küçük ve bağımsız; uygulama i18n'inden ÖNCE
    yapılır ki dil/locale kararları orada bir kez sınansın.
 4. **Uygulama çoklu dil (i18n)** — EN BÜYÜK ve EN RİSKLİ iş; aşamalı.

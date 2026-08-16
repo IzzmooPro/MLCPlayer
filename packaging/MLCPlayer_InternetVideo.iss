@@ -29,6 +29,8 @@ DefaultDirName={code:PlayerDirectory}
 DisableDirPage=yes
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
+; Dil Windows'tan secilir; kullaniciya sorulmaz.
+ShowLanguageDialog=no
 PrivilegesRequired=admin
 OutputDir=..\installer_output
 OutputBaseFilename=MLCPlayer_InternetVideo_{#AddonVersion}
@@ -53,7 +55,25 @@ CloseApplicationsFilter="MLC Player.exe"
 RestartApplications=no
 
 [Languages]
+; Ana kurulumla AYNI dil kumesi; dil Windows'tan secilir (ShowLanguageDialog=no).
+Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
+Name: "german"; MessagesFile: "compiler:Languages\German.isl"
+Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
+Name: "french"; MessagesFile: "compiler:Languages\French.isl"
+Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
+Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
+
+[CustomMessages]
+english.PlayerRequired=MLC Player must be installed first.%nThis add-on adds the internet video components to an existing installation.
+turkish.PlayerRequired=Önce MLC Player kurulmalıdır.%nBu ek paket internet videosu bileşenlerini mevcut kuruluma ekler.
+german.PlayerRequired=MLC Player muss zuerst installiert werden.%nDiese Erweiterung ergänzt eine vorhandene Installation.
+spanish.PlayerRequired=Primero debe instalarse MLC Player.%nEste complemento se añade a una instalación existente.
+french.PlayerRequired=MLC Player doit d'abord être installé.%nCe module complète une installation existante.
+italian.PlayerRequired=MLC Player deve essere installato prima.%nQuesto componente si aggiunge a un'installazione esistente.
+russian.PlayerRequired=Сначала необходимо установить MLC Player.%nЭто дополнение добавляется к существующей установке.
+brazilianportuguese.PlayerRequired=O MLC Player precisa ser instalado primeiro.%nEste complemento é adicionado a uma instalação existente.
 
 [Files]
 ; Ikililer ana paketin bin dizinine gider; urun onlari YALNIZ orada arar.
@@ -87,9 +107,7 @@ begin
       'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#PlayerAppId}_is1',
       'InstallLocation', Location);
   if not Result then
-    MsgBox('Once MLC Player kurulmalidir.' + #13#10 +
-           'Bu ek paket internet videosu bilesenlerini mevcut kuruluma ekler.',
-           mbCriticalError, MB_OK);
+    MsgBox(ExpandConstant('{cm:PlayerRequired}'), mbCriticalError, MB_OK);
 end;
 
 function InitializeUninstall(): Boolean;
