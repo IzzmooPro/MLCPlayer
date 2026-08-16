@@ -37,6 +37,7 @@ import tempfile
 from collections import namedtuple
 from pathlib import Path
 from urllib.parse import urlsplit
+from app.i18n import tr
 
 from PyQt6.QtCore import QThread, Qt, pyqtSignal
 from PyQt6.QtWidgets import (QDialog, QHBoxLayout, QLabel, QMessageBox,
@@ -463,7 +464,7 @@ class UpdateDialog(QDialog):
         self._close_requested = False
         self._close_after_download_connected = False
 
-        self.setWindowTitle("Güncelleme Mevcut")
+        self.setWindowTitle(tr("Güncelleme Mevcut"))
         self.setFixedWidth(400)
         self._build_ui()
 
@@ -490,7 +491,7 @@ class UpdateDialog(QDialog):
         row = QHBoxLayout()
         self._later_button = QPushButton("Daha sonra")
         self._later_button.clicked.connect(self.reject)
-        self._update_button = QPushButton("Güncelle")
+        self._update_button = QPushButton(tr("Güncelle"))
         self._update_button.clicked.connect(self.start_update)
         row.addWidget(self._later_button)
         row.addStretch()
@@ -573,7 +574,7 @@ class UpdateDialog(QDialog):
         """
         box = QMessageBox(self)
         box.setIcon(QMessageBox.Icon.Warning)
-        box.setWindowTitle("Güncelleme")
+        box.setWindowTitle(tr("Güncelleme"))
         box.setText(message)
         box.setInformativeText(
             "İsterseniz güncellemeyi GitHub sayfasından elle indirebilirsiniz.")

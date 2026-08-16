@@ -42,6 +42,7 @@ from PyQt6.QtWidgets import (
     QStyleOptionComboBox, QStylePainter, QVBoxLayout, QWidget)
 
 from app.config import SUBTITLE_DEFAULTS
+from app.i18n import tr
 from app.subtitle_style import (BORDER_PRESETS, COLOR_KEYS, DELAY_PRESETS,
                                 SCALE_PRESETS, mpv_argb_to_qcolor,
                                 normalise_subtitle_numeric,
@@ -766,7 +767,7 @@ class SubtitleAppearanceDialog(QDialog):
                  apply_callback=None, error_reporter=None):
         super().__init__(parent)
         self.setObjectName("subtitleAppearance")
-        self.setWindowTitle("Altyazı Ayarları")
+        self.setWindowTitle(tr("Altyazı Ayarları"))
         self.setStyleSheet(STYLE)
         self._apply_callback = apply_callback
         self._error_reporter = error_reporter
@@ -821,9 +822,9 @@ class SubtitleAppearanceDialog(QDialog):
         self.delay_combo = PresetCombo(
             "subtitleDelayCombo", "Altyazı senkronu", DELAY_PRESETS,
             delay_label, delay_short, "sub_delay", panel)
-        self.delay_combo.setToolTip(
-            "Altyazı senkronu. Pozitif değer altyazıyı geciktirir, negatif "
-            "değer öne alır.")
+        self.delay_combo.setToolTip(tr(
+            "Altyazı senkronu. Pozitif değer altyazıyı geciktirir, "
+            "negatif değer öne alır."))
         self.scale_combo = PresetCombo(
             "subtitleScaleCombo", "Yazı boyutu", SCALE_PRESETS, scale_label,
             scale_short, "sub_scale", panel)
@@ -929,8 +930,8 @@ class SubtitleAppearanceDialog(QDialog):
         # NOT: bilgi satırı GİZLİ iken de yer bütçesine girmesin diye
         # kendi aralığı küçük tutulur.
 
-        caption = QLabel("Temsili video önizlemesi — gerçek video çıktısı "
-                         "değildir")
+        caption = QLabel(tr("Temsili video önizlemesi — gerçek video "
+                            "çıktısı değildir"))
         caption.setObjectName("subtitlePreviewCaption")
         # Dar pencerede tek satıra sığmayıp kırpılıyordu; sarılarak kalır.
         caption.setWordWrap(True)

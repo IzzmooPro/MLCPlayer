@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (QAbstractItemView, QHBoxLayout,
                              QWidget)
 from app.config import MEDIA_EXTENSIONS
 from app.thumbnail_service import ThumbnailService
+from app.i18n import tr
 
 
 PLAYLIST_ACCENT = "#F26A3D"
@@ -27,7 +28,7 @@ class PlaylistResizeHandle(QWidget):
         self._press_width = 0
         self.setObjectName("playlistResizeHandle")
         self.setAccessibleName("Oynatma listesi genişliğini ayarla")
-        self.setToolTip("Sola veya sağa sürükleyerek liste genişliğini ayarla")
+        self.setToolTip(tr("Sola veya sağa sürükleyerek liste genişliğini ayarla"))
         self.setCursor(Qt.CursorShape.SizeHorCursor)
         self.setMouseTracking(True)
         self.setStyleSheet(
@@ -234,7 +235,7 @@ class PlaylistRow(QWidget):
 
         self.drag_handle = QLabel("⠿", self)
         self.drag_handle.setObjectName("playlistDragHandle")
-        self.drag_handle.setToolTip("Sürükleyerek sırala")
+        self.drag_handle.setToolTip(tr("Sürükleyerek sırala"))
         self.drag_handle.setStyleSheet(
             "color: #AEB4BB; background: transparent; font-size: 16px;")
         layout.addWidget(self.drag_handle, 0, Qt.AlignmentFlag.AlignVCenter)
@@ -330,7 +331,7 @@ class PlaylistPanel(QWidget):
         heading = QLabel("Oynatma Listesi", self)
         heading.setObjectName("playlistHeading")
         heading.setStyleSheet("color: #F4F5F6; font-size: 19px;")
-        self.count_label = QLabel("0 öğe", self)
+        self.count_label = QLabel(tr("0 öğe"), self)
         self.count_label.setObjectName("playlistCount")
         self.count_label.setStyleSheet("color: #929AA3; font-size: 12px;")
         title_column.addWidget(heading)
@@ -360,8 +361,7 @@ class PlaylistPanel(QWidget):
         self.playlist_view.itemDoubleClicked.connect(self._play_item)
         root.addWidget(self.playlist_view, 1)
 
-        self.empty_label = QLabel(
-            "Oynatma listesi boş\nDosyaları buraya sürükleyin", self)
+        self.empty_label = QLabel(tr("Oynatma listesi boş\nDosyaları buraya sürükleyin"), self)
         self.empty_label.setObjectName("playlistEmptyState")
         self.empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.empty_label.setStyleSheet(
@@ -375,7 +375,7 @@ class PlaylistPanel(QWidget):
         footer.setSpacing(4)
         self.add_button = QPushButton("Dosya Ekle", self)
         self.add_button.setObjectName("playlistAdd")
-        self.remove_button = QPushButton("Kaldır", self)
+        self.remove_button = QPushButton(tr("Kaldır"), self)
         self.remove_button.setObjectName("playlistRemove")
         self.clear_button = QPushButton("Listeyi Temizle", self)
         self.clear_button.setObjectName("playlistClear")
@@ -508,7 +508,7 @@ class PlaylistPanel(QWidget):
             item = QListWidgetItem()
             item.setData(PATH_ROLE, path)
             item.setData(PLAYING_ROLE, index == current)
-            item.setToolTip("Sürükleyerek sırala • Oynatmak için çift tıkla")
+            item.setToolTip(tr("Sürükleyerek sırala • Oynatmak için çift tıkla"))
             item.setSizeHint(QSize(0, ROW_HEIGHT))
             self.playlist_view.addItem(item)
             row_widget = PlaylistRow(path, index == current, self.playlist_view)

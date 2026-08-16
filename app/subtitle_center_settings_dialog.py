@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QVBoxLayout)
 
 from app.subtitle_center import LANGUAGES, STYLE
+from app.i18n import tr
 
 # OpenSubtitles'in RESMÎ başlangıç rehberi. Yalnızca kullanıcı tıklayınca
 # açılır; program başlangıcında veya pencere açılışında ASLA açılmaz.
@@ -49,7 +50,7 @@ class SubtitleCenterSettingsDialog(QDialog):
         self._center = center_dialog
 
         self.setObjectName("subtitleCenter")
-        self.setWindowTitle("Altyazı Merkezi Ayarları")
+        self.setWindowTitle(tr("Altyazı Merkezi Ayarları"))
         self.setStyleSheet(STYLE)
         self.setModal(True)
         # Window-modal: ana pencereyi bekletir ama BAŞKA uygulamaların
@@ -76,10 +77,10 @@ class SubtitleCenterSettingsDialog(QDialog):
         self.api_key_field = QLineEdit(self)
         self.api_key_field.setEchoMode(QLineEdit.EchoMode.Password)
         self.api_key_field.setAccessibleName("OpenSubtitles API anahtarı")
-        self.api_key_field.setPlaceholderText("OpenSubtitles.com API anahtarı")
+        self.api_key_field.setPlaceholderText(tr("OpenSubtitles.com API anahtarı"))
         layout.addWidget(self.api_key_field)
 
-        self.help_button = QPushButton("Anahtar nasıl alınır?", self)
+        self.help_button = QPushButton(tr("Anahtar nasıl alınır?"), self)
         self.help_button.setObjectName("subtitleLinkButton")
         self.help_button.setAccessibleName("API anahtarı alma rehberini aç")
         self.help_button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -99,7 +100,7 @@ class SubtitleCenterSettingsDialog(QDialog):
         self.password_field.setAccessibleName("OpenSubtitles parolası")
         layout.addWidget(self.password_field)
 
-        self.show_password_box = QCheckBox("Parolayı göster", self)
+        self.show_password_box = QCheckBox(tr("Parolayı göster"), self)
         self.show_password_box.setCursor(Qt.CursorShape.PointingHandCursor)
         self.show_password_box.toggled.connect(self.toggle_password_visibility)
         layout.addWidget(self.show_password_box)
@@ -129,14 +130,14 @@ class SubtitleCenterSettingsDialog(QDialog):
         # --- Düğmeler ---
         buttons = QHBoxLayout()
         buttons.setSpacing(6)
-        self.test_button = QPushButton("Bağlantıyı Test Et", self)
+        self.test_button = QPushButton(tr("Bağlantıyı Test Et"), self)
         self.test_button.setAccessibleName("OpenSubtitles bağlantısını test et")
         self.test_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.test_button.clicked.connect(self.connection_test_requested)
         buttons.addWidget(self.test_button)
         buttons.addStretch(1)
 
-        self.settings_cancel_button = QPushButton("Vazgeç", self)
+        self.settings_cancel_button = QPushButton(tr("Vazgeç"), self)
         self.settings_cancel_button.setAccessibleName("Ayarlardan vazgeç")
         self.settings_cancel_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.settings_cancel_button.clicked.connect(self.reject)

@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
     QLineEdit, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
 
 from app.ui_icons import make_media_icon
+from app.i18n import tr
 
 ACCENT = "#F26A3D"
 SURFACE = "rgba(19, 20, 22, 255)"
@@ -237,7 +238,7 @@ class SubtitleCenterDialog(QDialog):
         self._auto_fit_enabled = False
 
         self.setObjectName("subtitleCenter")
-        self.setWindowTitle("Altyazı Merkezi")
+        self.setWindowTitle(tr("Altyazı Merkezi"))
         self.setStyleSheet(STYLE)
         self.setMinimumSize(*MINIMUM_SIZE)
         self.resize(*DEFAULT_SIZE)
@@ -262,7 +263,7 @@ class SubtitleCenterDialog(QDialog):
     def _build_header(self, layout):
         row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
-        self.heading_label = QLabel("Altyazı Merkezi", self)
+        self.heading_label = QLabel(tr("Altyazı Merkezi"), self)
         self.heading_label.setObjectName("subtitleHeading")
         row.addWidget(self.heading_label)
         row.addStretch(1)
@@ -289,7 +290,7 @@ class SubtitleCenterDialog(QDialog):
         # dialogda 148 px'e, ayar çekmecesi açıkken 35 px'e (birkaç karakter)
         # düşüyordu. Ölçüm kullanıcının bildirdiği hatayla birebir aynıydı.
         self.title_field = QLineEdit(self.media.get("title", ""), self)
-        self.title_field.setPlaceholderText("Film veya dizi adı")
+        self.title_field.setPlaceholderText(tr("Film veya dizi adı"))
         self.title_field.setAccessibleName("Aranacak ad")
         self.title_field.setMinimumWidth(TITLE_MIN_WIDTH)
         # Uzun ad yazılabilir; görünmeyen bölüm imleçle gezilir, tamamı
@@ -310,13 +311,13 @@ class SubtitleCenterDialog(QDialog):
         self.season_field.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.season_field.setAccessibleName("Sezon")
         self.season_field.setToolTip("Sezon")
-        self.episode_label = QLabel("Bölüm", self)
+        self.episode_label = QLabel(tr("Bölüm"), self)
         self.episode_label.setObjectName("subtitleFieldLabel")
         self.episode_field = QLineEdit(self)
         self.episode_field.setMaximumWidth(44)
         self.episode_field.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.episode_field.setAccessibleName("Bölüm")
-        self.episode_field.setToolTip("Bölüm")
+        self.episode_field.setToolTip(tr("Bölüm"))
         for widget in (self.season_label, self.season_field,
                        self.episode_label, self.episode_field):
             row.addWidget(widget)
@@ -478,7 +479,7 @@ class SubtitleCenterDialog(QDialog):
         # düğme aynı dosyayı aynı yere yazdığı için fark yalnız MPV'ye
         # uygulanıp uygulanmamasıydı ve bu ayrım kullanıcıya çelişkili
         # görünüyordu.
-        self.apply_button = QPushButton("İndir ve Uygula", self)
+        self.apply_button = QPushButton(tr("İndir ve Uygula"), self)
         self.apply_button.setObjectName("subtitlePrimaryAction")
         self.apply_button.setAccessibleName("Altyazıyı indir ve uygula")
         self.apply_button.setCursor(Qt.CursorShape.PointingHandCursor)

@@ -5,6 +5,7 @@ from PyQt6.QtCore import Qt, QSize, QRectF
 from PyQt6.QtGui import QColor, QPainter
 from app.utils import create_colored_icon, format_time
 from app.config import cinematic_ui_enabled, DEFAULT_VOLUME, MAX_VOLUME
+from app.i18n import tr
 
 # Özel QSlider sınıfı - tıklama ve sürükleme olaylarını yakalayabilmek için
 class ClickableSlider(QSlider):
@@ -200,7 +201,7 @@ def setup_controls(player):
     player.subtitle_button.setIconSize(QSize(14, 14))
     player.subtitle_button.setFixedSize(24, 24)
     player.subtitle_button.clicked.connect(player.toggle_subtitles)
-    player.subtitle_button.setToolTip("Altyazıları Göster/Gizle (S)")
+    player.subtitle_button.setToolTip(tr("Altyazıları Göster/Gizle (S)"))
     control_layout.addWidget(player.subtitle_button)
 
     # Ekran görüntüsü butonu
@@ -211,7 +212,7 @@ def setup_controls(player):
     player.screenshot_button.setIconSize(QSize(14, 14))
     player.screenshot_button.setFixedSize(24, 24)
     player.screenshot_button.clicked.connect(player.take_screenshot)
-    player.screenshot_button.setToolTip("Ekran Görüntüsü (Ctrl+S)")
+    player.screenshot_button.setToolTip(tr("Ekran Görüntüsü (Ctrl+S)"))
     control_layout.addWidget(player.screenshot_button)
 
     # Ses butonu
