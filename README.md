@@ -32,7 +32,12 @@ Klasik menü/panel görünümü kaldırılmıştır.
 
 ## Çalıştırma (kaynaktan)
 
-Gereksinimler: Windows, Python 3.14 ve `bin/mpv-2.dll`.
+En kolay yol `Baslat.bat` dosyasına çift tıklamaktır: Python 3.12+ yoksa
+kurar, eksik paketleri `requirements.txt` üzerinden yükler ve programı açar.
+Her şey hazırsa hiçbir kurulum yapmadan doğrudan başlatır. Yalnızca kontrol
+için `Baslat.bat -CheckOnly` (program açılmaz).
+
+Elle kurulum gereksinimleri: Windows, Python 3.12+ ve `bin/mpv-2.dll`.
 
 ```bash
 pip install -r requirements.txt
