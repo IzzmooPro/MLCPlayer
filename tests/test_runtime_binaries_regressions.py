@@ -222,11 +222,18 @@ def test_the_spec_is_onedir_with_collect():
 
 
 def test_the_spec_places_the_three_runtime_files_in_internal_bin():
+    """SOZLESME DEGISTI (17 Agustos 2026): `yt-dlp.exe` + `deno.exe` ana
+    paketten CIKARILDI (birlikte 110,3 MB) ve ayri "Internet Videosu" ek
+    paketiyle dagitiliyor. mpv cekirdektir, ana pakette KALIR.
+    """
     spec = read(SPEC)
+    addon = read(os.path.join(PROJECT, "packaging",
+                              "MLCPlayer_InternetVideo.iss"))
 
-    for name in ("mpv-2.dll", "yt-dlp.exe", "deno.exe"):
-        assert f"bin/{name}" in spec, f"spec'te yok: {name}"
-    assert "'bin'" in spec or '"bin"' in spec
+    assert "bin/mpv-2.dll" in spec, "mpv ana paketten cikmis"
+    for name in ("yt-dlp.exe", "deno.exe"):
+        assert f"bin/{name}" not in spec, f"ana pakete geri girmis: {name}"
+        assert name in addon, f"ek pakette yok: {name}"
 
 
 def test_the_spec_ships_the_license_texts():
@@ -508,12 +515,18 @@ def test_the_third_party_license_is_present_with_the_exact_bytes():
 
 
 def test_all_three_license_texts_are_packaged():
-    spec = read(SPEC)
+    """Lisans metni ILGILI IKILIYLE BIRLIKTE dagitilir.
+
+    yt-dlp ve deno artik ek pakette oldugu icin lisanslari da oradadir;
+    GPLv3/MIT yukumlulugu boylece korunur.
+    """
+    addon = read(os.path.join(PROJECT, "packaging",
+                              "MLCPlayer_InternetVideo.iss"))
 
     for name in ("yt-dlp-LICENSE.txt", "yt-dlp-THIRD_PARTY_LICENSES.txt",
                  "deno-LICENSE.txt"):
         assert os.path.isfile(os.path.join(PROJECT, "licenses", name)), name
-        assert name in spec, f"spec paketlemiyor: {name}"
+        assert name in addon, f"ek paket lisansi tasimiyor: {name}"
 
 
 def test_the_manifest_records_the_third_party_license():

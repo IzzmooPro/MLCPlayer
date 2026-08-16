@@ -37,12 +37,14 @@ a = Analysis(
     datas=[
         # Calisma zamani ikilileri `_internal\bin` altinda toplanir.
         ('bin/mpv-2.dll', 'bin'),                  # mpv + ffmpeg runtime DLL
-        ('bin/yt-dlp.exe', 'bin'),                 # resmi site cikarimi
-        ('bin/deno.exe', 'bin'),                   # resmi JS calisma zamani
+        # yt-dlp.exe ve deno.exe BILEREK YOK: birlikte 110 MB tutuyorlar
+        # ve yalniz URL'den oynatmada gerekiyorlar. Ayri "Internet Videosu"
+        # ek paketiyle dagitilirlar (packaging/MLCPlayer_InternetVideo.iss).
+        # Urun eksikligi zaten guvenli bicimde ele aliyor
+        # (app/runtime_binaries.py).
         # Resmi lisans metinleri `_internal\licenses` altinda tasinir.
-        ('licenses/yt-dlp-LICENSE.txt', 'licenses'),
-        ('licenses/yt-dlp-THIRD_PARTY_LICENSES.txt', 'licenses'),
-        ('licenses/deno-LICENSE.txt', 'licenses'),
+        # Lisans metinleri ilgili ikililerle BIRLIKTE dagitilir; onlar
+        # ek pakette oldugu icin lisanslari da orada.
         # Qt calisma zamani ikonu `_internal\assets` altindan okunur.
         ('assets/mlc-player-icon.ico', 'assets'),
         ('assets/mlc-player-icon-transparent.ico', 'assets'),

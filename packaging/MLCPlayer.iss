@@ -1,7 +1,7 @@
 #define MyAppName "MLC Player"
 ; SÜRÜM TEK KAYNAK: app/config.py → APP_VERSION. Burası onun kopyasıdır ve
 ; tests/test_version_consistency.py ikisini birbirine bağlar; elle ayrışamaz.
-#define MyAppVersion "v0.32"
+#define MyAppVersion "v0.33"
 #define MyAppPublisher "IzzmooPro"
 #define MyAppUrl "https://github.com/IzzmooPro/MLCPlayer"
 #define MyAppExeName "MLC Player.exe"
@@ -65,11 +65,11 @@ UsePreviousAppDir=yes
 UsePreviousTasks=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-VersionInfoVersion=0.32.0.0
+VersionInfoVersion=0.33.0.0
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription={#MyAppName} Kurulumu
 VersionInfoProductName={#MyAppName}
-VersionInfoProductVersion=0.32.0.0
+VersionInfoProductVersion=0.33.0.0
 
 [Languages]
 Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"

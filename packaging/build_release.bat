@@ -62,7 +62,7 @@ if not defined ISCC (
     goto :fail
 )
 
-echo ADIM 1/6  On kontrol
+echo ADIM 1/7  On kontrol
 python "%VERIFY%" --pre
 if errorlevel 1 goto :fail
 rem Yayimlanabilirlik: kurulu istemcilerin GOREMEYECEGI bir surum uretilmesin
@@ -71,13 +71,13 @@ python "packaging\check_publishable.py"
 if errorlevel 1 goto :fail
 echo.
 
-echo ADIM 2/6  Onceki ciktilarin temizligi
+echo ADIM 2/7  Onceki ciktilarin temizligi
 if exist "build" rmdir /s /q "build"
 if exist "dist"  rmdir /s /q "dist"
 echo   OK  build\ ve dist\ temizlendi
 echo.
 
-echo ADIM 3/6  PyInstaller (onedir)  -  birkac dakika surebilir
+echo ADIM 3/7  PyInstaller (onedir)  -  birkac dakika surebilir
 python -m PyInstaller "%SPEC%" --noconfirm --clean --log-level WARN
 if errorlevel 1 (
     echo HATA: PyInstaller basarisiz oldu.
@@ -87,7 +87,7 @@ python "%VERIFY%" --post
 if errorlevel 1 goto :fail
 echo.
 
-echo ADIM 4/6  Inno Setup kurulum dosyasi
+echo ADIM 4/7  Inno Setup kurulum dosyasi
 echo   Derleyici: %ISCC%
 "%ISCC%" /Q "%ISS%"
 if errorlevel 1 (
@@ -97,7 +97,23 @@ if errorlevel 1 (
 echo   OK  derleme tamamlandi
 echo.
 
-echo ADIM 5/6  Yayinci imzasi
+echo ADIM 5/7  Internet Videosu ek paketi
+rem yt-dlp + deno ana pakette DEGIL; ayri, istege bagli kurulumla gelir.
+for /f "usebackq delims=" %%V in (`python -c "import sys; sys.path.insert(0,'.'); from app.config import APP_VERSION, WINDOWS_VERSION; print(APP_VERSION + '|' + WINDOWS_VERSION)"`) do (
+    for /f "tokens=1,2 delims=|" %%A in ("%%V") do (
+        set "ADDON_VER=%%A"
+        set "ADDON_NUM=%%B"
+    )
+)
+"%ISCC%" /Q /DAddonVersion=!ADDON_VER! /DAddonNumericVersion=!ADDON_NUM! "packaging\MLCPlayer_InternetVideo.iss"
+if errorlevel 1 (
+    echo HATA: Internet Videosu ek paketi derlenemedi.
+    goto :fail
+)
+echo   OK  ek paket derlendi
+echo.
+
+echo ADIM 6/7  Yayinci imzasi
 rem UNUTULAMAZ OLMASI ICIN ZINCIRDE: imzasiz yayimlanan bir surumu
 rem guncelleyici REDDEDER (fail-closed) ve kullanici sebebini goremez.
 set "SETUP_TO_SIGN="
@@ -108,9 +124,16 @@ if errorlevel 1 (
     echo        python packaging\sign_release.py --init
     goto :fail
 )
+rem Ek paket de imzalanir: kullanici onu da GitHub'dan indirir.
+set "ADDON_TO_SIGN="
+for %%F in ("installer_output\MLCPlayer_InternetVideo_*.exe") do set "ADDON_TO_SIGN=installer_output\%%~nxF"
+if defined ADDON_TO_SIGN (
+    python "packaging\sign_release.py" "!ADDON_TO_SIGN!"
+    if errorlevel 1 goto :fail
+)
 echo.
 
-echo ADIM 6/6  Sonuc
+echo ADIM 7/7  Sonuc
 set "SETUP="
 for %%F in ("installer_output\MLCPlayer_Setup_*.exe") do set "SETUP=installer_output\%%~nxF"
 if not defined SETUP (
@@ -127,6 +150,7 @@ echo.
 echo   Klasor : dist\MLC Player\        (tamamini birlikte tasiyin)
 echo   Kurulum: %SETUP%
 echo   Imza   : %SETUP%.sig   (release'e MUTLAKA birlikte yuklenir)
+echo   Ek paket: !ADDON_TO_SIGN! (+ .sig)  - internet videosu bilesenleri
 echo.
 echo   Arkadasiniza GONDERECEGINIZ dosya kurulum dosyasidir.
 echo ============================================================

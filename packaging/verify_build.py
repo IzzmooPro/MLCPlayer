@@ -46,11 +46,6 @@ FORBIDDEN_IN_DIST = (
 REQUIRED_IN_DIST = (
     "MLC Player.exe",
     os.path.join("_internal", "bin", "mpv-2.dll"),
-    os.path.join("_internal", "bin", "yt-dlp.exe"),
-    os.path.join("_internal", "bin", "deno.exe"),
-    os.path.join("_internal", "licenses", "yt-dlp-LICENSE.txt"),
-    os.path.join("_internal", "licenses", "yt-dlp-THIRD_PARTY_LICENSES.txt"),
-    os.path.join("_internal", "licenses", "deno-LICENSE.txt"),
     os.path.join("_internal", "assets", "mlc-player-icon.ico"),
 )
 

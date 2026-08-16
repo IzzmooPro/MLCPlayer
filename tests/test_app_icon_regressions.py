@@ -400,10 +400,13 @@ def test_the_spec_ships_the_runtime_assets():
 def test_the_existing_packaging_contract_is_untouched():
     spec = read(SPEC)
 
+    # NOT: `yt-dlp.exe`, `deno.exe` ve onların lisans metinleri 17 Ağustos
+    # 2026'da BİLEREK ana paketten çıkarıldı (birlikte 110,3 MB) ve ayrı
+    # "İnternet Videosu" ek paketine taşındı; bkz.
+    # tests/test_internet_video_addon_regressions.py. Buradaki sözleşme
+    # ONEDIR + UPX kapalı + `_internal` + mpv çekirdeğidir.
     for needed in ("exclude_binaries=True", "COLLECT(", "upx=False",
-                   "contents_directory='_internal'", "bin/mpv-2.dll",
-                   "bin/yt-dlp.exe", "bin/deno.exe",
-                   "licenses/yt-dlp-THIRD_PARTY_LICENSES.txt"):
+                   "contents_directory='_internal'", "bin/mpv-2.dll"):
         assert needed in spec, f"paketleme sözleşmesi bozuldu: {needed}"
     assert "libmpv.dll.a" not in spec
 

@@ -5,7 +5,11 @@ dosyalarini KENDI kurulumunda tasir.
 
 - Kullanicinin bilgisayari Python/yt-dlp/Deno/Node icin TARANMAZ.
 - Sistem PATH'indeki bir kopya fallback olarak KULLANILMAZ.
-- Ilk calistirmada veya URL acilirken bilesen INDIRILMEZ.
+- Ilk calistirmada veya URL acilirken bilesen INDIRILMEZ. (17 Agustos 2026:
+  ikililer ana kurulumdan CIKARILDI -- birlikte 110 MB tutuyorlardi ve yalniz
+  URL oynatmada gerekiyorlar. Ayri "Internet Videosu" ek paketiyle gelirler;
+  indirme kullanicinin ACIK eylemidir, program kendiliginden indirmez. Bu
+  degismez BOZULMADI, yalnizca bilesenlerin gelis yolu degisti.)
 - Sistem PATH'i kalici DEGISTIRILMEZ.
 - Runtime icinde `yt-dlp -U`, `deno upgrade` veya baska self-update
   CALISTIRILMAZ; guncelleme yalniz MLC Player setup/guncellemesiyle gelir.
@@ -28,8 +32,8 @@ INTERNET_VIDEO_MISSING_CODE = "INTERNET_VIDEO_RUNTIME_MISSING"
 # Kullaniciya gosterilen TEK metin: ham yol, istisna, traceback veya
 # kurulum komutu icermez.
 INTERNET_VIDEO_MISSING_MESSAGE = (
-    "İnternet videosu bileşenleri eksik veya bozuk. "
-    "MLC Player'ı onarın ya da güncelleyin."
+    "İnternet videosu bileşenleri kurulu değil. "
+    "MLC Player İnternet Videosu ek paketini kurup tekrar deneyin."
 )
 INTERNET_VIDEO_MISSING_TITLE = "İnternet Videosu Kullanılamıyor"
 
