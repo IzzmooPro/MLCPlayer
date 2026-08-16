@@ -1195,8 +1195,9 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
-**SÜRÜM TEK KAYNAK → v0.1 (madde 2).** Aşağıdaki 6 maddelik yayın planının
-2. adımıdır; 1. adım (klasör taşıma) TAMAMLANDI.
+**GITHUB DEPOSU (madde 4) — KULLANICI KİMLİK DOĞRULAMASI GEREKİR.**
+1. (klasör taşıma), 2. (sürüm tek kaynak) ve 3. (ayar kirlenmesi kök nedeni)
+TAMAMLANDI ve madde 3 GERÇEK KOŞUMLA DOĞRULANDI (aşağıya bakınız).
 
 ### Yayın planı — 16 Ağustos 2026 kullanıcı kararı
 
@@ -1206,13 +1207,14 @@ Sıra bağımlılığa göre kuruldu, keyfî değil:
    `C:\Users\<kullanici>\Desktop\Programlar TEST\2026 YENİLER\MLC Player`
    altında. Her şeyden önce yapıldı ki GitHub remote, installer yolları ve
    belgeler nihai konumu referans alsın.
-2. **Sürüm tek kaynak → v0.1.** Şu an installer `v1.0` üretiyor; yanlış.
-   Referans desen: `Offer Management System` içinde `core/constants.py`
-   `APP_VERSION` tek kaynaktır ve `tests/test_version_consistency.py`
-   installer adı + Windows sayısal sürümü + ürün sürümünü birbirine bağlar.
-   Bizde karşılığı: `app/config.py` → `APP_VERSION = "v0.1"`,
-   `MLCPlayer.iss` ondan türer, aynı mantıkta tutarlılık testi yazılır.
-   GitHub'dan ÖNCE yapılmalı ki ilk release etiketi doğru çıksın.
+2. ~~**Sürüm tek kaynak → v0.1**~~ → **YAPILDI.** Üç ayrı sürüm vardı:
+   `config.VERSION = "1.1"` (hiç kullanılmıyordu), Hakkında penceresinde
+   düz metin "Sürüm 1.1", installer'da `v1.0` + `VersionInfoVersion=1.0.0.0`.
+   Artık `app/config.py` → `APP_VERSION = "v0.1"` tek kaynak; `WINDOWS_VERSION`
+   (`0.1.0.0`) ondan türetilir, Hakkında sabitten okur, `MLCPlayer.iss`
+   aynı değeri taşır ve setup adı `MLCPlayer_Setup_v0.1.exe` tanımdan türer.
+   `tests/test_version_consistency.py` (6 test) üç yüzeyi bağlar; Inno
+   betiği Python'u içe aktaramadığı için bağ testle korunur, ayrışırsa kırılır.
 3. **Ayar kirlenmesi kusuru** (aşağıda "AÇIK ARAŞTIRMA" bölümü).
    Yayından önce kapanmalı: paketlenmiş sürümde de aynı harness koşulabilir.
 4. **GitHub deposu.** Üç şeyi birden çözer: güncelleme kontrolünün adresi,
@@ -1332,7 +1334,40 @@ noktası görünmez paydan görünen çubuğa taşındı.
 `SUBTITLE_RESERVED` kullanılıyor, böylece bir daha elle güncelleme
 gerekmeyecek. Kullanıcı gerçek pencerede onayladı.
 
-**AÇIK ARAŞTIRMA — harness gerçek kullanıcı ayarlarını kirletmiş.**
+**KAPANDI (16 Ağustos 2026) — kök neden kanıtlandı ve düzeltildi.**
+Qt 6'da `QSettings(organization, application)` yapıcısı
+`QSettings.setDefaultFormat()` değerini YOK SAYAR; her zaman NativeFormat
+ile açılır. Ölçüm:
+
+    setDefaultFormat sonrası -> Format.IniFormat
+    QSettings(org, app)      -> Format.NativeFormat, \HKEY_CURRENT_USER\...
+    QSettings(IniFormat,...) -> <dizin>\MLCPlayer\MLCPlayer.ini
+
+Yani ~20 child'ın izolasyon deyimi `player.settings` için hiç çalışmıyordu;
+`%TEMP%\mlc_subtitle_settings` altındaki 439 klasörün hepsi BOŞTU ve her
+koşum doğrudan HKCU'ya yazıyordu. Düzeltme: `app/settings_store.py` →
+`user_settings()` tek giriş noktası, biçimi AÇIKÇA verir. `player.py` ve
+`subtitle_settings.py` oradan geçer; child'lar DEĞİŞMEDİ (mevcut deyim
+artık gerçekten işe yarıyor). `tests/test_settings_isolation_regressions.py`
+kaçağı ve "ürün kodu QSettings'i doğrudan kurmaz" kuralını korur.
+
+GERÇEK KOŞUMLA DOĞRULANDI (kullanıcı izniyle, tek child,
+`a_text_color`, gerçek 4K video): izole dizinde artık `.ini` VAR —
+`<izole>\a_text_color-<pid>\MLCPlayer\MLCPlayer.ini` (565 bayt,
+`sub_color=#FFF26A3D`, `sub_pos=90`, yani senaryonun sonda değerleri),
+gerçek `HKCU\...\subtitle` ise DEĞİŞMEDİ (`#FFFFFFFF`, `sub_pos=100`).
+Düzeltmeden önce tam bu değerler kayıt defterine yazılıyordu.
+
+NOT (dürüst kayıt): aynı koşum kapanışta `access violation` ile düştü ve
+`MARK_DONE` yayılmadı; sözleşme gereği koşum INCOMPLETE'tir. Bütün
+senaryo RESULT satırları PASS. Bu çökme, PROJECT_STATUS'ta zaten izlenen
+aralıklı Python 3.14/ctypes/python-mpv kapanış riskiyle aynı sınıftadır
+(bkz. `P-r01` kaydı) ve ayar izolasyonuyla ilgisi yoktur; izole `.ini`
+çökmeden ÖNCE yazılmıştı.
+
+Aşağıdaki tarihsel kayıt, kusurun nasıl bulunduğunu belgeler.
+
+**ÇÖZÜLDÜ — harness gerçek kullanıcı ayarlarını kirletmiş.**
 Kullanıcı ekran görüntüsünde altyazıların YEŞİL göründüğünü bildirdi.
 Ürün varsayılanı `#FFFFFFFF` (beyaz); ölçülen gerçek kayıt:
 

@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt6.QtCore import Qt, QTimer, QSettings, QObject, QEventLoop
 
 from app.config import cinematic_ui_enabled, APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, APP_STYLE, DEFAULT_VOLUME, MAX_VOLUME, MPV_CONFIG, MEDIA_EXTENSIONS, SUBTITLE_EXTENSIONS, SUBTITLE_DEFAULTS
+from app.settings_store import user_settings
 from app.video_frame import SubtitleTrackWatcher, VideoFrame
 from app.title_bar import (RESIZE_MARGIN, FramelessResizeFilter,
                            TitleBar)
@@ -145,7 +146,7 @@ class MPVPlayer(QMainWindow):
         self.loop_playlist = False
         self.shuffle = False
         # Ayarlar kalıcılığı (pencere, ses, son dosyalar)
-        self.settings = QSettings("MLCPlayer", "MLCPlayer")
+        self.settings = user_settings()
         self.restore_recent_files()
         stored_dir = self.settings.value("last_dir", "") or ""
         self.last_dir = stored_dir if isinstance(stored_dir, str) and os.path.isdir(stored_dir) else ""

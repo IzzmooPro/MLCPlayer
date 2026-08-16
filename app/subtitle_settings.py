@@ -24,13 +24,13 @@ Kurallar:
 - Bilinmeyen/bozuk kayıtlı değerler sessizce varsayılana düşer.
 - Bu modül ağ çağrısı YAPMAZ ve ağ istemcisi oluşturmaz.
 """
-from PyQt6.QtCore import QSettings
+from PyQt6.QtCore import QSettings      # yalnız QSettings.Status için
 
 from app.opensubtitles import (
     STORAGE_CREDENTIAL_MANAGER, STORAGE_SESSION_MEMORY, CredentialStore)
+from app.settings_store import (SETTINGS_APPLICATION, SETTINGS_ORGANIZATION,
+                                user_settings)
 
-SETTINGS_ORGANIZATION = "MLCPlayer"
-SETTINGS_APPLICATION = "MLCPlayer"
 SETTINGS_GROUP = "subtitle_center"
 # Eski geliştirme sürümü API anahtarını BURAYA düz metin yazıyordu. Artık
 # yalnızca migration için okunur ve ardından SİLİNİR.
@@ -185,8 +185,7 @@ class SubtitleSettingsStore:
     """Gizli olmayan ayarlar QSettings'te; parola ve API anahtarı güvenli depoda."""
 
     def __init__(self, settings=None, credentials=None, group=SETTINGS_GROUP):
-        self.settings = settings or QSettings(SETTINGS_ORGANIZATION,
-                                              SETTINGS_APPLICATION)
+        self.settings = settings or user_settings()
         self.credentials = credentials or CredentialStore()
         self.group = group
         # Göç bir kez başarısız olduysa anahtar KAYBOLMUŞTUR. Bayrak, kullanıcı
