@@ -45,6 +45,7 @@ a = Analysis(
         ('licenses/deno-LICENSE.txt', 'licenses'),
         # Qt calisma zamani ikonu `_internal\assets` altindan okunur.
         ('assets/mlc-player-icon.ico', 'assets'),
+        ('assets/mlc-player-icon-transparent.ico', 'assets'),
         # MLC Player GPLv3'tur; lisans metni dagitima ESLIK ETMELIDIR.
         # `dist` agacinin kendisi de dagitilabilir bir bicimdir, bu yuzden
         # yalniz installer'a birakilmaz. Setup ayrica kok dizine kopyalar
@@ -110,7 +111,7 @@ exe = EXE(
     # Destek dosyalari klasoru ACIKCA sabitlenir; PyInstaller surum
     # varsayimina birakilmaz.
     contents_directory='_internal',
-    icon='assets/mlc-player-icon.ico',
+    icon='assets/mlc-player-icon-transparent.ico',
     # Windows'un gösterdiği ad ve sürüm alanları buradan gelir.
     version=VERSION_FILE,
     console=False,                # GUI uygulaması - konsol penceresi açmasın

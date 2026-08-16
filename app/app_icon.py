@@ -18,7 +18,11 @@ import sys
 from PyQt6.QtGui import QIcon
 
 APP_NAME = "MLC Player"
-ICON_FILE_NAME = "mlc-player-icon.ico"
+# SEFFAF surum: masaustu kisayolunda ikonun arkasindaki koyu plaka
+# gorunuyordu (kullanici bildirimi). Uretimi: packaging/make_app_icon.py.
+# Kurulum sihirbazinin gorselleri BILEREK eski (plakali) sanati kullanir;
+# onlar koyu panel uzerinde duruyor.
+ICON_FILE_NAME = "mlc-player-icon-transparent.ico"
 ASSETS_DIR_NAME = "assets"
 
 # Windows gorev cubugu gruplamasi icin SABIT kimlik.

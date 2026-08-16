@@ -25,6 +25,9 @@ PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(PROJECT, "assets")
 PNG = os.path.join(ASSETS, "mlc-player-icon.png")
 ICO = os.path.join(ASSETS, "mlc-player-icon.ico")
+# Uygulama SEFFAF surumu kullanir (masaustu kisayolunda koyu plaka
+# gorunuyordu); plakali sanat kurulum sihirbazinda kalir.
+APP_ICO = os.path.join(ASSETS, "mlc-player-icon-transparent.ico")
 MANIFEST = os.path.join(ASSETS, "ICON_MANIFEST.txt")
 SPEC = os.path.join(PROJECT, "MLCPlayer.spec")
 
@@ -129,13 +132,14 @@ def test_every_ico_frame_is_square_and_keeps_its_alpha():
 # =====================================================================
 
 def test_the_icon_path_points_at_the_project_assets_in_development():
-    assert app_icon.icon_path() == ICO
+    assert app_icon.icon_path() == APP_ICO
 
 
 def test_a_frozen_build_reads_the_bundled_assets(monkeypatch, tmp_path):
     monkeypatch.setattr(app_icon.sys, "_MEIPASS", str(tmp_path), raising=False)
 
-    expected = os.path.join(str(tmp_path), "assets", "mlc-player-icon.ico")
+    expected = os.path.join(str(tmp_path), "assets",
+                            "mlc-player-icon-transparent.ico")
     assert app_icon.icon_path() == expected
 
 
@@ -381,8 +385,9 @@ def test_the_window_buttons_are_not_clipped_in_a_narrow_window(title_bar,
 def test_the_spec_carries_the_exe_icon():
     spec = read(SPEC)
 
-    assert "icon='assets/mlc-player-icon.ico'" in spec or \
-        'icon="assets/mlc-player-icon.ico"' in spec
+    # EXE ikonu ŞEFFAF sürümdür; Windows kısayolunda görünen budur.
+    assert "icon='assets/mlc-player-icon-transparent.ico'" in spec or \
+        'icon="assets/mlc-player-icon-transparent.ico"' in spec
 
 
 def test_the_spec_ships_the_runtime_assets():
