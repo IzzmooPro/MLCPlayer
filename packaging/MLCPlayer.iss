@@ -23,9 +23,12 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=admin
 OutputDir=..\installer_output
 OutputBaseFilename=MLCPlayer_Setup_{#MyAppVersion}
-; GPLv3: lisans metni kurulum sırasında GÖSTERİLİR ve pakete girer.
-; Metin gnu.org kanonik hâlidir, değiştirilmemiştir (35.149 bayt).
-LicenseFile=..\LICENSE
+; LisansFile BİLEREK YOK — "kabul ediyorum" sayfası KALDIRILDI.
+; GPL bir EULA değildir: GPLv3 madde 9 açıkça programı almak veya
+; çalıştırmak için lisansı kabul etmenin GEREKMEDİĞİNİ söyler; lisans
+; dağıtım ve değiştirmeyi düzenler. Referans VLC kurulumunda da böyle bir
+; onay sayfası yoktur. Yükümlülük metnin KULLANICIYA ULAŞMASIDIR; bu
+; [Files] bölümünde korunur: LICENSE kurulum köküne kopyalanır.
 
 ; Tek görsel kimlik: setup, kaldırıcı ve kısayollar aynı logoyu kullanır.
 SetupIconFile=..\assets\mlc-player-icon.ico
@@ -37,6 +40,11 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 WizardImageFile=wizard\wizard-large.bmp,wizard\wizard-large-1.bmp,wizard\wizard-large-2.bmp
 WizardSmallImageFile=wizard\wizard-small.bmp,wizard\wizard-small-1.bmp,wizard\wizard-small-2.bmp
 WizardImageStretch=yes
+; Boydan boya sol panel YALNIZ hoş geldiniz ve son sayfada görünür; Inno 6
+; modern stilde hoş geldiniz sayfasını VARSAYILAN OLARAK KAPATIR. Kapalıyken
+; büyük görsel hiç çizilmiyordu (ölçüldü: kullanıcı yalnız sağ üstteki küçük
+; logoyu gördü). Referans VLC kurulumundaki markalı şeridin karşılığı budur.
+DisableWelcomePage=no
 
 ; ASIL SIKIŞTIRMA BURADA. onedir çıktısı ~268 MB; solid LZMA2 ile tek
 ; kurulum dosyası belirgin biçimde küçülür. EXE tarafında UPX BİLEREK

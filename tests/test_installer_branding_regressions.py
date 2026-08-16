@@ -66,6 +66,30 @@ def test_installer_points_at_the_repository():
     assert "mailto:" not in text, "e-posta adresi kurulumda görünmemeli"
 
 
+def test_the_branded_panel_page_is_enabled():
+    """Boydan boya sol panel YALNIZ hoş geldiniz/son sayfada çizilir.
+
+    Inno 6 modern stilde hoş geldiniz sayfası VARSAYILAN KAPALIDIR; kapalıyken
+    büyük görsel hiç görünmüyordu (ölçüldü: kullanıcı yalnız sağ üstteki
+    küçük logoyu gördü).
+    """
+    assert re.search(r"^DisableWelcomePage=no\s*$", _iss(), re.MULTILINE)
+
+
+def test_no_license_acceptance_page():
+    """GPL bir EULA DEĞİLDİR; onay sayfası gereksiz sürtünmedir.
+
+    GPLv3 madde 9: programı almak veya çalıştırmak için lisansı kabul etmek
+    gerekmez. Yükümlülük metnin kullanıcıya ULAŞMASIDIR — o da [Files]
+    bölümünde LICENSE kopyalanarak karşılanır.
+    """
+    text = _iss()
+    assert not re.search(r"^LicenseFile=", text, re.MULTILINE), (
+        "lisans onay sayfası geri gelmiş")
+    assert re.search(r'Source: "\.\.\\LICENSE"', text), (
+        "LICENSE artık kuruluma girmiyor; GPLv3 yükümlülüğü kalkar")
+
+
 def test_finish_page_offers_the_repository_without_forcing_it():
     """Tarayıcı KENDİLİĞİNDEN açılmaz; seçenek işaretsiz gelir."""
     # Adres `.iss` içinde TEK kaynaktan (`{#MyAppUrl}`) gelir; düz URL
