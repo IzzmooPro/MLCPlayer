@@ -34,6 +34,16 @@ def release(**overrides):
 # ── Sürüm karşılaştırma ──────────────────────────────────────────────────
 
 @pytest.mark.parametrize("latest,current,expected", [
+    # KULLANICI KARARI (16 Ağustos 2026): numaralandırma v0.3 → v0.31 → v0.32
+    # biçiminde ilerler. Karşılaştırma SAYISALDIR, metin değil.
+    ("v0.31", "v0.3", True),
+    ("v0.32", "v0.31", True),
+    # TUZAK — BİLEREK YAZILDI: `31 > 4` olduğu için v0.31'den sonra "v0.4"
+    # etiketi güncelleme olarak GÖRÜNMEZ; kurulu kopyalar sessizce
+    # "güncelsiniz" der. Büyük sürüme geçerken v0.40 kullanılmalıdır.
+    ("v0.4", "v0.31", False),
+    ("v0.40", "v0.31", True),
+    ("v1.0", "v0.31", True),
     ("v0.2", "v0.1", True),
     ("v0.1", "v0.1", False),
     ("v0.1", "v0.2", False),

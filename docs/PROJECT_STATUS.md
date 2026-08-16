@@ -1193,6 +1193,21 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 - `MLC_NO_SUB_VIDEO` sözleşmesi: dosyanın var olması yetmez; grup içinde gerçek yükleme, `video track > 0` ve `sub track == 0` doğrulanır, aksi halde `BLOCKED: NO_REAL_SUBTITLE_FREE_VIDEO`. Tıklama önkoşulu sağlanmazsa `BLOCKED: CLICK_TARGET`.
 - Medya keşfi opt-in (`MLC_MEDIA_PROBE=1`): `tests/find_subtitle_free_media.py` → aday başına ayrı, timeout'lu `tests/media_track_probe_child.py` (`vo=null`, `ao=null`, yalnız `track_list`). Recursive tarama, kopyalama, dönüştürme ve ağ erişimi yok; en fazla 20 aday. Karar mantığı saf modülde: `tests/media_probe_rules.py`.
 
+## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
+
+Sıra: `v0.3` → **`v0.31`** → `v0.32` … Ara sürümler ikinci haneye eklenir.
+
+TUZAK — ÖLÇÜLDÜ: `app/updater.is_newer_version()` sayısal karşılaştırır
+(`v0.31` → `(0, 31, 0)`). Bu yüzden:
+
+    v0.31 > v0.3   True      v0.4  > v0.31  FALSE  <- güncelleme GÖRÜNMEZ
+    v0.32 > v0.31  True      v0.40 > v0.31  True
+
+Yani `v0.31`'den sonra `v0.4` etiketi yayımlanırsa kurulu kopyalar
+güncellemeyi hiç görmez, sessizce "güncelsiniz" der. Büyük sürüme geçerken
+`v0.40` yazılmalıdır. `tests/test_updater_regressions.py` bu davranışı
+örnekleriyle sabitler.
+
 ## Sıradaki tek adım
 
 **KULLANICI VERİSİ TEK KİMLİK ALTINDA TOPLANMALI.** Yayın planının
