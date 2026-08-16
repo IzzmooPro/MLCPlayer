@@ -7,7 +7,7 @@ import os
 import sys
 from app import track_labels
 from app.errors import show_user_error, safe_console
-from app.config import SUBTITLE_DEFAULTS
+from app.config import APP_VERSION, SUBTITLE_DEFAULTS
 from app.media_info import build_media_info, media_info_refresh_key
 from app.media_controls import is_remote_media_url, safe_media_host
 from app.subtitle_appearance_dialog import SubtitleAppearanceDialog
@@ -955,9 +955,9 @@ def show_shortcuts(player):
     shortcut_dialog.exec()
 
 def show_about(player):
-    about_text = """
+    about_text = f"""
     <h2>MLC Player</h2>
-    <p>Sürüm 1.1</p>
+    <p>Sürüm {APP_VERSION}</p>
     <p><i>Media Launch Codec Player</i> — MPV tabanlı minimal video oynatıcı.</p>
     <p>Özellikler:</p>
     <ul>
