@@ -139,6 +139,8 @@ class Frame:
 
     _osd_reserved_bottom = video_frame_module.VideoFrame._osd_reserved_bottom
     subtitle_safe_margin = video_frame_module.VideoFrame.subtitle_safe_margin
+    subtitle_margin_scale = (
+        video_frame_module.VideoFrame.subtitle_margin_scale)
     subtitle_scale_reference = (
         video_frame_module.VideoFrame.subtitle_scale_reference)
     sync_subtitle_safe_band = (

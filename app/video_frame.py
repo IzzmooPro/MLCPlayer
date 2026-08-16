@@ -209,7 +209,11 @@ class SubtitleTrackWatcher(QObject):
     #:   yerleştiriyor; yalnız geometriye bağlanan senkron eski alanla
     #:   hesaplıyor ve boşluk kayıyordu (ölçüldü: tam ekranda 182 px,
     #:   %150 playlistte -91 px).
-    OBSERVED = ("sid", "track-list", "osd-dimensions")
+    #: - `sub-scale`: mpv 0.41 `sub-margin-y`yi yazı ölçeğiyle ÇARPAR
+    #:   (ölçüldü; bkz. `VideoFrame.subtitle_margin_scale()`). Marj bu
+    #:   yüzden ölçek değişiminde yeniden hesaplanmalı ve değer SENKRON
+    #:   okunmamalı — okuma boyutlandırmada core lock'u bekletiyor.
+    OBSERVED = ("sid", "track-list", "osd-dimensions", "sub-scale")
 
     def attach(self, mpv_player):
         """Altyazı parçası ve render alanı değişimlerini gözler."""
@@ -1510,9 +1514,43 @@ class VideoFrame(QWidget):
         # (ölçüldü). Bant, referansla aynı birime çevrilir.
         needed = (reserved + SUBTITLE_BAND_GAP) * self._device_ratio()
         margin = int(round(needed * MPV_MARGIN_REFERENCE_HEIGHT
-                           / max(1, reference)))
+                           / (max(1, reference) * self.subtitle_margin_scale())))
         # Çok kısa video alanında marj yüzeyi yutmasın.
         return max(0, min(margin, MPV_MARGIN_REFERENCE_HEIGHT // 2))
+
+    def subtitle_margin_scale(self):
+        """`sub-margin-y` biriminin YAZI ÖLÇEĞİYLE çarpanı.
+
+        ÖLÇÜLDÜ (16 Ağustos 2026, gerçek pencere, ekran görüntüsünden
+        piksel taraması, aynı prob iki motorda):
+
+            margin 0 -> 160 arasında altyazının alt kenarı, alttan px:
+
+            mpv 0.36   sub_scale=1.0:  29 -> 491   eğim 2,888 px/birim
+                       sub_scale=2.0:  58 -> 519   eğim 2,881 px/birim   oran 0,998
+            mpv 0.41   sub_scale=1.0:  21 -> 482   eğim 2,881 px/birim
+                       sub_scale=2.0:  40 -> 963   eğim 5,769 px/birim   oran 2,003
+
+        Yani mpv 0.41 `sub-margin-y`yi `sub-scale` ile ÇARPIYOR; 0.36
+        çarpmıyordu. Ürünün marj hesabı 0.36'ya göre kalibre edildiği için
+        2,00× yazıda altyazı iki kat yukarı çıkıyordu (`o_case_stress_2x_5px`
+        boşluk 33 yerine 153 px). Bölme bu çarpanı geri alır.
+
+        Taban eğim (2,88 = yüzey/720) İKİ MOTORDA DA AYNIDIR; değişen
+        yalnız ölçek çarpanıdır, bu yüzden düzeltme de yalnız onu hedefler.
+        """
+        player = getattr(self.main_window, "mpv_player", None)
+        if player is None:
+            return 1.0
+        try:
+            raw = self._observed_property("sub-scale")
+            if raw is self._OBSERVED_MISSING:
+                raw = getattr(player, "sub_scale", 1.0)
+            scale = float(raw or 1.0)
+        except (TypeError, ValueError):
+            return 1.0
+        # Sıfır/negatif ölçek marjı patlatmasın.
+        return scale if scale > 0.05 else 1.0
 
     def invalidate_subtitle_band(self):
         """Bant önbelleğini geçersiz kılar.

@@ -91,7 +91,13 @@ def test_the_watcher_observes_track_and_render_area_changes(bench):
 
     names = [name for name, _ in mpv.observed]
 
-    assert sorted(names) == ["osd-dimensions", "sid", "track-list"]
+    # `sub-scale` EKLENDİ (16 Ağustos 2026). Gerekçe ölçüldü: mpv 0.41
+    # `sub-margin-y`yi yazı ölçeğiyle ÇARPIYOR (0.36 çarpmıyordu), bu yüzden
+    # marj ölçek değişiminde yeniden hesaplanmalı. Ayrıca değer SENKRON
+    # okunmamalı: boyutlandırma sırasında libmpv okuması core lock'u
+    # bekleyip GUI'yi 80 ms'ye kadar donduruyordu.
+    assert sorted(names) == ["osd-dimensions", "sid", "sub-scale",
+                             "track-list"]
 
 
 def test_a_render_area_change_recomputes_the_band(bench):
@@ -260,8 +266,9 @@ def test_the_player_attaches_the_watcher_to_real_mpv():
 
     watcher = MPVPlayer.attach_subtitle_track_watcher(player)
 
+    # `sub-scale` için gerekçe: bkz. yukarıdaki gözlem listesi testi.
     assert sorted(name for name, _ in mpv.observed) == [
-        "osd-dimensions", "sid", "track-list"]
+        "osd-dimensions", "sid", "sub-scale", "track-list"]
     assert player._subtitle_watcher is watcher
 
     app = QApplication.instance() or QApplication([])
