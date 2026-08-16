@@ -99,10 +99,14 @@ def install_call_recorder():
 
 
 def resolve_video():
-    """Once ortam degiskeni; yoksa `I:\\Film` KOKUNDEKI mkv/mp4."""
+    """Once `MLC_NATIVE_TEST_VIDEO`; yoksa `MLC_NATIVE_VIDEO_DIR` KOKUNDEKI
+    ilk mkv/mp4. Hicbiri verilmemisse "" doner (calistiran kisinin kendi
+    medya klasoru betige GOMULMEZ)."""
     if VIDEO_PATH and os.path.isfile(VIDEO_PATH):
         return VIDEO_PATH
-    folder = os.environ.get("MLC_NATIVE_VIDEO_DIR", r"<medya>\Film")
+    folder = os.environ.get("MLC_NATIVE_VIDEO_DIR", "")
+    if not folder:
+        return ""
     try:
         names = os.listdir(folder)
     except OSError:

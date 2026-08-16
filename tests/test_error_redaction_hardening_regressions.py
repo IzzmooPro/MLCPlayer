@@ -174,7 +174,7 @@ def test_redaction_is_idempotent(text):
 
 @pytest.mark.parametrize("path", [
     USER_PATH, DRIVE_PATH, UNC_PATH,
-    r"C:\Users\<kullanici>\Desktop\Programlar TEST\app\player.py",
+    r"C:\Users\Gerçek Kullanıcı\Desktop\Program Klasörü\app\player.py",
 ])
 def test_paths_leak_no_directory_user_or_share(path):
     """SÖZLEŞME DEĞİŞTİ: tırnaksız yolda dosya adı ve sonraki cümle düşer.
@@ -192,8 +192,8 @@ def test_paths_leak_no_directory_user_or_share(path):
 
 def test_quoted_source_path_still_keeps_the_module_name():
     masked = errors.redact(
-        r'File "C:\Users\<kullanici>\Desktop\Programlar TEST\app\player.py", '
-        r'line 12')
+        r'File "C:\Users\Gerçek Kullanıcı\Desktop\Program Klasörü'
+        r'\app\player.py", line 12')
     assert masked == f'File "{errors.MASK_PATH}\\player.py", line 12'
 
 

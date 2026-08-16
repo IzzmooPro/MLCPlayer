@@ -190,7 +190,7 @@ düzeltmeden ÖNCE de vardı ve tam paket süresinin çoğunu bu tüketiyor.
 
 ## Fiziksel kabul durumu (gerçek MKV, gerçek MPV)
 
-Ana video: `<medya>\Film\Avatar.Fire.and.Ash.2025.2160p.WEB.h265-ETHEL.mkv`
+Ana video: yerel 4K HEVC mkv (`MLC_NATIVE_TEST_VIDEO` ile verilir)
 Playlist: `Obsession.2025…`, `Paddington.In.Peru.2024…`, `The.Killer.2024…` (aynı klasör, READ-ONLY).
 
 PASS: `buttons` (21), `separator` (6), `window_resize` (12), `alttab` (7),
@@ -1204,7 +1204,7 @@ TAMAMLANDI ve madde 3 GERÇEK KOŞUMLA DOĞRULANDI (aşağıya bakınız).
 Sıra bağımlılığa göre kuruldu, keyfî değil:
 
 1. ~~**Klasör taşıma + ad**~~ → **YAPILDI.** Proje artık
-   `C:\Users\<kullanici>\Desktop\Programlar TEST\2026 YENİLER\MLC Player`
+   `<yerel geliştirme dizini>\2026 YENİLER\MLC Player`
    altında. Her şeyden önce yapıldı ki GitHub remote, installer yolları ve
    belgeler nihai konumu referans alsın.
 2. ~~**Sürüm tek kaynak → v0.1**~~ → **YAPILDI.** Üç ayrı sürüm vardı:
@@ -1223,7 +1223,7 @@ Sıra bağımlılığa göre kuruldu, keyfî değil:
    izlenmiyor (yalnız manifest + SHA256SUMS), GPLv3 `LICENSE` ve README
    lisans bölümü yerinde. PUBLIC yapmadan önce KARAR GEREKEN 4 kişisel yol:
    `docs/PACKAGING_PLAN.md:53` (başka projenin tam yolu),
-   `tests/native_player_shutdown_child.py:105` (`<medya>\Film` varsayılanı),
+   `tests/native_player_shutdown_child.py:105` (gömülü medya klasörü),
    `tests/test_error_redaction_hardening_regressions.py:177,195`
    (redaction fixture'ı; Windows kullanıcı adını içerir). Engelleyici
    değil ama depo herkese açıksa kullanıcı adı görünür.
@@ -1248,7 +1248,7 @@ Sıra bağımlılığa göre kuruldu, keyfî değil:
 ### ÖLÇÜLDÜ — codec kapsamı (kullanıcı sorusu: "her şeyi oynatabiliyor mu?")
 
 Ölçüt kullanıcı kararıyla **VLC** alındı. Kullanıcının gerçek kütüphanesi
-(`<medya>\Film` + `<medya>\Dizi`, 43 dosya) tek tek açıldı ve GERÇEK çözüm doğrulandı:
+(yerel film + dizi klasörleri, 43 dosya) tek tek açıldı ve GERÇEK çözüm doğrulandı:
 
 | | |
 |---|---|

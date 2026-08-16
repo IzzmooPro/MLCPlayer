@@ -50,7 +50,7 @@ Aşağıdaki proje ve kurulu uygulama yalnız mimari referans olarak kullanıld�
 
 ```text
 Kaynak:
-C:\Users\<kullanici>\Desktop\Programlar TEST\2026 YENİLER\Offer Management System
+<yerel geliştirme dizini>\Offer Management System   (bu depoda YOK, özel proje)
 
 Kurulu örnek:
 C:\Program Files\Teklif Yönetim
