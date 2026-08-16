@@ -1249,6 +1249,23 @@ güncellemeyi hiç görmez, sessizce "güncelsiniz" der. Büyük sürüme geçer
 
 ## Sıradaki tek adım
 
+**SIRADAKİ PLAN (17 Ağustos 2026, kullanıcı isteği).** Sıra bağımlılığa ve
+riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
+
+1. **README (İngilizce, VLC deposu düzeninde)** — ürün koduna dokunmaz.
+2. **Paket boyutu** — yalnız paketleme; her sonraki sürüm yararlanır.
+   ÖLÇÜLDÜ (304,7 MB / 124 dosya): `mpv-2.dll` 114,2 MB · `deno.exe`
+   92,9 MB · `yt-dlp.exe` 17,4 MB → %74'ü bu üç dosya. Ayrıca `libcrypto`
+   İKİ kez var (5,5 + 5,0 MB) ve `cryptography\_rust.pyd` 9,5 MB.
+3. **Kurulum dili** — Inno çoklu dil + Windows dilinden otomatik seçim,
+   kullanıcıya sorulmaz. Küçük ve bağımsız; uygulama i18n'inden ÖNCE
+   yapılır ki dil/locale kararları orada bir kez sınansın.
+4. **Uygulama çoklu dil (i18n)** — EN BÜYÜK ve EN RİSKLİ iş; aşamalı.
+   ÖLÇÜLEN RİSK: 38 ürün dosyasında Türkçe arayüz metni var ve **105 test
+   dosyasında 453 assert bu metinlere bakıyor**. Bu yüzden KAYNAK DİL
+   TÜRKÇE KALIR (`tr()` çeviri yoksa kaynağı döndürür) ve mevcut testler
+   kırılmaz; İngilizce ve diğer diller ÜSTÜNE eklenir.
+
 **AÇIK MADDE YOK (16 Ağustos 2026).** Yayın planının 6 maddesi de bitti;
 `v0.31` yayında, güncelleme sistemi iki kez gerçek koşulda çalıştı ve
 kullanıcı kabulleri geçti. Sıradaki iş kullanıcıdan gelecek.
