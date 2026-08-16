@@ -77,9 +77,13 @@ imzası olmayan release REDDEDİLİR. Bu yüzden:
   eksikleri bulunur ve kapatılır; parça parça ilerlemek yarım kalmış altı
   dil üretir. Sıra: İngilizce (bitti) → sonraki dil → sonraki.
 - **Terminoloji uydurulmaz, DOĞRULANIR.** Yerleşmiş oynatıcıların
-  (VLC, mpv, MPC-HC) yayımlanmış çevirilerine bakılır; kullanıcı o
-  terimleri bekler. Dosyaları BİREBİR KOPYALAMA: VLC çevirileri GPLv2+
-  lisanslıdır, terminoloji referans alınır, metin kopyalanmaz.
+  yayımlanmış çevirilerine bakılır; kullanıcı o terimleri bekler.
+  KAYNAK (kullanıcı verdi): `https://github.com/videolan/vlc` → `po/`
+  dizini; her dil kendi `.po` dosyasındadır (`de.po`, `fr.po`, `ru.po`…).
+  "Playback speed", "Subtitle track", "Audio device" gibi terimlerin o
+  dildeki YERLEŞİK karşılığı oradan doğrulanır.
+  Dosyaları BİREBİR KOPYALAMA: VLC çevirileri GPLv2+ lisanslıdır;
+  terminoloji referans alınır, metin kopyalanmaz.
 - **Sarmalama toplu regex ile YAPILMAZ.** Bu yöntem 17 Ağustos 2026'da iki
   çok satırlı metin birleştirmesini bölüp programı açılamaz hâle getirdi.
   Dosya dosya ilerlenir ve HER dosyadan sonra AST ile ayrıştırma
