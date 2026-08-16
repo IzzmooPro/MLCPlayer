@@ -1445,12 +1445,25 @@ yalnız değişikliğin etkilediği yol nokta atışı regresyonla doğrulanacak
    - Sızma yolu kaynaktan kapalı: durum anahtarı `current_file` yolunun kendisi
      ve `verified_track_id()` tam yol karşılaştırması yapıyor; bayat `track-list`
      penceresinde eşleşme oluşamıyor.
-   - **KALAN RİSK:** yeni medyada `sid` ürün tarafından AÇIKÇA sıfırlanmıyor;
-     tek koruma `_hide_subtitles_for_new_media()` ile `sub_visibility=False`.
-     Gerçek libmpv dosya-geçişi semantiği (eski `sid`'in yeni dosyada ne olduğu)
-     sahte mpv ile kanıtlanamaz; **final kullanıcı manuel kabulünde** gerçek
-     videoyla kontrol edilecek: Film1'de altyazı açıkken Film2'ye geçişte yanlış
-     track sessizce seçili kalıyor mu.
+   - **KALAN RİSK — ÖLÇÜLDÜ VE KAPANDI (16 Ağustos 2026).** Soru şuydu: yeni
+     medyada `sid` açıkça sıfırlanmıyor; eski seçim yeni dosyaya taşınıp
+     yanlış altyazı sessizce görünür mü? Gerçek libmpv (v0.41) ve iki gerçek
+     4K medya ile ölçüldü (`sub_auto=exact`, ürün ayarları):
+
+     | adım | `sid` | `sub_visibility` | seçili parça |
+     |---|---|---|---|
+     | Film1 yüklendi | 5 | False | Film1'in kendi SRT'si |
+     | kullanıcı `sid=3` seçti | 3 | True | gömülü |
+     | Film2 `play()` hemen sonrası | **3** | **False** | farklı dosyanın 3'ü |
+     | Film2 parça listesi yerleşti | 5 | False | Film2'nin kendi SRT'si |
+
+     Eski `sid` SAYISI kısa bir pencerede taşınıyor ve o an başka bir parçaya
+     denk geliyor — ama ürün geçişten ÖNCE `sub_visibility=False` yaptığı için
+     o pencerede ekranda hiçbir şey görünmüyor. Liste yerleşince her medya
+     kendi altyazısını alıyor. `activate_local_subtitle()` görünürlüğü ancak
+     `verified_track_id()` ile TAM YOL doğrulamasından sonra açtığı için
+     yanlış parça görünür hâle gelemiyor. Koruma tasarlandığı gibi çalışıyor;
+     bu madde manuel kabul listesinden ÇIKARILDI.
 5. **TAMAMLANDI — Medya Bilgisi:** `app/media_info.py` + `app/media_info_dialog.py`
    yazıldı ve `player.py` / `menu_actions.py` / `video_frame.py` /
    `media_controls.py` üzerinden bağlandı. `test_media_info_builder` +
