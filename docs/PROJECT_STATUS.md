@@ -1225,8 +1225,11 @@ güncellemeyi hiç görmez, sessizce "güncelsiniz" der. Büyük sürüme geçer
 
 ## Sıradaki tek adım
 
-**KULLANICI VERİSİ TEK KİMLİK ALTINDA TOPLANMALI.** Yayın planının
-6 maddesi de TAMAMLANDI; aşağıdaki kusur bu turda ÖLÇÜLDÜ ve açıktır.
+**AÇIK MADDE YOK (16 Ağustos 2026).** Yayın planının 6 maddesi de bitti;
+`v0.31` yayında, güncelleme sistemi iki kez gerçek koşulda çalıştı ve
+kullanıcı kabulleri geçti. Sıradaki iş kullanıcıdan gelecek.
+
+Aşağıdaki bölüm, bu turda ölçülüp KAPATILAN veri kimliği kusurunun kaydıdır.
 
 ÖLÇÜLEN KUSUR — uygulama verisi İKİ ayrı kimliğe dağılıyor:
 

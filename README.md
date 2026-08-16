@@ -14,6 +14,13 @@ Klasik menü/panel görünümü kaldırılmıştır.
   aday belirler; gerçek desteği libmpv verir.
 - **Oynatma listesi:** ana pencereye gömülü, genişliği sürüklenebilir panel;
   küçük resim üretimi, doğal `1-2-10` sıralaması, klasör açma ve sürükle-bırak.
+- **Albüm kapağı:** ses dosyalarında gömülü kapak (yoksa klasördeki resim)
+  video alanında gösterilir; siyah kare kalmaz.
+- **Tek kopya:** ikinci başlatma yeni pencere açmaz; açık pencere öne gelir ve
+  dosya oraya yüklenir. Böylece iki kopya birbirinin ayarlarını ezmez.
+- **Güncelleme denetimi:** açılışta sessiz kontrol ve `Yardım → Güncellemeleri
+  Denetle`. İndirilen kurulum SHA-256 ile doğrulanır; doğrulanamayan dosya
+  çalıştırılmaz ve silinir. Kapanış üründen geçer, süreç zorla öldürülmez.
 - **Altyazı Merkezi:** OpenSubtitles üzerinden arama, indirme ve uygulama.
   İndirilen altyazı medyanın yanına atomik `.srt` olarak yazılır.
 - **Altyazı görünümü:** yazı/kenarlık/arka plan rengi, boyut, kenarlık
@@ -29,6 +36,13 @@ Klasik menü/panel görünümü kaldırılmıştır.
   güvenli gövde olarak sunulur.
 - **Gizlilik:** uzak adresler pencere başlığında ve `Son Açılanlar` içinde
   tam hâliyle saklanmaz; yalnız güvenli `host[:port]` gösterilir.
+
+## Kurulum (hazır sürüm)
+
+Son kurulum dosyası: [Releases](https://github.com/IzzmooPro/MLCPlayer/releases/latest)
+(`MLCPlayer_Setup_v*.exe`, kurulu boyut ~295 MB). Kurulu bir sürüm varsa
+`Yardım → Güncellemeleri Denetle` ile de yükseltilebilir; indirilen dosya
+SHA-256 ile doğrulanmadan çalıştırılmaz.
 
 ## Çalıştırma (kaynaktan)
 
