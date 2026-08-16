@@ -1249,6 +1249,24 @@ güncellemeyi hiç görmez, sessizce "güncelsiniz" der. Büyük sürüme geçer
 
 ## Sıradaki tek adım
 
+**SIRADAKİ İLK İŞ — VLC'nin dil yaklaşımını İNCELE, uygunsa uyarla.**
+Kullanıcı isteği (17 Ağustos 2026). Ezberden karar VERİLMEYECEK; depo
+gerçekten açılıp bakılacak: `https://github.com/videolan/vlc`
+
+Bakılacak sorular (her biri bizde bir karara denk düşer):
+1. Hangi biçim ve neden? (VLC C tabanlı, gettext `.po` kullanıyor; biz Qt
+   `.ts/.qm` kullanıyoruz. Bizim için Qt doğrusu, ama `.po` iş akışında
+   öğrenilecek şeyler olabilir.)
+2. Çeviriler KİM tarafından yapılıyor? Topluluk mu, bakım ekibi mi, hangi
+   araçla? Bizim için önemli: 8 dili tek kişinin sürdürmesi kalıcı yük.
+3. Dil seçimi nasıl sunuluyor? "Otomatik/sistem" varsayılan mı, değişiklik
+   yeniden başlatma istiyor mu? (Bizde ikisi de böyle — teyit edilecek.)
+4. Eksik çeviri nasıl ele alınıyor? Yedek dil hangisi?
+5. Çevirmen için hangi belge/katkı yolu var? (Bizde `.ts` dosyaları hazır
+   ama CONTRIBUTING'de çeviri bölümü YOK — eklenmeli.)
+
+Sonuç: mantıklı bulunan uygulanır, gerekçesi buraya yazılır.
+
 **SIRADAKİ PLAN (17 Ağustos 2026, kullanıcı isteği).** Sıra bağımlılığa ve
 riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
 
