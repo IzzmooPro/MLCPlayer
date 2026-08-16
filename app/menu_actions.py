@@ -8,6 +8,7 @@ import sys
 from app import track_labels
 from app.errors import show_user_error, safe_console
 from app.config import APP_VERSION, SUBTITLE_DEFAULTS
+from app.updater import check_for_updates
 from app.media_info import build_media_info, media_info_refresh_key
 from app.media_controls import is_remote_media_url, safe_media_host
 from app.subtitle_appearance_dialog import SubtitleAppearanceDialog
@@ -274,6 +275,10 @@ def setup_menu(player):
     log_action = QAction("Günlük Yönetimi", player)
     log_action.triggered.connect(player.show_log_management)
     help_menu.addAction(log_action)
+
+    update_action = QAction("Güncellemeleri Denetle", player)
+    update_action.triggered.connect(lambda: check_for_updates(player))
+    help_menu.addAction(update_action)
 
     about_action = QAction("Hakkında", player)
     about_action.triggered.connect(player.show_about)

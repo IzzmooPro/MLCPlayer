@@ -1195,7 +1195,22 @@ FAIL/BLOCKED/timeout/eksik marker/process leak yok.
 
 ## Sıradaki tek adım
 
-**GÜNCELLEME DENETİMİ (madde 5).** 1-4 TAMAMLANDI.
+**BUILD + KURMA/KALDIRMA KABULÜ (madde 6).** 1-5 TAMAMLANDI.
+
+Madde 5 kapandı (16 Ağustos 2026): `app/updater.py` +
+`tests/test_updater_regressions.py` (35 test, ağa çıkmaz).
+Kullanıcı kararı: açılışta sessiz kontrol + `Yardım → Güncellemeleri Denetle`;
+kapanış KOOPERATİF. Referanstan bilerek ayrılan nokta: orada kurulum
+başlarken `os._exit(0)` çağrılıyor, burada `player.close()` ile ürünün kendi
+`closeEvent` sözleşmesi çalışır — Altyazı Merkezi'nde iş varsa kapanış
+ertelenir ve kurulum BAŞLATILMAZ (`busy`). Değişmez AST ile ölçülür
+(`terminate`/`_exit` çağrısı ve `QTimer` kullanımı yok).
+Açılış kontrolü YALNIZ paketlenmiş kopyada çalışır (`sys.frozen`);
+`MLC_DISABLE_UPDATE_CHECK=1` kapatır.
+
+AÇIK: depoda henüz release YOK. `v0.1` etiketi ve
+`MLCPlayer_Setup_v0.1.exe` asset'i yayımlanana kadar kontrol her zaman
+"günceldesiniz" der. Asset adı `.iss` çıktısına testle bağlıdır.
 
 Madde 4 kapandı (16 Ağustos 2026): depo **public** olarak açıldı —
 `https://github.com/IzzmooPro/MLCPlayer` (master, GPLv3 tanındı, 221 dosya).

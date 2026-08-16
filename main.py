@@ -123,6 +123,15 @@ if __name__ == "__main__":
         from app.player import MPVPlayer
         player = MPVPlayer()
         player.show()
+        # Açılışta SESSİZ güncelleme kontrolü: güncelleme yoksa hiçbir şey
+        # gösterilmez. YALNIZ paketlenmiş kopyada çalışır — kaynaktan çalışan
+        # kopya kurulumla güncellenemez ve her geliştirme koşumunda ağa
+        # çıkmasının anlamı yoktur. `MLC_DISABLE_UPDATE_CHECK=1` kapatır.
+        if (getattr(sys, "frozen", False)
+                and os.environ.get("MLC_DISABLE_UPDATE_CHECK") != "1"):
+            from app.updater import start_startup_check
+            # Referans çöp toplayıcı tarafından alınmasın diye tutulur.
+            player._update_checker = start_startup_check(player)
         # Komut satırından dosya/URL argümanı: python main.py video.mp4
         if len(sys.argv) > 1:
             QTimer.singleShot(0, lambda: player.open_path(sys.argv[1]))
