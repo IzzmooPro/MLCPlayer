@@ -8,6 +8,7 @@ cagri SIRASINI ve SAYISINI kaydetmek icin saydam bir vekil (proxy) ile
 sarilir.
 
 Marker'lar:
+    MARK_FAULTHANDLER_ENABLED
     MARK_PLAYER_CREATED
     MARK_MEDIA_OPEN_REQUESTED
     MARK_MEDIA_READY
@@ -16,7 +17,9 @@ Marker'lar:
     MARK_TERMINATE_CALLED
     MARK_CLOSE_ACCEPTED
     MARK_APP_EXEC_RETURNED
+    MARK_THREADS_AFTER
     RESULTS: failures=...
+    MARK_MAIN_RETURNED
 
 Kabul: stop=1, terminate=1, stop marker'i terminate'ten ONCE, eksik marker
 yok, exit code 0. Child, uygulamanin `main.py` giris noktasi gibi Qt event
@@ -29,11 +32,20 @@ Guvenlik:
 - Video dosyasi READ-ONLY acilir; degistirilmez, tasinmaz, silinmez.
 - QSettings gecici dizine yonlendirilir.
 """
+import faulthandler
 import os
 import shutil
 import sys
 import tempfile
+import threading
 import time
+
+# GORUNURLUK ONCE: PyQt, mpv ve `app.player` IMPORT EDILMEDEN ONCE acilir.
+# Bir native istisna (ornegin `0xe24c4a02`) importun kendisinde veya
+# libmpv'nin baslattigi bir thread'de olusabilir; faulthandler sonradan
+# acilirsa o iz KAYBOLUR. Hedef acikca `sys.stderr`dir ve ebeveyn stderr'i
+# BAYT olarak yakalar.
+faulthandler.enable(file=sys.stderr, all_threads=True)
 
 PROJECT_ROOT = os.environ.get(
     "MLC_NATIVE_PROJECT_ROOT",
@@ -42,6 +54,13 @@ sys.path.insert(0, PROJECT_ROOT)
 os.environ["PATH"] = os.path.join(PROJECT_ROOT, "bin") + os.pathsep + os.environ["PATH"]
 # MPV native `wid` yuzeyi GERCEK pencere ister.
 os.environ.pop("QT_QPA_PLATFORM", None)
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# ORTAK sozlesme: uzanti listesi ve ad kodlamasi TEK kaynaktan gelir.
+# Bu modul `mpv`/`PyQt6` yuklemez, bu yuzden burada guvenle import edilir.
+from native_media_contract import (MEDIA_FIELD_PREFIX,  # noqa: E402
+                                   encode_media_basename,
+                                   is_supported_media)
 
 VIDEO_PATH = os.environ.get("MLC_NATIVE_TEST_VIDEO", "")
 READY_TIMEOUT_S = float(os.environ.get("MLC_READY_TIMEOUT", "25"))
@@ -67,6 +86,9 @@ def _excepthook(exc_type, exc_value, exc_tb):
 
 
 sys.excepthook = _excepthook
+
+# Gorunurlugun ACIK oldugu ebeveyne de bildirilir; kabul bu marker'i arar.
+mark("MARK_FAULTHANDLER_ENABLED")
 
 from PyQt6.QtCore import QSettings, QTimer  # noqa: E402
 from PyQt6.QtWidgets import QApplication  # noqa: E402
@@ -103,9 +125,15 @@ def install_call_recorder():
 def resolve_video():
     """Once `MLC_NATIVE_TEST_VIDEO`; yoksa `MLC_NATIVE_VIDEO_DIR` KOKUNDEKI
     ilk mkv/mp4. Hicbiri verilmemisse "" doner (calistiran kisinin kendi
-    medya klasoru betige GOMULMEZ)."""
-    if VIDEO_PATH and os.path.isfile(VIDEO_PATH):
-        return VIDEO_PATH
+    medya klasoru betige GOMULMEZ).
+
+    FAIL-CLOSED: child DOGRUDAN calistirilsa bile yalniz gercek
+    `.mkv`/`.mp4` kabul edilir. Uzanti listesi burada TEKRARLANMAZ;
+    ebeveyn kapisiyla ayni `is_supported_media()` kullanilir.
+    """
+    if VIDEO_PATH:
+        # Yanlis dosya verildiginde SESSIZCE klasore dusulmez.
+        return VIDEO_PATH if is_supported_media(VIDEO_PATH) else ""
     folder = os.environ.get("MLC_NATIVE_VIDEO_DIR", "")
     if not folder:
         return ""
@@ -114,14 +142,9 @@ def resolve_video():
     except OSError:
         return ""
     for name in sorted(names):
-        if os.path.splitext(name)[1].lower() not in (".mkv", ".mp4"):
-            continue
         path = os.path.join(folder, name)
-        try:
-            if os.path.isfile(path):
-                return path
-        except OSError:
-            continue
+        if is_supported_media(path):
+            return path
     return ""
 
 
@@ -143,13 +166,17 @@ def main():
     player.resize(1280, 720)
     player.show()
     app.processEvents()
-    mark("MARK_PLAYER_CREATED", os.path.basename(video))
+    # Ad BOSLUKLA ayrisan bir alanda TASINMAZ: `kayıt 01.mkv` gibi
+    # gecerli adlar protokolu bozardi. Kayipsiz, bosluksuz alan.
+    media_field = MEDIA_FIELD_PREFIX + encode_media_basename(
+        os.path.basename(video))
+    mark("MARK_PLAYER_CREATED", media_field)
 
     state = {"ready": False, "closed": False, "deadline": 0.0}
 
     def request_media():
         player.open_path(video)
-        mark("MARK_MEDIA_OPEN_REQUESTED", os.path.basename(video))
+        mark("MARK_MEDIA_OPEN_REQUESTED", media_field)
         state["deadline"] = time.time() + READY_TIMEOUT_S
         poll.start(100)
 
@@ -190,6 +217,16 @@ def main():
     exec_code = app.exec()
     mark("MARK_APP_EXEC_RETURNED", f"code={exec_code}")
 
+    # Kapanistan ve `app.exec()` donusunden SONRA yasayan MPV thread'leri.
+    # Kabul icin sayi KESINLIKLE 0 olmalidir: sonlandirilmis bir MPV'nin
+    # olay thread'i hayatta kalirsa, surec `os._exit()` ile kapanana kadar
+    # libmpv geri cagirmalari devam edebilir.
+    alive = [t.name for t in threading.enumerate()
+             if "MPV" in t.name.upper()]
+    mark("MARK_THREADS_AFTER", f"count={len(alive)}")
+    if alive:
+        failures.append(f"mpv_threads_alive={len(alive)}")
+
     stops = calls.count("stop")
     terminates = calls.count("terminate")
     if stops != 1:
@@ -200,7 +237,8 @@ def main():
         failures.append(f"order={calls}")
     if player.mpv_player is not None:
         failures.append("mpv_reference_not_released")
-    for required in ("MARK_PLAYER_CREATED", "MARK_MEDIA_OPEN_REQUESTED",
+    for required in ("MARK_FAULTHANDLER_ENABLED", "MARK_THREADS_AFTER",
+                     "MARK_PLAYER_CREATED", "MARK_MEDIA_OPEN_REQUESTED",
                      "MARK_MEDIA_READY", "MARK_CLOSE_REQUESTED",
                      "MARK_STOP_CALLED", "MARK_TERMINATE_CALLED",
                      "MARK_CLOSE_ACCEPTED", "MARK_APP_EXEC_RETURNED"):
