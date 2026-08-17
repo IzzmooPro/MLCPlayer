@@ -460,3 +460,163 @@ def test_completed_is_not_claimed_without_live_acceptance():
         block = text[start:end if end != -1 else len(text)]
         assert "TAMAMLANDI" not in block, (
             f"{record} canli kabul olmadan TAMAMLANDI diyor")
+
+
+# =====================================================================
+# NATIVE-001 kaydinin CANLI KABUL sonucu (18 Agustos 2026)
+# =====================================================================
+#
+# OLCULEN CELISKI (bagimsiz denetim): canli kabul YAPILDI ve BASARISIZ
+# oldu; buna ragmen belgelerde "gecerli gercek medya ile canli kosum
+# YAPILMADI" ve "hicbir canli olcum yoktur" cumleleri duruyordu. Ayrica
+# ROADMAP hem bayat `255 passed` ara sonucunu hem guncel `268 passed`
+# sonucunu tasiyordu.
+#
+# NOT: asagidaki yasaklar YALNIZ NATIVE-001 / ROADMAP'in NATIVE-001
+# bolumunu olcer. Baska kayitlarin ("REL-003: Gercek build YAPILMADI"
+# gibi) mesru ifadeleri SERBESTTIR.
+
+def native_record():
+    """`ENGINEERING_AUDIT.md` icindeki NATIVE-001 kaydi."""
+    text = read(AUDIT_DOC)
+    start = text.index("## NATIVE-001")
+    end = text.find("\n## ", start + 1)
+    return text[start:end if end != -1 else len(text)]
+
+
+def roadmap_native_section():
+    """`ROADMAP.md` icindeki NATIVE-001 bolumu.
+
+    Bolum BASLIKTAN baslar: ilk `NATIVE-001` gecisi ust ozettedir ve oradan
+    baslamak yanlis (cok kisa) bir blok verir.
+    """
+    text = read(ROADMAP_DOC)
+    start = text.index("## SIRADAKI TEKNIK RISK")
+    end = text.find("\n## ", start + 1)
+    section = text[start:end if end != -1 else len(text)]
+    assert "NATIVE-001" in section, "ROADMAP NATIVE-001 bolumu bulunamadi"
+    return section
+
+
+STALE_CLAIMS = (
+    "Geçerli gerçek medya ile canlı koşum YAPILMADI",
+    "hiçbir canlı ölçüm yoktur",
+    "GECERLI GERCEK MEDYA ILE YAPILMADI",
+    "ORTAM EKSIGI",
+)
+
+
+def flat(text):
+    """Bosluklari tekillestirir: satir sonuna bolunen cumle de yakalanir."""
+    return " ".join(fold(text).lower().split())
+
+
+@pytest.mark.parametrize("claim", STALE_CLAIMS)
+def test_the_native_record_does_not_deny_the_live_run(claim):
+    """Canli kosum YAPILDI; "yapilmadi" iddialari bayattir."""
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        assert flat(claim) not in flat(block), (
+            f"{label} NATIVE-001 bolumu hala bayat iddiayi tasiyor: {claim}")
+
+
+def test_the_native_record_states_the_live_acceptance_failed():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        folded = fold(block).upper()
+        assert "CANLI KABUL BASARISIZ" in folded, (
+            f"{label} canli kabulun BASARISIZ oldugunu yazmiyor")
+
+
+def test_the_roadmap_carries_only_the_current_deterministic_result():
+    """Bayat ara sonuc kalmamali; guncel sonuc bulunmali."""
+    section = roadmap_native_section()
+
+    assert "255 passed" not in section, (
+        "ROADMAP bayat `255 passed` ara sonucunu hala tasiyor")
+    assert "268 passed, 1 deselected" in section, (
+        "ROADMAP guncel `268 passed, 1 deselected` sonucunu tasimiyor")
+
+
+def test_the_native_record_separates_the_two_stage_commit_states():
+    """Asama 1 ve Asama 2 commit durumlari AYRI yazilmali."""
+    block = fold(native_record()).upper()
+
+    assert "A7CED18" in block, "Asama 1 commit'i (a7ced18) yazilmamis"
+    assert "COMMIT BEKLIYOR" in block, "Asama 2 COMMIT BEKLIYOR yazilmamis"
+
+    status_line = [line for line in native_record().splitlines()
+                   if line.startswith("- **Durum")]
+    assert status_line, "NATIVE-001 Durum satiri yok"
+    folded = fold(status_line[0]).upper()
+    assert "ASAMA 1" in folded and "ASAMA 2" in folded, (
+        f"Durum satiri asamalari ayirmiyor: {status_line[0]}")
+    assert "CANLI KABUL BASARISIZ" in folded, (
+        f"Durum satiri canli kabulun basarisiz oldugunu yazmiyor: "
+        f"{status_line[0]}")
+
+
+def test_the_roadmap_summary_does_not_undercount_local_commits():
+    """Ust ozet bayat commit sayisi tasimamali."""
+    text = read(ROADMAP_DOC)
+
+    assert fold("dört yerel commit").lower() not in fold(text).lower(), (
+        "ROADMAP hala 'dört yerel commit' diyor; sayi guncel degil")
+
+
+# =====================================================================
+# NATIVE-001 commit kapsami: YEDI dosya, IKI commit grubu
+# =====================================================================
+#
+# OLCULEN CELISKI: kayit "ALTI dosya (uc yeni, uc degismis)" diyordu.
+# Belge korumasi kendi test dosyasini da degistirdigi icin calisma
+# agacinda YEDI dosya var ve bunlar IKI mantiksal commit'e ayrilir.
+
+GATE_FILES = (
+    "tests/native_player_shutdown_child.py",
+    "tests/native_media_contract.py",
+    "tests/native_shutdown_acceptance.py",
+    "tests/test_native_shutdown_acceptance_regressions.py",
+)
+
+RECORD_FILES = (
+    "docs/ENGINEERING_AUDIT.md",
+    "docs/ROADMAP.md",
+    "tests/test_release_documentation_regressions.py",
+)
+
+
+@pytest.mark.parametrize("name", GATE_FILES + RECORD_FILES)
+def test_every_pending_file_is_named_in_the_record(name):
+    """Yedi dosyanin her biri kayitta ADIYLA gecmeli."""
+    assert name in native_record(), (
+        f"NATIVE-001 kaydi bekleyen dosyayi saymiyor: {name}")
+
+
+def test_the_two_commit_groups_have_the_right_sizes():
+    """Kapi grubu DORT, kayit grubu UC dosyadir."""
+    assert len(GATE_FILES) == 4
+    assert len(RECORD_FILES) == 3
+    assert len(set(GATE_FILES + RECORD_FILES)) == 7, "dosya adlari tekrarli"
+
+    block = fold(native_record()).upper()
+    assert "DORT" in block or "DÖRT" in fold(native_record()).upper(), (
+        "kapi grubunun DORT dosya oldugu yazilmamis")
+    assert "YEDI" in block, "toplam YEDI dosya yazilmamis"
+
+
+def test_the_planned_commit_messages_are_recorded():
+    """Commit plani kayitta yazili olmali."""
+    block = native_record()
+
+    for subject in ("test: add product shutdown native acceptance gate",
+                    "docs: record failed native shutdown acceptance"):
+        assert subject in block, f"commit plani eksik: {subject}"
+
+
+@pytest.mark.parametrize("stale", ["ALTI dosya", "üç yeni, üç değişmiş"])
+def test_the_stale_six_file_scope_is_gone(stale):
+    for label, section in (("ENGINEERING_AUDIT", native_record()),
+                           ("ROADMAP", roadmap_native_section())):
+        assert flat(stale) not in flat(section), (
+            f"{label} bayat kapsami hala tasiyor: {stale}")

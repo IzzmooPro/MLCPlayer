@@ -16,7 +16,9 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
 testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
-ve toplam dört mantıksal yerel commit oluşturuldu. Güncel tam paket
+ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
+`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **beş
+commit** ilerisindedir ve **push yapılmadı**. Güncel tam paket
 **3992 passed / 17 skipped / 0 failed**, exit 0 ve stderr boştur. **Push
 yapılmadı**; canlı bir build/yayın koşumu da yapılmadı. Sıradaki teknik
 risk, NATIVE-001'in bilinmeyen native kök nedeni ve ürün etkisidir.
@@ -87,7 +89,7 @@ yeniden koşturmak ölçüm değil, tekrardır. Bir sonraki tam koşum commit
 - **Durum:** TAMAMLANDI (hedef kapanış kanıtıyla)
 - **Bagimlilik:** yukarıdaki milestone
 - **Olcut:** tam `pytest -q tests` yeşil (0 failed); milestone 3931/17/1 ile karşılaştırılıp fark açıklanmış; `compileall` ve `git diff --check` temiz
-- **Kullanici onayi:** verildi; dört yerel commit oluşturuldu, push yapılmadı
+- **Kullanici onayi:** verildi; checkpoint yerel commit'lere bölündü (18 Ağustos 2026 snapshot'ında toplam beş yerel commit), push yapılmadı
 
 18 Ağustos 2026 güncel HEAD checkpoint'i: **3992 passed / 17 skipped /
 0 failed**, pytest **exit 0**, stderr **0 bayt**, **82,44 sn**. Koşum bir kez
@@ -132,9 +134,9 @@ regresyonlar artık aynı tam paket sonucunda birlikte yeşildir.
 
 ## SIRADAKI TEKNIK RISK: `0xe24c4a02` (NATIVE-001)
 
-- **Durum:** GORUNURLUK KUSURU KAPATILDI (HEDEF TESTLERLE DOGRULANDI, COMMIT EDILDI); **kök neden ERTELENDI**
+- **Durum:** GORUNURLUK KUSURU KAPATILDI (HEDEF TESTLERLE DOGRULANDI, COMMIT EDILDI); **CANLI KABUL BASARISIZ (18 Ağustos 2026)**; **kök neden ve ürün etkisi AÇIK**
 - **Bagimlilik:** yok — commit'i beklemez
-- **Olcut:** (a) native istisna artık sessizce geçemez → **sağlandı**; (b) kök neden bulunmuş ya da bilinçli kabul edilmiş → **sağlanmadı**
+- **Olcut:** (a) native istisna artık sessizce geçemez → **sağlandı**; (b) ürün kapanış yolunda tek yalıtılmış canlı kabul → **koşum YAPILDI ve BAŞARISIZ**; kapı hedef testlerle hazır fakat hâlâ COMMIT EDİLMEDİ; (c) kök neden bulunmuş ya da bilinçli kabul edilmiş → **sağlanmadı**
 - **Kullanici onayi:** gerçek-mpv/native koşum için **gerekir**
 
 Ayrıntılı kayıt: `docs/ENGINEERING_AUDIT.md` → **NATIVE-001**.
@@ -166,10 +168,79 @@ sıra regresyonu **iki yönde de yeşil**.
 tam paket içinde çalıştığını gösterir; native kök nedeni veya ürün
 muafiyeti kanıtı değildir.
 
-**Kapatılmayan:** istisnayı doğuran native modül belirlenmedi ve ürün
-üzerindeki etki ölçülmedi. **Tek yeşil native koşum, aralıklı olgunun
-bittiğini ispatlamaz.** Yayına hazırlık ölçütlerinden biri olmaya devam
-ediyor (bkz. madde 8).
+**Aşama 2 (18 Ağustos 2026): ürün kapanış yolu kabul kapısı HEDEF
+TESTLERLE HAZIR, COMMIT BEKLIYOR; CANLI KABUL BAŞARISIZ.** Mevcut
+`tests/native_player_shutdown_child.py` üzerinden
+`player.close() -> closeEvent() -> stop() -> terminate()` yolunu ölçen saf
+bir kapı eklendi; faulthandler artık PyQt/mpv importundan ÖNCE ve
+`all_threads=True` ile açılıyor, `app.exec()` dönüşünden sonra yaşayan MPV
+thread'leri sayılıyor.
+
+**Kapının ilk hâli bağımsız denetimde REDDEDİLDİ** (beş fail-open):
+eksik medya adı, alansız `MARK_MEDIA_READY`, `visible=True`, `t=nan` ve
+`.py` dosyasının geçerli medya sayılması. Kapatıldı: `FREE` dilbilgisi
+kaldırıldı, zaman damgaları `isfinite`+`>=0`, medya türü fail-closed
+(`.mkv`/`.mp4`), açık opt-in `MLC_NATIVE_SHUTDOWN_ACCEPTANCE=1` ve
+korumalı `os.stat()`.
+
+**İki teknik kusur daha kapatıldı:** (6) boşluklu/Unicode adlar
+(`kayıt 01.mkv`) protokolü bozuyordu — ad artık kayıpsız
+`media_b64=<URL-safe Base64>` alanında taşınır; (7) child'ın kendi
+`resolve_video()` doğrulaması açıktı — artık ebeveynle AYNI
+`is_supported_media()` kullanılır. Uzantı listesi ve codec tek kaynakta:
+`tests/native_media_contract.py`.
+
+Mevcut sözleşmeler **151 passed, 2 skipped** ile bozulmadı; güncel
+deterministik sonuç aşağıdadır.
+
+**CANLI KABUL SONUCU (18 Ağustos 2026): BAŞARISIZ — tek geçerli koşum.**
+Medya `Resident.Alien.S01E01.Pilot.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb.mkv`
+(dosya adı 1080p/H.264 belirtir; **4K/HEVC kabulü değildir**), boyut önce =
+sonra = 2.651.661.814 bayt, `mtime` değişmedi, hash hesaplanmadı. pytest
+exit **1**, child exit **0**. Child stderr'inde **tam 9 adet**
+`Windows fatal exception: code 0xe24c4a02`; izlerde
+`MPVEventHandlerThread` ve `mpv.py::_event_generator`/`_loop` var — bu,
+kaynak native modülün mpv/libmpv olduğunun **kesin kanıtı değildir**.
+
+Aynı koşumda kapanış sözleşmesinin tamamı sağlandı: medya açıldı
+(`duration=2782.27`), `closeEvent` ürün yolu çalıştı, `stop=1`/`terminate=1`
+ve stop < terminate, `visible=False`, `app.exec()` = 0, kalan MPV thread
+**0**, `RESULTS failures=none`, artık child süreci kalmadı.
+
+**Yorum sınırları:** "ürün yolu etkilenmiyor" iddiası ARTIK GEÇERSİZDİR —
+olay faulthandler açıkken gerçek ürün yolunda görüldü. Ancak bu tek koşum
+kullanıcıya görünen bir çökme/donma kanıtı DEĞİLDİR; child normal biçimde
+exit 0 verdi. Olay **zararsız veya güvenli sayılamaz**.
+
+**Sıradaki teknik adım (AYRI KULLANICI ONAYI GEREKİR):** yeni native koşum
+ve ürün düzeltmesi YAPILMAZ; önce first-chance exception'ı yakalayan bir
+debugger ile istisna anındaki **native modül + stack + yüklü modül adresi**
+belirlenecek. **4K/H.265 kabulü ancak kök neden düzeltmesinden sonra.**
+
+**Talimat ihlali (gizlenmiyor):** bir önceki turun mutasyon koşumunda
+"medya türü denetimi yok" varyantı gerçek child'ı bir kez, yaklaşık
+26,8 sn boyunca geçersiz bir `.py` girdisiyle başlattı. **Bu koşum canlı
+kabul veya ürün etkisi kanıtı değildir**; süreç kendi kapandı ve artık
+child Python süreci kalmadığı ölçüldü. Önlem: native sınırındaki testler
+`subprocess.run`'ı nöbetçiyle değiştirir ve beklenmeyen her süreç
+başlatma testi anında kırmızı yapar.
+
+**Opt-in artık gerçek subprocess sınırında.** Önceden yalnız pytest
+düğümü denetliyordu; `run_native_shutdown()` doğrudan çağrılırsa geçerli
+bir `.mkv` ile açık izin olmadan süreç başlatabiliyordu. Deterministik
+sonuç: **268 passed, 1 deselected**.
+
+**Commit durumu:** Aşama 1 COMMIT EDILDI (`a7ced18`); **Aşama 2'nin YEDİ
+dosyası commit EDİLMEDİ**, çalışma ağacındadır ve iki commit'e ayrılacaktır:
+`test: add product shutdown native acceptance gate` (dört kapı dosyası) ve
+`docs: record failed native shutdown acceptance` (iki belge + belge
+regresyon testi). Ayrıntılı liste: `docs/ENGINEERING_AUDIT.md` → NATIVE-001.
+
+**Kapatılmayan:** istisnayı doğuran native modül belirlenmedi ve ürüne
+görünen etki ölçülmedi. Canlı kabul **başarısızdır**; olgu artık gerçek
+ürün kapanış yolunda kanıtlanmıştır. **Tek koşum, ne olgunun bittiğini ne
+de zararsız olduğunu ispatlar.** Yayına hazırlık ölçütlerinden biri olmaya
+devam ediyor (bkz. madde 8).
 
 ---
 
@@ -203,6 +274,11 @@ Bir sürüm ancak şunların **hepsi** sağlandığında yayına hazır sayılı
 6. Sekiz varlığın ad/boyut/SHA-256 eşliği doğrulanmış
 7. Fiziksel kabul matrisi koşulmuş
 8. `0xe24c4a02` riski ya kapatılmış ya bilinçli olarak kabul edilmiş
+   — **güncel durum (18 Ağustos 2026): AÇIK.** Görünürlük kapısı hem
+   cover-art hem ürün kapanış yolu için hazır ve ürün yolunda TEK geçerli
+   canlı koşum yapıldı: **BAŞARISIZ** (child stderr'inde dokuz kez
+   `0xe24c4a02`). Kök neden ve kullanıcıya görünen etki hâlâ bilinmiyor;
+   madde AÇIK kalır.
 
 - **Durum:** ERTELENDI
 - **Bagimlilik:** 1–8
