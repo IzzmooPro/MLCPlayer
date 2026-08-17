@@ -149,10 +149,22 @@ def test_playlist_touches_the_right_edge_when_open(cinematic_window):
     window_rect = global_rect(window)
     panel_rect = global_rect(panel)
 
-    assert panel_rect.right() == window_rect.right(), (
-        f"playlist sağında {window_rect.right() - panel_rect.right()} px boşluk")
-    assert panel_rect.bottom() == window_rect.bottom()
+    # ESKIDEN playlist pencerenin ICINDE, sag kenarina YAPISIK bir dock'tu;
+    # olculen sey "sag kenarda bosluk kalmasin"di. Playlist artik ana
+    # pencerenin YANINDA duran bagimsiz bir penceredir. Kenar payi
+    # sozlesmesi VIDEO icin aynen gecerlidir; playlist icin karsiligi
+    # "pencereye bitisik durur, arada bosluk yok"tur.
     assert global_rect(frame).left() == window_rect.left()
+    assert global_rect(frame).right() == window_rect.right(), (
+        "video sag kenara ulasmiyor")
+    # Bitisiklik CERCEVE geometrisine gore olculur: `global_rect(window)`
+    # ISTEMCI alanidir ve pencere kenarligi kadar (burada 2 px) daha
+    # kucuktur; panel ise cercevenin sagina hizalanir.
+    owner_frame = window.frameGeometry()
+    assert 0 <= panel_rect.left() - (owner_frame.right() + 1) <= 2, (
+        f"playlist ana pencereye bitisik degil: {panel_rect.left()} vs "
+        f"{owner_frame.right() + 1}")
+    assert abs(panel_rect.bottom() - owner_frame.bottom()) <= 2
 
 
 def test_no_outer_frame_remains_after_fullscreen_round_trip(cinematic_window):

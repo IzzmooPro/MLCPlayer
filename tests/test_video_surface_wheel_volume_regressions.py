@@ -14,15 +14,16 @@ Olculen kurallar:
   standart 120 birimlik kademe mantigiyla birikir.
 - Yatay teker sesi degistirmez.
 - Video yokken (yer tutucu ekran) teker sesi degistirmez.
-- Playlist paneli gibi kaydirilabilir cocuk kontrollerin tekerlegi ELE
-  GECIRILMEZ.
+- Kaydirilabilir COCUK kontrollerin tekerlegi ELE GECIRILMEZ. (Playlist
+  artik ayri bir penceredir ve bu agacin icinde degildir.)
 - Overlay gizli ya da gorunur olsun ayni merkezi davranis calisir.
 - Ses cubugunun KENDI `wheelEvent` davranisi bozulmaz.
 - Ses akisindaki bir hata kullanici arayuzune ham teknik metin dokmez.
 """
 from PyQt6.QtCore import QPoint, QPointF, QSettings, Qt
 from PyQt6.QtGui import QWheelEvent
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import (QApplication, QListWidget, QMainWindow,
+                             QVBoxLayout, QWidget)
 
 from app.config import MAX_VOLUME
 from app.ui_components import VolumeSlider
@@ -192,12 +193,19 @@ def test_wheel_without_media_does_not_change_the_volume(monkeypatch, tmp_path):
 
 
 def test_a_scrollable_child_keeps_its_own_wheel(monkeypatch, tmp_path):
-    """Playlist paneli gibi cocuk yuzeylerin tekerlegi ele gecirilmez."""
+    """Kaydirilabilir COCUK yuzeylerin tekerlegi ele gecirilmez.
+
+    OZNE DEGISTI (17 Agustos 2026), sozlesme DEGISMEDI. Bu test eskiden
+    playlist panelini kullaniyordu; panel artik ayri bir top-level
+    penceredir ve video cerceve agacinin icinde DEGILDIR, yani `childAt()`
+    korumasinin oznesi olamaz. Urun mekanizmasi (`_wheel_targets_video_scene`
+    -> `childAt(...) is None`) hic degismedi; burada gercek bir cocuk
+    widget ile olculur.
+    """
     app, window, frame = make_window(monkeypatch, tmp_path)
-    panel = frame.playlist_panel
-    assert panel is not None
-    panel.setGeometry(0, 0, 300, frame.height())
-    panel.show()
+    child = QListWidget(frame)
+    child.setGeometry(0, 0, 300, frame.height())
+    child.show()
     app.processEvents()
 
     wheel(app, frame, dy=WHEEL_STEP, pos=QPointF(20, frame.height() / 2))

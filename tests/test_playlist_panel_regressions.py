@@ -22,6 +22,7 @@ import pytest
 
 from app.media_controls import append_media_paths, open_path, show_playlist
 from app.player import MPVPlayer
+from app.playlist_panel import PANEL_MAX_WIDTH
 from app.video_frame import VideoFrame
 
 
@@ -96,11 +97,15 @@ def test_cinematic_playlist_uses_integrated_panel_not_modal_dialog(
     panel = _open(app, window, frame)
 
     assert panel.isVisible()
-    # Panel artık ayrı bir top-level Tool penceresi değil, dock host'un
-    # gerçek child'ıdır (bkz. test_playlist_dock_embedding_regressions).
-    assert panel.parent() is window.playlist_dock_host
-    assert not panel.isWindow()
-    assert not (panel.windowFlags() & Qt.WindowType.Tool)
+    # Panel artık ana pencerenin SAHİPLİ top-level penceresidir; modal
+    # dialog da, `Tool` da değildir (bkz.
+    # tests/test_playlist_window_regressions.py).
+    assert panel.parent() is window
+    assert panel.isWindow()
+    # `Tool` bileşik bir bayraktır; maskesiz `&` sıradan `Window` için de
+    # doğru çıkar. Tür karşılaştırması maskeyle yapılır.
+    assert (panel.windowFlags() & Qt.WindowType.WindowType_Mask) \
+        != Qt.WindowType.Tool
 
 
 def test_empty_playlist_still_opens_drop_ready_panel(playlist_window):
@@ -129,28 +134,37 @@ def test_panel_matches_second_concept_structure(playlist_window):
     assert panel.findChild(QPushButton, "playlistClear").text() == "Listeyi Temizle"
 
 
-def test_panel_is_docked_right_without_covering_video_surface(playlist_window):
+def test_panel_sits_beside_the_window_without_covering_video_surface(
+        playlist_window):
+    """Panel ana pencerenin SAĞINDA durur; videoyu örtmez.
+
+    Eski sürüm panelin `media_container`ın sağ kenarına OTURDUĞUNU ölçüyordu
+    (`panel_rect.right() + 1 == container_right`). Panel artık pencerenin
+    İÇİNDE değil YANINDA olduğu için o eşitliğin karşılığı yoktur; kesişmeme
+    ve sağda durma sözleşmesi KORUNDU.
+    """
     app, window, frame = playlist_window
     panel = _open(app, window, frame)
-    video_top_left = frame.mapToGlobal(QPoint(0, 0))
-    container = window.media_container
-    container_origin = container.mapToGlobal(QPoint(0, 0))
-    container_right = container_origin.x() + container.width()
-    video_rect = QRect(video_top_left, frame.size())
-    # Panel embedding sonrası child olduğu için geometry() YEREL'dir; dock
-    # konumu global dikdörtgen üzerinden ölçülür.
+    video_rect = QRect(frame.mapToGlobal(QPoint(0, 0)), frame.size())
     panel_rect = QRect(panel.mapToGlobal(QPoint(0, 0)), panel.size())
+    owner_rect = window.frameGeometry()
 
-    assert panel_rect.right() + 1 == container_right
-    assert panel_rect.top() == container_origin.y()
-    assert panel.height() == container.height()
     assert not panel_rect.intersects(video_rect)
-    assert window.playlist_dock_host.width() == panel.width()
+    assert panel_rect.left() >= owner_rect.left() + owner_rect.width() - 2, (
+        "panel ana pencerenin saginda degil")
+    assert abs(panel_rect.top() - owner_rect.top()) <= 2
+    assert abs(panel.height() - owner_rect.height()) <= 2
     assert 360 <= panel.width() <= 600
 
 
-def test_panel_exposes_horizontal_split_handle_and_resizes_both_surfaces(
+def test_panel_exposes_horizontal_split_handle_and_resizes_only_itself(
         playlist_window):
+    """Genişletme artık videodan yer ÇALMAZ — sözleşme güçlendi.
+
+    Eski adı `..._resizes_both_surfaces`tı ve `frame.width()`in tam olarak
+    aynı kadar DARALMASINI şart koşuyordu. Bağımsız pencerede video alanı
+    hiç değişmez; beklenti gevşetilmedi, tersine çevrildi.
+    """
     app, window, frame = playlist_window
     panel = _open(app, window, frame)
     handle = panel.resize_handle
@@ -159,13 +173,12 @@ def test_panel_exposes_horizontal_split_handle_and_resizes_both_surfaces(
 
     assert handle.cursor().shape() == Qt.CursorShape.SizeHorCursor
     assert handle.width() >= 8
-    frame.set_playlist_panel_width(initial_panel + 90)
+    panel.set_panel_width(initial_panel + 90)
     app.processEvents()
     panel.finish_animation()
 
     assert panel.width() == initial_panel + 90
-    assert window.playlist_dock_host.width() == initial_panel + 90
-    assert frame.width() == initial_video - 90
+    assert frame.width() == initial_video, "playlist videodan yer caldi"
 
 
 def test_real_mouse_drag_on_split_handle_changes_panel_width(playlist_window):
@@ -240,7 +253,7 @@ def test_split_handle_stays_visible_and_hit_testable_after_owner_restore(
     handle = panel.resize_handle
     assert handle.isVisible()
     assert handle.width() >= 12
-    assert QApplication.widgetAt(handle.mapToGlobal(handle.rect().center())) is handle
+    assert panel.childAt(handle.geometry().center()) is handle
 
     window.hide()
     app.processEvents()
@@ -249,7 +262,7 @@ def test_split_handle_stays_visible_and_hit_testable_after_owner_restore(
 
     assert panel.is_open
     assert handle.isVisible()
-    assert QApplication.widgetAt(handle.mapToGlobal(handle.rect().center())) is handle
+    assert panel.childAt(handle.geometry().center()) is handle
 
 
 def test_transient_owner_deactivate_does_not_hide_panel_before_it_activates(
@@ -270,12 +283,15 @@ def test_panel_split_width_is_clamped_to_keep_video_and_playlist_usable(
     app, window, frame = playlist_window
     panel = _open(app, window, frame)
 
-    frame.set_playlist_panel_width(10_000)
+    # ÜRÜNÜN GERÇEK yolu kullanılır. Eskiden burada
+    # `frame.set_playlist_panel_width()` çağrılıyordu; o dock yoludur ve
+    # pencere modelinde etkisizdir, yani test BOŞUNA geçerdi.
+    panel.set_panel_width(10_000)
     app.processEvents()
     panel.finish_animation()
-    assert panel.width() <= window.media_container.width() - 200
+    assert panel.width() <= PANEL_MAX_WIDTH
 
-    frame.set_playlist_panel_width(1)
+    panel.set_panel_width(1)
     app.processEvents()
     panel.finish_animation()
     assert panel.width() >= 320
@@ -305,9 +321,14 @@ def test_panel_follows_resize_and_never_leaves_small_video(playlist_window):
     container_rect = QRect(origin, container.size())
     video_rect = QRect(frame.mapToGlobal(QPoint(0, 0)), frame.size())
     panel_rect = QRect(panel.mapToGlobal(QPoint(0, 0)), panel.size())
-    assert container_rect.contains(panel_rect)
+    assert not container_rect.intersects(panel_rect), (
+        "panel artik pencerenin YANINDA; icine girmemeli")
     assert not panel_rect.intersects(video_rect)
-    assert frame.width() == 0
+    # ESKI BEKLENTI: dar pencerede playlist icerik alanini DEVRALIR ve
+    # video genisligi 0'a duserdi (`frame.width() == 0`). Bagimsiz
+    # pencerede playlist videodan yer ALMADIGI icin video kucuk pencerede
+    # de tam genisligini korur. Beklenti gevsetilmedi, tersine cevrildi.
+    assert frame.width() > 0, "kucuk pencerede video yok oldu"
 
 
 def test_rows_show_filename_and_unique_current_marker(playlist_window):
@@ -335,8 +356,9 @@ def test_row_children_do_not_block_real_list_mouse_gestures(playlist_window):
     assert row.drag_handle.text() == "⠿"
     assert "sırala" in panel.playlist_view.item(0).toolTip().lower()
 
-    hit = QApplication.widgetAt(row.mapToGlobal(row.rect().center()))
-    assert hit is panel.playlist_view.viewport()
+    hit = panel.playlist_view.viewport().childAt(
+        panel.playlist_view.viewport().rect().center())
+    assert hit is None, "satir cocuklari listenin faresini engelliyor"
 
 
 def test_thumbnail_is_not_a_second_fake_play_button(playlist_window):
@@ -462,13 +484,16 @@ def test_footer_actions_use_existing_player_flows(playlist_window):
 
 def test_playlist_toggle_and_escape_close_the_panel(playlist_window):
     app, window, frame = playlist_window
+    video_width_before = frame.width()
     panel = _open(app, window, frame)
 
     show_playlist(window)
     panel.finish_animation()
     app.processEvents()
     assert not panel.isVisible()
-    assert window.playlist_dock_host.width() == 0
+    # Eskiden `playlist_dock_host.width() == 0` olcuurdu; host yok. Kapanisin
+    # gorunur sonucu: video alani hic degismemis olmali.
+    assert frame.width() == video_width_before
     assert frame.isVisible()
 
 

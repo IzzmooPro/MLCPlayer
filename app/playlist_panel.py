@@ -51,8 +51,10 @@ class PlaylistResizeHandle(QWidget):
         if (self._press_global_x is not None
                 and event.buttons() & Qt.MouseButton.LeftButton):
             delta = self._press_global_x - int(event.globalPosition().x())
-            self.panel.video_frame.set_playlist_panel_width(
-                self._press_width + delta)
+            # TEK genişlik yolu panelindir; tutamaç ile panelin kendi
+            # sürüklemesi ayrışmamalıdır (ayrışmıştı: tutamaç dock yolunu
+            # çağırıyordu ve pencere modelinde hiçbir şey yapmıyordu).
+            self.panel.set_panel_width(self._press_width + delta)
             event.accept()
             return
         super().mouseMoveEvent(event)
@@ -259,117 +261,120 @@ class PlaylistRow(QWidget):
         return True
 
 
-class DockPlacement:
-    """Panelin GÖMÜLÜ yerleşim mekaniği — TEK yerde toplanmış hâli.
+#: Panelin bagimsiz pencere olarak varsayilan genisligi (px).
+PANEL_WINDOW_DEFAULT_WIDTH = 420
+#: Ana pencereyle arasinda birakilan bosluk. 0 = bitisik (yapisik).
+PANEL_WINDOW_GAP = 0
+#: Genislik sinirlari. ALT sinir okunabilirlik icindir. UST sinir gomulu
+#: mimaride "container - 200" ile ORTULU olarak vardi; bagimsiz pencerede
+#: o hesap ortadan kalkinca sinir da kalkmisti ve 10000 px'lik bir pencere
+#: uretilebiliyordu. Sinir artik acikca burada.
+PANEL_MIN_WIDTH = 320
+PANEL_MAX_WIDTH = 900
 
-    AŞAMA 1 DİKİŞİ (17 Ağustos 2026). Panel artık nerede duracağını
-    KENDİSİ hesaplamaz; bütün geometri buradan geçer. Amaç, playlist'i
-    bağımsız pencereye taşıma planının 2. aşamasında YALNIZ bu sınıfın
-    yerine bir pencere yerleşimi koyabilmektir. Panelin genel API'si
-    (`is_open`, `open_animated`, `refresh`, `playlist_view`…) ve
-    kullanıcıya görünen davranış bu aşamada DEĞİŞMEZ.
 
-    `host` yoksa (klasik/test yardımcı pencereleri) panel yine top-level
-    ÜRETMEZ; yerleşim etkisiz kalır ve panel kendi boyutunda durur.
+class WindowPlacement:
+    """Panelin BAĞIMSIZ PENCERE yerleşimi (aşama 2).
+
+    `DockPlacement`in yerini alır. Panel artık ana pencerenin İÇİNDE değil,
+    YANINDA durur: sahipli bir top-level penceredir ve ana pencerenin sağ
+    kenarına hizalanır. Video alanı playlist'ten ETKİLENMEZ.
+
+    Neden `Qt.Window`, `Qt.Tool` DEĞİL: panel bir zamanlar `Tool`du ve
+    kullanıcı "başka uygulama öne gelince playlist kayboluyor" diye
+    raporlamıştı. Qt'de `Tool` pencereleri uygulama odağı kaybedince
+    gizlenir; belirtinin sebebi ayrı pencere olmak değil, `Tool` olmaktı.
+    Sahipli `Window` ana pencereyle birlikte simge durumuna iner, onun
+    üstünde durur ama BAŞKA uygulamaların üstünde yüzmez.
+    `WindowStaysOnTopHint` KULLANILMAZ.
+
+    Aşama 3 (mıknatıs) bu sınıfın üstüne gelir: şu an panel her zaman
+    yapışıktır, sürükleyip ayırma sonraki adımdır.
     """
 
-    def __init__(self, panel, host, video_frame):
+    def __init__(self, panel, owner, video_frame):
         self.panel = panel
-        self.host = host
+        self.owner = owner
         self.video_frame = video_frame
-        self._offset_x = 0
+        self._width = PANEL_WINDOW_DEFAULT_WIDTH
 
     @property
     def embedded(self):
-        return self.host is not None
-
-    @property
-    def offset(self):
-        """Panelin host içindeki yerel x konumu (görsel animasyon durumu)."""
-        return self._offset_x
+        return False
 
     @property
     def target_width(self):
-        """Dock'un açıkken ayırması gereken genişlik."""
-        if not self.embedded:
-            return self.panel.width()
-        return max(1, self.host.width())
+        return self._width
 
-    def open_start_offset(self):
-        """Açılış animasyonunun BAŞLANGIÇ ofseti (panel sağda, görünmez).
-
-        NOT: ham `host.width()` kullanılır, `max(1, …)` DEĞİL. Kapanış
-        hedefiyle (`closed_offset`) arasındaki bu 1 px'lik fark ayıklama
-        öncesinde de vardı ve aşama 1 davranışı değiştirmediği için
-        AYNEN korunmuştur. Birleştirilmesi ayrı bir karardır.
-        """
-        return int(self.host.width()) if self.embedded else 0
-
-    def closed_offset(self):
-        """Kapanış animasyonunun HEDEF ofseti (tamamen kapalı)."""
-        return int(max(1, self.host.width())) if self.embedded else 0
+    def set_width(self, width):
+        self._width = max(PANEL_MIN_WIDTH, min(PANEL_MAX_WIDTH, int(width)))
 
     def apply(self):
-        """Paneli host'u dolduracak boyuta getirir ve ofsetine yerleştirir.
-
-        Genişlik/yükseklik host'tan gelir, konum ise animasyon ofsetinden.
-        Host child'ını clip ettiği için ofset > 0 iken panelin dışarı taşan
-        kısmı çizilmez; video üzerine taşma oluşmaz.
-        """
-        if not self.embedded:
+        """Paneli ana pencerenin SAĞINA, aynı yükseklikte hizalar."""
+        owner = self.owner
+        if owner is None or not owner.isVisible():
             return
-        width = max(1, self.host.width())
-        height = max(1, self.host.height())
-        self.panel.setGeometry(int(self._offset_x), 0, width, height)
-
-    def set_offset(self, value):
-        # Yalnızca panelin kendi konumu değişir: host genişliği,
-        # media_container layout'u, VideoFrame ve MPV native wid yüzeyi
-        # DOKUNULMADAN kalır.
-        self._offset_x = int(value)
-        self.apply()
-
-    def reveal_surface(self):
-        if self.embedded:
-            self.host.show()
+        frame = owner.frameGeometry()
+        x = frame.right() + 1 + PANEL_WINDOW_GAP
+        y = frame.top()
+        height = max(200, frame.height())
+        self.panel.setGeometry(x, y, self._width, height)
 
     def reserve(self):
-        self.video_frame.reserve_playlist_dock()
+        """Pencere modelinde video alanindan yer AYRILMAZ."""
+        return None
 
     def release(self):
-        self.video_frame.release_playlist_dock()
+        return None
+
+    def reveal_surface(self):
+        return None
 
 
 class PlaylistPanel(QWidget):
-    """Sinematik arayüzün sağdan açılan oynatma listesi paneli.
+    """Oynatma listesi — ana pencerenin YANINDA duran bağımsız pencere.
 
-    Panel `playlist_dock_host`'un GERÇEK child widget'ıdır; ayrı bir top-level
-    `Tool` penceresi değildir. Böylece video ile kesişmesi yapısal olarak
-    imkânsızdır, Windows onu bağımsız sıralayamaz veya bayat global geometride
-    bırakamaz ve ana pencereyle aynı görünürlük yaşam döngüsünü paylaşır.
+    AŞAMA 2 (17 Ağustos 2026, kullanıcı kararı). Panel artık ana pencerenin
+    gömülü child'ı DEĞİL, onun SAHİPLİ top-level penceresidir. Video alanı
+    playlist açılınca daralmaz.
+
+    Sahiplik önemlidir ve `Qt.Tool` KULLANILMAZ: panel bir zamanlar `Tool`du
+    ve "başka uygulama öne gelince playlist kayboluyor" hatası bundandı
+    (Qt'de `Tool` pencereleri uygulama odağı kaybedince gizlenir). Sahipli
+    `Qt.Window` ana pencereyle birlikte simge durumuna iner ve geri gelir,
+    onun üstünde durur, ama başka uygulamaların üstünde YÜZMEZ.
+    `WindowStaysOnTopHint` kullanılmaz.
+
+    Videoyla kesişme artık "yapısal olarak imkânsız" değil, ÖLÇÜLEREK
+    korunur: panel videonun yanındadır ve geometriler kesişmez
+    (`tests/test_playlist_window_regressions.py`).
     """
 
     def __init__(self, player, video_frame):
-        host = getattr(player, "playlist_dock_host", None)
-        # Klasik/test yardımcı pencerelerinde dock host bulunmayabilir; o
-        # durumda bile top-level pencere ÜRETİLMEZ, panel video çerçevesinin
-        # child'ı olarak kalır.
-        super().__init__(host if host is not None else video_frame)
+        # Sahipli top-level pencere: parent ana penceredir, bayrak `Window`.
+        # SAHİP GERÇEK BİR QWidget OLMAYABİLİR: içerik testleri (thumbnail,
+        # satır durumu) paneli sahte bir `player` nesnesiyle kurar ve
+        # konularının sahiplikle ilgisi yoktur. Eski kod da eksik host'u
+        # savunmacı ele alıyordu; aynı politika korunur.
+        owner = player if isinstance(player, QWidget) else None
+        super().__init__(owner, Qt.WindowType.Window)
         self.player = player
         self.video_frame = video_frame
-        self.host = host
+        self.host = None
+        self.setWindowTitle(tr("Oynatma Listesi"))
         self._target_open = False
         self._split_press_global_x = None
         self._split_press_width = 0
-        # Yerleşim TEK yerde: `DockPlacement`. Ofset 0 = tamamen açık,
-        # host.width() = tamamen kapalı (host tarafından clip edilir).
-        self._placement = DockPlacement(self, host, video_frame)
-        if host is not None:
-            # NOT: Panel host layout'una EKLENMEZ. Açılış/kapanış animasyonu
-            # host genişliğini her karede değiştirmek yerine paneli host
-            # içinde kaydırır; layout'a bağlı olsaydı her karede yeniden
-            # konumlandırılır ve kaydırma mümkün olmazdı.
-            host.installEventFilter(self)
+        # Yerleşim TEK yerde (aşama 1 dikişi). Aşama 2'de gömülü yerleşimin
+        # yerini bağımsız pencere yerleşimi aldı; panelin genel API'si aynı.
+        self._placement = WindowPlacement(self, owner, video_frame)
+        # Ana pencere taşınır/boyutlanırsa panel ONU İZLER. Bayat global
+        # geometri eski mimaride paneli videonun ÜSTÜNE bindiriyordu; panel
+        # artık videonun YANINDA olduğu için en kötü durum yanlış konumdur,
+        # örtme değildir. Yine de izleme açık tutulur.
+        self._owner = owner
+        if owner is not None:
+            owner.installEventFilter(self)
 
         self.setObjectName("playlistPanel")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
@@ -486,7 +491,7 @@ class PlaylistPanel(QWidget):
         self.animation = QVariantAnimation(self)
         self.animation.setDuration(PANEL_ANIMATION_MS)
         self.animation.setEasingCurve(QEasingCurve.Type.OutCubic)
-        self.animation.valueChanged.connect(self._apply_animated_offset)
+        self.animation.valueChanged.connect(self._apply_animated_opacity)
         self.animation.finished.connect(self._animation_finished)
         self.thumbnail_service = ThumbnailService(self)
         self.thumbnail_service.thumbnail_ready.connect(self._thumbnail_ready)
@@ -501,40 +506,42 @@ class PlaylistPanel(QWidget):
 
     @property
     def target_width(self):
-        """Dock'un açıkken ayırması gereken genişlik."""
+        """Panelin açıkken alacağı genişlik."""
         return self._placement.target_width
 
-    @property
-    def slide_offset(self):
-        """Panelin host içindeki yerel x konumu (görsel animasyon durumu)."""
-        return self._placement.offset
-
     def apply_panel_geometry(self):
-        """Paneli yerleşimin söylediği yere koyar (bkz. `DockPlacement`)."""
+        """Paneli yerleşimin söylediği yere koyar (bkz. `WindowPlacement`)."""
         self._placement.apply()
 
-    def _apply_animated_offset(self, value):
-        self._placement.set_offset(value)
+    def set_panel_width(self, width):
+        """Panel genişliğinin TEK giriş noktası (tutamaç ve kenar sürüklemesi).
+
+        Pencere modelinde genişlik ana pencereden yer ÇALMAZ; video alanı
+        etkilenmez.
+        """
+        self._placement.set_width(width)
+        self.apply_panel_geometry()
+
+    def _apply_animated_opacity(self, value):
+        """Görsel geçiş artık KAYDIRMA değil, pencere opaklığıdır.
+
+        Top-level bir pencereyi her karede taşımak Windows'ta titriyor ve
+        ana pencereyle senkron kalmıyor. Opaklık ucuzdur ve panelin konumu
+        geçiş boyunca sabit kalır.
+        """
+        self.setWindowOpacity(max(0.0, min(1.0, float(value))))
 
     def open_animated(self):
         self.refresh()
-        already_open = self._target_open
         self._target_open = True
         self.animation.stop()
-        if not self._placement.embedded:
-            self.show()
-            return
-        # Hedef genişlik BİR KEZ ayrılır; video/MPV yüzeyi tek sefer yeniden
-        # boyutlanır. Animasyon bundan sonra yalnızca paneli kaydırır.
-        if not already_open:
-            self._placement.reserve()
-        self._placement.reveal_surface()
-        start = (self._placement.offset if already_open
-                 else self._placement.open_start_offset())
-        self._apply_animated_offset(start)
+        # Video yüzeyi DOKUNULMADAN kalır: pencere modelinde yer ayrılmaz.
+        self.apply_panel_geometry()
+        self._apply_animated_opacity(0.0)
         self.show()
-        self.animation.setStartValue(int(start))
-        self.animation.setEndValue(0)
+        self.raise_()
+        self.animation.setStartValue(0.0)
+        self.animation.setEndValue(1.0)
         self.animation.start()
 
     def close_animated(self):
@@ -542,30 +549,25 @@ class PlaylistPanel(QWidget):
             return
         self._target_open = False
         self.animation.stop()
-        if not self._placement.embedded:
-            self.hide()
-            return
-        # Tersine çevirmede mevcut görsel konumdan devam edilir; sıçrama yok.
-        self.animation.setStartValue(int(self._placement.offset))
-        self.animation.setEndValue(self._placement.closed_offset())
+        # Tersine çevirmede mevcut görsel durumdan devam edilir; sıçrama yok.
+        self.animation.setStartValue(float(self.windowOpacity()))
+        self.animation.setEndValue(0.0)
         self.animation.start()
 
     def finish_animation(self):
         """Test/smoke için animasyonu deterministik son durumuna taşır."""
         self.animation.stop()
         if self._target_open:
-            if self._placement.embedded:
-                self._placement.reserve()
-                self._placement.reveal_surface()
-            self._apply_animated_offset(0)
+            self.apply_panel_geometry()
+            self._apply_animated_opacity(1.0)
             self.show()
         else:
             self._finish_closed()
 
     def _finish_closed(self):
-        """Kapanış sonu: host genişliği TEK SEFERDE 0, video tek seferde büyür."""
-        self._apply_animated_offset(0)
+        """Kapanış sonu: pencere gizlenir, opaklık bir sonraki açılış için sıfırlanır."""
         self.hide()
+        self._apply_animated_opacity(1.0)
         self._placement.release()
         self.video_frame.schedule_overlay_hide()
 
@@ -734,8 +736,7 @@ class PlaylistPanel(QWidget):
         if (self._split_press_global_x is not None
                 and event.buttons() & Qt.MouseButton.LeftButton):
             delta = self._split_press_global_x - int(event.globalPosition().x())
-            self.video_frame.set_playlist_panel_width(
-                self._split_press_width + delta)
+            self.set_panel_width(self._split_press_width + delta)
             event.accept()
             return
         if event.position().x() <= PANEL_RESIZE_HANDLE_WIDTH:
@@ -757,10 +758,16 @@ class PlaylistPanel(QWidget):
             self.unsetCursor()
         super().leaveEvent(event)
 
+    #: Ana pencerenin panelin KONUMUNU etkileyen olayları.
+    _OWNER_FOLLOW_EVENTS = (QEvent.Type.Resize, QEvent.Type.Move,
+                            QEvent.Type.WindowStateChange)
+
     def eventFilter(self, watched, event):
-        # Host yeniden boyutlandığında panel onu doldurmaya devam etmeli;
-        # bu tek yol layout'un yerini alır (bkz. __init__ notu).
-        if watched is self.host and event.type() == QEvent.Type.Resize:
+        # Ana pencere taşınır/boyutlanırsa panel onu İZLER. Panel yalnız
+        # AÇIKKEN taşınır; kapalıyken konum hesaplamak gereksiz iştir.
+        if (watched is self._owner and self._owner is not None
+                and self._target_open
+                and event.type() in self._OWNER_FOLLOW_EVENTS):
             self.apply_panel_geometry()
         return super().eventFilter(watched, event)
 

@@ -103,16 +103,14 @@ class FrameRecorder:
         self.samples = []
 
     def __call__(self, value):
-        host = self.window.playlist_dock_host
         # Ürünün layout akışı bu noktada zaten uygulanmış olmalıdır.
         self.samples.append({
-            "value": int(value),
-            "host_width": host.width(),
+            "value": float(value),
             "panel_width": self.panel.width(),
             "panel_visible": self.panel.isVisible(),
             "panel_rect": global_rect(self.panel),
             "video_rect": global_rect(self.frame),
-            "host_rect": global_rect(host),
+            "owner_rect": self.window.frameGeometry(),
         })
 
     def attach(self):
@@ -133,32 +131,28 @@ def drive_animation(app, panel, recorder, steps=12):
 
 
 def assert_frame_is_sane(sample, index, phase):
-    """Kareyi GÖRÜNÜR (host tarafından kırpılmış) dikdörtgen üzerinden ölçer.
+    """Her geçiş karesinde playlist videoyla KESİŞMEMELİ.
 
-    Animasyon artık host genişliğini değil, panelin host içindeki yerel x
-    konumunu değiştiriyor. Panel kapalıya doğru kayarken geometrisinin bir
-    kısmı host'un dışında kalır; host child'ını clip ettiği için kullanıcının
-    gördüğü şey kesişimdir. Ölçüm de bu yüzden kesişim üzerinden yapılır.
+    ÖLÇÜM SADELEŞTİ (17 Ağustos 2026). Eskiden panel host'un içinde
+    kaydırılıyordu ve kullanıcının gördüğü şey host'un KIRPTIĞI kesişimdi;
+    bu yüzden ölçüm "görünür dikdörtgen" üzerinden yapılıyordu. Panel artık
+    bağımsız bir penceredir, kırpılma yoktur ve geometrisinin tamamı
+    gerçektir. Kesişmeme sözleşmesi aynen KORUNDU; ek olarak panelin
+    geçiş boyunca ana pencerenin sağında kaldığı da denetlenir.
     """
     panel_rect = sample["panel_rect"]
     video_rect = sample["video_rect"]
-    host_rect = sample["host_rect"]
-    visible_rect = panel_rect.intersected(host_rect)
+    owner_rect = sample["owner_rect"]
 
     overlap = panel_rect.intersected(video_rect)
     assert overlap.isEmpty(), (
-        f"{phase} karesi #{index} (ofset={sample['value']}): playlist "
+        f"{phase} karesi #{index} (opaklik={sample['value']:.2f}): playlist "
         f"{panel_rect} video {video_rect} ile kesişiyor -> {overlap}")
-    if sample["panel_visible"] and sample["host_width"] > 0:
-        if visible_rect.isEmpty():
-            # Panel tamamen dışarı kaydı: kapanışın doğru son durumu.
-            return
-        assert host_rect.contains(visible_rect), (
-            f"{phase} karesi #{index}: görünür panel {visible_rect} host "
-            f"{host_rect} dışına taştı")
-        assert sample["panel_width"] == sample["host_width"], (
-            f"{phase} karesi #{index}: panel {sample['panel_width']} != host "
-            f"{sample['host_width']}")
+    if sample["panel_visible"]:
+        assert panel_rect.left() >= owner_rect.left() + owner_rect.width() - 2, (
+            f"{phase} karesi #{index}: panel ana pencerenin saginda degil")
+        assert sample["panel_width"] >= 320, (
+            f"{phase} karesi #{index}: panel {sample['panel_width']} px")
 
 
 def test_opening_animation_never_intersects_the_video(dock_window):
@@ -179,9 +173,11 @@ def test_opening_animation_never_intersects_the_video(dock_window):
         assert_frame_is_sane(sample, index, "açılış")
 
     # Açılış gerçekten genişleyen bir aralık taramalı (tek kareye çökmemeli).
-    widths = [sample["value"] for sample in samples]
-    assert min(widths) < max(widths)
-    assert max(widths) >= 320
+    # Gecis gercekten bir aralik taramali (tek kareye cokmemeli).
+    # Olculen deger artik host genisligi DEGIL, pencere opakligidir.
+    opacities = [sample["value"] for sample in samples]
+    assert min(opacities) < max(opacities)
+    assert max(opacities) >= 0.9
 
 
 def test_closing_animation_never_intersects_the_video(dock_window):
@@ -205,15 +201,16 @@ def test_closing_animation_never_intersects_the_video(dock_window):
     for index, sample in enumerate(samples):
         assert_frame_is_sane(sample, index, "kapanış")
 
-    widths = [sample["value"] for sample in samples]
-    assert min(widths) < max(widths), "kapanış tek genişlikte kaldı"
+    opacities = [sample["value"] for sample in samples]
+    assert min(opacities) < max(opacities), "kapanis tek opaklikta kaldi"
 
-    # Kapanış: host genişliği 0, panel gizli, video eski genişliğine döner.
+    # Kapanis: panel gizli. Video genisligi HIC degismedi -- eskiden
+    # "video eski genisligine DONER" deniyordu; bagimsiz pencerede video
+    # zaten hic daralmaz, yani beklenti gevsemedi, guclendi.
     panel.finish_animation()
     app.processEvents()
-    assert window.playlist_dock_host.width() == 0
     assert not panel.isVisible()
-    assert frame.width() > video_width_open
+    assert frame.width() == video_width_open
 
 
 @pytest.mark.parametrize("size", ((1280, 720), (1600, 900), (1024, 640)))
@@ -253,18 +250,16 @@ def test_resize_during_the_opening_animation_stays_clean(dock_window):
         frame.update_playlist_panel_geometry()
         app.processEvents()
 
-        # Bu AN kritiktir: yeniden boyutlandırma dock genişliğini değiştirir
-        # ama bir sonraki animasyon karesi henüz gelmemiştir. Layout burada
-        # konumlarıyla birlikte tazelenmezse host yeni genişlikte ama eski
-        # x konumunda kalır ve panel videoyla kesişir.
+        # Bu AN kritiktir: ana pencere boyutlandi ama bir sonraki gecis
+        # karesi henuz gelmedi. Panel ana pencereyi izlemezse bayat
+        # konumda kalir.
         mid = {
-            "value": window.playlist_dock_host.width(),
-            "host_width": window.playlist_dock_host.width(),
+            "value": panel.windowOpacity(),
             "panel_width": panel.width(),
             "panel_visible": panel.isVisible(),
             "panel_rect": global_rect(panel),
             "video_rect": global_rect(frame),
-            "host_rect": global_rect(window.playlist_dock_host),
+            "owner_rect": window.frameGeometry(),
         }
         assert_frame_is_sane(mid, "resize-ani", "animasyon içi yeniden boyutlandırma")
 

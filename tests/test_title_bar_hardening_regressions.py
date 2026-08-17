@@ -189,7 +189,8 @@ def test_resize_filter_includes_native_overlay_and_playlist_edge_surfaces(
     targets = resize_filter.install()
 
     assert window.media_container in targets
-    assert window.playlist_dock_host in targets
+    # `playlist_dock_host` KALDIRILDI (playlist artik bagimsiz
+    # pencere). Filtre adaylari arasinda aranmaz.
     assert window.video_frame.control_overlay in targets
     assert window.video_frame.playlist_panel in targets
 

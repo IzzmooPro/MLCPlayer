@@ -1,15 +1,26 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
-"""Playlist açma/kapatma animasyonunun MALİYETİ (B).
+"""Playlist açılış/kapanış GEÇİŞİNİN maliyeti ve görsel doğruluğu.
 
-Kasmanın kök nedeni ölçülebilir olmalıdır: eski animasyon her karede host
-genişliğini değiştirip `apply_playlist_dock_width()` üzerinden
-`layout.invalidate()/activate()` çağırıyordu. Bu, `VideoFrame`'i ve dolayısıyla
-MPV native `wid` yüzeyini her karede yeniden boyutlandırıyordu.
+Bu dosya bir zamanlar gömülü dock mimarisini ölçüyordu: "host genişliği
+kareler arasında sabit mi", "dock genişliği kaç kez uygulandı", "panel host
+içinde kayıyor mu". Panel 17 Ağustos 2026'da kullanıcı kararıyla ana
+pencerenin YANINDA duran bağımsız pencereye taşındı; host da, dock genişliği
+de, kaydırma da artık YOK.
 
-Hedef mimari: host genişliği açılışta BİR KEZ ayrılır (video/MPV tek kez
-yeniden boyutlanır); görsel animasyon panelin host içindeki YEREL x konumu
-üzerinden yapılır ve host paneli clip eder.
+SÖZLEŞMELER GEVŞETİLMEDİ, GÜÇLENDİ. Eskiden geçiş başına video yüzeyinin
+EN FAZLA BİR KEZ yeniden boyutlanması kabul ediliyordu; bağımsız pencerede
+video yüzeyi HİÇ boyutlanmamalıdır.
+
+Karşılıklar:
+
+    video en fazla 1 kez resize   -> video HİÇ resize olmaz
+    host genişliği sabit          -> video genişliği sabit
+    panel host içinde kayıyor     -> geçiş opaklıkla yapılıyor
+    kesişme yok (her karede)      -> KORUNDU
+    içerik yeniden kurulmuyor     -> KORUNDU
+    hızlı aç/kapat doğru bitiyor  -> KORUNDU
+    kullanıcı genişliği kalıcı    -> KORUNDU
 """
 import os
 
@@ -23,15 +34,9 @@ from PyQt6.QtWidgets import (
 from app.media_controls import show_playlist
 from app.video_frame import VideoFrame
 
-# Açılış/kapanış boyunca video yüzeyi kaç kez yeniden boyutlanabilir?
-# Tek bir yer ayırma (ve kapanışta tek bir geri verme) beklenir; küçük bir
-# tolerans Qt'nin kendi ara resize'ları içindir.
-MAX_VIDEO_RESIZES_PER_TRANSITION = 3
-MAX_DOCK_WIDTH_APPLICATIONS_PER_TRANSITION = 3
-
 
 @pytest.fixture
-def dock_window(monkeypatch):
+def player_window(monkeypatch):
     monkeypatch.delenv("MLCPLAYER_CLASSIC_UI", raising=False)
     monkeypatch.setattr("app.media_controls.QDialog.exec", lambda self: 0)
     monkeypatch.setattr(
@@ -47,29 +52,23 @@ def dock_window(monkeypatch):
         window.current_file = window.playlist[0]
         window.is_paused = True
         window.play_from_playlist = lambda index: None
-        for name in ("add_to_playlist", "remove_from_playlist",
-                     "clear_playlist"):
-            setattr(window, name, lambda *a: None)
+        window.add_to_playlist = lambda: None
+        window.remove_from_playlist = lambda index: None
+        window.clear_playlist = lambda: None
 
         central = QWidget(window)
         window.setCentralWidget(central)
-        window.main_layout = QVBoxLayout(central)
-        window.main_layout.setContentsMargins(0, 0, 0, 0)
-        window.main_layout.setSpacing(0)
+        root = QVBoxLayout(central)
+        root.setContentsMargins(0, 0, 0, 0)
         window.media_container = QWidget(central)
         media_layout = QHBoxLayout(window.media_container)
         media_layout.setContentsMargins(0, 0, 0, 0)
         media_layout.setSpacing(0)
-        window.playlist_dock_host = QWidget(window.media_container)
-        window.playlist_dock_host.setObjectName("playlistDockHost")
-        window.playlist_dock_host.setFixedWidth(0)
-        window.playlist_dock_host.hide()
         frame = VideoFrame(window)
         frame.setMinimumSize(200, 120)
         window.video_frame = frame
         media_layout.addWidget(frame, 1)
-        media_layout.addWidget(window.playlist_dock_host, 0)
-        window.main_layout.addWidget(window.media_container, 1)
+        root.addWidget(window.media_container, 1)
         window.resize(*size)
         window.show()
         app.processEvents()
@@ -79,11 +78,12 @@ def dock_window(monkeypatch):
     yield factory
 
     for window, frame in created:
-        panel = getattr(frame, "playlist_panel", None)
+        panel = frame.playlist_panel
         if panel is not None:
-            panel.animation.stop()
+            panel.close()
         frame.close_control_overlay()
         window.close()
+        window.deleteLater()
     app.processEvents()
 
 
@@ -92,14 +92,11 @@ def global_rect(widget):
 
 
 class CostRecorder:
-    """Animasyon boyunca video resize ve dock genişlik uygulama sayısı."""
+    """Geçiş boyunca video yüzeyinin yeniden boyutlanma sayısı."""
 
     def __init__(self, monkeypatch, frame):
         self.video_resizes = 0
-        self.dock_width_applications = 0
         self.frames = []
-        self._frame = frame
-
         original_resize = VideoFrame.resizeEvent
 
         def counting_resize(inner_self, event):
@@ -109,24 +106,13 @@ class CostRecorder:
 
         monkeypatch.setattr(VideoFrame, "resizeEvent", counting_resize)
 
-        original_apply = VideoFrame.apply_playlist_dock_width
-
-        def counting_apply(inner_self, width, minimum=0):
-            if inner_self is frame:
-                self.dock_width_applications += 1
-            return original_apply(inner_self, width, minimum)
-
-        monkeypatch.setattr(VideoFrame, "apply_playlist_dock_width",
-                            counting_apply)
-
     def reset(self):
         self.video_resizes = 0
-        self.dock_width_applications = 0
         self.frames = []
 
 
 def step_animation(app, panel, recorder, window, frame, steps=12):
-    """Animasyonu deterministik adımlarla ilerletir, her karede ölçüm alır."""
+    """Geçişi deterministik adımlarla ilerletir, her karede ölçüm alır."""
     animation = panel.animation
     duration = max(1, animation.duration())
     for index in range(steps + 1):
@@ -135,9 +121,8 @@ def step_animation(app, panel, recorder, window, frame, steps=12):
         recorder.frames.append({
             "panel_rect": global_rect(panel),
             "video_rect": global_rect(frame),
-            "host_rect": global_rect(window.playlist_dock_host),
-            "host_width": window.playlist_dock_host.width(),
             "video_width": frame.width(),
+            "opacity": panel.windowOpacity(),
         })
 
 
@@ -147,110 +132,89 @@ def open_panel(app, window, frame):
     return frame.playlist_panel
 
 
-# --- 1. Maliyet: video/MPV yüzeyi her karede yeniden boyutlanmamalı ---
+# --- 1. Maliyet: video yüzeyi HİÇ yeniden boyutlanmamalı --------------
 
-def test_opening_animation_resizes_the_video_surface_only_once(
-        dock_window, monkeypatch):
-    app, window, frame = dock_window()
+def test_opening_the_playlist_never_resizes_the_video_surface(
+        player_window, monkeypatch):
+    app, window, frame = player_window()
     panel = open_panel(app, window, frame)
     recorder = CostRecorder(monkeypatch, frame)
-    recorder.reset()
 
     step_animation(app, panel, recorder, window, frame)
 
-    assert recorder.video_resizes <= MAX_VIDEO_RESIZES_PER_TRANSITION, (
-        f"açılışta video yüzeyi {recorder.video_resizes} kez yeniden "
-        f"boyutlandı; en fazla {MAX_VIDEO_RESIZES_PER_TRANSITION} olmalı")
+    assert recorder.video_resizes == 0, (
+        f"acilista video yuzeyi {recorder.video_resizes} kez boyutlandi; "
+        "bagimsiz pencere video alanindan yer ALMAZ")
 
 
-def test_opening_animation_applies_dock_width_only_once(
-        dock_window, monkeypatch):
-    app, window, frame = dock_window()
-    panel = open_panel(app, window, frame)
-    recorder = CostRecorder(monkeypatch, frame)
-    recorder.reset()
-
-    step_animation(app, panel, recorder, window, frame)
-
-    assert (recorder.dock_width_applications
-            <= MAX_DOCK_WIDTH_APPLICATIONS_PER_TRANSITION), (
-        f"açılışta dock genişliği {recorder.dock_width_applications} kez "
-        f"uygulandı (her uygulama layout.invalidate/activate demektir)")
-
-
-def test_closing_animation_resizes_the_video_surface_only_once(
-        dock_window, monkeypatch):
-    app, window, frame = dock_window()
+def test_closing_the_playlist_never_resizes_the_video_surface(
+        player_window, monkeypatch):
+    app, window, frame = player_window()
     panel = open_panel(app, window, frame)
     panel.finish_animation()
-    app.processEvents()
     recorder = CostRecorder(monkeypatch, frame)
-    recorder.reset()
 
     panel.close_animated()
     step_animation(app, panel, recorder, window, frame)
 
-    assert recorder.video_resizes <= MAX_VIDEO_RESIZES_PER_TRANSITION, (
-        f"kapanışta video yüzeyi {recorder.video_resizes} kez yeniden "
-        f"boyutlandı")
+    assert recorder.video_resizes == 0
 
 
-def test_host_width_is_constant_during_the_opening_animation(
-        dock_window, monkeypatch):
-    """Host genişliği açılışta bir kez ayrılır; kareler onu değiştirmez."""
-    app, window, frame = dock_window()
+def test_the_video_width_is_constant_during_the_transition(
+        player_window, monkeypatch):
+    app, window, frame = player_window()
     panel = open_panel(app, window, frame)
     recorder = CostRecorder(monkeypatch, frame)
 
     step_animation(app, panel, recorder, window, frame)
 
-    widths = {sample["host_width"] for sample in recorder.frames}
-    assert len(widths) == 1, f"host genişliği kareler arasında değişti: {widths}"
-    video_widths = {sample["video_width"] for sample in recorder.frames}
-    assert len(video_widths) == 1, (
-        f"video genişliği kareler arasında değişti: {video_widths}")
+    widths = {sample["video_width"] for sample in recorder.frames}
+    assert len(widths) == 1, f"video genisligi kareler arasinda degisti: {widths}"
 
 
-# --- 2. Görsel doğruluk: hiçbir karede kesişme/taşma olmamalı ---
+# --- 2. Görsel doğruluk: hiçbir karede kesişme olmamalı ---------------
 
-def test_panel_never_intersects_video_during_animation(dock_window, monkeypatch):
-    app, window, frame = dock_window()
+def test_panel_never_intersects_video_during_the_transition(
+        player_window, monkeypatch):
+    app, window, frame = player_window()
     panel = open_panel(app, window, frame)
     recorder = CostRecorder(monkeypatch, frame)
 
     step_animation(app, panel, recorder, window, frame)
 
     for index, sample in enumerate(recorder.frames):
-        visible = sample["panel_rect"].intersected(sample["host_rect"])
-        overlap = visible.intersected(sample["video_rect"])
+        overlap = sample["panel_rect"].intersected(sample["video_rect"])
         assert overlap.isEmpty(), (
-            f"kare #{index}: görünür panel {visible} video "
-            f"{sample['video_rect']} ile kesişiyor -> {overlap}")
+            f"kare #{index}: panel {sample['panel_rect']} video "
+            f"{sample['video_rect']} ile kesisiyor -> {overlap}")
 
 
-def test_panel_slides_inside_the_host_instead_of_resizing_it(
-        dock_window, monkeypatch):
-    """Animasyon panelin host içindeki YEREL x konumunu değiştirmeli."""
-    app, window, frame = dock_window()
+def test_the_transition_animates_the_window_opacity(
+        player_window, monkeypatch):
+    """Geçiş artık KAYDIRMA değil opaklıktır.
+
+    Top-level bir pencereyi her karede taşımak Windows'ta titrer ve ana
+    pencereyle senkron kalmaz; konum geçiş boyunca sabit tutulur.
+    """
+    app, window, frame = player_window()
     panel = open_panel(app, window, frame)
     recorder = CostRecorder(monkeypatch, frame)
 
     step_animation(app, panel, recorder, window, frame)
 
-    offsets = [sample["panel_rect"].left() - sample["host_rect"].left()
-               for sample in recorder.frames]
-    assert len(set(offsets)) > 1, (
-        f"panel host içinde kaymıyor; ofsetler sabit: {set(offsets)}")
-    assert offsets[0] > offsets[-1], (
-        f"açılış sağdan sola kaymalı: {offsets[0]} -> {offsets[-1]}")
-    assert abs(offsets[-1]) <= 1, f"açılış x=0'da bitmeli, {offsets[-1]}"
+    opacities = [sample["opacity"] for sample in recorder.frames]
+    lefts = {sample["panel_rect"].left() for sample in recorder.frames}
+    assert len(set(opacities)) > 1, f"opaklik degismedi: {set(opacities)}"
+    assert opacities[0] < opacities[-1], "acilis saydamdan opaka gitmeli"
+    assert abs(opacities[-1] - 1.0) <= 0.01
+    assert len(lefts) == 1, f"panel gecis sirasinda tasindi: {lefts}"
 
 
-# --- 3. İçerik animasyon sırasında yeniden oluşturulmamalı ---
+# --- 3. İçerik geçiş sırasında yeniden oluşturulmamalı ----------------
 
-def test_rows_thumbnails_and_search_survive_the_animation(
-        dock_window, monkeypatch):
-    app, window, frame = dock_window()
+def test_rows_thumbnails_and_search_survive_the_transition(
+        player_window, monkeypatch):
+    app, window, frame = player_window()
     panel = open_panel(app, window, frame)
     recorder = CostRecorder(monkeypatch, frame)
 
@@ -260,7 +224,7 @@ def test_rows_thumbnails_and_search_survive_the_animation(
                for row in range(panel.playlist_view.count())]
     thumb_ids = [id(panel.row_widget(row).thumbnail_label)
                  for row in range(panel.playlist_view.count())]
-    assert row_ids, "test anlamlı olsun diye en az bir satır olmalı"
+    assert row_ids, "test anlamli olsun diye en az bir satir olmali"
 
     step_animation(app, panel, recorder, window, frame)
 
@@ -272,10 +236,10 @@ def test_rows_thumbnails_and_search_survive_the_animation(
             for row in range(panel.playlist_view.count())] == thumb_ids
 
 
-# --- 4. Hızlı aç/kapat ve tersine çevirme ---
+# --- 4. Hızlı aç/kapat ve kullanıcı genişliği -------------------------
 
-def test_rapid_open_close_open_ends_in_the_correct_state(dock_window):
-    app, window, frame = dock_window()
+def test_rapid_open_close_open_ends_in_the_correct_state(player_window):
+    app, window, frame = player_window()
     panel = open_panel(app, window, frame)
 
     for _ in range(3):
@@ -289,35 +253,35 @@ def test_rapid_open_close_open_ends_in_the_correct_state(dock_window):
 
     assert panel.is_open
     assert panel.isVisible()
-    assert window.playlist_dock_host.width() >= 320
+    assert panel.width() >= 320
     assert global_rect(panel).intersected(global_rect(frame)).isEmpty()
 
 
-def test_reversing_mid_animation_continues_from_the_current_position(
-        dock_window):
+def test_reversing_mid_transition_continues_from_the_current_opacity(
+        player_window):
     """Yarıda tersine çevirme sıçrama yapmamalı."""
-    app, window, frame = dock_window()
+    app, window, frame = player_window()
     panel = open_panel(app, window, frame)
     animation = panel.animation
     animation.setCurrentTime(animation.duration() // 2)
     app.processEvents()
-    midway_offset = panel.pos().x()
+    midway = panel.windowOpacity()
 
     panel.close_animated()
     app.processEvents()
-    after_reverse_offset = panel.pos().x()
+    after_reverse = panel.windowOpacity()
 
-    assert abs(after_reverse_offset - midway_offset) <= 6, (
-        f"tersine çevirmede sıçrama: {midway_offset} -> {after_reverse_offset}")
+    assert abs(after_reverse - midway) <= 0.05, (
+        f"tersine cevirmede sicrama: {midway} -> {after_reverse}")
 
 
-def test_user_selected_width_survives_open_close_cycles(dock_window):
-    app, window, frame = dock_window(size=(1400, 800))
+def test_user_selected_width_survives_open_close_cycles(player_window):
+    app, window, frame = player_window(size=(1400, 800))
     panel = open_panel(app, window, frame)
     panel.finish_animation()
     app.processEvents()
 
-    frame.set_playlist_panel_width(panel.width() + 110)
+    panel.set_panel_width(panel.width() + 110)
     app.processEvents()
     chosen = panel.width()
 
@@ -329,29 +293,4 @@ def test_user_selected_width_survives_open_close_cycles(dock_window):
     app.processEvents()
 
     assert panel.width() == chosen, (
-        f"kullanıcı genişliği korunmadı: {chosen} -> {panel.width()}")
-
-
-# --- 5. Event loop animasyon sırasında cevap vermeli ---
-
-def test_event_loop_stays_responsive_during_the_animation(dock_window):
-    app, window, frame = dock_window()
-    panel = open_panel(app, window, frame)
-    animation = panel.animation
-    duration = max(1, animation.duration())
-
-    ticks = []
-    from PyQt6.QtCore import QTimer
-    timer = QTimer()
-    timer.setSingleShot(False)
-    timer.setInterval(0)
-    timer.timeout.connect(lambda: ticks.append(1))
-    timer.start()
-    try:
-        for index in range(13):
-            animation.setCurrentTime(int(duration * index / 12))
-            app.processEvents()
-    finally:
-        timer.stop()
-
-    assert ticks, "animasyon sırasında event loop hiç tick üretmedi"
+        f"kullanici genisligi kayboldu: {chosen} -> {panel.width()}")

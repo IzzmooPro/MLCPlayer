@@ -386,7 +386,6 @@ class FramelessResizeFilter(QObject):
             getattr(self.player, "central_widget", None),
             getattr(self.player, "title_bar", None),
             getattr(self.player, "media_container", None),
-            getattr(self.player, "playlist_dock_host", None),
             video_frame,
             overlay,
             getattr(video_frame, "playlist_panel", None),

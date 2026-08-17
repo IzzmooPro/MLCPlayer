@@ -333,9 +333,6 @@ class VideoFrame(QWidget):
         self.is_video_fullscreen = False
         self.control_overlay = None
         self.playlist_panel = None
-        self._playlist_saved_minimum_width = None
-        self._playlist_user_width = None
-        self._updating_playlist_dock = False
         self._overlay_updating_position = False
         self._overlay_updating_volume = False
         # Video sahnesi üzerindeki tekerlek kademesi için biriktirici.
@@ -679,120 +676,20 @@ class VideoFrame(QWidget):
         if self.playlist_panel is not None:
             self.playlist_panel.refresh()
 
-    def playlist_dock_target_width(self):
-        """Panelin açıkken alması gereken genişlik (tek doğruluk kaynağı).
-
-        Hem yer ayırma hem açılış animasyonu bu değeri kullanır; böylece host
-        ile panel arasında iki ayrı hesap oluşup bayat genişlik üretemez.
-        """
-        container = getattr(self.main_window, "media_container", None)
-        if container is None:
-            return 0
-        total_width = max(1, container.width())
-        if total_width < 720:
-            # Yan yana iki yüzey okunamayacak kadar daralır; playlist içerik
-            # alanını devralır.
-            return total_width
-        preferred = max(360, int(total_width * 0.42))
-        requested = (self._playlist_user_width
-                     if self._playlist_user_width is not None
-                     else min(560, preferred))
-        return max(320, min(int(requested), total_width - 200))
-
-    def reserve_playlist_dock(self):
-        """Video üstüne binmeden panel için içerik satırında gerçek yer ayırır."""
-        host = getattr(self.main_window, "playlist_dock_host", None)
-        container = getattr(self.main_window, "media_container", None)
-        if host is None or container is None or self._updating_playlist_dock:
-            return
-        self._updating_playlist_dock = True
-        try:
-            compact = max(1, container.width()) < 720
-            if self._playlist_saved_minimum_width is None:
-                self._playlist_saved_minimum_width = self.minimumWidth()
-
-            if compact:
-                # Video widget'ı görünür kalır ama genişliği 0'dır.
-                self.setMinimumWidth(0)
-                self.setMaximumWidth(0)
-            else:
-                self.setMaximumWidth(16777215)
-                self.setMinimumWidth(self._playlist_saved_minimum_width)
-
-            host.show()
-            self.apply_playlist_dock_width(self.playlist_dock_target_width(),
-                                           minimum=1)
-            panel = self.playlist_panel
-            if panel is not None and hasattr(panel, "resize_handle"):
-                panel.resize_handle.setVisible(not compact)
-        finally:
-            self._updating_playlist_dock = False
-
-    def apply_playlist_dock_width(self, width, minimum=0):
-        """Dock genişliğini uygular ve layout'u KONUMLARIYLA birlikte tazeler.
-
-        Hem yer ayırma hem açılış/kapanış animasyonu bu tek yolu kullanır.
-
-        NOT: setFixedWidth sonrası tek başına activate(), host'u yeni
-        genişlikle ama ESKİ x konumunda bırakabiliyordu; panel bu yüzden
-        videoyla kesişiyordu. invalidate() konumları da tazeler. İki ayrı
-        genişlik uygulama yolunun ayrışmaması için burada birleştirildi.
-        """
-        host = getattr(self.main_window, "playlist_dock_host", None)
-        if host is None:
-            return
-        host.setFixedWidth(max(minimum, int(width)))
-        container = getattr(self.main_window, "media_container", None)
-        layout = container.layout() if container is not None else None
-        if layout is not None:
-            layout.invalidate()
-            layout.activate()
-        panel = self.playlist_panel
-        apply_geometry = getattr(panel, "apply_panel_geometry", None)
-        if callable(apply_geometry):
-            apply_geometry()
-
-    def set_playlist_panel_width(self, width):
-        """Kullanıcının sürüklediği ayırıcıya göre dock genişliğini uygular."""
-        container = getattr(self.main_window, "media_container", None)
-        if container is None or container.width() < 720:
-            return
-        maximum = max(320, container.width() - 200)
-        self._playlist_user_width = max(320, min(int(width), maximum))
-        self.reserve_playlist_dock()
-        self.update_playlist_panel_geometry()
-
-    def release_playlist_dock(self):
-        host = getattr(self.main_window, "playlist_dock_host", None)
-        container = getattr(self.main_window, "media_container", None)
-        if host is None:
-            return
-        host.setFixedWidth(0)
-        host.hide()
-        self.setMaximumWidth(16777215)
-        if self._playlist_saved_minimum_width is not None:
-            self.setMinimumWidth(self._playlist_saved_minimum_width)
-        if container is not None and container.layout() is not None:
-            container.layout().activate()
-        # Video yeniden genişledikten sonra alt kontrol overlay'i yeni geometriyi
-        # hemen takip etsin.
-        self.update_overlay_geometry()
-
     def update_playlist_panel_geometry(self):
-        """Panelin yerini layout'a bırakır; global geometri hesabı yapmaz.
+        """Panele yerini YENIDEN hesaplattirir.
 
-        Panel `playlist_dock_host`'un child'ı olduğu için konumu yalnızca
-        ayrılan dock genişliğine bağlıdır. Bayat global dikdörtgen üretecek
-        ikinci bir hesap kasıtlı olarak yoktur.
+        Playlist artik ana pencerenin YANINDA duran bagimsiz bir penceredir
+        (bkz. `app/playlist_panel.py::WindowPlacement`). Video alanindan yer
+        AYRILMAZ; eski dock makinesi (`reserve_playlist_dock`,
+        `apply_playlist_dock_width`, `release_playlist_dock`,
+        `playlist_dock_target_width`, `set_playlist_panel_width`) bu adimda
+        KALDIRILDI. Birakilsaydi her overlay guncellemesinde video alani
+        daralmaya devam ederdi; olculdu: 982 -> 570 px.
         """
         panel = self.playlist_panel
         if panel is None or not panel.is_open:
             return
-        container = getattr(self.main_window, "media_container", None)
-        self.reserve_playlist_dock()
-        if container is not None and container.layout() is not None:
-            container.layout().activate()
-        # Panel host layout'unda olmadığı için boyut/konumu açıkça tazelenir.
         apply_geometry = getattr(panel, "apply_panel_geometry", None)
         if callable(apply_geometry):
             apply_geometry()
@@ -819,9 +716,9 @@ class VideoFrame(QWidget):
     def _wheel_targets_video_scene(self, event):
         """Teker YALNIZ açık videonun çıplak sahnesinde ele alınır.
 
-        Yer tutucu ekranda (medya yok) ve playlist paneli gibi kaydırılabilir
-        çocuk yüzeylerin üzerinde olay ürüne bırakılır; kontrol katmanı ve
-        menüler ayrı pencerelerdir, zaten buraya düşmez.
+        Yer tutucu ekranda (medya yok) ve kaydırılabilir ÇOCUK yüzeylerin
+        üzerinde olay ürüne bırakılır; kontrol katmanı, menüler ve playlist
+        ayrı pencerelerdir, zaten buraya düşmez.
         """
         if not getattr(self.main_window, "current_file", None):
             return False

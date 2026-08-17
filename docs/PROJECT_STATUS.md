@@ -61,9 +61,71 @@ bitmap/PGS altyazıda bant garantisi verilemiyor; FFmpeg patent tarafı
 100.000 birim/yıl eşiğine bağlandı (bugün sorun yok).
 
 
+## Playlist bağımsız pencere — AŞAMA 1 ve 2 BİTTİ (17 Ağustos 2026)
+
+**Aşama 1 (dikiş):** panel nerede duracağını kendisi hesaplamayı bıraktı;
+bütün geometri tek bir yerleşim nesnesinden geçiyor. Davranış değişmedi.
+
+**Aşama 2 (bağımsız pencere):** panel artık ana pencerenin SAHİPLİ
+top-level penceresidir ve onun SAĞINDA durur. Dock makinesi tamamen
+kaldırıldı (`playlist_dock_host`, `reserve/release_playlist_dock`,
+`apply_playlist_dock_width`, `playlist_dock_target_width`,
+`set_playlist_panel_width`, `DockPlacement` — 180+ satır). Geçiş
+kaydırma değil OPAKLIK; top-level pencereyi her karede taşımak
+Windows'ta titriyor.
+
+**Gerçek pencere kabulü** (gerçek 4K HEVC, `MPVPlayer`):
+
+    video genisligi   1280 -> 1280   (HIC degismedi)
+    panel             (1380, 100, 420, 800)
+    video             (100, 148, 1280, 752)
+    kesisme           False
+    top-level / sahipli / Tool? / always-on-top?
+                      True / True / False / False
+    tasima izlendi    True
+
+**Yol boyunca bulunan iki gerçek kusur:**
+
+1. Ayırıcı tutamacı hâlâ dock yolunu (`set_playlist_panel_width`)
+   çağırıyordu ve pencere modelinde HİÇBİR ŞEY yapmıyordu; genişlik
+   sürüklemesi çalışmıyordu. Tek giriş noktası `panel.set_panel_width()`
+   yapıldı.
+2. Genişliğin ÜST sınırı yoktu. Gömülü mimaride `container - 200` ile
+   örtülü olarak vardı; kalkınca 10000 px'lik pencere üretilebiliyordu.
+   `PANEL_MAX_WIDTH = 900` eklendi.
+3. `update_playlist_panel_geometry()` hâlâ `reserve_playlist_dock()`
+   çağırıyordu; her overlay güncellemesinde video daralıyordu
+   (ölçüldü: 982 → 570 px).
+
+**Testler:** `test_playlist_dock_embedding_regressions.py` silindi
+(konusu kalmadı), yerine `test_playlist_window_regressions.py` (19 test).
+`test_playlist_animation_cost_regressions.py` yeniden yazıldı (9 test).
+Toplam 3691 passed, 17 skipped, 0 failed.
+
+**Eskiyen beklentiler GEVŞETİLMEDİ, çoğu GÜÇLENDİ:**
+
+    video en fazla 1 kez resize   -> video HIC resize olmaz
+    host layout genisligi ayirir  -> video genisligi HIC degismez
+    dar pencerede video 0 olur    -> dar pencerede de tam genislik
+    panel host icinde kayar       -> gecis opaklikla
+    "Tool degil" (maskesiz &)     -> KORUNDU, maske DUZELTILDI
+
+Son madde önemliydi: `Qt.Tool` bileşik bir bayraktır ve `flags & Tool`
+sıradan bir `Window` için de doğru çıkar; eski denetim yanlış pozitif
+veriyordu. Tür karşılaştırması `WindowType_Mask` ile yapılıyor.
+
+### KALAN AŞAMALAR
+
+3. **Mıknatıs.** Panel şu an HER ZAMAN yapışık. Sürükleyip ayırma,
+   yaklaşınca yapışma (20 px), uzaklaşınca kopma (30 px — histerezis
+   için eşikler bilerek farklı), çok ekran ve `availableGeometry` clamp.
+4. **Yaşam döngüsü.** Tam ekran, simge durumu, DPI değişimi, kapanışta
+   geometri saklama.
+5. **Gerçek pencere kabulü** (mıknatıs davranışı için).
+
 ## PLAN — playlist'i bağımsız pencereye taşımak (mıknatıslı)
 
-**Durum: PLAN. Kod YAZILMADI. Kullanıcı kararı bekliyor.**
+**Aşama 1-2 BİTTİ (yukarıya bakın). Aşama 3-5 bekliyor.**
 
 Kullanıcı isteği (17 Ağustos 2026): playlist ana pencereden AYRILSIN,
 bağımsız pencere olsun; iç içe değil, yan yana. Kullanıcı isterse ana

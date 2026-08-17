@@ -39,7 +39,15 @@ unutulma ihtimalini kapatır.
 
 - Sinematik arayüz tek kullanıcı arayüzüdür; klasik arayüzü geri getirme.
 - MPV native `wid`, fullscreen, overlay, OSD, auto-hide, fade, timeline, ses ve CC davranışlarını ilgili test olmadan değiştirme.
-- Playlist paneli ana pencerenin gömülü child yüzeyidir; video ile kesişmemeli ve başka uygulamaların üzerinde yüzmemelidir.
+- **Playlist ana pencerenin YANINDA duran BAĞIMSIZ penceredir** (kullanıcı
+  kararı, 17 Ağustos 2026; önceki kural "gömülü child yüzeyi"ydi). Şu üçü
+  değişmedi ve testle korunur: video ile KESİŞMEZ, başka uygulamaların
+  üzerinde YÜZMEZ (`WindowStaysOnTopHint` yok) ve video alanından yer
+  ALMAZ. Pencere ana pencereye SAHİPLİ `Qt.Window`dur; `Qt.Tool`
+  KULLANILMAZ — `Tool` odak kaybında pencereyi gizler ve kullanıcının
+  raporladığı "başka uygulama öne gelince playlist kayboluyor" hatası
+  tam olarak bundandı. Sözleşme:
+  `tests/test_playlist_window_regressions.py`.
 - Resume/watch-later kalıcılığını yeniden açma.
 - Altyazı Merkezi worker'larını zorla `terminate()` etme; kooperatif kapanış ve tek sahiplik korunmalıdır.
 - Yeni timer, always-on-top bayrağı veya geniş süreç temizliği ekleme.

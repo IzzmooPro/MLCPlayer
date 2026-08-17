@@ -188,10 +188,6 @@ class MPVPlayer(QMainWindow):
         self.media_layout = QHBoxLayout(self.media_container)
         self.media_layout.setContentsMargins(0, 0, 0, 0)
         self.media_layout.setSpacing(0)
-        self.playlist_dock_host = QWidget(self.media_container)
-        self.playlist_dock_host.setObjectName("playlistDockHost")
-        self.playlist_dock_host.setFixedWidth(0)
-        self.playlist_dock_host.hide()
 
         # Video çerçevesi
         self.video_frame = VideoFrame(self)
@@ -201,7 +197,6 @@ class MPVPlayer(QMainWindow):
         self.video_frame.setMinimumSize(200, 120)
         self.video_frame.setStyleSheet("background-color: #000000;")
         self.media_layout.addWidget(self.video_frame, 1)
-        self.media_layout.addWidget(self.playlist_dock_host, 0)
         self.main_layout.addWidget(self.media_container, 1)
 
         # MPV yapılandırmasını optimize et
