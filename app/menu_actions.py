@@ -292,14 +292,17 @@ def setup_menu(player):
     help_menu.addAction(about_action)
 
     # VLC benzeri, sabit ve anlaşılır sekme sırası.
-    menu_order = ["Ortam", "Oynatma", "Ses", "Görüntü", "Alt Yazı",
-                  "Araçlar", "Gezinim", "Görünüm", "Yardım"]
-    top_menus = {action.text(): action for action in menu_bar.actions()}
-    for name in menu_order:
-        action = top_menus.get(name)
-        if action:
-            menu_bar.removeAction(action)
-            menu_bar.addAction(action)
+    #
+    # Sıra menü NESNELERİNDEN kurulur, GÖRÜNEN metinden değil: başlıklar
+    # `tr()` ile çevrildiği için İngilizce arayüzde metinle geri arama
+    # hiçbir menüyü bulamıyor ve sıralama sessizce uygulanmıyordu
+    # (`tests/test_menu_order_translation_regressions.py`).
+    menu_order = [file_menu, play_menu, audio_menu, video_menu,
+                  subtitle_menu, tools_menu, nav_menu, view_menu, help_menu]
+    for menu in menu_order:
+        action = menu.menuAction()
+        menu_bar.removeAction(action)
+        menu_bar.addAction(action)
 
 
 def _mpv_color_to_qcolor(value, fallback):
@@ -375,7 +378,7 @@ def recent_entry_label(path):
     dosyada mevcut basename davranışı korunur.
     """
     if is_remote_media_url(path):
-        return safe_media_host(path) or "Bağlantı"
+        return safe_media_host(path) or tr("Bağlantı")
     name = os.path.basename(str(path).split("?", 1)[0].rstrip("/\\"))
     return name or str(path)
 
@@ -383,7 +386,7 @@ def recent_entry_label(path):
 def recent_entry_hint(path):
     """Tooltip/statusTip metni. Uzak adreste tam hedef GÖRÜNMEZ."""
     if is_remote_media_url(path):
-        return safe_media_host(path) or "Bağlantı"
+        return safe_media_host(path) or tr("Bağlantı")
     return str(path)
 
 
@@ -398,7 +401,7 @@ def populate_recent_menu(player, menu, owner=None):
     clear_dynamic_menu(menu)
     recent_files = list(getattr(player, "recent_files", None) or [])
     if not recent_files:
-        empty_action = QAction("Son açılan dosya yok", owner or player)
+        empty_action = QAction(tr("Son açılan dosya yok"), owner or player)
         empty_action.setEnabled(False)
         menu.addAction(empty_action)
         return
@@ -422,7 +425,7 @@ def update_recent_menu(player):
 
 def setup_video_adjustments(player):
     video_adj_dialog = QDialog(player)
-    video_adj_dialog.setWindowTitle("Video Ayarları")
+    video_adj_dialog.setWindowTitle(tr("Video Ayarları"))
     video_adj_dialog.setMinimumSize(360, 260)
 
     layout = QVBoxLayout(video_adj_dialog)
@@ -454,7 +457,7 @@ def setup_video_adjustments(player):
 
     # Parlaklık
     brightness_layout = QHBoxLayout()
-    brightness_label = QLabel("Parlaklık:")
+    brightness_label = QLabel(tr("Parlaklık:"))
     brightness_slider = QSlider(Qt.Orientation.Horizontal)
     brightness_slider.setRange(-100, 100)
     brightness_slider.setValue(read_setting("brightness"))
@@ -464,7 +467,7 @@ def setup_video_adjustments(player):
 
     # Kontrast
     contrast_layout = QHBoxLayout()
-    contrast_label = QLabel("Kontrast:")
+    contrast_label = QLabel(tr("Kontrast:"))
     contrast_slider = QSlider(Qt.Orientation.Horizontal)
     contrast_slider.setRange(-100, 100)
     contrast_slider.setValue(read_setting("contrast"))
@@ -474,7 +477,7 @@ def setup_video_adjustments(player):
 
     # Doygunluk
     saturation_layout = QHBoxLayout()
-    saturation_label = QLabel("Doygunluk:")
+    saturation_label = QLabel(tr("Doygunluk:"))
     saturation_slider = QSlider(Qt.Orientation.Horizontal)
     saturation_slider.setRange(-100, 100)
     saturation_slider.setValue(read_setting("saturation"))
@@ -484,7 +487,7 @@ def setup_video_adjustments(player):
 
     # Gamma
     gamma_layout = QHBoxLayout()
-    gamma_label = QLabel("Gamma:")
+    gamma_label = QLabel(tr("Gamma:"))
     gamma_slider = QSlider(Qt.Orientation.Horizontal)
     gamma_slider.setRange(-100, 100)
     gamma_slider.setValue(read_setting("gamma"))
@@ -495,9 +498,9 @@ def setup_video_adjustments(player):
     # Butonlar
     button_layout = QHBoxLayout()
     button_layout.setSpacing(8)
-    reset_button = QPushButton("Sıfırla")
+    reset_button = QPushButton(tr("Sıfırla"))
     reset_button.clicked.connect(reset_settings)
-    close_button = QPushButton("Kapat")
+    close_button = QPushButton(tr("Kapat"))
     close_button.setDefault(True)
     close_button.clicked.connect(video_adj_dialog.close)
     button_layout.addWidget(reset_button)
@@ -541,7 +544,7 @@ def refresh_audio_tracks(player):
     menu = player.audio_track_menu
     clear_dynamic_menu(menu)
     if not player.current_file:
-        empty_action = QAction("Önce bir video açın.", player)
+        empty_action = QAction(tr("Önce bir video açın."), player)
         empty_action.setEnabled(False)
         menu.addAction(empty_action)
         return
@@ -555,13 +558,13 @@ def refresh_audio_tracks(player):
         current_aid = player.mpv_player.aid
     except Exception as e:
         safe_console(f"Ses parçalarını listeleme hatası: {e}")
-        error_action = QAction("Ses parçaları yüklenemedi", player)
+        error_action = QAction(tr("Ses parçaları yüklenemedi"), player)
         error_action.setEnabled(False)
         menu.addAction(error_action)
         return
 
     if not audio_tracks:
-        no_audio_action = QAction("Ses parçası bulunamadı", player)
+        no_audio_action = QAction(tr("Ses parçası bulunamadı"), player)
         no_audio_action.setEnabled(False)
         menu.addAction(no_audio_action)
         return
@@ -594,8 +597,9 @@ def select_audio_track(player, aid):
         safe_console(f"Seçilen ses kanalı ID: {aid}")
     except Exception as e:
         safe_console(f"Ses kanalı seçimi hatası: {e}")
-        show_user_error(player, "Ses Kanalı Seçilemedi",
-                        "Ses kanalı değiştirilemedi. Lütfen başka bir kanal deneyin.",
+        show_user_error(player, tr("Ses Kanalı Seçilemedi"),
+                        tr("Ses kanalı değiştirilemedi. Lütfen başka bir "
+                           "kanal deneyin."),
                         exc=e)
 
 
@@ -646,12 +650,12 @@ def populate_audio_device_menu(player, menu, on_select=None, owner=None):
     clear_dynamic_menu(menu)
     devices = audio_devices(player)
     if devices is None:
-        error_action = QAction("Ses çıkışları yüklenemedi", owner or player)
+        error_action = QAction(tr("Ses çıkışları yüklenemedi"), owner or player)
         error_action.setEnabled(False)
         menu.addAction(error_action)
         return
     if not devices:
-        empty_action = QAction("Ses çıkışı bulunamadı", owner or player)
+        empty_action = QAction(tr("Ses çıkışı bulunamadı"), owner or player)
         empty_action.setEnabled(False)
         menu.addAction(empty_action)
         return
@@ -681,10 +685,11 @@ def refresh_audio_devices(player):
 def select_audio_device(player, name):
     try:
         player.mpv_player.audio_device = name
-        player.video_frame.show_osd("Ses aygıtı değiştirildi")
+        player.video_frame.show_osd(tr("Ses aygıtı değiştirildi"))
     except Exception as e:
-        show_user_error(player, "Ses Aygıtı Değiştirilemedi",
-                        "Ses aygıtı değiştirilemedi. Lütfen başka bir aygıt deneyin.",
+        show_user_error(player, tr("Ses Aygıtı Değiştirilemedi"),
+                        tr("Ses aygıtı değiştirilemedi. Lütfen başka bir "
+                           "aygıt deneyin."),
                         exc=e)
 
 
@@ -693,7 +698,7 @@ def refresh_subtitle_tracks(player):
     menu = player.subtitle_track_menu
     clear_dynamic_menu(menu)
     if not player.current_file:
-        empty_action = QAction("Önce bir video açın.", player)
+        empty_action = QAction(tr("Önce bir video açın."), player)
         empty_action.setEnabled(False)
         menu.addAction(empty_action)
         return
@@ -704,13 +709,13 @@ def refresh_subtitle_tracks(player):
         current_sid = player.mpv_player.sid
     except Exception as e:
         safe_console(f"Altyazı parçaları listeleme hatası: {e}")
-        error_action = QAction("Altyazı parçaları yüklenemedi", player)
+        error_action = QAction(tr("Altyazı parçaları yüklenemedi"), player)
         error_action.setEnabled(False)
         menu.addAction(error_action)
         return
 
     if not tracks:
-        empty_action = QAction("Altyazı parçası bulunamadı", player)
+        empty_action = QAction(tr("Altyazı parçası bulunamadı"), player)
         empty_action.setEnabled(False)
         menu.addAction(empty_action)
         return
@@ -740,19 +745,20 @@ def refresh_chapters(player):
     try:
         chapters = player.mpv_player.chapter_list or []
         if not chapters:
-            empty_action = QAction("Bölüm bulunamadı", player)
+            empty_action = QAction(tr("Bölüm bulunamadı"), player)
             empty_action.setEnabled(False)
             player.chapter_menu.addAction(empty_action)
         else:
             for index, chapter in enumerate(chapters):
-                title = chapter.get("title") or f"Bölüm {index + 1:02d}"
+                title = (chapter.get("title")
+                         or f"{tr('Bölüm')} {index + 1:02d}")
                 start = chapter.get("time")
                 label = f"{title} ({format_time(start)})" if start is not None else title
                 action = QAction(label, player)
                 action.triggered.connect(
                     lambda checked, chapter_index=index: select_chapter(player, chapter_index))
                 player.chapter_menu.addAction(action)
-        refresh_action = QAction("Bölümleri Yenile", player)
+        refresh_action = QAction(tr("Bölümleri Yenile"), player)
         refresh_action.triggered.connect(player.refresh_chapters)
         player.chapter_menu.addAction(refresh_action)
     except Exception as e:
@@ -764,7 +770,8 @@ def select_chapter(player, index):
         player.mpv_player.chapter = index
         chapters = player.mpv_player.chapter_list or []
         title = chapters[index].get("title") if index < len(chapters) else None
-        player.video_frame.show_osd(title or f"Bölüm {index + 1:02d}")
+        player.video_frame.show_osd(
+            title or f"{tr('Bölüm')} {index + 1:02d}")
     except Exception as e:
         safe_console(f"Bölüm seçilemedi: {e}")
 
@@ -926,41 +933,47 @@ def close_media_info(player):
 
 def show_shortcuts(player):
     shortcut_dialog = QDialog(player)
-    shortcut_dialog.setWindowTitle("Klavye Kısayolları")
+    shortcut_dialog.setWindowTitle(tr("Klavye Kısayolları"))
     shortcut_dialog.setMinimumSize(500, 350)
 
     layout = QVBoxLayout(shortcut_dialog)
 
-    shortcuts_text = """
-    <h3>Klavye Kısayolları</h3>
-    <table border="0" cellspacing="10">
-    <tr><td><b>Space</b></td><td>Oynat/Duraklat</td></tr>
-    <tr><td><b>Ctrl+O</b></td><td>Dosya Aç</td></tr>
-    <tr><td><b>Ctrl+U</b></td><td>URL'den Oynat</td></tr>
-    <tr><td><b>Ctrl+S</b></td><td>Ekran Görüntüsü Al</td></tr>
-    <tr><td><b>Ctrl+P</b></td><td>Oynatma Listesini Göster</td></tr>
-    <tr><td><b>Ctrl+Q</b></td><td>Çıkış</td></tr>
-    <tr><td><b>F</b></td><td>Tam Ekran</td></tr>
-    <tr><td><b>Esc</b></td><td>Tam Ekrandan Çık</td></tr>
-    <tr><td><b>Sağ Ok</b></td><td>5 Saniye İleri</td></tr>
-    <tr><td><b>Sol Ok</b></td><td>5 Saniye Geri</td></tr>
-    <tr><td><b>Shift+Sağ Ok</b></td><td>30 Saniye İleri</td></tr>
-    <tr><td><b>Shift+Sol Ok</b></td><td>30 Saniye Geri</td></tr>
-    <tr><td><b>Ctrl+Sağ Ok</b></td><td>Sonraki Parça</td></tr>
-    <tr><td><b>Ctrl+Sol Ok</b></td><td>Önceki Parça</td></tr>
-    <tr><td><b>Yukarı Ok</b></td><td>Ses Seviyesi Artır</td></tr>
-    <tr><td><b>Aşağı Ok</b></td><td>Ses Seviyesi Azalt</td></tr>
-    <tr><td><b>M</b></td><td>Sessiz</td></tr>
-    <tr><td><b>S</b></td><td>Altyazıları Göster/Gizle</td></tr>
-    <tr><td><b>Ctrl+G</b></td><td>Zamana Git</td></tr>
-    </table>
-    """
+    # HTML tablosu METİNDEN değil VERİDEN kurulur. Tek bir dev HTML bloğu
+    # çevirmene etiketleri de teslim ederdi; bozuk bir `<td>` bütün
+    # pencereyi bozar. Tuş adları (`Ctrl+O`) çevrilmez, YÖN adları
+    # (`Sağ Ok`) çevrilir.
+    shortcut_rows = [
+        ("Space", tr("Oynat/Duraklat")),
+        ("Ctrl+O", tr("Dosya Aç")),
+        ("Ctrl+U", tr("URL'den Oynat")),
+        ("Ctrl+S", tr("Ekran Görüntüsü Al")),
+        ("Ctrl+P", tr("Oynatma Listesini Göster")),
+        ("Ctrl+Q", tr("Çıkış")),
+        ("F", tr("Tam Ekran")),
+        ("Esc", tr("Tam Ekrandan Çık")),
+        (tr("Sağ Ok"), tr("5 Saniye İleri")),
+        (tr("Sol Ok"), tr("5 Saniye Geri")),
+        (f"Shift+{tr('Sağ Ok')}", tr("30 Saniye İleri")),
+        (f"Shift+{tr('Sol Ok')}", tr("30 Saniye Geri")),
+        (f"Ctrl+{tr('Sağ Ok')}", tr("Sonraki Parça")),
+        (f"Ctrl+{tr('Sol Ok')}", tr("Önceki Parça")),
+        (tr("Yukarı Ok"), tr("Ses Seviyesi Artır")),
+        (tr("Aşağı Ok"), tr("Ses Seviyesi Azalt")),
+        ("M", tr("Sessiz")),
+        ("S", tr("Altyazıları Göster/Gizle")),
+        ("Ctrl+G", tr("Zamana Git")),
+    ]
+    rows = "\n".join(f"    <tr><td><b>{key}</b></td><td>{label}</td></tr>"
+                     for key, label in shortcut_rows)
+    shortcuts_text = (f"\n    <h3>{tr('Klavye Kısayolları')}</h3>\n"
+                      '    <table border="0" cellspacing="10">\n'
+                      f"{rows}\n    </table>\n    ")
 
     shortcuts_label = QLabel(shortcuts_text)
     shortcuts_label.setStyleSheet("color: #C6CED6; font-size: 13px;")
     layout.addWidget(shortcuts_label)
 
-    ok_button = QPushButton("Tamam")
+    ok_button = QPushButton(tr("Tamam"))
     ok_button.clicked.connect(shortcut_dialog.close)
     layout.addWidget(ok_button)
 
@@ -972,13 +985,14 @@ def build_language_menu(player):
     "Sistem dili" seçeneği tercihi SİLER; program yeniden Windows'u izler.
     Her dil KENDİ dilinde yazılır, yoksa kullanıcı kendi dilini seçemez.
     """
-    menu = QMenu("Dil", player)
+    menu = QMenu(tr("Dil"), player)
     group = QActionGroup(menu)
     group.setExclusive(True)
     current = i18n.stored_language()
 
-    system_action = QAction(f"Sistem dili ({i18n.language_name(i18n.detect_language())})",
-                            player)
+    system_action = QAction(
+        f"{tr('Sistem dili')} "
+        f"({i18n.language_name(i18n.detect_language())})", player)
     system_action.setCheckable(True)
     system_action.setChecked(current == "")
     system_action.triggered.connect(lambda: choose_language(player, ""))
@@ -1007,27 +1021,34 @@ def choose_language(player, code):
     if code == i18n.stored_language():
         return
     i18n.store_language(code)
-    QMessageBox.information(player, "Dil", i18n.RESTART_REQUIRED_MESSAGE)
+    QMessageBox.information(
+        player, tr("Dil"),
+        i18n.translate_marked(i18n.RESTART_REQUIRED_MESSAGE))
 
 
 def show_about(player):
-    about_text = f"""
-    <h2>MLC Player</h2>
-    <p>Sürüm {APP_VERSION}</p>
-    <p><i>Media Launch Codec Player</i> — MPV tabanlı minimal video oynatıcı.</p>
-    <p>Özellikler:</p>
-    <ul>
-    <li>Birçok video formatını destekler</li>
-    <li>Altyazı desteği</li>
-    <li>Oynatma listesi (kaydet/aç - .m3u)</li>
-    <li>Ekran görüntüsü alma</li>
-    <li>Video ayarları</li>
-    <li>URL'den oynatma</li>
-    <li>Sürükle-bırak ile dosya açma</li>
-    <li>Son açılanlar</li>
-    <li>Tekrarla / karışık oynatma modları</li>
-    </ul>
-    <p>© 2025</p>
-    """
+    # Kısayol tablosunda olduğu gibi: HTML üründe kalır, çevirmene yalnız
+    # cümleler gider. `MLC Player` ve `Media Launch Codec Player` ürün
+    # ADIDIR, çevrilmez.
+    features = [
+        tr("Birçok video formatını destekler"),
+        tr("Altyazı desteği"),
+        tr("Oynatma listesi (kaydet/aç - .m3u)"),
+        tr("Ekran görüntüsü alma"),
+        tr("Video ayarları"),
+        tr("URL'den oynatma"),
+        tr("Sürükle-bırak ile dosya açma"),
+        tr("Son açılanlar"),
+        tr("Tekrarla / karışık oynatma modları"),
+    ]
+    items = "\n".join(f"    <li>{feature}</li>" for feature in features)
+    about_text = (
+        "\n    <h2>MLC Player</h2>\n"
+        f"    <p>{tr('Sürüm')} {APP_VERSION}</p>\n"
+        f"    <p><i>Media Launch Codec Player</i> — "
+        f"{tr('MPV tabanlı minimal video oynatıcı.')}</p>\n"
+        f"    <p>{tr('Özellikler:')}</p>\n"
+        f"    <ul>\n{items}\n    </ul>\n"
+        "    <p>© 2025</p>\n    ")
 
-    QMessageBox.about(player, "Hakkında", about_text)
+    QMessageBox.about(player, tr("Hakkında"), about_text)

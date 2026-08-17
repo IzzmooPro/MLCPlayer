@@ -24,20 +24,23 @@ from PyQt6.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QVBoxLayout)
 
-from app.subtitle_center import LANGUAGES, STYLE
-from app.i18n import tr
+from app.subtitle_center import STYLE, populate_language_box
+from app.i18n import tr, tr_mark, translate_marked
 
 # OpenSubtitles'in RESMÎ başlangıç rehberi. Yalnızca kullanıcı tıklayınca
 # açılır; program başlangıcında veya pencere açılışında ASLA açılmaz.
 API_KEY_HELP_URL = "https://opensubtitles.tawk.help/article/getting-started"
 
 DIALOG_WIDTH = 440
-CREDENTIAL_HINT = (
+# Modül düzeyi metinler: import anında çevirmen yoktur; `tr_mark()` yalnız
+# işaretler, çeviri kullanım anında `translate_marked()` ile yapılır.
+CREDENTIAL_HINT = tr_mark(
     "Arama için API anahtarı gerekir. Kullanıcı adı ve parola daha yüksek "
     "hesap kotasıyla oturum açmak için isteğe bağlıdır. Yeni "
     "OpenSubtitles.com hesabı kullanılır (eski opensubtitles.org değil)."
 )
-STORAGE_HINT = "Anahtar ve parola Windows Kimlik Bilgileri'nde saklanır."
+STORAGE_HINT = tr_mark(
+    "Anahtar ve parola Windows Kimlik Bilgileri'nde saklanır.")
 
 
 class SubtitleCenterSettingsDialog(QDialog):
@@ -66,38 +69,42 @@ class SubtitleCenterSettingsDialog(QDialog):
         heading.setObjectName("subtitleHeading")
         layout.addWidget(heading)
 
-        hint = QLabel(CREDENTIAL_HINT, self)
+        hint = QLabel(translate_marked(CREDENTIAL_HINT), self)
         hint.setObjectName("subtitleMeta")
         hint.setWordWrap(True)
         layout.addWidget(hint)
         self.credential_hint = hint
 
         # --- API anahtarı: ZORUNLU ---
-        layout.addWidget(self._field_label("API anahtarı (zorunlu)"))
+        layout.addWidget(self._field_label(tr("API anahtarı (zorunlu)")))
         self.api_key_field = QLineEdit(self)
         self.api_key_field.setEchoMode(QLineEdit.EchoMode.Password)
-        self.api_key_field.setAccessibleName("OpenSubtitles API anahtarı")
+        self.api_key_field.setAccessibleName(
+            tr("OpenSubtitles API anahtarı"))
         self.api_key_field.setPlaceholderText(tr("OpenSubtitles.com API anahtarı"))
         layout.addWidget(self.api_key_field)
 
         self.help_button = QPushButton(tr("Anahtar nasıl alınır?"), self)
         self.help_button.setObjectName("subtitleLinkButton")
-        self.help_button.setAccessibleName("API anahtarı alma rehberini aç")
+        self.help_button.setAccessibleName(
+            tr("API anahtarı alma rehberini aç"))
         self.help_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.help_button.clicked.connect(self.open_api_key_help)
         layout.addWidget(self.help_button, 0, Qt.AlignmentFlag.AlignLeft)
 
         # --- Hesap: İSTEĞE BAĞLI ---
         layout.addWidget(
-            self._field_label("OpenSubtitles.com kullanıcı adı (isteğe bağlı)"))
+            self._field_label(
+                tr("OpenSubtitles.com kullanıcı adı (isteğe bağlı)")))
         self.username_field = QLineEdit(self)
-        self.username_field.setAccessibleName("OpenSubtitles kullanıcı adı")
+        self.username_field.setAccessibleName(
+            tr("OpenSubtitles kullanıcı adı"))
         layout.addWidget(self.username_field)
 
-        layout.addWidget(self._field_label("Parola (isteğe bağlı)"))
+        layout.addWidget(self._field_label(tr("Parola (isteğe bağlı)")))
         self.password_field = QLineEdit(self)
         self.password_field.setEchoMode(QLineEdit.EchoMode.Password)
-        self.password_field.setAccessibleName("OpenSubtitles parolası")
+        self.password_field.setAccessibleName(tr("OpenSubtitles parolası"))
         layout.addWidget(self.password_field)
 
         self.show_password_box = QCheckBox(tr("Parolayı göster"), self)
@@ -105,16 +112,17 @@ class SubtitleCenterSettingsDialog(QDialog):
         self.show_password_box.toggled.connect(self.toggle_password_visibility)
         layout.addWidget(self.show_password_box)
 
-        storage = QLabel(STORAGE_HINT, self)
+        storage = QLabel(translate_marked(STORAGE_HINT), self)
         storage.setObjectName("subtitleMeta")
         storage.setWordWrap(True)
         layout.addWidget(storage)
 
         # --- Tercihler ---
-        layout.addWidget(self._field_label("Varsayılan dil"))
+        layout.addWidget(self._field_label(tr("Varsayılan dil")))
         self.settings_language_box = QComboBox(self)
-        self.settings_language_box.addItems(LANGUAGES)
-        self.settings_language_box.setAccessibleName("Varsayılan altyazı dili")
+        populate_language_box(self.settings_language_box)
+        self.settings_language_box.setAccessibleName(
+            tr("Varsayılan altyazı dili"))
         self.settings_language_box.setCursor(Qt.CursorShape.PointingHandCursor)
         layout.addWidget(self.settings_language_box)
 
@@ -131,19 +139,21 @@ class SubtitleCenterSettingsDialog(QDialog):
         buttons = QHBoxLayout()
         buttons.setSpacing(6)
         self.test_button = QPushButton(tr("Bağlantıyı Test Et"), self)
-        self.test_button.setAccessibleName("OpenSubtitles bağlantısını test et")
+        self.test_button.setAccessibleName(
+            tr("OpenSubtitles bağlantısını test et"))
         self.test_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.test_button.clicked.connect(self.connection_test_requested)
         buttons.addWidget(self.test_button)
         buttons.addStretch(1)
 
         self.settings_cancel_button = QPushButton(tr("Vazgeç"), self)
-        self.settings_cancel_button.setAccessibleName("Ayarlardan vazgeç")
+        self.settings_cancel_button.setAccessibleName(
+            tr("Ayarlardan vazgeç"))
         self.settings_cancel_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.settings_cancel_button.clicked.connect(self.reject)
-        self.settings_save_button = QPushButton("Kaydet", self)
+        self.settings_save_button = QPushButton(tr("Kaydet"), self)
         self.settings_save_button.setObjectName("subtitlePrimaryAction")
-        self.settings_save_button.setAccessibleName("Ayarları kaydet")
+        self.settings_save_button.setAccessibleName(tr("Ayarları kaydet"))
         self.settings_save_button.setCursor(Qt.CursorShape.PointingHandCursor)
         buttons.addWidget(self.settings_cancel_button)
         buttons.addWidget(self.settings_save_button)
@@ -170,7 +180,7 @@ class SubtitleCenterSettingsDialog(QDialog):
             return True
         except Exception:
             self.set_operation_status(
-                "Tarayıcı açılamadı. Rehber adresini elle girebilirsiniz.")
+                tr("Tarayıcı açılamadı. Rehber adresini elle girebilirsiniz."))
             return False
 
     # --- Controller sözleşmesi ---

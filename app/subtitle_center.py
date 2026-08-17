@@ -22,14 +22,77 @@ from PyQt6.QtWidgets import (
     QLineEdit, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
 
 from app.ui_icons import make_media_icon
-from app.i18n import tr
+from app.i18n import tr, tr_mark, translate_marked
 
 ACCENT = "#F26A3D"
 SURFACE = "rgba(19, 20, 22, 255)"
 TEXT = "#E9EDF1"
 MUTED = "#8E969F"
 
-LANGUAGES = ("Türkçe", "İngilizce", "Almanca", "Fransızca", "İspanyolca")
+# Dil seçimi: KOD ile ETİKET ayrıdır. Kod `QComboBox` öğesinin `data()`
+# alanında taşınır; etiket serbestçe çevrilir. Görünen metni kimlik olarak
+# kullanmak, arayüz çevrildiğinde arama dilini sessizce Türkçeye
+# düşürüyordu (`tests/test_subtitle_language_translation_regressions.py`).
+LANGUAGE_CHOICES = (
+    ("tr", tr_mark("Türkçe")),
+    ("en", tr_mark("İngilizce")),
+    ("de", tr_mark("Almanca")),
+    ("fr", tr_mark("Fransızca")),
+    ("es", tr_mark("İspanyolca")),
+)
+
+#: Geriye dönük ad; yalnız GÖRÜNEN etiketler.
+LANGUAGES = tuple(label for _code, label in LANGUAGE_CHOICES)
+
+#: Kutunun açılışta seçili geleceği dil.
+DEFAULT_LANGUAGE_CODE = "tr"
+
+
+def populate_language_box(box):
+    """Dil kutusunu KOD + çevrilmiş etiketle doldurur."""
+    box.clear()
+    for code, label in LANGUAGE_CHOICES:
+        box.addItem(translate_marked(label), code)
+    return box
+
+
+def _code_for_label(label):
+    """KAYNAK dildeki etiket → dil kodu. Bilinmiyorsa `None`."""
+    for code, source in LANGUAGE_CHOICES:
+        if source == label:
+            return code
+    return None
+
+
+def select_language_label(box, label):
+    """Kutuyu KAYNAK dildeki etikete göre seçer.
+
+    Ayar deposu kaynak dildeki adı tutar (`Almanca`); kutunun GÖRÜNEN metni
+    çevrilmiş olabilir. `setCurrentText()` bu yüzden kullanılamaz — eşleşme
+    bulamayınca kutu sessizce ilk öğede kalır ve kullanıcının tercihi
+    kaybolur. Dönüş: seçim yapıldıysa `True`.
+    """
+    code = _code_for_label(label)
+    if code is None:
+        return False
+    index = box.findData(code)
+    if index < 0:
+        return False
+    box.setCurrentIndex(index)
+    return True
+
+
+def current_language_label(box):
+    """Seçili dilin KAYNAK dildeki adı; depoya bu yazılır.
+
+    Böylece kayıt biçimi arayüz diline göre DEĞİŞMEZ ve eski kurulumlarla
+    uyumlu kalır.
+    """
+    code = box.currentData()
+    for source_code, label in LANGUAGE_CHOICES:
+        if source_code == code:
+            return label
+    return box.currentText()
 CARD_HEIGHT = 56
 # Kompakt yardımcı pencere: içerik kadar yüksek, sonuç sayısıyla büyümez.
 DEFAULT_SIZE = (660, 440)
@@ -146,7 +209,8 @@ class ResultCard(QFrame):
         self.setProperty("selected", False)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setFixedHeight(CARD_HEIGHT)
-        self.setAccessibleName(f"Altyazı sonucu: {self.result['name']}")
+        self.setAccessibleName(
+            f"{tr('Altyazı sonucu:')} {self.result['name']}")
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 8, 12, 8)
@@ -167,14 +231,16 @@ class ResultCard(QFrame):
         meta_row.setSpacing(12)
         self._meta_labels = []
         if self.result.get("moviehash_match"):
-            self._meta_labels.append(self._meta("Tam eşleşme", accent=True))
+            self._meta_labels.append(self._meta(tr("Tam eşleşme"),
+                                                accent=True))
         if self.result.get("hearing_impaired"):
-            self._meta_labels.append(self._meta("İşitme engelli"))
+            self._meta_labels.append(self._meta(tr("İşitme engelli")))
         self._meta_labels.append(self._meta(self.result.get("language", "")))
         self._meta_labels.append(self._meta(self.result.get("format", "").upper()))
         self._meta_labels.append(
-            self._meta(f"{self.result.get('downloads', 0)} indirme"))
-        self._meta_labels.append(self._meta(f"Puan {self.result.get('ratings', 0)}"))
+            self._meta(f"{self.result.get('downloads', 0)} {tr('indirme')}"))
+        self._meta_labels.append(
+            self._meta(f"{tr('Puan')} {self.result.get('ratings', 0)}"))
         for label in self._meta_labels:
             meta_row.addWidget(label)
         meta_row.addStretch(1)
@@ -291,7 +357,7 @@ class SubtitleCenterDialog(QDialog):
         # düşüyordu. Ölçüm kullanıcının bildirdiği hatayla birebir aynıydı.
         self.title_field = QLineEdit(self.media.get("title", ""), self)
         self.title_field.setPlaceholderText(tr("Film veya dizi adı"))
-        self.title_field.setAccessibleName("Aranacak ad")
+        self.title_field.setAccessibleName(tr("Aranacak ad"))
         self.title_field.setMinimumWidth(TITLE_MIN_WIDTH)
         # Uzun ad yazılabilir; görünmeyen bölüm imleçle gezilir, tamamı
         # tooltip'te okunur.
@@ -304,19 +370,19 @@ class SubtitleCenterDialog(QDialog):
         row.setSpacing(8)
 
         # Tek harfli "S"/"B" kullanıcıya anlamsızdı; alan başlıkları açık yazılır.
-        self.season_label = QLabel("Sezon", self)
+        self.season_label = QLabel(tr("Sezon"), self)
         self.season_label.setObjectName("subtitleFieldLabel")
         self.season_field = QLineEdit(self)
         self.season_field.setMaximumWidth(44)
         self.season_field.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.season_field.setAccessibleName("Sezon")
-        self.season_field.setToolTip("Sezon")
+        self.season_field.setAccessibleName(tr("Sezon"))
+        self.season_field.setToolTip(tr("Sezon"))
         self.episode_label = QLabel(tr("Bölüm"), self)
         self.episode_label.setObjectName("subtitleFieldLabel")
         self.episode_field = QLineEdit(self)
         self.episode_field.setMaximumWidth(44)
         self.episode_field.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.episode_field.setAccessibleName("Bölüm")
+        self.episode_field.setAccessibleName(tr("Bölüm"))
         self.episode_field.setToolTip(tr("Bölüm"))
         for widget in (self.season_label, self.season_field,
                        self.episode_label, self.episode_field):
@@ -324,15 +390,16 @@ class SubtitleCenterDialog(QDialog):
         row.addStretch(1)
 
         self.language_box = QComboBox(self)
-        self.language_box.addItems(LANGUAGES)
-        self.language_box.setCurrentText("Türkçe")
-        self.language_box.setAccessibleName("Altyazı dili")
+        populate_language_box(self.language_box)
+        self.language_box.setCurrentIndex(
+            self.language_box.findData(DEFAULT_LANGUAGE_CODE))
+        self.language_box.setAccessibleName(tr("Altyazı dili"))
         self.language_box.setCursor(Qt.CursorShape.PointingHandCursor)
         row.addWidget(self.language_box)
 
-        self.search_button = QPushButton("Ara", self)
+        self.search_button = QPushButton(tr("Ara"), self)
         self.search_button.setObjectName("subtitlePrimaryAction")
-        self.search_button.setAccessibleName("Altyazı ara")
+        self.search_button.setAccessibleName(tr("Altyazı ara"))
         self.search_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.search_button.setDefault(True)
         self.search_button.setAutoDefault(True)
@@ -429,7 +496,7 @@ class SubtitleCenterDialog(QDialog):
             card = ResultCard(result, self.select_result, self.results_host)
             self.results_layout.insertWidget(index, card)
         self._result_count = len(results)
-        self._state_text = "" if results else "Altyazı bulunamadı."
+        self._state_text = "" if results else tr("Altyazı bulunamadı.")
         self._refresh_status()
         self._sync_action_state()
         self._fit_height_to_content()
@@ -438,7 +505,7 @@ class SubtitleCenterDialog(QDialog):
         self._operation_text = ""
         self._clear_results()
         self._result_count = 0
-        self._state_text = "Altyazılar aranıyor…"
+        self._state_text = tr("Altyazılar aranıyor…")
         self._refresh_status()
         self._sync_action_state()
 
@@ -446,7 +513,7 @@ class SubtitleCenterDialog(QDialog):
         self._operation_text = ""
         self._clear_results()
         self._result_count = 0
-        self._state_text = message or "Beklenmeyen bir sorun oluştu."
+        self._state_text = message or tr("Beklenmeyen bir sorun oluştu.")
         self._refresh_status()
         self._sync_action_state()
 
@@ -473,7 +540,7 @@ class SubtitleCenterDialog(QDialog):
         row.addWidget(self.status_label, 1)
 
         target = self.media.get("target_name", "")
-        tooltip = f"Video klasörüne şu adla kaydedilecek: {target}"
+        tooltip = f"{tr('Video klasörüne şu adla kaydedilecek:')} {target}"
 
         # TEK ana eylem. Eski "Yalnızca İndir" düğmesi kaldırıldı: iki
         # düğme aynı dosyayı aynı yere yazdığı için fark yalnız MPV'ye
@@ -481,13 +548,13 @@ class SubtitleCenterDialog(QDialog):
         # görünüyordu.
         self.apply_button = QPushButton(tr("İndir ve Uygula"), self)
         self.apply_button.setObjectName("subtitlePrimaryAction")
-        self.apply_button.setAccessibleName("Altyazıyı indir ve uygula")
+        self.apply_button.setAccessibleName(tr("Altyazıyı indir ve uygula"))
         self.apply_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.apply_button.setToolTip(tooltip)
         row.addWidget(self.apply_button)
 
-        self.close_button = QPushButton("Kapat", self)
-        self.close_button.setAccessibleName("Altyazı Merkezini kapat")
+        self.close_button = QPushButton(tr("Kapat"), self)
+        self.close_button.setAccessibleName(tr("Altyazı Merkezini kapat"))
         self.close_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.close_button.clicked.connect(self.reject)
         row.addWidget(self.close_button)
@@ -517,9 +584,9 @@ class SubtitleCenterDialog(QDialog):
         if self._state_text:
             parts.append(self._state_text)
         elif self._result_count:
-            parts.append(f"{self._result_count} sonuç")
+            parts.append(f"{self._result_count} {tr('sonuç')}")
         if self._overwrite_warning:
-            parts.append("Mevcut dosyanın üzerine yazılacak")
+            parts.append(tr("Mevcut dosyanın üzerine yazılacak"))
         text = "  •  ".join(parts)
         self.status_label.setText(text)
         # Liste boşken açıklama listenin ortasında da görünür.

@@ -24,6 +24,8 @@ import sys
 from PyQt6.QtCore import QCoreApplication, QLocale, QTranslator
 
 from app.settings_store import user_settings
+from app.translate import (TRANSLATION_CONTEXT, tr, tr_mark,  # noqa: F401
+                           translate_marked)
 
 #: Ürün metinlerinin YAZILDIĞI dil. Değişirse bütün kaynak metinler ve
 #: onlara bakan testler değişmek zorunda kalır.
@@ -57,25 +59,16 @@ SETTINGS_KEY = "language"
 TRANSLATION_PREFIX = "mlcplayer_"
 TRANSLATIONS_DIR_NAME = "translations"
 
-RESTART_REQUIRED_MESSAGE = (
+# Çeviri çekirdeği SAF katmandan da kullanılabilsin diye `app/translate.py`
+# içindedir (Qt'yi import anında yüklemez). Burada yeniden dışa verilir;
+# ürün kodu alışkanlıkla `from app.i18n import tr` yazmaya devam eder.
+
+
+#: Modül düzeyi sabittir: import anında çevirmen henüz yoktur, bu yüzden
+#: yalnız İŞARETLENİR; çeviri kullanım yerinde `translate_marked()` ile
+#: yapılır (bkz. `menu_actions._change_language`).
+RESTART_REQUIRED_MESSAGE = tr_mark(
     "Dil değişikliği MLC Player yeniden başlatıldığında geçerli olur.")
-
-
-#: Bütün ürün metinlerinin ortak çeviri bağlamı. Tek bağlam, çevirmenin
-#: aynı metni iki kez çevirmesini önler.
-TRANSLATION_CONTEXT = "MLCPlayer"
-
-
-def tr(text):
-    """Kullanıcıya görünen metin. Çeviri yoksa KAYNAK metni döndürür.
-
-    Çalışma zamanı standart Qt'dir (`QTranslator` + `QCoreApplication`).
-    Metin çıkarma ise `packaging/extract_translations.py` ile yapılır:
-    `pylupdate6` yalnız `QCoreApplication.translate(...)` biçimini tanıyor,
-    bu sarmalayıcıyı GÖREMİYOR (ölçüldü). Çağrı yerlerine o uzun ifadeyi
-    yazmak menü kodunu okunmaz hâle getirirdi.
-    """
-    return QCoreApplication.translate(TRANSLATION_CONTEXT, text)
 
 
 def _settings():
@@ -143,23 +136,57 @@ def translation_file(code):
                         f"{TRANSLATION_PREFIX}{code}.qm")
 
 
-def install_translator(application, code):
-    """Çeviriyi yükler. Dosya yoksa program Türkçe devam eder, ÇÖKMEZ.
-
-    Dönüş: çeviri gerçekten yüklendiyse `True`.
-    """
+def _load_translator(application, code):
+    """Tek dilin çevirmenini kurar. Dosya yoksa sessizce `None` döner."""
     path = translation_file(code)
     if not path or not os.path.isfile(path):
-        return False
+        return None
     translator = QTranslator(application)
     if not translator.load(path):
-        return False
+        return None
+    if not application.installTranslator(translator):
+        return None
+    return translator
+
+
+def remove_translators(application):
+    """Kurulan zinciri kaldırır. Testler dışında kullanılmaz."""
+    if application is None:
+        return
+    for translator in getattr(application, "_mlc_translators", []):
+        application.removeTranslator(translator)
+    application._mlc_translators = []
+
+
+def install_translator(application, code):
+    """Çeviri ZİNCİRİNİ yükler. Dosya yoksa program çökmez, kaynağa düşer.
+
+    YEDEK DİL DİZGE DÜZEYİNDE UYGULANIR (VLC incelemesinden, 17 Ağustos
+    2026). Önce İngilizce, SONRA hedef dil kurulur; `QCoreApplication`
+    çevirmenleri son kurulandan geriye tarar, bu yüzden hedef dil kazanır
+    ve o dilde EKSİK olan dizge Türkçeye değil İngilizceye düşer. Yarım
+    çevrilmiş bir dil Alman kullanıcıya Almanca + Türkçe karışımı değil,
+    Almanca + İngilizce karışımı gösterir.
+
+    Dönüş: zincirden en az bir çeviri yüklendiyse `True`.
+    """
     if application is None:
         return False
-    installed = application.installTranslator(translator)
-    if installed:
-        # Referans tutulmazsa çevirmen çöp toplanır ve çeviri sessizce kaybolur.
-        application._mlc_translator = translator
+    # İkinci çağrı eski zinciri BIRAKMAZ; yoksa önceki dil altta kalır ve
+    # hangi dilin kazandığı kurulum sırasına bağlı hâle gelir.
+    remove_translators(application)
+    if code == SOURCE_LANGUAGE:
+        return False
+    chain = [] if code == FALLBACK_LANGUAGE else [FALLBACK_LANGUAGE]
+    chain.append(code)
+
+    # Referans tutulmazsa çevirmen çöp toplanır ve çeviri sessizce kaybolur.
+    installed = []
+    for language in chain:
+        translator = _load_translator(application, language)
+        if translator is not None:
+            installed.append(translator)
+    application._mlc_translators = installed
     return bool(installed)
 
 

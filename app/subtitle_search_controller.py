@@ -30,7 +30,12 @@ from app import opensubtitles
 from app.opensubtitles import (
     SubtitleServiceError, build_search_plan, safe_message)
 
-# Kullanıcıya teknik kod gösterilmez; çeviri burada yapılır.
+# Kullanıcıya teknik kod gösterilmez.
+#
+# GERİYE DÖNÜK eşleme: KAYNAK dildeki etiketten koda. Ürün yolu artık bunu
+# KULLANMAZ — kod `QComboBox` öğesinin `data()` alanında taşınır
+# (`app.subtitle_center.populate_language_box`). Görünen metinle arama,
+# arayüz çevrildiğinde sessizce Türkçeye düşüyordu.
 LANGUAGE_CODES = {
     "Türkçe": "tr",
     "İngilizce": "en",
@@ -153,8 +158,13 @@ class SubtitleSearchController(QObject):
     # --- Arama ---
 
     def _language_code(self):
-        return LANGUAGE_CODES.get(self.dialog.language_box.currentText(),
-                                  DEFAULT_LANGUAGE_CODE)
+        box = self.dialog.language_box
+        # ÖNCE veri alanı: etiket çevrilmiş olsa da kod değişmez.
+        code = box.currentData()
+        if isinstance(code, str) and code:
+            return code
+        # Veri taşımayan eski/taklit kutular için kaynak dildeki etiket.
+        return LANGUAGE_CODES.get(box.currentText(), DEFAULT_LANGUAGE_CODE)
 
     def _parsed_from_dialog(self):
         media = dict(self.dialog.media or {})

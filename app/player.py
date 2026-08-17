@@ -34,6 +34,7 @@ from app.media_controls import (clear_url_loading, is_remote_media_url,
     play_previous, goto_time, set_playback_speed, save_playlist, load_playlist,
     append_media_paths, media_suffixes
 )
+from app.i18n import tr
 
 ESCAPE_WINDOW_WIDTH = 960
 ESCAPE_WINDOW_HEIGHT = 600
@@ -209,9 +210,9 @@ class MPVPlayer(QMainWindow):
             safe_console("MPV oynatıcı başarıyla yapılandırıldı.")
         except Exception as e:
             safe_console(f"MPV yapılandırma hatası: {e}")
-            show_user_error(self, "Oynatıcı Başlatılamadı",
-                            "Oynatıcı başlatılamadı. Programın bin klasörünü "
-                            "kontrol edip tekrar deneyin.",
+            show_user_error(self, tr("Oynatıcı Başlatılamadı"),
+                            tr("Oynatıcı başlatılamadı. Programın bin "
+                               "klasörünü kontrol edip tekrar deneyin."),
                             exc=e)
             sys.exit(1)
 
@@ -490,10 +491,11 @@ class MPVPlayer(QMainWindow):
                     and time.time() - self._load_started_at > 3.0):
                 # NOT: Kullanıcı penceresine geliştirici talimatı
                 # (`pip install ...`) YAZILMAZ.
-                msg = f"Dosya açılamadı:\n{self.current_file}"
-                show_user_error(self, "Dosya Açılamadı",
-                                "Dosya açılamadı. Dosyanın mevcut ve desteklenen "
-                                "bir medya dosyası olduğunu kontrol edin.",
+                msg = f"{tr('Dosya açılamadı:')}\n{self.current_file}"
+                show_user_error(self, tr("Dosya Açılamadı"),
+                                tr("Dosya açılamadı. Dosyanın mevcut ve "
+                                   "desteklenen bir medya dosyası olduğunu "
+                                   "kontrol edin."),
                                 details=msg)
                 stop(self)
 
@@ -578,9 +580,10 @@ class MPVPlayer(QMainWindow):
         oynatma bozulmaz.
         """
         if not os.path.isfile(path):
-            show_user_error(self, "Altyazı Bulunamadı",
-                            "Altyazı dosyası bulunamadı. Dosyanın yerini kontrol edin.",
-                            details=f"Altyazı yolu: {path}")
+            show_user_error(self, tr("Altyazı Bulunamadı"),
+                            tr("Altyazı dosyası bulunamadı. Dosyanın yerini "
+                               "kontrol edin."),
+                            details=f"{tr('Altyazı yolu:')} {path}")
             return False
         if self._drop_subtitle_session is None:
             self._drop_subtitle_session = SubtitleSession()
@@ -590,22 +593,24 @@ class MPVPlayer(QMainWindow):
                 attempts=TRACK_WAIT_ATTEMPTS))
         except Exception as e:
             safe_console(f"Altyazı ekleme hatası: {type(e).__name__}")
-            show_user_error(self, "Altyazı Eklenemedi",
-                            "Altyazı eklenemedi. Dosyanın desteklenen ve "
-                            "okunabilir bir altyazı dosyası olduğundan emin olun.",
+            show_user_error(self, tr("Altyazı Eklenemedi"),
+                            tr("Altyazı eklenemedi. Dosyanın desteklenen ve "
+                               "okunabilir bir altyazı dosyası olduğundan "
+                               "emin olun."),
                             exc=e)
             return False
         if applied:
             safe_console(f"Altyazı eklendi: {path}")
-            self.video_frame.show_osd("Altyazı eklendi")
+            self.video_frame.show_osd(tr("Altyazı eklendi"))
             # Açık kullanıcı seçimi bu medya için otomatik yerel SRT
             # seçimini tüketir; otomasyon kullanıcının tercihini EZMEZ.
             suppress_local_subtitle(self)
             return True
-        show_user_error(self, "Altyazı Eklenemedi",
-                        "Altyazı eklenemedi. Dosyanın desteklenen ve "
-                        "okunabilir bir altyazı dosyası olduğundan emin olun.",
-                        details=f"Altyazı yolu: {path}")
+        show_user_error(self, tr("Altyazı Eklenemedi"),
+                        tr("Altyazı eklenemedi. Dosyanın desteklenen ve "
+                           "okunabilir bir altyazı dosyası olduğundan "
+                           "emin olun."),
+                        details=f"{tr('Altyazı yolu:')} {path}")
         return False
 
     def _apply_pending_subtitles(self):
@@ -657,14 +662,15 @@ class MPVPlayer(QMainWindow):
             # mpv, video yüklü değilken sub_add'i -12 (command) ile reddeder.
             # Yüklü değilse altyazıyı bekleme listesine al; video yüklenince eklenecek.
             if not self.current_file:
-                show_user_error(self, "Altyazı Eklenemedi",
-                                "Önce bir video açın, sonra altyazıyı ekleyin.",
-                                details=f"Altyazı yolu: {s}")
+                show_user_error(self, tr("Altyazı Eklenemedi"),
+                                tr("Önce bir video açın, sonra altyazıyı "
+                                   "ekleyin."),
+                                details=f"{tr('Altyazı yolu:')} {s}")
                 return
             if self.duration <= 0:
                 self._pending_subs.append(s)
                 safe_console(f"Altyazı yükleme sırasına alındı: {s}")
-                self.video_frame.show_osd("Altyazı yükleniyor...")
+                self.video_frame.show_osd(tr("Altyazı yükleniyor..."))
                 return
             self._activate_dropped_subtitle(s)
 

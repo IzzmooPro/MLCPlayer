@@ -41,6 +41,10 @@ import unicodedata
 from dataclasses import dataclass, field
 from urllib.parse import urlsplit
 
+# SAF KATMAN: `app.i18n` DEĞİL `app.translate` kullanılır — i18n modül
+# düzeyinde PyQt6 yükler ve bu dosyanın Qt'siz import sözleşmesini bozardı
+# (tests/test_media_info_builder_regressions.py).
+from app.translate import tr, tr_mark, translate_marked
 from app.track_labels import (bitrate_label, channel_name, codec_name,
                               language_name, sample_rate_label)
 
@@ -50,17 +54,19 @@ SECTION_VIDEO = "video"
 SECTION_AUDIO = "audio"
 SECTION_SUBTITLE = "subtitle"
 
+# Modül düzeyi tablolar: import anında çevirmen yoktur; `tr_mark()` yalnız
+# işaretler, çeviri kullanım anında `translate_marked()` ile yapılır.
 SECTION_TITLES = {
-    SECTION_GENERAL: "Genel",
-    SECTION_VIDEO: "Video",
-    SECTION_AUDIO: "Ses",
-    SECTION_SUBTITLE: "Altyazı",
+    SECTION_GENERAL: tr_mark("Genel"),
+    SECTION_VIDEO: tr_mark("Video"),
+    SECTION_AUDIO: tr_mark("Ses"),
+    SECTION_SUBTITLE: tr_mark("Altyazı"),
 }
 
 EMPTY_MESSAGES = {
-    SECTION_VIDEO: "Video parçası yok.",
-    SECTION_AUDIO: "Ses parçası yok.",
-    SECTION_SUBTITLE: "Altyazı parçası yok.",
+    SECTION_VIDEO: tr_mark("Video parçası yok."),
+    SECTION_AUDIO: tr_mark("Ses parçası yok."),
+    SECTION_SUBTITLE: tr_mark("Altyazı parçası yok."),
 }
 
 # Yalnız GEREKEN güvenli property'ler. Okuma hatası ilgili satırı gizler.
@@ -82,8 +88,8 @@ PRIMARIES_NAMES = {
 
 # Renk ARALIĞI: mpv `video-params/colorlevels`.
 COLOR_LEVEL_NAMES = {
-    "limited": "Sınırlı",
-    "full": "Tam",
+    "limited": tr_mark("Sınırlı"),
+    "full": tr_mark("Tam"),
 }
 
 # Yaygın ve GÜVENİLİR oranlar; kaynak `video-params/aspect` veya `demux-par`.
@@ -99,13 +105,13 @@ _PIXEL_DEPTH = re.compile(r"p(\d{1,2})(le|be)?$")
 # "Atmos" YALNIZ açıklama/profil bunu söylüyorsa; codec adından tahmin YOK.
 _ATMOS_MARKS = ("atmos", "joc")
 
-YES_TEXT = "Evet"
+YES_TEXT = tr_mark("Evet")
 
-SELECTED_TEXT = "Seçili"
-UNUSED_TEXT = "Kullanılmıyor"
+SELECTED_TEXT = tr_mark("Seçili")
+UNUSED_TEXT = tr_mark("Kullanılmıyor")
 
-COPY_PATH_LABEL = "Yolu Kopyala"
-COPY_URL_LABEL = "Adresi Kopyala"
+COPY_PATH_LABEL = tr_mark("Yolu Kopyala")
+COPY_URL_LABEL = tr_mark("Adresi Kopyala")
 
 # Kirpma sinirlari: `track_labels` felsefesiyle ayni, tek kaynaktan.
 MAX_TEXT_CHARS = 120
@@ -369,7 +375,7 @@ def _clean_track_text(track, *names, limit=MAX_TEXT_CHARS):
 
 
 def _yes_or_hidden(track, name):
-    return YES_TEXT if bool(track.get(name)) else ""
+    return translate_marked(YES_TEXT) if bool(track.get(name)) else ""
 
 
 def _aspect_text(value):
@@ -414,7 +420,8 @@ def _color_range_text(params):
     """Renk ARALIĞI (`colorlevels`). Bilinmeyen değer ham gösterilmez."""
     raw = sanitize_display_text(params.get("video-params/colorlevels"),
                                 limit=MAX_NAME_CHARS).lower()
-    return COLOR_LEVEL_NAMES.get(raw, "")
+    name = COLOR_LEVEL_NAMES.get(raw)
+    return translate_marked(name) if name else ""
 
 
 def _dolby_vision_text(track):
@@ -448,7 +455,8 @@ def _channels_text(track):
 
 
 def _selection_text(track):
-    return SELECTED_TEXT if track.get("selected") else UNUSED_TEXT
+    return translate_marked(
+        SELECTED_TEXT if track.get("selected") else UNUSED_TEXT)
 
 
 def _group_title(index, kind, track):
@@ -492,27 +500,28 @@ def _video_group(index, track, params=None):
     height = _track_int(track, "demux-h")
     resolution = f"{width} × {height}" if width > 0 and height > 0 else ""
     pixel_format = _pixel_format_text(track, params)
-    return InfoGroup(_group_title(index, "Video Parçası", track), _rows((
-        ("Codec", codec_name(_track_text(track, "codec"))),
-        ("Codec açıklaması", _clean_track_text(track, "codec-desc",
+    return InfoGroup(_group_title(index, tr("Video Parçası"), track),
+                     _rows((
+        (tr("Codec"), codec_name(_track_text(track, "codec"))),
+        (tr("Codec açıklaması"), _clean_track_text(track, "codec-desc",
                                                limit=MAX_TITLE_CHARS)),
-        ("Profil", _clean_track_text(track, "codec-profile",
+        (tr("Profil"), _clean_track_text(track, "codec-profile",
                                      limit=MAX_NAME_CHARS)),
-        ("Çözünürlük", resolution),
-        ("Görüntü oranı", _video_aspect_text(track, params)),
-        ("FPS", _fps_text(track)),
-        ("Bitrate", bitrate_label(_track_int(track, "demux-bitrate"))),
-        ("Piksel biçimi", pixel_format),
-        ("Bit derinliği", _bit_depth_text(pixel_format)),
+        (tr("Çözünürlük"), resolution),
+        (tr("Görüntü oranı"), _video_aspect_text(track, params)),
+        (tr("FPS"), _fps_text(track)),
+        (tr("Bitrate"), bitrate_label(_track_int(track, "demux-bitrate"))),
+        (tr("Piksel biçimi"), pixel_format),
+        (tr("Bit derinliği"), _bit_depth_text(pixel_format)),
         # İkisi AYRI alandır: standart gamut, aralık ise siyah/beyaz
         # seviyeleridir. Yalnız SEÇİLİ video için okunur.
-        ("Renk standardı", _primaries_text(params) if track.get("selected")
+        (tr("Renk standardı"), _primaries_text(params) if track.get("selected")
          else ""),
-        ("Renk aralığı", _color_range_text(params) if track.get("selected")
+        (tr("Renk aralığı"), _color_range_text(params) if track.get("selected")
          else ""),
-        ("Dolby Vision", _dolby_vision_text(track)),
-        ("Varsayılan", _yes_or_hidden(track, "default")),
-        ("Durum", _selection_text(track)),
+        (tr("Dolby Vision"), _dolby_vision_text(track)),
+        (tr("Varsayılan"), _yes_or_hidden(track, "default")),
+        (tr("Durum"), _selection_text(track)),
     )))
 
 
@@ -528,22 +537,23 @@ def _channel_layout_text(track):
 
 def _audio_group(index, track, params=None):
     duration = _track_float(track, "demux-duration")
-    return InfoGroup(_group_title(index, "Ses Parçası", track), _rows((
-        ("Dil", language_name(_track_text(track, "lang"))),
-        ("Codec", codec_name(_track_text(track, "codec"))),
-        ("Codec açıklaması", _clean_track_text(track, "codec-desc",
+    return InfoGroup(_group_title(index, tr("Ses Parçası"), track),
+                     _rows((
+        (tr("Dil"), language_name(_track_text(track, "lang"))),
+        (tr("Codec"), codec_name(_track_text(track, "codec"))),
+        (tr("Codec açıklaması"), _clean_track_text(track, "codec-desc",
                                                limit=MAX_TITLE_CHARS)),
-        ("Profil", _clean_track_text(track, "codec-profile",
+        (tr("Profil"), _clean_track_text(track, "codec-profile",
                                      limit=MAX_NAME_CHARS)),
-        ("Ses biçimi", _audio_format_text(track)),
-        ("Kanal", _channels_text(track)),
-        ("Örnekleme", sample_rate_label(_track_int(track, "demux-samplerate"))),
-        ("Bitrate", bitrate_label(_track_int(track, "demux-bitrate"))),
-        ("Parça süresi", format_duration_text(duration) if duration > 0
+        (tr("Ses biçimi"), _audio_format_text(track)),
+        (tr("Kanal"), _channels_text(track)),
+        (tr("Örnekleme"), sample_rate_label(_track_int(track, "demux-samplerate"))),
+        (tr("Bitrate"), bitrate_label(_track_int(track, "demux-bitrate"))),
+        (tr("Parça süresi"), format_duration_text(duration) if duration > 0
          else ""),
-        ("Varsayılan", _yes_or_hidden(track, "default")),
-        ("Zorunlu", _yes_or_hidden(track, "forced")),
-        ("Durum", _selection_text(track)),
+        (tr("Varsayılan"), _yes_or_hidden(track, "default")),
+        (tr("Zorunlu"), _yes_or_hidden(track, "forced")),
+        (tr("Durum"), _selection_text(track)),
     )))
 
 
@@ -555,15 +565,16 @@ def _subtitle_group(index, track, params=None):
         # Yalniz dosya adi: klasor bilgisi SNAPSHOT'A GIRMEZ.
         name = sanitize_display_text(os.path.basename(raw),
                                      limit=MAX_NAME_CHARS)
-    return InfoGroup(_group_title(index, "Altyazı Parçası", track), _rows((
-        ("Dil", language_name(_track_text(track, "lang"))),
-        ("Tür", codec_name(_track_text(track, "codec"))),
-        ("Kaynak", "Harici" if external else "Gömülü"),
-        ("Dosya", name),
-        ("Varsayılan", _yes_or_hidden(track, "default")),
-        ("Zorunlu", _yes_or_hidden(track, "forced")),
-        ("İşitme engelliler için", _yes_or_hidden(track, "hearing-impaired")),
-        ("Durum", _selection_text(track)),
+    return InfoGroup(_group_title(index, tr("Altyazı Parçası"), track),
+                     _rows((
+        (tr("Dil"), language_name(_track_text(track, "lang"))),
+        (tr("Tür"), codec_name(_track_text(track, "codec"))),
+        (tr("Kaynak"), tr("Harici") if external else tr("Gömülü")),
+        (tr("Dosya"), name),
+        (tr("Varsayılan"), _yes_or_hidden(track, "default")),
+        (tr("Zorunlu"), _yes_or_hidden(track, "forced")),
+        (tr("İşitme engelliler için"), _yes_or_hidden(track, "hearing-impaired")),
+        (tr("Durum"), _selection_text(track)),
     )))
 
 
@@ -583,8 +594,9 @@ def _track_sections(track_list, params=None):
             if data.get("type") != wanted:
                 continue
             groups.append(builder(len(groups) + 1, data, params))
-        sections.append(InfoSection(key, SECTION_TITLES[key], tuple(groups),
-                                    "" if groups else EMPTY_MESSAGES[key]))
+        sections.append(InfoSection(
+            key, translate_marked(SECTION_TITLES[key]), tuple(groups),
+            "" if groups else translate_marked(EMPTY_MESSAGES[key])))
     return sections
 
 
@@ -655,19 +667,20 @@ def _general_section(path, is_local, address, duration, property_reader):
     if seconds > 0:
         duration_text = format_duration_text(seconds)
     if is_local:
-        head = (("Dosya", sanitize_display_text(os.path.basename(path),
+        head = ((tr("Dosya"), sanitize_display_text(os.path.basename(path),
                                                 limit=MAX_NAME_CHARS)),
-                ("Konum", _shortened_folder(path)),
-                ("Boyut", _file_size_text(path)))
+                (tr("Konum"), _shortened_folder(path)),
+                (tr("Boyut"), _file_size_text(path)))
     else:
-        head = (("Adres", address),)
+        head = ((tr("Adres"), address),)
     rows = _rows(head + (
-        ("Süre", duration_text),
-        ("Kapsayıcı", _container_text(property_reader)),
-        ("Genel bitrate", _overall_bitrate_text(path, is_local, seconds)),
-        ("Başlık", _metadata_title(property_reader)),
+        (tr("Süre"), duration_text),
+        (tr("Kapsayıcı"), _container_text(property_reader)),
+        (tr("Genel bitrate"), _overall_bitrate_text(path, is_local, seconds)),
+        (tr("Başlık"), _metadata_title(property_reader)),
     ))
-    return InfoSection(SECTION_GENERAL, SECTION_TITLES[SECTION_GENERAL],
+    return InfoSection(SECTION_GENERAL,
+                       translate_marked(SECTION_TITLES[SECTION_GENERAL]),
                        (InfoGroup("", rows),), "")
 
 
@@ -688,10 +701,10 @@ def build_media_info(current_file, duration=0, track_list=None,
     if is_local:
         title = sanitize_display_text(os.path.basename(path),
                                       limit=MAX_NAME_CHARS)
-        copy_label, copy_value = COPY_PATH_LABEL, path
+        copy_label, copy_value = translate_marked(COPY_PATH_LABEL), path
     else:
         title = address
-        copy_label, copy_value = COPY_URL_LABEL, address
+        copy_label, copy_value = translate_marked(COPY_URL_LABEL), address
     params = _video_params(property_reader)
     sections = [_general_section(path, is_local, address, duration,
                                  property_reader)]

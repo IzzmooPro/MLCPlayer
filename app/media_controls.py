@@ -13,6 +13,7 @@ from app.errors import show_user_error, safe_console
 from app.media_info import sanitize_media_url
 from app.runtime_binaries import (INTERNET_VIDEO_MISSING_MESSAGE,
                                   INTERNET_VIDEO_MISSING_TITLE)
+from app.i18n import tr, tr_mark, translate_marked
 
 def toggle_mute(player):
     try:
@@ -30,7 +31,7 @@ def toggle_mute(player):
         player.volume_icon.setIcon(player.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolumeMuted))
         player.is_muted = True
         if getattr(player, '_ui_ready', False):
-            player.video_frame.show_osd("Sessiz")
+            player.video_frame.show_osd(tr("Sessiz"))
     else:
         # Sessizden çık - last_volume 0 ise varsayılan ses seviyesine dön
         restore = player.last_volume if player.last_volume > 0 else DEFAULT_VOLUME
@@ -41,7 +42,7 @@ def toggle_mute(player):
         player.volume_icon.setIcon(player.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolume))
         player.is_muted = False
         if getattr(player, '_ui_ready', False):
-            player.video_frame.show_osd(f"Ses: %{int(restore)}")
+            player.video_frame.show_osd(f"{tr('Ses')}: %{int(restore)}")
 
 def _refresh_overlay_subtitle_state(player):
     """Altyazı durumu değiştikten sonra overlay CC göstergesini tazeler."""
@@ -103,7 +104,8 @@ def append_media_paths(player, paths):
 
 def open_file(player):
     file_path, _ = QFileDialog.getOpenFileName(
-        player, "Dosya Aç", player.last_dir, f"Medya Dosyaları ({MEDIA_EXTENSIONS})"
+        player, tr("Dosya Aç"), player.last_dir,
+        f"{tr('Medya Dosyaları')} ({MEDIA_EXTENSIONS})"
     )
     if file_path:
         open_path(player, file_path)
@@ -190,11 +192,11 @@ def open_folder(player):
     """
     try:
         folder = QFileDialog.getExistingDirectory(
-            player, "Klasör Aç", _folder_dialog_start(player))
+            player, tr("Klasör Aç"), _folder_dialog_start(player))
     except Exception as e:
         safe_console(f"Klasör seçme hatası: {e}")
-        _folder_warning(player, "Klasör Açılamadı",
-                        "Klasör seçilemedi. Lütfen tekrar deneyin.")
+        _folder_warning(player, tr("Klasör Açılamadı"),
+                        tr("Klasör seçilemedi. Lütfen tekrar deneyin."))
         return
     if not folder:
         return
@@ -204,13 +206,14 @@ def open_folder(player):
         safe_console(f"Klasör tarama hatası: {e}")
         files = None
     if files is None:
-        _folder_warning(player, "Klasör Açılamadı",
-                        "Klasör okunamadı. Klasöre erişim izniniz "
-                        "olmayabilir.")
+        _folder_warning(player, tr("Klasör Açılamadı"),
+                        tr("Klasör okunamadı. Klasöre erişim izniniz "
+                           "olmayabilir."))
         return
     if not files:
-        _folder_warning(player, "Klasör Aç",
-                        "Bu klasörde desteklenen medya dosyası bulunamadı.")
+        _folder_warning(player, tr("Klasör Aç"),
+                        tr("Bu klasörde desteklenen medya dosyası "
+                           "bulunamadı."))
         return
     # Yeni liste ancak tarama başarılıysa uygulanır; ilk dosya SENKRON
     # açılamazsa bu girişimin dokunduğu her alan eski değerine döner.
@@ -220,9 +223,9 @@ def open_folder(player):
     if snapshot["settings_status"] == SETTING_UNREADABLE:
         # Eski değer güvenilir biçimde yakalanamadı: geri alma garanti
         # edilemeyeceği için işlem HİÇ başlatılmaz.
-        _folder_warning(player, "Klasör Açılamadı",
-                        "Oynatıcı ayarları okunamadığı için klasör güvenli "
-                        "biçimde açılamadı. Lütfen tekrar deneyin.")
+        _folder_warning(player, tr("Klasör Açılamadı"),
+                        tr("Oynatıcı ayarları okunamadığı için klasör güvenli "
+                           "biçimde açılamadı. Lütfen tekrar deneyin."))
         return
     player.last_dir = folder
     player.playlist = files
@@ -350,8 +353,9 @@ def open_recent(player, path):
         if callable(remove):
             remove(path)
         QMessageBox.warning(
-            player, "Dosya Bulunamadı",
-            "Dosya artık mevcut değil. Son Açılanlar listesinden kaldırıldı.")
+            player, tr("Dosya Bulunamadı"),
+            tr("Dosya artık mevcut değil. Son Açılanlar listesinden "
+               "kaldırıldı."))
         return
     player.open_path(path)
 
@@ -399,19 +403,23 @@ def open_path(player, path):
         player._pending_subs = []
         player.video_frame.placeholder_label.show()
         player.set_title()
-        show_user_error(player, "Dosya Açılamadı",
-                        "Dosya açılamadı. Dosya silinmiş, taşınmış veya "
-                        "desteklenmeyen bir format olabilir.",
+        show_user_error(player, tr("Dosya Açılamadı"),
+                        tr("Dosya açılamadı. Dosya silinmiş, taşınmış veya "
+                           "desteklenmeyen bir format olabilir."),
                         exc=e)
 
+# Bu sabitler import anında hesaplanır; o an çevirmen henüz YOKTUR. Bu
+# yüzden `tr()` DEĞİL `tr_mark()` kullanılır (yalnız işaretler) ve çeviri
+# kullanım anında `translate_marked()` ile uygulanır.
+# `PLACEHOLDER_DEFAULT_TEXT` ürün ADIDIR; çevrilmez.
 PLACEHOLDER_DEFAULT_TEXT = "MLC Player\nMedia Launch Codec Player"
-URL_LOADING_TEXT = "Bağlantı açılıyor…"
-URL_INVALID_TITLE = "Geçersiz Adres"
-URL_INVALID_MESSAGE = ("Geçerli bir web adresi girin. Yalnız http:// ve "
-                       "https:// ile başlayan bağlantılar açılabilir.")
-URL_FAILED_TITLE = "Bağlantı Açılamadı"
-URL_FAILED_MESSAGE = ("Bu bağlantı açılamadı. Adresi ve internet bağlantınızı "
-                      "kontrol edip tekrar deneyin.")
+URL_LOADING_TEXT = tr_mark("Bağlantı açılıyor…")
+URL_INVALID_TITLE = tr_mark("Geçersiz Adres")
+URL_INVALID_MESSAGE = tr_mark("Geçerli bir web adresi girin. Yalnız http:// ve "
+                              "https:// ile başlayan bağlantılar açılabilir.")
+URL_FAILED_TITLE = tr_mark("Bağlantı Açılamadı")
+URL_FAILED_MESSAGE = tr_mark("Bu bağlantı açılamadı. Adresi ve internet "
+                             "bağlantınızı kontrol edip tekrar deneyin.")
 # MPV gerçekten `idle` dönmeden hata denmez. Bu süre yalnız yüklemenin ilk
 # anındaki idle titremesini eler; TEK BAŞINA hata ölçütü DEĞİLDİR.
 URL_LOAD_GRACE_SECONDS = 12.0
@@ -500,7 +508,7 @@ def begin_url_loading(player):
     """
     player._url_loading_active = True
     player._url_loading_started_at = time.monotonic()
-    _set_placeholder_text(player, URL_LOADING_TEXT, True)
+    _set_placeholder_text(player, translate_marked(URL_LOADING_TEXT), True)
 
 
 def clear_url_loading(player):
@@ -545,7 +553,8 @@ def update_url_loading(player):
     # Runtime eksikse ONARIM mesaji, tamsa genel baglanti mesaji. Ham yol,
     # URL, token, istisna veya traceback KULLANICIYA CIKMAZ.
     if getattr(player, "internet_video_ready", True):
-        show_user_error(player, URL_FAILED_TITLE, URL_FAILED_MESSAGE)
+        show_user_error(player, translate_marked(URL_FAILED_TITLE),
+                        translate_marked(URL_FAILED_MESSAGE))
     else:
         show_user_error(player, INTERNET_VIDEO_MISSING_TITLE,
                         INTERNET_VIDEO_MISSING_MESSAGE)
@@ -553,14 +562,16 @@ def update_url_loading(player):
 
 
 def open_url(player):
-    raw, ok = QInputDialog.getText(player, "URL'den Oynat", "Video URL'si giriniz:",
-                               QLineEdit.EchoMode.Normal, "https://")
+    raw, ok = QInputDialog.getText(player, tr("URL'den Oynat"),
+                                   tr("Video URL'si giriniz:"),
+                                   QLineEdit.EchoMode.Normal, "https://")
     if ok and raw:
         url = normalize_media_url(raw)
         if not url:
             # GEÇERSİZ: mevcut oynatma, `current_file`, playlist ve son
             # açılanlar HİÇ değişmez; MPV'ye hiçbir şey verilmez.
-            show_user_error(player, URL_INVALID_TITLE, URL_INVALID_MESSAGE)
+            show_user_error(player, translate_marked(URL_INVALID_TITLE),
+                            translate_marked(URL_INVALID_MESSAGE))
             return
         try:
             clear_url_loading(player)
@@ -596,25 +607,28 @@ def open_url(player):
         except Exception as e:
             clear_url_loading(player)
             safe_console(f"Bağlantı açma hatası: {type(e).__name__}")
-            show_user_error(player, URL_FAILED_TITLE, URL_FAILED_MESSAGE,
-                            exc=e)
+            show_user_error(player, translate_marked(URL_FAILED_TITLE),
+                            translate_marked(URL_FAILED_MESSAGE), exc=e)
 
 def open_subtitle(player):
     if not player.current_file:
-        QMessageBox.warning(player, "Uyarı", "Önce bir video dosyası açın.")
+        QMessageBox.warning(player, tr("Uyarı"),
+                            tr("Önce bir video dosyası açın."))
         return
 
     subtitle_path, _ = QFileDialog.getOpenFileName(
-        player, "Altyazı Ekle", "", f"Altyazı Dosyaları ({SUBTITLE_EXTENSIONS})"
+        player, tr("Altyazı Ekle"), "",
+        f"{tr('Altyazı Dosyaları')} ({SUBTITLE_EXTENSIONS})"
     )
     if not subtitle_path:
         return
 
     # Dosya mevcut değilse mpv -12 (command) hatası verir
     if not os.path.isfile(subtitle_path):
-        show_user_error(player, "Altyazı Bulunamadı",
-                        "Altyazı dosyası bulunamadı. Dosyanın yerini kontrol edin.",
-                        details=f"Altyazı yolu: {subtitle_path}")
+        show_user_error(player, tr("Altyazı Bulunamadı"),
+                        tr("Altyazı dosyası bulunamadı. Dosyanın yerini "
+                           "kontrol edin."),
+                        details=f"{tr('Altyazı yolu:')} {subtitle_path}")
         return
 
     # Video henüz yüklenmediyse (duration=0) mpv sub_add'i reddeder (-12).
@@ -622,19 +636,19 @@ def open_subtitle(player):
     if player.duration <= 0:
         player._pending_subs.append(subtitle_path)
         safe_console(f"Altyazı yükleme sırasına alındı: {subtitle_path}")
-        player.video_frame.show_osd("Altyazı yükleniyor...")
+        player.video_frame.show_osd(tr("Altyazı yükleniyor..."))
         return
 
     try:
         player.mpv_player.sub_add(subtitle_path)
         _refresh_overlay_subtitle_state(player)
         safe_console(f"Subtitle added: {subtitle_path}")
-        player.video_frame.show_osd("Altyazı eklendi")
+        player.video_frame.show_osd(tr("Altyazı eklendi"))
     except Exception as e:
         safe_console(f"Open subtitle error: {e}")
-        show_user_error(player, "Altyazı Eklenemedi",
-                        "Altyazı eklenemedi. Dosyanın hasarlı veya "
-                        "desteklenmeyen bir format olması mümkün.",
+        show_user_error(player, tr("Altyazı Eklenemedi"),
+                        tr("Altyazı eklenemedi. Dosyanın hasarlı veya "
+                           "desteklenmeyen bir format olması mümkün."),
                         exc=e)
 
 def select_subtitle_language(player, sid):
@@ -644,8 +658,9 @@ def select_subtitle_language(player, sid):
         safe_console(f"Selected subtitle ID: {sid}")
     except Exception as e:
         safe_console(f"Altyazı seçimi hatası: {e}")
-        show_user_error(player, "Altyazı Seçilemedi",
-                        "Altyazı seçilemedi. Lütfen başka bir altyazı parçasını deneyin.",
+        show_user_error(player, tr("Altyazı Seçilemedi"),
+                        tr("Altyazı seçilemedi. Lütfen başka bir altyazı "
+                           "parçasını deneyin."),
                         exc=e)
 
 def toggle_subtitles(player):
@@ -658,7 +673,7 @@ def toggle_subtitles(player):
                            if isinstance(track, dict)
                            and track.get("type") == "sub"]
         if not subtitle_tracks:
-            player.video_frame.show_osd("Altyazı bulunamadı", duration=1800)
+            player.video_frame.show_osd(tr("Altyazı bulunamadı"), duration=1800)
             _refresh_overlay_subtitle_state(player)
             return False
 
@@ -679,8 +694,9 @@ def toggle_subtitles(player):
         return True
     except Exception as e:
         safe_console(f"Altyazıları gösterme/gizleme hatası: {e}")
-        show_user_error(player, "Altyazı Değiştirilemedi",
-                        "Altyazılar açılıp kapatılamadı. Lütfen tekrar deneyin.",
+        show_user_error(player, tr("Altyazı Değiştirilemedi"),
+                        tr("Altyazılar açılıp kapatılamadı. Lütfen tekrar "
+                           "deneyin."),
                         exc=e)
 
 def seek_position(player, position):
@@ -701,10 +717,11 @@ def seek_relative(player, seconds):
         player.mpv_player.check_core_alive()
         if player.mpv_player.time_pos is not None:
             player.mpv_player.seek(float(seconds), reference="relative")
-            direction = "İleri" if seconds > 0 else "Geri"
+            direction = tr("İleri") if seconds > 0 else tr("Geri")
             target = max(0, min(player.duration, (player.position or 0) + seconds))
             player.video_frame.show_osd(
-                f"{direction}: {abs(seconds):g} saniye\n{format_time(target)}")
+                f"{direction}: {abs(seconds):g} {tr('saniye')}"
+                f"\n{format_time(target)}")
     except mpv.ShutdownError:
         safe_console("MPV çekirdeği kapatılmış. Göreceli arama yapılamıyor.")
     except Exception as e:
@@ -717,11 +734,12 @@ def seek_chapter(player, delta):
         chapters = player.mpv_player.chapter_list or []
         current = int(player.mpv_player.chapter)
         if not chapters or current < 0:
-            player.video_frame.show_osd("Bölüm bilgisi yok")
+            player.video_frame.show_osd(tr("Bölüm bilgisi yok"))
             return
         target = max(0, min(len(chapters) - 1, current + delta))
         player.mpv_player.chapter = target
-        title = chapters[target].get("title") or f"Bölüm {target + 1}"
+        title = (chapters[target].get("title")
+                 or f"{tr('Bölüm')} {target + 1}")
         player.video_frame.show_osd(title)
     except Exception as e:
         safe_console(f"Bölüm değiştirme hatası: {e}")
@@ -808,7 +826,8 @@ def change_volume(player, delta):
 
 def add_to_playlist(player):
     files, _ = QFileDialog.getOpenFileNames(
-        player, "Oynatma Listesine Dosya Ekle", "", f"Medya Dosyaları ({MEDIA_EXTENSIONS})"
+        player, tr("Oynatma Listesine Dosya Ekle"), "",
+        f"{tr('Medya Dosyaları')} ({MEDIA_EXTENSIONS})"
     )
     if files:
         for file in files:
@@ -839,11 +858,12 @@ def show_playlist(player):
 
     # Klasik teşhis modu eski modal pencereyi korur.
     if not player.playlist:
-        QMessageBox.information(player, "Oynatma Listesi", "Oynatma listesi boş.")
+        QMessageBox.information(player, tr("Oynatma Listesi"),
+                                tr("Oynatma listesi boş."))
         return
 
     playlist_dialog = QDialog(player)
-    playlist_dialog.setWindowTitle("Oynatma Listesi")
+    playlist_dialog.setWindowTitle(tr("Oynatma Listesi"))
     playlist_dialog.setMinimumSize(400, 300)
 
     layout = QVBoxLayout(playlist_dialog)
@@ -855,17 +875,17 @@ def show_playlist(player):
 
     button_layout = QHBoxLayout()
 
-    play_button = QPushButton("Oynat")
+    play_button = QPushButton(tr("Oynat"))
     play_button.clicked.connect(lambda: play_from_playlist(player, list_widget.currentRow()))
 
-    remove_button = QPushButton("Kaldır")
+    remove_button = QPushButton(tr("Kaldır"))
     def remove_selected():
         remove_from_playlist(player, list_widget.currentRow())
         sync_playlist_view(player, list_widget)
 
     remove_button.clicked.connect(remove_selected)
 
-    clear_button = QPushButton("Listeyi Temizle")
+    clear_button = QPushButton(tr("Listeyi Temizle"))
     def clear_list():
         clear_playlist(player)
         sync_playlist_view(player, list_widget)
@@ -927,9 +947,9 @@ def play_from_playlist(player, index):
             return True
         except Exception as e:
             safe_console(f"Oynatma listesinden oynatma hatası: {e}")
-            show_user_error(player, "Dosya Açılamadı",
-                            "Oynatma listesindeki dosya açılamadı. Dosya taşınmış "
-                            "veya silinmiş olabilir.",
+            show_user_error(player, tr("Dosya Açılamadı"),
+                            tr("Oynatma listesindeki dosya açılamadı. Dosya "
+                               "taşınmış veya silinmiş olabilir."),
                             exc=e)
             return False
     return False
@@ -961,10 +981,12 @@ def clear_playlist(player):
 
 def save_playlist(player):
     if not player.playlist:
-        QMessageBox.information(player, "Oynatma Listesi", "Kaydedilecek oynatma listesi yok.")
+        QMessageBox.information(player, tr("Oynatma Listesi"),
+                                tr("Kaydedilecek oynatma listesi yok."))
         return
     file_path, _ = QFileDialog.getSaveFileName(
-        player, "Oynatma Listesini Kaydet", "", "Oynatma Listesi (*.m3u)"
+        player, tr("Oynatma Listesini Kaydet"), "",
+        f"{tr('Oynatma Listesi')} (*.m3u)"
     )
     if not file_path:
         return
@@ -979,14 +1001,15 @@ def save_playlist(player):
         safe_console(f"Oynatma listesi kaydedildi: {file_path}")
     except Exception as e:
         safe_console(f"Oynatma listesi kaydetme hatası: {e}")
-        show_user_error(player, "Kaydedilemedi",
-                        "Oynatma listesi kaydedilemedi. Dosyanın yazılabileceği "
-                        "bir konum seçmeyi deneyin.",
+        show_user_error(player, tr("Kaydedilemedi"),
+                        tr("Oynatma listesi kaydedilemedi. Dosyanın "
+                           "yazılabileceği bir konum seçmeyi deneyin."),
                         exc=e)
 
 def load_playlist(player):
     file_path, _ = QFileDialog.getOpenFileName(
-        player, "Oynatma Listesi Aç", "", "Oynatma Listesi (*.m3u)"
+        player, tr("Oynatma Listesi Aç"), "",
+        f"{tr('Oynatma Listesi')} (*.m3u)"
     )
     if not file_path:
         return
@@ -1002,7 +1025,9 @@ def load_playlist(player):
                     if os.path.isfile(entry):
                         entries.append(os.path.normpath(entry))
         if not entries:
-            QMessageBox.warning(player, "Uyarı", "Oynatma listesinde geçerli dosya bulunamadı.")
+            QMessageBox.warning(
+                player, tr("Uyarı"),
+                tr("Oynatma listesinde geçerli dosya bulunamadı."))
             return
         if player.current_file:
             stop(player)
@@ -1013,14 +1038,17 @@ def load_playlist(player):
         safe_console(f"Oynatma listesi yüklendi ({len(entries)} dosya): {file_path}")
     except Exception as e:
         safe_console(f"Oynatma listesi açma hatası: {e}")
-        show_user_error(player, "Açılamadı",
-                        "Oynatma listesi açılamadı. Dosya bozuk veya "
-                        "okunamıyor olabilir.",
+        show_user_error(player, tr("Açılamadı"),
+                        tr("Oynatma listesi açılamadı. Dosya bozuk veya "
+                           "okunamıyor olabilir."),
                         exc=e)
 
 def take_screenshot(player):
     if not player.current_file:
-        QMessageBox.warning(player, "Uyarı", "Ekran görüntüsü almak için bir video oynatılıyor olmalıdır.")
+        QMessageBox.warning(
+            player, tr("Uyarı"),
+            tr("Ekran görüntüsü almak için bir video oynatılıyor "
+               "olmalıdır."))
         return
 
     # Varsayılan kayıt klasörü: Masaüstü
@@ -1040,12 +1068,14 @@ def take_screenshot(player):
     try:
         # Ekran görüntüsü al
         player.mpv_player.screenshot_to_file(screenshot_path)
-        QMessageBox.information(player, "Başarılı", f"Ekran görüntüsü kaydedildi:\n{screenshot_path}")
+        QMessageBox.information(
+            player, tr("Başarılı"),
+            f"{tr('Ekran görüntüsü kaydedildi:')}\n{screenshot_path}")
     except Exception as e:
         safe_console(f"Ekran görüntüsü alma hatası: {e}")
-        show_user_error(player, "Ekran Görüntüsü Alınamadı",
-                        "Ekran görüntüsü kaydedilemedi. Masaüstüne yazma iznini "
-                        "ve boş alanı kontrol edin.",
+        show_user_error(player, tr("Ekran Görüntüsü Alınamadı"),
+                        tr("Ekran görüntüsü kaydedilemedi. Masaüstüne yazma "
+                           "iznini ve boş alanı kontrol edin."),
                         exc=e)
 
 def play_next(player):
@@ -1059,9 +1089,11 @@ def play_next(player):
             player.current_playlist_index = 0
             play_from_playlist(player, 0)
         else:
-            QMessageBox.information(player, "Oynatma Listesi", "Listenin sonuna ulaştınız.")
+            QMessageBox.information(player, tr("Oynatma Listesi"),
+                                    tr("Listenin sonuna ulaştınız."))
     else:
-        QMessageBox.information(player, "Oynatma Listesi", "Oynatma listesi boş.")
+        QMessageBox.information(player, tr("Oynatma Listesi"),
+                                tr("Oynatma listesi boş."))
 
 def play_previous(player):
     if player.playlist and player.current_playlist_index > 0:
@@ -1078,7 +1110,8 @@ def play_previous(player):
         player.current_playlist_index = len(player.playlist) - 1
         play_from_playlist(player, player.current_playlist_index)
     else:
-        QMessageBox.information(player, "Oynatma Listesi", "Listenin başındasınız.")
+        QMessageBox.information(player, tr("Oynatma Listesi"),
+                                tr("Listenin başındasınız."))
 
 def toggle_fullscreen(player):
     video_frame = player.video_frame
@@ -1089,13 +1122,14 @@ def toggle_fullscreen(player):
 
 def goto_time(player):
     if not player.current_file:
-        QMessageBox.warning(player, "Uyarı", "Önce bir video dosyası açın.")
+        QMessageBox.warning(player, tr("Uyarı"),
+                            tr("Önce bir video dosyası açın."))
         return
 
     current_time = format_time(player.position)
     time_str, ok = QInputDialog.getText(
-        player, "Zamana Git",
-        "Zaman pozisyonunu girin (MM:SS veya HH:MM:SS formatında):",
+        player, tr("Zamana Git"),
+        tr("Zaman pozisyonunu girin (MM:SS veya HH:MM:SS formatında):"),
         QLineEdit.EchoMode.Normal,
         current_time
     )
@@ -1109,12 +1143,15 @@ def goto_time(player):
             if total_seconds is not None and 0 <= total_seconds <= player.duration:
                 player.mpv_player.time_pos = float(total_seconds)
             else:
-                QMessageBox.warning(player, "Geçersiz Zaman",
-                                    f"Zamanı MM:SS veya HH:MM:SS biçiminde ve "
-                                    f"0 ile {int(player.duration)} saniye arasında girin.")
+                QMessageBox.warning(
+                    player, tr("Geçersiz Zaman"),
+                    tr("Zamanı MM:SS veya HH:MM:SS biçiminde ve 0 ile "
+                       "%1 saniye arasında girin.").replace(
+                        "%1", str(int(player.duration))))
         except Exception as e:
-            show_user_error(player, "Zamana Gidilemedi",
-                            "Girilen zaman konumuna gidilemedi. Zamanı tekrar kontrol edin.",
+            show_user_error(player, tr("Zamana Gidilemedi"),
+                            tr("Girilen zaman konumuna gidilemedi. Zamanı "
+                               "tekrar kontrol edin."),
                             exc=e)
 
 def set_playback_speed(player, speed):
@@ -1129,6 +1166,7 @@ def set_playback_speed(player, speed):
                 action.setChecked(s == speed)
     except Exception as e:
         safe_console(f"Oynatma hızı değiştirme hatası: {e}")
-        show_user_error(player, "Oynatma Hızı Değiştirilemedi",
-                        "Oynatma hızı değiştirilemedi. Lütfen başka bir hız deneyin.",
+        show_user_error(player, tr("Oynatma Hızı Değiştirilemedi"),
+                        tr("Oynatma hızı değiştirilemedi. Lütfen başka bir "
+                           "hız deneyin."),
                         exc=e)

@@ -117,10 +117,30 @@ class SubtitleSettingsController(QObject):
         dialog.username_field.setText(values["username"])
         # Parola ASLA geri yüklenmez.
         dialog.password_field.clear()
-        dialog.settings_language_box.setCurrentText(values["language"])
+        # Kutulara GÖRÜNEN metinle değil KİMLİKLE yazılır; etiket
+        # çevrildiğinde `setCurrentText()` eşleşme bulamıyor ve kullanıcının
+        # tercihi sessizce ilk öğeye düşüyordu.
+        self._select_language(dialog.settings_language_box, values["language"])
         # Varsayılan dil arama satırında da seçili gelir.
-        dialog.language_box.setCurrentText(values["language"])
+        self._select_language(dialog.language_box, values["language"])
         return True
+
+    # --- Dil kutusu: KİMLİKLE yaz, KAYNAK etiketi oku ---
+    #
+    # Depo biçimi DEĞİŞMEZ (kaynak dildeki ad, ör. `Almanca`); eski
+    # kurulumların kaydı geçerli kalır. Yalnız kutuya yazma/okuma yolu
+    # görünen metinden koda taşındı
+    # (`tests/test_subtitle_language_translation_regressions.py`).
+
+    @staticmethod
+    def _select_language(box, label):
+        from app.subtitle_center import select_language_label
+        return select_language_label(box, label)
+
+    @staticmethod
+    def _selected_language(box):
+        from app.subtitle_center import current_language_label
+        return current_language_label(box)
 
     # --- Arayüzden depoya ---
 
@@ -149,7 +169,7 @@ class SubtitleSettingsController(QObject):
             dialog.set_operation_status(STATUS_ACCOUNT_INCOMPLETE)
             return False
 
-        language = dialog.settings_language_box.currentText()
+        language = self._selected_language(dialog.settings_language_box)
         if not language:
             language = DEFAULT_LANGUAGE
         result = self.store.save({

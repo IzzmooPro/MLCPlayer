@@ -42,7 +42,7 @@ from PyQt6.QtWidgets import (
     QStyleOptionComboBox, QStylePainter, QVBoxLayout, QWidget)
 
 from app.config import SUBTITLE_DEFAULTS
-from app.i18n import tr
+from app.i18n import tr, tr_mark, translate_marked
 from app.subtitle_style import (BORDER_PRESETS, COLOR_KEYS, DELAY_PRESETS,
                                 SCALE_PRESETS, mpv_argb_to_qcolor,
                                 normalise_subtitle_numeric,
@@ -71,11 +71,14 @@ PANEL_MARGIN = 16
 PANEL_SPACING = 10
 SWATCH_SIZE = (86, 30)
 
-PREVIEW_LINES = ("Bu bir altyazı önizlemesidir.",
-                 "Renk, arka plan ve kenarlık burada görünür.")
+# Modül düzeyi metinler: import anında çevirmen yoktur; `tr_mark()` yalnız
+# işaretler, çeviri kullanım anında `translate_marked()` ile yapılır.
+PREVIEW_LINES = (tr_mark("Bu bir altyazı önizlemesidir."),
+                 tr_mark("Renk, arka plan ve kenarlık burada görünür."))
 
-COLOR_LABELS = {"sub_color": "Yazı", "sub_back_color": "Arka plan",
-                "sub_border_color": "Kenarlık"}
+COLOR_LABELS = {"sub_color": tr_mark("Yazı"),
+                "sub_back_color": tr_mark("Arka plan"),
+                "sub_border_color": tr_mark("Kenarlık")}
 
 # --- Hazır değer etiketleri ---------------------------------------------
 #
@@ -84,10 +87,12 @@ COLOR_LABELS = {"sub_color": "Yazı", "sub_back_color": "Arka plan",
 # Türkçe ondalık ayracı virgüldür ve negatif işaret olarak tipografik
 # eksi (U+2212) kullanılır.
 MINUS_SIGN = "−"
-SCALE_LABELS = {0.75: "Çok küçük", 0.85: "Küçük", 1.0: "Normal",
-                1.15: "Biraz büyük", 1.25: "Büyük", 1.5: "Çok büyük",
-                2.0: "En büyük"}
-BORDER_LABELS = {0.0: "Yok", 3.0: "Varsayılan", 5.0: "En kalın"}
+SCALE_LABELS = {0.75: tr_mark("Çok küçük"), 0.85: tr_mark("Küçük"),
+                1.0: tr_mark("Normal"), 1.15: tr_mark("Biraz büyük"),
+                1.25: tr_mark("Büyük"), 1.5: tr_mark("Çok büyük"),
+                2.0: tr_mark("En büyük")}
+BORDER_LABELS = {0.0: tr_mark("Yok"), 3.0: tr_mark("Varsayılan"),
+                 5.0: tr_mark("En kalın")}
 
 
 def _turkish_number(value, decimals):
@@ -97,21 +102,22 @@ def _turkish_number(value, decimals):
 def delay_label(value):
     """`0 sn — Senkron`, `+0,25 sn`, `−1,25 sn`."""
     if abs(value) < 1e-9:
-        return "0 sn — Senkron"
+        return f"0 {tr('sn')} — {tr('Senkron')}"
     sign = "+" if value > 0 else MINUS_SIGN
-    return f"{sign}{_turkish_number(abs(value), 2)} sn"
+    return f"{sign}{_turkish_number(abs(value), 2)} {tr('sn')}"
 
 
 def scale_label(value):
-    return f"{_turkish_number(value, 2)}× — {SCALE_LABELS[value]}"
+    return (f"{_turkish_number(value, 2)}× — "
+            f"{translate_marked(SCALE_LABELS[value])}")
 
 
 def border_label(value):
     if abs(value) < 1e-9:
-        return f"0 px — {BORDER_LABELS[0.0]}"
+        return f"0 px — {translate_marked(BORDER_LABELS[0.0])}"
     text = f"{_turkish_number(value, 1)} px"
     note = BORDER_LABELS.get(value)
-    return f"{text} — {note}" if note else text
+    return f"{text} — {translate_marked(note)}" if note else text
 
 
 # KAPALI kutuda gösterilen kısa biçim. Açılır listede TAM açıklamalı
@@ -122,9 +128,9 @@ def border_label(value):
 # net gösterir.
 def delay_short(value):
     if abs(value) < 1e-9:
-        return "0 sn"
+        return f"0 {tr('sn')}"
     sign = "+" if value > 0 else MINUS_SIGN
-    return f"{sign}{_turkish_number(abs(value), 2)} sn"
+    return f"{sign}{_turkish_number(abs(value), 2)} {tr('sn')}"
 
 
 def scale_short(value):
@@ -204,8 +210,8 @@ def default_values():
 # bir "Şeffaf" düğmesi vardı; kullanıcının aradığı yer renk penceresidir
 # ve ayrı düğme renk satırının hizasını da bozuyordu. Alfa sürgüsüne
 # güvenen gizli yöntem KABUL EDİLMEZ: seçenek metniyle görünür olmalıdır.
-NO_COLOUR_TEXT = "Renk yok (Şeffaf)"
-NO_COLOUR_ACCESSIBLE = "Arka planı şeffaf yap (renk yok)"
+NO_COLOUR_TEXT = tr_mark("Renk yok (Şeffaf)")
+NO_COLOUR_ACCESSIBLE = tr_mark("Arka planı şeffaf yap (renk yok)")
 
 
 class SubtitleColourDialog(QColorDialog):
@@ -229,9 +235,9 @@ class SubtitleColourDialog(QColorDialog):
         self._transparent_chosen = False
         self.no_colour_button = None
         if allow_transparent:
-            button = QPushButton(NO_COLOUR_TEXT, self)
+            button = QPushButton(translate_marked(NO_COLOUR_TEXT), self)
             button.setObjectName("subtitleNoColourButton")
-            button.setAccessibleName(NO_COLOUR_ACCESSIBLE)
+            button.setAccessibleName(translate_marked(NO_COLOUR_ACCESSIBLE))
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             # Enter'ın yanlışlıkla şeffaflık uygulamasını engeller.
             button.setAutoDefault(False)
@@ -574,7 +580,7 @@ class SubtitlePreview(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Expanding,
                            QSizePolicy.Policy.Expanding)
         self.style_values = default_values()
-        self._lines = list(PREVIEW_LINES)
+        self._lines = [translate_marked(line) for line in PREVIEW_LINES]
         self._text_rect = QRect()
         # Sahne YALNIZ boyut değiştiğinde üretilir; `paintEvent` her
         # karede pahalı çizim yapmaz.
@@ -723,14 +729,16 @@ class ColorSwatch(QPushButton):
         alpha = self.color.alpha()
         self.setProperty("hasAlpha", alpha < 255)
         if alpha == 0:
-            state = "tamamen saydam"
+            state = tr("tamamen saydam")
         elif alpha < 255:
-            state = f"kısmen saydam (%{round(alpha / 255 * 100)} opak)"
+            state = (f"{tr('kısmen saydam')} "
+                     f"(%{round(alpha / 255 * 100)} {tr('opak')})")
         else:
-            state = "opak"
-        label = COLOR_LABELS.get(self.key, "")
+            state = tr("opak")
+        marked = COLOR_LABELS.get(self.key, "")
+        label = translate_marked(marked) if marked else ""
         self.setToolTip(f"{label} — {canonical} ({state})")
-        self.setAccessibleName(f"{COLOR_LABELS.get(self.key, self.key)} rengi")
+        self.setAccessibleName(f"{label or self.key} {tr('rengi')}")
         self.update()
 
     def paintEvent(self, event):
@@ -820,25 +828,26 @@ class SubtitleAppearanceDialog(QDialog):
         quick_row.setContentsMargins(0, 0, 0, 0)
         quick_row.setSpacing(10)
         self.delay_combo = PresetCombo(
-            "subtitleDelayCombo", "Altyazı senkronu", DELAY_PRESETS,
+            "subtitleDelayCombo", tr("Altyazı senkronu"), DELAY_PRESETS,
             delay_label, delay_short, "sub_delay", panel)
         self.delay_combo.setToolTip(tr(
             "Altyazı senkronu. Pozitif değer altyazıyı geciktirir, "
             "negatif değer öne alır."))
         self.scale_combo = PresetCombo(
-            "subtitleScaleCombo", "Yazı boyutu", SCALE_PRESETS, scale_label,
+            "subtitleScaleCombo", tr("Yazı boyutu"), SCALE_PRESETS,
+            scale_label,
             scale_short, "sub_scale", panel)
         self.border_combo = PresetCombo(
-            "subtitleBorderCombo", "Kenarlık kalınlığı", BORDER_PRESETS,
+            "subtitleBorderCombo", tr("Kenarlık kalınlığı"), BORDER_PRESETS,
             border_label, border_short, "sub_border_size", panel)
         self.delay_combo.select_value(initial("sub_delay"))
         self.scale_combo.select_value(initial("sub_scale"))
         self.border_combo.select_value(initial("sub_border_size"))
         for combo in (self.delay_combo, self.scale_combo, self.border_combo):
             combo.currentIndexChanged.connect(self._refresh_preview)
-        for label, widget in (("Senkron", self.delay_combo),
-                              ("Yazı boyutu", self.scale_combo),
-                              ("Kenarlık kalınlığı", self.border_combo)):
+        for label, widget in ((tr("Senkron"), self.delay_combo),
+                              (tr("Yazı boyutu"), self.scale_combo),
+                              (tr("Kenarlık kalınlığı"), self.border_combo)):
             cell = QVBoxLayout()
             cell.setSpacing(3)
             cell.addWidget(self._label(label))
@@ -882,15 +891,16 @@ class SubtitleAppearanceDialog(QDialog):
         for key in COLOR_KEYS:
             cell = QVBoxLayout()
             cell.setSpacing(3)
-            label = self._label(COLOR_LABELS[key])
+            label = self._label(translate_marked(COLOR_LABELS[key]))
             colour_labels.append(label)
             cell.addWidget(label)
             swatch = ColorSwatch(key, self._colors[key], panel)
             swatch.clicked.connect(lambda _=False, k=key: self._choose(k))
             self._swatches[key] = swatch
             if key == "sub_back_color":
-                swatch.setToolTip(swatch.toolTip()
-                                  + f"\nPalette: {NO_COLOUR_TEXT}")
+                swatch.setToolTip(
+                    swatch.toolTip()
+                    + f"\nPalette: {translate_marked(NO_COLOUR_TEXT)}")
             cell.addWidget(swatch)
             colors_row.addLayout(cell, 0)
         # Hücre genişliği en geniş ÇOCUĞA göre belirlenir; "Arka plan"
@@ -952,12 +962,14 @@ class SubtitleAppearanceDialog(QDialog):
         row = QHBoxLayout()
         row.setSpacing(8)
         self.reset_button = self._button("subtitleResetButton",
-                                         "Varsayılana Dön",
-                                         "Varsayılan ayarlara dön")
-        self.cancel_button = self._button("subtitleCancelButton", "İptal",
-                                          "Değişiklikleri iptal et")
-        self.apply_button = self._button("subtitleApplyButton", "Uygula",
-                                         "Ayarları uygula")
+                                         tr("Varsayılana Dön"),
+                                         tr("Varsayılan ayarlara dön"))
+        self.cancel_button = self._button("subtitleCancelButton",
+                                          tr("İptal"),
+                                          tr("Değişiklikleri iptal et"))
+        self.apply_button = self._button("subtitleApplyButton",
+                                         tr("Uygula"),
+                                         tr("Ayarları uygula"))
         self.reset_button.clicked.connect(self.reset_to_defaults)
         self.cancel_button.clicked.connect(self.reject)
         self.apply_button.clicked.connect(self._apply)
@@ -1025,7 +1037,9 @@ class SubtitleAppearanceDialog(QDialog):
         # "Renk yok (Şeffaf)" YALNIZ arka plan için anlamlıdır; yazı ve
         # kenarlık paletine gereksiz seçenek eklenmez.
         selected = pick_colour(
-            self, self._picker_seed(key), COLOR_LABELS.get(key, "Renk"),
+            self, self._picker_seed(key),
+            translate_marked(COLOR_LABELS[key]) if key in COLOR_LABELS
+            else tr("Renk"),
             allow_transparent=(key == "sub_back_color"))
         # İptal edilen seçicide önceki renk KORUNUR.
         if selected.isValid():
@@ -1055,5 +1069,5 @@ class SubtitleAppearanceDialog(QDialog):
         # Başarısız uygulamada pencere AÇIK kalır; sahte başarı yok.
         if self._error_reporter is not None:
             from app.subtitle_style import APPLY_ERROR_MESSAGE
-            self._error_reporter("Altyazı Ayarları Uygulanamadı",
+            self._error_reporter(tr("Altyazı Ayarları Uygulanamadı"),
                                  APPLY_ERROR_MESSAGE, exc=error)

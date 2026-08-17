@@ -37,7 +37,7 @@ import tempfile
 from collections import namedtuple
 from pathlib import Path
 from urllib.parse import urlsplit
-from app.i18n import tr
+from app.i18n import tr, tr_mark, translate_marked
 
 from PyQt6.QtCore import QThread, Qt, pyqtSignal
 from PyQt6.QtWidgets import (QDialog, QHBoxLayout, QLabel, QMessageBox,
@@ -71,14 +71,20 @@ _ALLOWED_DOWNLOAD_HOSTS = frozenset({
 _DIGEST_RE = re.compile(r"^sha256:([0-9a-fA-F]{64})$")
 
 # Kullanıcıya gösterilen SABİT metinler.
-VERIFY_FAILED_MESSAGE = (
+#
+# Bunlar modül düzeyindedir; import anında çevirmen HENÜZ YOKTUR. Bu yüzden
+# yalnız `tr_mark()` ile işaretlenir ve çeviri GÖSTERİM yerinde yapılır:
+# `UpdateDialog.show_error()` ile `check_for_updates._failed()` aldıkları
+# metni `translate_marked()`ten geçirir. Sözleşme: bu iki giriş noktasına
+# her zaman İŞARETLENMİŞ metin verilir.
+VERIFY_FAILED_MESSAGE = tr_mark(
     "Güncelleme dosyası doğrulanamadı. Kurulum başlatılmadı.")
-DOWNLOAD_FAILED_MESSAGE = "Güncelleme indirilemedi."
-ASSET_VERIFY_FAILED_MESSAGE = (
+DOWNLOAD_FAILED_MESSAGE = tr_mark("Güncelleme indirilemedi.")
+ASSET_VERIFY_FAILED_MESSAGE = tr_mark(
     "Güncelleme bilgisi doğrulanamadı. Otomatik güncelleme başlatılmadı.")
-CHECK_FAILED_MESSAGE = "Güncelleme kontrol edilemedi."
-BUSY_MESSAGE = ("Program şu anda kapanamıyor (süren bir işlem var). "
-                "İşlem bitince güncellemeyi yeniden başlatın.")
+CHECK_FAILED_MESSAGE = tr_mark("Güncelleme kontrol edilemedi.")
+BUSY_MESSAGE = tr_mark("Program şu anda kapanamıyor (süren bir işlem var). "
+                       "İşlem bitince güncellemeyi yeniden başlatın.")
 
 #: Doğrulanmış güncelleme asset'i. `signature_url`, yayıncı imzasının
 #: (`<kurulum>.sig`) adresidir; imza katmanı açıkken ZORUNLUDUR.
@@ -473,9 +479,9 @@ class UpdateDialog(QDialog):
         layout.setContentsMargins(24, 20, 24, 20)
         layout.setSpacing(14)
 
-        message = QLabel(f"Yeni bir sürüm bulundu.\n\n"
-                         f"Mevcut sürüm : {APP_VERSION}\n"
-                         f"Yeni sürüm   : {self._version}")
+        message = QLabel(f"{tr('Yeni bir sürüm bulundu.')}\n\n"
+                         f"{tr('Mevcut sürüm')} : {APP_VERSION}\n"
+                         f"{tr('Yeni sürüm')}   : {self._version}")
         message.setWordWrap(True)
         layout.addWidget(message)
 
@@ -513,7 +519,7 @@ class UpdateDialog(QDialog):
         self._progress.setVisible(True)
         self._progress.setValue(0)
         self._status.setVisible(True)
-        self._status.setText("İndiriliyor…")
+        self._status.setText(tr("İndiriliyor…"))
         self.adjustSize()
 
         folder = tempfile.mkdtemp(prefix="MLCPlayerUpdate_")
@@ -533,7 +539,7 @@ class UpdateDialog(QDialog):
             log("İndirme bitti ancak kapatma istendi; kurulum başlatılmıyor.")
             remove_downloaded_installer(installer_path)
             return
-        self._status.setText("Güncelleme uygulanıyor…")
+        self._status.setText(tr("Güncelleme uygulanıyor…"))
         outcome, message = apply_update(installer_path, self._update_target())
         if outcome == "busy":
             self._restore_buttons()
@@ -543,8 +549,8 @@ class UpdateDialog(QDialog):
         if outcome == "source":
             # Kaynaktan çalışan geliştirme kopyası: kurulum uygulanmaz.
             self._restore_buttons()
-            self.show_error(
-                "Kaynak koddan çalışan kopya kurulumla güncellenmez.")
+            self.show_error(tr_mark(
+                "Kaynak koddan çalışan kopya kurulumla güncellenmez."))
             remove_downloaded_installer(installer_path)
             return
         self.accept()
@@ -575,12 +581,13 @@ class UpdateDialog(QDialog):
         box = QMessageBox(self)
         box.setIcon(QMessageBox.Icon.Warning)
         box.setWindowTitle(tr("Güncelleme"))
-        box.setText(message)
+        box.setText(translate_marked(message))
         box.setInformativeText(
-            "İsterseniz güncellemeyi GitHub sayfasından elle indirebilirsiniz.")
-        manual = box.addButton("GitHub sayfasını aç",
+            tr("İsterseniz güncellemeyi GitHub sayfasından elle "
+               "indirebilirsiniz."))
+        manual = box.addButton(tr("GitHub sayfasını aç"),
                                QMessageBox.ButtonRole.ActionRole)
-        box.addButton("Kapat", QMessageBox.ButtonRole.RejectRole)
+        box.addButton(tr("Kapat"), QMessageBox.ButtonRole.RejectRole)
         box.exec()
         if box.clickedButton() is manual:
             open_releases_page()
@@ -599,7 +606,8 @@ class UpdateDialog(QDialog):
                 self._close_after_download_connected = True
                 self._status.setVisible(True)
                 self._status.setText(
-                    "İndirme tamamlanıyor — pencere işlem bitince kapanacak.")
+                    tr("İndirme tamamlanıyor — pencere işlem bitince "
+                       "kapanacak."))
                 self.adjustSize()
             event.ignore()
             return
@@ -643,11 +651,12 @@ def check_for_updates(player):
 
     def _up_to_date():
         QMessageBox.information(
-            player, "Güncelleme",
-            f"En güncel sürümü kullanıyorsunuz ({APP_VERSION}).")
+            player, tr("Güncelleme"),
+            f"{tr('En güncel sürümü kullanıyorsunuz')} ({APP_VERSION}).")
 
     def _failed(message):
-        QMessageBox.warning(player, "Güncelleme", message)
+        QMessageBox.warning(player, tr("Güncelleme"),
+                            translate_marked(message))
 
     checker.update_available.connect(_show, Qt.ConnectionType.QueuedConnection)
     checker.no_update.connect(_up_to_date, Qt.ConnectionType.QueuedConnection)

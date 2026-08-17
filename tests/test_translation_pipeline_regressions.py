@@ -107,6 +107,55 @@ def test_the_compiled_english_translation_actually_applies(qt_app, tmp_path):
     assert i18n.tr("Dosya Aç") == "Dosya Aç"
 
 
+# ── Modül düzeyi sabitler: işaretle şimdi, çevir sonra ───────────────────
+#
+# VLC'de aynı ayrım vardır (17 Ağustos 2026'da depoda görüldü):
+# `#define INPUT_AUDIOTRACK_LANG_TEXT N_("Audio language")` metni yalnız
+# ÇIKARMA için işaretler, çeviri kullanım anında `vlc_gettext()` ile olur.
+# Bize gereken de budur: `URL_LOADING_TEXT` gibi sabitler import anında
+# hesaplanır, o an henüz QApplication ve çevirmen YOKTUR; sabiti `tr()` ile
+# sarmalamak metni sonsuza dek Türkçeye dondururdu.
+
+def test_a_marked_constant_is_not_translated_at_import_time():
+    """`tr_mark()` metni AYNEN döndürür; yalnız çıkarma için işaretler."""
+    assert i18n.tr_mark("Bağlantı açılıyor…") == "Bağlantı açılıyor…"
+
+
+def test_marked_constants_reach_the_translation_files():
+    texts, _dynamic = _extractor().collect()
+    assert "Bağlantı açılıyor…" in texts, "işaretlenen sabit çıkarılmadı"
+
+
+def test_a_marked_constant_is_translated_when_it_is_used(qt_app, tmp_path):
+    """Kullanım anında çeviri UYGULANIR; sabit Türkçe kalmaz."""
+    target = tmp_path / "mlcplayer_en.qm"
+    result = subprocess.run(["pyside6-lrelease", str(ENGLISH_TS), "-qm",
+                             str(target)], capture_output=True, text=True,
+                            timeout=120)
+    assert result.returncode == 0, result.stderr
+    translator = QTranslator()
+    assert translator.load(str(target))
+    qt_app.installTranslator(translator)
+    try:
+        from app import media_controls
+        assert (i18n.translate_marked(media_controls.URL_FAILED_TITLE)
+                != media_controls.URL_FAILED_TITLE)
+    finally:
+        qt_app.removeTranslator(translator)
+
+
+def test_the_user_facing_url_constants_are_marked():
+    """İşaretlenmemiş sabit hiçbir dilde çevrilemez."""
+    texts, _dynamic = _extractor().collect()
+    from app import media_controls
+    for constant in (media_controls.URL_LOADING_TEXT,
+                     media_controls.URL_INVALID_TITLE,
+                     media_controls.URL_INVALID_MESSAGE,
+                     media_controls.URL_FAILED_TITLE,
+                     media_controls.URL_FAILED_MESSAGE):
+        assert constant in texts, constant
+
+
 # ── Paketleme ────────────────────────────────────────────────────────────
 
 def test_compiled_translations_are_packaged():

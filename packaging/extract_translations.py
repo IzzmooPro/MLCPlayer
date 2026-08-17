@@ -36,8 +36,14 @@ SOURCE_DIRECTORIES = ("app",)
 SOURCE_FILES = ("main.py",)
 
 
+#: Metni çeviri dosyasına SOKAN çağrılar. `tr()` çeviriyi hemen uygular,
+#: `tr_mark()` yalnız işaretler (modül düzeyi sabitler için; çeviri kullanım
+#: anında `translate_marked()` ile olur). İkisi de sabit metin taşımalıdır.
+EXTRACTING_CALLS = ("tr", "tr_mark")
+
+
 class Collector(ast.NodeVisitor):
-    """`tr(...)` çağrılarını toplar; sabit olmayanları ayrı raporlar."""
+    """Çeviri çağrılarını toplar; sabit olmayanları ayrı raporlar."""
 
     def __init__(self, path):
         self.path = path
@@ -50,7 +56,7 @@ class Collector(ast.NodeVisitor):
             name = node.func.id
         elif isinstance(node.func, ast.Attribute):
             name = node.func.attr
-        if name == "tr" and node.args:
+        if name in EXTRACTING_CALLS and node.args:
             first = node.args[0]
             if isinstance(first, ast.Constant) and isinstance(first.value, str):
                 self.texts.append((first.value, node.lineno))

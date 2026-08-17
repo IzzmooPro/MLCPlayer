@@ -12,7 +12,12 @@ Artık iki menü de buradaki saf fonksiyonları kullanır.
 
 Sözleşme
 --------
-- Qt, MPV veya ağ bağımlılığı YOKTUR; hepsi saf fonksiyondur.
+- MPV, ağ ve Qt WIDGET bağımlılığı YOKTUR; hepsi saf fonksiyondur.
+  TEK istisna `app.translate`tir: kullanıcıya giden dil adları, durum
+  etiketleri ve yedek metinler çevrilmek zorundadır — Alman kullanıcıya
+  İngilizce ses parçası için `İngilizce` yazmak kabul edilemez. Tablolar
+  `tr_mark()` ile işaretlenir, çeviri KULLANIM anında yapılır; modül yine
+  pencere açmaz, MPV'ye dokunmaz ve ağa çıkmaz.
 - Eksik, bozuk veya beklenmeyen metadata karşısında ASLA çökmez; bilgi
   uydurmaz ve boş ayraç üretmez.
 - Kullanıcı metninde ham dil kodu (`eng`, `und`), teknik anahtar
@@ -21,24 +26,28 @@ Sözleşme
   etikete YAZILMAZ.
 """
 
+# SAF KATMAN: `app.i18n` DEĞİL `app.translate` (Qt'yi import anında
+# yüklemez; bkz. o modülün gerekçesi).
+from app.translate import tr, tr_mark, translate_marked
+
 # --- Dil kodları -----------------------------------------------------
 
 LANGUAGE_NAMES = {
-    "en": "İngilizce", "eng": "İngilizce",
-    "tr": "Türkçe", "tur": "Türkçe",
-    "de": "Almanca", "deu": "Almanca", "ger": "Almanca",
-    "fr": "Fransızca", "fra": "Fransızca", "fre": "Fransızca",
-    "es": "İspanyolca", "spa": "İspanyolca",
-    "it": "İtalyanca", "ita": "İtalyanca",
-    "pt": "Portekizce", "por": "Portekizce",
-    "ru": "Rusça", "rus": "Rusça",
-    "ar": "Arapça", "ara": "Arapça",
-    "ja": "Japonca", "jpn": "Japonca",
-    "ko": "Korece", "kor": "Korece",
-    "zh": "Çince", "zho": "Çince", "chi": "Çince",
-    "nl": "Felemenkçe", "nld": "Felemenkçe", "dut": "Felemenkçe",
-    "pl": "Lehçe", "pol": "Lehçe",
-    "uk": "Ukraynaca", "ukr": "Ukraynaca",
+    "en": tr_mark("İngilizce"), "eng": tr_mark("İngilizce"),
+    "tr": tr_mark("Türkçe"), "tur": tr_mark("Türkçe"),
+    "de": tr_mark("Almanca"), "deu": tr_mark("Almanca"), "ger": tr_mark("Almanca"),
+    "fr": tr_mark("Fransızca"), "fra": tr_mark("Fransızca"), "fre": tr_mark("Fransızca"),
+    "es": tr_mark("İspanyolca"), "spa": tr_mark("İspanyolca"),
+    "it": tr_mark("İtalyanca"), "ita": tr_mark("İtalyanca"),
+    "pt": tr_mark("Portekizce"), "por": tr_mark("Portekizce"),
+    "ru": tr_mark("Rusça"), "rus": tr_mark("Rusça"),
+    "ar": tr_mark("Arapça"), "ara": tr_mark("Arapça"),
+    "ja": tr_mark("Japonca"), "jpn": tr_mark("Japonca"),
+    "ko": tr_mark("Korece"), "kor": tr_mark("Korece"),
+    "zh": tr_mark("Çince"), "zho": tr_mark("Çince"), "chi": tr_mark("Çince"),
+    "nl": tr_mark("Felemenkçe"), "nld": tr_mark("Felemenkçe"), "dut": tr_mark("Felemenkçe"),
+    "pl": tr_mark("Lehçe"), "pol": tr_mark("Lehçe"),
+    "uk": tr_mark("Ukraynaca"), "ukr": tr_mark("Ukraynaca"),
 }
 
 # Dil bilinmiyor demek olan MPV değerleri; kullanıcıya GÖSTERİLMEZ.
@@ -53,14 +62,14 @@ CODEC_NAMES = {
 
 # Yalnızca GÜVENİLİR ve açık eşlemeler; bilinmeyen başlık özgün kalır.
 TITLE_TRANSLATIONS = {
-    "director commentary": "Yönetmen Yorumu",
-    "directors commentary": "Yönetmen Yorumu",
-    "director's commentary": "Yönetmen Yorumu",
-    "commentary": "Yorum",
+    "director commentary": tr_mark("Yönetmen Yorumu"),
+    "directors commentary": tr_mark("Yönetmen Yorumu"),
+    "director's commentary": tr_mark("Yönetmen Yorumu"),
+    "commentary": tr_mark("Yorum"),
 }
 
-AUDIO_FALLBACK = "Ses Parçası"
-SUBTITLE_FALLBACK = "Altyazı Parçası"
+AUDIO_FALLBACK = tr_mark("Ses Parçası")
+SUBTITLE_FALLBACK = tr_mark("Altyazı Parçası")
 
 # Menü ekran dışına taşmasın diye üst sınır. Ayırt edici teknik bilgi
 # korunur; yalnızca serbest metin başlık kısaltılır.
@@ -94,11 +103,15 @@ def _int(value):
 
 
 def language_name(code):
-    """Dil kodu → Türkçe ad. Bilinmiyorsa BOŞ döner (ham kod sızmaz)."""
+    """Dil kodu → kullanıcının dilinde ad. Bilinmiyorsa BOŞ döner.
+
+    Ham kod (`eng`, `und`) hiçbir durumda sızmaz.
+    """
     text = _text(code).lower()
     if not text or text in _UNKNOWN_LANGUAGES:
         return ""
-    return LANGUAGE_NAMES.get(text, "")
+    name = LANGUAGE_NAMES.get(text)
+    return translate_marked(name) if name else ""
 
 
 def codec_name(codec):
@@ -180,11 +193,11 @@ def _flag(track, *names):
 def _status_flags(track):
     flags = []
     if _flag(track, "default"):
-        flags.append("Varsayılan")
+        flags.append(tr("Varsayılan"))
     if _flag(track, "forced"):
-        flags.append("Zorunlu")
+        flags.append(tr("Zorunlu"))
     if _flag(track, "external"):
-        flags.append("Harici")
+        flags.append(tr("Harici"))
     return flags
 
 
@@ -193,7 +206,10 @@ def _title(track):
     text = _text(track.get("title"))
     if not text:
         return ""
-    return TITLE_TRANSLATIONS.get(text.lower(), text)
+    key = text.lower()
+    if key in TITLE_TRANSLATIONS:
+        return translate_marked(TITLE_TRANSLATIONS[key])
+    return text
 
 
 def _shorten(text, limit=MAX_TITLE_CHARS):
@@ -246,7 +262,7 @@ def audio_track_label(track):
     parts.extend(_status_flags(track))
 
     head = language or (_shorten(title) if title else "")
-    return _compose(head, parts, AUDIO_FALLBACK)
+    return _compose(head, parts, translate_marked(AUDIO_FALLBACK))
 
 
 def subtitle_track_label(track):
@@ -262,9 +278,9 @@ def subtitle_track_label(track):
     if _flag(track, "hearing_impaired", "hearing-impaired"):
         parts.append("SDH")
     if _flag(track, "forced"):
-        parts.append("Zorunlu")
+        parts.append(tr("Zorunlu"))
     if _flag(track, "external"):
-        parts.append("Harici")
+        parts.append(tr("Harici"))
 
     head = language or (_shorten(title) if title else "")
     if not head:
@@ -276,7 +292,7 @@ def subtitle_track_label(track):
             if base.lower().endswith(".srt"):
                 base = base[:-4]
             head = _shorten(base, MAX_TITLE_CHARS)
-    return _compose(head, parts, SUBTITLE_FALLBACK)
+    return _compose(head, parts, translate_marked(SUBTITLE_FALLBACK))
 
 
 def _disambiguate(labels):
@@ -291,7 +307,7 @@ def _disambiguate(labels):
             result.append(label)
             continue
         seen[label] = seen.get(label, 0) + 1
-        result.append(f"{label} — Parça {seen[label]}")
+        result.append(f"{label} — {tr('Parça')} {seen[label]}")
     return result
 
 

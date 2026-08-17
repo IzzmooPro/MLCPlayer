@@ -17,6 +17,7 @@ from app.config import APP_STYLE, cinematic_ui_enabled, MAX_VOLUME
 from app import track_labels
 from app.errors import safe_console
 from app.menu_actions import populate_audio_device_menu, populate_recent_menu
+from app.i18n import tr, tr_mark, translate_marked
 
 # Ana menüyle AYNI hız seçenekleri.
 PLAYBACK_SPEEDS = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0)
@@ -166,8 +167,10 @@ OVERLAY_HIT_BACKGROUND = f"rgba(0, 0, 0, {OVERLAY_HIT_ALPHA})"
 # Hover'da yalnızca çizim büyür (geometri değişmez).
 OVERLAY_ACCENT_HOVER = "#FF7A48"
 # CC durum etiketleri
-SUBTITLES_ACTIVE_LABEL = "Altyazıları Kapat"
-SUBTITLES_INACTIVE_LABEL = "Altyazıları Aç"
+# Modül sabiti: import anında çevirmen yoktur; `tr_mark()` yalnız
+# işaretler, çeviri kullanım yerinde `translate_marked()` ile yapılır.
+SUBTITLES_ACTIVE_LABEL = tr_mark("Altyazıları Kapat")
+SUBTITLES_INACTIVE_LABEL = tr_mark("Altyazıları Aç")
 # mpv `sid` bu değerlerde "seçili altyazı yok" demektir.
 DISABLED_SID_VALUES = frozenset({"no", "none", "", "0", "false"})
 # Görünmez hit alanları: ikonlar 18 px kalır, yalnızca tıklanabilir
@@ -536,7 +539,7 @@ class VideoFrame(QWidget):
                            Qt.AlignmentFlag.AlignLeft)
 
         previous = self._make_overlay_button(
-            "overlayPrevious", "previous", "Önceki",
+            "overlayPrevious", "previous", tr("Önceki"),
             OVERLAY_SKIP_BUTTON_SIZE, 25)
         previous.clicked.connect(
             lambda: self._run_overlay_action(self.main_window.play_previous))
@@ -544,14 +547,14 @@ class VideoFrame(QWidget):
 
         # Referans görselde merkez sembol de turuncudur.
         self.overlay_play_pause_button = self._make_overlay_button(
-            "overlayPlayPause", "play", "Oynat", 44, 27, OVERLAY_ACCENT)
+            "overlayPlayPause", "play", tr("Oynat"), 44, 27, OVERLAY_ACCENT)
         self.overlay_play_pause_button.clicked.connect(
             lambda: self._run_overlay_action(self.main_window.play_pause))
         controls.addWidget(self.overlay_play_pause_button, 0,
                            Qt.AlignmentFlag.AlignVCenter)
 
         next_button = self._make_overlay_button(
-            "overlayNext", "next", "Sonraki",
+            "overlayNext", "next", tr("Sonraki"),
             OVERLAY_SKIP_BUTTON_SIZE, 25)
         next_button.clicked.connect(
             lambda: self._run_overlay_action(self.main_window.play_next))
@@ -566,7 +569,8 @@ class VideoFrame(QWidget):
         # İşlevsel sıra: CC, ayarlar, ses, ses çubuğu, tam ekran.
         # Ses düğmesi ses çubuğunun hemen yanında kalır.
         self.overlay_subtitles_button = self._make_overlay_button(
-            "overlaySubtitles", "subtitles", SUBTITLES_INACTIVE_LABEL,
+            "overlaySubtitles", "subtitles",
+            translate_marked(SUBTITLES_INACTIVE_LABEL),
             OVERLAY_SIDE_BUTTON_SIZE, 22)
         self.overlay_subtitles_button.clicked.connect(
             self._on_overlay_subtitles_clicked)
@@ -574,14 +578,14 @@ class VideoFrame(QWidget):
                             Qt.AlignmentFlag.AlignVCenter)
 
         settings = self._make_overlay_button(
-            "overlaySettings", "settings", "Video Ayarları",
+            "overlaySettings", "settings", tr("Video Ayarları"),
             OVERLAY_SIDE_BUTTON_SIZE, 22)
         settings.clicked.connect(lambda: self._run_overlay_action(
             self.main_window.setup_video_adjustments))
         right_row.addWidget(settings, 0, Qt.AlignmentFlag.AlignVCenter)
 
         self.overlay_volume_button = self._make_overlay_button(
-            "overlayVolume", "volume", "Sessiz",
+            "overlayVolume", "volume", tr("Sessiz"),
             OVERLAY_SIDE_BUTTON_SIZE, 22)
         self.overlay_volume_button.clicked.connect(
             lambda: self._run_overlay_action(self.main_window.toggle_mute))
@@ -595,7 +599,7 @@ class VideoFrame(QWidget):
         # Dar pencerede bile kullanılabilir kalsın (aşırı daralmasın).
         self.overlay_volume_slider.setMinimumWidth(36)
         self.overlay_volume_slider.setMaximumWidth(96)
-        self.overlay_volume_slider.setToolTip("Ses Seviyesi")
+        self.overlay_volume_slider.setToolTip(tr("Ses Seviyesi"))
         self.overlay_volume_slider.valueChanged.connect(self._overlay_volume_changed)
         source = getattr(self.main_window, "volume_slider", None)
         if source is not None:
@@ -606,7 +610,7 @@ class VideoFrame(QWidget):
                             Qt.AlignmentFlag.AlignVCenter)
 
         fullscreen = self._make_overlay_button(
-            "overlayFullscreen", "fullscreen", "Tam Ekran",
+            "overlayFullscreen", "fullscreen", tr("Tam Ekran"),
             OVERLAY_SIDE_BUTTON_SIZE, 22)
         fullscreen.clicked.connect(lambda: self._run_overlay_action(
             self.main_window.toggle_fullscreen))
@@ -912,7 +916,8 @@ class VideoFrame(QWidget):
         if active == self.overlay_subtitles_active:
             return
         self.overlay_subtitles_active = active
-        label = SUBTITLES_ACTIVE_LABEL if active else SUBTITLES_INACTIVE_LABEL
+        label = translate_marked(
+            SUBTITLES_ACTIVE_LABEL if active else SUBTITLES_INACTIVE_LABEL)
         button.setAccessibleName(label)
         button.setToolTip(label)
         button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -957,7 +962,7 @@ class VideoFrame(QWidget):
 
         muted = (bool(getattr(self.main_window, "is_muted", False))
                  or slider.value() == 0)
-        label = "Sesi Aç" if muted else "Sessiz"
+        label = tr("Sesi Aç") if muted else tr("Sessiz")
         button = self.overlay_volume_button
         if button.accessibleName() != label:
             button.setAccessibleName(label)
@@ -2118,40 +2123,40 @@ class VideoFrame(QWidget):
         player = self.main_window
         has_media = bool(getattr(player, "current_file", ""))
 
-        play_text = "Duraklat" if (has_media and not getattr(
-            player, "is_paused", True)) else "Oynat"
+        play_text = tr("Duraklat") if (has_media and not getattr(
+            player, "is_paused", True)) else tr("Oynat")
         self._add_action(menu, play_text, player.play_pause)
-        self._add_action(menu, "Durdur", player.stop, enabled=has_media)
-        self._add_action(menu, "Önceki", player.play_previous,
+        self._add_action(menu, tr("Durdur"), player.stop, enabled=has_media)
+        self._add_action(menu, tr("Önceki"), player.play_previous,
                          enabled=self._can_step(-1))
-        self._add_action(menu, "Sonraki", player.play_next,
+        self._add_action(menu, tr("Sonraki"), player.play_next,
                          enabled=self._can_step(1))
         menu.addSeparator()
 
-        media_menu = menu.addMenu("Medya Aç")
-        self._add_action(media_menu, "Dosya Aç", player.open_file)
-        self._add_action(media_menu, "Klasör Aç", player.open_folder)
-        self._add_action(media_menu, "Bağlantıdan Oynat", player.open_url)
+        media_menu = menu.addMenu(tr("Medya Aç"))
+        self._add_action(media_menu, tr("Dosya Aç"), player.open_file)
+        self._add_action(media_menu, tr("Klasör Aç"), player.open_folder)
+        self._add_action(media_menu, tr("Bağlantıdan Oynat"), player.open_url)
         media_menu.addSeparator()
         # Ana menüyle AYNI üretici; satırlar menü her açıldığında taze okunur.
-        populate_recent_menu(player, media_menu.addMenu("Son Açılanlar"),
+        populate_recent_menu(player, media_menu.addMenu(tr("Son Açılanlar")),
                              owner=media_menu)
         menu.addSeparator()
 
-        self._add_action(menu, "Oynatma Listesi", player.show_playlist)
+        self._add_action(menu, tr("Oynatma Listesi"), player.show_playlist)
         menu.addSeparator()
 
-        self._build_audio_menu(menu.addMenu("Ses"))
-        self._build_subtitle_menu(menu.addMenu("Altyazı"))
-        self._build_video_menu(menu.addMenu("Görüntü"), has_media)
-        self._build_playback_menu(menu.addMenu("Oynatma"), has_media)
+        self._build_audio_menu(menu.addMenu(tr("Ses")))
+        self._build_subtitle_menu(menu.addMenu(tr("Altyazı")))
+        self._build_video_menu(menu.addMenu(tr("Görüntü")), has_media)
+        self._build_playback_menu(menu.addMenu(tr("Oynatma")), has_media)
 
         # Ana menüyle AYNI facade; ayrı dialog yolu veya alt menü yoktur.
-        self._add_action(menu, "Medya Bilgisi", player.show_media_info,
+        self._add_action(menu, tr("Medya Bilgisi"), player.show_media_info,
                          enabled=has_media)
 
         menu.addSeparator()
-        self._add_action(menu, "Uygulamadan Çık", player.close)
+        self._add_action(menu, tr("Uygulamadan Çık"), player.close)
         return menu
 
     # --- Menü yardımcıları ---
@@ -2197,18 +2202,19 @@ class VideoFrame(QWidget):
 
     def _build_audio_menu(self, menu):
         player = self.main_window
-        mute_text = "Sesi Aç" if getattr(player, "is_muted", False) else "Sessiz"
+        mute_text = (tr("Sesi Aç") if getattr(player, "is_muted", False)
+                     else tr("Sessiz"))
         self._add_action(menu, mute_text, player.toggle_mute)
         self._populate_track_menu(
-            menu.addMenu("Ses Parçası"), "audio",
+            menu.addMenu(tr("Ses Parçası")), "audio",
             track_labels.audio_track_labels,
             lambda: self.main_window.mpv_player.aid,
             player.select_audio_track,
-            "Ses parçası bulunamadı", "Ses parçaları yüklenemedi")
+            tr("Ses parçası bulunamadı"), tr("Ses parçaları yüklenemedi"))
         # Ses çıkışları ana menüyle ORTAK önbellekten gelir; menü açılışında
         # yeni aygıt taraması YAPILMAZ.
         populate_audio_device_menu(
-            player, menu.addMenu("Ses Çıkışı"),
+            player, menu.addMenu(tr("Ses Çıkışı")),
             on_select=player.select_audio_device, owner=menu)
 
     def _build_subtitle_menu(self, menu):
@@ -2217,52 +2223,60 @@ class VideoFrame(QWidget):
             visible = bool(player.mpv_player.sub_visibility)
         except Exception:
             visible = False
-        toggle_text = "Altyazıları Gizle" if visible else "Altyazıları Göster"
+        toggle_text = (tr("Altyazıları Gizle") if visible
+                       else tr("Altyazıları Göster"))
         self._add_action(menu, toggle_text, player.toggle_subtitles)
         self._populate_track_menu(
-            menu.addMenu("Altyazı Parçası"), "sub",
+            menu.addMenu(tr("Altyazı Parçası")), "sub",
             track_labels.subtitle_track_labels,
             lambda: self.main_window.mpv_player.sid,
             player.select_subtitle_language,
-            "Altyazı parçası bulunamadı", "Altyazı parçaları yüklenemedi",
+            tr("Altyazı parçası bulunamadı"),
+            tr("Altyazı parçaları yüklenemedi"),
             rescan=True)
-        self._add_action(menu, "Altyazı Dosyası Ekle", player.open_subtitle)
-        self._add_action(menu, "Altyazı Bul", player.open_subtitle_center)
-        self._add_action(menu, "Altyazı Ayarları",
+        self._add_action(menu, tr("Altyazı Dosyası Ekle"),
+                         player.open_subtitle)
+        self._add_action(menu, tr("Altyazı Bul"),
+                         player.open_subtitle_center)
+        self._add_action(menu, tr("Altyazı Ayarları"),
                          player.show_subtitle_settings)
 
     def _build_video_menu(self, menu, has_media):
         player = self.main_window
-        self._add_action(menu, "Tam Ekran", player.toggle_fullscreen,
+        self._add_action(menu, tr("Tam Ekran"), player.toggle_fullscreen,
                          checkable=True,
                          checked=bool(self.is_video_fullscreen))
-        self._add_action(menu, "Ekran Görüntüsü Al", player.take_screenshot,
+        self._add_action(menu, tr("Ekran Görüntüsü Al"),
+                         player.take_screenshot,
                          enabled=has_media)
-        self._add_action(menu, "Video Ayarları",
+        self._add_action(menu, tr("Video Ayarları"),
                          player.setup_video_adjustments)
 
     def _build_playback_menu(self, menu, has_media):
         player = self.main_window
-        for text, delta in (("5 Saniye Geri", -5), ("5 Saniye İleri", 5),
-                            ("30 Saniye Geri", -30), ("30 Saniye İleri", 30)):
+        for text, delta in ((tr("5 Saniye Geri"), -5),
+                            (tr("5 Saniye İleri"), 5),
+                            (tr("30 Saniye Geri"), -30),
+                            (tr("30 Saniye İleri"), 30)):
             action = QAction(text, menu)
             action.setEnabled(has_media)
             action.triggered.connect(
                 lambda _checked=False, value=delta: player.seek_relative(value))
             menu.addAction(action)
-        self._add_action(menu, "Zamana Git", player.goto_time,
+        self._add_action(menu, tr("Zamana Git"), player.goto_time,
                          enabled=has_media)
-        self._build_speed_menu(menu.addMenu("Oynatma Hızı"))
+        self._build_speed_menu(menu.addMenu(tr("Oynatma Hızı")))
         menu.addSeparator()
         # Bu üçü ZORUNLU bir bool alır; checked değeri metoda GEÇİRİLİR.
-        self._add_action(menu, "Tek Dosyayı Tekrarla", player.set_loop_file,
+        self._add_action(menu, tr("Tek Dosyayı Tekrarla"),
+                         player.set_loop_file,
                          checkable=True, pass_checked=True,
                          checked=bool(getattr(player, "loop_file", False)))
-        self._add_action(menu, "Oynatma Listesini Tekrarla",
+        self._add_action(menu, tr("Oynatma Listesini Tekrarla"),
                          player.set_loop_playlist, checkable=True,
                          pass_checked=True,
                          checked=bool(getattr(player, "loop_playlist", False)))
-        self._add_action(menu, "Karıştır", player.toggle_shuffle,
+        self._add_action(menu, tr("Karıştır"), player.toggle_shuffle,
                          checkable=True, pass_checked=True,
                          checked=bool(getattr(player, "shuffle", False)))
 

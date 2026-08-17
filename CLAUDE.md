@@ -89,6 +89,20 @@ imzası olmayan release REDDEDİLİR. Bu yüzden:
   Dosya dosya ilerlenir ve HER dosyadan sonra AST ile ayrıştırma
   doğrulanır (`python -m compileall` yetmez, sözdizimi geçerli ama anlam
   bozuk kalabilir).
+- **Modül düzeyi sabitler `tr()` ile SARMALANMAZ.** Import anında çevirmen
+  henüz yoktur; sabit kaynak dile donar. `tr_mark()` ile işaretlenir,
+  kullanım yerinde `translate_marked()` ile çevrilir (VLC'nin `N_()` +
+  `vlc_gettext()` deyimi).
+- **GÖRÜNEN METİN KİMLİK OLARAK KULLANILMAZ.** Bir menüyü, listedeki bir
+  öğeyi veya kayıtlı bir tercihi `action.text()` / `currentText()` ile
+  geri aramak, metin çevrildiği anda SESSİZCE başarısız olur. Kimlik
+  nesnenin kendisidir ya da `QAction.data()` / `QComboBox` öğesinin
+  `data()` alanıdır. Bu kusur 17 Ağustos 2026'da iki kez bulundu (menü
+  sekme sırası, altyazı arama dili).
+- **Sarmalanmamış metin taraması Türkçe harf aramakla BİTMEZ.** `Sessiz`,
+  `Ses`, `Oynat` gibi ASCII-only metinler kaçar. Dosya bitmeden arayüz
+  çağrılarının (`show_osd`, `setText`, `warning`, `QPushButton`…) sabit
+  argümanları da AST ile taranır.
 - Metin eklendikten sonra `python packaging/extract_translations.py`
   çalıştırılır; `--check` ile CI benzeri doğrulama yapılır. Çevrilemeyen
   (`tr(değişken)`) çağrılar RAPOR EDİLİR, sessizce atlanmaz.

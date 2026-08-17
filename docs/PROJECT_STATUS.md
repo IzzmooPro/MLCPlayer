@@ -1247,25 +1247,81 @@ güncellemeyi hiç görmez, sessizce "güncelsiniz" der. Büyük sürüme geçer
 `v0.40` yazılmalıdır. `tests/test_updater_regressions.py` bu davranışı
 örnekleriyle sabitler.
 
+## VLC dil yaklaşımı — İNCELENDİ (17 Ağustos 2026)
+
+Depo gerçekten açıldı (`gh api repos/videolan/vlc/...`); aşağıdaki her
+madde okunan dosyaya dayanır, ezber değildir.
+
+**1. Biçim.** `po/` altında gettext; `LINGUAS` 104 dil. Çıkarma
+`po/Makevars` içindeki `XGETTEXT_OPTIONS` ile yapılır:
+`--keyword=_ --keyword=N_ --keyword=qtr ...`. **Bizde değişiklik YOK** —
+Qt `.ts/.qm` bizim için doğru olan; alınacak ders biçim değil, aşağıdaki
+üç deyimdir.
+
+**2. Hangi metin çevrilir?** VLC bunu DOSYA bazında değil ÇAĞRI YERİNDE
+karara bağlar: `po/POTFILES.in` 1422 dosya sayar, `POTFILES.skip` yalnız
+**2** girdi içerir. Ayrım işaretlemededir — ölçüldü
+(`modules/gui/qt/dialogs/open/open.cpp`): arayüz metinleri `qtr("Open
+Media")`, günlük satırları ise ÇIPLAK (`msg_Dbg(p_intf, "MRL(s) passed to
+the Sout: %zu", ...)`). **Bizim `safe_console`/günlük metinlerinin Türkçe
+kalması kuralı bu ölçümle DOĞRULANDI**; toplu sarmalamanın yanlış olduğu
+da öyle.
+
+**3. Modül düzeyi sabitler — BİZE UYARLANDI.** VLC'de
+`#define INPUT_AUDIOTRACK_LANG_TEXT N_("Audio language")` metni yalnız
+ÇIKARMA için işaretler; çeviri kullanım anında `vlc_gettext()` ile olur.
+Bizde aynı sorun vardı: `URL_LOADING_TEXT` gibi sabitler import anında
+hesaplanır, o an QApplication ve çevirmen YOKTUR. Eklenen karşılık:
+`i18n.tr_mark()` (işaretler, çevirmez) + `i18n.translate_marked()`
+(kullanım anında çevirir). Çıkarıcı `EXTRACTING_CALLS = ("tr", "tr_mark")`
+ile ikisini de toplar; `translate_marked` bilerek toplanmaz, çünkü metni
+zaten başka yerde işaretlenmiştir.
+
+**4. Dil seçimi.** `modules/gui/qt/dialogs/preferences/simple_preferences.cpp`:
+combo YALNIZ Windows'ta gösterilir (`#ifndef _WIN32 → langBox->hide()`),
+ilk öğe `{ "auto", N_("Auto") }` ve **yalnız o çevrilir**; diğer diller
+kendi dillerinde ve çevrilmeden yazılır (`{ "de", "Deutsch" }`). "auto"
+seçilince kayıt defteri değeri SİLİNİR (`cleanLang()`), yani "sistem
+dilini izle" = değerin YOKLUĞU. Uygulama `bin/winvlc.c` içinde, libvlc
+kurulmadan ÖNCE `LANG` ortam değişkenini yazar → **değişiklik yeniden
+başlatmada geçerlidir**. Bizim tasarımımız (boş değer = sistem dili, her
+dil kendi adıyla, açılışta uygulama, yeniden başlatma bildirimi) bununla
+BİREBİR örtüşüyor; değişiklik gerekmedi.
+
+**5. Eksik çeviri — BURADA GERÇEK BİR KUSUR BULUNDU.** gettext'te
+çevrilmemiş dizge KAYNAK metni, yani İNGİLİZCEYİ gösterir. Ölçüldü
+(`po/tr.po`): 7684 dizgeden **1833'ü `fuzzy`, 486'sı boş** — Türkçe
+VLC'nin yaklaşık dörtte biri İngilizce çıkar ve kullanıcı bunu anlar.
+Bizde kaynak dil TÜRKÇE olduğu için aynı mekanizma yarım çevrilmiş bir
+Almanca arayüzü Almanca + **Türkçe** karışımına çeviriyordu.
+`FALLBACK_LANGUAGE = "en"` yalnız dil SEÇİMİNDE uygulanıyordu, dizge
+düzeyinde uygulanmıyordu. Düzeltildi: `install_translator()` artık ZİNCİR
+kurar — önce İngilizce, sonra hedef dil. Qt çevirmenleri son kurulandan
+geriye taradığı için hedef dil kazanır, eksik dizge İngilizceye düşer,
+İngilizcede de yoksa Türkçeye. İkinci çağrı eski zinciri BIRAKIR
+(`remove_translators()`), yoksa kazanan dil kurulum sırasına bağlı kalır.
+Sözleşme: `tests/test_translation_fallback_regressions.py` (7 test).
+
+**6. Çeviriyi KİM yapıyor?** `po/tr.po` başlığı: Transifex
+(`Language-Team: Turkish (http://www.transifex.com/yaron/vlc-trans/...)`),
+13 adlı gönüllü çevirmen; bakım tarafı yalnız `make update-po` /
+`Update PO files` commit'leriyle toplu içe aktarma yapıyor. Türkçe dosya
+son kez **2017'de** güncellenmiş (`Project-Id-Version: vlc 2.2.7`).
+**Bizim için sonuç:** 8 dili tek kişinin sürdürmesi VLC ölçeğinde bile
+çözülmemiş bir yük; platform + gönüllü akışı olmadan çeviriler eskiyor.
+Bu yüzden (a) yedek zinciri şart (madde 5), (b) yarım çeviri kabul
+edilebilir bir durumdur, kusur değildir.
+
+**7. Çevirmen belgesi.** VLC'de depo içinde çevirmen kılavuzu YOK
+(`CONTRIBUTING.md` yok; `README.md` yalnız `po/ - VLC translations`
+diyor); yönlendirme wiki ve Transifex üzerinden. Bizde de CONTRIBUTING
+YOK. **AÇIK İŞ:** README/CONTRIBUTING turunda `.ts` + Qt Linguist yolu
+yazılacak.
+
+**Lisans notu:** VLC çevirileri GPLv2+; yalnız terminoloji doğrulaması
+için okundu, metin KOPYALANMADI.
+
 ## Sıradaki tek adım
-
-**SIRADAKİ İLK İŞ — VLC'nin dil yaklaşımını İNCELE, uygunsa uyarla.**
-Kullanıcı isteği (17 Ağustos 2026). Ezberden karar VERİLMEYECEK; depo
-gerçekten açılıp bakılacak: `https://github.com/videolan/vlc`
-
-Bakılacak sorular (her biri bizde bir karara denk düşer):
-1. Hangi biçim ve neden? (VLC C tabanlı, gettext `.po` kullanıyor; biz Qt
-   `.ts/.qm` kullanıyoruz. Bizim için Qt doğrusu, ama `.po` iş akışında
-   öğrenilecek şeyler olabilir.)
-2. Çeviriler KİM tarafından yapılıyor? Topluluk mu, bakım ekibi mi, hangi
-   araçla? Bizim için önemli: 8 dili tek kişinin sürdürmesi kalıcı yük.
-3. Dil seçimi nasıl sunuluyor? "Otomatik/sistem" varsayılan mı, değişiklik
-   yeniden başlatma istiyor mu? (Bizde ikisi de böyle — teyit edilecek.)
-4. Eksik çeviri nasıl ele alınıyor? Yedek dil hangisi?
-5. Çevirmen için hangi belge/katkı yolu var? (Bizde `.ts` dosyaları hazır
-   ama CONTRIBUTING'de çeviri bölümü YOK — eklenmeli.)
-
-Sonuç: mantıklı bulunan uygulanır, gerekçesi buraya yazılır.
 
 **SIRADAKİ PLAN (17 Ağustos 2026, kullanıcı isteği).** Sıra bağımlılığa ve
 riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
@@ -1303,9 +1359,34 @@ riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
    - ✅ **C. Boru hattı**: `packaging/extract_translations.py` (AST tabanlı;
      `pylupdate6` sarmalayıcıyı GÖREMİYOR — ölçüldü) → `.ts` →
      `pyside6-lrelease` → `.qm`. İngilizce 75/75 TAM ve testle kanıtlı.
-   - ⬜ **B2. Kalan kullanıcı metinleri**: ÖLÇÜLDÜ — 615+ sarmalanmamış
-     Türkçe metin var, EN YOĞUN: `media_controls.py` (115),
-     `video_frame.py` (73), `player.py` (56), `errors.py` (50).
+   - 🔄 **B2. Kalan kullanıcı metinleri**: SÜRÜYOR. 17 Ağustos 2026'da
+     AST ile yeniden ölçüldü: 511 sarmalanmamış Türkçe metin.
+     **BİTEN DOSYALAR (10): `media_controls.py` (92→0), `player.py`
+     (45→0), `menu_actions.py` (42→0), `video_frame.py` (41→0),
+     `updater.py` (40→0), `track_labels.py` (30→0),
+     `media_info.py` (30→0), `subtitle_appearance_dialog.py` (26→0),
+     `subtitle_center.py` (23→0),
+     `subtitle_center_settings_dialog.py` (15→0).** Hepsinde kalan
+     satırlar yalnız `safe_console`/`log`/`VerificationError`/`tr_mark`
+     ve BİLEREK Türkçe. Çıkarılan metin **75 → 349**, İngilizce
+     **349/349 TAM**.
+     Sırada: `errors.py` (14), `error_details_dialog.py` (13),
+     `log_management_dialog.py` (12), `main.py` (10),
+     `opensubtitles.py` (10), `title_bar.py` (6).
+     `menu_actions.py`'de iki metin BLOK olmaktan çıkarılıp VERİDEN
+     kuruldu (Klavye Kısayolları tablosu, Hakkında listesi): tek dev
+     HTML bloğu çevirmene `<td>` etiketlerini de teslim ederdi ve bozuk
+     bir etiket bütün pencereyi bozardı. Tuş adları (`Ctrl+O`)
+     çevrilmez, yön adları (`Sağ Ok`) çevrilir.
+     ÖLÇÜM ARACININ SINIRI: Türkçe'ye özgü harf arayan tarama
+     `Sessiz`, `Ses`, `Oynat` gibi ASCII-only kullanıcı metinlerini
+     KAÇIRIR. Dosya bitirilirken ayrıca arayüz çağrılarının
+     (`show_osd`, `setText`, `warning`, `QPushButton`…) sabit
+     argümanları AST ile taranmalıdır; `media_controls.py`'de üç metin
+     yalnız bu ikinci taramayla bulundu.
+     (eski kayıt) 615+ sarmalanmamış Türkçe metin, EN YOĞUN:
+     `media_controls.py` (115), `video_frame.py` (73), `player.py` (56),
+     `errors.py` (50).
      UYARI: bunların ÇOĞU kullanıcıya görünmez (`safe_console`, günlük,
      mpv değerleri) ve çevrilmemelidir. Toplu regex BU TURDA İKİ KEZ kod
      kırdı (çok satırlı metin birleştirmesini böldü); dosya dosya ve
@@ -1320,7 +1401,75 @@ riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
    TÜRKÇE KALIR (`tr()` çeviri yoksa kaynağı döndürür) ve mevcut testler
    kırılmaz; İngilizce ve diğer diller ÜSTÜNE eklenir.
 
-**DEVİR NOTU (17 Ağustos 2026).** Ağaç temiz, `origin/master` ile aynı
+**ÇÖZÜLEN ÜRÜN KUSURU — menü sekme sırası çeviride bozuluyordu.**
+`setup_menu()` sıralamayı GÖRÜNEN metinden kuruyordu
+(`top_menus = {action.text(): action ...}` + Türkçe `menu_order`
+listesi). Başlıklar B1 turunda `tr()` ile sarmalandığı için İngilizce
+arayüzde `action.text()` `Media`/`Playback` dönüyor, `get("Ortam")`
+`None` veriyor ve **sıralama sessizce hiç uygulanmıyordu**. Türkçede
+görünmez olduğu için ancak ikinci dil yüklenince ortaya çıktı. Sıra artık
+menü NESNELERİNDEN kuruluyor. Sözleşme:
+`tests/test_menu_order_translation_regressions.py` (3 test; biri gerçek
+İngilizce `.qm` yükleyip sırayı ölçer, biri metinle geri aramanın
+kaynağa dönmesini engeller).
+
+**YENİ MODÜL — `app/translate.py` (saf katman için çeviri çekirdeği).**
+KIRMIZI KANIT: `media_info.py`'yi çevirmeye başlayınca
+`test_the_builder_never_pulls_qt_into_the_process` DÜŞTÜ. O test ayrı bir
+süreçte `import app.media_info` yapıp `sys.modules`'te PyQt6 arar; ürün
+`media_info`'yu bilerek Qt'siz tutar. `app.i18n` modül düzeyinde
+`QCoreApplication`/`QLocale`/`QTranslator` yüklediği için oradan import
+etmek sözleşmeyi bozuyordu. Ama etiketlerin çevrilmesi ZORUNLU: Alman
+kullanıcıya İngilizce ses parçası için `İngilizce` yazılamaz.
+Çözüm: `tr`/`tr_mark`/`translate_marked` `app/translate.py`'ye taşındı ve
+orada `QCoreApplication` MODÜL DÜZEYİNDE değil ÇAĞRI ANINDA import
+edilir. `app/i18n.py` üçünü yeniden dışa verir (mevcut
+`from app.i18n import tr` çağrıları değişmedi); saf katman
+(`media_info.py`, `track_labels.py`) doğrudan `app.translate` kullanır.
+Her iki sözleşme de korundu.
+
+**ÇÖZÜLEN ÜRÜN KUSURU — altyazı dili seçimi çeviride bozuluyordu.**
+Menü sırası kusuruyla AYNI sınıf: görünen metin kimlik olarak
+kullanılıyordu. İki ayrı yerde:
+
+1. `SubtitleSearchController._language_code()` seçilen dili
+   `LANGUAGE_CODES.get(language_box.currentText(), "tr")` ile çözüyordu.
+   Sözlük anahtarları Türkçedir; kutu metinleri çevrildiği anda
+   `currentText()` `German` döner, sözlük ıskalar ve fonksiyon SESSİZCE
+   `tr`ye düşer — **Alman arayüzünde Almanca altyazı arayan kullanıcıya
+   Türkçe altyazı gelir**, hata mesajı yok.
+2. `SubtitleSettingsController` varsayılan dili QSettings'e görünen
+   metinle yazıyor ve `setCurrentText()` ile geri yüklüyordu. Çeviriyle
+   birlikte kayıt biçimi arayüz diline bağlanır ve geri yükleme hiçbir
+   öğeyi bulamayıp kullanıcının tercihini ilk öğeye düşürür.
+
+Düzeltme: dil KODU `QComboBox` öğesinin `data()` alanında taşınıyor
+(`subtitle_center.LANGUAGE_CHOICES` + `populate_language_box()`),
+arama `currentData()` okuyor. **Depo biçimi DEĞİŞMEDİ** — kayıt hâlâ
+kaynak dildeki addır (`Almanca`), böylece eski kurulumların ayarı
+geçerli kalır; yalnız kutuya yazma/okuma yolu
+`select_language_label()` / `current_language_label()` ile kimliğe
+bağlandı. `LANGUAGE_CODES` geriye dönük yedek olarak duruyor.
+Sözleşme: `tests/test_subtitle_language_translation_regressions.py`
+(8 test; ikisi gerçek İngilizce `.qm` yükleyip ölçer).
+
+**DEVİR NOTU (17 Ağustos 2026, ikinci tur).** VLC incelemesi BİTTİ
+(yukarıdaki bölüm). Ağaç KİRLİ ve commit EDİLMEDİ. Değişenler:
+`app/i18n.py`, `app/translate.py` (YENİ), `app/media_controls.py`,
+`app/player.py`, `app/menu_actions.py`, `app/video_frame.py`,
+`app/updater.py`, `app/track_labels.py`, `app/media_info.py`,
+`app/subtitle_appearance_dialog.py`, `app/subtitle_center.py`,
+`app/subtitle_center_settings_dialog.py`, `app/subtitle_search_controller.py`,
+`app/subtitle_settings_controller.py`,
+`packaging/extract_translations.py`, `CLAUDE.md`,
+`tests/test_translation_pipeline_regressions.py`, 7 `.ts` + iki yeni test
+dosyası (`test_translation_fallback_regressions.py`,
+`test_menu_order_translation_regressions.py`,
+`test_subtitle_language_translation_regressions.py`).
+Tam paket **3369 passed, 17 skipped**; `compileall` ve `git diff --check`
+temiz. Sıradaki iş: B2'de `errors.py`.
+
+(eski kayıt) Ağaç temiz, `origin/master` ile aynı
 hizada, tam paket 3347 passed, `v0.33` yayında (imzalı, ek paketiyle).
 Açık kusur YOK; kalan işler yukarıdaki i18n maddesi ve VLC incelemesidir.
 
