@@ -34,6 +34,11 @@ from datetime import datetime
 from PyQt6.QtWidgets import QMessageBox, QApplication
 from PyQt6.QtCore import Qt
 
+# `app.i18n` DEGIL `app.translate`: bu modul neredeyse her yerden ice
+# aktarilir ve i18n `app.settings_store` uzerinden ek bir zincir getirir.
+# Cekirdek Qt'yi cagri aninda yukler (bkz. o modulun gerekcesi).
+from app.translate import tr, tr_mark, translate_marked
+
 # Maskeleme işaretleri ve kayıt numarası biçimi.
 MASK = "<gizli>"
 MASK_PATH = "<yol>"
@@ -41,7 +46,8 @@ MASK_PATH = "<yol>"
 # metin. Ham mesaj fallback olarak ASLA yazılmaz.
 CONSOLE_REDACTION_FAILED = "[konsol mesajı gizlilik nedeniyle gösterilmedi]"
 # Ana hata kutusundaki IKINCIL eylem. Varsayilan dugme DEGILDIR.
-DETAILS_BUTTON_TEXT = "Hata Ayrıntılarını Görüntüle"
+# Modul duzeyi: import aninda cevirmen yoktur; kullanim yerinde cevrilir.
+DETAILS_BUTTON_TEXT = tr_mark("Hata Ayrıntılarını Görüntüle")
 RECORD_ID_PREFIX = "MLC"
 RECORD_ID_PATTERN = r"MLC-\d{8}-[0-9A-F]{4}"
 
@@ -343,9 +349,10 @@ LOG_FILE_NAME = 'uygulama.log'
 # temizleme sırasında yazma yarışı oluşmaz.
 _LOG_LOCK = threading.RLock()
 
-LOG_CLEARED_MESSAGE = "Günlükler temizlendi."
-LOG_CLEAR_FAILED_MESSAGE = ("Günlükler temizlenemedi. Dosyalar başka bir "
-                            "program tarafından kullanılıyor olabilir.")
+LOG_CLEARED_MESSAGE = tr_mark("Günlükler temizlendi.")
+LOG_CLEAR_FAILED_MESSAGE = tr_mark(
+    "Günlükler temizlenemedi. Dosyalar başka bir program tarafından "
+    "kullanılıyor olabilir.")
 
 
 @dataclass(frozen=True)
@@ -532,7 +539,8 @@ def clear_logs():
     ok = not failed
     return LogClearResult(
         ok=ok, removed=tuple(removed), failed=tuple(failed),
-        message=LOG_CLEARED_MESSAGE if ok else LOG_CLEAR_FAILED_MESSAGE)
+        message=translate_marked(
+            LOG_CLEARED_MESSAGE if ok else LOG_CLEAR_FAILED_MESSAGE))
 
 
 def _truncate_record(line):
@@ -729,25 +737,27 @@ def _friendly_message(exc_type, exc_value):
     msg = str(exc_value) if exc_value else ''
 
     if name == 'FileNotFoundError':
-        return ("Dosya bulunamadı. Dosya taşınmış veya silinmiş olabilir.\n\n"
-                "Çözüm: Dosyanın yerini kontrol edip tekrar açmayı deneyin.")
+        return tr("Dosya bulunamadı. Dosya taşınmış veya silinmiş "
+                  "olabilir.\n\nÇözüm: Dosyanın yerini kontrol edip "
+                  "tekrar açmayı deneyin.")
     if name == 'PermissionError':
-        return ("Dosyaya erişim izniniz yok.\n\n"
-                "Çözüm: Dosyanın kilidini açın veya başka bir klasöre kopyalayın.")
+        return tr("Dosyaya erişim izniniz yok.\n\nÇözüm: Dosyanın "
+                  "kilidini açın veya başka bir klasöre kopyalayın.")
     if name == 'NotADirectoryError' or name == 'IsADirectoryError':
-        return "Seçilen konum geçerli bir medya dosyası değil."
+        return tr("Seçilen konum geçerli bir medya dosyası değil.")
     if 'mpv property does not exist' in msg:
-        return ("Oynatıcı ayarı uygulanamadı (video ayarı desteklenmiyor).\n\n"
-                "Bu işlem mpv'nin bu sürümünde bulunmayan bir özellik kullanmaya çalıştı. "
-                "Diğer ayarlarla devam edebilirsiniz.")
+        return tr("Oynatıcı ayarı uygulanamadı (video ayarı "
+                  "desteklenmiyor).\n\nBu işlem mpv'nin bu sürümünde "
+                  "bulunmayan bir özellik kullanmaya çalıştı. Diğer "
+                  "ayarlarla devam edebilirsiniz.")
     if name == 'OSError' and ('dxv' in msg.lower() or 'dll' in msg.lower() or 'cannot load' in msg.lower()):
-        return ("MPV bileşeni yüklenemedi.\n\n"
-                "Çözüm: Programın 'bin' klasörünün eksiksiz olduğundan emin olun. "
-                "Programı kurulum klasöründen çalıştırın.")
+        return tr("MPV bileşeni yüklenemedi.\n\nÇözüm: Programın 'bin' "
+                  "klasörünün eksiksiz olduğundan emin olun. Programı "
+                  "kurulum klasöründen çalıştırın.")
     if name in ('ValueError', 'TypeError'):
-        return ("Beklenmeyen bir veri hatası oluştu.\n\n"
-                "Lütfen işlemi tekrar deneyin. Sorun devam ederse programı "
-                "yeniden başlatın.")
+        return tr("Beklenmeyen bir veri hatası oluştu.\n\nLütfen işlemi "
+                  "tekrar deneyin. Sorun devam ederse programı yeniden "
+                  "başlatın.")
     return None
 
 
@@ -787,7 +797,7 @@ def _show_message_box(parent, event):
     box.setText(event.user_message)
     box.setStandardButtons(QMessageBox.StandardButton.Ok)
     ok_button = box.button(QMessageBox.StandardButton.Ok)
-    details_button = box.addButton(DETAILS_BUTTON_TEXT,
+    details_button = box.addButton(translate_marked(DETAILS_BUTTON_TEXT),
                                    QMessageBox.ButtonRole.ActionRole)
     box.setDefaultButton(ok_button)
     box.setEscapeButton(ok_button)
@@ -834,11 +844,11 @@ def _handle_exception(exc_type, exc_value, exc_tb):
     aynı traceback'i ikinci kez YAZMAZ.
     """
     friendly = _friendly_message(exc_type, exc_value)
-    message = friendly or ("Beklenmeyen bir hata oluştu.\n\n"
-                           "Program çalışmaya devam ediyor, ancak bu işlem "
-                           "tamamlanamadı.\n"
-                           "Sorun devam ederse programı yeniden başlatın.")
-    title = "Beklenmeyen Hata"
+    message = friendly or tr(
+        "Beklenmeyen bir hata oluştu.\n\nProgram çalışmaya devam ediyor, "
+        "ancak bu işlem tamamlanamadı.\nSorun devam ederse programı "
+        "yeniden başlatın.")
+    title = tr("Beklenmeyen Hata")
 
     if exc_value is not None and getattr(exc_value, "__traceback__", None) is None:
         try:

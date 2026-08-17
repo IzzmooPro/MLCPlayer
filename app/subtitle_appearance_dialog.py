@@ -862,7 +862,7 @@ class SubtitleAppearanceDialog(QDialog):
         position_row.setSpacing(8)
         self.position_slider = QSlider(Qt.Orientation.Horizontal)
         self.position_slider.setObjectName("subtitlePositionSlider")
-        self.position_slider.setAccessibleName("Dikey konum")
+        self.position_slider.setAccessibleName(tr("Dikey konum"))
         self.position_slider.setRange(0, 100)
         # ÖLÇÜLEN ÇÖKME: `int(values.get("sub_pos", ...))` doğrudan
         # kullanılıyordu ve `None`, `"bozuk"`, `NaN`, `±inf` değerlerinde

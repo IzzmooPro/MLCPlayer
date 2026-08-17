@@ -1361,18 +1361,28 @@ riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
      `pyside6-lrelease` → `.qm`. İngilizce 75/75 TAM ve testle kanıtlı.
    - 🔄 **B2. Kalan kullanıcı metinleri**: SÜRÜYOR. 17 Ağustos 2026'da
      AST ile yeniden ölçüldü: 511 sarmalanmamış Türkçe metin.
-     **BİTEN DOSYALAR (10): `media_controls.py` (92→0), `player.py`
-     (45→0), `menu_actions.py` (42→0), `video_frame.py` (41→0),
-     `updater.py` (40→0), `track_labels.py` (30→0),
-     `media_info.py` (30→0), `subtitle_appearance_dialog.py` (26→0),
-     `subtitle_center.py` (23→0),
-     `subtitle_center_settings_dialog.py` (15→0).** Hepsinde kalan
+     **BİTEN DOSYALAR (15):** `media_controls.py`, `player.py`,
+     `menu_actions.py`, `video_frame.py`, `updater.py`,
+     `track_labels.py`, `media_info.py`,
+     `subtitle_appearance_dialog.py`, `subtitle_center.py`,
+     `subtitle_center_settings_dialog.py`, `errors.py`,
+     `error_details_dialog.py`, `log_management_dialog.py`,
+     `opensubtitles.py`, `playlist_panel.py`. Hepsinde kalan
      satırlar yalnız `safe_console`/`log`/`VerificationError`/`tr_mark`
-     ve BİLEREK Türkçe. Çıkarılan metin **75 → 349**, İngilizce
-     **349/349 TAM**.
-     Sırada: `errors.py` (14), `error_details_dialog.py` (13),
-     `log_management_dialog.py` (12), `main.py` (10),
-     `opensubtitles.py` (10), `title_bar.py` (6).
+     ve BİLEREK Türkçe. Çıkarılan metin **75 → 401**, İngilizce
+     **401/401 TAM**. İki taramayla ölçülen KALAN aday: **70**
+     (16 dosya, en yoğunu `title_bar.py` ve
+     `subtitle_settings_controller.py` ile 8'er).
+     ÖLÇÜM DERSİ (dosya kapatırken zorunlu): "bitti" denen dört dosyada
+     sonradan gerçek atlama bulundu (`Ayarlar` ×2, `Daha sonra`,
+     `Dikey konum`) — hepsi ASCII veya arayüz çağrısı argümanıydı ve
+     yalnız Türkçe harf arayan tarama bunları GÖRMÜYORDU. Dosya ancak
+     İKİ tarama birlikte temiz olduğunda kapatılır: (a) Türkçe harf
+     taşıyan sabitler, (b) arayüz çağrılarının (`setAccessibleName`,
+     `setToolTip`, `QPushButton`, `QLabel`…) sabit argümanları.
+     Sırada: `title_bar.py` (8), `subtitle_settings_controller.py` (8),
+     `release_signature.py` (7), `subtitle_service.py` (6),
+     `subtitle_connection_test_controller.py` (6), `ui_components.py` (5).
      `menu_actions.py`'de iki metin BLOK olmaktan çıkarılıp VERİDEN
      kuruldu (Klavye Kısayolları tablosu, Hakkında listesi): tek dev
      HTML bloğu çevirmene `<td>` etiketlerini de teslim ederdi ve bozuk
@@ -1467,7 +1477,7 @@ dosyası (`test_translation_fallback_regressions.py`,
 `test_menu_order_translation_regressions.py`,
 `test_subtitle_language_translation_regressions.py`).
 Tam paket **3369 passed, 17 skipped**; `compileall` ve `git diff --check`
-temiz. Sıradaki iş: B2'de `errors.py`.
+temiz. Sıradaki iş: B2'de `title_bar.py`.
 
 (eski kayıt) Ağaç temiz, `origin/master` ile aynı
 hizada, tam paket 3347 passed, `v0.33` yayında (imzalı, ek paketiyle).

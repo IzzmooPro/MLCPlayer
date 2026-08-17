@@ -340,8 +340,8 @@ class SubtitleCenterDialog(QDialog):
         self.settings_icon_button.setIcon(make_media_icon("settings", 17, TEXT))
         # İkon küçük kalabilir ama gerçek tıklama alanı en az 32x32 olmalı.
         self.settings_icon_button.setFixedSize(32, 32)
-        self.settings_icon_button.setAccessibleName("Ayarlar")
-        self.settings_icon_button.setToolTip("Ayarlar")
+        self.settings_icon_button.setAccessibleName(tr("Ayarlar"))
+        self.settings_icon_button.setToolTip(tr("Ayarlar"))
         self.settings_icon_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.settings_icon_button.clicked.connect(self.settings_requested)
         row.addWidget(self.settings_icon_button)

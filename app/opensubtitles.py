@@ -21,6 +21,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# Qt'yi import aninda YUKLEMEZ (bkz. app/translate.py); bu modul ag
+# katmanidir ve arayuzden bagimsiz kalir.
+from app.translate import tr_mark, translate_marked
+
 API_ROOT = "https://api.opensubtitles.com/api/v1"
 USER_AGENT = "MLC Player Subtitle Center v1"
 DEFAULT_TIMEOUT = 15
@@ -46,52 +50,52 @@ MAX_DOWNLOAD_BYTES = 8 * 1024 * 1024
 # --- Hatalar: mesajlar Türkçe ve HASSAS VERİ İÇERMEZ ---
 
 class SubtitleServiceError(Exception):
-    user_message = "Altyazı servisinde beklenmeyen bir sorun oluştu."
+    user_message = tr_mark("Altyazı servisinde beklenmeyen bir sorun oluştu.")
 
 
 class MissingCredentialsError(SubtitleServiceError):
-    user_message = ("OpenSubtitles API anahtarı tanımlı değil. "
-                    "Altyazı Merkezi > Ayarlar bölümünden ekleyin.")
+    user_message = tr_mark("OpenSubtitles API anahtarı tanımlı değil. "
+                           "Altyazı Merkezi > Ayarlar bölümünden ekleyin.")
 
 
 class AuthError(SubtitleServiceError):
-    user_message = ("OpenSubtitles kimlik doğrulaması başarısız. "
-                    "API anahtarı, kullanıcı adı ve parolayı kontrol edin.")
+    user_message = tr_mark("OpenSubtitles kimlik doğrulaması başarısız. "
+                           "API anahtarı, kullanıcı adı ve parolayı kontrol edin.")
 
 
 class RateLimitError(SubtitleServiceError):
-    user_message = ("OpenSubtitles indirme/istek sınırına ulaşıldı. "
-                    "Bir süre sonra tekrar deneyin.")
+    user_message = tr_mark("OpenSubtitles indirme/istek sınırına ulaşıldı. "
+                           "Bir süre sonra tekrar deneyin.")
 
 
 class ServerError(SubtitleServiceError):
-    user_message = ("OpenSubtitles sunucusu şu anda yanıt veremiyor. "
-                    "Daha sonra tekrar deneyin.")
+    user_message = tr_mark("OpenSubtitles sunucusu şu anda yanıt veremiyor. "
+                           "Daha sonra tekrar deneyin.")
 
 
 class NetworkTimeoutError(SubtitleServiceError):
-    user_message = ("Bağlantı zaman aşımına uğradı. "
-                    "İnternet bağlantınızı kontrol edip tekrar deneyin.")
+    user_message = tr_mark("Bağlantı zaman aşımına uğradı. "
+                           "İnternet bağlantınızı kontrol edip tekrar deneyin.")
 
 
 class NetworkError(SubtitleServiceError):
-    user_message = ("Ağ bağlantısı kurulamadı. "
-                    "İnternet bağlantınızı kontrol edin.")
+    user_message = tr_mark("Ağ bağlantısı kurulamadı. "
+                           "İnternet bağlantınızı kontrol edin.")
 
 
 class InvalidResponseError(SubtitleServiceError):
-    user_message = ("Servis yanıtı geçersiz. "
-                    "Daha sonra tekrar deneyin.")
+    user_message = tr_mark("Servis yanıtı geçersiz. "
+                           "Daha sonra tekrar deneyin.")
 
 
 class OversizedResponseError(SubtitleServiceError):
-    user_message = ("İndirilen dosya beklenenden çok büyük; "
-                    "güvenlik için reddedildi.")
+    user_message = tr_mark("İndirilen dosya beklenenden çok büyük; "
+                           "güvenlik için reddedildi.")
 
 
 class UntrustedUrlError(SubtitleServiceError):
-    user_message = ("Güvenilmeyen bir indirme adresi reddedildi. "
-                    "İndirme yapılmadı.")
+    user_message = tr_mark("Güvenilmeyen bir indirme adresi reddedildi. "
+                           "İndirme yapılmadı.")
 
 
 # Yalnızca bu alan adlarından HTTPS ile indirme yapılır.
@@ -119,7 +123,8 @@ def is_trusted_download_url(url):
 
 def safe_message(error):
     """Kullanıcıya gösterilecek güvenli metin: traceback/gizli veri yok."""
-    return getattr(error, "user_message", SubtitleServiceError.user_message)
+    return translate_marked(
+        getattr(error, "user_message", SubtitleServiceError.user_message))
 
 
 # --- Ağ katmanı (enjekte edilebilir) ---

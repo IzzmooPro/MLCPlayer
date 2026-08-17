@@ -3,11 +3,6 @@
     <context>
         <name>MLCPlayer</name>
         <message>
-            <location filename="app/playlist_panel.py" line="334" />
-            <source>0 öğe</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
             <location filename="app/menu_actions.py" line="252" />
             <location filename="app/menu_actions.py" line="957" />
             <location filename="app/video_frame.py" line="2259" />
@@ -237,6 +232,11 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/opensubtitles.py" line="53" />
+            <source>Altyazı servisinde beklenmeyen bir sorun oluştu.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/media_controls.py" line="662" />
             <source>Altyazı seçilemedi. Lütfen başka bir altyazı parçasını deneyin.</source>
             <translation type="unfinished" />
@@ -353,6 +353,13 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/subtitle_center.py" line="343" />
+            <location filename="app/subtitle_center.py" line="344" />
+            <location filename="app/subtitle_center_settings_dialog.py" line="68" />
+            <source>Ayarlar</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/subtitle_center_settings_dialog.py" line="151" />
             <source>Ayarlardan vazgeç</source>
             <translation type="unfinished" />
@@ -370,6 +377,11 @@
         <message>
             <location filename="app/media_controls.py" line="1041" />
             <source>Açılamadı</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/opensubtitles.py" line="82" />
+            <source>Ağ bağlantısı kurulamadı. İnternet bağlantınızı kontrol edin.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -394,6 +406,11 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/opensubtitles.py" line="77" />
+            <source>Bağlantı zaman aşımına uğradı. İnternet bağlantınızı kontrol edip tekrar deneyin.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/video_frame.py" line="2139" />
             <source>Bağlantıdan Oynat</source>
             <translation type="unfinished" />
@@ -414,8 +431,33 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/errors.py" line="851" />
+            <source>Beklenmeyen Hata</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/errors.py" line="847" />
+            <source>Beklenmeyen bir hata oluştu.
+
+Program çalışmaya devam ediyor, ancak bu işlem tamamlanamadı.
+Sorun devam ederse programı yeniden başlatın.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/subtitle_center.py" line="516" />
             <source>Beklenmeyen bir sorun oluştu.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/errors.py" line="758" />
+            <source>Beklenmeyen bir veri hatası oluştu.
+
+Lütfen işlemi tekrar deneyin. Sorun devam ederse programı yeniden başlatın.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="35" />
+            <source>Bilgileri Kopyala</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -447,6 +489,12 @@
         <message>
             <location filename="app/media_controls.py" line="421" />
             <source>Bu bağlantı açılamadı. Adresi ve internet bağlantınızı kontrol edip tekrar deneyin.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="32" />
+            <source>Bu bilgiler destek ve tanı amacıyla hazırlanmıştır.
+Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -504,8 +552,18 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/updater.py" line="498" />
+            <source>Daha sonra</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/subtitle_appearance_dialog.py" line="969" />
             <source>Değişiklikleri iptal et</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/subtitle_appearance_dialog.py" line="865" />
+            <source>Dikey konum</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -553,6 +611,11 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/playlist_panel.py" line="378" />
+            <source>Dosya Ekle</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/media_controls.py" line="357" />
             <source>Dosya artık mevcut değil. Son Açılanlar listesinden kaldırıldı.</source>
             <translation type="unfinished" />
@@ -570,6 +633,20 @@
         <message>
             <location filename="app/player.py" line="494" />
             <source>Dosya açılamadı:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/errors.py" line="740" />
+            <source>Dosya bulunamadı. Dosya taşınmış veya silinmiş olabilir.
+
+Çözüm: Dosyanın yerini kontrol edip tekrar açmayı deneyin.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/errors.py" line="744" />
+            <source>Dosyaya erişim izniniz yok.
+
+Çözüm: Dosyanın kilidini açın veya başka bir klasöre kopyalayın.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -593,6 +670,11 @@
             <location filename="app/media_info.py" line="556" />
             <location filename="app/media_info.py" line="577" />
             <source>Durum</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="34" />
+            <source>Ek teknik ayrıntı bulunmuyor.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -796,8 +878,50 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/log_management_dialog.py" line="34" />
+            <source>Günlük Klasörünü Aç</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/log_management_dialog.py" line="26" />
             <location filename="app/menu_actions.py" line="282" />
             <source>Günlük Yönetimi</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/log_management_dialog.py" line="41" />
+            <source>Günlük klasörü açılamadı.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/errors.py" line="352" />
+            <source>Günlükler temizlendi.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/errors.py" line="353" />
+            <source>Günlükler temizlenemedi. Dosyalar başka bir program tarafından kullanılıyor olabilir.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/log_management_dialog.py" line="179" />
+            <source>Günlükler temizlenemedi. Lütfen tekrar deneyin.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/log_management_dialog.py" line="27" />
+            <source>Günlükler yalnız destek ve hata tanısı için bu bilgisayarda tutulur. Hassas bilgiler kaydedilirken otomatik olarak gizlenir.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/log_management_dialog.py" line="35" />
+            <location filename="app/log_management_dialog.py" line="38" />
+            <source>Günlükleri Temizle</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/opensubtitles.py" line="97" />
+            <source>Güvenilmeyen bir indirme adresi reddedildi. İndirme yapılmadı.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -814,6 +938,26 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/error_details_dialog.py" line="31" />
+            <source>Hata Ayrıntıları</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/errors.py" line="50" />
+            <source>Hata Ayrıntılarını Görüntüle</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="49" />
+            <source>Hata başlığı</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="51" />
+            <source>Hata türü</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/track_labels.py" line="45" />
             <location filename="app/track_labels.py" line="45" />
             <source>Japonca</source>
@@ -821,7 +965,7 @@
         </message>
         <message>
             <location filename="app/media_controls.py" line="881" />
-            <location filename="app/playlist_panel.py" line="378" />
+            <location filename="app/playlist_panel.py" line="380" />
             <source>Kaldır</source>
             <translation type="unfinished" />
         </message>
@@ -831,10 +975,17 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/error_details_dialog.py" line="36" />
+            <location filename="app/log_management_dialog.py" line="36" />
             <location filename="app/menu_actions.py" line="503" />
             <location filename="app/subtitle_center.py" line="556" />
             <location filename="app/updater.py" line="590" />
             <source>Kapat</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/playlist_panel.py" line="346" />
+            <source>Kapat (Esc)</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -850,6 +1001,11 @@
         <message>
             <location filename="app/menu_actions.py" line="154" />
             <source>Karışık Oynat</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="48" />
+            <source>Kategori</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -875,6 +1031,11 @@
         <message>
             <location filename="app/updater.py" line="552" />
             <source>Kaynak koddan çalışan kopya kurulumla güncellenmez.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="46" />
+            <source>Kayıt numarası</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -931,9 +1092,24 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/error_details_dialog.py" line="38" />
+            <source>Kopyalanamadı</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="37" />
+            <source>Kopyalandı</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/track_labels.py" line="46" />
             <location filename="app/track_labels.py" line="46" />
             <source>Korece</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="50" />
+            <source>Kullanıcı mesajı</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -953,6 +1129,11 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/playlist_panel.py" line="357" />
+            <source>Listede ara</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/media_controls.py" line="1114" />
             <source>Listenin başındasınız.</source>
             <translation type="unfinished" />
@@ -969,7 +1150,15 @@
         </message>
         <message>
             <location filename="app/media_controls.py" line="888" />
+            <location filename="app/playlist_panel.py" line="382" />
             <source>Listeyi Temizle</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/errors.py" line="754" />
+            <source>MPV bileşeni yüklenemedi.
+
+Çözüm: Programın 'bin' klasörünün eksiksiz olduğundan emin olun. Programı kurulum klasöründen çalıştırın.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1000,6 +1189,11 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/log_management_dialog.py" line="33" />
+            <source>Mevcut günlük boyutu:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/updater.py" line="483" />
             <source>Mevcut sürüm</source>
             <translation type="unfinished" />
@@ -1015,8 +1209,23 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/opensubtitles.py" line="57" />
+            <source>OpenSubtitles API anahtarı tanımlı değil. Altyazı Merkezi &gt; Ayarlar bölümünden ekleyin.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/subtitle_center_settings_dialog.py" line="143" />
             <source>OpenSubtitles bağlantısını test et</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/opensubtitles.py" line="67" />
+            <source>OpenSubtitles indirme/istek sınırına ulaşıldı. Bir süre sonra tekrar deneyin.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/opensubtitles.py" line="62" />
+            <source>OpenSubtitles kimlik doğrulaması başarısız. API anahtarı, kullanıcı adı ve parolayı kontrol edin.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1027,6 +1236,11 @@
         <message>
             <location filename="app/subtitle_center_settings_dialog.py" line="107" />
             <source>OpenSubtitles parolası</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/opensubtitles.py" line="72" />
+            <source>OpenSubtitles sunucusu şu anda yanıt veremiyor. Daha sonra tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1083,6 +1297,7 @@
             <location filename="app/media_controls.py" line="1092" />
             <location filename="app/media_controls.py" line="1095" />
             <location filename="app/media_controls.py" line="1113" />
+            <location filename="app/playlist_panel.py" line="331" />
             <location filename="app/video_frame.py" line="2146" />
             <source>Oynatma Listesi</source>
             <translation type="unfinished" />
@@ -1107,6 +1322,11 @@
             <location filename="app/menu_actions.py" line="82" />
             <location filename="app/menu_actions.py" line="950" />
             <source>Oynatma Listesini Göster</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/playlist_panel.py" line="345" />
+            <source>Oynatma Listesini Kapat</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1136,7 +1356,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="364" />
+            <location filename="app/playlist_panel.py" line="366" />
             <source>Oynatma listesi boş
 Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
@@ -1145,6 +1365,11 @@ Dosyaları buraya sürükleyin</source>
             <location filename="app/media_controls.py" line="862" />
             <location filename="app/media_controls.py" line="1096" />
             <source>Oynatma listesi boş.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/playlist_panel.py" line="30" />
+            <source>Oynatma listesi genişliğini ayarla</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1170,6 +1395,13 @@ Dosyaları buraya sürükleyin</source>
         <message>
             <location filename="app/media_controls.py" line="227" />
             <source>Oynatıcı ayarları okunamadığı için klasör güvenli biçimde açılamadı. Lütfen tekrar deneyin.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/errors.py" line="749" />
+            <source>Oynatıcı ayarı uygulanamadı (video ayarı desteklenmiyor).
+
+Bu işlem mpv'nin bu sürümünde bulunmayan bir özellik kullanmaya çalıştı. Diğer ayarlarla devam edebilirsiniz.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1261,6 +1493,11 @@ Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/log_management_dialog.py" line="30" />
+            <source>Saklama politikası: en fazla 2 MiB aktif dosya + 1 yedek dosya. Sınır aşılınca en eski yedek silinir.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/menu_actions.py" line="954" />
             <location filename="app/menu_actions.py" line="956" />
             <location filename="app/menu_actions.py" line="958" />
@@ -1271,6 +1508,11 @@ Dosyaları buraya sürükleyin</source>
             <location filename="app/subtitle_appearance_dialog.py" line="105" />
             <location filename="app/subtitle_appearance_dialog.py" line="848" />
             <source>Senkron</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/opensubtitles.py" line="87" />
+            <source>Servis yanıtı geçersiz. Daha sonra tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1401,6 +1643,11 @@ Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/errors.py" line="747" />
+            <source>Seçilen konum geçerli bir medya dosyası değil.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/media_info.py" line="110" />
             <source>Seçili</source>
             <translation type="unfinished" />
@@ -1471,7 +1718,7 @@ Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="511" />
+            <location filename="app/playlist_panel.py" line="513" />
             <source>Sürükleyerek sırala • Oynatmak için çift tıkla</source>
             <translation type="unfinished" />
         </message>
@@ -1519,14 +1766,35 @@ Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/log_management_dialog.py" line="39" />
+            <source>Tanı günlükleri kalıcı olarak silinecek. Bu işlem geri alınamaz.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/subtitle_center_settings_dialog.py" line="183" />
             <source>Tarayıcı açılamadı. Rehber adresini elle girebilirsiniz.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="47" />
+            <source>Tarih</source>
             <translation type="unfinished" />
         </message>
         <message>
             <location filename="app/menu_actions.py" line="142" />
             <location filename="app/video_frame.py" line="2271" />
             <source>Tek Dosyayı Tekrarla</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="99" />
+            <location filename="app/error_details_dialog.py" line="153" />
+            <source>Teknik ayrıntı (maskelenmiş)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/error_details_dialog.py" line="52" />
+            <source>Teknik özet</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1653,6 +1921,11 @@ Dosyaları buraya sürükleyin</source>
         <message>
             <location filename="app/subtitle_center.py" line="543" />
             <source>Video klasörüne şu adla kaydedilecek:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/playlist_panel.py" line="206" />
+            <source>Video küçük resmi</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1865,6 +2138,12 @@ Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/playlist_panel.py" line="336" />
+            <location filename="app/playlist_panel.py" line="532" />
+            <source>öğe</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/media_controls.py" line="720" />
             <source>İleri</source>
             <translation type="unfinished" />
@@ -1872,6 +2151,11 @@ Dosyaları buraya sürükleyin</source>
         <message>
             <location filename="app/subtitle_center.py" line="549" />
             <source>İndir ve Uygula</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/opensubtitles.py" line="92" />
+            <source>İndirilen dosya beklenenden çok büyük; güvenlik için reddedildi.</source>
             <translation type="unfinished" />
         </message>
         <message>

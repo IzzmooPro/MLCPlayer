@@ -19,22 +19,26 @@ from PyQt6.QtWidgets import (QDialog, QHBoxLayout, QLabel, QMessageBox,
 from app.errors import (LOG_BACKUP_COUNT, MAX_LOG_FILE_BYTES, clear_logs,
                         format_bytes, get_log_directory, get_log_usage,
                         safe_console)
+from app.translate import tr, tr_mark, translate_marked
 
-DIALOG_TITLE = "Günlük Yönetimi"
-INTRO_TEXT = ("Günlükler yalnız destek ve hata tanısı için bu bilgisayarda "
-              "tutulur. Hassas bilgiler kaydedilirken otomatik olarak "
-              "gizlenir.")
-POLICY_TEXT = ("Saklama politikası: en fazla 2 MiB aktif dosya + 1 yedek "
-               "dosya. Sınır aşılınca en eski yedek silinir.")
-USAGE_PREFIX = "Mevcut günlük boyutu:"
-OPEN_BUTTON_TEXT = "Günlük Klasörünü Aç"
-CLEAR_BUTTON_TEXT = "Günlükleri Temizle"
-CLOSE_BUTTON_TEXT = "Kapat"
+# Modul duzeyi metinler: import aninda cevirmen yoktur; `tr_mark()` yalniz
+# isaretler, ceviri kullanim aninda `translate_marked()` ile yapilir.
+DIALOG_TITLE = tr_mark("Günlük Yönetimi")
+INTRO_TEXT = tr_mark(
+    "Günlükler yalnız destek ve hata tanısı için bu bilgisayarda tutulur. "
+    "Hassas bilgiler kaydedilirken otomatik olarak gizlenir.")
+POLICY_TEXT = tr_mark(
+    "Saklama politikası: en fazla 2 MiB aktif dosya + 1 yedek dosya. "
+    "Sınır aşılınca en eski yedek silinir.")
+USAGE_PREFIX = tr_mark("Mevcut günlük boyutu:")
+OPEN_BUTTON_TEXT = tr_mark("Günlük Klasörünü Aç")
+CLEAR_BUTTON_TEXT = tr_mark("Günlükleri Temizle")
+CLOSE_BUTTON_TEXT = tr_mark("Kapat")
 
-CONFIRM_TITLE = "Günlükleri Temizle"
-CONFIRM_TEXT = ("Tanı günlükleri kalıcı olarak silinecek. Bu işlem geri "
-                "alınamaz.")
-OPEN_FAILED_TEXT = "Günlük klasörü açılamadı."
+CONFIRM_TITLE = tr_mark("Günlükleri Temizle")
+CONFIRM_TEXT = tr_mark(
+    "Tanı günlükleri kalıcı olarak silinecek. Bu işlem geri alınamaz.")
+OPEN_FAILED_TEXT = tr_mark("Günlük klasörü açılamadı.")
 
 DEFAULT_SIZE = (560, 320)
 MINIMUM_SIZE = (460, 280)
@@ -55,7 +59,8 @@ QPushButton:hover { background: rgba(255,255,255,26); }
 
 def usage_text():
     """Kullanıcı dostu toplam boyut metni. Yol İÇERMEZ."""
-    return f"{USAGE_PREFIX} {format_bytes(get_log_usage()['total_bytes'])}"
+    return (f"{translate_marked(USAGE_PREFIX)} "
+            f"{format_bytes(get_log_usage()['total_bytes'])}")
 
 
 class LogManagementDialog(QDialog):
@@ -64,7 +69,7 @@ class LogManagementDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("logManagement")
-        self.setWindowTitle(DIALOG_TITLE)
+        self.setWindowTitle(translate_marked(DIALOG_TITLE))
         self.setStyleSheet(STYLE)
         self.setMinimumSize(*MINIMUM_SIZE)
         self.resize(*DEFAULT_SIZE)
@@ -73,12 +78,12 @@ class LogManagementDialog(QDialog):
         root.setContentsMargins(16, 14, 16, 12)
         root.setSpacing(10)
 
-        self.intro_label = QLabel(INTRO_TEXT)
+        self.intro_label = QLabel(translate_marked(INTRO_TEXT))
         self.intro_label.setObjectName("logManagementMuted")
         self.intro_label.setWordWrap(True)
         root.addWidget(self.intro_label)
 
-        self.policy_label = QLabel(POLICY_TEXT)
+        self.policy_label = QLabel(translate_marked(POLICY_TEXT))
         self.policy_label.setObjectName("logManagementMuted")
         self.policy_label.setWordWrap(True)
         root.addWidget(self.policy_label)
@@ -99,13 +104,13 @@ class LogManagementDialog(QDialog):
         actions = QHBoxLayout()
         actions.setSpacing(8)
         self.open_button = self._button("logManagementOpenButton",
-                                        OPEN_BUTTON_TEXT)
+                                        translate_marked(OPEN_BUTTON_TEXT))
         self.open_button.clicked.connect(self.open_log_folder)
         self.clear_button = self._button("logManagementClearButton",
-                                         CLEAR_BUTTON_TEXT)
+                                         translate_marked(CLEAR_BUTTON_TEXT))
         self.clear_button.clicked.connect(self.confirm_clear)
         self.close_button = self._button("logManagementCloseButton",
-                                         CLOSE_BUTTON_TEXT)
+                                         translate_marked(CLOSE_BUTTON_TEXT))
         self.close_button.clicked.connect(self.reject)
         actions.addWidget(self.open_button, 0)
         actions.addStretch(1)
@@ -145,14 +150,14 @@ class LogManagementDialog(QDialog):
                          f"{type(exc).__name__}")
             opened = False
         if not opened:
-            self.status_label.setText(OPEN_FAILED_TEXT)
+            self.status_label.setText(translate_marked(OPEN_FAILED_TEXT))
 
     def confirm_clear(self):
         """Önce ONAY sorar; `İptal` varsayılan ve Escape düğmesidir."""
         box = QMessageBox(self)
         box.setIcon(QMessageBox.Icon.Warning)
-        box.setWindowTitle(CONFIRM_TITLE)
-        box.setText(CONFIRM_TEXT)
+        box.setWindowTitle(translate_marked(CONFIRM_TITLE))
+        box.setText(translate_marked(CONFIRM_TEXT))
         box.setStandardButtons(QMessageBox.StandardButton.Yes
                                | QMessageBox.StandardButton.Cancel)
         cancel = box.button(QMessageBox.StandardButton.Cancel)
@@ -171,7 +176,7 @@ class LogManagementDialog(QDialog):
             # Ham istisna metni kullanıcıya ULAŞMAZ.
             safe_console(f"Günlükler temizlenemedi: {type(exc).__name__}")
             self.status_label.setText(
-                "Günlükler temizlenemedi. Lütfen tekrar deneyin.")
+                tr("Günlükler temizlenemedi. Lütfen tekrar deneyin."))
             self.refresh_usage()
             return
         self.status_label.setText(getattr(result, "message", ""))

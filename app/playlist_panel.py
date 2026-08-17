@@ -27,7 +27,7 @@ class PlaylistResizeHandle(QWidget):
         self._press_global_x = None
         self._press_width = 0
         self.setObjectName("playlistResizeHandle")
-        self.setAccessibleName("Oynatma listesi genişliğini ayarla")
+        self.setAccessibleName(tr("Oynatma listesi genişliğini ayarla"))
         self.setToolTip(tr("Sola veya sağa sürükleyerek liste genişliğini ayarla"))
         self.setCursor(Qt.CursorShape.SizeHorCursor)
         self.setMouseTracking(True)
@@ -203,7 +203,7 @@ class PlaylistRow(QWidget):
         self.thumbnail_label.setStyleSheet(
             "background: rgba(255,255,255,10); border: 1px solid "
             "rgba(255,255,255,18); border-radius: 4px;")
-        self.thumbnail_label.setAccessibleName("Video küçük resmi")
+        self.thumbnail_label.setAccessibleName(tr("Video küçük resmi"))
         self.thumbnail_label.setProperty("thumbnailState", "empty")
         layout.addWidget(self.thumbnail_label)
 
@@ -328,10 +328,12 @@ class PlaylistPanel(QWidget):
         header.setSpacing(10)
         title_column = QVBoxLayout()
         title_column.setSpacing(2)
-        heading = QLabel("Oynatma Listesi", self)
+        heading = QLabel(tr("Oynatma Listesi"), self)
         heading.setObjectName("playlistHeading")
         heading.setStyleSheet("color: #F4F5F6; font-size: 19px;")
-        self.count_label = QLabel(tr("0 öğe"), self)
+        # Sayaç TEK biçimden gelir; `0 öğe` ayrı bir çeviri girdisi olarak
+        # tutulmaz, yoksa aynı metin iki kez çevrilir.
+        self.count_label = QLabel(f"0 {tr('öğe')}", self)
         self.count_label.setObjectName("playlistCount")
         self.count_label.setStyleSheet("color: #929AA3; font-size: 12px;")
         title_column.addWidget(heading)
@@ -340,8 +342,8 @@ class PlaylistPanel(QWidget):
         header.addStretch(1)
         self.close_button = QPushButton("×", self)
         self.close_button.setObjectName("playlistClose")
-        self.close_button.setAccessibleName("Oynatma Listesini Kapat")
-        self.close_button.setToolTip("Kapat (Esc)")
+        self.close_button.setAccessibleName(tr("Oynatma Listesini Kapat"))
+        self.close_button.setToolTip(tr("Kapat (Esc)"))
         self.close_button.setFixedSize(36, 36)
         self.close_button.setStyleSheet(
             "font-size: 25px; font-weight: 300; background: transparent; "
@@ -352,7 +354,7 @@ class PlaylistPanel(QWidget):
 
         self.search_field = QLineEdit(self)
         self.search_field.setObjectName("playlistSearch")
-        self.search_field.setPlaceholderText("Listede ara")
+        self.search_field.setPlaceholderText(tr("Listede ara"))
         self.search_field.setClearButtonEnabled(True)
         self.search_field.textChanged.connect(self.apply_filter)
         root.addWidget(self.search_field)
@@ -373,11 +375,11 @@ class PlaylistPanel(QWidget):
         footer = QHBoxLayout()
         footer.setContentsMargins(0, 4, 0, 0)
         footer.setSpacing(4)
-        self.add_button = QPushButton("Dosya Ekle", self)
+        self.add_button = QPushButton(tr("Dosya Ekle"), self)
         self.add_button.setObjectName("playlistAdd")
         self.remove_button = QPushButton(tr("Kaldır"), self)
         self.remove_button.setObjectName("playlistRemove")
-        self.clear_button = QPushButton("Listeyi Temizle", self)
+        self.clear_button = QPushButton(tr("Listeyi Temizle"), self)
         self.clear_button.setObjectName("playlistClear")
         self.add_button.clicked.connect(self._add_files)
         self.remove_button.clicked.connect(self._remove_selected)
@@ -527,7 +529,7 @@ class PlaylistPanel(QWidget):
                                                            state)
         if playlist and selected >= 0:
             self.playlist_view.setCurrentRow(min(selected, len(playlist) - 1))
-        self.count_label.setText(f"{len(playlist)} öğe")
+        self.count_label.setText(f"{len(playlist)} {tr('öğe')}")
         self.empty_label.setVisible(not playlist)
         self.playlist_view.setVisible(bool(playlist))
         self.remove_button.setEnabled(bool(playlist))

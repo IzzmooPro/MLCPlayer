@@ -65,7 +65,7 @@ class SubtitleCenterSettingsDialog(QDialog):
         layout.setContentsMargins(16, 14, 16, 14)
         layout.setSpacing(8)
 
-        heading = QLabel("Ayarlar", self)
+        heading = QLabel(tr("Ayarlar"), self)
         heading.setObjectName("subtitleHeading")
         layout.addWidget(heading)
 

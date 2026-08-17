@@ -495,7 +495,7 @@ class UpdateDialog(QDialog):
         layout.addWidget(self._status)
 
         row = QHBoxLayout()
-        self._later_button = QPushButton("Daha sonra")
+        self._later_button = QPushButton(tr("Daha sonra"))
         self._later_button.clicked.connect(self.reject)
         self._update_button = QPushButton(tr("Güncelle"))
         self._update_button.clicked.connect(self.start_update)

@@ -24,28 +24,32 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
                              QVBoxLayout, QWidget)
 
 from app.errors import redact, safe_console
+from app.translate import tr, tr_mark, translate_marked
 
-DIALOG_TITLE = "Hata Ayrıntıları"
-INTRO_TEXT = ("Bu bilgiler destek ve tanı amacıyla hazırlanmıştır.\n"
-              "Hassas bilgiler otomatik olarak gizlenmiştir.")
-EMPTY_DETAIL = "Ek teknik ayrıntı bulunmuyor."
-COPY_BUTTON_TEXT = "Bilgileri Kopyala"
-CLOSE_BUTTON_TEXT = "Kapat"
-COPY_DONE_TEXT = "Kopyalandı"
-COPY_FAILED_TEXT = "Kopyalanamadı"
+# Modul duzeyi metinler: import aninda cevirmen yoktur; `tr_mark()` yalniz
+# isaretler, ceviri kullanim aninda `translate_marked()` ile yapilir.
+DIALOG_TITLE = tr_mark("Hata Ayrıntıları")
+INTRO_TEXT = tr_mark("Bu bilgiler destek ve tanı amacıyla hazırlanmıştır.\n"
+                     "Hassas bilgiler otomatik olarak gizlenmiştir.")
+EMPTY_DETAIL = tr_mark("Ek teknik ayrıntı bulunmuyor.")
+COPY_BUTTON_TEXT = tr_mark("Bilgileri Kopyala")
+CLOSE_BUTTON_TEXT = tr_mark("Kapat")
+COPY_DONE_TEXT = tr_mark("Kopyalandı")
+COPY_FAILED_TEXT = tr_mark("Kopyalanamadı")
 
 DEFAULT_SIZE = (680, 460)
 MINIMUM_SIZE = (520, 360)
 
-# (ErrorEvent alanı, kullanıcıya gösterilen etiket) — SIRA ÖNEMLİDİR.
+# (ErrorEvent alani, KAYNAK dildeki etiket) — SIRA ONEMLIDIR.
+# Etiketler yalniz isaretlidir; gosterimde `safe_fields()` cevirir.
 FIELDS = (
-    ("record_id", "Kayıt numarası"),
-    ("timestamp", "Tarih"),
-    ("category", "Kategori"),
-    ("title", "Hata başlığı"),
-    ("user_message", "Kullanıcı mesajı"),
-    ("exception_type", "Hata türü"),
-    ("technical_summary", "Teknik özet"),
+    ("record_id", tr_mark("Kayıt numarası")),
+    ("timestamp", tr_mark("Tarih")),
+    ("category", tr_mark("Kategori")),
+    ("title", tr_mark("Hata başlığı")),
+    ("user_message", tr_mark("Kullanıcı mesajı")),
+    ("exception_type", tr_mark("Hata türü")),
+    ("technical_summary", tr_mark("Teknik özet")),
 )
 
 STYLE = """
@@ -71,14 +75,15 @@ def safe_fields(event):
     """(etiket, güvenli değer) çiftleri. Her değer yeniden maskelenir."""
     rows = []
     for name, label in FIELDS:
-        rows.append((label, redact(getattr(event, name, ""))))
+        rows.append((translate_marked(label),
+                     redact(getattr(event, name, ""))))
     return rows
 
 
 def safe_detail(event):
     """Maskelenmiş teknik ayrıntı; boşsa güvenli açıklama."""
     detail = redact(getattr(event, "developer_detail", "") or "")
-    return detail if detail.strip() else EMPTY_DETAIL
+    return detail if detail.strip() else translate_marked(EMPTY_DETAIL)
 
 
 def clipboard_text(event):
@@ -87,11 +92,11 @@ def clipboard_text(event):
     Log dosyası okunmaz; metnin tamamı kopyalamadan hemen önce bir kez
     daha `redact()` işleminden geçer.
     """
-    lines = [DIALOG_TITLE, ""]
+    lines = [translate_marked(DIALOG_TITLE), ""]
     for label, value in safe_fields(event):
         lines.append(f"{label}: {value}")
     lines.append("")
-    lines.append("Teknik ayrıntı (maskelenmiş):")
+    lines.append(f"{tr('Teknik ayrıntı (maskelenmiş)')}:")
     lines.append(safe_detail(event))
     return redact("\n".join(lines))
 
@@ -103,7 +108,7 @@ class ErrorDetailsDialog(QDialog):
         super().__init__(parent)
         self.event = event
         self.setObjectName("errorDetails")
-        self.setWindowTitle(DIALOG_TITLE)
+        self.setWindowTitle(translate_marked(DIALOG_TITLE))
         self.setStyleSheet(STYLE)
         self.setMinimumSize(*MINIMUM_SIZE)
         self.resize(*DEFAULT_SIZE)
@@ -112,7 +117,7 @@ class ErrorDetailsDialog(QDialog):
         root.setContentsMargins(16, 14, 16, 12)
         root.setSpacing(10)
 
-        self.intro_label = QLabel(INTRO_TEXT)
+        self.intro_label = QLabel(translate_marked(INTRO_TEXT))
         self.intro_label.setObjectName("errorDetailsIntro")
         self.intro_label.setWordWrap(True)
         root.addWidget(self.intro_label)
@@ -123,7 +128,8 @@ class ErrorDetailsDialog(QDialog):
         grid = QVBoxLayout(fields)
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setSpacing(4)
-        for label, value in safe_fields(event):
+        for (_attr, source_label), (label, value) in zip(FIELDS,
+                                                        safe_fields(event)):
             row = QHBoxLayout()
             row.setSpacing(8)
             name = QLabel(f"{label}:")
@@ -133,7 +139,8 @@ class ErrorDetailsDialog(QDialog):
                                QSizePolicy.Policy.Preferred)
             # Uzun kayıt numarası ve teknik özet KIRPILMAZ: değer sarar.
             content = QLabel(value)
-            content.setObjectName(f"errorDetailsValue_{label}")
+            # Nesne adi KIMLIKTIR; ceviriyle degismez.
+            content.setObjectName(f"errorDetailsValue_{source_label}")
             content.setWordWrap(True)
             content.setTextInteractionFlags(
                 Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -143,7 +150,7 @@ class ErrorDetailsDialog(QDialog):
             grid.addLayout(row)
         root.addWidget(fields, 0)
 
-        detail_caption = QLabel("Teknik ayrıntı (maskelenmiş)")
+        detail_caption = QLabel(tr("Teknik ayrıntı (maskelenmiş)"))
         detail_caption.setObjectName("errorDetailsFieldLabel")
         root.addWidget(detail_caption, 0)
 
@@ -164,12 +171,12 @@ class ErrorDetailsDialog(QDialog):
         actions.setSpacing(8)
         self.status_label = QLabel("")
         self.status_label.setObjectName("errorDetailsStatus")
-        self.copy_button = QPushButton(COPY_BUTTON_TEXT)
+        self.copy_button = QPushButton(translate_marked(COPY_BUTTON_TEXT))
         self.copy_button.setObjectName("errorDetailsCopyButton")
         self.copy_button.setAutoDefault(False)
         self.copy_button.setDefault(False)
         self.copy_button.clicked.connect(self.copy_details)
-        self.close_button = QPushButton(CLOSE_BUTTON_TEXT)
+        self.close_button = QPushButton(translate_marked(CLOSE_BUTTON_TEXT))
         self.close_button.setObjectName("errorDetailsCloseButton")
         self.close_button.setAutoDefault(False)
         self.close_button.setDefault(False)
@@ -186,7 +193,7 @@ class ErrorDetailsDialog(QDialog):
 
     def fields(self):
         return [(label, self._field_labels[label].text())
-                for _name, label in FIELDS]
+                for label, _value in safe_fields(self.event)]
 
     def detail_text(self):
         return self.detail_view.toPlainText()
@@ -205,7 +212,7 @@ class ErrorDetailsDialog(QDialog):
             # Ham veri veya ham istisna metni KONSOLA yazılmaz.
             safe_console("Hata ayrıntıları panoya kopyalanamadı: "
                          f"{type(exc).__name__}")
-            self.status_label.setText(COPY_FAILED_TEXT)
+            self.status_label.setText(translate_marked(COPY_FAILED_TEXT))
             return
         # Küçük, dikkat dağıtmayan geri bildirim: yeni pencere AÇILMAZ.
-        self.status_label.setText(COPY_DONE_TEXT)
+        self.status_label.setText(translate_marked(COPY_DONE_TEXT))
