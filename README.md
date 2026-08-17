@@ -79,9 +79,9 @@ Already installed? `Help → Check for updates` does the rest.
 
 ## Build and run from source
 
-The quickest path is `Baslat.bat`: it locates Python 3.12+, installs it only
+The quickest path is `Start.bat`: it locates Python 3.12+, installs it only
 if missing, installs the packages from `requirements.txt` only if they are
-absent, and starts the player. `Baslat.bat -CheckOnly` verifies everything
+absent, and starts the player. `Start.bat -CheckOnly` verifies everything
 without launching.
 
 Manually:

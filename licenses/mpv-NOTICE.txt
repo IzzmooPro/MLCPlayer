@@ -1,0 +1,75 @@
+MLC Player — third-party notice for the bundled mpv / FFmpeg component
+================================================================
+
+MLC Player uses the library build of mpv (libmpv) for playback and
+redistributes `_internal\bin\mpv-2.dll` with the package. That binary
+includes FFmpeg. The details below are copied from
+`bin/RUNTIME_MANIFEST.txt`; if the two ever disagree,
+`tests/test_third_party_notice_regressions.py` fails.
+
+
+1. COMPONENT
+----------------------------------------------------------------
+
+File     : mpv-2.dll  (libmpv)
+Version  : mpv v0.41.0-923-g7b8915bc1 (FFmpeg N-126125-g1d7b14f61)
+Licence  : GPLv3
+SHA-256  : F709C7CA8B183BEC76B8158BF0C45C53018C63366750729352612F228FF7BDEA
+
+
+2. LICENCE
+----------------------------------------------------------------
+
+This build is configured with `--enable-gpl --enable-version3` and is
+therefore licensed under the GPLv3. The build carries no nonfree
+components (no fdk-aac, libnpp or cuda-nvcc), which keeps it compatible
+with MLC Player's own GPLv3 licence.
+
+The full GPLv3 text ships with MLC Player as the `LICENSE` file in the
+installation directory. mpv and FFmpeg fall under that same text, so no
+second copy is carried here.
+
+
+3. CORRESPONDING SOURCE
+----------------------------------------------------------------
+
+The GPLv3 requires whoever distributes this binary to provide access to
+the corresponding source. The bundled file comes from the prebuilt
+release below; its address, size and SHA-256 can be verified:
+
+  https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20260814/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z
+
+Upstream sources:
+
+  mpv           https://github.com/mpv-player/mpv
+  FFmpeg        https://ffmpeg.org/download.html
+                https://git.ffmpeg.org/ffmpeg.git
+  Build recipe  https://github.com/shinchiro/mpv-winbuild-cmake
+
+The version tags above (`v0.41.0-923-g7b8915bc1`, `N-126125-g1d7b14f61`)
+identify exact commits in those repositories, so the source corresponding
+to THIS binary can be obtained from them.
+
+If those addresses become unreachable, the source can be requested
+through the MLC Player repository:
+
+  https://github.com/IzzmooPro/MLCPlayer
+
+
+4. NO MODIFICATIONS
+----------------------------------------------------------------
+
+MLC Player does not modify the mpv or FFmpeg source. The bundled
+`mpv-2.dll` is redistributed exactly as extracted from the official
+archive above.
+
+
+5. OTHER COMPONENTS
+----------------------------------------------------------------
+
+`yt-dlp.exe` and `deno.exe` are not part of this package. They ship with
+the separate "MLC Player Internet Video" add-on, together with their own
+licence texts in that package's `_internal\licenses` folder.
+
+For the full component list with versions and SHA-256 digests, see
+`_internal\bin\RUNTIME_MANIFEST.txt` in the installation directory.

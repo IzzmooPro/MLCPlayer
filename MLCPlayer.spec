@@ -43,8 +43,14 @@ a = Analysis(
         # Urun eksikligi zaten guvenli bicimde ele aliyor
         # (app/runtime_binaries.py).
         # Resmi lisans metinleri `_internal\licenses` altinda tasinir.
-        # Lisans metinleri ilgili ikililerle BIRLIKTE dagitilir; onlar
-        # ek pakette oldugu icin lisanslari da orada.
+        # Lisans metinleri ilgili ikililerle BIRLIKTE dagitilir: yt-dlp ve
+        # deno ek pakette oldugu icin lisanslari da ORADA. mpv ise BU
+        # pakette, bu yuzden kunyesi ve provenance manifesti burada.
+        # GPLv3 karsilik gelen kaynak yukumlulugu icin kullaniciya
+        # gosterilen tek yer depo olmamalidir; kurulu programin yaninda da
+        # durur (tests/test_third_party_notice_regressions.py).
+        ('licenses/mpv-NOTICE.txt', 'licenses'),
+        ('bin/RUNTIME_MANIFEST.txt', 'bin'),
         # Qt calisma zamani ikonu `_internal\assets` altindan okunur.
         ('assets/mlc-player-icon.ico', 'assets'),
         ('assets/mlc-player-icon-transparent.ico', 'assets'),

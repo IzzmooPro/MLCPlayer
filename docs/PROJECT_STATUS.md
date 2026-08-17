@@ -1472,6 +1472,31 @@ kullanıcı uyarısız yalnız Türkçe görürdü — `available_languages()`
 zincire ADIM 3/8 olarak eklendi (PyInstaller'dan ÖNCE) ve çevirisi
 olmayan dilleri atlar; boş `.qm` paketlenmez, atlananlar RAPOR EDİLİR.
 
+**LİSANS KÜNYESİ — ana pakette kapatıldı (17 Ağustos 2026).**
+KIRMIZI KANIT: ana paket `bin/mpv-2.dll` dağıtıyor (GPLv3, FFmpeg
+içeriyor) ama kurulan pakette ne künye ne de `RUNTIME_MANIFEST.txt`
+vardı; `licenses/` yalnız İnternet Videosu EK paketindeydi çünkü yt-dlp
+ve deno oradaydı. Yani GPLv3'ün karşılık gelen kaynak yükümlülüğü için
+kullanıcıya gösterilen tek yer depoydu. Bu madde `README.tr.md` içindeki
+"Yayın öncesi açık maddeler" listesinde duruyordu ve **v0.33 yayımlanana
+kadar açık kaldı**.
+Düzeltme: yeni `licenses/mpv-NOTICE.txt` (sürüm, lisans, SHA-256, kaynak
+depoları, değişiklik yapılmadığı beyanı) ve `bin/RUNTIME_MANIFEST.txt`
+artık ana pakete giriyor. Künyedeki sürüm/URL/özet manifestten kopyalanır;
+ayrışırsa `tests/test_third_party_notice_regressions.py` (8 test) kırılır.
+
+**KALAN AÇIK MADDELER (bizim kapatamayacaklarımız):** FFmpeg patent
+tarafı (H.264/H.265) — lisans değil patent konusu, VLC de depoda
+çözmüyor; OpenSubtitles API kullanım şartlarının okunması; GPLv3'ün
+önerdiği dosya başı bildirimler. İlk ikisi kullanıcı/hukukçu kararıdır.
+
+**DİL KURALI (kullanıcı kararı, 17 Ağustos 2026): depo dosyalarının ADI
+ve İÇERİĞİ İNGİLİZCEDİR.** `Baslat.bat` → `Start.bat` (git mv, geçmiş
+korundu) ve `scripts/bootstrap.ps1` konsol çıktıları + yorumları
+İngilizceye çevrildi. README/README.tr referansları güncellendi.
+BU KURAL ÜRÜN ARAYÜZÜNÜ KAPSAMAZ: kaynak dil Türkçedir (bkz. `app/i18n.py`)
+ve 453 assert ona bakar.
+
 **DEVİR NOTU (17 Ağustos 2026, ikinci tur).** VLC incelemesi BİTTİ
 (yukarıdaki bölüm). Ağaç KİRLİ ve commit EDİLMEDİ. Değişenler:
 `app/i18n.py`, `app/translate.py` (YENİ), `app/media_controls.py`,

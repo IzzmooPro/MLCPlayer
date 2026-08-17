@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ============================================================
-echo   MLC Player - Otomatik Baslatici
+echo   MLC Player - automatic launcher
 echo ============================================================
 echo.
 
@@ -12,7 +12,7 @@ set "EXIT_CODE=%ERRORLEVEL%"
 
 if not "%EXIT_CODE%"=="0" (
     echo.
-    echo [HATA] Program baslatilamadi. Yukaridaki aciklamayi inceleyin.
+    echo [ERROR] The player could not be started. Read the explanation above.
     pause
 )
 

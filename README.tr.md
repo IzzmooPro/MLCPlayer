@@ -48,10 +48,10 @@ SHA-256 ile doğrulanmadan çalıştırılmaz.
 
 ## Çalıştırma (kaynaktan)
 
-En kolay yol `Baslat.bat` dosyasına çift tıklamaktır: Python 3.12+ yoksa
+En kolay yol `Start.bat` dosyasına çift tıklamaktır: Python 3.12+ yoksa
 kurar, eksik paketleri `requirements.txt` üzerinden yükler ve programı açar.
 Her şey hazırsa hiçbir kurulum yapmadan doğrudan başlatır. Yalnızca kontrol
-için `Baslat.bat -CheckOnly` (program açılmaz).
+için `Start.bat -CheckOnly` (program açılmaz).
 
 Elle kurulum gereksinimleri: Windows, Python 3.12+ ve `bin/mpv-2.dll`.
 
