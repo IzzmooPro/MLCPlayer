@@ -4,8 +4,20 @@ Güncelleme: 17 Ağustos 2026
 
 ## DEVİR NOTU — buradan başla
 
-**Ağaç TEMİZ, `origin/master` ile senkron, `v0.35` yayında.**
-Tam paket: **3678 passed, 17 skipped** (~67 sn). Açık ürün kusuru YOK.
+**Ağaç TEMİZ, `origin/master` ile senkron, `v0.36` yayında.**
+Tam paket: **3689 passed, 17 skipped** (~68 sn). Açık ürün kusuru YOK.
+
+`v0.36` (17 Ağustos 2026) boyutlandırma donmasının YAZMA yarısını
+kapatır; ayrıntı aşağıdaki "ÇÖZÜLDÜ — boyutlandırmada donma" bölümünde.
+Release'e sekiz dosya yüklendi: iki kurulum + iki `.sig` + dört kaynak
+arşivi (GPLv3 karşılık gelen kaynak). Ürünün kendi güncelleyicisi canlı
+yayına karşı sınandı: `select_update_asset()` imzayı doğrulayıp
+`MLCPlayer_Setup_v0.36.exe`i seçti (fail-closed olduğu için doğrulama
+geçmeseydi `None` dönerdi).
+
+**Fiziksel kabul matrisi bu yayın için KOŞULMADI** ve setup dosyası
+kurulmadı; yalnız `dist` içindeki paketlenmiş binary açılış için
+sınandı (12 sn ayakta, çökme yok). Kullanıcı bunu bilerek onayladı.
 
 Bu oturumda yapılanlar tek cümleyle: i18n bitti (Türkçe + İngilizce),
 depo dosyaları İngilizceye çevrildi, lisans uyumu kapatıldı, iki sürüm
