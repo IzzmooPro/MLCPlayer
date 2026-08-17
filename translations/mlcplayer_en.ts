@@ -729,7 +729,7 @@ Sensitive information has been hidden automatically.</translation>
             <translation>File Not Found</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="548" />
+            <location filename="app/playlist_panel.py" line="615" />
             <source>Dosya Ekle</source>
             <translation>Add Files</translation>
         </message>
@@ -1103,7 +1103,7 @@ Solution: unlock the file or copy it to another folder.</translation>
         </message>
         <message>
             <location filename="app/media_controls.py" line="884" />
-            <location filename="app/playlist_panel.py" line="550" />
+            <location filename="app/playlist_panel.py" line="617" />
             <source>Kaldır</source>
             <translation>Remove</translation>
         </message>
@@ -1123,7 +1123,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Close</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="509" />
+            <location filename="app/playlist_panel.py" line="576" />
             <source>Kapat (Esc)</source>
             <translation>Close (Esc)</translation>
         </message>
@@ -1283,7 +1283,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Polish</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="527" />
+            <location filename="app/playlist_panel.py" line="594" />
             <source>Listede ara</source>
             <translation>Search the list</translation>
         </message>
@@ -1304,7 +1304,7 @@ Solution: unlock the file or copy it to another folder.</translation>
         </message>
         <message>
             <location filename="app/media_controls.py" line="891" />
-            <location filename="app/playlist_panel.py" line="552" />
+            <location filename="app/playlist_panel.py" line="619" />
             <source>Listeyi Temizle</source>
             <translation>Clear Playlist</translation>
         </message>
@@ -1483,8 +1483,8 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <location filename="app/media_controls.py" line="1095" />
             <location filename="app/media_controls.py" line="1098" />
             <location filename="app/media_controls.py" line="1116" />
-            <location filename="app/playlist_panel.py" line="422" />
-            <location filename="app/playlist_panel.py" line="490" />
+            <location filename="app/playlist_panel.py" line="489" />
+            <location filename="app/playlist_panel.py" line="557" />
             <location filename="app/video_frame.py" line="2106" />
             <source>Oynatma Listesi</source>
             <translation>Playlist</translation>
@@ -1512,7 +1512,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Show Playlist</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="508" />
+            <location filename="app/playlist_panel.py" line="575" />
             <source>Oynatma Listesini Kapat</source>
             <translation>Close the Playlist</translation>
         </message>
@@ -1543,7 +1543,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>The playlist could not be opened. The file may be corrupt or unreadable.</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="536" />
+            <location filename="app/playlist_panel.py" line="603" />
             <source>Oynatma listesi boş
 Dosyaları buraya sürükleyin</source>
             <translation>Playlist is empty
@@ -1932,7 +1932,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Drag to reorder</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="704" />
+            <location filename="app/playlist_panel.py" line="776" />
             <source>Sürükleyerek sırala • Oynatmak için çift tıkla</source>
             <translation>Drag to reorder — double-click to play</translation>
         </message>
@@ -2363,8 +2363,8 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Features:</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="495" />
-            <location filename="app/playlist_panel.py" line="723" />
+            <location filename="app/playlist_panel.py" line="562" />
+            <location filename="app/playlist_panel.py" line="795" />
             <source>öğe</source>
             <translation>items</translation>
         </message>

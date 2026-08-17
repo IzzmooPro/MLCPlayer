@@ -274,6 +274,9 @@ PANEL_WINDOW_GAP = 0
 #: mimaride "container - 200" ile ORTULU olarak vardi; bagimsiz pencerede
 #: o hesap ortadan kalkinca sinir da kalkmisti ve 10000 px'lik bir pencere
 #: uretilebiliyordu. Sinir artik acikca burada.
+#: Yapisma esigi (px). Panel birakildiginda sahibin SAG UST kosesine bu
+#: kadar yakinsa yapisir. Yatay ve dikey AYRI AYRI denetlenir.
+PANEL_SNAP_DISTANCE = 28
 PANEL_MIN_WIDTH = 320
 PANEL_MAX_WIDTH = 900
 
@@ -302,6 +305,8 @@ class WindowPlacement:
         self.owner = owner
         self.video_frame = video_frame
         self._width = PANEL_WINDOW_DEFAULT_WIDTH
+        # Panel YAPISIK acilir; kullanici surukleyip ayirabilir.
+        self.snapped = True
 
     @property
     def embedded(self):
@@ -347,6 +352,64 @@ class WindowPlacement:
                     min(right_x, screen_rect.right() - width + 1))
         return QRect(int(x), int(y), int(width), int(height))
 
+    def snap_candidate(self, owner_rect, screen_rect, width):
+        """YAPIŞMA HEDEFİ: yalnız sahibin SAĞ ÜST köşesi.
+
+        KULLANICI KARARI (17 Ağustos 2026): mıknatıs YALNIZ sağ tarafta
+        çalışır. Sol, üst, alt ve orta yapışma YOKTUR. Otomatik yerleşimin
+        (`place_for`) ekran dışına taşmamak için sola geçebilmesi AYRI bir
+        konudur; kullanıcının sürükleyip yapıştırması buradan geçer.
+        """
+        height = max(200, min(int(owner_rect.height()), screen_rect.height()))
+        y = max(screen_rect.top(),
+                min(int(owner_rect.top()), screen_rect.bottom() - height + 1))
+        return QRect(owner_rect.right() + 1 + PANEL_WINDOW_GAP, y,
+                     width, height)
+
+    def snap_for(self, owner_rect, screen_rect, width, dropped_rect):
+        """Bırakılan panel yapışmalı mı? Yapışacaksa HEDEF, yoksa `None`.
+
+        MIKNATIS SÜRÜKLEME SIRASINDA DEĞİL, BIRAKIŞTA çalışır. Sürüklerken
+        yapıştırmak pencereyi farenin altından çekip alır ve eşik civarında
+        yapış-kop-yapış titremesi üretir; bırakışta yapıştırmak hem
+        öngörülebilir hem titremesiz.
+
+        Yatay VE dikey yakınlık AYRI AYRI aranır. Tek bir toplam mesafe
+        kullanmak, paneli sağ kenara ama dikeyde ortaya getirmeyi de
+        "yakın" sayabilirdi; kullanıcı bunu açıkça istemedi: yapışma sağ
+        ÜST köşeye yaklaşınca olur.
+        """
+        candidate = self.snap_candidate(owner_rect, screen_rect, width)
+        if not screen_rect.contains(candidate):
+            return None
+        near_x = abs(candidate.left() - dropped_rect.left()) <= PANEL_SNAP_DISTANCE
+        near_y = abs(candidate.top() - dropped_rect.top()) <= PANEL_SNAP_DISTANCE
+        return candidate if (near_x and near_y) else None
+
+    def release_snap(self):
+        """Sürükleme başlarken mıknatısı bırakır.
+
+        Bırakılmasaydı panel sürüklenirken ana pencereyi izlemeye devam
+        eder ve kullanıcı onu koparamazdı.
+        """
+        self.snapped = False
+
+    def settle_after_drag(self):
+        """Bırakıştan sonra: yakınsa yapış, değilse AYRI kal."""
+        owner = self.owner
+        if owner is None or not owner.isVisible():
+            return
+        screen_rect = self._screen_rect()
+        if screen_rect is None:
+            return
+        target = self.snap_for(owner.frameGeometry(), screen_rect,
+                               self._width, self.panel.frameGeometry())
+        if target is None:
+            self.snapped = False
+            return
+        self.snapped = True
+        self.panel.setGeometry(target)
+
     def _screen_rect(self):
         """Sahibin BULUNDUĞU ekranın kullanılabilir alanı (çok ekran)."""
         owner = self.owner
@@ -361,9 +424,13 @@ class WindowPlacement:
         return screen.availableGeometry()
 
     def apply(self):
-        """Paneli hesaplanan yere koyar (ekran dışına taşmadan)."""
+        """Paneli hesaplanan yere koyar (ekran dışına taşmadan).
+
+        YALNIZ yapışıkken konumlandırır. Ayrı duran paneli ana pencerenin
+        hareketi SÜRÜKLEMEZ; kullanıcı onu bilerek oraya koymuştur.
+        """
         owner = self.owner
-        if owner is None or not owner.isVisible():
+        if owner is None or not owner.isVisible() or not self.snapped:
             return
         screen_rect = self._screen_rect()
         if screen_rect is None:
@@ -617,6 +684,9 @@ class PlaylistPanel(QWidget):
         """Taşımayı başlatır. Nokta GLOBAL'dir (gerçek fare olayı gibi)."""
         self._header_press_global = QPoint(global_point)
         self._header_press_origin = self.pos()
+        # Mıknatıs bırakılmazsa panel sürüklenirken ana pencereyi izlemeye
+        # devam eder ve kullanıcı onu koparamaz.
+        self._placement.release_snap()
 
     def continue_header_drag(self, global_point):
         if self._header_press_global is None:
@@ -626,6 +696,8 @@ class PlaylistPanel(QWidget):
 
     def end_header_drag(self):
         self._header_press_global = None
+        # Bırakış anı: sahibin sağ üst köşesine yakınsa yapış, değilse AYRI kal.
+        self._placement.settle_after_drag()
 
     def is_header_dragging(self):
         return self._header_press_global is not None

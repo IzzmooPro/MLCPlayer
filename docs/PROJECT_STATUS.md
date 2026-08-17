@@ -114,14 +114,36 @@ Son madde önemliydi: `Qt.Tool` bileşik bir bayraktır ve `flags & Tool`
 sıradan bir `Window` için de doğru çıkar; eski denetim yanlış pozitif
 veriyordu. Tür karşılaştırması `WindowType_Mask` ile yapılıyor.
 
+### AŞAMA 3 — MIKNATIS: BİTTİ (17 Ağustos 2026)
+
+Kullanıcı kararı: **mıknatıs YALNIZ sağ tarafta.** Sol, üst, alt ve orta
+yapışma YOKTUR; panel sahibin SAĞ ÜST köşesine yaklaşınca yapışır.
+
+- Yapışma SÜRÜKLEME SIRASINDA değil **BIRAKIŞTA** olur. Sürüklerken
+  yapıştırmak pencereyi farenin altından çeker ve eşik civarında
+  yapış-kop-yapış titremesi üretir; planda histerezis için iki ayrı eşik
+  öngörülmüştü, bırakışta yapıştırma o ihtiyacı tamamen ORTADAN
+  KALDIRDI. Tek eşik yeter: `PANEL_SNAP_DISTANCE = 28`.
+- Yatay ve dikey yakınlık **AYRI AYRI** aranır. Tek bir toplam mesafe
+  ölçüsü, paneli sağ kenara ama dikeyde ortaya getirmeyi de "yakın"
+  sayardı; kullanıcı bunu açıkça istemedi.
+- Sürüklemeye başlamak mıknatısı BIRAKIR; yoksa panel sürüklenirken ana
+  pencereyi izlemeye devam eder ve koparılamaz.
+- Ayrı duran paneli ana pencerenin hareketi SÜRÜKLEMEZ.
+
+**Gerçek pencere kabulü** (1000×640 pencere, 2560×1392 ekran):
+
+    acilista yapisik              True
+    uzaga birakildi -> yapisik    False   (konum 200,800 korundu)
+    serbestken pencereyi izledi   False
+    yakina birakildi -> yapisti   True    (1420,120 = TAM hizali)
+    sag kenar ama DIKEYDE ORTA    False   (yapismadi -- istenen buydu)
+
 ### KALAN AŞAMALAR
 
-3. **Mıknatıs.** Panel şu an HER ZAMAN yapışık. Sürükleyip ayırma,
-   yaklaşınca yapışma (20 px), uzaklaşınca kopma (30 px — histerezis
-   için eşikler bilerek farklı), çok ekran ve `availableGeometry` clamp.
 4. **Yaşam döngüsü.** Tam ekran, simge durumu, DPI değişimi, kapanışta
-   geometri saklama.
-5. **Gerçek pencere kabulü** (mıknatıs davranışı için).
+   geometri ve yapışma durumunun saklanması.
+5. **Gerçek pencere kabulü** (tam ekran ve çok ekran senaryoları).
 
 ## PLAN — playlist'i bağımsız pencereye taşımak (mıknatıslı)
 

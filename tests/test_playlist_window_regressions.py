@@ -371,6 +371,149 @@ def test_a_playlist_wider_than_the_screen_is_clamped_not_pushed_out(
     assert placed.right() <= screen.right()
 
 
+# --- 1d. MIKNATIS (asama 3) ------------------------------------------
+
+SCREEN = QRect(0, 0, 2560, 1392)
+OWNER = QRect(400, 100, 1000, 700)
+
+
+def drag_panel_to(panel, x, y):
+    """Paneli başlığından tutup (x, y)'ye bırakır — ürünün GERÇEK yolu.
+
+    Hedef, farenin GITTIGI noktadan turetilir. Once `panel.move()` deyip
+    sonra ayni basis noktasini gondermek delta'yi SIFIR yapar ve urun
+    paneli baslangic konumuna geri tasir; boyle bir yardimci suruklemeyi
+    hic test etmemis olur.
+    """
+    start = panel.mapToGlobal(QPoint(140, 18))
+    panel.begin_header_drag(start)
+    delta = QPoint(x - panel.x(), y - panel.y())
+    panel.continue_header_drag(start + delta)
+    panel.end_header_drag()
+
+
+def test_dropping_the_playlist_near_the_owner_snaps_it_flush(player_window):
+    """Kullanıcı isteği: yakına getirince MIKNATIS gibi yapışsın."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    placement = panel._placement
+    flush = placement.place_for(OWNER, SCREEN, panel.width())
+
+    # Yapışma mesafesi İÇİNDE bırak (tam üstüne değil).
+    dropped = QRect(flush.left() + 12, flush.top() + 8,
+                    flush.width(), flush.height())
+    target = placement.snap_for(OWNER, SCREEN, panel.width(), dropped)
+
+    assert target == flush, f"yapismadi: {target} != {flush}"
+
+
+def test_dropping_the_playlist_far_away_leaves_it_free(player_window):
+    """Uzakta bırakılırsa AYRI durur; geri çekilmez."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    placement = panel._placement
+
+    dropped = QRect(200, 900, panel.width(), 600)
+    target = placement.snap_for(OWNER, SCREEN, panel.width(), dropped)
+
+    assert target is None, f"uzaktaki panel zorla yapistirildi: {target}"
+
+
+def test_the_playlist_never_snaps_to_the_left_side(player_window):
+    """KULLANICI KARARI: mıknatıs YALNIZ sağ tarafta çalışır.
+
+    Sol tarafa bırakılan panel AYRI kalır; zorla yapıştırılmaz.
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    placement = panel._placement
+    left_flush = QRect(OWNER.left() - panel.width(), OWNER.top(),
+                       panel.width(), OWNER.height())
+
+    target = placement.snap_for(OWNER, SCREEN, panel.width(), left_flush)
+
+    assert target is None, f"sola yapisti: {target}"
+
+
+def test_the_playlist_does_not_snap_to_the_middle_of_the_right_edge(
+        player_window):
+    """KULLANICI KARARI: sağ ÜST köşeye yakınlık aranır.
+
+    Panel sağ kenara getirilse bile dikeyde ortada/aşağıdaysa YAPIŞMAZ.
+    Tek bir toplam mesafe olcusu bunu "yakin" sayabilirdi; yatay ve dikey
+    ayri ayri denetlenir.
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    placement = panel._placement
+    flush = placement.snap_candidate(OWNER, SCREEN, panel.width())
+
+    middle = QRect(flush.left(), flush.top() + 300,
+                   flush.width(), flush.height())
+    bottom = QRect(flush.left(), flush.top() + 600,
+                   flush.width(), flush.height())
+
+    assert placement.snap_for(OWNER, SCREEN, panel.width(), middle) is None
+    assert placement.snap_for(OWNER, SCREEN, panel.width(), bottom) is None
+
+
+def test_a_free_playlist_does_not_follow_the_owner(player_window):
+    """AYRI duran panel ana pencereyle sürüklenmez."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    panel._placement.snapped = False
+    panel.move(120, 900)
+    app.processEvents()
+    before = panel.pos()
+
+    window.move(window.x() + 150, window.y() + 40)
+    app.processEvents()
+
+    assert panel.pos() == before, "ayri duran panel pencereyi izledi"
+
+
+def test_a_snapped_playlist_follows_the_owner(player_window):
+    """YAPIŞIK panel ana pencereyi izlemeye devam eder."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    assert panel._placement.snapped, "panel yapisik acilmali"
+    before = panel.x()
+
+    window.move(window.x() + 150, window.y())
+    app.processEvents()
+
+    assert panel.x() - before == 150
+
+
+def test_starting_a_drag_releases_the_snap(player_window):
+    """Yapışıkken sürüklemeye başlamak MIKNATISI bırakır.
+
+    Bırakmasaydı panel sürüklenirken ana pencereyi izlemeye devam eder ve
+    kullanıcı onu koparamazdı.
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    assert panel._placement.snapped
+
+    panel.begin_header_drag(panel.mapToGlobal(QPoint(140, 18)))
+
+    assert not panel._placement.snapped
+
+
+def test_dropping_it_back_near_the_owner_snaps_again(player_window):
+    """Serbest bırakılan panel geri getirilince yeniden yapışır."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    owner = window.frameGeometry()
+    flush = panel._placement.place_for(owner, SCREEN, panel.width())
+
+    drag_panel_to(panel, 200, 900)          # uzaga birak
+    assert not panel._placement.snapped
+    drag_panel_to(panel, flush.left() + 10, flush.top() + 6)
+
+    assert panel._placement.snapped, "geri getirilen panel yapismadi"
+
+
 # --- 2. Videoyla kesismeme (ESKI DOSYANIN MERKEZI SOZLESMESI) --------
 
 @pytest.mark.parametrize("size", [(1280, 720), (1024, 640), (860, 560),
