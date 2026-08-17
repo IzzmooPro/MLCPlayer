@@ -1533,12 +1533,51 @@ hafızada değil BURADA durur; sıradaki tur bunlarla AÇILMAZ ama silinmez.
 
    Sözleşme: `tests/test_source_mirror_regressions.py` (12 test, ağa çıkmaz).
 
-1. **FFmpeg patent tarafı (H.264/H.265).** Lisans değil PATENT konusu:
-   GPL kodu dağıtma iznidir, patent havuzu (AVC → Via LA, HEVC → Access
-   Advance) standardın UYGULANMASINI ayrı bir izin sayar. VLC de bunu
-   depoda çözmüyor, kurumsal hukuk sayfasına bırakıyor. Bizim konumumuz
-   en düşük maruziyet: yalnız ÇÖZÜYORUZ (kodlama yok), ücretsiz ve küçük
-   ölçek. Kesinlik isteniyorsa avukat gerekir — ajan kapatamaz.
+1. **FFmpeg patent tarafı (H.264/H.265) — AÇIK, ama TANIMLI EŞİĞE
+   bağlandı (17 Ağustos 2026).**
+
+   Lisans değil PATENT konusu: GPL kodu dağıtma iznidir; patent havuzu
+   standardın UYGULANMASINI ayrı bir izin sayar.
+
+   **YANLIŞ GEREKÇEYE DİKKAT.** "Açık kaynağız ve para almıyoruz" patent
+   MUAFİYETİ DEĞİLDİR — patent telif hakkından bağımsız işler ve ücretsiz
+   dağıtım tek başına bağışıklık vermez. Bizi rahat bırakan şey ÖLÇEK
+   eşiği ve havuzların pratikte kimi hedeflediğidir. Gerekçeyi doğru
+   tutmak önemli; yanlış gerekçe bir gün yanlış karar verdirir.
+
+   **ÖLÇÜLEN TARİFE (Via LA, AVC/H.264 lisans sayfası, 17 Ağustos 2026):**
+
+   | Yıllık birim | Telif |
+   |---|---|
+   | ilk **100.000** | **$0,00** |
+   | 100.001 – 5.000.000 | $0,20 |
+   | 5.000.001+ | $0,10 |
+
+   Yani bizim ölçeğimizde ÜCRET sorunu yoktur. NOT: `royalty-free` ≠
+   `licence-free`; sıfır tarifeden yararlanan taraf yine lisanslı taraftır.
+   Streaming tarifeleri (100 bin – 4,5 milyon USD) bizi KAPSAMAZ; onlar
+   içerik yayınlayan servisler içindir.
+
+   **H.265 (HEVC) DAHA KARIŞIK ve DOĞRULANMADI.** AVC'nin tek havuzu var,
+   HEVC'nin birden fazla (Access Advance, Via LA'nın ayrı HEVC programı,
+   artı havuza girmemiş sahipler). AVC'deki gibi bir ücretsiz katman
+   OLDUĞU DOĞRULANMADI — gerekirse ayrıca bakılmalı, ezberden karar
+   VERİLMEMELİ.
+
+   **ELENEN SEÇENEK:** decoder'ı hiç dağıtmamak (yalnız Windows'un kendi
+   çözücüleri). `mpv-2.dll` FFmpeg'in yazılımsal çözücülerini zaten
+   içeriyor ve patent açısından önemli olan hangi yolun ÇALIŞTIĞI değil
+   ikilinin DAĞITILMASIDIR. Çıkarmak özel derleme ister ve yazılımsal
+   yedek kaybolur → "falanca video açılmıyor". ALINMAZ.
+
+   **MEVCUT KONUM (değiştirilmiyor):** yalnız çözüm (kodlama YOK),
+   ücretsiz, ölçek 100 binin çok altında, sağlayıcı zinciri belgeli.
+
+   **HAREKETE GEÇME EŞİĞİ:** yıllık dağıtım 100.000'e YAKLAŞIRSA ya da
+   ürün ÜCRETLİ hâle gelirse, AVC lisansı ve HEVC havuzları yeniden
+   değerlendirilir. O güne kadar teknik değişiklik YAPILMAZ.
+
+   Kesinlik isteniyorsa avukat gerekir; ajan kapatamaz.
 2. **OpenSubtitles API kullanım şartları.** Açık soru: tek bir uygulama
    anahtarı gömüp herkesin kullanması mümkün mü? Yeni REST API'de anahtar
    UYGULAMAYI tanımlar, yani gömmek aykırı değil. ÜÇ sonuç ölçülmeli:

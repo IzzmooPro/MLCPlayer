@@ -121,6 +121,14 @@ kullanıcıya, gerekirse hukukçuya aittir:
   havuzu yükümlülüğü lisanstan ayrı bir konudur ve VLC de bunu deposunda
   çözmez. MLC Player yalnız ÇÖZER (kodlama yapmaz), ücretsizdir ve küçük
   ölçeklidir; bu en düşük maruziyet konumudur.
+
+  Açık kaynak olmak ve ücret almamak tek başına patent muafiyeti
+  DEĞİLDİR; patent telif hakkından bağımsız işler. Konumu rahat kılan
+  ölçektir: AVC/H.264 tarifesinde yılda ilk 100.000 birim telifsizdir.
+  Yeniden değerlendirme eşiği bu yüzden tanımlıdır — yıllık dağıtım
+  100.000'e yaklaşırsa ya da ürün ücretli hâle gelirse AVC lisansı ve
+  HEVC havuzları gözden geçirilir. HEVC tarafında AVC'ye denk bir
+  ücretsiz katman DOĞRULANMAMIŞTIR.
 - **OpenSubtitles API kullanım şartlarının gözden geçirilmesi.** Mevcut
   tasarımda her kullanıcı KENDİ API anahtarını girer, yani şartları kendi
   adına kabul eder. Tek bir anahtarın programa gömülmesi bu sorumluluğu
