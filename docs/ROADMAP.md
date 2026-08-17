@@ -123,17 +123,41 @@ yeniden koşturmak ölçüm değil, tekrardır. Bir sonraki tam koşum commit
 - **Olcut:** tam paket süresi ve kararlılığı kayıtlı; bağımlılık sürümleri sabitlenmiş
 - **Kullanici onayi:** gerekmez
 
-## SIRADAKI TEKNIK RISK: `0xe24c4a02`
+## SIRADAKI TEKNIK RISK: `0xe24c4a02` (NATIVE-001)
 
-- **Durum:** KANITLANDI, araştırma ERTELENDI
+- **Durum:** GORUNURLUK KUSURU KAPATILDI (HEDEF TESTLERLE DOGRULANDI, COMMIT EDILDI); **kök neden ERTELENDI**
 - **Bagimlilik:** yok — commit'i beklemez
-- **Olcut:** ölümcül istisnanın kök nedeni bulunmuş ya da bilinçli olarak kabul edilmiş; hangi mpv/Qt yolunun tetiklediği ölçülmüş
+- **Olcut:** (a) native istisna artık sessizce geçemez → **sağlandı**; (b) kök neden bulunmuş ya da bilinçli kabul edilmiş → **sağlanmadı**
 - **Kullanici onayi:** gerçek-mpv/native koşum için **gerekir**
 
-Cover-art gerçek-mpv testinde milestone koşumunda **yeniden görüldü**.
-Windows ölümcül istisnası, pytest `exit 0` verdiği hâlde ortaya çıkıyor;
-bu yüzden **pytest çıkış kodundan bağımsız** izlenmelidir — yeşil sonuç
-onu gizliyor. Yayına hazırlık ölçütlerinden biri (bkz. madde 8).
+Ayrıntılı kayıt: `docs/ENGINEERING_AUDIT.md` → **NATIVE-001**.
+
+Kapatılan: native senaryolar ayrı sürece taşındı ve üst test `exit 0` olsa
+bile stderr'deki native istisnayı **FAIL** sayıyor.
+
+**İlk düzeltme bağımsız denetimde REDDEDİLDİ**; o turdaki *23 passed*
+sonucu nihai kabul DEĞİLDİR. Üç kusur giderildi: (1) sıraya bağımlı
+`assert "mpv" not in sys.modules` iddiası — `app.player` zaten `mpv`
+import ettiği için başka bir test önce koşunca düşüyordu; yerine bu
+modülün import ETKİSİ ölçülüyor, (2) iki MPV instance'ına karşılık tek
+kapanış marker çifti — artık senaryo başına ayrı marker ve ayrı
+`stop < terminate` denetimi var, (3) aklanan `MARK_*_ERROR` — artık kesin
+FAIL.
+
+Dördüncü kusur (18 Ağustos 2026): `evaluate_child` marker BİÇİMİNİ
+denetlemiyordu; `MARK_COVER_TRACKS abc`, değersiz `MARK_THREADS_AFTER` ve
+`MARK_DONE junk` içeren çıktı TAMAM sayılıyordu. Artık `MARKER_GRAMMAR`
+her zorunlu marker'ın token sayısını ve değerini zorluyor.
+
+Güncel gerçek sonuç: **deterministik 61 passed**. Native kabul, child
+üretim kodu değişmediği için tekrarlanmadı; geçerli canlı sonuç önceki
+turun **39 passed / exit 0 / stderr BOŞ** koşumudur. Raporlanan iki-test
+sıra regresyonu **iki yönde de yeşil**.
+
+**Kapatılmayan:** istisnayı doğuran native modül belirlenmedi ve ürün
+üzerindeki etki ölçülmedi. **Tek yeşil native koşum, aralıklı olgunun
+bittiğini ispatlamaz.** Yayına hazırlık ölçütlerinden biri olmaya devam
+ediyor (bkz. madde 8).
 
 ---
 

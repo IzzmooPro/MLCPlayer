@@ -190,6 +190,60 @@ değişiklik henüz kalıcı değildir.
 
 ---
 
+## NATIVE-001
+
+- **Kimlik:** NATIVE-001
+- **Baslik:** Native `0xe24c4a02` istisnası yeşil pytest sonucunun arkasında gizleniyordu
+- **Onem:** Yüksek — ölümcül görünümlü bir native olay, `exit 0` nedeniyle hiçbir kapıya takılmıyordu
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI
+- **Kanit (olculen):**
+  - `tests/test_cover_art_regressions.py` ANA pytest sürecinde doğrudan `mpv.MPV` kuruyordu; fixture yalnız `terminate()` çağırıyordu (ürün kapanışı `stop() -> terminate()` kullanır).
+  - Bağımsız dosya koşumu: **3 passed / exit 0**, buna rağmen stderr'de
+    `Windows fatal exception: code 0xe24c4a02`,
+    `MPVEventHandlerThread -> mpv.py:689 _event_generator`.
+  - Olay **hem** fixture geçişinde **hem de AKTİF testin** `wait_until_playing()` satırında görüldü.
+  - Ortam: Python 3.14.3, python-mpv 1.0.8, libmpv API (2,5), mpv v0.41.0-923, FFmpeg N-126125.
+- **Olculmeyen:** İstisnayı doğuran **native modül** belirlenemedi (sembol/debugger yok). **Ürün üzerindeki etki ölçülmedi**; ürün yolunun etkilenmediği İSPATLANMADI. Ürün `faulthandler` açmadığı için olay orada görünmez olurdu — bu görünmezlik, yokluk anlamına gelmez.
+- **Kok neden:** Kesin kök neden **bulunamadı**. Kanıtlanan şey görünürlük kusurudur: `exit 0` native stderr'i akladığı için olay hiçbir kapıya takılmıyordu.
+- **Degisen dosyalar:** `tests/cover_art_native_child.py` (yeni), `tests/test_cover_art_regressions.py`. **Ürün kodu, bağımlılık sürümleri ve `MPV_CONFIG` DEĞİŞMEDİ.**
+- **Test kaniti:** Native senaryolar ayrı sürece taşındı; saf `evaluate_child()` deterministik olarak sınandı. **Deterministik: 61 passed** (18 Ağustos 2026 dilbilgisi turundan sonra). Native kabul, child üretim kodu değişmediği için TEKRARLANMADI; geçerli canlı sonuç bir önceki turun **39 passed / exit 0 / stderr BOŞ** koşumudur.
+
+  **İLK DÜZELTME BAĞIMSIZ DENETİMDE REDDEDİLDİ.** O turdaki *23 passed* sonucu **nihai kabul DEĞİLDİR**; üç gerçek kusur taşıyordu:
+
+  1. **Sıraya bağımlı test.** `assert "mpv" not in sys.modules` süreç genelini ölçüyordu; `app.player` zaten `mpv` import ettiği için başka bir test önce koşunca düşüyordu — kanıt:
+     `pytest test_app_icon_regressions.py::test_the_real_main_window_uses_the_shared_icon test_cover_art_regressions.py::test_the_parent_process_never_imports_mpv` → **1 passed, 1 failed**.
+     Yerine **bu modülün import ETKİSİ** ölçülüyor: taze kopya yüklenip `mpv` durumu ve MPV thread kümesi önce/sonra karşılaştırılıyor, ayrıca modül düzeyinde `import mpv` olmadığı statik olarak doğrulanıyor. Sıra regresyonu **iki yönde de yeşil**.
+  2. **Eksik kapanış kapsaması.** Child iki instance kuruyordu ama tek `MARK_STOP`/`MARK_TERMINATE` çifti vardı; ikinci kapanış tamamen kaldırılsa bile değerlendirici yeşil kalabiliyordu. Artık senaryo başına ayrı marker (`MARK_COVER_*`, `MARK_NOCOVER_*`) ve **her senaryo için ayrı** `stop < terminate` denetimi var.
+  3. **Aklanan hata.** `MARK_STOP_ERROR` yazılmasına rağmen kabul ediliyordu. Artık `MARK_*_ERROR` **kesin FAIL**; başarılı marker onu aklamıyor ve child exit 1 veriyor.
+
+  **DORDUNCU KUSUR (18 Ağustos 2026, bağımsız denetim): marker biçimi fail-open'dı.**
+  Değerler yalnız "beklenenden farklı mı" diye bakılıyor, BİÇİM hiç
+  denetlenmiyordu. Kanıt: `MARK_COVER_TRACKS abc`, değersiz
+  `MARK_THREADS_AFTER` ve `MARK_DONE junk` içeren çıktı `evaluate_child`
+  tarafından `[]` — yani TAMAM — sayılıyordu. Artık `MARKER_GRAMMAR` her
+  zorunlu marker için token sayısını ve değer dilbilgisini tanımlıyor:
+  değersiz marker'lar TAM 1 token, sayısal marker'lar TAM 2 token
+  (`MARK_COVER_TRACKS >= 1`; `MARK_COVER_SELECTED`,
+  `MARK_NOCOVER_AUDIO_SELECTED` yalnız `1`; `MARK_NOCOVER_ALBUMART`,
+  `MARK_THREADS_AFTER` yalnız `0`). Fazla/eksik token, metin, negatif ve
+  boş değer FAIL. Eski gevşek semantik denetimler KALDIRILDI; zorunlu
+  marker listesi de dilbilgisinden türüyor, ikinci bir liste yok.
+  Boş olmadığı mutasyonla kanıtlandı: dilbilgisi çağrısı nötrleştirilince
+  **13 failed**.
+
+  Ek sertleştirmeler: marker ayrıştırması `startswith()` yerine **tam ilk-token** eşliği (`MARK_DONE_FAKE` artık `MARK_DONE` yerine geçmiyor), tekil marker tekrarı reddediliyor, `subprocess` çıktısı **bayt** yakalanıp açıkça çözülüyor (`text=True` yok; bozuk kodlamada ASCII desenin aranabilirliği testle ölçülü), geçici dosyalar `TemporaryDirectory` ile temizleniyor.
+- **Canli kabul:** Yeni native child ile **TEK** gerçek kabul koşumu yapıldı: **39 passed, exit 0, stderr BOŞ**.
+
+  **Bu sonuç NE ZAMAN alındı:** ilk ÜÇ düzeltmeden (sıra bağımlılığı, senaryo başına kapanış marker'ları, `MARK_*_ERROR` reddi) **SONRA**, dördüncü düzeltmeden (marker dilbilgisi sertleştirmesi) **ÖNCE**. Yani 39 passed rakamı dördüncü düzeltmenin *sonrasına* ait DEĞİLDİR.
+
+  **Neden tekrarlanmadı:** dördüncü düzeltme yalnız **saf `evaluate_child` dilbilgisini** değiştirdi; child'in üretim/native senaryo kodu (MPV kurulumu, oynatma, kapanış, `mark()` çağrıları) **değişmedi**. Aynı native senaryoyu yeniden koşturmak yeni bilgi üretmeyeceği için koşum **bilinçli olarak tekrarlanmadı**.
+
+  **Dilbilgisi sonrası bağımsız ölçüm:** deterministik **61 passed** (native koşum içermez).
+- **Kalan risk:** **Tek native koşum, aralıklı kusurun tamamen bittiğini İSPATLAMAZ.** Ayrıca bu kaydın ilk hâli bağımsız denetimde REDDEDİLDİ; "hedef testler yeşil" tek başına yeterli kanıt olmadı — sıraya bağımlı bir iddia, eksik kapsama ve aklanan bir hata ancak dış denetimle görüldü. Olgu ölçümlerde ~%20-40 sıklıkla görülmüştü; bir yeşil koşum bunu dışlamaz. İstisna artık child'da oluşursa üst test FAIL verir — yani gizlenmez, ama **önlenmiş de değildir**. `module`-scoped fixture'a bilerek geçilmedi: instance sayısını azaltmak olguyu gizler, çözmez.
+- **Commit durumu:** COMMIT EDILDI
+
+---
+
 ## DOC-001
 
 - **Kimlik:** DOC-001
