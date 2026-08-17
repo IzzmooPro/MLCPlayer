@@ -17,11 +17,21 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST = os.path.join(ROOT, "dist", "MLC Player")
 MANIFEST = os.path.join(ROOT, "bin", "RUNTIME_MANIFEST.txt")
 
+# Paketlenen runtime ikilileri -- TEK kaynak.
+#
+# OLCULEN KUSUR (17 Agustos 2026): burada IKI ayri liste vardi. `mpv-2.dll`
+# yalnizca VARLIK denetimine giriyor, SHA-256 dogrulamasi ise ayri bir
+# demette (`yt-dlp.exe`, `deno.exe`) yapiliyordu ve mpv orada YOKTU. Bozuk
+# ya da yanlis surum bir DLL on-kontrolden gecip release zincirine
+# girebiliyordu; paketin %59'u o dosyadir.
+#
+# Hem `SOURCE_FILES` hem hash dogrulamasi ARTIK buradan turer; ikinci bir
+# liste tutulmadigi icin bir runtime yeniden unutulamaz.
+RUNTIME_FILES = ("mpv-2.dll", "yt-dlp.exe", "deno.exe")
+
 # Sources that must reach PyInstaller.
-SOURCE_FILES = (
-    os.path.join("bin", "mpv-2.dll"),
-    os.path.join("bin", "yt-dlp.exe"),
-    os.path.join("bin", "deno.exe"),
+SOURCE_FILES = tuple(
+    os.path.join("bin", name) for name in RUNTIME_FILES) + (
     os.path.join("licenses", "yt-dlp-LICENSE.txt"),
     os.path.join("licenses", "yt-dlp-THIRD_PARTY_LICENSES.txt"),
     os.path.join("licenses", "deno-LICENSE.txt"),
@@ -53,8 +63,14 @@ REQUIRED_IN_DIST = (
 )
 
 
-def fail(message):
-    print(f"  ERROR: {message}")
+def fail(message, log=print):
+    """Hata YAZAR ve `False` doner.
+
+    OLCULEN KUSUR (17 Agustos 2026): `log=` verilse bile hatalar kosulsuz
+    `print` ile stdout'a gidiyordu; cagiran mesajlari TOPLAYAMIYORDU.
+    Varsayilan `print` oldugu icin mevcut cagirilar degismeden calisir.
+    """
+    log(f"  ERROR: {message}")
     return False
 
 
@@ -66,17 +82,72 @@ def digest(path):
     return sha.hexdigest().lower()
 
 
-def manifest_hashes():
-    """`bin/RUNTIME_MANIFEST.txt` icindeki dosya -> SHA-256 eslemesi."""
+def manifest_entries(manifest=None):
+    """`RUNTIME_MANIFEST.txt` icindeki dosya -> (boyut, SHA-256) eslemesi.
+
+    Bicim: `ad | surum | url | boyut | sha256`. Boyut okunamazsa `None`
+    donulur; cagiran bunu "kayit eksik" sayar ve SESSIZCE gecmez.
+    """
     entries = {}
-    with open(MANIFEST, encoding="utf-8") as handle:
+    with open(manifest or MANIFEST, encoding="utf-8") as handle:
         for line in handle:
             if line.lstrip().startswith("#"):
                 continue
             parts = [part.strip() for part in line.split("|")]
-            if len(parts) >= 4 and parts[0].endswith((".exe", ".dll", ".txt")):
-                entries[parts[0]] = parts[-1].lower()
+            if len(parts) >= 5 and parts[0].endswith((".exe", ".dll", ".txt")):
+                try:
+                    size = int(parts[3])
+                except ValueError:
+                    size = None
+                entries[parts[0]] = (size, parts[4].lower())
     return entries
+
+
+def verify_runtime_binaries(root=None, manifest=None, log=print):
+    """Paketlenen UC runtime'i manifest'e karsi dogrular.
+
+    Boyut ONCE denetlenir: yanlis boyut zaten yanlis dosyadir ve 119 MB'lik
+    bir DLL'in ozetini bosuna hesaplamaya gerek yoktur.
+
+    `root`/`manifest` disaridan verilebilir; testler gercek 119 MB'lik
+    DLL'i kopyalamadan kucuk fixture dosyalariyla ayni yolu kullanir.
+    """
+    root = root or ROOT
+    try:
+        expected = manifest_entries(manifest)
+    except OSError as exc:
+        return fail(f"manifest okunamadi: {exc}", log)
+    except UnicodeError as exc:
+        # Manifest UTF-8 okunur; gecersiz bayt `UnicodeDecodeError`
+        # firlatir ve bu bir `OSError` DEGILDIR. Yalniz `OSError`
+        # yakalamak araci traceback ile dusururdu (olculdu).
+        return fail(f"manifest UTF-8 olarak cozulemedi: {exc}", log)
+    except (ValueError, TypeError) as exc:
+        return fail(f"manifest bozuk: {exc}", log)
+    ok = True
+    for name in RUNTIME_FILES:
+        path = os.path.join(root, "bin", name)
+        want_size, want_hash = expected.get(name, (None, ""))
+        if not want_hash or want_size is None:
+            ok = fail(f"no manifest entry: {name}", log) and ok
+            continue
+        if not os.path.isfile(path):
+            ok = fail(f"missing runtime: bin/{name}", log) and ok
+            continue
+        got_size = os.path.getsize(path)
+        if got_size != want_size:
+            ok = fail(f"{name} SIZE DOES NOT MATCH "
+                      f"(beklenen {want_size:,}, gercek {got_size:,})",
+                      log) and ok
+            continue
+        got_hash = digest(path)
+        if got_hash != want_hash:
+            ok = fail(f"{name} SHA-256 DOES NOT MATCH "
+                      f"(beklenen {want_hash[:16]}..., "
+                      f"gercek {got_hash[:16]}...)", log) and ok
+        else:
+            log(f"  OK  {name}  ({got_size:,} bytes)")
+    return ok
 
 
 def check_pre():
@@ -89,20 +160,9 @@ def check_pre():
     if not ok:
         return False
 
-    expected = manifest_hashes()
-    for name in ("yt-dlp.exe", "deno.exe"):
-        path = os.path.join(ROOT, "bin", name)
-        want = expected.get(name, "")
-        if not want:
-            ok = fail(f"no manifest entry: {name}") and ok
-            continue
-        got = digest(path)
-        if got != want:
-            ok = fail(f"{name} SHA-256 DOES NOT MATCH "
-                      f"(beklenen {want[:16]}..., gercek {got[:16]}...)") and ok
-        else:
-            print(f"  OK  {name}  ({os.path.getsize(path):,} bytes)")
-    return ok
+    # UC runtime'in TAMAMI boyut + SHA-256 ile dogrulanir (bkz.
+    # `RUNTIME_FILES`); ikinci bir liste yoktur.
+    return verify_runtime_binaries(ROOT, MANIFEST) and ok
 
 
 def check_post():
