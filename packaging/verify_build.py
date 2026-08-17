@@ -134,7 +134,7 @@ def check_final(installer):
     print(f"  OK  {os.path.basename(installer)}  {size / 1048576:.1f} MB")
     if folder:
         print(f"      installed size {folder / 1048576:.1f} MB  "
-              f"(sikistirma %{100 - size * 100 / folder:.0f})")
+              f"(compressed by {100 - size * 100 / folder:.0f}%)")
     return True
 
 
