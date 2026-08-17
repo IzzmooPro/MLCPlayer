@@ -254,7 +254,7 @@ class SubtitleTrackWatcher(QObject):
                 mpv_player.observe_property(name, self._mpv_callback)
                 observed.append(name)
             except Exception as exc:
-                safe_console("Altyazı parçası gözlenemedi "
+                safe_console("Could not observe the subtitle track "
                              f"({name}): {type(exc).__name__}")
         with self._state_lock:
             self._mpv_player = mpv_player
@@ -281,7 +281,7 @@ class SubtitleTrackWatcher(QObject):
                 player.unobserve_property(name, self._mpv_callback)
             except Exception as exc:
                 # Kapanış ENGELLENMEZ; ham libmpv metni/yolu yazdırılmaz.
-                safe_console("Altyazı gözlemcisi ayrılamadı "
+                safe_console("Could not detach the subtitle watcher "
                              f"({name}): {type(exc).__name__}")
 
     def latest(self, name, default=None):
@@ -319,7 +319,8 @@ class SubtitleTrackWatcher(QObject):
         try:
             self._on_changed()
         except Exception as exc:
-            safe_console("Altyazı bandı parça değişiminde yenilenemedi: "
+            safe_console("Could not refresh the subtitle band on a track "
+                         "change: "
                          f"{type(exc).__name__}")
 
 
@@ -847,7 +848,7 @@ class VideoFrame(QWidget):
                 self.main_window.change_volume(steps * WHEEL_VOLUME_STEP)
             except Exception as e:
                 # Kullanıcıya ham teknik metin çıkmaz.
-                safe_console(f"Ses tekerleği hatası: {type(e).__name__}")
+                safe_console(f"Volume wheel error: {type(e).__name__}")
         event.accept()
 
     def _overlay_volume_changed(self, value):
@@ -1650,7 +1651,7 @@ class VideoFrame(QWidget):
         except Exception as exc:
             # Başarısızlık ÖNBELLEKLENMEZ; durum bilinmiyor sayılır.
             self._subtitle_band_state = None
-            safe_console(f"Altyazı güvenli bandı uygulanamadı: {exc}")
+            safe_console(f"Could not apply the subtitle safe band: {exc}")
             return None
         self._subtitle_band_state = (player, state)
         return margin
@@ -1921,7 +1922,7 @@ class VideoFrame(QWidget):
             applied = self.sync_subtitle_safe_band()
         except Exception as e:
             # Geç gelen kapanış olayları videoyu/kapanışı KESMEZ.
-            safe_console(f"Altyazı bandı güncellenemedi: {type(e).__name__}")
+            safe_console(f"Could not update the subtitle band: {type(e).__name__}")
             applied = None
         # Başarısız yazım UYGULANMIŞ sayılmaz; sonraki gerçek olayda aynı
         # hedef durum yeniden denenir.
@@ -2318,7 +2319,7 @@ class VideoFrame(QWidget):
                       if isinstance(track, dict) and track.get('type') == kind]
             current = current_getter()
         except Exception as e:
-            safe_console(f"Parça listeleme hatası: {e}")
+            safe_console(f"Track listing error: {e}")
             error_action = QAction(error_text, self)
             error_action.setEnabled(False)
             menu.addAction(error_action)

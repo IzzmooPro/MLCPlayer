@@ -776,7 +776,7 @@ def _open_error_details(parent, event):
         dialog = ErrorDetailsDialog(event, parent)
         dialog.exec()
     except Exception as exc:
-        safe_console("Hata ayrıntıları penceresi açılamadı: "
+        safe_console("Could not open the error details window: "
                      f"{type(exc).__name__}")
 
 

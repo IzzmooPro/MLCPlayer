@@ -329,7 +329,7 @@ def _apply_subtitle_style(player, chosen):
             player.video_frame.invalidate_subtitle_band()
             player.video_frame.sync_subtitle_safe_band()
         except Exception as exc:
-            safe_console(f"Altyazı güvenli bandı yenilenemedi: {exc}")
+            safe_console(f"Could not refresh the subtitle safe band: {exc}")
     return ok, error
 
 
@@ -443,7 +443,7 @@ def setup_video_adjustments(player):
         try:
             setattr(player.mpv_player, name, value)
         except Exception as e:
-            safe_console(f"{name} ayarı uygulanamadı: {e}")
+            safe_console(f"{name} setting could not be applied: {e}")
 
     def reset_settings():
         # valueChanged sinyaline güvenme: slayt zaten 0 ise sinyal tetiklenmez,
@@ -557,7 +557,7 @@ def refresh_audio_tracks(player):
                         and track.get('type') == 'audio']
         current_aid = player.mpv_player.aid
     except Exception as e:
-        safe_console(f"Ses parçalarını listeleme hatası: {e}")
+        safe_console(f"Audio track listing error: {e}")
         error_action = QAction(tr("Ses parçaları yüklenemedi"), player)
         error_action.setEnabled(False)
         menu.addAction(error_action)
@@ -594,9 +594,9 @@ def _text_or_empty(value):
 def select_audio_track(player, aid):
     try:
         player.mpv_player.aid = aid
-        safe_console(f"Seçilen ses kanalı ID: {aid}")
+        safe_console(f"Selected audio track ID: {aid}")
     except Exception as e:
-        safe_console(f"Ses kanalı seçimi hatası: {e}")
+        safe_console(f"Audio track selection error: {e}")
         show_user_error(player, tr("Ses Kanalı Seçilemedi"),
                         tr("Ses kanalı değiştirilemedi. Lütfen başka bir "
                            "kanal deneyin."),
@@ -616,7 +616,7 @@ def detect_audio_devices(player):
     except Exception as e:
         # MPV henüz hazır olmayabilir (menü kurulumu init'ten ÖNCE çalışır).
         # Başarısızlık ÖNBELLEĞE ALINMAZ ki sonraki erişim yeniden denesin.
-        safe_console(f"Ses çıkışları listeleme hatası: {e}")
+        safe_console(f"Audio device listing error: {e}")
         return None
     for device in raw:
         if not isinstance(device, dict):
@@ -708,7 +708,7 @@ def refresh_subtitle_tracks(player):
                   if isinstance(track, dict) and track.get("type") == "sub"]
         current_sid = player.mpv_player.sid
     except Exception as e:
-        safe_console(f"Altyazı parçaları listeleme hatası: {e}")
+        safe_console(f"Subtitle track listing error: {e}")
         error_action = QAction(tr("Altyazı parçaları yüklenemedi"), player)
         error_action.setEnabled(False)
         menu.addAction(error_action)
@@ -762,7 +762,7 @@ def refresh_chapters(player):
         refresh_action.triggered.connect(player.refresh_chapters)
         player.chapter_menu.addAction(refresh_action)
     except Exception as e:
-        safe_console(f"Bölümler listelenemedi: {e}")
+        safe_console(f"Could not list the chapters: {e}")
 
 
 def select_chapter(player, index):
@@ -773,7 +773,7 @@ def select_chapter(player, index):
         player.video_frame.show_osd(
             title or f"{tr('Bölüm')} {index + 1:02d}")
     except Exception as e:
-        safe_console(f"Bölüm seçilemedi: {e}")
+        safe_console(f"Could not select the chapter: {e}")
 
 def show_log_management(player):
     """Ayrı "Günlük Yönetimi" penceresini açar (ince entegrasyon noktası).

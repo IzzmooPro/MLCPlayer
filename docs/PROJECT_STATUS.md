@@ -1485,10 +1485,37 @@ depoları, değişiklik yapılmadığı beyanı) ve `bin/RUNTIME_MANIFEST.txt`
 artık ana pakete giriyor. Künyedeki sürüm/URL/özet manifestten kopyalanır;
 ayrışırsa `tests/test_third_party_notice_regressions.py` (8 test) kırılır.
 
-**KALAN AÇIK MADDELER (bizim kapatamayacaklarımız):** FFmpeg patent
-tarafı (H.264/H.265) — lisans değil patent konusu, VLC de depoda
-çözmüyor; OpenSubtitles API kullanım şartlarının okunması; GPLv3'ün
-önerdiği dosya başı bildirimler. İlk ikisi kullanıcı/hukukçu kararıdır.
+**LİSANS/HUKUK — BEKLEMEDE (kullanıcı kararı, 17 Ağustos 2026).**
+Kullanıcı "lisans olayı beklesin, unutma" dedi. Bu liste o yüzden
+hafızada değil BURADA durur; sıradaki tur bunlarla AÇILMAZ ama silinmez.
+
+1. **FFmpeg patent tarafı (H.264/H.265).** Lisans değil PATENT konusu:
+   GPL kodu dağıtma iznidir, patent havuzu (AVC → Via LA, HEVC → Access
+   Advance) standardın UYGULANMASINI ayrı bir izin sayar. VLC de bunu
+   depoda çözmüyor, kurumsal hukuk sayfasına bırakıyor. Bizim konumumuz
+   en düşük maruziyet: yalnız ÇÖZÜYORUZ (kodlama yok), ücretsiz ve küçük
+   ölçek. Kesinlik isteniyorsa avukat gerekir — ajan kapatamaz.
+2. **OpenSubtitles API kullanım şartları.** Açık soru: tek bir uygulama
+   anahtarı gömüp herkesin kullanması mümkün mü? Yeni REST API'de anahtar
+   UYGULAMAYI tanımlar, yani gömmek aykırı değil. ÜÇ sonuç ölçülmeli:
+   anahtar ikiliden çıkarılabilir, kota bütün kullanıcılar arasında
+   PAYLAŞILIR, ve şartların anahtar paylaşımı hakkında ne dediği
+   BİLİNMİYOR (doküman sayfası çekilemedi, ezberden karar verilmedi).
+   NOT: VLSub örnek alınamaz — o ESKİ `opensubtitles.org` XML-RPC
+   API'sini kullanıyordu, orada anahtar değil user-agent vardı.
+   Melez seçenek: gömülü anahtar varsayılan, isteyen kendi anahtarını
+   girer. Kod buna zaten yakın (`STATUS_API_KEY_REQUIRED` yolu isteğe
+   bağlı hâle getirilir).
+3. **Hakkında penceresinde lisans bildirimi YOK.** İçerik şu an sürüm +
+   özellik listesi + `© 2025`. GPLv3 etkileşimli programdan uygun telif
+   uyarısı ve GARANTİ REDDİ bekler; VLC'nin Hakkında penceresinde ayrı
+   bir License sekmesi vardır. Ayrıca telif yılı README (`2026`) ile
+   çelişiyor.
+4. **Dosya başı telif/lisans bildirimleri.** GPLv3 öneriyor; bizde yalnız
+   kök `LICENSE` ve README bölümü var.
+
+Kapatılanlar: mpv/FFmpeg künyesi + `RUNTIME_MANIFEST.txt` ana pakete
+girdi (yukarıdaki bölüm).
 
 **DİL KURALI (kullanıcı kararı, 17 Ağustos 2026): depo dosyalarının ADI
 ve İÇERİĞİ İNGİLİZCEDİR.** Kapsam ölçülerek belirlendi:
@@ -1497,9 +1524,21 @@ ve İÇERİĞİ İNGİLİZCEDİR.** Kapsam ölçülerek belirlendi:
 |---|---|---|
 | `packaging/` (7 py + bat) | 148 | ✅ **BİTTİ** — 0 kaldı |
 | `Start.bat` + `bootstrap.ps1` | — | ✅ **BİTTİ** |
-| `safe_console`/`log` mesajları | ~152 çağrı | ⬜ SIRADA |
+| `safe_console`/`log` mesajları | 92 metin | ✅ **BİTTİ** — 0 kaldı |
 | `app/` yorum + docstring | 3454 | ❌ TOPLU ÇEVRİLMEYECEK |
 | `tests/` yorum + docstring | 3815 | ❌ TOPLU ÇEVRİLMEYECEK |
+
+Konsol/günlük metinleri 11 dosyada 92 taneydi (ilk tahmin 152 çağrıydı;
+o sayı Türkçe TAŞIMAYAN çağrıları da içeriyordu). Testler bu metinlerin
+İÇERİĞİNE bakmıyor — yalnız `safe_console`'un varlığına ve log dosya adına
+— bu yüzden risk düşüktü. Çıkarılan çeviri sayısı 437'de SABİT kaldı, yani
+yanlışlıkla kullanıcıya görünen bir metne dokunulmadı.
+
+Ayrıca `.gitignore` artık `.claude/settings.local.json` dosyasını da
+dışlıyor: içinde makineye özgü MUTLAK YOL var ve depo public. Daha önce
+yalnız kullanıcının GLOBAL git ignore kuralı engelliyordu; o kural klonla
+BİRLİKTE GELMEZ. Depo geçmişi bir kez `filter-repo` ile kullanıcı adından
+temizlenmişti; aynı bilgi bu yoldan geri sızabilirdi.
 
 `app/` ve `tests/` içindeki 7269 satır bu projenin ölçüm kayıtlarını ve
 "neden böyle" gerekçelerini taşır; toptan çeviri hem uzun sürer hem her

@@ -207,9 +207,9 @@ class MPVPlayer(QMainWindow):
             self.init_mpv_player()
             # NOT: Ses çıkışı taraması `init_mpv_player()` SONUNDA bir kez
             # yapılır; burada TEKRAR çağrılmaz (çift tarama olurdu).
-            safe_console("MPV oynatıcı başarıyla yapılandırıldı.")
+            safe_console("MPV player configured successfully.")
         except Exception as e:
-            safe_console(f"MPV yapılandırma hatası: {e}")
+            safe_console(f"MPV configuration error: {e}")
             show_user_error(self, tr("Oynatıcı Başlatılamadı"),
                             tr("Oynatıcı başlatılamadı. Programın bin "
                                "klasörünü kontrol edip tekrar deneyin."),
@@ -364,7 +364,7 @@ class MPVPlayer(QMainWindow):
         try:
             migrate_subtitle_style_settings(self.settings)
         except Exception as e:
-            log(f"Altyazı stil migrasyonu yapılamadı: {e}", 'WARNING')
+            log(f"Subtitle style migration failed: {e}", 'WARNING')
         for name, default in SUBTITLE_DEFAULTS.items():
             key = f"subtitle/{name}"
             # Senkron gecikmesi içeriğe özeldir; önceki videodan yeni oturuma
@@ -384,7 +384,8 @@ class MPVPlayer(QMainWindow):
                     value = str(value).lower() in ("1", "true", "yes")
                 setattr(self.mpv_player, name, value)
             except Exception as e:
-                log(f"Altyazı ayarı yüklenemedi ({name}): {e}", 'WARNING')
+                log(f"Could not load the subtitle setting ({name}): {e}",
+                    'WARNING')
         # Arka plan kutusu, kaydedilmiş arka plan renginin alfasından
         # TÜRETİLİR; `sub_back_color` tek başına gölge rengidir.
         back = self.settings.value("subtitle/sub_back_color",
@@ -397,15 +398,16 @@ class MPVPlayer(QMainWindow):
             try:
                 setattr(self.mpv_player, name, value)
             except Exception as e:
-                log(f"Altyazı ayarı yüklenemedi ({name}): {e}", 'WARNING')
+                log(f"Could not load the subtitle setting ({name}): {e}",
+                    'WARNING')
         # Kontrol katmanının kapladığı bant için ALT MARJ. `sub_pos`
         # kullanıcının tercihidir ve değiştirilmez; %100 bu marj sayesinde
         # "panele en yakın GÜVENLİ konum" olur.
         try:
             applied = self.video_frame.sync_subtitle_safe_band()
-            log(f"Altyazı güvenli bandı: sub_margin_y={applied}", 'INFO')
+            log(f"Subtitle safe band: sub_margin_y={applied}", 'INFO')
         except Exception as e:
-            log(f"Altyazı güvenli bandı uygulanamadı: {e}", 'WARNING')
+            log(f"Could not apply the subtitle safe band: {e}", 'WARNING')
 
     def log_handler(self, loglevel, component, message):
         # NOT: mpv her bilgi mesajını (AO/VO/cplayer vb.) buraya gönderir.
@@ -507,7 +509,7 @@ class MPVPlayer(QMainWindow):
                 try:
                     refresh_audio_tracks(self)
                 except Exception as e:
-                    safe_console(f"Ses kanalı menüsü yenilenemedi: {e}")
+                    safe_console(f"Could not refresh the audio track menu: {e}")
 
             if (self.current_file and self.current_file != self._chapter_menu_file
                     and self.duration > 0):
@@ -552,8 +554,8 @@ class MPVPlayer(QMainWindow):
                 self.next_button.setEnabled(has_next)
 
         except Exception as e:
-            safe_console(f"UI güncelleme hatası: {e}")
-            log(f"UI güncelleme hatası: {e}", 'ERROR')
+            safe_console(f"UI update error: {e}")
+            log(f"UI update error: {e}", 'ERROR')
 
     # --- Sürükle-bırak altyazısı ---
     def _subtitle_track_wait(self):
@@ -592,7 +594,7 @@ class MPVPlayer(QMainWindow):
                 self, path, wait=self._subtitle_track_wait,
                 attempts=TRACK_WAIT_ATTEMPTS))
         except Exception as e:
-            safe_console(f"Altyazı ekleme hatası: {type(e).__name__}")
+            safe_console(f"Subtitle add error: {type(e).__name__}")
             show_user_error(self, tr("Altyazı Eklenemedi"),
                             tr("Altyazı eklenemedi. Dosyanın desteklenen ve "
                                "okunabilir bir altyazı dosyası olduğundan "
@@ -600,7 +602,7 @@ class MPVPlayer(QMainWindow):
                             exc=e)
             return False
         if applied:
-            safe_console(f"Altyazı eklendi: {path}")
+            safe_console(f"Subtitle added: {path}")
             self.video_frame.show_osd(tr("Altyazı eklendi"))
             # Açık kullanıcı seçimi bu medya için otomatik yerel SRT
             # seçimini tüketir; otomasyon kullanıcının tercihini EZMEZ.
@@ -669,7 +671,7 @@ class MPVPlayer(QMainWindow):
                 return
             if self.duration <= 0:
                 self._pending_subs.append(s)
-                safe_console(f"Altyazı yükleme sırasına alındı: {s}")
+                safe_console(f"Subtitle queued for loading: {s}")
                 self.video_frame.show_osd(tr("Altyazı yükleniyor..."))
                 return
             self._activate_dropped_subtitle(s)
@@ -768,7 +770,7 @@ class MPVPlayer(QMainWindow):
         try:
             self.mpv_player.loop_file = "inf" if enabled else "no"
         except Exception as e:
-            safe_console(f"Döngü ayarı hatası: {e}")
+            safe_console(f"Loop setting error: {e}")
 
     def set_loop_playlist(self, enabled):
         self.loop_playlist = enabled
@@ -902,8 +904,8 @@ class MPVPlayer(QMainWindow):
             # doğrulanabiliyorsa kapanışa devam edilir; böylece çalışan bir
             # QThread'in üzerine yıkım yapılmaz. Hata metni kullanıcıya
             # gösterilmez (yol/anahtar sızdırabilir).
-            safe_console("Altyazı Merkezi kapatma koordinasyonu başarısız; "
-                  "kapanış ertelendi.")
+            safe_console("Subtitle Center shutdown coordination failed; "
+                         "closing deferred.")
             ready = subtitle_center_drained(self)
         if not ready:
             event.ignore()
@@ -927,7 +929,7 @@ class MPVPlayer(QMainWindow):
             if self.last_dir:
                 self.settings.setValue("last_dir", self.last_dir)
         except Exception as e:
-            safe_console(f"Ayar kaydetme hatası: {type(e).__name__}")
+            safe_console(f"Settings save error: {type(e).__name__}")
 
         # Her bağımsız teardown adımı KENDİ hata sınırındadır: birinin
         # hatası MPV `stop`/`terminate` adımına ulaşmayı engellememelidir.
@@ -935,18 +937,18 @@ class MPVPlayer(QMainWindow):
         try:
             self.timer.stop()
         except Exception as e:
-            safe_console(f"Zamanlayıcı durdurulamadı: {type(e).__name__}")
+            safe_console(f"Could not stop the timer: {type(e).__name__}")
         # Medya Bilgisi penceresi MPV'ye dokunulmadan ÖNCE kapatılır.
         # Worker/thread barındırmadığı için Altyazı Merkezi drenajına
         # bağlanmaz; çağrı idempotenttir ve hata kapanışı engellemez.
         try:
             close_media_info(self)
         except Exception as e:
-            safe_console(f"Medya Bilgisi kapatılamadı: {type(e).__name__}")
+            safe_console(f"Could not close Media Info: {type(e).__name__}")
         try:
             clear_url_loading(self)
         except Exception as e:
-            safe_console(f"Bağlantı durumu temizlenemedi: {type(e).__name__}")
+            safe_console(f"Could not clear the link state: {type(e).__name__}")
         # MPV olay thread'i stop/terminate sırasında Qt nesnelerine geç
         # bildirim taşımasın. Ayırma idempotenttir ve kendi hata sınırında
         # çalışır; başarısızlık kapanışı engellemez.
@@ -955,7 +957,7 @@ class MPVPlayer(QMainWindow):
             try:
                 subtitle_watcher.detach()
             except Exception as e:
-                safe_console("Altyazı gözlemcisi kapatılamadı: "
+                safe_console("Could not stop the subtitle watcher: "
                              f"{type(e).__name__}")
             finally:
                 self._subtitle_watcher = None
@@ -964,7 +966,7 @@ class MPVPlayer(QMainWindow):
         try:
             shutdown_subtitle_center(self, wait_ms=0)
         except Exception as e:
-            safe_console(f"Altyazı Merkezi kapatma hatası: {type(e).__name__}")
+            safe_console(f"Subtitle Center shutdown error: {type(e).__name__}")
         # Yüzen overlay/OSD pencereleri MPV'ye dokunulmadan ÖNCE, düzenli
         # ve sahipli biçimde bırakılır (timer'lar durur, geç olayların
         # tutunacağı referanslar temizlenir).
@@ -974,7 +976,7 @@ class MPVPlayer(QMainWindow):
             try:
                 release_surfaces()
             except Exception as e:
-                safe_console(f"Overlay yüzeyleri bırakılamadı: {type(e).__name__}")
+                safe_console(f"Could not release the overlay surfaces: {type(e).__name__}")
         # Playlist panelinin thumbnail worker SÜRECİ kapanışta sahipsiz
         # kalmamalı. Qt, ana pencere kapanırken çocuk widget'lara
         # `closeEvent` GÖNDERMEZ; bu yüzden panelin kendi kapanış
@@ -984,7 +986,7 @@ class MPVPlayer(QMainWindow):
             try:
                 panel.close()
             except Exception as e:
-                safe_console(f"Playlist paneli kapatılamadı: {type(e).__name__}")
+                safe_console(f"Could not close the playlist panel: {type(e).__name__}")
         # NOT: __dict__ üzerinden okunur; testlerdeki sip stub'larında
         # normal öznitelik erişimi RuntimeError üretebiliyor.
         resize_filter = self.__dict__.get("resize_filter")
@@ -992,13 +994,13 @@ class MPVPlayer(QMainWindow):
             try:
                 resize_filter.remove()
             except Exception as e:
-                safe_console(f"Resize filtresi kaldırılamadı: {type(e).__name__}")
+                safe_console(f"Could not remove the resize filter: {type(e).__name__}")
             self.resize_filter = None
         try:
             if self.video_frame.is_video_fullscreen:
                 self.video_frame.exit_fullscreen()
         except Exception as e:
-            safe_console(f"Tam ekrandan çıkılamadı: {type(e).__name__}")
+            safe_console(f"Could not leave fullscreen: {type(e).__name__}")
         # MPV KAPANIŞI: önce `stop()`, sonra `terminate()`.
         # Bu sıra, `subtitle_service.shutdown_player()` yolunda uzun süredir
         # sorunsuz kullanılan sıradır; `stop()` çağrılmadan doğrudan
@@ -1017,13 +1019,13 @@ class MPVPlayer(QMainWindow):
                     # Durdurma başarısız olsa bile kapanış SÜRER; aksi halde
                     # uygulama kapanamaz durumda kalırdı. Hata metni
                     # kullanıcıya/log'a sızdırılmaz (yol/anahtar taşıyabilir).
-                    safe_console(f"MPV durdurulamadı: {type(e).__name__}")
+                    safe_console(f"Could not stop MPV: {type(e).__name__}")
             # Referans terminate DENEMESİNDEN sonra her hâlükârda bırakılır;
             # böylece aynı MPV nesnesi ikinci kez terminate edilmez.
             try:
                 mpv_player.terminate()
             except Exception as e:
-                safe_console(f"MPV sonlandırılamadı: {type(e).__name__}")
+                safe_console(f"Could not terminate MPV: {type(e).__name__}")
             finally:
                 self.mpv_player = None
         event.accept()

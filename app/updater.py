@@ -224,8 +224,8 @@ def _verified_asset(data, source):
     """Ortak yol: seçim + fail-closed günlükleme."""
     choice, reason = select_update_asset(data)
     if choice is None:
-        log(f"{source}: güncelleme asset'i doğrulanamadı ({reason}); "
-            f"otomatik güncelleme sunulmuyor.", level="WARNING")
+        log(f"{source}: the update asset could not be verified ({reason}); "
+            f"no automatic update is offered.", level="WARNING")
     return choice
 
 
@@ -277,7 +277,7 @@ class UpdateChecker(QThread):
         except Exception as exc:
             # Ham istisna metni (URL, yol, backend ayrıntısı) kullanıcıya
             # gösterilmez; yalnız günlüğe yazılır (orada da maskelenir).
-            log(f"Güncelleme kontrolü başarısız: {exc}", level="WARNING")
+            log(f"Update check failed: {exc}", level="WARNING")
             self.check_failed.emit(CHECK_FAILED_MESSAGE)
 
 
@@ -310,11 +310,11 @@ class UpdateDownloader(QThread):
         try:
             self._download_and_verify()
         except VerificationError as exc:
-            log(f"Güncelleme doğrulaması başarısız: {exc}", level="WARNING")
+            log(f"Update verification failed: {exc}", level="WARNING")
             self._remove_partial_file()
             self.failed.emit(VERIFY_FAILED_MESSAGE)
         except Exception as exc:
-            log(f"Güncelleme indirilemedi: {exc}", level="WARNING")
+            log(f"Update download failed: {exc}", level="WARNING")
             self._remove_partial_file()
             self.failed.emit(DOWNLOAD_FAILED_MESSAGE)
         else:
@@ -399,7 +399,7 @@ def remove_downloaded_installer(path):
     try:
         target.unlink(missing_ok=True)
     except OSError as exc:
-        log(f"Kurulum dosyası silinemedi: {exc}", level="WARNING")
+        log(f"Could not delete the installer: {exc}", level="WARNING")
         return
     try:
         target.parent.rmdir()      # yalnız klasör TAMAMEN boşsa başarılı
@@ -435,13 +435,13 @@ def apply_update(installer_path, player, frozen=None, start_installer=None,
 
     if not player.close():
         # Ürün kapanışı erteledi (süren indirme/arama/apply var).
-        log("Güncelleme: program kapanamadı, kurulum başlatılmadı.",
+        log("Update: the program could not close, the installer was not started.",
             level="WARNING")
         return "busy", BUSY_MESSAGE
 
     launcher = start_installer or os.startfile
     launcher(installer_path)
-    log("Güncelleme kurulumu başlatıldı; program kapanıyor.")
+    log("Update installer started; the program is closing.")
     quit_app = quit_application
     if quit_app is None:
         from PyQt6.QtWidgets import QApplication
@@ -509,7 +509,7 @@ class UpdateDialog(QDialog):
                 or _positive_size(self._expected_size) is None):
             # Fail-closed: doğrulama verisi olmadan indirme YAPILMAZ ve
             # tarayıcı KENDİLİĞİNDEN açılmaz.
-            log("Güncelleme doğrulama verisi eksik; indirme başlatılmadı.",
+            log("Update verification data is missing; the download was not started.",
                 level="WARNING")
             self.show_error(VERIFY_FAILED_MESSAGE)
             return
@@ -536,7 +536,7 @@ class UpdateDialog(QDialog):
     def on_downloaded(self, installer_path):
         if self._close_requested:
             # Kullanıcı kapatmak istedi: kurulum BAŞLATILMAZ.
-            log("İndirme bitti ancak kapatma istendi; kurulum başlatılmıyor.")
+            log("The download finished but a close was requested; the installer is not started.")
             remove_downloaded_installer(installer_path)
             return
         self._status.setText(tr("Güncelleme uygulanıyor…"))
@@ -567,7 +567,7 @@ class UpdateDialog(QDialog):
 
     def on_download_failed(self, message):
         if self._close_requested:
-            log(f"Güncelleme indirmesi başarısız (kapanış istendi): {message}")
+            log(f"Update download failed (a close was requested): {message}")
             return
         self._restore_buttons()
         self.show_error(message)

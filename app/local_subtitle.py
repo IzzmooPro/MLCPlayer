@@ -92,7 +92,7 @@ def subtitle_candidates(video_path):
     try:
         entries = sorted(os.listdir(folder))
     except OSError as e:
-        safe_console(f"Altyazı klasörü okunamadı: {type(e).__name__}")
+        safe_console(f"Could not read the subtitle folder: {type(e).__name__}")
         return []
     found = []
     for entry in entries:
@@ -208,7 +208,7 @@ def activate_local_subtitle(player):
         player._auto_local_subtitle_state = STATE_DONE
     except Exception as e:
         # Otomatik yükleme hatası videoyu KESMEZ; yalnız maskelenmiş log.
-        safe_console(f"Yerel altyazı etkinleştirilemedi: {type(e).__name__}")
+        safe_console(f"Could not activate the local subtitle: {type(e).__name__}")
         player._auto_local_subtitle_state = STATE_DONE
         return False
     refresh = getattr(getattr(player, "video_frame", None),

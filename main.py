@@ -67,7 +67,7 @@ def check_dependencies():
         _dll_dir_handle = os.add_dll_directory(bin_dir)
         safe_console(f"DLL dizini eklendi: {bin_dir}")
     except Exception as e:
-        safe_console(f"DLL dizini ekleme hatası (devam ediliyor): {e}")
+        safe_console(f"DLL directory error (continuing): {e}")
 
     # DLL dosyalarının varlığını kontrol et
     # Not: DLL'leri burada ctypes ile manuel yüklemeyin. python-mpv,
@@ -79,7 +79,7 @@ def check_dependencies():
         safe_console(f"Error: None of the required DLLs (mpv-1.dll, mpv-2.dll, libmpv-2.dll) were found in {bin_dir}.")
         return False
 
-    safe_console(f"Bulunan MPV DLL dosyaları: {', '.join(found_dlls)}")
+    safe_console(f"MPV DLL files found: {', '.join(found_dlls)}")
 
     # Internet videosu bilesenleri EKSIK olsa bile program acilir ve yerel
     # dosya oynatmaya devam eder. Yalniz guvenli durum kodu loglanir; yol
@@ -93,11 +93,11 @@ def check_dependencies():
     # MPV modülünü içe aktar
     try:
         import mpv  # noqa: F401 - importun kendisi yükleme kontrolüdür
-        safe_console("MPV modülü başarıyla içe aktarıldı.")
+        safe_console("MPV module imported successfully.")
         return True
     except Exception as e:
-        safe_console(f"MPV modülü yükleme hatası: {e}")
-        safe_console("Python-MPV paketinin kurulu olduğundan emin olun: pip install python-mpv")
+        safe_console(f"MPV module import error: {e}")
+        safe_console("Make sure the python-mpv package is installed: pip install python-mpv")
         return False
 
 if __name__ == "__main__":
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     # dille oluşsun.
     from app.i18n import apply_language
     _language, _translated = apply_language(app)
-    safe_console(f"Arayüz dili: {_language} (çeviri yüklendi: {_translated})")
+    safe_console(f"Interface language: {_language} (translation loaded: {_translated})")
 
     # TEK KOPYA: ikinci başlatma yeni pencere açmaz. Ağır kurulumdan ÖNCE
     # karar verilir; devreden süreç hemen kapanır. İşçi süreçler yukarıda
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         # mpv zaten sonlandırıldı). Bu, bilinen bir Windows + libmpv davranışıdır.
         os._exit(ret)
     else:
-        log("DLL bulunamadı - program kapatılıyor", 'ERROR')
+        log("DLL not found - shutting down", 'ERROR')
         from app.i18n import tr
         show_error(
             tr("MPV Bileşeni Bulunamadı"),

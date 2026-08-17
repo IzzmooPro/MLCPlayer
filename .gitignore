@@ -41,9 +41,17 @@ bin/_old/
 # reference but are not repository content.
 assets/icon-concepts/
 
-# Yayin imzalama ozel anahtari ASLA depoya girmez (bkz. packaging/sign_release.py).
+# The release signing private key NEVER enters the repository
+# (see packaging/sign_release.py).
 *.key
 .mlcplayer/
 
-# Derlenmis ceviriler uretilmis ciktidir; kaynak `.ts` depodadir.
+# Compiled translations are build output; the `.ts` sources are tracked.
 *.qm
+
+# Agent-local settings: this file records absolute paths from the machine
+# it was written on. The repository is public and its history was already
+# rewritten once to strip a Windows user name, so it must never be added
+# again. Do not rely on a global ignore rule for this - that rule does not
+# travel with a clone.
+.claude/settings.local.json

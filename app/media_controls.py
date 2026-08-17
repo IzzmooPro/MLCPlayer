@@ -19,7 +19,7 @@ def toggle_mute(player):
     try:
         current_volume = player.mpv_player.volume
     except Exception as e:
-        safe_console(f"Ses seviyesi okunamadı: {e}")
+        safe_console(f"Could not read the volume: {e}")
         current_volume = 0
 
     if current_volume > 0:
@@ -152,7 +152,7 @@ def folder_media_files(folder):
     try:
         names = os.listdir(folder)
     except OSError as e:
-        safe_console(f"Klasör okunamadı: {e}")
+        safe_console(f"Could not read the folder: {e}")
         return None
     files = []
     seen = set()
@@ -164,7 +164,7 @@ def folder_media_files(folder):
             if not os.path.isfile(path):
                 continue
         except OSError as e:
-            safe_console(f"Klasör kaydı atlandı: {e}")
+            safe_console(f"Folder entry skipped: {e}")
             continue
         key = os.path.normcase(os.path.abspath(path))
         if key in seen:
@@ -194,7 +194,7 @@ def open_folder(player):
         folder = QFileDialog.getExistingDirectory(
             player, tr("Klasör Aç"), _folder_dialog_start(player))
     except Exception as e:
-        safe_console(f"Klasör seçme hatası: {e}")
+        safe_console(f"Folder selection error: {e}")
         _folder_warning(player, tr("Klasör Açılamadı"),
                         tr("Klasör seçilemedi. Lütfen tekrar deneyin."))
         return
@@ -203,7 +203,7 @@ def open_folder(player):
     try:
         files = folder_media_files(folder)
     except Exception as e:
-        safe_console(f"Klasör tarama hatası: {e}")
+        safe_console(f"Folder scan error: {e}")
         files = None
     if files is None:
         _folder_warning(player, tr("Klasör Açılamadı"),
@@ -265,7 +265,7 @@ def _capture_sub_delay_setting(settings):
             return (SETTING_ABSENT, None)
         value = settings.value(_SUB_DELAY_KEY, _MISSING)
     except Exception as e:
-        safe_console(f"Altyazı gecikmesi ayarı okunamadı: {e}")
+        safe_console(f"Could not read the subtitle delay setting: {e}")
         return (SETTING_UNREADABLE, None)
     if value is _MISSING:
         return (SETTING_ABSENT, None)
@@ -315,7 +315,7 @@ def _restore_playback_state(player, state):
         try:
             settings.setValue(_SUB_DELAY_KEY, state["settings_value"])
         except Exception as e:
-            safe_console(f"Altyazı gecikmesi ayarı geri yazılamadı: {e}")
+            safe_console(f"Could not write back the subtitle delay setting: {e}")
         return
     if status == SETTING_ABSENT:
         # Anahtar denemeden ÖNCE gerçekten yoktu: denemenin yazdığını da
@@ -325,7 +325,7 @@ def _restore_playback_state(player, state):
             try:
                 remove(_SUB_DELAY_KEY)
             except Exception as e:
-                safe_console(f"Altyazı gecikmesi ayarı silinemedi: {e}")
+                safe_console(f"Could not remove the subtitle delay setting: {e}")
 
 
 def _folder_warning(player, title, message):
@@ -604,10 +604,10 @@ def open_url(player):
             player.add_recent_file(url)
             # HAM URL LOGA YAZILMAZ: yalnız `scheme://host` + son yol
             # parçası. `userinfo`, `query` ve `fragment` hiç üretilmez.
-            safe_console(f"Bağlantı açılıyor: {sanitize_media_url(url)}")
+            safe_console(f"Opening link: {sanitize_media_url(url)}")
         except Exception as e:
             clear_url_loading(player)
-            safe_console(f"Bağlantı açma hatası: {type(e).__name__}")
+            safe_console(f"Link open error: {type(e).__name__}")
             show_user_error(player, translate_marked(URL_FAILED_TITLE),
                             translate_marked(URL_FAILED_MESSAGE), exc=e)
 
@@ -636,7 +636,7 @@ def open_subtitle(player):
     # Altyazıyı bekleme listesine al; video yüklenince otomatik eklenecek.
     if player.duration <= 0:
         player._pending_subs.append(subtitle_path)
-        safe_console(f"Altyazı yükleme sırasına alındı: {subtitle_path}")
+        safe_console(f"Subtitle queued for loading: {subtitle_path}")
         player.video_frame.show_osd(tr("Altyazı yükleniyor..."))
         return
 
@@ -658,7 +658,7 @@ def select_subtitle_language(player, sid):
         _refresh_overlay_subtitle_state(player)
         safe_console(f"Selected subtitle ID: {sid}")
     except Exception as e:
-        safe_console(f"Altyazı seçimi hatası: {e}")
+        safe_console(f"Subtitle selection error: {e}")
         show_user_error(player, tr("Altyazı Seçilemedi"),
                         tr("Altyazı seçilemedi. Lütfen başka bir altyazı "
                            "parçasını deneyin."),
@@ -694,7 +694,7 @@ def toggle_subtitles(player):
         safe_console(f"Subtitles visibility set to: {not current_visibility}")
         return True
     except Exception as e:
-        safe_console(f"Altyazıları gösterme/gizleme hatası: {e}")
+        safe_console(f"Subtitle visibility toggle error: {e}")
         show_user_error(player, tr("Altyazı Değiştirilemedi"),
                         tr("Altyazılar açılıp kapatılamadı. Lütfen tekrar "
                            "deneyin."),
@@ -724,7 +724,7 @@ def seek_relative(player, seconds):
                 f"{direction}: {abs(seconds):g} {tr('saniye')}"
                 f"\n{format_time(target)}")
     except mpv.ShutdownError:
-        safe_console("MPV çekirdeği kapatılmış. Göreceli arama yapılamıyor.")
+        safe_console("The MPV core is shut down. Relative seeking is not possible.")
     except Exception as e:
         safe_console(f"Relative seek error: {e}")
 
@@ -743,7 +743,7 @@ def seek_chapter(player, delta):
                  or f"{tr('Bölüm')} {target + 1}")
         player.video_frame.show_osd(title)
     except Exception as e:
-        safe_console(f"Bölüm değiştirme hatası: {e}")
+        safe_console(f"Chapter change error: {e}")
 
 def play_pause(player):
     # Eğer video yüklenmemişse, dosya gezgini aç
@@ -766,7 +766,7 @@ def stop(player):
     try:
         player.mpv_player.stop()
     except Exception as e:
-        safe_console(f"MPV durdurma hatası: {e}")
+        safe_console(f"MPV stop error: {e}")
     player.play_button.setIcon(player.play_icon)
     player.is_paused = True
     player.duration = 0
@@ -823,7 +823,7 @@ def change_volume(player, delta):
         current = min(MAX_VOLUME, max(0, float(player.mpv_player.volume)))
         player.volume_slider.setValue(int(current + delta))
     except Exception as e:
-        safe_console(f"Ses değiştirme hatası: {e}")
+        safe_console(f"Volume change error: {e}")
 
 def add_to_playlist(player):
     files, _ = QFileDialog.getOpenFileNames(
@@ -944,10 +944,10 @@ def play_from_playlist(player, index):
             player.set_title()
             player.add_recent_file(file_path)
             _refresh_playlist_panel(player)
-            safe_console(f"Oynatılıyor: {file_path}")
+            safe_console(f"Playing: {file_path}")
             return True
         except Exception as e:
-            safe_console(f"Oynatma listesinden oynatma hatası: {e}")
+            safe_console(f"Play-from-playlist error: {e}")
             show_user_error(player, tr("Dosya Açılamadı"),
                             tr("Oynatma listesindeki dosya açılamadı. Dosya "
                                "taşınmış veya silinmiş olabilir."),
@@ -1001,7 +1001,7 @@ def save_playlist(player):
                 f.write(f"{item}\n")
         safe_console(f"Oynatma listesi kaydedildi: {file_path}")
     except Exception as e:
-        safe_console(f"Oynatma listesi kaydetme hatası: {e}")
+        safe_console(f"Playlist save error: {e}")
         show_user_error(player, tr("Kaydedilemedi"),
                         tr("Oynatma listesi kaydedilemedi. Dosyanın "
                            "yazılabileceği bir konum seçmeyi deneyin."),
@@ -1036,9 +1036,9 @@ def load_playlist(player):
         player.current_playlist_index = -1
         play_from_playlist(player, 0)
         _refresh_playlist_panel(player)
-        safe_console(f"Oynatma listesi yüklendi ({len(entries)} dosya): {file_path}")
+        safe_console(f"Playlist loaded ({len(entries)} files): {file_path}")
     except Exception as e:
-        safe_console(f"Oynatma listesi açma hatası: {e}")
+        safe_console(f"Playlist open error: {e}")
         show_user_error(player, tr("Açılamadı"),
                         tr("Oynatma listesi açılamadı. Dosya bozuk veya "
                            "okunamıyor olabilir."),
@@ -1073,7 +1073,7 @@ def take_screenshot(player):
             player, tr("Başarılı"),
             f"{tr('Ekran görüntüsü kaydedildi:')}\n{screenshot_path}")
     except Exception as e:
-        safe_console(f"Ekran görüntüsü alma hatası: {e}")
+        safe_console(f"Snapshot error: {e}")
         show_user_error(player, tr("Ekran Görüntüsü Alınamadı"),
                         tr("Ekran görüntüsü kaydedilemedi. Masaüstüne yazma "
                            "iznini ve boş alanı kontrol edin."),
@@ -1166,7 +1166,7 @@ def set_playback_speed(player, speed):
             for s, action in player.speed_actions.items():
                 action.setChecked(s == speed)
     except Exception as e:
-        safe_console(f"Oynatma hızı değiştirme hatası: {e}")
+        safe_console(f"Playback speed change error: {e}")
         show_user_error(player, tr("Oynatma Hızı Değiştirilemedi"),
                         tr("Oynatma hızı değiştirilemedi. Lütfen başka bir "
                            "hız deneyin."),

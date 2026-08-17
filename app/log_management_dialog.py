@@ -146,7 +146,7 @@ class LogManagementDialog(QDialog):
             opened = QDesktopServices.openUrl(
                 QUrl.fromLocalFile(get_log_directory()))
         except Exception as exc:
-            safe_console("Günlük klasörü açılamadı: "
+            safe_console("Could not open the log folder: "
                          f"{type(exc).__name__}")
             opened = False
         if not opened:
@@ -174,7 +174,7 @@ class LogManagementDialog(QDialog):
             result = clear_logs()
         except Exception as exc:
             # Ham istisna metni kullanıcıya ULAŞMAZ.
-            safe_console(f"Günlükler temizlenemedi: {type(exc).__name__}")
+            safe_console(f"Could not clear the logs: {type(exc).__name__}")
             self.status_label.setText(
                 tr("Günlükler temizlenemedi. Lütfen tekrar deneyin."))
             self.refresh_usage()

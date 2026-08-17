@@ -93,7 +93,7 @@ class SingleInstanceGuard(QObject):
             self._server.newConnection.connect(self._on_new_connection)
             return True
 
-        log(f"Tek kopya sunucusu açılamadı: {self._server.errorString()}",
+        log(f"Could not open the single-instance server: {self._server.errorString()}",
             "WARNING")
         self._server = None
         # Fail-open: koruma kurulamazsa program yine de AÇILIR.
@@ -142,7 +142,7 @@ class SingleInstanceGuard(QObject):
         socket.flush()
         socket.waitForBytesWritten(TRANSFER_TIMEOUT_MS)
         if not socket.waitForReadyRead(TRANSFER_TIMEOUT_MS):
-            log("Tek kopya: çalışan kopya isteği onaylamadı.", "WARNING")
+            log("Single instance: the running copy did not acknowledge the request.", "WARNING")
             return False
         return bytes(socket.readAll()) == ACK
 

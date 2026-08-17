@@ -210,7 +210,7 @@ class ErrorDetailsDialog(QDialog):
             self._write_clipboard(clipboard_text(self.event))
         except Exception as exc:
             # Ham veri veya ham istisna metni KONSOLA yazılmaz.
-            safe_console("Hata ayrıntıları panoya kopyalanamadı: "
+            safe_console("Could not copy the error details to the clipboard: "
                          f"{type(exc).__name__}")
             self.status_label.setText(translate_marked(COPY_FAILED_TEXT))
             return
