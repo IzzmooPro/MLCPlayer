@@ -1,6 +1,59 @@
 # MLC Player güncel durum
 
-Güncelleme: 15 Ağustos 2026
+Güncelleme: 17 Ağustos 2026
+
+## DEVİR NOTU — buradan başla
+
+**Ağaç TEMİZ, `origin/master` ile senkron, `v0.35` yayında.**
+Tam paket: **3678 passed, 17 skipped** (~67 sn). Açık ürün kusuru YOK.
+
+Bu oturumda yapılanlar tek cümleyle: i18n bitti (Türkçe + İngilizce),
+depo dosyaları İngilizceye çevrildi, lisans uyumu kapatıldı, iki sürüm
+yayımlandı.
+
+### Sıradaki iş — öncelik sırasıyla
+
+1. **VLSub kaynak incelemesi** (`https://github.com/opensubtitles/vlsub-opensubtitles-com`).
+   OpenSubtitles kararını BESLEYEN iş budur; ondan önce yapılmalı.
+   Bakılacak: arama, kimlik doğrulama, dil/sonuç eşleme, indirme ve hata
+   akışları. Kod KOPYALANMAZ, lisans/şart doğrulanmadan bağımlılık alınmaz.
+2. **OpenSubtitles API kullanım şartları** (kullanıcı okuyacak).
+   Açık soru: tek uygulama anahtarı gömülsün mü? Yeni REST API'de anahtar
+   UYGULAMAYI tanımlar, gömmek aykırı değil. AMA üç sonuç ölçülmeli:
+   anahtar ikiliden çıkarılabilir, kota TÜM kullanıcılar arasında paylaşılır,
+   ve şartların ne dediği DOĞRULANMADI. Mevcut tasarım (herkes kendi
+   anahtarı) SORUMLULUK açısından daha güvenlidir.
+   VLSub örnek ALINAMAZ: o ESKİ `opensubtitles.org` XML-RPC API'sini
+   kullanıyordu, orada anahtar değil user-agent vardı.
+3. **Kod imzalama sertifikası + SmartScreen.** Bizim `.sig` dosyamız
+   Ed25519'dur ve YALNIZ güncelleyici içindir; Windows'un tanıdığı
+   Authenticode imzası DEĞİLDİR. Kullanıcı setup'ı çalıştırınca SmartScreen
+   uyarısı alıyor. Bu gerçek bir kullanıcı sürtünmesi.
+4. **VLC kaynak incelemesinin kalanı.** Çeviri/lisans/paketleme/menü
+   tarafına bakıldı. BAKILMADI: altyazı parçası seçimi, sürükle-bırak,
+   ses tekerleği, frameless/native resize, medya yaşam döngüsü.
+
+### Çalışırken bilinmesi gereken üç tuzak
+
+- **GÖRÜNEN METİN KİMLİK DEĞİLDİR.** `action.text()` / `currentText()` ile
+  geri arama, metin çevrildiği an SESSİZCE başarısız olur. Bu oturumda
+  İKİ kez bulundu (menü sekme sırası, altyazı arama dili). Kimlik nesnenin
+  kendisi ya da `data()` alanıdır.
+- **Türkçe harf araması metin taramak için YETMEZ.** `Sessiz`, `Ses`,
+  `yayindaki en son surum` gibi ASCII metinler kaçar. Dosya ancak İKİ
+  tarama birlikte temizken kapatılır: (1) Türkçe harf taşıyan sabitler,
+  (2) arayüz çağrılarının sabit argümanları.
+- **Aralıklı child takılması SÜRÜYOR.** Bu oturumda bir kez daha görüldü:
+  tam paket 10 dakika takıldı, CPU'da ilerleme YOK, child süreç YOK,
+  çıktı YOK. Öldürüldü; sonraki iki koşum 67 sn'de temiz bitti. Kök neden
+  hâlâ bulunamadı. Görülürse PANİK YAPMA, tekrar koş.
+
+### Değişmeyen açık riskler
+
+`timeline` fiziksel tıklama ve Explorer sürükle-bırak otomasyonu BLOCKED;
+bitmap/PGS altyazıda bant garantisi verilemiyor; FFmpeg patent tarafı
+100.000 birim/yıl eşiğine bağlandı (bugün sorun yok).
+
 
 ## Durum
 
@@ -2505,8 +2558,9 @@ yalnız değişikliğin etkilediği yol nokta atışı regresyonla doğrulanacak
 
 Uygulama sırası: **1–7 TAMAMLANDI** → 8/9 kaynak araştırması → 10
 hukuki/uyumluluk kontrolü → kalan canlı/manual kabul → paketleme kararı.
-Kökte GPLv3 `LICENSE` ve `README` hâlâ YOK; paketli `yt-dlp`/`deno`/`mpv`
-nedeniyle bu artık teorik bir eksik değildir ve dağıtımdan önce kapatılmalıdır.
+(GÜNCELLENDİ 17 Ağustos 2026) Kökte GPLv3 `LICENSE` ve iki README VAR.
+`LICENSE` kanonik gnu.org metniyle BİREBİR aynıdır ve SHA-256 ile teste
+bağlıdır (`tests/test_spdx_header_regressions.py`).
 
 Belgede kayıtlı olmayan iki ek tur kaynakta doğrulandı:
 `app/thumbnail_service.py` küçük resim önbelleği artık uygulama kimliğinden
