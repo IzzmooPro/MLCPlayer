@@ -106,6 +106,13 @@ imzası olmayan release REDDEDİLİR. Bu yüzden:
 - Metin eklendikten sonra `python packaging/extract_translations.py`
   çalıştırılır; `--check` ile CI benzeri doğrulama yapılır. Çevrilemeyen
   (`tr(değişken)`) çağrılar RAPOR EDİLİR, sessizce atlanmaz.
+- **Çıkarıcı YENİ METİN EKLENMESE DE gerekir.** `.ts` dosyaları her
+  `tr()` çağrısının SATIR NUMARASINI tutar; `tr()` içeren bir dosyaya
+  satır ekleyip çıkarmak kaydı bayatlatır ve
+  `test_the_translation_files_are_up_to_date` KIRMIZI olur. Bu, 17
+  Ağustos 2026'da tam paketi ÜÇ kez düşürdü. Kural: `tr()` taşıyan bir
+  ürün dosyasına dokunulduysa, tur kapanmadan çıkarıcı çalıştırılır
+  (metin sayısı değişmese bile — ölçüm: 442 → 442).
 
 ## Test stratejisi
 

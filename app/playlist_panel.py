@@ -259,6 +259,87 @@ class PlaylistRow(QWidget):
         return True
 
 
+class DockPlacement:
+    """Panelin GÖMÜLÜ yerleşim mekaniği — TEK yerde toplanmış hâli.
+
+    AŞAMA 1 DİKİŞİ (17 Ağustos 2026). Panel artık nerede duracağını
+    KENDİSİ hesaplamaz; bütün geometri buradan geçer. Amaç, playlist'i
+    bağımsız pencereye taşıma planının 2. aşamasında YALNIZ bu sınıfın
+    yerine bir pencere yerleşimi koyabilmektir. Panelin genel API'si
+    (`is_open`, `open_animated`, `refresh`, `playlist_view`…) ve
+    kullanıcıya görünen davranış bu aşamada DEĞİŞMEZ.
+
+    `host` yoksa (klasik/test yardımcı pencereleri) panel yine top-level
+    ÜRETMEZ; yerleşim etkisiz kalır ve panel kendi boyutunda durur.
+    """
+
+    def __init__(self, panel, host, video_frame):
+        self.panel = panel
+        self.host = host
+        self.video_frame = video_frame
+        self._offset_x = 0
+
+    @property
+    def embedded(self):
+        return self.host is not None
+
+    @property
+    def offset(self):
+        """Panelin host içindeki yerel x konumu (görsel animasyon durumu)."""
+        return self._offset_x
+
+    @property
+    def target_width(self):
+        """Dock'un açıkken ayırması gereken genişlik."""
+        if not self.embedded:
+            return self.panel.width()
+        return max(1, self.host.width())
+
+    def open_start_offset(self):
+        """Açılış animasyonunun BAŞLANGIÇ ofseti (panel sağda, görünmez).
+
+        NOT: ham `host.width()` kullanılır, `max(1, …)` DEĞİL. Kapanış
+        hedefiyle (`closed_offset`) arasındaki bu 1 px'lik fark ayıklama
+        öncesinde de vardı ve aşama 1 davranışı değiştirmediği için
+        AYNEN korunmuştur. Birleştirilmesi ayrı bir karardır.
+        """
+        return int(self.host.width()) if self.embedded else 0
+
+    def closed_offset(self):
+        """Kapanış animasyonunun HEDEF ofseti (tamamen kapalı)."""
+        return int(max(1, self.host.width())) if self.embedded else 0
+
+    def apply(self):
+        """Paneli host'u dolduracak boyuta getirir ve ofsetine yerleştirir.
+
+        Genişlik/yükseklik host'tan gelir, konum ise animasyon ofsetinden.
+        Host child'ını clip ettiği için ofset > 0 iken panelin dışarı taşan
+        kısmı çizilmez; video üzerine taşma oluşmaz.
+        """
+        if not self.embedded:
+            return
+        width = max(1, self.host.width())
+        height = max(1, self.host.height())
+        self.panel.setGeometry(int(self._offset_x), 0, width, height)
+
+    def set_offset(self, value):
+        # Yalnızca panelin kendi konumu değişir: host genişliği,
+        # media_container layout'u, VideoFrame ve MPV native wid yüzeyi
+        # DOKUNULMADAN kalır.
+        self._offset_x = int(value)
+        self.apply()
+
+    def reveal_surface(self):
+        if self.embedded:
+            self.host.show()
+
+    def reserve(self):
+        self.video_frame.reserve_playlist_dock()
+
+    def release(self):
+        self.video_frame.release_playlist_dock()
+
+
 class PlaylistPanel(QWidget):
     """Sinematik arayüzün sağdan açılan oynatma listesi paneli.
 
@@ -280,9 +361,9 @@ class PlaylistPanel(QWidget):
         self._target_open = False
         self._split_press_global_x = None
         self._split_press_width = 0
-        # Panelin host içindeki yerel x ofseti. 0 = tamamen açık,
+        # Yerleşim TEK yerde: `DockPlacement`. Ofset 0 = tamamen açık,
         # host.width() = tamamen kapalı (host tarafından clip edilir).
-        self._offset_x = 0
+        self._placement = DockPlacement(self, host, video_frame)
         if host is not None:
             # NOT: Panel host layout'una EKLENMEZ. Açılış/kapanış animasyonu
             # host genişliğini her karede değiştirmek yerine paneli host
@@ -421,46 +502,35 @@ class PlaylistPanel(QWidget):
     @property
     def target_width(self):
         """Dock'un açıkken ayırması gereken genişlik."""
-        return max(1, self.host.width()) if self.host is not None else self.width()
+        return self._placement.target_width
 
     @property
     def slide_offset(self):
         """Panelin host içindeki yerel x konumu (görsel animasyon durumu)."""
-        return self._offset_x
+        return self._placement.offset
 
     def apply_panel_geometry(self):
-        """Paneli host'u dolduracak boyuta getirir ve ofsetine yerleştirir.
-
-        Genişlik/yükseklik host'tan gelir, konum ise animasyon ofsetinden.
-        Host child'ını clip ettiği için ofset > 0 iken panelin dışarı taşan
-        kısmı çizilmez; video üzerine taşma oluşmaz.
-        """
-        if self.host is None:
-            return
-        width = max(1, self.host.width())
-        height = max(1, self.host.height())
-        self.setGeometry(int(self._offset_x), 0, width, height)
+        """Paneli yerleşimin söylediği yere koyar (bkz. `DockPlacement`)."""
+        self._placement.apply()
 
     def _apply_animated_offset(self, value):
-        # Yalnızca panelin kendi konumu değişir: host genişliği, media_container
-        # layout'u, VideoFrame ve MPV native wid yüzeyi DOKUNULMADAN kalır.
-        self._offset_x = int(value)
-        self.apply_panel_geometry()
+        self._placement.set_offset(value)
 
     def open_animated(self):
         self.refresh()
         already_open = self._target_open
         self._target_open = True
         self.animation.stop()
-        if self.host is None:
+        if not self._placement.embedded:
             self.show()
             return
         # Hedef genişlik BİR KEZ ayrılır; video/MPV yüzeyi tek sefer yeniden
         # boyutlanır. Animasyon bundan sonra yalnızca paneli kaydırır.
         if not already_open:
-            self.video_frame.reserve_playlist_dock()
-        self.host.show()
-        start = self._offset_x if already_open else self.host.width()
+            self._placement.reserve()
+        self._placement.reveal_surface()
+        start = (self._placement.offset if already_open
+                 else self._placement.open_start_offset())
         self._apply_animated_offset(start)
         self.show()
         self.animation.setStartValue(int(start))
@@ -472,21 +542,21 @@ class PlaylistPanel(QWidget):
             return
         self._target_open = False
         self.animation.stop()
-        if self.host is None:
+        if not self._placement.embedded:
             self.hide()
             return
         # Tersine çevirmede mevcut görsel konumdan devam edilir; sıçrama yok.
-        self.animation.setStartValue(int(self._offset_x))
-        self.animation.setEndValue(int(max(1, self.host.width())))
+        self.animation.setStartValue(int(self._placement.offset))
+        self.animation.setEndValue(self._placement.closed_offset())
         self.animation.start()
 
     def finish_animation(self):
         """Test/smoke için animasyonu deterministik son durumuna taşır."""
         self.animation.stop()
         if self._target_open:
-            if self.host is not None:
-                self.video_frame.reserve_playlist_dock()
-                self.host.show()
+            if self._placement.embedded:
+                self._placement.reserve()
+                self._placement.reveal_surface()
             self._apply_animated_offset(0)
             self.show()
         else:
@@ -496,7 +566,7 @@ class PlaylistPanel(QWidget):
         """Kapanış sonu: host genişliği TEK SEFERDE 0, video tek seferde büyür."""
         self._apply_animated_offset(0)
         self.hide()
-        self.video_frame.release_playlist_dock()
+        self._placement.release()
         self.video_frame.schedule_overlay_hide()
 
     def _animation_finished(self):
