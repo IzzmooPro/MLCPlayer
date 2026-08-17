@@ -150,3 +150,34 @@ def qt_session_shutdown():
     app.quit()
     app.processEvents()
     gc.collect()
+
+
+# --- Playlist penceresi icin GERCEKCI ekran ---------------------------
+#
+# OLCULDU (17 Agustos 2026): offscreen platformun sanal ekrani 800x800'dur,
+# ama testlerin cogu 1280x720 pencere kurar -- yani PENCERE EKRANDAN
+# GENIStir. Gercek bir kullanicida bu olmaz.
+#
+# Playlist penceresi artik ekran disina tasmamak icin yerlesimini ekrana
+# gore secer (sag -> sol -> ekrana sikistir). O sanal ekranda panel hicbir
+# yere sigmadigi icin zorunlu olarak videonun uzerine dusuyor ve "playlist
+# videoyla kesismez" gibi GERCEK urun sozlesmeleri platform kisiti yuzunden
+# kiriliyordu.
+#
+# Cozum TEK yerdedir: butun testlerde yerlesim hesabi gercekci bir ekrana
+# baglanir. Dosya dosya yama YAPILMAZ. Ekranin KENDI kurali
+# (sag -> sol -> sikistir) `tests/test_playlist_window_regressions.py`
+# icinde saf `place_for()` ile ayrica ve dogrudan olculur; yani bu fixture
+# o kurali gizlemez.
+PLAYLIST_TEST_SCREEN = None
+
+
+@pytest.fixture(autouse=True)
+def _playlist_realistic_screen(monkeypatch):
+    from PyQt6.QtCore import QRect
+
+    from app import playlist_panel as _panel_module
+
+    screen = QRect(0, 0, 2560, 1392)
+    monkeypatch.setattr(_panel_module.WindowPlacement, "_screen_rect",
+                        lambda self: screen, raising=False)

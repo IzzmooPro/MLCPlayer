@@ -314,16 +314,63 @@ class WindowPlacement:
     def set_width(self, width):
         self._width = max(PANEL_MIN_WIDTH, min(PANEL_MAX_WIDTH, int(width)))
 
+    def place_for(self, owner_rect, screen_rect, width):
+        """Panelin dikdörtgenini hesaplar — SAF fonksiyon, yan etkisiz.
+
+        Tercih SAĞDIR. Sağda yer yoksa SOLA geçer; iki yana da sığmıyorsa
+        ekranın içine sıkıştırılır.
+
+        ÖLÇÜLEN KUSUR (17 Ağustos 2026, kullanıcı bildirdi): koşulsuz
+        `owner.right() + 1` kullanılıyordu. 2560x1392 ekranda ana pencere
+        sağ kenardayken panelin **420 px'inin TAMAMI** ekran dışında
+        kalıyordu; playlist hiç görünmüyordu.
+
+        Genişliği daraltmak yerine tarafı değiştirmek seçildi: daraltma
+        liste okunabilirliğini bozar, taraf değiştirmek bozmaz.
+
+        Yükseklik ve dikey konum da ekrana sığdırılır; aksi hâlde uzun bir
+        ana pencere paneli aşağıdan taşırır.
+        """
+        height = max(200, min(int(owner_rect.height()), screen_rect.height()))
+        y = max(screen_rect.top(),
+                min(int(owner_rect.top()), screen_rect.bottom() - height + 1))
+
+        right_x = owner_rect.right() + 1 + PANEL_WINDOW_GAP
+        left_x = owner_rect.left() - PANEL_WINDOW_GAP - width
+        if right_x + width - 1 <= screen_rect.right():
+            x = right_x
+        elif left_x >= screen_rect.left():
+            x = left_x
+        else:
+            # Iki yana da sigmiyor: ekranin ICINE sikistir.
+            x = max(screen_rect.left(),
+                    min(right_x, screen_rect.right() - width + 1))
+        return QRect(int(x), int(y), int(width), int(height))
+
+    def _screen_rect(self):
+        """Sahibin BULUNDUĞU ekranın kullanılabilir alanı (çok ekran)."""
+        owner = self.owner
+        screen = None
+        try:
+            handle = owner.screen() if owner is not None else None
+            screen = handle or QApplication.primaryScreen()
+        except Exception:
+            screen = QApplication.primaryScreen()
+        if screen is None:
+            return None
+        return screen.availableGeometry()
+
     def apply(self):
-        """Paneli ana pencerenin SAĞINA, aynı yükseklikte hizalar."""
+        """Paneli hesaplanan yere koyar (ekran dışına taşmadan)."""
         owner = self.owner
         if owner is None or not owner.isVisible():
             return
-        frame = owner.frameGeometry()
-        x = frame.right() + 1 + PANEL_WINDOW_GAP
-        y = frame.top()
-        height = max(200, frame.height())
-        self.panel.setGeometry(x, y, self._width, height)
+        screen_rect = self._screen_rect()
+        if screen_rect is None:
+            return
+        target = self.place_for(owner.frameGeometry(), screen_rect,
+                                self._width)
+        self.panel.setGeometry(target)
 
     def reserve(self):
         """Pencere modelinde video alanindan yer AYRILMAZ."""

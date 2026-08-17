@@ -95,6 +95,8 @@ def player_window(monkeypatch):
 
 
 def open_playlist(app, window, frame):
+    # Gercekci ekran `tests/conftest.py` icindeki autouse fixture ile
+    # BUTUN testlere uygulanir; burada ikinci bir mekanizma tutulmaz.
     show_playlist(window)
     app.processEvents()
     panel = frame.playlist_panel
@@ -300,6 +302,73 @@ def test_the_resize_filter_does_not_drive_the_main_window_from_the_playlist(
         probe.close()
         probe.deleteLater()
         app.processEvents()
+
+
+# --- 1c. Ekran disina tasmama ----------------------------------------
+
+def test_the_playlist_stays_on_screen_when_the_owner_hugs_the_right_edge(
+        player_window):
+    """Kullanıcı bildirdi: panel pencere dışına taşıyor.
+
+    ÖLÇÜLDÜ (2560x1392 ekran, ana pencere sağ kenarda): panelin
+    **420 px'inin tamamı** ekran dışında kalıyordu, yani playlist hiç
+    görünmüyordu.
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    screen = QRect(0, 0, 1000, 800)
+    owner = QRect(560, 40, 440, 700)          # sağ kenara yaslı
+
+    placed = panel._placement.place_for(owner, screen, 420)
+
+    assert screen.contains(placed), (
+        f"panel ekran disina tasti: {placed} / ekran {screen}")
+
+
+def test_the_playlist_flips_to_the_left_when_the_right_has_no_room(
+        player_window):
+    """Sağda yer yoksa SOLA geçer; kırpılıp içeri sıkıştırılmaz.
+
+    Genişliği daraltmak da bir seçenekti; okunabilirliği bozduğu için
+    tercih edilmedi. Sol taraf tam genişliği korur.
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    screen = QRect(0, 0, 1000, 800)
+    owner = QRect(560, 40, 440, 700)
+
+    placed = panel._placement.place_for(owner, screen, 420)
+
+    assert placed.right() <= owner.left(), (
+        f"panel sola gecmedi: {placed}, sahip {owner}")
+    assert placed.width() == 420, "genislik daraltildi"
+
+
+def test_the_playlist_prefers_the_right_when_it_fits(player_window):
+    """Normal durum DEĞİŞMEDİ: yer varsa sağda durur."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    screen = QRect(0, 0, 2000, 800)
+    owner = QRect(100, 40, 900, 700)
+
+    placed = panel._placement.place_for(owner, screen, 420)
+
+    assert placed.left() >= owner.right()
+    assert screen.contains(placed)
+
+
+def test_a_playlist_wider_than_the_screen_is_clamped_not_pushed_out(
+        player_window):
+    """İki yana da sığmıyorsa ekranın İÇİNE sıkıştırılır."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    screen = QRect(0, 0, 500, 800)
+    owner = QRect(20, 40, 460, 700)
+
+    placed = panel._placement.place_for(owner, screen, 420)
+
+    assert placed.left() >= screen.left()
+    assert placed.right() <= screen.right()
 
 
 # --- 2. Videoyla kesismeme (ESKI DOSYANIN MERKEZI SOZLESMESI) --------
