@@ -1403,7 +1403,13 @@ riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
      İngilizce görmüyor, o seçenek hiç sunulmuyor. Karşılanamayan KAYITLI
      tercih silinmez; dil tamamlanınca geri gelir.
      Sözleşme: `tests/test_available_language_regressions.py` (9 test).
-   - ⬜ **E. Arapça (RTL)**: ayrı tur; yerleşim aynalanmalı.
+   - ❌ **E. Arapça (RTL): KAPSAM DIŞI.** Eski planın maddesiydi ama
+     Arapça `SUPPORTED_LANGUAGES` içinde HİÇ YOK
+     (`en, tr, de, es, fr, it, ru, pt_BR`) ve 17 Ağustos 2026 kararıyla
+     şimdilik yalnız Türkçe + İngilizce sürdürülüyor. RTL yerleşimi
+     ancak bir gün gerçekten sağdan sola bir dil eklenirse gündeme gelir;
+     o zaman da AYRI bir ürün turudur, i18n'in devamı değildir.
+     Bu madde "kalan iş" listesinde TAŞINMAZ.
 
    (eski plan) — EN BÜYÜK ve EN RİSKLİ iş; aşamalı.
    ÖLÇÜLEN RİSK: 38 ürün dosyasında Türkçe arayüz metni var ve **105 test
@@ -1565,11 +1571,24 @@ dosyası (`test_translation_fallback_regressions.py`,
 Tam paket **3380 passed, 17 skipped**; `compileall` ve `git diff --check`
 temiz.
 
-**SIRADAKİ İŞ:** i18n'in A-D maddeleri kapandı. Kalanlar:
-`E. Arapça (RTL)` (ayrı tur, yerleşim aynalanmalı) ve README/CONTRIBUTING
-turunda çevirmen yolu (`.ts` + Qt Linguist). Ürün tarafında açık kusur
-YOK; eski açık riskler (aralıklı child takılması, `timeline`/dragdrop
-otomasyon BLOCKED, bitmap altyazı bandı) değişmedi.
+**SIRADAKİ İŞ.** i18n BİTTİ: A-D maddelerinin hepsi kapandı, ürün
+Türkçe + İngilizce olarak eksiksiz. Arapça/RTL kapsam dışıdır (yukarıya
+bakınız). Açık kusur YOK.
+
+Gerçekten kalanlar:
+
+1. **README/CONTRIBUTING'e çevirmen yolu** (`.ts` + Qt Linguist). Değeri
+   somut: `available_languages()` diskten türediği için bir katkıcı bir
+   `.ts` dosyasını tamamladığında dil menüye KENDİLİĞİNDEN girer, kod
+   değişmez. Ertelenen altı dilin bir gün bitmesinin tek gerçekçi yolu
+   budur.
+2. **Park edilmiş lisans maddeleri** (yukarıdaki dört madde) — kullanıcı
+   "beklesin" dedi, silinmedi.
+3. **`app/` ve `tests/` yorumları** — toplu çevrilmeyecek; dosyaya zaten
+   dokunulduğunda İngilizceye geçirilir.
+
+Eski açık riskler değişmedi: aralıklı child takılması, `timeline` ve
+sürükle-bırak otomasyonunun BLOCKED olması, bitmap/PGS altyazı bandı.
 
 (eski kayıt) Ağaç temiz, `origin/master` ile aynı
 hizada, tam paket 3347 passed, `v0.33` yayında (imzalı, ek paketiyle).
