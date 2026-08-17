@@ -77,10 +77,21 @@ MEDIA_EXTENSIONS = (
 )
 SUBTITLE_EXTENSIONS = "*.srt *.vtt *.ass *.ssa *.sub"
 
+#: Ana pencerenin yuzey rengi -- URUNUN TEK kaynagi.
+#: Playlist penceresi de bunu kullanir; playlist gomulu bir panelken
+#: kendi notr rengi (#131416) vardi ve video uzerinde yuzdugu icin
+#: mantikliydi. Ayri pencereye tasininca ana pencerenin yanina gelip
+#: farkli tonda durmaya basladi (kullanici bildirdi, 17 Agustos 2026).
+#: Iki yerde ayri ayri yazilmaz; ikisi de buradan turer.
+WINDOW_BACKGROUND = "#151A1F"
+
 # Uygulama stili - modern koyu tema
+# NOT: f-string DEGIL. Stil onlarca CSS blogu icerir; f-string her susli
+# parantezi ikilemeyi gerektirir ve tek bir kacirma stili sessizce bozar.
+# Renk YER TUTUCU ile enjekte edilir (asagida `.replace`).
 APP_STYLE = """
     QMainWindow {
-        background-color: #151A1F;
+        background-color: __WINDOW_BACKGROUND__;
     }
 
     QMenuBar {
@@ -325,7 +336,7 @@ APP_STYLE = """
     QScrollBar::add-page, QScrollBar::sub-page {
         background: transparent;
     }
-"""
+""".replace("__WINDOW_BACKGROUND__", WINDOW_BACKGROUND)
 
 
 # --- Arayüz modu ---

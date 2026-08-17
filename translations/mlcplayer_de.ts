@@ -723,7 +723,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="466" />
+            <location filename="app/playlist_panel.py" line="481" />
             <source>Dosya Ekle</source>
             <translation type="unfinished" />
         </message>
@@ -1093,7 +1093,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
         </message>
         <message>
             <location filename="app/media_controls.py" line="884" />
-            <location filename="app/playlist_panel.py" line="468" />
+            <location filename="app/playlist_panel.py" line="483" />
             <source>Kaldır</source>
             <translation type="unfinished" />
         </message>
@@ -1113,7 +1113,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="434" />
+            <location filename="app/playlist_panel.py" line="449" />
             <source>Kapat (Esc)</source>
             <translation type="unfinished" />
         </message>
@@ -1273,7 +1273,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="445" />
+            <location filename="app/playlist_panel.py" line="460" />
             <source>Listede ara</source>
             <translation type="unfinished" />
         </message>
@@ -1294,7 +1294,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
         </message>
         <message>
             <location filename="app/media_controls.py" line="891" />
-            <location filename="app/playlist_panel.py" line="470" />
+            <location filename="app/playlist_panel.py" line="485" />
             <source>Listeyi Temizle</source>
             <translation type="unfinished" />
         </message>
@@ -1471,8 +1471,8 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <location filename="app/media_controls.py" line="1095" />
             <location filename="app/media_controls.py" line="1098" />
             <location filename="app/media_controls.py" line="1116" />
-            <location filename="app/playlist_panel.py" line="364" />
-            <location filename="app/playlist_panel.py" line="419" />
+            <location filename="app/playlist_panel.py" line="371" />
+            <location filename="app/playlist_panel.py" line="434" />
             <location filename="app/video_frame.py" line="2106" />
             <source>Oynatma Listesi</source>
             <translation type="unfinished" />
@@ -1500,7 +1500,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="433" />
+            <location filename="app/playlist_panel.py" line="448" />
             <source>Oynatma Listesini Kapat</source>
             <translation type="unfinished" />
         </message>
@@ -1531,7 +1531,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="454" />
+            <location filename="app/playlist_panel.py" line="469" />
             <source>Oynatma listesi boş
 Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
@@ -1543,7 +1543,7 @@ Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="32" />
+            <location filename="app/playlist_panel.py" line="33" />
             <source>Oynatma listesi genişliğini ayarla</source>
             <translation type="unfinished" />
         </message>
@@ -1860,7 +1860,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="33" />
+            <location filename="app/playlist_panel.py" line="34" />
             <source>Sola veya sağa sürükleyerek liste genişliğini ayarla</source>
             <translation type="unfinished" />
         </message>
@@ -1908,12 +1908,12 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="242" />
+            <location filename="app/playlist_panel.py" line="243" />
             <source>Sürükleyerek sırala</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="587" />
+            <location filename="app/playlist_panel.py" line="637" />
             <source>Sürükleyerek sırala • Oynatmak için çift tıkla</source>
             <translation type="unfinished" />
         </message>
@@ -2124,7 +2124,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="210" />
+            <location filename="app/playlist_panel.py" line="211" />
             <source>Video küçük resmi</source>
             <translation type="unfinished" />
         </message>
@@ -2344,8 +2344,8 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="424" />
-            <location filename="app/playlist_panel.py" line="606" />
+            <location filename="app/playlist_panel.py" line="439" />
+            <location filename="app/playlist_panel.py" line="656" />
             <source>öğe</source>
             <translation type="unfinished" />
         </message>

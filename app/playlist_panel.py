@@ -2,12 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-only
 import os
 
-from PyQt6.QtCore import QEasingCurve, QEvent, QSize, Qt, QVariantAnimation
+from PyQt6.QtCore import (QEasingCurve, QEvent, QPoint, QRect, QSize, Qt,
+                          QVariantAnimation)
 from PyQt6.QtWidgets import (QAbstractItemView, QHBoxLayout,
                              QLabel, QLayout, QLineEdit, QListWidget, QListWidgetItem,
                              QApplication, QPushButton, QSizePolicy, QVBoxLayout,
                              QWidget)
-from app.config import MEDIA_EXTENSIONS
+from app.config import MEDIA_EXTENSIONS, WINDOW_BACKGROUND
 from app.thumbnail_service import ThumbnailService
 from app.i18n import tr
 
@@ -357,7 +358,13 @@ class PlaylistPanel(QWidget):
         # konularının sahiplikle ilgisi yoktur. Eski kod da eksik host'u
         # savunmacı ele alıyordu; aynı politika korunur.
         owner = player if isinstance(player, QWidget) else None
-        super().__init__(owner, Qt.WindowType.Window)
+        # FRAMELESS: ana pencere de framelesstir. Bayraksiz `Qt.Window`
+        # Windows'ta 31 px'lik native baslik cubugu ciziyordu (olculdu) ve
+        # panelin ZATEN kendi basligi + kapatma dugmesi oldugu icin
+        # kullanici iki baslik goruyordu. Tasima kendi basligimizdan yapilir
+        # (`begin_header_drag`).
+        super().__init__(owner, Qt.WindowType.Window
+                         | Qt.WindowType.FramelessWindowHint)
         self.player = player
         self.video_frame = video_frame
         self.host = None
@@ -365,6 +372,9 @@ class PlaylistPanel(QWidget):
         self._target_open = False
         self._split_press_global_x = None
         self._split_press_width = 0
+        # Frameless pencerede basliktan tasima durumu.
+        self._header_press_global = None
+        self._header_press_origin = QPoint(0, 0)
         # Yerleşim TEK yerde (aşama 1 dikişi). Aşama 2'de gömülü yerleşimin
         # yerini bağımsız pencere yerleşimi aldı; panelin genel API'si aynı.
         self._placement = WindowPlacement(self, owner, video_frame)
@@ -380,8 +390,13 @@ class PlaylistPanel(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         self.setMouseTracking(True)
         self.setStyleSheet(
-            "QWidget#playlistPanel { background: rgba(19, 20, 22, 247); "
-            "border-left: 1px solid rgba(255,255,255,24); } "
+            # ANA PENCEREYLE AYNI yuzey rengi (tek kaynak: app.config).
+            # Eski deger `rgba(19, 20, 22, 247)` idi: notr ve hafif saydam,
+            # cunku panel VIDEO USTUNDE yuzen gomulu bir yuzeydi. Ayri
+            # pencere olunca ana pencerenin yanina gelip farkli tonda
+            # durmaya basladi. Saydamlik da kalkti; bu artik bir penceredir.
+            f"QWidget#playlistPanel {{ background: {WINDOW_BACKGROUND}; "
+            "border: 1px solid rgba(255,255,255,20); } "
             "QLabel { background: transparent; } "
             "QLineEdit#playlistSearch { color: #E9EDF1; "
             "background: rgba(255,255,255,12); border: 1px solid "
@@ -512,6 +527,41 @@ class PlaylistPanel(QWidget):
     def apply_panel_geometry(self):
         """Paneli yerleşimin söylediği yere koyar (bkz. `WindowPlacement`)."""
         self._placement.apply()
+
+    # --- Baslikatan tasima (frameless pencere) ------------------------
+
+    def header_drag_zone(self):
+        """Pencereyi taşıyan üst şerit (yerel koordinat).
+
+        Arama kutusunun ÜSTÜNDE kalan alandır; ölçü sabit yazılmaz,
+        gerçek arama kutusunun konumundan türer. Kapatma düğmesi bu
+        şeridin içindedir ama kendi tıklamasını alır (aşağıya bakın).
+        """
+        bottom = self.search_field.geometry().top()
+        return QRect(0, 0, self.width(), max(0, bottom))
+
+    def _header_drag_target(self, local_point):
+        """Nokta taşıma şeridinde mi? Kapatma düğmesi HARİÇ."""
+        if not self.header_drag_zone().contains(local_point):
+            return False
+        return not self.close_button.geometry().contains(local_point)
+
+    def begin_header_drag(self, global_point):
+        """Taşımayı başlatır. Nokta GLOBAL'dir (gerçek fare olayı gibi)."""
+        self._header_press_global = QPoint(global_point)
+        self._header_press_origin = self.pos()
+
+    def continue_header_drag(self, global_point):
+        if self._header_press_global is None:
+            return
+        delta = QPoint(global_point) - self._header_press_global
+        self.move(self._header_press_origin + delta)
+
+    def end_header_drag(self):
+        self._header_press_global = None
+
+    def is_header_dragging(self):
+        return self._header_press_global is not None
 
     def set_panel_width(self, width):
         """Panel genişliğinin TEK giriş noktası (tutamaç ve kenar sürüklemesi).
@@ -730,6 +780,11 @@ class PlaylistPanel(QWidget):
             self.setCursor(Qt.CursorShape.SizeHorCursor)
             event.accept()
             return
+        if (event.button() == Qt.MouseButton.LeftButton
+                and self._header_drag_target(event.position().toPoint())):
+            self.begin_header_drag(event.globalPosition().toPoint())
+            event.accept()
+            return
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -737,6 +792,11 @@ class PlaylistPanel(QWidget):
                 and event.buttons() & Qt.MouseButton.LeftButton):
             delta = self._split_press_global_x - int(event.globalPosition().x())
             self.set_panel_width(self._split_press_width + delta)
+            event.accept()
+            return
+        if (self.is_header_dragging()
+                and event.buttons() & Qt.MouseButton.LeftButton):
+            self.continue_header_drag(event.globalPosition().toPoint())
             event.accept()
             return
         if event.position().x() <= PANEL_RESIZE_HANDLE_WIDTH:
@@ -749,6 +809,11 @@ class PlaylistPanel(QWidget):
         if (event.button() == Qt.MouseButton.LeftButton
                 and self._split_press_global_x is not None):
             self._split_press_global_x = None
+            event.accept()
+            return
+        if (event.button() == Qt.MouseButton.LeftButton
+                and self.is_header_dragging()):
+            self.end_header_drag()
             event.accept()
             return
         super().mouseReleaseEvent(event)

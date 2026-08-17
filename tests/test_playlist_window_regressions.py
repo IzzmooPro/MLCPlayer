@@ -35,6 +35,7 @@ from PyQt6.QtCore import QPoint, QRect, Qt
 from PyQt6.QtWidgets import (
     QApplication, QHBoxLayout, QMainWindow, QVBoxLayout, QWidget)
 
+from app.config import WINDOW_BACKGROUND
 from app.media_controls import show_playlist
 from app.video_frame import VideoFrame
 
@@ -160,6 +161,61 @@ def test_the_playlist_never_floats_above_other_applications(player_window):
 
     assert not (panel.windowFlags()
                 & Qt.WindowType.WindowStaysOnTopHint)
+
+
+# --- 1b. Ana pencereyle AYNI tasarim dili ----------------------------
+
+def test_the_playlist_uses_the_main_window_background(player_window):
+    """Kullanıcı bildirdi (17 Ağustos 2026): renk ana pencereden farklıydı.
+
+    Panel gömülüyken kendi nötr rengi (#131416) vardı ve video üstünde
+    yüzdüğü için mantıklıydı. Ayrı pencereye taşınınca ana pencerenin
+    yanına gelip farklı tonda durmaya başladı. Renk TEK kaynaktan gelir.
+    """
+    app, window, frame = player_window()
+
+    panel = open_playlist(app, window, frame)
+
+    assert WINDOW_BACKGROUND.lower() in panel.styleSheet().lower(), (
+        "playlist ana pencerenin yuzey rengini kullanmiyor")
+    assert "rgba(19, 20, 22" not in panel.styleSheet(), (
+        "eski gomulu panel rengi duruyor")
+
+
+def test_the_playlist_has_no_native_title_bar(player_window):
+    """Ana pencere frameless; playlist de öyle olmalı.
+
+    ÖLÇÜLDÜ: bayraksız `Qt.Window` Windows'ta 31 px'lik native başlık
+    çubuğu çiziyordu. Panelin ZATEN kendi başlığı ve kapatma düğmesi var,
+    yani kullanıcı iki başlık birden görüyordu ve üstteki uygulamanın
+    tasarımına hiç uymuyordu.
+    """
+    app, window, frame = player_window()
+
+    panel = open_playlist(app, window, frame)
+
+    assert panel.windowFlags() & Qt.WindowType.FramelessWindowHint, (
+        "playlist penceresinde native baslik cubugu var")
+
+
+def test_the_playlist_can_be_dragged_by_its_header(player_window):
+    """Frameless pencere native başlıktan taşınamaz; başlık alanı taşır.
+
+    Bu olmadan panel frameless yapılınca HİÇ taşınamaz hâle gelirdi.
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    before = panel.pos()
+
+    # API GLOBAL nokta alir -- gercek fare olayindaki gibi.
+    press = panel.mapToGlobal(QPoint(140, 18))
+    panel.begin_header_drag(press)
+    panel.continue_header_drag(press + QPoint(60, 25))
+    panel.end_header_drag()
+    app.processEvents()
+
+    assert panel.pos().x() == before.x() + 60
+    assert panel.pos().y() == before.y() + 25
 
 
 # --- 2. Videoyla kesismeme (ESKI DOSYANIN MERKEZI SOZLESMESI) --------
