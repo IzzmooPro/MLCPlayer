@@ -1,21 +1,23 @@
 @echo off
 rem ============================================================
-rem  MLC Player - tek tikla surum uretimi
+rem  MLC Player - one-click release build
 rem
-rem  Sirasiyla:
-rem    1. On kontrol  (kaynak dosyalar + runtime SHA-256)
-rem    2. PyInstaller (onedir  -> dist\MLC Player\)
-rem    3. Paket kontrolu (bin/licenses/assets eksiksiz mi)
-rem    4. Inno Setup  (-> installer_output\MLCPlayer_Setup_*.exe)
-rem    5. Sonuc raporu
+rem  In order:
+rem    1. Pre-flight check (source files + runtime SHA-256)
+rem    2. Translation compile (.ts -> .qm)
+rem    3. PyInstaller (onedir -> dist\MLC Player\)
+rem    4. Package check (are bin/licenses/assets complete)
+rem    5. Inno Setup (-> installer_output\MLCPlayer_Setup_*.exe)
+rem    6. Publisher signature
+rem    7. Result report
 rem
-rem  Herhangi bir adim basarisiz olursa ZINCIR DURUR ve hatayi yazar.
-rem  Elle mudahale gerekmez.
+rem  If any step fails the CHAIN STOPS and prints the error. No manual
+rem  intervention is needed.
 rem ============================================================
 setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul 2>&1
 
-rem Proje kokune gec (bu dosya packaging\ altinda).
+rem Move to the project root (this file lives under packaging\).
 cd /d "%~dp0.."
 set "PROJECT=%CD%"
 set "SPEC=MLCPlayer.spec"
@@ -24,32 +26,32 @@ set "VERIFY=packaging\verify_build.py"
 
 echo.
 echo ============================================================
-echo   MLC Player surum uretimi
-echo   Proje: %PROJECT%
+echo   MLC Player release build
+echo   Project: %PROJECT%
 echo ============================================================
 echo.
 
-rem --- Yanlis klasorde calistirmaya karsi guvenlik ---
+rem --- Guard against being run from the wrong folder ---
 if not exist "%SPEC%" (
-    echo HATA: %SPEC% bulunamadi. Bu betik proje kokunden calismalidir.
+    echo ERROR: %SPEC% not found. This script must run from the project root.
     goto :fail
 )
 
 rem --- Python ---
 where python >nul 2>&1
 if errorlevel 1 (
-    echo HATA: python PATH'te bulunamadi.
+    echo ERROR: python was not found on PATH.
     goto :fail
 )
 
 rem --- PyInstaller ---
 python -m PyInstaller --version >nul 2>&1
 if errorlevel 1 (
-    echo HATA: PyInstaller kurulu degil.  Kurulum: pip install pyinstaller
+    echo ERROR: PyInstaller is not installed.  Install it with: pip install pyinstaller
     goto :fail
 )
 
-rem --- Inno Setup derleyicisi (6 veya 7, her iki Program Files konumu) ---
+rem --- Inno Setup compiler (6 or 7, both Program Files locations) ---
 set "ISCC="
 for %%P in (
     "%ProgramFiles%\Inno Setup 7\ISCC.exe"
@@ -58,55 +60,57 @@ for %%P in (
     "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
 ) do if not defined ISCC if exist %%P set "ISCC=%%~P"
 if not defined ISCC (
-    echo HATA: ISCC.exe bulunamadi.  Inno Setup kurulu olmalidir.
+    echo ERROR: ISCC.exe not found.  Inno Setup must be installed.
     goto :fail
 )
 
-echo ADIM 1/8  On kontrol
+echo STEP 1/8  Pre-flight check
 python "%VERIFY%" --pre
 if errorlevel 1 goto :fail
-rem Yayimlanabilirlik: kurulu istemcilerin GOREMEYECEGI bir surum uretilmesin
-rem (surum karsilastirmasi sayisaldir; v0.31 varken v0.4 gorunmez).
+rem Publishability: do not produce a version installed clients CANNOT SEE
+rem (the comparison is numeric; with v0.31 out, v0.4 is invisible).
 python "packaging\check_publishable.py"
 if errorlevel 1 goto :fail
 echo.
 
-echo ADIM 2/8  Onceki ciktilarin temizligi
+echo STEP 2/8  Cleaning previous output
 if exist "build" rmdir /s /q "build"
 if exist "dist"  rmdir /s /q "dist"
-echo   OK  build\ ve dist\ temizlendi
+echo   OK  build\ and dist\ cleaned
 echo.
 
-echo ADIM 3/8  Ceviri derleme (.ts -^> .qm)
-rem `.qm` uretilmis dosyadir ve depoda TUTULMAZ; MLCPlayer.spec onlari
-rem translations\ icinden toplar. Derleme burada yapilmazsa temiz bir
-rem kopyada paket CEVIRISIZ cikar ve kullanici sessizce yalniz Turkce gorur.
+echo STEP 3/8  Compiling translations (.ts -^> .qm)
+rem `.qm` files are build output and are NOT kept in the repository;
+rem MLCPlayer.spec collects them from translations\. Without this step a
+rem clean checkout produces a package with NO translations and the user
+rem silently gets Turkish only.
 python "packaging\compile_translations.py"
 if errorlevel 1 goto :fail
 echo.
 
-echo ADIM 4/8  PyInstaller (onedir)  -  birkac dakika surebilir
+echo STEP 4/8  PyInstaller (onedir)  -  this can take a few minutes
 python -m PyInstaller "%SPEC%" --noconfirm --clean --log-level WARN
 if errorlevel 1 (
-    echo HATA: PyInstaller basarisiz oldu.
+    echo ERROR: PyInstaller failed.
     goto :fail
 )
 python "%VERIFY%" --post
 if errorlevel 1 goto :fail
 echo.
 
-echo ADIM 5/8  Inno Setup kurulum dosyasi
-echo   Derleyici: %ISCC%
+echo STEP 5/8  Inno Setup installer
+echo   Compiler: %ISCC%
 "%ISCC%" /Q "%ISS%"
 if errorlevel 1 (
-    echo HATA: Inno Setup derlemesi basarisiz oldu.
+    echo ERROR: the Inno Setup build failed.
     goto :fail
 )
-echo   OK  derleme tamamlandi
+echo   OK  build finished
 echo.
 
-echo ADIM 6/8  Internet Videosu ek paketi
-rem yt-dlp + deno ana pakette DEGIL; ayri, istege bagli kurulumla gelir.
+echo STEP 6/8  Internet Video add-on
+rem yt-dlp + deno are NOT in the main package; they ship as a separate,
+rem optional install.
 for /f "usebackq delims=" %%V in (`python -c "import sys; sys.path.insert(0,'.'); from app.config import APP_VERSION, WINDOWS_VERSION; print(APP_VERSION + '|' + WINDOWS_VERSION)"`) do (
     for /f "tokens=1,2 delims=|" %%A in ("%%V") do (
         set "ADDON_VER=%%A"
@@ -115,24 +119,24 @@ for /f "usebackq delims=" %%V in (`python -c "import sys; sys.path.insert(0,'.')
 )
 "%ISCC%" /Q /DAddonVersion=!ADDON_VER! /DAddonNumericVersion=!ADDON_NUM! "packaging\MLCPlayer_InternetVideo.iss"
 if errorlevel 1 (
-    echo HATA: Internet Videosu ek paketi derlenemedi.
+    echo ERROR: the Internet Video add-on could not be built.
     goto :fail
 )
-echo   OK  ek paket derlendi
+echo   OK  add-on built
 echo.
 
-echo ADIM 7/8  Yayinci imzasi
-rem UNUTULAMAZ OLMASI ICIN ZINCIRDE: imzasiz yayimlanan bir surumu
-rem guncelleyici REDDEDER (fail-closed) ve kullanici sebebini goremez.
+echo STEP 7/8  Publisher signature
+rem IN THE CHAIN SO IT CANNOT BE FORGOTTEN: the updater REJECTS an
+rem unsigned release (fail-closed) and the user cannot see why.
 set "SETUP_TO_SIGN="
 for %%F in ("installer_output\MLCPlayer_Setup_*.exe") do set "SETUP_TO_SIGN=installer_output\%%~nxF"
 python "packaging\sign_release.py" "%SETUP_TO_SIGN%"
 if errorlevel 1 (
-    echo HATA: Kurulum imzalanamadi. Ozel anahtar yoksa once:
-    echo        python packaging\sign_release.py --init
+    echo ERROR: the installer could not be signed. Without a private key,
+    echo        run first: python packaging\sign_release.py --init
     goto :fail
 )
-rem Ek paket de imzalanir: kullanici onu da GitHub'dan indirir.
+rem The add-on is signed too: the user downloads it from GitHub as well.
 set "ADDON_TO_SIGN="
 for %%F in ("installer_output\MLCPlayer_InternetVideo_*.exe") do set "ADDON_TO_SIGN=installer_output\%%~nxF"
 if defined ADDON_TO_SIGN (
@@ -141,11 +145,11 @@ if defined ADDON_TO_SIGN (
 )
 echo.
 
-echo ADIM 8/8  Sonuc
+echo STEP 8/8  Result
 set "SETUP="
 for %%F in ("installer_output\MLCPlayer_Setup_*.exe") do set "SETUP=installer_output\%%~nxF"
 if not defined SETUP (
-    echo HATA: installer_output icinde kurulum dosyasi yok.
+    echo ERROR: no installer found in installer_output.
     goto :fail
 )
 python "%VERIFY%" --final "%SETUP%"
@@ -153,14 +157,14 @@ if errorlevel 1 goto :fail
 
 echo.
 echo ============================================================
-echo   TAMAMLANDI
+echo   DONE
 echo.
-echo   Klasor : dist\MLC Player\        (tamamini birlikte tasiyin)
-echo   Kurulum: %SETUP%
-echo   Imza   : %SETUP%.sig   (release'e MUTLAKA birlikte yuklenir)
-echo   Ek paket: !ADDON_TO_SIGN! (+ .sig)  - internet videosu bilesenleri
+echo   Folder   : dist\MLC Player\      (move the whole folder together)
+echo   Installer: %SETUP%
+echo   Signature: %SETUP%.sig   (MUST be uploaded to the release with it)
+echo   Add-on   : !ADDON_TO_SIGN! (+ .sig)  - internet video components
 echo.
-echo   Arkadasiniza GONDERECEGINIZ dosya kurulum dosyasidir.
+echo   The file you SEND to someone else is the installer.
 echo ============================================================
 echo.
 endlocal
@@ -169,7 +173,7 @@ exit /b 0
 :fail
 echo.
 echo ============================================================
-echo   BASARISIZ - yukaridaki hataya bakin. Cikti uretilmedi.
+echo   FAILED - see the error above. No output was produced.
 echo ============================================================
 echo.
 endlocal

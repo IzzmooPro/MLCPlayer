@@ -1,16 +1,16 @@
-"""Inno Setup sihirbaz görsellerini ürünün kendi ikonundan üretir.
+"""Builds the Inno Setup wizard images from the product's own icon.
 
-NEDEN: kurulum sihirbazı boş gri bir yüzeyle açılıyordu. Referans olarak
-bakılan VLC kurulumunda sol tarafta markalı bir şerit var; aynı işlevi
-kendi görsel kimliğimizle veriyoruz.
+WHY: the installer wizard opened on an empty grey surface. The VLC
+installer, looked at as a reference, carries a branded strip down the left
+side; this gives the same function in our own visual identity.
 
-Renkler `assets/mlc-player-icon.png` içinden ÖLÇÜLDÜ (baskın iki renk):
-koyu zemin #101020 (%40) ve marka turuncusu #F05020 (%26).
+The colours were MEASURED from `assets/mlc-player-icon.png` (the two
+dominant ones): dark ground #101020 (40%) and brand orange #F05020 (26%).
 
-Inno Setup 24-bit BMP ister; PNG kabul etmez. Çoklu boyut verilir ki
-yüksek DPI ekranlarda bulanıklaşmasın.
+Inno Setup wants 24-bit BMP and does not accept PNG. Several sizes are
+provided so the images do not blur on high-DPI screens.
 
-Kullanım: python packaging/make_wizard_images.py
+Usage: python packaging/make_wizard_images.py
 """
 
 import os
@@ -24,9 +24,9 @@ OUTPUT_DIR = os.path.join(ROOT, "packaging", "wizard")
 BACKGROUND = (16, 16, 32)          # ikonun koyu zemini
 ACCENT = (240, 80, 32)             # marka turuncusu
 
-#: Inno'nun sol şerit görseli için desteklenen ölçekler.
+#: The scales Inno supports for the left-hand strip image.
 LARGE_SIZES = ((164, 314), (192, 386), (256, 496))
-#: Üst köşedeki küçük görsel.
+#: The small image in the top corner.
 SMALL_SIZES = ((55, 55), (110, 110), (138, 140))
 
 
@@ -36,7 +36,7 @@ def _logo(size):
 
 
 def large_image(width, height):
-    """Koyu zemin + altta ince turuncu şerit + ortada logo."""
+    """Dark ground + a thin orange strip along the bottom + centred logo."""
     canvas = Image.new("RGB", (width, height), BACKGROUND)
     stripe_height = max(3, height // 60)
     canvas.paste(ACCENT, (0, height - stripe_height, width, height))
@@ -48,18 +48,19 @@ def large_image(width, height):
     return canvas
 
 
-#: Inno'nun modern sihirbaz başlığının zemini beyazdır.
+#: The ground of Inno's modern wizard header is white.
 HEADER_BACKGROUND = (255, 255, 255)
 
 
 def small_image(width, height):
-    """İç sayfaların sağ üst köşesi: GÖRSEL İSTENMİYOR.
+    """Top-right corner of the inner pages: NO IMAGE WANTED.
 
-    KULLANICI KARARI: ilk sayfadaki boydan boya sol panel kimliği zaten
-    veriyor; iç sayfalarda ikinci bir logo fazlalık. Inno'da küçük görseli
-    kapatan bir anahtar YOKTUR — `WizardSmallImageFile` verilmezse Inno
-    KENDİ varsayılan görselini koyar. Bu yüzden başlık zeminiyle aynı
-    renkte düz bir görsel verilir ve köşe boş görünür.
+    USER DECISION: the full-height left panel on the first page already
+    carries the identity; a second logo on the inner pages is redundant.
+    Inno has NO key that turns the small image off - without
+    `WizardSmallImageFile` it inserts ITS OWN default. So a flat image in
+    the same colour as the header ground is supplied and the corner reads
+    as empty.
     """
     return Image.new("RGB", (width, height), HEADER_BACKGROUND)
 

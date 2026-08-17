@@ -1,19 +1,19 @@
-"""Yayımlanamaz sürümü YAYIMDAN ÖNCE yakalar.
+"""Catches an unpublishable version BEFORE it is released.
 
-ÖLÇÜLEN TUZAK: `app/updater.is_newer_version()` sürümleri SAYISAL
-karşılaştırır (`v0.31` → `(0, 31, 0)`). Kullanıcının numaralandırması
-`v0.3 → v0.31 → v0.32` olduğu için bu doğru çalışır, AMA bir gün `v0.31`'den
-sonra `v0.4` yayımlanırsa `31 > 4` olduğundan kurulu kopyalar güncellemeyi
-HİÇ GÖRMEZ; sessizce "güncelsiniz" derler.
+MEASURED TRAP: `app/updater.is_newer_version()` compares versions
+NUMERICALLY (`v0.31` -> `(0, 31, 0)`). That works for the numbering in use
+(`v0.3 -> v0.31 -> v0.32`), BUT if `v0.4` were ever released after `v0.31`,
+then `31 > 4` and installed copies would NEVER SEE the update; they would
+quietly report "you are up to date".
 
-Karşılaştırma semantiğini değiştirmek yerine kural BURADA zorlanır:
-yayımlanacak sürüm, halihazırda yayımlanmış sürümden istemcinin KENDİ
-ölçütüne göre kesinlikle yeni olmalıdır. Böylece tuzağa düşen bir etiket
-release olamadan durdurulur.
+Rather than changing the comparison semantics, the rule is enforced HERE:
+the version about to be published must be strictly newer than the already
+published one BY THE CLIENT'S OWN measure. A tag that falls into the trap
+is stopped before it can become a release.
 
-Çıkış kodları:
-    0  yayımlanabilir (veya ağ yok — uyarı verilir, zincir durdurulmaz)
-    1  YAYIMLANAMAZ (istemciler bu sürümü göremez ya da etiket zaten var)
+Exit codes:
+    0  publishable (or no network - a warning is printed, the chain goes on)
+    1  NOT PUBLISHABLE (clients cannot see this version, or the tag exists)
 """
 
 import json
@@ -31,7 +31,7 @@ TIMEOUT = 8
 
 
 def published_tags():
-    """Yayımlanmış etiketler (yeniden eskiye). Ağ yoksa `None`."""
+    """Published tags, newest first. `None` when there is no network."""
     url = f"https://api.github.com/repos/{GITHUB_REPO}/releases"
     request = urllib.request.Request(
         url, headers={"User-Agent": f"MLCPlayer/{APP_VERSION}"})
@@ -45,7 +45,7 @@ def published_tags():
 
 
 def evaluate(version, tags):
-    """`(yayimlanabilir, mesaj)`. Ağ yoksa `tags` None gelir."""
+    """`(publishable, message)`. `tags` is None when there is no network."""
     if tags is None:
         return True, ("[UYARI] GitHub'a ulasilamadi; surum karsilastirmasi "
                       "YAPILAMADI. Yayindan once elle dogrulayin.")

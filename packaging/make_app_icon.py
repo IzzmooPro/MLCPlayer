@@ -1,20 +1,21 @@
-"""Uygulama ikonunun ŞEFFAF sürümünü üretir.
+"""Produces the TRANSPARENT variant of the application icon.
 
-KULLANICI İSTEĞİ: masaüstündeki kısayolda ikonun arkasındaki koyu plaka
-görünüyordu; VLC'nin konisi gibi yalnız işaretin durması, arkasının boş
-olması isteniyor.
+USER REQUEST: the dark plate behind the icon was visible on the desktop
+shortcut. Like VLC's cone, only the mark should remain, with nothing
+behind it.
 
-YÖNTEM: kaynak sanat düz renklerden oluşur — plaka `(20, 25, 32)`, işaret
-turuncu `(252, 88, 33)` ve beyaz üçgen (ÖLÇÜLDÜ). Basit bir "koyu pikselleri
-sil" eşiği kenarlarda koyu hale bırakırdı, çünkü kenar pikselleri plaka ile
-işaretin KARIŞIMIDIR. Bunun yerine her piksel için kapsama (alfa) hesaplanır:
-piksel plakadan ne kadar uzaksa o kadar opak olur ve rengi en yakın düz
-işaret rengine sabitlenir. Böylece kenarlar temiz kalır.
+METHOD: the source art is made of flat colours - plate `(20, 25, 32)`,
+brand orange `(252, 88, 33)` and a white triangle (MEASURED). A simple
+"delete dark pixels" threshold would leave a dark halo along the edges,
+because edge pixels are a BLEND of the plate and the mark. Instead a
+coverage (alpha) value is computed per pixel: the further a pixel is from
+the plate colour, the more opaque it becomes, and its colour is snapped to
+the nearest flat mark colour. That keeps the edges clean.
 
-Kurulum sihirbazının görselleri BİLEREK dokunulmaz; onlar koyu panel
-üzerinde duruyor ve orada plaka sorun değil.
+The installer wizard images are DELIBERATELY left alone; they sit on a
+dark panel where the plate is not a problem.
 
-Kullanım: python packaging/make_app_icon.py
+Usage: python packaging/make_app_icon.py
 """
 
 import os
@@ -26,11 +27,11 @@ SOURCE = os.path.join(ROOT, "assets", "mlc-player-icon.png")
 TRANSPARENT_PNG = os.path.join(ROOT, "assets", "mlc-player-icon-transparent.png")
 TRANSPARENT_ICO = os.path.join(ROOT, "assets", "mlc-player-icon-transparent.ico")
 
-#: Kaldırılacak plaka rengi ve korunacak işaret renkleri (ölçülen değerler).
+#: The plate colour to remove and the mark colours to keep (measured).
 PLATE = (20, 25, 32)
 FOREGROUNDS = ((252, 88, 33), (240, 245, 250))
 
-#: Windows kısayolu 16 pikselden 256'ya kadar her boyutu kullanır.
+#: A Windows shortcut uses every size from 16 pixels up to 256.
 ICO_SIZES = [(size, size) for size in (16, 24, 32, 48, 64, 128, 256)]
 
 
@@ -39,7 +40,7 @@ def _distance(first, second):
 
 
 def remove_plate(image):
-    """Plakayı şeffaflaştırır; kenar pikselleri kapsama alfası alır."""
+    """Makes the plate transparent; edge pixels get a coverage alpha."""
     image = image.convert("RGBA")
     width, height = image.size
     source = image.load()

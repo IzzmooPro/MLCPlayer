@@ -1,22 +1,24 @@
-"""`tr("...")` çağrılarını toplayıp `.ts` çeviri dosyalarını günceller.
+"""Collects `tr("...")` calls and updates the `.ts` translation files.
 
-NEDEN KENDİ ÇIKARICIMIZ: `pylupdate6` YALNIZ `QCoreApplication.translate(...)`
-biçimini tanıyor; `app/i18n.tr()` sarmalayıcısını GÖREMİYOR (ölçüldü). Her
-çağrı yerine tam ifadeyi yazmak menü ve diyalog kodunu okunmaz hâle
-getirirdi. Çalışma zamanı yine standart Qt'dir; yalnız ÇIKARMA bize aittir.
+WHY OUR OWN EXTRACTOR: `pylupdate6` recognises ONLY the
+`QCoreApplication.translate(...)` form and CANNOT SEE the `app/i18n.tr()`
+wrapper (measured). Writing the full expression at every call site would
+make the menu and dialog code unreadable. The runtime is still plain Qt;
+only the EXTRACTION is ours.
 
-Ölçüm AST üzerindedir, metin araması değil: yorum satırındaki veya
-docstring'deki bir `tr("...")` benzeri metin yanlışlıkla toplanmaz ve
-değişken içeren çağrılar (`tr(baslik)`) sessizce atlanmaz — RAPOR EDİLİR,
-çünkü çevrilemeyen metin kullanıcıya kaynak dilde görünür.
+The scan runs over the AST, not over raw text: something that merely looks
+like `tr("...")` inside a comment or a docstring is not collected by
+mistake, and calls carrying a variable (`tr(title)`) are not silently
+skipped - they are REPORTED, because text that cannot be translated
+reaches the user in the source language.
 
-MEVCUT ÇEVİRİLER KORUNUR: `.ts` dosyası varsa çevrilmiş karşılıklar okunur
-ve yeniden yazılırken kaybolmaz. Kaynak metin değişmişse çeviri
-`type="unfinished"` olarak işaretlenir.
+EXISTING TRANSLATIONS ARE KEPT: when a `.ts` file is already there, its
+translations are read and survive the rewrite. If the source text changed,
+the translation is marked `type="unfinished"`.
 
-Kullanım:
-    python packaging/extract_translations.py            # hepsini guncelle
-    python packaging/extract_translations.py --check    # degisiklik var mi
+Usage:
+    python packaging/extract_translations.py            # update everything
+    python packaging/extract_translations.py --check    # is anything stale
 """
 
 import ast
@@ -31,24 +33,26 @@ from app.i18n import (SOURCE_LANGUAGE, SUPPORTED_LANGUAGES,  # noqa: E402
                       TRANSLATION_CONTEXT, TRANSLATION_PREFIX,
                       TRANSLATIONS_DIR_NAME)
 
-#: Taranan kaynaklar. Testler ve paketleme betikleri KULLANICIYA görünmez.
+#: Sources that are scanned. Tests and packaging scripts are NOT visible
+#: to the user.
 SOURCE_DIRECTORIES = ("app",)
 SOURCE_FILES = ("main.py",)
 
 
-#: Metni çeviri dosyasına SOKAN çağrılar. `tr()` çeviriyi hemen uygular,
-#: `tr_mark()` yalnız işaretler (modül düzeyi sabitler için; çeviri kullanım
-#: anında `translate_marked()` ile olur). İkisi de sabit metin taşımalıdır.
+#: Calls that PUT text into the translation files. `tr()` translates right
+#: away; `tr_mark()` only marks (for module-level constants, where the
+#: translation happens at use time through `translate_marked()`). Both must
+#: carry a literal string.
 EXTRACTING_CALLS = ("tr", "tr_mark")
 
 
 class Collector(ast.NodeVisitor):
-    """Çeviri çağrılarını toplar; sabit olmayanları ayrı raporlar."""
+    """Collects translation calls; reports non-literal ones separately."""
 
     def __init__(self, path):
         self.path = path
-        self.texts = []          # (metin, satir)
-        self.dynamic = []        # sabit metin OLMAYAN cagrilar
+        self.texts = []          # (text, line)
+        self.dynamic = []        # calls WITHOUT a literal string
 
     def visit_Call(self, node):
         name = None
@@ -76,7 +80,7 @@ def python_files():
 
 
 def collect():
-    """Dönüş: `(metin -> [(dosya, satir)], dinamik_cagrilar)`"""
+    """Returns `(text -> [(file, line)], dynamic_calls)`."""
     found = {}
     dynamic = []
     for path in python_files():
@@ -92,7 +96,7 @@ def collect():
 
 
 def existing_translations(path):
-    """Var olan `.ts` dosyasındaki çevirileri korur."""
+    """Keeps the translations already present in a `.ts` file."""
     if not os.path.isfile(path):
         return {}
     try:
@@ -143,17 +147,18 @@ def update(check_only=False):
     texts, dynamic = collect()
     os.makedirs(translations_directory(), exist_ok=True)
 
-    print(f"[BILGI] {len(texts)} cevrilebilir metin bulundu.")
+    print(f"[INFO] {len(texts)} translatable strings found.")
     if dynamic:
-        print(f"[UYARI] {len(dynamic)} cagri sabit metin TASIMIYOR; bunlar "
-              f"cevrilemez ve kullaniciya kaynak dilde gorunur:")
+        print(f"[WARNING] {len(dynamic)} calls carry NO literal string; "
+              f"they cannot be translated and reach the user in the "
+              f"source language:")
         for path, line in dynamic[:10]:
             print(f"         {path}:{line}")
 
     changed = []
     for language in SUPPORTED_LANGUAGES:
         if language == SOURCE_LANGUAGE:
-            continue                      # kaynak dil cevrilmez
+            continue                      # the source language is not translated
         path = target_path(language)
         document = build_document(language, texts, existing_translations(path))
         ET.indent(document, space="    ")
@@ -168,13 +173,13 @@ def update(check_only=False):
 
     if check_only:
         if changed:
-            print("[HATA] Guncel degil: " + ", ".join(changed))
-            print("       Calistirin: python packaging/extract_translations.py")
+            print("[ERROR] Out of date: " + ", ".join(changed))
+            print("        Run: python packaging/extract_translations.py")
             return 1
-        print("[OK] Ceviri dosyalari guncel.")
+        print("[OK] The translation files are up to date.")
         return 0
 
-    print("[OK] Yazilan: " + (", ".join(changed) if changed else "degisiklik yok"))
+    print("[OK] Written: " + (", ".join(changed) if changed else "no changes"))
     return 0
 
 

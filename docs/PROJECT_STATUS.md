@@ -1491,9 +1491,22 @@ tarafı (H.264/H.265) — lisans değil patent konusu, VLC de depoda
 önerdiği dosya başı bildirimler. İlk ikisi kullanıcı/hukukçu kararıdır.
 
 **DİL KURALI (kullanıcı kararı, 17 Ağustos 2026): depo dosyalarının ADI
-ve İÇERİĞİ İNGİLİZCEDİR.** `Baslat.bat` → `Start.bat` (git mv, geçmiş
-korundu) ve `scripts/bootstrap.ps1` konsol çıktıları + yorumları
-İngilizceye çevrildi. README/README.tr referansları güncellendi.
+ve İÇERİĞİ İNGİLİZCEDİR.** Kapsam ölçülerek belirlendi:
+
+| Alan | Türkçe satır | Karar |
+|---|---|---|
+| `packaging/` (7 py + bat) | 148 | ✅ **BİTTİ** — 0 kaldı |
+| `Start.bat` + `bootstrap.ps1` | — | ✅ **BİTTİ** |
+| `safe_console`/`log` mesajları | ~152 çağrı | ⬜ SIRADA |
+| `app/` yorum + docstring | 3454 | ❌ TOPLU ÇEVRİLMEYECEK |
+| `tests/` yorum + docstring | 3815 | ❌ TOPLU ÇEVRİLMEYECEK |
+
+`app/` ve `tests/` içindeki 7269 satır bu projenin ölçüm kayıtlarını ve
+"neden böyle" gerekçelerini taşır; toptan çeviri hem uzun sürer hem her
+satırda nüans kaybı riski taşır. KURAL: o dosyalara zaten dokunulduğunda
+oradaki yorum İngilizceye çevrilir, ayrı bir tur açılmaz.
+
+`Baslat.bat` → `Start.bat` (git mv, geçmiş korundu).
 BU KURAL ÜRÜN ARAYÜZÜNÜ KAPSAMAZ: kaynak dil Türkçedir (bkz. `app/i18n.py`)
 ve 453 assert ona bakar.
 

@@ -1,20 +1,19 @@
-"""`.ts` çeviri kaynaklarını `.qm` ikililerine derler.
+"""Compiles the `.ts` translation sources into `.qm` binaries.
 
-NEDEN AYRI ADIM. `.qm` ÜRETİLMİŞ dosyadır ve `.gitignore` içindedir;
-`MLCPlayer.spec` onları `translations/` klasöründen toplar. Ama zinciri
-kuran hiçbir adım onları derlemiyordu: temiz bir kopyada
-`packaging/build_release.bat` çalıştırıldığında klasör boş kalıyor,
-paket çevirisiz çıkıyor ve kullanıcı hiçbir uyarı almadan yalnız Türkçe
-görüyordu. Bu betik o boşluğu kapatır ve `build_release.bat` içinde
-PyInstaller'dan ÖNCE çalışır.
+WHY IT IS A SEPARATE STEP. `.qm` files are BUILD OUTPUT and live in
+`.gitignore`; `MLCPlayer.spec` collects them from the `translations/`
+folder. But nothing in the chain compiled them: on a clean checkout
+`packaging/build_release.bat` left that folder empty, the package shipped
+with no translations, and the user silently got Turkish only. This script
+closes that gap and runs BEFORE PyInstaller inside `build_release.bat`.
 
-BOŞ ÇEVİRİLER DERLENMEZ. Tamamı `unfinished` olan bir `.ts` dosyası
-geçerli ama İÇİ BOŞ bir `.qm` üretir. Onu paketlemek anlamsızdır:
-`app.i18n.available_languages()` boş çeviriyi zaten reddeder, ama
-paketin içinde ölü dosya taşımanın da bir yararı yoktur. Atlanan diller
-RAPOR EDİLİR, sessizce yutulmaz.
+EMPTY TRANSLATIONS ARE NOT COMPILED. A `.ts` file that is entirely
+`unfinished` produces a valid but EMPTY `.qm`. Packaging that is
+pointless: `app.i18n.available_languages()` rejects an empty translation
+anyway, and carrying a dead file inside the package helps nobody. Skipped
+languages are REPORTED, not swallowed.
 
-Kullanım:
+Usage:
     python packaging/compile_translations.py
 """
 
@@ -26,14 +25,15 @@ import xml.etree.ElementTree as ET
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TRANSLATIONS_DIR = os.path.join(ROOT, "translations")
 
-#: Qt'nin derleyicisi. PySide6 ile gelir; `pylupdate6` DEĞİL `lrelease`.
+#: Qt's compiler. It comes with PySide6; `lrelease`, NOT `pylupdate6`.
 COMPILER = "pyside6-lrelease"
 
 
 def translated_count(ts_path):
-    """`.ts` dosyasındaki GERÇEKTEN çevrilmiş dizge sayısı.
+    """How many strings in a `.ts` file are ACTUALLY translated.
 
-    Bozuk XML sayı üretmez; dosya atlanır ve çağıran bunu rapor eder.
+    Broken XML produces no count; the file is skipped and the caller
+    reports it.
     """
     try:
         tree = ET.parse(ts_path)
@@ -50,7 +50,7 @@ def translated_count(ts_path):
 
 
 def compile_one(ts_path, qm_path):
-    """Tek dosyayı derler. Dönüş: başarılıysa `True`."""
+    """Compiles one file. Returns `True` on success."""
     result = subprocess.run([COMPILER, ts_path, "-qm", qm_path],
                             capture_output=True, text=True, timeout=120)
     if result.returncode != 0:
@@ -60,9 +60,9 @@ def compile_one(ts_path, qm_path):
 
 
 def compile_all(source_dir=TRANSLATIONS_DIR, target_dir=None):
-    """Bütün `.ts` dosyalarını derler.
+    """Compiles every `.ts` file.
 
-    Dönüş: `(yazilan_qm_yollari, atlanan_dosya_adlari)`
+    Returns `(written_qm_paths, skipped_file_names)`.
     """
     target_dir = target_dir or source_dir
     os.makedirs(target_dir, exist_ok=True)
@@ -73,7 +73,8 @@ def compile_all(source_dir=TRANSLATIONS_DIR, target_dir=None):
             continue
         ts_path = os.path.join(source_dir, name)
         if translated_count(ts_path) == 0:
-            # Çevirisi olmayan dil: boş `.qm` paketlemenin yararı yok.
+            # A language with no translations: shipping an empty `.qm`
+            # helps nobody.
             skipped.append(name)
             continue
         qm_path = os.path.join(target_dir, name[:-3] + ".qm")
@@ -88,16 +89,17 @@ def main():
     try:
         written, skipped = compile_all()
     except FileNotFoundError:
-        print(f"[HATA] {COMPILER} bulunamadi. Kurulum: pip install pyside6")
+        print(f"[ERROR] {COMPILER} not found. Install it with: pip install pyside6")
         return 1
     for path in written:
         print(f"[OK] {os.path.basename(path)}")
     for name in skipped:
-        print(f"[ATLANDI] {name} (ceviri yok)")
+        print(f"[SKIPPED] {name} (no translations)")
     if not written:
-        print("[HATA] Hicbir ceviri derlenemedi; paket cevirisiz cikar.")
+        print("[ERROR] No translation could be compiled; the package would "
+              "ship without translations.")
         return 1
-    print(f"[BILGI] {len(written)} ceviri derlendi, {len(skipped)} atlandi.")
+    print(f"[INFO] {len(written)} translations compiled, {len(skipped)} skipped.")
     return 0
 
 

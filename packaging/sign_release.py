@@ -1,18 +1,18 @@
-"""Yayın imzalama aracı (Ed25519).
+"""Release signing tool (Ed25519).
 
     python packaging/sign_release.py --init
-        Yayıncı anahtar çiftini ÜRETİR. Özel anahtar depo DIŞINDA saklanır;
-        açık anahtar ekrana yazılır ve `app/release_signature.py` içine
-        elle gömülür.
+        GENERATES the publisher key pair. The private key is kept OUTSIDE
+        the repository; the public key is printed and embedded by hand into
+        `app/release_signature.py`.
 
     python packaging/sign_release.py installer_output/MLCPlayer_Setup_vX.exe
-        Dosyanın SHA-256 özetini imzalar ve `<dosya>.sig` üretir. Bu dosya
-        release'e ASSET olarak yüklenmelidir; güncelleyici onu indirip
-        gömülü açık anahtarla doğrular.
+        Signs the file's SHA-256 digest and writes `<file>.sig`. That file
+        MUST be uploaded to the release as an asset; the updater downloads
+        it and verifies it against the embedded public key.
 
-ÖZEL ANAHTAR ASLA DEPOYA GİRMEZ. Varsayılan konum:
+THE PRIVATE KEY NEVER ENTERS THE REPOSITORY. Default location:
     %USERPROFILE%\\.mlcplayer\\release_ed25519.key
-`MLC_SIGNING_KEY` ortam değişkeniyle başka bir yol verilebilir.
+`MLC_SIGNING_KEY` can point somewhere else.
 """
 
 import base64
@@ -35,9 +35,10 @@ def key_path():
 def create_key():
     path = key_path()
     if os.path.exists(path):
-        print(f"[HATA] Anahtar zaten var: {path}")
-        print("       Yenisini üretmek eski imzaları GEÇERSİZ kılar; dosyayı")
-        print("       elle taşıyın ve gömülü açık anahtarı da güncelleyin.")
+        print(f"[ERROR] A key already exists: {path}")
+        print("        Generating a new one INVALIDATES every existing")
+        print("        signature; move the file by hand and update the")
+        print("        embedded public key as well.")
         return 1
     os.makedirs(os.path.dirname(path), exist_ok=True)
     private = Ed25519PrivateKey.generate()
@@ -45,10 +46,10 @@ def create_key():
     with open(path, "wb") as handle:
         handle.write(base64.b64encode(raw))
     public = base64.b64encode(private.public_key().public_bytes_raw()).decode()
-    print(f"[OK] Özel anahtar yazıldı: {path}")
-    print("     BU DOSYAYI YEDEKLEYİN ve depoya EKLEMEYİN.")
+    print(f"[OK] Private key written: {path}")
+    print("     BACK THIS FILE UP and do NOT add it to the repository.")
     print()
-    print("app/release_signature.py içine gömülecek açık anahtar:")
+    print("Public key to embed into app/release_signature.py:")
     print(f'RELEASE_PUBLIC_KEY = "{public}"')
     return 0
 
@@ -56,8 +57,8 @@ def create_key():
 def load_private():
     path = key_path()
     if not os.path.exists(path):
-        raise SystemExit(f"[HATA] Özel anahtar yok: {path}\n"
-                         f"       Önce: python packaging/sign_release.py --init")
+        raise SystemExit(f"[ERROR] No private key: {path}\n"
+                         f"        Run first: python packaging/sign_release.py --init")
     with open(path, "rb") as handle:
         raw = base64.b64decode(handle.read().strip())
     return Ed25519PrivateKey.from_private_bytes(raw)
@@ -73,7 +74,7 @@ def sha256_hex(path):
 
 def sign(path):
     if not os.path.isfile(path):
-        print(f"[HATA] Dosya yok: {path}")
+        print(f"[ERROR] No such file: {path}")
         return 1
     digest = sha256_hex(path)
     signature = load_private().sign(digest.encode("ascii"))
@@ -81,8 +82,8 @@ def sign(path):
     with open(target, "w", encoding="ascii") as handle:
         handle.write(base64.b64encode(signature).decode())
     print(f"[OK] SHA-256 : {digest}")
-    print(f"[OK] İmza    : {target}")
-    print("     Bu dosyayı release'e ASSET olarak yükleyin.")
+    print(f"[OK] Signature: {target}")
+    print("     Upload this file to the release as an asset.")
     return 0
 
 

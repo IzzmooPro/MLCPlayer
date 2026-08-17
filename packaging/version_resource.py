@@ -1,28 +1,30 @@
-"""Windows sürüm kaynağı (VS_VERSION_INFO) metnini üretir.
+"""Produces the Windows version resource (VS_VERSION_INFO) text.
 
-NEDEN VAR: paketlenen EXE'de sürüm kaynağı YOKTU. Windows "Birlikte aç"
-listesinde ve dosya özelliklerinde `FileDescription` alanını okur; alan
-boş olduğu için program **"MLC Player.exe"** olarak, yani dosya adıyla
-görünüyordu. Ölçüm: `dist\\MLC Player\\MLC Player.exe` → ProductVersion boş.
+WHY IT EXISTS: the packaged EXE had NO version resource. Windows reads the
+`FileDescription` field for the "Open with" list and for the file
+properties; because that field was empty, the program showed up as
+**"MLC Player.exe"**, that is, by its file name. Measured:
+`dist\\MLC Player\\MLC Player.exe` -> ProductVersion empty.
 
-Değerler `app/config.py` → `APP_VERSION` / `WINDOWS_VERSION` tek kaynağından
-türer; `MLCPlayer.spec` bu metni build sırasında yazar ve PyInstaller'a
-`version=` ile verir.
+The values derive from the single source in `app/config.py`
+(`APP_VERSION` / `WINDOWS_VERSION`); `MLCPlayer.spec` writes this text at
+build time and hands it to PyInstaller through `version=`.
 """
 
 COMPANY_NAME = "IzzmooPro"
-FILE_DESCRIPTION = "MLC Player"      # Windows'un listede gösterdiği ad
+FILE_DESCRIPTION = "MLC Player"      # the name Windows shows in the list
 PRODUCT_NAME = "MLC Player"
 INTERNAL_NAME = "MLC Player"
 ORIGINAL_FILENAME = "MLC Player.exe"
 LEGAL_COPYRIGHT = "© IzzmooPro — GNU GPL v3"
 
-# DİL KODU — ÖLÇÜLEN TUZAK: `StringTable` anahtarı ile `VarFileInfo`
-# içindeki `Translation` AYNI dili göstermek ZORUNDADIR. İlk denemede
-# anahtar `040E` (Macarca), Translation ise `1055` (0x041F, Türkçe) idi;
-# kaynak EXE'ye GİRDİ (1404 bayt) ama Windows çözemedi ve bütün alanlar
-# boş göründü. Bu yüzden Windows'un her kurulumda çözebildiği
-# US English + Unicode çifti kullanılır; metinler ASCII'dir.
+# LANGUAGE CODE - MEASURED TRAP: the `StringTable` key and the
+# `Translation` entry inside `VarFileInfo` MUST name the SAME language. The
+# first attempt paired key `040E` (Hungarian) with Translation `1055`
+# (0x041F, Turkish); the resource DID reach the EXE (1404 bytes) but
+# Windows could not resolve it and every field looked empty. So the US
+# English + Unicode pair, which Windows resolves on every installation, is
+# used and the strings are ASCII.
 LANGUAGE_ID = 0x0409          # US English
 CHARSET_ID = 1200             # Unicode
 STRING_TABLE_KEY = f"{LANGUAGE_ID:04X}{CHARSET_ID:04X}"
@@ -59,7 +61,7 @@ VSVersionInfo(
 
 
 def version_numbers(windows_version):
-    """`0.2.0.0` → `(0, 2, 0, 0)`; Windows dört sayı ister."""
+    """`0.2.0.0` -> `(0, 2, 0, 0)`; Windows wants four numbers."""
     parts = [int(part) for part in windows_version.split(".")]
     while len(parts) < 4:
         parts.append(0)
@@ -67,7 +69,7 @@ def version_numbers(windows_version):
 
 
 def render(app_version, windows_version):
-    """PyInstaller'ın `version=` ile okuduğu metni döndürür."""
+    """Returns the text PyInstaller reads through `version=`."""
     return TEMPLATE.format(
         numbers=version_numbers(windows_version),
         table_key=STRING_TABLE_KEY,
