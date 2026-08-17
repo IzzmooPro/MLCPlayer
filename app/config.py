@@ -85,6 +85,22 @@ SUBTITLE_EXTENSIONS = "*.srt *.vtt *.ass *.ssa *.sub"
 #: Iki yerde ayri ayri yazilmaz; ikisi de buradan turer.
 WINDOW_BACKGROUND = "#151A1F"
 
+#: Ipucu (tooltip) stili -- URUNUN TEK kaynagi. `APP_STYLE` ANA
+#: PENCEREYE kurulur; ayri top-level pencereler (playlist) onu
+#: almadigi icin ipuclari sistem varsayilanina dusuyordu ve kocaman
+#: cikiyordu (kullanici bildirdi, 17 Agustos 2026). Ayri pencereler
+#: bunu kendi stiline ekler; kural iki yerde YAZILMAZ.
+TOOLTIP_STYLE = """
+    QToolTip {
+        background-color: #232B33;
+        color: #E0E5EB;
+        border: 1px solid #333F4A;
+        padding: 5px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+"""
+
 # Uygulama stili - modern koyu tema
 # NOT: f-string DEGIL. Stil onlarca CSS blogu icerir; f-string her susli
 # parantezi ikilemeyi gerektirir ve tek bir kacirma stili sessizce bozar.
@@ -305,13 +321,7 @@ APP_STYLE = """
         selection-color: #FFFFFF;
     }
 
-    QToolTip {
-        background-color: #232B33;
-        color: #E0E5EB;
-        border: 1px solid #333F4A;
-        padding: 5px 8px;
-        border-radius: 4px;
-    }
+__TOOLTIP_STYLE__
 
     QMessageBox {
         background-color: #1A2027;
@@ -336,7 +346,7 @@ APP_STYLE = """
     QScrollBar::add-page, QScrollBar::sub-page {
         background: transparent;
     }
-""".replace("__WINDOW_BACKGROUND__", WINDOW_BACKGROUND)
+""".replace("__WINDOW_BACKGROUND__", WINDOW_BACKGROUND).replace("__TOOLTIP_STYLE__", TOOLTIP_STYLE)
 
 
 # --- Arayüz modu ---

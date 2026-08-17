@@ -22,6 +22,13 @@ TITLE_BAR_HEIGHT = 48
 # yuksekligini (34) ASMAZ ve cubukta (48) ustte/altta en az 6'sar px
 # nefes payi kalir -> en fazla 36. 28 ikisini de saglar.
 TITLE_LOGO_SIZE = 28
+#: Baslik cubugu dugme olculeri ve yan pay -- URUNUN TEK kaynagi.
+#: Playlist penceresi de bunlari kullanir; ayri pencere olmasi kendi
+#: olcusunu uydurmasi anlamina GELMEZ (kullanici bildirdi, 17 Agustos
+#: 2026: kapatma dugmesi yanlis konumlanmisti).
+TITLE_BUTTON_SIZE = 34
+TITLE_BUTTON_ICON_SIZE = 20
+TITLE_BAR_SIDE_MARGIN = 16
 RESIZE_MARGIN = 12
 TITLE_BAR_BACKGROUND = "#11151A"
 # Urunun vurgu rengi. Overlay (`video_frame.OVERLAY_ACCENT`) ve altyazi
@@ -92,7 +99,8 @@ class TitleBar(QWidget):
         )
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(16, 0, 16, 0)
+        layout.setContentsMargins(TITLE_BAR_SIDE_MARGIN, 0,
+                                  TITLE_BAR_SIDE_MARGIN, 0)
         layout.setSpacing(6)
 
         # Frameless pencerede Windows'un dogal ikon alani yok; ortak logo
@@ -164,7 +172,9 @@ class TitleBar(QWidget):
 
     # --- Kurulum yardımcıları ---
 
-    def _make_button(self, object_name, icon_kind, label, size=34, icon_size=20):
+    def _make_button(self, object_name, icon_kind, label,
+                     size=TITLE_BUTTON_SIZE,
+                     icon_size=TITLE_BUTTON_ICON_SIZE):
         button = QPushButton(self)
         button.setObjectName(object_name)
         button.setText("")
@@ -388,7 +398,11 @@ class FramelessResizeFilter(QObject):
             getattr(self.player, "media_container", None),
             video_frame,
             overlay,
-            getattr(video_frame, "playlist_panel", None),
+            # PLAYLIST YOK: ayri bir penceredir ve ANA pencerenin
+            # resize'ini surmemelidir. Gomuluyken mesruydu (kenar
+            # olaylari ona dusebiliyordu); ayri pencerede
+            # koordinatlar ana pencereye eslenince anlamsiz kenar
+            # uretiyor ve imlec her yerde resize'a donuyordu.
         ]
         # Overlay AYRI top-level penceredir; yerleşimi değişirse kenar
         # bandına bir child düşebilir. YALNIZ bu ağaç gezilir; global

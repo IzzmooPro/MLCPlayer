@@ -8,7 +8,11 @@ from PyQt6.QtWidgets import (QAbstractItemView, QHBoxLayout,
                              QLabel, QLayout, QLineEdit, QListWidget, QListWidgetItem,
                              QApplication, QPushButton, QSizePolicy, QVBoxLayout,
                              QWidget)
-from app.config import MEDIA_EXTENSIONS, WINDOW_BACKGROUND
+from app.config import (MEDIA_EXTENSIONS, TOOLTIP_STYLE,
+                        WINDOW_BACKGROUND)
+from app.title_bar import (TITLE_BAR_ACCENT, TITLE_BAR_SIDE_MARGIN,
+                           TITLE_BUTTON_ICON_SIZE, TITLE_BUTTON_SIZE)
+from app.ui_icons import make_media_icon
 from app.thumbnail_service import ThumbnailService
 from app.i18n import tr
 
@@ -414,7 +418,10 @@ class PlaylistPanel(QWidget):
             "QPushButton { color: #DDE2E7; background: transparent; border: none; "
             "border-radius: 4px; padding: 7px 9px; font-size: 12px; } "
             "QPushButton:hover { background: rgba(255,255,255,20); color: white; } "
-            f"QPushButton#playlistAdd {{ color: {PLAYLIST_ACCENT}; }}"
+            f"QPushButton#playlistAdd {{ color: {PLAYLIST_ACCENT}; }} "
+            # Ayri top-level pencere ANA PENCERENIN stilini almaz;
+            # ipucu kurali urunun tek kaynagindan eklenir.
+            + TOOLTIP_STYLE
         )
         self.resize_handle = PlaylistResizeHandle(self)
         self.resize_handle.raise_()
@@ -423,7 +430,9 @@ class PlaylistPanel(QWidget):
         # Top-level tool window, child widget'ların doğal genişliğini pencereye
         # zorlamasın; 400x300 ana pencerede panel video yüzeyine sığabilsin.
         root.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
-        root.setContentsMargins(18, 18, 18, 14)
+        # Yan paylar baslik cubugununkiyle AYNI ritimde.
+        root.setContentsMargins(TITLE_BAR_SIDE_MARGIN, 18,
+                                TITLE_BAR_SIDE_MARGIN, 14)
         root.setSpacing(12)
 
         header = QHBoxLayout()
@@ -443,14 +452,25 @@ class PlaylistPanel(QWidget):
         title_column.addWidget(self.count_label)
         header.addLayout(title_column)
         header.addStretch(1)
-        self.close_button = QPushButton("×", self)
+        # Baslik cubugundakiyle AYNI dugme: ayni olcu, ayni ikon, ayni
+        # hover rengi. Panel ayri bir pencere olsa da urunun kimligini
+        # tasir; kendi olcusunu uydurmasi onu yabanci gosteriyordu.
+        self.close_button = QPushButton(self)
         self.close_button.setObjectName("playlistClose")
+        self.close_button.setText("")
         self.close_button.setAccessibleName(tr("Oynatma Listesini Kapat"))
         self.close_button.setToolTip(tr("Kapat (Esc)"))
-        self.close_button.setFixedSize(36, 36)
+        self.close_button.setFixedSize(TITLE_BUTTON_SIZE, TITLE_BUTTON_SIZE)
+        self.close_button.setIconSize(QSize(TITLE_BUTTON_ICON_SIZE,
+                                            TITLE_BUTTON_ICON_SIZE))
+        self.close_button.setIcon(
+            make_media_icon("close", TITLE_BUTTON_ICON_SIZE, "#FFFFFF"))
+        self.close_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.close_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.close_button.setStyleSheet(
-            "font-size: 25px; font-weight: 300; background: transparent; "
-            "color: #E7EAED; padding: 0;")
+            "QPushButton#playlistClose { background: transparent; border: none; "
+            "padding: 0; border-radius: 4px; } "
+            f"QPushButton#playlistClose:hover {{ background: {TITLE_BAR_ACCENT}; }}")
         self.close_button.clicked.connect(self.close_animated)
         header.addWidget(self.close_button, 0, Qt.AlignmentFlag.AlignTop)
         root.addLayout(header)

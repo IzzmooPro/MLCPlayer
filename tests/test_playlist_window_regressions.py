@@ -31,12 +31,13 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import QPoint, QRect, Qt
+from PyQt6.QtCore import QPoint, QRect, QSize, Qt
 from PyQt6.QtWidgets import (
     QApplication, QHBoxLayout, QMainWindow, QVBoxLayout, QWidget)
 
 from app.config import WINDOW_BACKGROUND
 from app.media_controls import show_playlist
+from app.title_bar import TITLE_BAR_SIDE_MARGIN, TITLE_BUTTON_SIZE
 from app.video_frame import VideoFrame
 
 
@@ -216,6 +217,89 @@ def test_the_playlist_can_be_dragged_by_its_header(player_window):
 
     assert panel.pos().x() == before.x() + 60
     assert panel.pos().y() == before.y() + 25
+
+
+def test_the_playlist_styles_its_tooltips_like_the_rest_of_the_app(
+        player_window):
+    """Kullanıcı bildirdi: "Kapat (Esc)" ipucu kocaman çıkıyordu.
+
+    `APP_STYLE` ana pencereye kuruludur, `QApplication`a değil. Playlist
+    AYRI bir top-level pencere olduğu için ipucu ürünün stilini almıyor,
+    sistem varsayılanına düşüyordu.
+    """
+    app, window, frame = player_window()
+
+    panel = open_playlist(app, window, frame)
+
+    assert "QToolTip" in panel.styleSheet(), (
+        "playlist ipuclari urunun stilini almiyor")
+
+
+def test_the_playlist_close_button_matches_the_title_bar_one(player_window):
+    """Kapatma düğmesi ana pencerenin başlık çubuğundakiyle AYNI olmalı.
+
+    Panel ayrı bir penceredir; kendi ölçüsünü uydurması onu yabancı
+    gösteriyordu (36x36 metin "×" vs 34x34 ikon).
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    button = panel.close_button
+
+    assert button.size() == QSize(TITLE_BUTTON_SIZE, TITLE_BUTTON_SIZE), (
+        f"kapat dugmesi {button.size()} != baslik cubugu "
+        f"{TITLE_BUTTON_SIZE}x{TITLE_BUTTON_SIZE}")
+    assert button.text() == "", "metin '×' yerine ikon kullanilmali"
+    assert not button.icon().isNull(), "kapat ikonu yok"
+    # Sag kenar payi baslik cubugununkiyle ayni.
+    assert panel.width() - (button.x() + button.width()) == TITLE_BAR_SIDE_MARGIN
+
+
+def test_the_resize_filter_does_not_drive_the_main_window_from_the_playlist(
+        player_window):
+    """Kullanıcı bildirdi: playlist'te her yerde yatay resize imleci çıkıyor.
+
+    `FramelessResizeFilter` panel ANA PENCERENİN İÇİNDE bir yüzeyken
+    kuruluyordu; kenar olayları ona düşebiliyordu. Panel artık AYRI bir
+    penceredir ve koordinatları ana pencereye eşlenince anlamsız kenarlar
+    üretiyor, imleç her yerde resize'a dönüyordu.
+    """
+    from app.title_bar import FramelessResizeFilter
+
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+
+    # Fixture'in penceresi DEGISTIRILMEZ. Onceki surum burada
+    # `window.title_bar = None` yapip `central_widget`i degistiriyordu;
+    # fixture teardown'i bozuluyor ve surec SESSIZCE cokuyordu (10 test
+    # sonrasi ozet hic basilmadi). Filtre kendi tek kullanimlik
+    # penceresine kurulur.
+    # Probe KENDI widget'larini kullanir. Onceki surum buraya fixture'in
+    # gercek `frame`ini veriyordu; filtre o cerceveye kuruluyor, probe
+    # silinince SARKAN bir olay filtresi kaliyor ve SONRAKI test sessizce
+    # cokuyordu (10 test sonrasi ozet hic basilmadi).
+    probe = QMainWindow()
+    probe.central_widget = QWidget(probe)
+    probe.title_bar = None
+    probe.media_container = QWidget(probe)
+    probe_frame = QWidget(probe)
+    probe_frame.control_overlay = None
+    probe_frame.playlist_panel = panel
+    probe.video_frame = probe_frame
+    filt = FramelessResizeFilter(probe, None)
+    try:
+        filt.install()
+        assert not any(target is panel for target in filt.targets), (
+            "resize filtresi hala playlist penceresine kurulu")
+    finally:
+        # Ne olursa olsun hicbir hedefte filtre BIRAKILMAZ.
+        for target in list(filt.targets):
+            try:
+                target.removeEventFilter(filt)
+            except Exception:
+                pass
+        probe.close()
+        probe.deleteLater()
+        app.processEvents()
 
 
 # --- 2. Videoyla kesismeme (ESKI DOSYANIN MERKEZI SOZLESMESI) --------

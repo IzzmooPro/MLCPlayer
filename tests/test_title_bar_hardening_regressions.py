@@ -192,23 +192,27 @@ def test_resize_filter_includes_native_overlay_and_playlist_edge_surfaces(
     # `playlist_dock_host` KALDIRILDI (playlist artik bagimsiz
     # pencere). Filtre adaylari arasinda aranmaz.
     assert window.video_frame.control_overlay in targets
-    assert window.video_frame.playlist_panel in targets
+    # PLAYLIST ARTIK HEDEF DEGIL. Panel ana pencerenin YANINDA duran
+    # bagimsiz bir penceredir; ana pencerenin resize'ini surmemelidir.
+    # Kullanici bildirdi (17 Agustos 2026): playlist uzerinde HER YERDE
+    # yatay resize imleci cikiyordu, cunku panelin koordinatlari ana
+    # pencereye eslenince anlamsiz kenarlar uretiyordu.
+    assert window.video_frame.playlist_panel not in targets
 
 
-def test_right_edge_press_on_open_playlist_panel_starts_main_window_resize(
+def test_press_on_the_playlist_never_resizes_the_main_window(
         frameless_window):
-    """Panelin sağ kenarındaki basış ANA PENCERE resize'ını başlatmalı.
+    """TERSINE CEVRILDI (17 Agustos 2026, kullanici raporu).
 
-    Eskiyen beklenti gevşetilmeden dönüştürüldü. Bu test yalnız
-    `startSystemResize` yolunu kabul ediyordu; oysa `playlist_panel` ayrı bir
-    top-level `Qt.Tool` penceresidir ve `_can_use_system_resize()` orada
-    bilerek `False` döner (`watched.window() is not player`). Ürün o durumda
-    sınırlı manuel yedek yolu kullanır — bkz. `app/title_bar.py`
-    `eventFilter` içindeki ölçülmüş kusur notu ve
-    `tests/test_frameless_resize_fallback_regressions.py`.
+    Bu test bir zamanlar panelin sag kenarina basmanin ANA PENCERE
+    resize'ini baslatmasini SART KOSUYORDU. O beklenti panel ana
+    pencerenin icindeki bir yuzeyken dogruydu.
 
-    Kullanıcı sözleşmesi değişmedi ve DARALTILMADI: sağ kenar basışı hâlâ
-    doğru kenarla gerçek bir resize başlatır, olay yutulur ve fare yakalanır.
+    Panel artik ana pencerenin YANINDA duran bagimsiz bir penceredir.
+    Kullanicinin gordugu belirti: playlist uzerinde HER YERDE yatay
+    resize imleci cikiyor ve pencere buyutuluyordu. Panelin kendi
+    genisligi kendi tutamaciyla degisir (`panel.set_panel_width`); ana
+    pencereye DOKUNMAZ.
     """
     app, window, bar, resize_filter = frameless_window()
     resize_filter.remove()
@@ -229,9 +233,8 @@ def test_right_edge_press_on_open_playlist_panel_starts_main_window_resize(
     app.sendEvent(panel, press_on(panel, (point.x(), point.y())))
 
     try:
-        assert resize_filter.manual_resize_active()
-        assert resize_filter._manual["edges"] == Qt.Edge.RightEdge
-        assert resize_filter._manual["grabber"] is panel
+        assert not resize_filter.manual_resize_active(), (
+            "playlist uzerindeki basis ana pencere resize'ini baslatti")
     finally:
         resize_filter._end_manual_resize()
         app.processEvents()

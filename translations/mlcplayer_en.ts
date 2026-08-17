@@ -651,8 +651,8 @@ Sensitive information has been hidden automatically.</translation>
             <translation>Large</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="156" />
-            <location filename="app/title_bar.py" line="279" />
+            <location filename="app/title_bar.py" line="164" />
+            <location filename="app/title_bar.py" line="289" />
             <source>Büyüt</source>
             <translation>Maximise</translation>
         </message>
@@ -711,7 +711,7 @@ Sensitive information has been hidden automatically.</translation>
             <location filename="app/media_controls.py" line="109" />
             <location filename="app/menu_actions.py" line="30" />
             <location filename="app/menu_actions.py" line="949" />
-            <location filename="app/title_bar.py" line="128" />
+            <location filename="app/title_bar.py" line="136" />
             <location filename="app/video_frame.py" line="2097" />
             <source>Dosya Aç</source>
             <translation>Open File</translation>
@@ -729,7 +729,7 @@ Sensitive information has been hidden automatically.</translation>
             <translation>File Not Found</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="481" />
+            <location filename="app/playlist_panel.py" line="501" />
             <source>Dosya Ekle</source>
             <translation>Add Files</translation>
         </message>
@@ -903,7 +903,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Backward</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="279" />
+            <location filename="app/title_bar.py" line="289" />
             <source>Geri Yükle</source>
             <translation>Restore</translation>
         </message>
@@ -1103,7 +1103,7 @@ Solution: unlock the file or copy it to another folder.</translation>
         </message>
         <message>
             <location filename="app/media_controls.py" line="884" />
-            <location filename="app/playlist_panel.py" line="483" />
+            <location filename="app/playlist_panel.py" line="503" />
             <source>Kaldır</source>
             <translation>Remove</translation>
         </message>
@@ -1117,13 +1117,13 @@ Solution: unlock the file or copy it to another folder.</translation>
             <location filename="app/log_management_dialog.py" line="38" />
             <location filename="app/menu_actions.py" line="505" />
             <location filename="app/subtitle_center.py" line="559" />
-            <location filename="app/title_bar.py" line="161" />
+            <location filename="app/title_bar.py" line="169" />
             <location filename="app/updater.py" line="592" />
             <source>Kapat</source>
             <translation>Close</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="449" />
+            <location filename="app/playlist_panel.py" line="462" />
             <source>Kapat (Esc)</source>
             <translation>Close (Esc)</translation>
         </message>
@@ -1272,7 +1272,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Small</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="151" />
+            <location filename="app/title_bar.py" line="159" />
             <source>Küçült</source>
             <translation>Minimise</translation>
         </message>
@@ -1283,7 +1283,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Polish</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="460" />
+            <location filename="app/playlist_panel.py" line="480" />
             <source>Listede ara</source>
             <translation>Search the list</translation>
         </message>
@@ -1304,7 +1304,7 @@ Solution: unlock the file or copy it to another folder.</translation>
         </message>
         <message>
             <location filename="app/media_controls.py" line="891" />
-            <location filename="app/playlist_panel.py" line="485" />
+            <location filename="app/playlist_panel.py" line="505" />
             <source>Listeyi Temizle</source>
             <translation>Clear Playlist</translation>
         </message>
@@ -1314,7 +1314,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>MLC Player contributors</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="103" />
+            <location filename="app/title_bar.py" line="111" />
             <source>MLC Player simgesi</source>
             <translation>MLC Player icon</translation>
         </message>
@@ -1355,7 +1355,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Media Files</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="138" />
+            <location filename="app/title_bar.py" line="146" />
             <source>Menü</source>
             <translation>Menu</translation>
         </message>
@@ -1483,8 +1483,8 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <location filename="app/media_controls.py" line="1095" />
             <location filename="app/media_controls.py" line="1098" />
             <location filename="app/media_controls.py" line="1116" />
-            <location filename="app/playlist_panel.py" line="371" />
-            <location filename="app/playlist_panel.py" line="434" />
+            <location filename="app/playlist_panel.py" line="375" />
+            <location filename="app/playlist_panel.py" line="443" />
             <location filename="app/video_frame.py" line="2106" />
             <source>Oynatma Listesi</source>
             <translation>Playlist</translation>
@@ -1512,7 +1512,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Show Playlist</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="448" />
+            <location filename="app/playlist_panel.py" line="461" />
             <source>Oynatma Listesini Kapat</source>
             <translation>Close the Playlist</translation>
         </message>
@@ -1543,7 +1543,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>The playlist could not be opened. The file may be corrupt or unreadable.</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="469" />
+            <location filename="app/playlist_panel.py" line="489" />
             <source>Oynatma listesi boş
 Dosyaları buraya sürükleyin</source>
             <translation>Playlist is empty
@@ -1556,7 +1556,7 @@ Drag files here</translation>
             <translation>The playlist is empty.</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="33" />
+            <location filename="app/playlist_panel.py" line="37" />
             <source>Oynatma listesi genişliğini ayarla</source>
             <translation>Adjust the playlist width</translation>
         </message>
@@ -1879,7 +1879,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Left Arrow</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="34" />
+            <location filename="app/playlist_panel.py" line="38" />
             <source>Sola veya sağa sürükleyerek liste genişliğini ayarla</source>
             <translation>Drag left or right to resize the list</translation>
         </message>
@@ -1927,12 +1927,12 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Opening files by drag and drop</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="243" />
+            <location filename="app/playlist_panel.py" line="247" />
             <source>Sürükleyerek sırala</source>
             <translation>Drag to reorder</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="637" />
+            <location filename="app/playlist_panel.py" line="657" />
             <source>Sürükleyerek sırala • Oynatmak için çift tıkla</source>
             <translation>Drag to reorder — double-click to play</translation>
         </message>
@@ -2143,7 +2143,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>It will be saved to the video folder with this name:</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="211" />
+            <location filename="app/playlist_panel.py" line="215" />
             <source>Video küçük resmi</source>
             <translation>Video thumbnail</translation>
         </message>
@@ -2363,8 +2363,8 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Features:</translation>
         </message>
         <message>
-            <location filename="app/playlist_panel.py" line="439" />
-            <location filename="app/playlist_panel.py" line="656" />
+            <location filename="app/playlist_panel.py" line="448" />
+            <location filename="app/playlist_panel.py" line="676" />
             <source>öğe</source>
             <translation>items</translation>
         </message>
