@@ -55,3 +55,8 @@ assets/icon-concepts/
 # again. Do not rely on a global ignore rule for this - that rule does not
 # travel with a clone.
 .claude/settings.local.json
+
+# Mirrored upstream source archives (GPLv3 corresponding source). Build
+# output: fetched by packaging/fetch_sources.py and uploaded to the
+# release, never tracked here.
+source_mirror/

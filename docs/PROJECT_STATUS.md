@@ -1510,6 +1510,29 @@ kapanan bir maddenin yeniden "açık" yazılmasını da engelliyor.
 Kullanıcı "lisans olayı beklesin, unutma" dedi. Bu liste o yüzden
 hafızada değil BURADA durur; sıradaki tur bunlarla AÇILMAZ ama silinmez.
 
+0. ✅ **Kaynak aynalama aracı — HAZIR (17 Ağustos 2026).**
+   `packaging/fetch_sources.py` manifestteki arşivleri indirir, boyut ve
+   SHA-256 ile doğrular, `source_mirror/` altına bırakır; doğrulanamayan
+   dosya SAKLANMAZ, silinir. Yayından önce çalıştırılır ve çıktı release'e
+   ek asset olarak yüklenir — böylece karşılık gelen kaynak upstream'e
+   BAĞIMLI olmaktan çıkar.
+
+   **ÖLÇÜLEN TUZAK:** manifestin yedi satırının yalnız DÖRDÜNDE SHA-256,
+   URL'in döndürdüğü şeyin özetidir. `mpv-2.dll` ve `deno.exe` satırlarında
+   özet ÇIKARILMIŞ dosyaya aittir; URL ise arşivi döndürür. Naif bir
+   indirici doğru arşivi indirip "bozuk" derdi. Ad karşılaştırması da
+   yetmez: `yt-dlp-THIRD_PARTY_LICENSES.txt` satırının adı URL'in sonundan
+   FARKLIDIR ama doğrudan indirilebilir. Bu yüzden sınıflandırma AÇIK
+   listedir (`FETCHABLE` / `NOT_FETCHABLE` + gerekçe) ve manifeste yeni
+   satır eklenip sınıflandırılmazsa test kırılır.
+
+   Zincir GERÇEK ağla sınandı: 231397 baytlık lisans dosyası indirildi,
+   boyut ve özet doğrulandı; yanlış özet verildiğinde `verify()` `False`
+   döndü ve dosyayı SİLDİ. Yayın zincirine EKLENMEDİ — her derlemede 88 MB
+   indirmek ve ağa bağımlı olmak doğru değil; yayın öncesi tek komuttur.
+
+   Sözleşme: `tests/test_source_mirror_regressions.py` (12 test, ağa çıkmaz).
+
 1. **FFmpeg patent tarafı (H.264/H.265).** Lisans değil PATENT konusu:
    GPL kodu dağıtma iznidir, patent havuzu (AVC → Via LA, HEVC → Access
    Advance) standardın UYGULANMASINI ayrı bir izin sayar. VLC de bunu

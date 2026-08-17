@@ -175,7 +175,12 @@ repositories for mpv, FFmpeg and the build recipe. Both files ship inside the
 installed package, not only here. We do not modify any of those sources.
 
 If an upstream address ever becomes unreachable, ask for the source through
-this repository.
+this repository. To make that offer independent of upstream, run
+`python packaging/fetch_sources.py` before publishing a release: it
+downloads the archives named in the manifest, verifies each against the
+size and SHA-256 recorded there, and leaves them in `source_mirror/` ready
+to upload alongside the installer. A file that fails verification is
+deleted rather than kept.
 
 ### Open items
 
