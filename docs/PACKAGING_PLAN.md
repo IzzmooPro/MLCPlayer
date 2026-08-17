@@ -230,8 +230,27 @@ değildir.
 - Güncelleme/kaldırma sırasında çalışan süreç davranışı
 - Bilinen sınırlamalar
 
-Commit, push, tag, release veya yayınlama işlemleri bu planın doğal parçası
-değildir; bunlar için ayrıca açık kullanıcı onayı gerekir.
+Commit, push, tag, release veya yayınlama işlemleri için ayrıca açık
+kullanıcı onayı gerekir. Onay verildiğinde izlenecek sıra aşağıdadır ve
+**değişmezdir**.
+
+## Yayın yetkilendirmesi ve süreç
+
+Bu plan **paketlemeyi** anlatır: neyin nasıl derlendiği, hangi ikililerin
+girdiği, lisans ve boyut ölçümleri.
+
+**Yayın süreci bu belgenin konusu DEĞİLDİR.** Kesin sıra, her adımın
+giriş/çıkış şartı, sekiz varlık sözleşmesi ve hata hâlinde nerede
+durulacağı tek resmî kaynaktadır:
+
+> **`docs/RELEASE_PROCESS.md`**
+
+Buradan çıkmayan iki kural, paketleme turlarında da geçerlidir:
+
+- **Tag ve push build'den ÖNCE yapılmaz.**
+- **Build, commit, push, tag ve release AYRI AYRI kullanıcı onayı
+  ister.** Biri için verilen onay diğerine geçmez. `--target master`
+  KULLANILMAZ; `--verify-tag --draft` zorunludur.
 
 ## Otomatik güncelleme — karar paketleme aşamasına bırakıldı
 

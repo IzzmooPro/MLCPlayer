@@ -58,10 +58,21 @@ Güncelleme, kurulum dosyasının SHA-256 özetinin yayıncı anahtarıyla
 imzalanmasına dayanır (`app/release_signature.py`). Doğrulama fail-closed'dur:
 imzası olmayan release REDDEDİLİR. Bu yüzden:
 
-- **Her release'e İKİ dosya yüklenir:** `MLCPlayer_Setup_vX.exe` ve
-  `MLCPlayer_Setup_vX.exe.sig`. İmza `packaging/build_release.bat` içinde
-  otomatik üretilir (ADIM 5/6); zincir dışında elle derleme yapıldıysa
-  `python packaging/sign_release.py <kurulum.exe>` çalıştırılır.
+- **Her release'e SEKİZ dosya yüklenir** (ölçüldü; eski kural "iki dosya"
+  diyordu ve eksikti). Dördü kurulum/imza, dördü kaynak/lisans:
+
+  1. `MLCPlayer_Setup_vX.exe` + `.sig`
+  2. `MLCPlayer_InternetVideo_vX.exe` + `.sig`
+  3. `packaging/fetch_sources.py::FETCHABLE`ten türeyen dört kaynak/lisans
+     aynası (mpv `.7z`, `yt-dlp.exe`, deno `.zip`,
+     `yt-dlp-THIRD_PARTY_LICENSES.txt`) — GPLv3 §6 "karşılık gelen kaynak"
+     yükümlülüğü içindir, süs değildir.
+
+  İmzalar `packaging/build_release.bat` içinde otomatik üretilir (ADIM 7);
+  zincir dışında elle derleme yapıldıysa
+  `python packaging/sign_release.py <kurulum.exe>` çalıştırılır. Kaynak
+  aynası `python packaging/fetch_sources.py` ile alınır.
+  Sekizin tamamını `python packaging/prepublish.py --tag vX.Y` denetler.
 - **Özel anahtar depoya GİRMEZ.** Konum: `%USERPROFILE%\.mlcplayer\release_ed25519.key`
   (veya `MLC_SIGNING_KEY`). `.gitignore` ve
   `tests/test_release_signature_regressions.py` bunu korur.
@@ -74,6 +85,27 @@ imzası olmayan release REDDEDİLİR. Bu yüzden:
 - **Sürüm numarası:** `v0.3 → v0.31 → v0.32`. Karşılaştırma sayısaldır;
   `v0.31` varken `v0.4` yayımlanamaz (`31 > 4`, istemciler göremez); büyük
   adım için `v0.40`. `packaging/check_publishable.py` bunu zincirde durdurur.
+
+- **YAYIN SÜRECİNİN TEK RESMÎ KAYNAĞI `docs/RELEASE_PROCESS.md`'DİR.**
+  Kesin sıra, her adımın giriş/çıkış şartı, sekiz varlık sözleşmesi ve
+  hata hâlinde nerede durulacağı ORADADIR; burada tekrarlanmaz.
+
+  Buradan çıkmayan değişmezler:
+
+  - **Tag ve push build'den ÖNCE yapılmaz.** Tag, test edilmiş ve build
+    edilmiş HEAD'i işaretler.
+  - **`--target master` KULLANILMAZ**; uzaktaki dalın o anki hâlini
+    etiketler, yereldeki test edilmiş HEAD'i değil.
+  - **`--verify-tag --draft` ZORUNLUDUR.**
+  - **Build, commit, push, tag ve release AYRI AYRI kullanıcı onayı
+    ister.** Biri için verilen onay diğerine geçmez.
+  - Yayın öncesi kapı: `python packaging/prepublish.py --tag vX.Y`.
+
+  Ölçülen olgu (salt-okunur, 17 Ağustos 2026): `v0.35` ve `v0.36`
+  etiketleri sürüm yükseltme commit'inin EBEVEYNİNDEDİR
+  (`2804c2f = 45de83c^`, `5b987d1 = 8284771^`) ve tag snapshot'ları bir
+  önceki `APP_VERSION` değerini taşır. Ayrıntı ve çıkarım sınırları
+  resmî belgededir. **Geçmiş tag'ler taşınmaz.**
 
 ## Çeviri kuralları (kullanıcı kararı, 17 Ağustos 2026)
 
