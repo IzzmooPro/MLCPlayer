@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 MLC Player contributors
+; SPDX-License-Identifier: GPL-3.0-only
 ; MLC Player - "Internet Videosu" ek paketi
 ;
 ; NEDEN AYRI: `yt-dlp.exe` (17,4 MB) ve `deno.exe` (92,9 MB) birlikte ana

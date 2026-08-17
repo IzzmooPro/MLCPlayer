@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Tek ve kesin altyazı indirme davranışı.
 
 İstenen ürün sözleşmesi:

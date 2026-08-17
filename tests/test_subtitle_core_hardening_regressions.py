@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı çekirdeği — denetimde bulunan açıkların regresyonları.
 
 Mevcut testlerin YAKALAMADIĞI 12 davranış burada ölçülür. Hiçbir test gerçek

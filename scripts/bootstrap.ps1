@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 # MLC Player - bootstrap for the automatic launcher.
 #
 # Goal: on a freshly installed Windows, double-clicking Start.bat should

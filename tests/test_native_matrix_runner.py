@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Native matrix runner'ın güvenilirlik regresyon testleri.
 
 Bu testler ürün koduna (app/) dokunmaz ve hiçbir native MPV/Qt süreci

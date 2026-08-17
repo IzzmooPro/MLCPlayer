@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """`subtitles/no_subtitle_osd` aday secim sozlesmesi regresyonlari.
 
 Bu testler DISKE DOKUNMAZ ve medya acmaz: `candidate_paths` dosya

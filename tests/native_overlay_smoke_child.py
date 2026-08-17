@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Kalıcı, opt-in native Windows overlay smoke child.
 
 Bu script raporlanan native crash akışını birebir yeniden üretmek içindir.

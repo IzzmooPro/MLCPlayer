@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Overlay düğmelerinin tıklama güvenilirliği: hit alanı + fade yaşam döngüsü.
 
 A) Görünür overlay üzerinde her düğmenin beş noktasında gerçek tıklama.

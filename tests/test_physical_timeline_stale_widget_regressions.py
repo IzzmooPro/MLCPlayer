@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Fiziksel kabul harness'i: silinmis timeline referansi regresyonlari.
 
 Kirmizi kanit (2026-08-14, `timeline` grubu tekrar 3):

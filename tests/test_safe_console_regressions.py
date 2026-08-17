@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Üretim konsol çıktısının TEK güvenli sınırı: `safe_console()`.
 
 Envanter (AST): `main.py` + `app/**/*.py` içinde 74 doğrudan `print()`

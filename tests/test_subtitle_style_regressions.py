@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı stil sözleşmesi: MPV renk biçimi, arka plan kutusu, ASS override.
 
 Kanıtlanmış kök nedenler:

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in gerçek Windows kabul testi: playlist aç/kapat akıcılığı + dış boşluk.
 
 Gerçek video oynarken playlist her pencere durumunda 10 kez art arda açılıp

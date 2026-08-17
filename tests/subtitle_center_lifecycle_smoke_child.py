@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in GERCEK urun kabugu Altyazi Merkezi YASAM DONGUSU smoke'u.
 
 Gercek `MPVPlayer`, gercek libmpv, gercek menu eylemi; yalnizca OpenSubtitles

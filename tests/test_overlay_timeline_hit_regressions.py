@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Overlay timeline tıklama/sürükleme güvenilirliği regresyon testleri.
 
 Gerçek QTest fare olayları, gerçek ClickableSlider ve ürünün gerçek

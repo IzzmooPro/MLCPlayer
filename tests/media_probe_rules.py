@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazisiz gercek medya adayi secim kurallari (saf, Qt'siz, ag'siz).
 
 Bu modul YALNIZ karar mantigi icerir: dosya sistemi taramaz, surec

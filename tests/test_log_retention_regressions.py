@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """3. aşama — sınırlı ve KESİN log saklama politikası.
 
 Doğrulanan kusur: rotasyon yalnız yazma ÖNCESİNDEKİ boyuta bakıyordu,

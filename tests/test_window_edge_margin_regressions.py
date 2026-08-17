@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Sinematik pencerede görünür dış boşluk olmamalı (A).
 
 `main_layout` sinematik modda dört kenara da RESIZE_MARGIN (12 px) iç boşluk

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """MLC Player TEK gorsel kimlik: uygulama ikonu her yerde ayni.
 
 URUN KARARI: kullanicinin sectigi tek logo EXE, gorev cubugu, Alt+Tab, ana

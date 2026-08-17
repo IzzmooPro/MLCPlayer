@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Liste tekrarı açıkken önceki/sonraki SARMA regresyonları.
 
 `play_next()` son parçadan ilk parçaya sarıyordu ama `play_previous()` ilk

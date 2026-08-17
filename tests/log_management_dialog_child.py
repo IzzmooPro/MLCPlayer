@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in GERÇEK Windows kabulü: "Günlük Yönetimi" penceresi.
 
     MLC_NATIVE_SMOKE=1 MLC_DIALOG_REAL_PLATFORM=1 \

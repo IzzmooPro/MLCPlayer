@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Kapanış GÜVENLİĞİ regresyonları: zaman aşımı ve hata kolları.
 
 Bu tur yalnızca kapanış/zaman aşımı disiplinidir. Görsel tasarım, arama ve

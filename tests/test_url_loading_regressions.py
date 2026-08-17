@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """URL'den oynatma: dogrulama, yuklenme gorunumu ve AYRI yasam dongusu.
 
 Olculen durum (bu turdan once):

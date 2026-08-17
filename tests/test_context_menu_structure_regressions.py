@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Video sağ-tık menüsünün YAPI ve DURUM regresyonları.
 
 Menü düz bir liste yerine gruplanmış bir hiyerarşi olmalı; her satır gerçek

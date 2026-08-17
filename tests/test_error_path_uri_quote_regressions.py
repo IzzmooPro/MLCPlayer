@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Yol tarayıcısında kalan üç sınır.
 
 1. Kesme işaretli yollar kısmen sızıyordu. `'` Windows dosya adında

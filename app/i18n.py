@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Program dili: Windows'tan algılanır, kullanıcı ayarlardan değiştirir.
 
 TASARIM KARARI — KAYNAK DİL TÜRKÇE KALIR. Ürün metinleri Türkçe yazılmıştır

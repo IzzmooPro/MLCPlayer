@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Fiziksel slider hedef secimi regresyonlari.
 
 Kanitlanan sahte FAIL: ses araligi 0-175, mevcut deger 44 iken harness

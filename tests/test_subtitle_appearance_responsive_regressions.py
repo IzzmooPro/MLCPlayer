@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Ayarları penceresinin GERÇEK responsive yerleşimi.
 
 Bu dosya ilk yazıldığında YATAY tasarımı ölçüyordu (varsayılan 852×476):

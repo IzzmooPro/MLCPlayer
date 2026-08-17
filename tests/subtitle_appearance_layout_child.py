@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Ayarları penceresinin DPI ölçeklerindeki yerleşimini ölçer.
 
 `QT_SCALE_FACTOR` süreç başlamadan okunduğu için ölçüm AYRI child'da

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Güncelleme denetimi — GitHub release'lerinden sürüm kontrolü ve kurulum.
 
 Davranış (kullanıcı kararı, 16 Ağustos 2026):

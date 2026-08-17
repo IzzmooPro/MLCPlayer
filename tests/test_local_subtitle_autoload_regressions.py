@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Video acilisinda ayni klasordeki eslesen SRT'yi SESSIZ etkinlestirme (2B).
 
 Sozlesme kaynagi: `docs/PROJECT_STATUS.md` (14 Agustos 2026 arastirmasi).

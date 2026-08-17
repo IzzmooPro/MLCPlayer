@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Fiziksel kabul child'inin SESSIZ ses cikisi sozlesmesi.
 
 Buttons grubu sesi 44'ten 140'a cikariyor. Bu, gercek hoparlorden yuksek

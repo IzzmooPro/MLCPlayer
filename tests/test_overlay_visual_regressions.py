@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Sinematik overlay görsel yapısı regresyon testleri.
 
 Testler gerçek widget geometrisini, gerçek QIcon içeriğini ve gerçek oynatma

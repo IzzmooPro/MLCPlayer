@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Ses/altyazı parça ETİKETLERİ ve sadeleştirilmiş ses menüsü regresyonları.
 
 Kullanıcıya görünen metin ham MPV metadata'sı değildir: `eng`, `und`,

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Hakkında penceresi lisansı, garanti reddini ve kaynak adresini gösterir.
 
 KIRMIZI KANIT (17 Ağustos 2026). Pencere yalnız şunları taşıyordu: ürün

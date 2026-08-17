@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı görünüm kabul runner'i: her senaryoyu AYRI child'da koşar.
 
 - Her senaryo için sınırlı timeout ve takip edilen PID.

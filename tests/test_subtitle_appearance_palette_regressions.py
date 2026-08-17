@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Şeffaflık RENK PALETİNİN İÇİNDE + eşit renk satırı + dar pencere.
 
 Bu turun kırmızı gerekçeleri (mevcut üründe ölçüldü):

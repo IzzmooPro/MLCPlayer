@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Ayrı süreçte libmpv ile güvenli bir video karesi çıkarır."""
 
 import os

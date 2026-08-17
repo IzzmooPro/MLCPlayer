@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Merkezi ayar kalıcılığı ve GİZLİ BİLGİ regresyonları.
 
 Bu tur YALNIZCA ayar katmanıdır: gerçek ağ YOK, indirme YOK, menü

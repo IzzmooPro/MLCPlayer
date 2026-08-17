@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Sürüm tek kaynaktan gelir: `app/config.py` → `APP_VERSION`.
 
 Yayın öncesi kusur: üç ayrı yerde üç ayrı sürüm vardı — `config.VERSION`

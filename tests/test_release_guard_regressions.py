@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Kurulu istemcilerin göremeyeceği bir sürüm yayımlanamaz.
 
 ÖLÇÜLEN TUZAK: sürüm karşılaştırması sayısaldır, bu yüzden `v0.31` varken

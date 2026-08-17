@@ -1,4 +1,6 @@
 @echo off
+rem SPDX-FileCopyrightText: 2026 MLC Player contributors
+rem SPDX-License-Identifier: GPL-3.0-only
 setlocal
 cd /d "%~dp0"
 

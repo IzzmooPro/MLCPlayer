@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """libmpv yukleyen VARSAYILAN child'lar normal finalizasyona GIRMEMELI.
 
 OLCULEN KIRMIZI KANIT (2026-08-15)

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Native overlay crash tetikleyici matrisi çalıştırıcısı.
 
 ``native_overlay_smoke_child.py`` scriptini farklı modlarda ayrı süreçlerde

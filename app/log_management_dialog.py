@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Ayrı "Günlük Yönetimi" penceresi (3. aşama).
 
 Bu pencere YALNIZ saklama politikasını ve toplam boyutu gösterir,

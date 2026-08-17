@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı indirme/kaydetme/uygulama turu regresyonları.
 
 GERÇEK AĞA ÇIKILMAZ: fake client + tmp_path + fake MPV kullanılır.

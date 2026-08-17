@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Merkezi koordinatör YAŞAM DÖNGÜSÜ regresyonları.
 
 Bu tur yalnızca sahiplik ve kapanış disiplinidir: gerçek ağ YOK, gerçek MPV

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Ses ve altyazı parçaları için ORTAK, kullanıcı dostu etiket üreticisi.
 
 Neden ortak modül

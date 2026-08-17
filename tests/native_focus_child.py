@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Native smoke testleri için gerçek, ayrı Qt top-level süreç.
 
 Bu süreç yalnızca native overlay smoke harness'i tarafından başlatılır. Amacı,

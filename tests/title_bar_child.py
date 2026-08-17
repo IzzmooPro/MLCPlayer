@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Gerçek MPVPlayer kabuğunda başlık çubuğu ölçümü yapan child süreç.
 
 Native MPV pytest sürecini kapanışta düşürebildiği için ölçüm ayrı süreçte

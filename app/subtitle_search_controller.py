@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Merkezi arama denetleyicisi: dialog ↔ çekirdek zinciri, QThread ile.
 
 Bu modül arama ALGORİTMASINI İÇERMEZ. Tek arama davranışı kaynağı

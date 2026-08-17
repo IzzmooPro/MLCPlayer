@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Ayarları: dikey/kompakt yerleşim ve HAZIR DEĞER listeleri.
 
 Ölçülen eski durum (bu turun kırmızı gerekçesi):

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Medya Bilgisi baglantisi: menu + sag-tik + player yasam dongusu (3. tur).
 
 Builder (`app/media_info.py`) ve pencere (`app/media_info_dialog.py`) burada

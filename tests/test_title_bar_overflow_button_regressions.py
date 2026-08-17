@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Üç nokta düğmesi menü kapandıktan sonra "seçili" görünmemeli.
 
 ÖLÇÜLEN KUSUR: `show_overflow_menu()` menüyü bloklayıcı `menu.exec()` ile

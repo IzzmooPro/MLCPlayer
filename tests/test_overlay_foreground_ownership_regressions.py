@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Yüzen yüzeylerin gerçek foreground sahipliğine bağlanması.
 
 Kullanıcının 1. ekran görüntüsü: Explorer öne geldiğinde alt kontrol/timeline

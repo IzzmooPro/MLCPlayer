@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Fiziksel kabul runner'i: 11 grubu AYRI taze child process'lerde kosar.
 
 - Her grup icin sinirli timeout ve takip edilen PID.

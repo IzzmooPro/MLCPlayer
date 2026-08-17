@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Başlık çubuğu teknik sağlamlaştırma testleri.
 
 1) Gerçek kenar resize olayının doğru widget'tan gelip startSystemResize

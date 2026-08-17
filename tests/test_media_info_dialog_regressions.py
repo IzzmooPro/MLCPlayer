@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Sekmeli Medya Bilgisi penceresi (2. uygulama turu).
 
 Dialog YALNIZ hazir `MediaInfoSnapshot` alir ve cizer: player veya mpv

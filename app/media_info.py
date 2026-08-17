@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Medya Bilgisi SAF veri katmani: toplama + normalize etme.
 
 Bu modulde Qt YOKTUR. Dialog, menu, QAction, player yasam dongusu ve

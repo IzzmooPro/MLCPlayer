@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Fiziksel slider olcumleri icin HEDEF SECIMI (saf, Qt'siz).
 
 Sabit bir yuzde hedefi (ornegin `%25`) mevcut degere denk geldiginde

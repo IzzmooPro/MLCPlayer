@@ -1519,8 +1519,46 @@ hafızada değil BURADA durur; sıradaki tur bunlarla AÇILMAZ ama silinmez.
    tek kaynaktır ve test onu README ile bağlar (README 2026, pencere
    2025 yazıyordu). Dört cümle çeviri kataloğunda.
    Sözleşme: `tests/test_about_licence_regressions.py` (7 test).
-4. **Dosya başı telif/lisans bildirimleri.** GPLv3 öneriyor; bizde yalnız
-   kök `LICENSE` ve README bölümü var.
+4. ✅ **Dosya başı bildirimleri — KAPANDI (17 Ağustos 2026).**
+   228 Python dosyası + 5 betik (`.bat`/`.ps1`/`.iss`) SPDX kısa biçimi
+   taşıyor: `SPDX-FileCopyrightText` + `SPDX-License-Identifier`.
+
+   **BİÇİM VLC'DEN BİLEREK AYRILDI.** VLC her dosyaya 20 satırlık tam
+   GPL paragrafı koyar; depoda görüldü. Ama o bloğun iki işlevi var ve
+   ikisi de bizde YOK: (a) VLC İKİ lisanslıdır (`src/libvlc.c`
+   LGPLv2.1+, `open.cpp` GPLv2+) ve hangi dosyanın hangi lisansa tabi
+   olduğunu o başlıkla izler, (b) yüzlerce katkıcının yazar listesini
+   taşır. Bizde tek lisans, tek sahip. Aynı bloğu kopyalamak ~4600 satır
+   ölü metin olurdu; Linux çekirdeği de bu yüzden SPDX'e geçti.
+
+   **DOĞRULANANLAR (varsayım yok, hepsi ölçüldü):**
+   - Tag biçimi REUSE 3.3 spesifikasyonundan: `SPDX-FileCopyrightText:`
+     (iki nokta dahil), sıra yıl → ad.
+   - `GPL-3.0-only` resmî SPDX lisans listesinde VAR, `deprecated=False`,
+     OSI onaylı. Çıplak `GPL-3.0` ise **DEPRECATED** — kullanılmadı.
+   - **`LICENSE` gerçekten kanonik GPLv3**: gnu.org metni indirilip
+     karşılaştırıldı, 35149 bayt, SHA-256 BİREBİR aynı. README bunu iddia
+     ediyordu ama hiçbir şey doğrulamıyordu; artık test kilitliyor
+     (`GPL3_SHA256`). Dosya düzenlenirse 230 dosyadaki kimlik yalan olurdu.
+   - Hiçbir Python dosyamızda shebang/encoding satırı YOK → başlık 1.
+     satıra girer. `.bat` dosyalarında `@echo off` İLK SATIR bırakıldı,
+     yoksa komut ekrana basılırdı (ayrı test).
+   - Ekleme sonrası ölçüm: **228 dosya, +456 satır, −0 satır** ve 227
+     dosyada mojibake/UTF-8 hatası YOK. Yani başlıktan başka hiçbir şey
+     değişmedi.
+
+   Kimlik `GPL-3.0-only` (kullanıcı kararı): README ve Hakkında penceresi
+   "GNU GPL sürüm 3" diyor, "veya sonrası" demiyor. Tek sahip olduğu için
+   sonradan `or-later`'a geçilebilir; ters yön zordur.
+
+   Sözleşme: `tests/test_spdx_header_regressions.py` (242 test).
+
+   **AÇIK BIRAKILAN, BİLİNÇLİ:** Markdown belgelerine SPDX konmadı (kök
+   `LICENSE` kapsıyor, prose'a gürültü ekler). Ayrıca REUSE tam uyumu
+   İDDİA EDİLMİYOR: REUSE `LICENSES/GPL-3.0-only.txt` dizini ister; bizde
+   `licenses/` KÜÇÜK harfle ve ÜÇÜNCÜ TARAF metinleri tutuyor. Windows'ta
+   iki ad çakışır, bu yüzden `LICENSES/` dizini AÇILMAMALIDIR. Linux
+   çekirdeği de SPDX kullanır ama tam REUSE uyumu iddia etmez.
 
 Kapatılanlar: mpv/FFmpeg künyesi + `RUNTIME_MANIFEST.txt` ana pakete
 girdi (yukarıdaki bölüm).

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Catches an unpublishable version BEFORE it is released.
 
 MEASURED TRAP: `app/updater.is_newer_version()` compares versions

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı görünüm kabul runner'inin ayrıştırma ve sınıflandırma testleri.
 
 Runner gerçek child başlatmadan test edilir: yalnız çıktı ayrıştırma ve

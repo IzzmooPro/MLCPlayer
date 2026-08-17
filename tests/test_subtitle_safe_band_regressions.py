@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazının kontrol paneline yaklaşırken kesişmemesi: GÜVENLİ ALT BANT.
 
 Gerçek video ölçümündeki kırmızı kanıt (1400×772 yüzey, `sub_pos=100`):

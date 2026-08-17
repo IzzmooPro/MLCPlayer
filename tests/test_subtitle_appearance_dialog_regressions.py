@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Ayarları penceresinin KOMPAKT tasarımı ve davranış güvenliği.
 
 Eski tasarım: `menu_actions.show_subtitle_settings()` içinde tek sütunlu

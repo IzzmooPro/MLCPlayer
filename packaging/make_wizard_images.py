@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Builds the Inno Setup wizard images from the product's own icon.
 
 WHY: the installer wizard opened on an empty grey surface. The VLC

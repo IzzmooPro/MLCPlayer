@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Produces the TRANSPARENT variant of the application icon.
 
 USER REQUEST: the dark plate behind the icon was visible on the desktop

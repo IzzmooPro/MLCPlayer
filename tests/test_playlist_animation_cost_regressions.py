@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Playlist açma/kapatma animasyonunun MALİYETİ (B).
 
 Kasmanın kök nedeni ölçülebilir olmalıdır: eski animasyon her karede host

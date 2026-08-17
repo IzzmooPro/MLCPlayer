@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in GERCEK FIZIKSEL Windows kabul child'i. TEK grup calistirir.
 
 Butun kullanici hareketleri gercek Win32 girdisiyle uretilir

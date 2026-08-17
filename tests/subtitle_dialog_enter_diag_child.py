@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Tanı: Altyazı Ayarları penceresinde Enter tuşu neyi bloklar?
 
 Gerçek MPV kabul koşumunda `Key_Return` çağrısının dakikalarca dönmediği

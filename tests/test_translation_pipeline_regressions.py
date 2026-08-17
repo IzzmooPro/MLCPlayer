@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Çeviri boru hattı: metin çıkarma → `.ts` → `.qm` → çalışan arayüz.
 
 AŞAMA B. Menü metinleri `tr()` ile sarmalandı. Kaynak dil TÜRKÇE olduğu için

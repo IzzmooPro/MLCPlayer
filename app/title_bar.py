@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Ürünün varsayılan modern başlık çubuğu.
 
 Sinematik arayüzün parçasıdır ve normal açılışta kullanılır. Klasik QMenuBar

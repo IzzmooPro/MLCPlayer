@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Fiziksel resize sonrasi YERLESIM/Z-ORDER degerlendirmesi (saf, Qt'siz).
 
 `zorder_after_resize` satiri eskiden `PLAYER.resize()` ile programatik

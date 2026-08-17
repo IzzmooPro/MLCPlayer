@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı indirme / kaydetme / MPV'ye uygulama denetleyicisi.
 
 TEK akış vardır: **İndir ve Uygula**.

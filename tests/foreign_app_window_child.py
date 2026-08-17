@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Testin KENDI 'baska uygulama' penceresi (ayri surec).
 
 Notepad veya kullanicinin baska uygulamalari ACILMAZ. Bu pencere yalnizca

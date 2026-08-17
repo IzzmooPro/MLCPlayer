@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """API anahtarı doğrulaması ve "Bağlantıyı Test Et" regresyonları.
 
 Kullanıcı yalnız kullanıcı adı/parola girip arama yapmayı denedi; API

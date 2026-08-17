@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in gerçek Windows kabulü: `Klasör Aç` + `Son Açılanlar`.
 
 Gerçek `MPVPlayer` penceresinde, kendi geçici test klasöründe ölçülenler:

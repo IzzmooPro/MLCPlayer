@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Yol maskelemesinin GENEL sözleşmesi: fail-closed satır tarayıcısı.
 
 Neden sözleşme değişti

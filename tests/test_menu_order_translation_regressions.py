@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Menü sekme SIRASI çeviriye bağlı OLMAMALIDIR.
 
 KIRMIZI KANIT. `setup_menu()` sekmeleri istenen sıraya sokarken menüleri

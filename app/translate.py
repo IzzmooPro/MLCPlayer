@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Çeviri çekirdeği — Qt'yi IMPORT ANINDA yüklemez.
 
 NEDEN AYRI MODÜL. `app/media_info.py` ve `app/track_labels.py` bilinçli

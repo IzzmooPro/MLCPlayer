@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Tek tırnaklı yollarda fail-closed + URI şema sınırı.
 
 1. Tek tırnak sezgisi genel geçer DEĞİLDİ. `_closing_quote()` adaydan

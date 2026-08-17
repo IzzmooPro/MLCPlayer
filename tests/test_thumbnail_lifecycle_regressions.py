@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Thumbnail worker ve servis yaşam döngüsü regresyonları.
 
 Kanıtlanan sorun (gerçek dosya, gerçek libmpv):

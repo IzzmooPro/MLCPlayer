@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in GERCEK Windows z-order / pencere sahipligi smoke'u.
 
 Kullanicinin ekran goruntusundeki hata: cinematic oynatma katmani Altyazi

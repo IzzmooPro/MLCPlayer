@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Kurulum dili Windows'tan seçilir; kullanıcıya sorulmaz.
 
 KULLANICI KARARI: kurulum sırasında dil sorulmasın, Windows'un dili

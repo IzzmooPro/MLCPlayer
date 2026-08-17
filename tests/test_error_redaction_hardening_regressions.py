@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Güvenli hata çekirdeği — bağımsız incelemede bulunan üç açık.
 
 1. Nihai log çıkışı güvenli değildi: `log()` mesajı doğrudan diske

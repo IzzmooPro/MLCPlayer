@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Fiziksel kabul child'i icin SESSIZ ses cikisi yardimcilari (saf, Qt'siz).
 
 Buttons grubu ses seviyesini gercekten degistirir (44 -> 140). Gercek

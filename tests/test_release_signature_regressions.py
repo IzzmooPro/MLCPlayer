@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Güncelleme yalnız YAYINCININ imzaladığı dosyayı kurar.
 
 NEDEN: SHA-256 doğrulaması bozuk indirmeyi ve yanlış asset'i engelliyordu,

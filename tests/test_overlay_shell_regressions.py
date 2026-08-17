@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Gerçek MPVPlayer kabuğu için görsel/düzen regresyon testleri.
 
 Ölçümler ayrı child süreçte gerçek ürün düzeninden alınır (bkz. layout_child.py);

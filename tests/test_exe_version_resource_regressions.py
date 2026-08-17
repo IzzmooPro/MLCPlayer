@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Paketlenen EXE kendi adını ve sürümünü TAŞIR.
 
 ÖLÇÜLEN KUSUR (16 Ağustos 2026, kullanıcı bildirimi): Windows "Birlikte aç"

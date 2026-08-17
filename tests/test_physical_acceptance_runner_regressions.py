@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Fiziksel kabul runner'inin SONUC MANTIGI regresyonlari.
 
 Bu testler Qt/MPV baslatmaz; yalnizca `tests/run_physical_acceptance.py` icindeki

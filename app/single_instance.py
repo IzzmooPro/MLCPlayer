@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Tek kopya koruması: ikinci başlatma yeni pencere AÇMAZ.
 
 NEDEN: iki kopya aynı `QSettings` deposunu paylaşır ve her biri KAPANIRKEN

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Ana pakette dağıtılan `mpv-2.dll` için künye ve kaynak erişimi.
 
 KIRMIZI KANIT (ölçüldü, 17 Ağustos 2026). Ana paket `bin/mpv-2.dll`

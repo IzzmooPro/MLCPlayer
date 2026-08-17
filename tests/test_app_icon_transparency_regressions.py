@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Masaüstü kısayolunda ikonun arkasında koyu plaka OLMAZ.
 
 KULLANICI BİLDİRİMİ: kısayolda ikon koyu bir kare içinde duruyordu; VLC'nin

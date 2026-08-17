@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in CANLI urun smoke'u: gercek koordinator + gercek dialog + gercek API.
 
     $env:MLC_OPENSUBTITLES_LIVE='1'

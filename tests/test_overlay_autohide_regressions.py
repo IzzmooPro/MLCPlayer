@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Sinematik overlay otomatik gizlenme regresyon testleri.
 
 Testler 2500 ms gerçek bekleme kullanmaz; timer slotu deterministik biçimde

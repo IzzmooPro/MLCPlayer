@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 MLC Player contributors
+; SPDX-License-Identifier: GPL-3.0-only
 #define MyAppName "MLC Player"
 ; SÜRÜM TEK KAYNAK: app/config.py → APP_VERSION. Burası onun kopyasıdır ve
 ; tests/test_version_consistency.py ikisini birbirine bağlar; elle ayrışamaz.

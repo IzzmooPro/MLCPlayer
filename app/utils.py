@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 from PyQt6.QtGui import QIcon, QPainter
 
 # Simgelerin rengini değiştirmek için yardımcı fonksiyon

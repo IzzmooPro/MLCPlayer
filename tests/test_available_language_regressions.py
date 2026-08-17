@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Dil menüsü YALNIZ gerçekten çevrilmiş dilleri sunar.
 
 KULLANICI KARARI (17 Ağustos 2026): şimdilik Türkçe + İngilizce ile devam

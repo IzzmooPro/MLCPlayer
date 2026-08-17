@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Release zincirinin dogrulama adimlari (build_release.bat tarafindan cagrilir).
 
 `--pre`  : PyInstaller calismadan ONCE kaynak dosyalar ve runtime hash'leri

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Compiles the `.ts` translation sources into `.qm` binaries.
 
 WHY IT IS A SEPARATE STEP. `.qm` files are BUILD OUTPUT and live in

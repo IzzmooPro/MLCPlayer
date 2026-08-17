@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Dar pencerede overlay süre bloğunun davranışı.
 
 400x300'de yarım/kırpık süre metni gösterilmemeli; blok tamamen gizlenmeli.

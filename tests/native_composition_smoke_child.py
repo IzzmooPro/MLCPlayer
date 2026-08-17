@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in gerçek Windows kompozisyon smoke'u (playlist + overlay + OSD).
 
 Kullanıcının iki hata ekran görüntüsünü native seviyede ölçer:

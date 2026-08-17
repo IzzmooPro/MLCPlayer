@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Fiziksel kabul harness'i: NULL foreground (HWND=0) regresyonlari.
 
 Kirmizi kanit (2026-08-14 tam matris): 11 grubun 6'si `exit=90` ile dustu.

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Overlay göster/gizle geçişlerindeki fade animasyonu regresyon testleri.
 
 Testler gerçek 2.5 sn beklemez; animasyon deterministik biçimde

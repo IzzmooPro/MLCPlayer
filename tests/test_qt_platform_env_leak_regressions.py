@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Süreç içi child import'u Qt platformunu SIZDIRMAMALI.
 
 ÖLÇÜLEN KIRMIZI KANIT (tam paket, 2026-08-15)

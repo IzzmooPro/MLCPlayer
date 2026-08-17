@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """MLC Player'in TEK gorsel kimligi.
 
 Ayni logo EXE, gorev cubugu, Alt+Tab, ana pencere, ozel TitleBar, butun

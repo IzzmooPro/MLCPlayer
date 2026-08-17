@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """TEK bir medya dosyasinin track_list'ini sinirli sekilde okur.
 
 - `vo=null`, `ao=null`: pencere acilmaz, hoparlorden ses CIKMAZ.

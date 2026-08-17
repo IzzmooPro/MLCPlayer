@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Video açılışında aynı klasördeki eşleşen SRT'yi SESSİZ etkinleştirme.
 
 Sözleşme `docs/PROJECT_STATUS.md` içindeki 14 Ağustos 2026 araştırmasıdır ve

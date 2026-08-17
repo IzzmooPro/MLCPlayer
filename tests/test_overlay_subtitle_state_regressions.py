@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Overlay CC (altyazı) durum göstergesi regresyon testleri.
 
 Gerçek durum kaynağı MPV'dir: sub_visibility + sid/track_list. Düğmeye

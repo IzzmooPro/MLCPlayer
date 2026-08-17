@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in GERÇEK MPV altyazı görünüm kabulü. TEK senaryo çalıştırır.
 
     MLC_NATIVE_SMOKE=1 python tests/subtitle_visual_acceptance_child.py \

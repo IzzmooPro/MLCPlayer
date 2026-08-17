@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 # Program yapılandırma sabitleri
 APP_NAME = "MLC Player"
 # Sürümün TEK kaynağı. Hakkında penceresi, installer betiği ve yayın

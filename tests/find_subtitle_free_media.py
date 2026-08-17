@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Sinirli, opt-in medya kesfi: gercekten altyazisiz bir video var mi?
 
 - Recursive tarama YOK: yalniz `MLC_PLAYLIST_VIDEOS` girdileri ve

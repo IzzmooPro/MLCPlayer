@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Medya Bilgisi SAF builder katmani (1. uygulama turu).
 
 Bu tur YALNIZ `app/media_info.py` icindir: Qt, dialog, menu, QAction,

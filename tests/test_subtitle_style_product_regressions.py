@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı stil sözleşmesinin ÜRÜN yolundaki karşılığı.
 
 - `restore_subtitle_settings()` eski `#RRGGBBAA` kaydını bir kez migrate

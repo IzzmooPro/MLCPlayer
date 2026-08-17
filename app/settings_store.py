@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Kullanıcı ayarlarının TEK giriş noktası.
 
 NEDEN VAR: Qt 6'da `QSettings(organization, application)` yapıcısı

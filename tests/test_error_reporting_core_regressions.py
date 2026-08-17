@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Güvenli hata çekirdeği (1. aşama) sözleşmesi.
 
 Sorun: `show_user_error()` yakalanan istisnanın HAM traceback'ini

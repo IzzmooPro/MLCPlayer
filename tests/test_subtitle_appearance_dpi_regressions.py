@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Ayarları penceresi %100, %125 ve %150 DPI'da sığmalı.
 
 `QT_SCALE_FACTOR` süreç başlangıcında okunduğu için ölçüm ayrı child

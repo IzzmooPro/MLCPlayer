@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in TESHIS: libmpv ile tek karelik thumbnail cikarma asamalari.
 
 Urun kodunu DEGISTIRMEZ; yalnizca `app.thumbnail_worker` ile ayni libmpv

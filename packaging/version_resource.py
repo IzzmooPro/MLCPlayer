@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Produces the Windows version resource (VS_VERSION_INFO) text.
 
 WHY IT EXISTS: the packaged EXE had NO version resource. Windows reads the

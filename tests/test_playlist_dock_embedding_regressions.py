@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Playlist panelinin gerçek dock child'ı olmasını doğrulayan regresyonlar.
 
 Kullanıcı kanıtı (iki gerçek Windows ekran görüntüsü):

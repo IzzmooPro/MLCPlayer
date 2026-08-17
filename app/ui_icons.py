@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """QPainter tabanlı, küçük ve yeniden kullanılabilir medya ikonları.
 
 Windows tema ikonlarına bağımlı kalmamak için sade beyaz glifleri doğrudan

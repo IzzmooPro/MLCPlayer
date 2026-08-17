@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Playlist açılış/kapanış animasyonunun HER ara karesinde kesişme olmamalı.
 
 Kabul edilen düzeltme, dock genişliği değiştikten sonra

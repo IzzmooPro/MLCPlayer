@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Saklama sözleşmesinin son iki sınırı: normalleştirme hatası ve bağlantılar.
 
 Bağımsız denetimde ölçülen iki açık:

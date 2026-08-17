@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Güncelleme denetimi: güven zinciri ve kooperatif kapanış.
 
 Bu testler AĞA ÇIKMAZ. HTTP katmanı sahte `urlopen` ile değiştirilir; asset

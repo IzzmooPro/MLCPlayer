@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Overlay sağ kontrol grubu (CC, ayarlar, ses, ses slider'ı, tam ekran) testleri.
 
 Gerçek widget geometrisi, gerçek QIcon pixmap'i ve gerçek ses akışı ölçülür.

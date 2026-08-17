@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Gerçek `python main.py` giriş noktasını taklit eden ölçüm child'ı.
 
 main.py'nin bağımlılık kurulum adımını (check_dependencies) aynen çalıştırır,

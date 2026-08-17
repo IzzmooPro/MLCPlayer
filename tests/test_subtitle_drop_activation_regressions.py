@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Surukle-birak SRT ETKINLESTIRME sozlesmesi (2A).
 
 Mevcut davranis yalnizca `mpv.sub_add(path)` cagiriyordu: track eklense bile

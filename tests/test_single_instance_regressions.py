@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """İkinci başlatma yeni pencere açmaz; açık pencereye devreder.
 
 NEDEN: iki kopya aynı ayar deposunu paylaşır ve her biri KAPANIRKEN kendi

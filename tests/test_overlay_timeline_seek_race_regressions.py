@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Timeline %90 tiklama yarisi: tiklama urune ulasiyor mu, hedef eziliyor mu?
 
 Fiziksel kabulde gorulen kirmizi (2026-08-14, `timeline` grubu):

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in GERCEK MPV + GERCEK controller apply smoke'u.
 
 Farki: `subtitle_track_lifecycle_smoke_child.py` yalnizca

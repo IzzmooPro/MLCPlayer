@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Opt-in GERCEK Windows olcumu: overlay kontrollerinin NATIVE input hit'i.
 
 Kanitlanan sorun: overlay gorsel olarak MPV video yuzeyinin uzerinde ama

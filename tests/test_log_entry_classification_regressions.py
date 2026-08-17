@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Bağlantı sınıflandırmasının fail-closed sözleşmesi.
 
 Bağımsız denetimde bulunan kusur: `_is_link_or_reparse_point()` İKİ

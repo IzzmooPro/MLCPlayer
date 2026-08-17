@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Kucuk resim onbellegi UYGULAMA KIMLIGINDEN bagimsiz olmali.
 
 OLCULEN REGRESYON (kurulu surumde bildirildi):

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Merkezi — MLC Player sinematik dilinde KOMPAKT yardımcı pencere.
 
 Bu modül YALNIZCA arayüzdür: ağ çağrısı, indirme, dosya yazma, MPV track

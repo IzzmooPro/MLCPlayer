@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """GERÇEK libmpv üzerinde altyazı stil property'lerini yaz ve geri oku.
 
 - `vo=null`, `ao=null`: pencere açılmaz, hoparlörden ses ÇIKMAZ.

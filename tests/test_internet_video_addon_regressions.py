@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """İnternet videosu bileşenleri AYRI ek paketle gelir.
 
 ÖLÇÜLEN SORUN: kurulu paket 304,7 MB idi ve bunun 110,3 MB'ı yalnız URL'den

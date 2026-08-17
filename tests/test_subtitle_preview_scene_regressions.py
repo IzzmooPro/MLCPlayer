@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı önizlemesindeki TEMSİLİ sahnenin sözleşmesi.
 
 Eski önizleme düz siyahtı (`fillRect(QColor(12, 13, 15))`); kullanıcı

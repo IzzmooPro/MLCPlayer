@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Kenar/köşe resize olayı ayrı ÜST SEVİYE overlay penceresinden gelirse.
 
 `FramelessResizeFilter._window_position()` child koordinatını

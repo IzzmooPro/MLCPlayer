@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Test harness'i GERCEK kullanici ayarlarina yazmamali.
 
 OLCULEN KUSUR (16 Agustos 2026): child betikler

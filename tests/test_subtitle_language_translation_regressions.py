@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Merkezi'nin dil seçimi ÇEVİRİYE bağlı OLMAMALIDIR.
 
 KIRMIZI KANIT. `SubtitleSearchController._language_code()` seçilen dili

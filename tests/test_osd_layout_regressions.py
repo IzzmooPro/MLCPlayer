@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """OSD, kontrol katmanının ALTINA gizlenmemeli.
 
 Fiziksel kabul kanıtı (`subtitles/no_subtitle_osd_layout`, gerçek pencere,

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 MLC Player contributors
+# SPDX-License-Identifier: GPL-3.0-only
 """Altyazı Merkezi ayar çekmecesini kalıcı depoya bağlayan denetleyici.
 
 Görsel kabuk (`app.subtitle_center`) kalıcılık BİLMEZ; bu modül dişli
