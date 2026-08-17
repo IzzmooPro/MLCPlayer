@@ -19,7 +19,12 @@ import pytest
 from PIL import Image
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QApplication, QDialog, QLabel, QMainWindow,
-                             QMessageBox, QWidget)
+                             QMessageBox, QPushButton, QWidget)
+
+#: Logonun üstünde ve altında bırakılması gereken EN AZ boşluk (px).
+#: Taşma sınırı buradan ve `TITLE_BAR_HEIGHT`ten türetilir; sabit bir
+#: logo ölçüsü şart koşulmaz.
+MIN_LOGO_BREATHING = 6
 
 import app.app_icon as app_icon
 
@@ -345,7 +350,48 @@ def test_the_custom_title_bar_shows_exactly_one_logo(title_bar):
     assert logo.accessibleName() == "MLC Player simgesi"
     assert logo.pixmap() is not None and not logo.pixmap().isNull()
     assert logo.width() == logo.height(), "logo kare değil"
-    assert 0 < logo.width() <= 24
+    assert logo.width() > 0
+
+
+def test_the_logo_is_large_enough_to_read(title_bar):
+    """Kullanıcı isteği (17 Ağustos 2026): logo BÜYÜTÜLSÜN.
+
+    Eski sözleşme `logo.width() <= 24` diyordu. Bu ÖLÇÜLMÜŞ bir tavan
+    değildi; logo 20 px'ken konmuş keyfi bir sınırdı ve kullanıcının
+    "biraz daha büyütelim" isteğini engelliyordu. Gevşetilmedi, GERÇEK
+    kısıta dönüştürüldü: taşma sınırı aşağıdaki testte çubuğun ve en
+    yüksek kontrolün ölçüsünden TÜRETİLİR.
+    """
+    from app.title_bar import TITLE_LOGO_SIZE
+
+    logo = title_bar.findChild(QLabel, "titleLogo")
+
+    assert TITLE_LOGO_SIZE >= 26, "logo buyutulmedi"
+    assert logo.width() == TITLE_LOGO_SIZE
+
+
+def test_the_logo_does_not_overflow_the_title_bar(title_bar):
+    """TAŞMA SINIRI: sabit sayı değil, çubuğun kendi ölçüsünden türer.
+
+    İki kısıt birlikte tutulur:
+    1. Logo çubuğun içinde kalır ve altına/üstüne nefes payı bırakır.
+    2. Logo, çubuktaki EN YÜKSEK kontrolden (düğmeler) daha uzun olmaz;
+       aksi hâlde çubuk logonun etrafında büyümeye zorlanır.
+    """
+    from app.title_bar import TITLE_BAR_HEIGHT
+
+    logo = title_bar.findChild(QLabel, "titleLogo")
+    buttons = [child for child in title_bar.findChildren(QPushButton)
+               if child.isVisible()]
+    tallest = max((button.height() for button in buttons), default=0)
+
+    assert logo.height() <= tallest, (
+        f"logo {logo.height()} px, en yuksek dugme {tallest} px")
+    assert logo.height() + 2 * MIN_LOGO_BREATHING <= TITLE_BAR_HEIGHT, (
+        f"logo {logo.height()} px, cubuk {TITLE_BAR_HEIGHT} px: nefes payi yok")
+    # Gerçek yerleşimde de içeride mi?
+    assert logo.geometry().top() >= 0
+    assert logo.geometry().bottom() <= title_bar.height()
 
 
 def test_the_logo_sits_left_of_the_title_text(title_bar):

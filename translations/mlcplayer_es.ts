@@ -645,8 +645,8 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/title_bar.py" line="152" />
-            <location filename="app/title_bar.py" line="275" />
+            <location filename="app/title_bar.py" line="156" />
+            <location filename="app/title_bar.py" line="279" />
             <source>Büyüt</source>
             <translation type="unfinished" />
         </message>
@@ -705,7 +705,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <location filename="app/media_controls.py" line="109" />
             <location filename="app/menu_actions.py" line="30" />
             <location filename="app/menu_actions.py" line="949" />
-            <location filename="app/title_bar.py" line="124" />
+            <location filename="app/title_bar.py" line="128" />
             <location filename="app/video_frame.py" line="2200" />
             <source>Dosya Aç</source>
             <translation type="unfinished" />
@@ -893,7 +893,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/title_bar.py" line="275" />
+            <location filename="app/title_bar.py" line="279" />
             <source>Geri Yükle</source>
             <translation type="unfinished" />
         </message>
@@ -1107,7 +1107,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <location filename="app/log_management_dialog.py" line="38" />
             <location filename="app/menu_actions.py" line="505" />
             <location filename="app/subtitle_center.py" line="559" />
-            <location filename="app/title_bar.py" line="157" />
+            <location filename="app/title_bar.py" line="161" />
             <location filename="app/updater.py" line="592" />
             <source>Kapat</source>
             <translation type="unfinished" />
@@ -1262,7 +1262,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/title_bar.py" line="147" />
+            <location filename="app/title_bar.py" line="151" />
             <source>Küçült</source>
             <translation type="unfinished" />
         </message>
@@ -1304,7 +1304,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/title_bar.py" line="99" />
+            <location filename="app/title_bar.py" line="103" />
             <source>MLC Player simgesi</source>
             <translation type="unfinished" />
         </message>
@@ -1343,7 +1343,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/title_bar.py" line="134" />
+            <location filename="app/title_bar.py" line="138" />
             <source>Menü</source>
             <translation type="unfinished" />
         </message>

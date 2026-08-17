@@ -61,6 +61,110 @@ bitmap/PGS altyazıda bant garantisi verilemiyor; FFmpeg patent tarafı
 100.000 birim/yıl eşiğine bağlandı (bugün sorun yok).
 
 
+## PLAN — playlist'i bağımsız pencereye taşımak (mıknatıslı)
+
+**Durum: PLAN. Kod YAZILMADI. Kullanıcı kararı bekliyor.**
+
+Kullanıcı isteği (17 Ağustos 2026): playlist ana pencereden AYRILSIN,
+bağımsız pencere olsun; iç içe değil, yan yana. Kullanıcı isterse ana
+pencerenin SAĞINA mıknatıs gibi yapışabilsin.
+
+### ÖNCE BİLİNMESİ GEREKEN: bu bir GERİ ALMA
+
+Panel BİR ZAMANLAR ayrı top-level `Qt.Tool` penceresiydi ve iki GERÇEK
+kullanıcı hatası yüzünden gömülü child'a çevrildi. İkisi de ekran
+görüntüsüyle raporlanmış (`tests/test_playlist_dock_embedding_regressions.py`
+başlığı):
+
+1. Başka uygulama öne gelince playlist KAYBOLUYOR, alt kontrol yüzeyi
+   kalıyordu — ortak görünürlük yaşam döngüsü yoktu.
+2. Native taşıma/boyutlandırma sonrası panel BAYAT global geometriyle
+   videonun ÜSTÜNE biniyordu.
+
+Ayrıca `CLAUDE.md` bunu ürün değişmezi yapmış:
+*"Playlist paneli ana pencerenin gömülü child yüzeyidir; video ile
+kesişmemeli ve başka uygulamaların üzerinde yüzmemelidir."*
+
+**Bu plan o değişmezi DEĞİŞTİRMEYİ önerir.** Onay kullanıcınındır;
+onaysız uygulanmaz.
+
+### İki eski hatanın yeni tasarımda karşılığı
+
+- **Hata 1'in gerçek sebebi `Qt.Tool`du, ayrı pencere olmak DEĞİL.**
+  Qt'de `Tool` pencereleri uygulama odağı kaybedince gizlenir; belirti
+  birebir buydu. Yeni tasarım `Qt.Window` + ana pencere PARENT olarak
+  kullanır: pencere sahiplidir, ana pencereyle birlikte simge durumuna
+  iner ve geri gelir, ana pencerenin üstünde durur ama BAŞKA
+  uygulamaların üstünde yüzmez. `Qt.Tool` ve
+  `WindowStaysOnTopHint` KULLANILMAZ.
+- **Hata 2 yeni tasarımda yapısal olarak hafifler.** Panel artık videonun
+  YANINDA durur, üstünde değil. Bayat geometri en kötü ihtimalle yanlış
+  yerde bir pencere demektir; videoyu ÖRTMESİ mümkün değildir. Yapışıkken
+  ana pencerenin `moveEvent`/`resizeEvent`'ini izler.
+
+### Yapışma (mıknatıs) modeli
+
+- Panel serbest bir penceredir; kullanıcı istediği yere taşır.
+- Sürükleme sırasında panelin SOL kenarı ana pencerenin SAĞ kenarına
+  `SNAP_DISTANCE` (öneri: 20 px) yaklaşır ve dikeyde yeterli örtüşme
+  varsa YAPIŞIR: `x = ana.right`, `y = ana.top`, `height = ana.height`.
+- Yapışıkken ana pencere taşınır/boyutlanırsa panel birlikte gider.
+- Panel yapışık konumdan `SNAP_RELEASE` (öneri: 30 px) uzağa
+  sürüklenirse yapışma KOPAR. Eşik yapışma eşiğinden BÜYÜKTÜR; aksi
+  hâlde kenarda titreşir (yapış-kop-yapış).
+- Yapışma durumu ve serbest geometri `QSettings`'te saklanır.
+
+### Bu değişimin SADELEŞTİRDİĞİ yerler (kazanç)
+
+Panel artık video alanını daraltmadığı için şunlar KALKAR:
+
+- `playlist_dock_host`, `reserve_playlist_dock()`,
+  `update_playlist_panel_geometry()` ve host içi kaydırma animasyonu
+  (`_offset_x`).
+- Altyazı güvenli bandındaki **"playlist açık" durumunun tamamı**. Bugün
+  panel açılınca `osd-dimensions` değişiyor, marj yeniden hesaplanıyor ve
+  bu tarihte iki ayrı kusur üretmişti (`mt=mb=159`, alan 772 → 454;
+  boşluk 105 px ve −91 px). Yeni tasarımda video alanı playlist'ten
+  ETKİLENMEZ.
+
+### Aşamalar (her aşama kendi içinde YEŞİL biter)
+
+0. **Karar + değişmezi güncelle.** `CLAUDE.md` satırı yeniden yazılır:
+   panel bağımsız pencere, `Tool` değil `Window`, sahipli, asla
+   always-on-top, videoyla ASLA kesişmez.
+1. **Saf ayıklama.** Panelin İÇERİĞİ (liste, arama, thumbnail, sıralama)
+   ile YERLEŞİM mekaniği (dock host, offset, animasyon) birbirinden
+   ayrılır. Ürün davranışı değişmez, 80 playlist testi yeşil kalır.
+2. **`PlaylistWindow`.** Sahipli `Qt.Window` top-level yüzey. Dock yolu
+   bu adımda SİLİNİR (kalıcı bayrak bırakılmaz; iki kod yolu taşımak bu
+   projenin tarzı değil). Gömülülüğü şart koşan **50 assertion**
+   gevşetilmeden DÖNÜŞTÜRÜLÜR: "kesişme imkânsız" iddiası artık
+   "geometriler kesişmiyor" ölçümüyle kanıtlanır.
+3. **Mıknatıs.** Yapış/kop, ana pencereyi izleme, histerezis, çok ekran
+   ve ekran dışına düşmeme (`availableGeometry` clamp).
+4. **Yaşam döngüsü.** Kapanış, tam ekran, simge durumu, odak kaybı,
+   `alt+tab`, DPI değişimi.
+5. **Gerçek pencere kabulü.** Offscreen YETMEZ (proje kuralı): gerçek
+   Windows penceresi + gerçek video ile yapışma, ayrılma, taşıma,
+   boyutlandırma, tam ekran ve z-order ölçülür.
+
+### Karara bağlı AÇIK sorular
+
+1. **Tam ekranda ne olsun?** Öneri: panel gizlenir, çıkışta geri gelir.
+2. **Panel kapanınca ana pencere genişlesin mi?** Bugün video alanı
+   geri kazanılıyor. Yeni tasarımda ana pencere zaten hiç daralmıyor;
+   öneri: ana pencere boyutuna DOKUNULMAZ.
+3. **Görev çubuğunda ayrı görünsün mü?** Öneri: HAYIR (sahipli pencere).
+4. **Sol tarafa da yapışsın mı?** İstek "sağına" diyor; öneri: önce
+   yalnız sağ, sonra istenirse sol.
+
+### Risk
+
+Değişim yüzeyi: `app/playlist_panel.py` (705 satır) + `video_frame.py`,
+`media_controls.py`, `player.py` içindeki 201 playlist referansı + 80
+test (50'si doğrudan gömülülük şart koşuyor). Bu TEK TURLUK bir iş
+değildir; aşamalar ayrı turlarda yapılmalıdır.
+
 ## ÇÖZÜLDÜ (17 Ağustos 2026) — boyutlandırmada donma, YAZMA yarısı
 
 **16 Ağustos'taki "çözüldü" kaydı yarımdı.** O tur bant senkonunun

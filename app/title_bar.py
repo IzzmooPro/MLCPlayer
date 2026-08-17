@@ -17,7 +17,11 @@ from app.i18n import tr
 
 TITLE_BAR_HEIGHT = 48
 # Baslik cubugu yuksekligini BUYUTMEYEN logo olcusu.
-TITLE_LOGO_SIZE = 20
+# Kullanici istegi (17 Agustos 2026): 20 px kucuk kaliyordu, buyutuldu.
+# Tavan iki olcuden turer ve ikisi de testle korunur: logo dugme
+# yuksekligini (34) ASMAZ ve cubukta (48) ustte/altta en az 6'sar px
+# nefes payi kalir -> en fazla 36. 28 ikisini de saglar.
+TITLE_LOGO_SIZE = 28
 RESIZE_MARGIN = 12
 TITLE_BAR_BACKGROUND = "#11151A"
 # Urunun vurgu rengi. Overlay (`video_frame.OVERLAY_ACCENT`) ve altyazi
