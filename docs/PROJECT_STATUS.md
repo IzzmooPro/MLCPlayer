@@ -139,11 +139,55 @@ yapışma YOKTUR; panel sahibin SAĞ ÜST köşesine yaklaşınca yapışır.
     yakina birakildi -> yapisti   True    (1420,120 = TAM hizali)
     sag kenar ama DIKEYDE ORTA    False   (yapismadi -- istenen buydu)
 
-### KALAN AŞAMALAR
+### AŞAMA 4-5 — YAŞAM DÖNGÜSÜ + KABUL: BİTTİ (17 Ağustos 2026)
 
-4. **Yaşam döngüsü.** Tam ekran, simge durumu, DPI değişimi, kapanışta
-   geometri ve yapışma durumunun saklanması.
-5. **Gerçek pencere kabulü** (tam ekran ve çok ekran senaryoları).
+**ÖLÇÜLEN KUSUR — tam ekranda panel videoyu ÖRTÜYORDU.** Tam ekran yolu
+menü çubuğunu, kontrol panelini ve başlık çubuğunu gizliyordu; playlist
+o listede UNUTULMUŞTU. Gerçek ölçüm: 2560×1440 tam ekran videoda panel
+`(2140, 0, 420, 1392)` konumundaydı ve kesişiyordu. Artık tam ekranda
+gizlenir, çıkışta —yalnız ÖNCEDEN AÇIKSA— geri gelir ve geometrisi
+yeniden hesaplanır (eski konum bayattır).
+
+**Simge durumu SAĞLAM ÇIKTI — hata değildi.** Qt'nin `isVisible()`
+değeri simge durumunda `True` görünüyor ve ilk bakışta kusur sanıldı.
+Native denetim (`IsWindowVisible`) gerçeği gösterdi: Windows sahipli
+pencereyi gizliyor ve geri getiriyor.
+
+    acikken native gorunur   True
+    simge durumunda          False   <- dogru davranis
+    geri gelince             True
+
+Qt defteri ile ekrandaki gerçek AYRIŞIR; sahiplik zaten işini yapıyor.
+
+**Kalıcılık eklendi.** Genişlik, yapışma durumu ve konum saklanır. Panel
+`QSettings` NESNESİ TUTMAZ; iki işlev enjekte edilir (Altyazı
+penceresiyle aynı politika). Yapışık kayıtta konum KULLANILMAZ (ana
+pencere taşınmış olabilir), ekran dışına düşen konum da yok sayılır
+(monitör değişmiş olabilir) ve panel sahibin yanına döner.
+
+`QSettings` Ini biçiminde bool'u DİZE döndürür; `"false"` boş olmayan bir
+dizedir ve doğrudan `bool()` ile `True` çıkardı. Okuma bunu açıkça
+çözer.
+
+**Gerçek video kabulü** (1000×640 pencere, gerçek 4K HEVC):
+
+| durum | kesişme | görünür |
+|---|---|---|
+| normal | yok | evet |
+| tam ekran | yok | **hayır** (gizli) |
+| tam ekrandan çıkış | yok | evet |
+| sürükleyip ayırma | — | (260, 760) serbest |
+
+**Kalıcılık — İKİ AYRI SÜREÇ:**
+
+    1. oturum (yaz):  genislik 530, konum (240,720), yapisik false
+    2. oturum (oku):  genislik 530, konum (240,720), yapisik false
+
+### KALAN
+
+DPI değişimi ve çok monitörlü sürükleme ayrı ölçülmedi; `place_for`
+sahibin BULUNDUĞU ekranı kullanır ama gerçek çok monitörlü kabul
+yapılmadı.
 
 ## PLAN — playlist'i bağımsız pencereye taşımak (mıknatıslı)
 

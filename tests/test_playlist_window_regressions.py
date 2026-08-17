@@ -514,6 +514,128 @@ def test_dropping_it_back_near_the_owner_snaps_again(player_window):
     assert panel._placement.snapped, "geri getirilen panel yapismadi"
 
 
+# --- 1e. Yasam dongusu (asama 4) -------------------------------------
+
+def test_going_fullscreen_hides_the_playlist(player_window):
+    """ÖLÇÜLEN KUSUR: tam ekranda panel videonun ÜSTÜNDE kalıyordu.
+
+    Gerçek pencerede ölçüldü: 2560x1440 tam ekran videoda panel
+    (2140, 0, 420, 1392) konumundaydı ve video ile KESİŞİYORDU. Bu,
+    korunmaya çalışılan temel sözleşmenin ihlalidir.
+
+    Tam ekran zaten menü çubuğunu, kontrol panelini ve başlık çubuğunu
+    gizliyordu; playlist o listede unutulmuştu.
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    assert panel.isVisible()
+
+    frame.enter_fullscreen()
+    app.processEvents()
+
+    assert not panel.isVisible(), "tam ekranda playlist gorunur kaldi"
+
+
+def test_leaving_fullscreen_brings_the_playlist_back(player_window):
+    """Tam ekrandan çıkınca AÇIK olan playlist geri gelir."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+
+    frame.enter_fullscreen()
+    app.processEvents()
+    frame.exit_fullscreen()
+    app.processEvents()
+
+    assert panel.isVisible(), "tam ekrandan cikista playlist geri gelmedi"
+    assert panel.is_open
+
+
+def test_a_closed_playlist_does_not_reappear_after_fullscreen(player_window):
+    """KAPALI playlist tam ekran turundan sonra kendiliğinden AÇILMAZ."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    panel.close_animated()
+    panel.finish_animation()
+    app.processEvents()
+    assert not panel.isVisible()
+
+    frame.enter_fullscreen()
+    app.processEvents()
+    frame.exit_fullscreen()
+    app.processEvents()
+
+    assert not panel.isVisible(), "kapali playlist kendiliginden acildi"
+    assert not panel.is_open
+
+
+def test_the_panel_remembers_its_width_and_snap_state(player_window):
+    """Genişlik ve YAPIŞMA durumu kaydedilir; oturumlar arası korunur."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    store = {}
+    panel.bind_state_store(store.get, store.__setitem__)
+
+    panel.set_panel_width(520)
+    panel._placement.snapped = False
+    panel.move(180, 640)
+    panel.save_window_state()
+
+    assert store["playlist/width"] == 520
+    assert store["playlist/snapped"] is False
+    assert store["playlist/pos"] == (180, 640)
+
+
+def test_a_restored_free_panel_reopens_where_it_was_left(player_window):
+    """AYRI bırakılan panel, kaydedilen yerinde geri açılır."""
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    store = {"playlist/width": 480, "playlist/snapped": False,
+             "playlist/pos": (240, 700)}
+    panel.bind_state_store(store.get, store.__setitem__)
+
+    panel.restore_window_state()
+
+    assert panel.width() == 480
+    assert panel._placement.snapped is False
+    assert (panel.x(), panel.y()) == (240, 700)
+
+
+def test_a_restored_snapped_panel_ignores_the_stored_position(player_window):
+    """YAPIŞIK kaydedilen panel konumu değil, sahibin yanını kullanır.
+
+    Kayıtlı konum bayat olabilir (ana pencere o zamandan beri taşınmıştır);
+    yapışık panel her zaman YENİDEN hesaplanır.
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    store = {"playlist/width": 460, "playlist/snapped": True,
+             "playlist/pos": (10, 10)}
+    panel.bind_state_store(store.get, store.__setitem__)
+
+    panel.restore_window_state()
+
+    assert panel._placement.snapped is True
+    assert (panel.x(), panel.y()) != (10, 10)
+    assert panel.x() >= window.frameGeometry().right() - 2
+
+
+def test_a_restored_position_that_is_off_screen_is_ignored(player_window):
+    """Ekran dışına düşen kayıtlı konum KULLANILMAZ.
+
+    Kullanıcı monitör değiştirmiş olabilir; panel erişilemez bir yerde
+    açılmamalıdır.
+    """
+    app, window, frame = player_window()
+    panel = open_playlist(app, window, frame)
+    store = {"playlist/width": 420, "playlist/snapped": False,
+             "playlist/pos": (99000, 99000)}
+    panel.bind_state_store(store.get, store.__setitem__)
+
+    panel.restore_window_state()
+
+    assert panel.x() < 90000 and panel.y() < 90000
+
+
 # --- 2. Videoyla kesismeme (ESKI DOSYANIN MERKEZI SOZLESMESI) --------
 
 @pytest.mark.parametrize("size", [(1280, 720), (1024, 640), (860, 560),

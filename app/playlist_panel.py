@@ -662,6 +662,62 @@ class PlaylistPanel(QWidget):
         """Paneli yerleşimin söylediği yere koyar (bkz. `WindowPlacement`)."""
         self._placement.apply()
 
+    # --- Pencere durumunun kaliciligi ---------------------------------
+
+    #: Kayit anahtarlari. Depo DISARIDAN enjekte edilir; panel `QSettings`
+    #: nesnesi TUTMAZ (altyazi penceresiyle ayni politika).
+    STATE_WIDTH = "playlist/width"
+    STATE_SNAPPED = "playlist/snapped"
+    STATE_POS = "playlist/pos"
+
+    _state_read = None
+    _state_write = None
+
+    def bind_state_store(self, read, write):
+        """Okuma/yazma islevlerini baglar (test ve urun ayni yoldan gecer)."""
+        self._state_read = read
+        self._state_write = write
+
+    def save_window_state(self):
+        if self._state_write is None:
+            return
+        self._state_write(self.STATE_WIDTH, int(self._placement.target_width))
+        self._state_write(self.STATE_SNAPPED, bool(self._placement.snapped))
+        self._state_write(self.STATE_POS, (int(self.x()), int(self.y())))
+
+    def restore_window_state(self):
+        """Kayitli genislik/yapisma/konumu uygular.
+
+        YAPISIK kayitta konum KULLANILMAZ: ana pencere o zamandan beri
+        tasinmis olabilir, kayitli konum bayattir. Ekran disina dusen
+        konum da yok sayilir (kullanici monitor degistirmis olabilir);
+        panel erisilemez bir yerde acilmamalidir.
+        """
+        if self._state_read is None:
+            return
+        width = self._state_read(self.STATE_WIDTH)
+        if width:
+            self._placement.set_width(int(width))
+        snapped = self._state_read(self.STATE_SNAPPED)
+        if snapped is not None:
+            self._placement.snapped = bool(snapped)
+        if self._placement.snapped:
+            self.apply_panel_geometry()
+            return
+        position = self._state_read(self.STATE_POS)
+        if not position:
+            return
+        x, y = int(position[0]), int(position[1])
+        screen = self._placement._screen_rect()
+        candidate = QRect(x, y, self._placement.target_width, self.height())
+        if screen is not None and not screen.intersects(candidate):
+            # Bayat/erisilemez konum: sahibin yanina don.
+            self._placement.snapped = True
+            self.apply_panel_geometry()
+            return
+        self.resize(self._placement.target_width, self.height())
+        self.move(x, y)
+
     # --- Baslikatan tasima (frameless pencere) ------------------------
 
     def header_drag_zone(self):
@@ -698,6 +754,7 @@ class PlaylistPanel(QWidget):
         self._header_press_global = None
         # Bırakış anı: sahibin sağ üst köşesine yakınsa yapış, değilse AYRI kal.
         self._placement.settle_after_drag()
+        self.save_window_state()
 
     def is_header_dragging(self):
         return self._header_press_global is not None
@@ -710,6 +767,7 @@ class PlaylistPanel(QWidget):
         """
         self._placement.set_width(width)
         self.apply_panel_geometry()
+        self.save_window_state()
 
     def _apply_animated_opacity(self, value):
         """Görsel geçiş artık KAYDIRMA değil, pencere opaklığıdır.
@@ -724,6 +782,10 @@ class PlaylistPanel(QWidget):
         self.refresh()
         self._target_open = True
         self.animation.stop()
+        # Kayitli genislik/yapisma/konum ONCE uygulanir; geometri ondan
+        # sonra hesaplanir, aksi halde panel once varsayilan yere konup
+        # gorunur bir sicrama yapardi.
+        self.restore_window_state()
         # Video yüzeyi DOKUNULMADAN kalır: pencere modelinde yer ayrılmaz.
         self.apply_panel_geometry()
         self._apply_animated_opacity(0.0)
@@ -758,6 +820,8 @@ class PlaylistPanel(QWidget):
         self.hide()
         self._apply_animated_opacity(1.0)
         self._placement.release()
+        # Kapanista son durum kaydedilir; bir sonraki acilis onu kullanir.
+        self.save_window_state()
         self.video_frame.schedule_overlay_hide()
 
     def _animation_finished(self):

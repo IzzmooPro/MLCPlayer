@@ -658,6 +658,47 @@ class VideoFrame(QWidget):
     def _create_playlist_panel(self):
         if self.playlist_panel is None:
             self.playlist_panel = PlaylistPanel(self.main_window, self)
+            self._bind_playlist_state_store()
+
+    def _bind_playlist_state_store(self):
+        """Panelin genişlik/yapışma/konum kaydını gerçek ayarlara bağlar.
+
+        Panel `QSettings` NESNESİ TUTMAZ; iki işlev enjekte edilir (Altyazı
+        penceresiyle aynı politika). Ayarlar yoksa panel sessizce
+        kalıcılıksız çalışır.
+        """
+        panel = self.playlist_panel
+        settings = getattr(self.main_window, "settings", None)
+        if panel is None or settings is None:
+            return
+
+        def read(key):
+            try:
+                value = settings.value(key)
+            except Exception:
+                return None
+            if key == panel.STATE_SNAPPED and value is not None:
+                # QSettings Ini biçiminde bool'u DİZE olarak geri verir;
+                # "false" boş olmayan bir dizedir ve doğrudan `bool()`
+                # ile True çıkardı.
+                if isinstance(value, str):
+                    return value.strip().lower() in ("true", "1", "yes")
+                return bool(value)
+            if key == panel.STATE_POS and value is not None:
+                try:
+                    return (int(value[0]), int(value[1]))
+                except (TypeError, ValueError, IndexError):
+                    return None
+            return value
+
+        def write(key, value):
+            try:
+                settings.setValue(key, list(value)
+                                  if isinstance(value, tuple) else value)
+            except Exception:
+                pass
+
+        panel.bind_state_store(read, write)
 
     def toggle_playlist_panel(self):
         """Sinematik playlist'i aynı ikonla açar/kapatır."""
@@ -1952,6 +1993,16 @@ class VideoFrame(QWidget):
         if title_bar:
             title_bar.hide()
 
+        # ÖLÇÜLEN KUSUR (17 Ağustos 2026): playlist bu listede UNUTULMUŞTU.
+        # Ayrı bir pencere olduğu için tam ekranda gizlenmiyor, 2560x1440
+        # videonun ÜSTÜNDE (2140, 0, 420, 1392) kalıyordu. Yalnız GÖRÜNÜR
+        # olan gizlenir; kapalı playlist çıkışta kendiliğinden AÇILMAZ.
+        playlist = self.playlist_panel
+        self._playlist_was_open = bool(playlist is not None
+                                       and playlist.is_open)
+        if playlist is not None and self._playlist_was_open:
+            playlist.hide()
+
         # Frameless resize kenarı tam ekranda anlamsızdır; video ekranı
         # tam olarak doldurmalı.
         layout = getattr(window, "main_layout", None)
@@ -1998,6 +2049,14 @@ class VideoFrame(QWidget):
         title_bar = getattr(window, "title_bar", None)
         if title_bar and getattr(self, "_title_bar_was_visible", False):
             title_bar.show()
+
+        # Playlist yalnız tam ekrandan ÖNCE açıksa geri gelir. Geometrisi
+        # yeniden hesaplanır: ana pencere tam ekrandayken boyutu değişti,
+        # yapışık panelin eski konumu bayattır.
+        playlist = self.playlist_panel
+        if playlist is not None and getattr(self, "_playlist_was_open", False):
+            playlist.show()
+            playlist.apply_panel_geometry()
 
         layout = getattr(window, "main_layout", None)
         margins = getattr(self, "_pre_fullscreen_margins", None)
