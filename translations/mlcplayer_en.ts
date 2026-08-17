@@ -651,8 +651,8 @@ Sensitive information has been hidden automatically.</translation>
             <translation>Large</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="145" />
-            <location filename="app/title_bar.py" line="268" />
+            <location filename="app/title_bar.py" line="152" />
+            <location filename="app/title_bar.py" line="275" />
             <source>Büyüt</source>
             <translation>Maximise</translation>
         </message>
@@ -711,7 +711,7 @@ Sensitive information has been hidden automatically.</translation>
             <location filename="app/media_controls.py" line="109" />
             <location filename="app/menu_actions.py" line="30" />
             <location filename="app/menu_actions.py" line="949" />
-            <location filename="app/title_bar.py" line="117" />
+            <location filename="app/title_bar.py" line="124" />
             <location filename="app/video_frame.py" line="2140" />
             <source>Dosya Aç</source>
             <translation>Open File</translation>
@@ -903,7 +903,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Backward</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="268" />
+            <location filename="app/title_bar.py" line="275" />
             <source>Geri Yükle</source>
             <translation>Restore</translation>
         </message>
@@ -1117,7 +1117,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <location filename="app/log_management_dialog.py" line="38" />
             <location filename="app/menu_actions.py" line="505" />
             <location filename="app/subtitle_center.py" line="559" />
-            <location filename="app/title_bar.py" line="150" />
+            <location filename="app/title_bar.py" line="157" />
             <location filename="app/updater.py" line="592" />
             <source>Kapat</source>
             <translation>Close</translation>
@@ -1272,7 +1272,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Small</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="140" />
+            <location filename="app/title_bar.py" line="147" />
             <source>Küçült</source>
             <translation>Minimise</translation>
         </message>
@@ -1314,7 +1314,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>MLC Player contributors</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="92" />
+            <location filename="app/title_bar.py" line="99" />
             <source>MLC Player simgesi</source>
             <translation>MLC Player icon</translation>
         </message>
@@ -1355,7 +1355,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Media Files</translation>
         </message>
         <message>
-            <location filename="app/title_bar.py" line="127" />
+            <location filename="app/title_bar.py" line="134" />
             <source>Menü</source>
             <translation>Menu</translation>
         </message>

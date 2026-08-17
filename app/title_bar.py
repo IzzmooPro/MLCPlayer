@@ -20,6 +20,11 @@ TITLE_BAR_HEIGHT = 48
 TITLE_LOGO_SIZE = 20
 RESIZE_MARGIN = 12
 TITLE_BAR_BACKGROUND = "#11151A"
+# Urunun vurgu rengi. Overlay (`video_frame.OVERLAY_ACCENT`) ve altyazi
+# pencereleriyle AYNI deger; baslik cubugu ayri bir kimlik kurmaz.
+# KULLANICI KARARI (17 Agustos 2026): kapatma dugmesi Windows
+# kirmizisina (#E81123) DONMEZ, bu renge doner.
+TITLE_BAR_ACCENT = "#F26A3D"
 
 # Kenar/köşe bölgelerinde imleç şekilleri
 _EDGE_CURSORS = {
@@ -67,11 +72,13 @@ class TitleBar(QWidget):
             "border-bottom: 1px solid rgba(255, 255, 255, 18); } "
             "QPushButton { background: transparent; border: none; padding: 0; "
             "border-radius: 4px; } "
-            "QPushButton:hover { background: rgba(255, 255, 255, 26); } "
-            "QPushButton#titleClose:hover { background: #E81123; } "
+            # OLCULEN SORUN: 26/255 (~%10) koyu cubukta fark
+            # edilmiyordu; kullanici dugmeye geldigini anlamiyordu.
+            "QPushButton:hover { background: rgba(255, 255, 255, 48); } "
+            f"QPushButton#titleClose:hover {{ background: {TITLE_BAR_ACCENT}; }} "
             # Menü AÇIKKEN aktif görünüm meşrudur.
             "QPushButton#titleMore[menuOpen=\"true\"] { "
-            "background: rgba(255, 255, 255, 26); } "
+            "background: rgba(255, 255, 255, 48); } "
             # Menü kapandıktan sonra imleç hâlâ düğmedeyse hover GEÇİCİ
             # olarak bastırılır; aksi halde düğme seçiliymiş gibi gri
             # kalıyordu. Bastırma yalnız gerçek `Leave` olayına kadar sürer.

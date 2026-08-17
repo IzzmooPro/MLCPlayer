@@ -156,11 +156,24 @@ def test_title_bar_buttons_expose_tooltip_and_accessible_name(title_bar):
         assert widget.accessibleName() == label
 
 
-def test_close_button_uses_red_hover_style(title_bar):
+def test_close_button_uses_the_product_accent_on_hover(title_bar):
+    """Kapatma düğmesinin hover rengi.
+
+    ESKİ AD `..._uses_red_hover_style` ve eski beklenti Windows kırmızısıydı
+    (`#E81123`). 17 Ağustos 2026'da KULLANICI KARARIYLA değişti: düğme
+    ürünün kendi vurgu rengine döner. Beklenti GEVŞETİLMEDİ — hâlâ kuralın
+    varlığı VE rengin ne olduğu ölçülüyor, yalnız hangi renk olduğu
+    güncellendi. Renk `video_frame.OVERLAY_ACCENT` ile aynı olmak
+    zorundadır; başlık çubuğu ayrı bir kimlik kurmaz
+    (`tests/test_title_bar_hover_regressions.py`).
+    """
+    from app.video_frame import OVERLAY_ACCENT
+
     app, window, bar = title_bar()
     style = bar.styleSheet().lower()
     assert "#titleclose:hover" in style.replace(" ", "")
-    assert "e81123" in style or "rgba(232" in style
+    assert OVERLAY_ACCENT.lower() in style
+    assert "e81123" not in style
 
 
 # --- Sol komutlar ---
