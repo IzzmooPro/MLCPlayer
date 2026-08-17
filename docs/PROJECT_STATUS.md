@@ -1655,11 +1655,31 @@ bakınız). Açık kusur YOK.
 
 Gerçekten kalanlar:
 
-1. **README/CONTRIBUTING'e çevirmen yolu** (`.ts` + Qt Linguist). Değeri
-   somut: `available_languages()` diskten türediği için bir katkıcı bir
-   `.ts` dosyasını tamamladığında dil menüye KENDİLİĞİNDEN girer, kod
-   değişmez. Ertelenen altı dilin bir gün bitmesinin tek gerçekçi yolu
-   budur.
+1. ✅ **Çevirmen yolu — YAZILDI (17 Ağustos 2026).** README'ye
+   `### Developer setup` ve `### Translating` bölümleri eklendi.
+
+   **YOL BOYUNCA GERÇEK BİR AÇIK BULUNDU.** `requirements.txt` yalnız
+   PyQt6/python-mpv/cryptography beyan ediyordu, ama depo ADIYLA
+   `pyside6-lrelease` çağırıyor: `compile_translations.py`, yayın
+   zincirinin 3/8 adımı ve BEŞ test dosyası. Ölçüldü: PyQt6 `pylupdate6`
+   sağlıyor ama **`lrelease` SAĞLAMIYOR** — bağımlılık gerçek. Temiz bir
+   kopyada `pip install -r requirements.txt` yapan biri testleri koşamaz
+   ve build 3. adımda dururdu.
+
+   Çözüm `requirements-dev.txt`: pytest + PySide6. `requirements.txt`
+   YALIN BIRAKILDI çünkü `scripts/bootstrap.ps1` onu SON KULLANICI için
+   kuruyor; video izlemek isteyene ikinci bir Qt bağlaması indirtilmez.
+   PySide6 ayrıca `MLCPlayer.spec` `excludes` listesine eklendi — ürün
+   PyQt6 ile çalışır, derleme aracı pakete girmez.
+
+   Belgelenen TUZAK: çevirmen `pyside6-lupdate` ÇALIŞTIRMAMALI. O araç
+   yalnız `QCoreApplication.translate(...)` biçimini tanır, `i18n.tr()`
+   sarmalayıcısını göremez ve `.ts` dosyalarını metinlerimizin çoğu
+   olmadan yeniden yazar.
+
+   Sözleşme: `tests/test_developer_dependency_regressions.py` (8 test);
+   adıyla çağrılan bir aracın hiçbir yerde beyan edilmemesini de
+   engelliyor.
 2. **Park edilmiş lisans maddeleri** (yukarıdaki dört madde) — kullanıcı
    "beklesin" dedi, silinmedi.
 3. **`app/` ve `tests/` yorumları** — toplu çevrilmeyecek; dosyaya zaten

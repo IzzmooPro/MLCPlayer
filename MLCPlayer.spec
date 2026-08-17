@@ -78,8 +78,11 @@ a = Analysis(
     # URUNDE HIC KULLANILMAYAN paketler (kaynak taramasiyla dogrulandi):
     # `numpy` ve `PIL` app/ ve main.py icinde import EDILMIYOR; PyInstaller
     # onlari gecisli olarak topluyordu (~38 MB).
+    # `PySide6` YALNIZ gelistirici aracidir (ceviri derleyicisi ve
+    # Linguist). Urun PyQt6 ile calisir; ikinci bir Qt baglamasi
+    # pakete GIRMEZ (tests/test_developer_dependency_regressions.py).
     excludes=['pytest', 'tkinter', 'numpy', 'PIL', 'Pillow',
-              'scipy', 'matplotlib'],
+              'scipy', 'matplotlib', 'PySide6', 'shiboken6'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,

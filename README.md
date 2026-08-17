@@ -132,6 +132,45 @@ Two things are worth knowing before you send a change:
   new always-on-top flags or timers are introduced. `CLAUDE.md` records these
   invariants and the reasons behind them.
 
+### Developer setup
+
+`requirements.txt` is enough to run the player. To run the tests or build a
+release you also need the tooling:
+
+```
+pip install -r requirements.txt -r requirements-dev.txt
+```
+
+That second file brings pytest and PySide6. PySide6 is there for one reason:
+it provides `pyside6-lrelease`, which compiles the translations, and
+`pyside6-linguist`. PyQt6 — what the player itself runs on — ships
+`pylupdate6` but no `lrelease`. PySide6 is build tooling only and is excluded
+from the packaged application.
+
+### Translating
+
+The interface is written in Turkish and translated outward; English is
+complete. Adding a language does not need a code change:
+
+1. Install the tooling above.
+2. Open the file for your language in Qt Linguist, for example
+   `pyside6-linguist translations/mlcplayer_de.ts`. Entries are marked
+   *unfinished* until you confirm them.
+3. Send the `.ts` file as a pull request. Only that file changes.
+
+A language appears in `Tools → Language` on its own once its translation
+actually carries content — the menu is derived from the compiled files
+rather than a fixed list, so nothing else has to be edited. Partial work is
+fine: a string you have not translated falls back to English, not to
+Turkish.
+
+One warning. Do **not** run `pyside6-lupdate` on these files. It only
+recognises `QCoreApplication.translate(...)` and cannot see the
+`app/i18n.tr()` wrapper, so it would rewrite the `.ts` files without most of
+our strings. Extraction is done over the AST by
+`packaging/extract_translations.py`, and `packaging/compile_translations.py`
+turns the result into the `.qm` files that ship.
+
 ---
 
 ## Licence
