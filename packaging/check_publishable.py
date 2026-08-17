@@ -52,8 +52,9 @@ def evaluate(version, tags):
         return True, ("[UYARI] GitHub'a ulasilamadi; surum karsilastirmasi "
                       "YAPILAMADI. Yayindan once elle dogrulayin.")
     if version in tags:
-        # Bilincli yeniden derleme (ornegin yalniz kurulum sarmalayicisi
-        # degistiginde) engellenmemeli; ama sessizce de gecmemeli.
+        # A deliberate rebuild (for example when only the installer
+        # wrapper changed) must not be blocked, but must not pass in
+        # silence either.
         if os.environ.get("MLC_ALLOW_REPUBLISH") == "1":
             return True, (f"[UYARI] {version} zaten yayimlanmis; "
                           f"MLC_ALLOW_REPUBLISH=1 verildigi icin devam ediliyor.")
