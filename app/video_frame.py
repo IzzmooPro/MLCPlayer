@@ -1349,8 +1349,10 @@ class VideoFrame(QWidget):
         self.control_overlay.raise_()
         self.update_playlist_panel_geometry()
         # Bant değiştiyse altyazı marjı da güncellenir (pencere boyutu,
-        # tam ekran, playlist ve DPI değişimi bu yoldan geçer).
-        self.sync_subtitle_safe_band()
+        # tam ekran, playlist ve DPI değişimi bu yoldan geçer). Yazım
+        # DOĞRUDAN yapılmaz; boyut durulana kadar ertelenir (bkz.
+        # `_schedule_subtitle_band_sync`).
+        self._schedule_subtitle_band_sync()
 
     def _device_ratio(self):
         """Mantıksal → cihaz piksel oranı (%150 DPI'da 1.5)."""
@@ -1596,6 +1598,64 @@ class VideoFrame(QWidget):
             return 1.0
         # Sıfır/negatif ölçek marjı patlatmasın.
         return scale if scale > 0.05 else 1.0
+
+    # Ertelenmiş bant yazımının durumu (sınıf düzeyinde varsayılan).
+    _band_sync_pending = False
+    _band_sync_size = None
+
+    def _schedule_subtitle_band_sync(self):
+        """Bant yazımını pencere boyutu DURULANA kadar erteler.
+
+        ÖLÇÜLEN KUSUR (17 Ağustos 2026; gerçek pencere, gerçek 4K HEVC,
+        120 adımlık sürükleme): sürüklemenin toplam 1191,6 ms'sinin
+        **345,6 ms'si (%29)** bu bant senkronunda geçiyordu. 476 çağrının
+        yalnız 11'i libmpv'ye YAZIYOR, ama yazanların ortalaması 30,2 ms
+        ve en kötüsü 54,8 ms — çünkü mpv boyutlandırma sırasında swapchain'i
+        kurarken core lock'u tutuyor ve `mpv_set_property` o kilidi bekliyor.
+        Önbelleğe düşen 465 çağrı zaten ucuzdu (0,029 ms).
+
+        16 Ağustos'taki tur bu tehlikenin OKUMA yarısını kapatmıştı; onu
+        doğrulayan test ise "boyutlandırma fırtınası" adını taşımasına
+        rağmen boyutu HİÇ değiştirmiyor, bu yüzden yazma yolu hiç
+        çalışmıyordu.
+
+        Yeni kalıcı timer YOKTUR: tek atışlık `QTimer.singleShot(0, ...)`
+        kullanılır (bu dosyada zaten kullanılan deyim). Sıradaki tur
+        boyutun hâlâ değiştiğini görürse YAZMAZ, kendini yeniden sıraya
+        koyar; yazım ancak boyut iki tur üst üste aynı kaldığında yapılır.
+        """
+        if self._band_sync_pending:
+            # Zaten sırada; kaydedilen boyut GÜNCELLENMEZ, aksi hâlde
+            # karşılaştırma daima eşit çıkar ve erteleme hiç işlemez.
+            return
+        self._band_sync_pending = True
+        self._band_sync_size = (self.width(), self.height())
+        # NOT: bu PyQt6 sürümünde `singleShot(ms, context, slot)` aşırı
+        # yüklemesi YOKTUR (ölçüldü: TypeError). Bu yüzden silinmiş widget
+        # koruması `_flush_subtitle_band()` içinde açıkça yapılır.
+        QTimer.singleShot(0, self._flush_subtitle_band)
+
+    def flush_subtitle_band(self):
+        """Bekleyen bant yazımını HEMEN uygular (test ve kapanış yolu)."""
+        self._band_sync_pending = False
+        self._band_sync_size = None
+        return self.sync_subtitle_safe_band()
+
+    def _flush_subtitle_band(self):
+        self._band_sync_pending = False
+        recorded = self._band_sync_size
+        self._band_sync_size = None
+        try:
+            current = (self.width(), self.height())
+        except RuntimeError:
+            # Widget kapanışta silinmiş (C++ nesnesi yok). Bekleyen yazım
+            # DÜŞER; kapanış yolunda libmpv'ye dokunulmaz.
+            return
+        if recorded is not None and recorded != current:
+            # Boyut hâlâ değişiyor: pahalı yazımı yapma, yeniden sıraya gir.
+            self._schedule_subtitle_band_sync()
+            return
+        self.sync_subtitle_safe_band()
 
     def invalidate_subtitle_band(self):
         """Bant önbelleğini geçersiz kılar.

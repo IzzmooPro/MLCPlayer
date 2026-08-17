@@ -13,18 +13,12 @@ yayımlandı.
 
 ### Sıradaki iş — öncelik sırasıyla
 
-1. **VLSub kaynak incelemesi** (`https://github.com/opensubtitles/vlsub-opensubtitles-com`).
-   OpenSubtitles kararını BESLEYEN iş budur; ondan önce yapılmalı.
-   Bakılacak: arama, kimlik doğrulama, dil/sonuç eşleme, indirme ve hata
-   akışları. Kod KOPYALANMAZ, lisans/şart doğrulanmadan bağımlılık alınmaz.
+1. ~~**VLSub kaynak incelemesi**~~ → **YAPILDI (17 Ağustos 2026).**
+   Bulgular aşağıda "VLSub kaynak incelemesi" bölümünde.
 2. **OpenSubtitles API kullanım şartları** (kullanıcı okuyacak).
-   Açık soru: tek uygulama anahtarı gömülsün mü? Yeni REST API'de anahtar
-   UYGULAMAYI tanımlar, gömmek aykırı değil. AMA üç sonuç ölçülmeli:
-   anahtar ikiliden çıkarılabilir, kota TÜM kullanıcılar arasında paylaşılır,
-   ve şartların ne dediği DOĞRULANMADI. Mevcut tasarım (herkes kendi
-   anahtarı) SORUMLULUK açısından daha güvenlidir.
-   VLSub örnek ALINAMAZ: o ESKİ `opensubtitles.org` XML-RPC API'sini
-   kullanıyordu, orada anahtar değil user-agent vardı.
+   Açık soru: tek uygulama anahtarı gömülsün mü? **İnceleme bu soruyu
+   büyük ölçüde KAPATTI** — ayrıntı aşağıdaki bölümde. Kalan tek iş,
+   şartlar metninin kullanıcı tarafından okunup onaylanması.
 3. **Kod imzalama sertifikası + SmartScreen.** Bizim `.sig` dosyamız
    Ed25519'dur ve YALNIZ güncelleyici içindir; Windows'un tanıdığı
    Authenticode imzası DEĞİLDİR. Kullanıcı setup'ı çalıştırınca SmartScreen
@@ -54,6 +48,154 @@ yayımlandı.
 bitmap/PGS altyazıda bant garantisi verilemiyor; FFmpeg patent tarafı
 100.000 birim/yıl eşiğine bağlandı (bugün sorun yok).
 
+
+## ÇÖZÜLDÜ (17 Ağustos 2026) — boyutlandırmada donma, YAZMA yarısı
+
+**16 Ağustos'taki "çözüldü" kaydı yarımdı.** O tur bant senkonunun
+OKUMA yolunu kapattı (gözlemci değerleri). YAZMA yolu açık kaldı ve
+kullanıcı donmayı görmeye devam etti.
+
+**Doğrulayan test kusuru da bulundu.**
+`test_repeated_syncs_do_not_read_libmpv_when_the_watcher_knows`
+docstring'inde "bir boyutlandırma fırtınası" diyor ama 100 senkronu
+**sabit boyutta** koşuyor: `osd` sözlüğü ve frame yüksekliği hiç
+değişmiyor. Boyut değişmeyince önbellek her şeyi yutuyor ve tek yazım
+olmuyor. Gerçek sürüklemede boyut her adımda değişir, önbellek HİÇ
+tutmaz.
+
+**Gerçek ölçüm** (gerçek pencere, gerçek 4K HEVC/DV mkv, 120 adımlık
+sürükleme; `tests/resize_stall_measure_child.py`, exit 0):
+
+| | ÖNCE | SONRA |
+|---|---|---|
+| sürükleme toplamı | 1191,6 ms | 1106,7 ms |
+| bant senkronunda geçen | **345,6 ms (%29,0)** | **4,7 ms (%0,4)** |
+| senkron / yazım sayısı | 476 / 11 | 120 / 0 |
+| yazanların ort / max | 30,2 ms / 54,8 ms | — |
+| önbelleğe düşenler | 0,029 ms | 0,039 ms |
+| adım p95 / max | 61,1 / 86,6 ms | 48,3 / 80,6 ms |
+
+Yazımların kendisi ucuzdur; pahalı olan KİLİT BEKLEMESİ — mpv 0.41
+boyutlandırma sırasında swapchain'i kurarken core lock'u tutuyor ve
+`mpv_set_property` o kilidi bekliyor. Kullandığımız sürüm
+`mpv v0.41.0-923` (bkz. `bin/RUNTIME_MANIFEST.txt`).
+
+**Düzeltme:** `update_overlay_geometry()` artık doğrudan yazmaz;
+`_schedule_subtitle_band_sync()` ile erteler. Sıradaki olay döngüsü turu
+boyutun HÂLÂ değiştiğini görürse yazmaz, kendini yeniden sıraya koyar;
+yazım ancak boyut durulunca yapılır. **Yeni kalıcı timer YOKTUR** —
+tek atışlık `QTimer.singleShot(0, ...)` kullanılır (bu dosyada zaten
+kullanılan deyim, bkz. `showEvent`). Bekleyen iş varken kayıtlı boyut
+GÜNCELLENMEZ; güncellenirse karşılaştırma daima eşit çıkar ve erteleme
+hiç işlemez.
+
+**Davranış değişmedi, geri okumayla kanıtlandı:** sürükleme sonrası
+beklenen marj 114 = uygulanan 114 = MPV geri okuması 114.
+
+**Ölçülen API sınırı:** bu PyQt6 sürümünde
+`QTimer.singleShot(ms, context, slot)` aşırı yüklemesi YOKTUR
+(`TypeError`; yalnız `(ms, slot)` ve `(ms, timerType, slot)` var). Bu
+yüzden geri çağrı pencere kapandıktan sonra da ateşlenebilir ve silinmiş
+widget koruması `_flush_subtitle_band()` içinde AÇIKÇA yapılır
+(`RuntimeError` → bekleyen yazım düşer). Bunu sahte timer değil, GERÇEK
+`QTimer` kullanan test yakaladı.
+
+Sözleşme: `tests/test_resize_stall_regressions.py` (7 test). Dar
+regresyon (bant + parça gözlemcisi + overlay + playlist) **152/152**.
+
+Çeviri `.ts` dosyaları yenilendi: yeni çevrilebilir metin YOK (442 →
+442), yalnız `video_frame.py` içindeki mevcut `tr()` çağrılarının satır
+kaydı değişti.
+
+**Kalan pay bizim değil:** sürüklemenin geri kalan ~%99'u mpv'nin kendi
+swapchain yeniden kurulumudur (adım p95 48 ms). Bu mpv 0.41 + 4K HEVC
+için içseldir; ürün tarafında kaldıracak bir şey kalmadı.
+
+## VLSub kaynak incelemesi (17 Ağustos 2026)
+
+Kaynak: `opensubtitles/vlsub-opensubtitles-com`, tek dosya `vlsubcom.lua`
+(9027 satır, sürüm 1.2.9), **GPL-3.0** — bizimle aynı lisans. Kod
+KOPYALANMADI, bağımlılık ALINMADI; yalnız davranış karşılaştırıldı.
+
+**Önceki varsayım YANLIŞTI.** Devir notunda "VLSub ESKİ `opensubtitles.org`
+XML-RPC API'sini kullanıyor, örnek alınamaz" yazıyordu. Bu depo yeni
+`opensubtitles.com` REST API v1 kullanıyor (`/login`, `/subtitles`,
+`/download`, `/infos/languages`, `/utilities/guessit`). Bizim
+`app/opensubtitles.py` ile BİREBİR karşılaştırılabilir.
+
+### API anahtarı sorusunun cevabı
+
+`vlsubcom.lua:133` — anahtar düz metin olarak kaynağa GÖMÜLÜ:
+
+    config = { api_key = "d3Sba6j6VYnty3ir5T8GXYoAuiLSBf0S", ... }
+
+Bunu OpenSubtitles'ın KENDİ resmî eklentisi yapıyor ve GPL kaynağı
+herkese açık. Yani "anahtarı gömmek şartlara aykırı" varsayımı için
+kanıt yok; tersine, servis sağlayıcının kendi referans uygulaması
+tam olarak bunu yapıyor.
+
+**Kota korkusu da ölçüldü ve büyük ölçüde YERSİZ.** İndirme kotası
+ANAHTARA değil KULLANICI HESABINA bağlı: hesapsız 5/gün, ücretsiz
+hesapla 20/gün. Anahtar düzeyindeki sınır saniyede 1 istektir — bizde
+zaten var (`MIN_REQUEST_INTERVAL_S = 1.0`). VLSub bu yüzden gömülü
+anahtarı kullanıcı adı/parola ile BİRLİKTE kullanır ve giriş yapılmadan
+devam ettirmez (`has_valid_authentication()`,
+`force_config_until_authenticated()`).
+
+**Sonuç:** "gömülü uygulama anahtarı + kullanıcının kendi hesabı"
+tasarımı hem meşru hem de kullanıcı sürtünmesini kaldırıyor. Mevcut
+tasarımımızda kullanıcı ÜÇ şey giriyor (anahtar + kullanıcı adı +
+parola); anahtar gömülürse İKİYE iner. Karar kullanıcıya bırakıldı;
+kalan tek doğrulama şartlar metninin okunmasıdır.
+
+### Bizde DAHA İYİ olan ve korunacak beş nokta
+
+Bunlar VLSub'da yok; taklit edilmeyecek:
+
+1. **TLS fail-open YOK.** `vlsubcom.lua:4315` (`http_req_once`):
+   `vlc.net.connect_ssl` yoksa protokol sessizce `http`/port 80'e
+   DÜŞÜYOR ve istek yine gönderiliyor — parola dahil. Ayrıca config'teki
+   11 API adresinin tamamı `http://` ile yazılı, `https://` sayısı 0.
+   Bizde `is_trusted_download_url()` şemayı `https` olarak zorunlu tutar.
+2. **İndirme adresi doğrulanır.** VLSub `download_response.link`i host
+   denetimi olmadan GET ediyor (`vlsubcom.lua:6236`). Bizde host
+   allowlist'i var ve `TrustedRedirectHandler` redirect zincirindeki HER
+   hedefi yeniden doğrular.
+3. **Boyut sınırı var.** VLSub'da üst sınır yok; JSON çözülemezse
+   `subtitle_content = res.body` ile yanıtın TAMAMI altyazı sayılıyor
+   (`vlsubcom.lua:6273`, "fallback"). Bizde `MAX_DOWNLOAD_BYTES = 8 MB` ve
+   4xx gövdesi SRT'ye benzese bile reddedilir.
+4. **Kota tüketen POST tekrarlanmaz.** VLSub `/download` POST'una
+   `set_retries(2)`, indirme GET'ine `set_retries(3)` veriyor. Bizde
+   `_call()` yalnız idempotent GET'i tekrarlar; `/download` ve `/login`
+   ASLA tekrarlanmaz.
+5. **Parola düz metne yazılmaz.** VLSub parolayı eklenti ayarında
+   (`openSub.option.os_password`) ve token'ı `session_cache.json` içinde
+   düz tutuyor. Bizde Windows Credential Manager, olmazsa yalnız oturum
+   belleği.
+
+### VLSub'da olup bizde OLMAYAN üç şey (karar bekliyor, yapılmadı)
+
+- **Kota geri bildirimi.** `/download` yanıtındaki `requests`,
+  `remaining` ve `reset_time` alanları okunup kullanıcıya
+  "Quota: 3/20 downloads, reset in: …" diye gösteriliyor
+  (`vlsubcom.lua:6221-6312`). Bizde bu alanlar okunmuyor; kullanıcı
+  sınıra çarpana kadar nerede olduğunu görmüyor. **Gerçek UX açığı.**
+- **Sunucu tarafı `guessit`.** Dosya adını `/utilities/guessit`e
+  gönderip başlık/sezon/bölüm çıkarıyor, 7 gün cache'liyor. Bizde
+  ayrıştırma YERELDİR. Yerel kalması gizlilik açısından daha iyi;
+  isabet oranı ölçülmedi.
+- **Sıralama alanları.** VLSub `/subtitles` için 16 sıralama alanı
+  sunuyor (`download_count`, `from_trusted`, `ai_translated`…). Bizde
+  sıralama istemci tarafında sabit: hash eşleşmesi → indirme → puan.
+
+### Ölçülen küçük risk (bugün ulaşılamaz)
+
+`filter_results()` dil kodunu TAM eşleştiriyor. Servis bölgesel varyant
+(`pt-BR`, `zh-CN`) döndürebilir; VLSub bunun için eşleme tablosu tutuyor
+(`map_to_opensubtitles_language`, `vlsubcom.lua:7446`). Bizim beş dilimiz
+(`tr/en/de/fr/es`) varyantsız olduğu için bugün SORUN DEĞİL. Dil listesi
+genişletilirse bu satır ÖNCE düzeltilmeli.
 
 ## Durum
 

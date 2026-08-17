@@ -1139,7 +1139,17 @@ def test_a_sync_reads_libmpv_when_no_observed_value_is_available():
 
 
 def test_repeated_syncs_do_not_read_libmpv_when_the_watcher_knows():
-    """Bir boyutlandirma firtinasinda TEK bir senkron okuma bile olmamali."""
+    """SABIT boyutta tekrarlanan senkronlarda tek bir okuma bile olmamali.
+
+    ADI DUZELTILDI (17 Agustos 2026). Bu test bir zamanlar "boyutlandirma
+    firtinasi" olarak tarif ediliyordu, ama boyutu HIC degistirmez: `osd`
+    sozlugu ve frame yuksekligi sabittir. Bu yuzden yazma yolunu hic
+    calistirmiyor ve gercek bir suruklemeyi TEMSIL ETMIYOR; onbellek her
+    seyi yutuyordu. Gercek surukleme sozlesmesi ayri dosyadadir:
+    `tests/test_resize_stall_regressions.py`.
+
+    Test yine de gecerlidir: OKUMA yolunun onbellegini olcer.
+    """
     osd = {"w": 1400, "h": 772, "mt": 8, "mb": 8}
     mpv = ReadCountingMpv(osd=osd)
     frame = band_frame(mpv=mpv)
