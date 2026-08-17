@@ -1491,6 +1491,21 @@ depoları, değişiklik yapılmadığı beyanı) ve `bin/RUNTIME_MANIFEST.txt`
 artık ana pakete giriyor. Künyedeki sürüm/URL/özet manifestten kopyalanır;
 ayrışırsa `tests/test_third_party_notice_regressions.py` (8 test) kırılır.
 
+**BELGE TUTARLILIĞI — KAPANDI (17 Ağustos 2026).** `README.tr.md`
+PUBLIC bir depoda "dosya başı bildirimler" maddesini hâlâ AÇIK
+gösteriyordu ve başlığı "dağıtımdan önce kapatılmalıdır" diyordu — oysa
+madde kapanmıştı ve `v0.33` yayındaydı. `README.md` ise kullandığımız
+SPDX kimliğini hiç anmıyor, mpv için künye yerine PROVENANCE dosyasını
+(`RUNTIME_MANIFEST`) gösteriyordu.
+İkisi de gerçeğe uyduruldu; kapananlar SİLİNMEDİ, "Kapanan maddeler"
+altına tarihleriyle taşındı. `README.md`'ye ayrıca "Corresponding source"
+bölümü eklendi (GPLv3 §6'nın istediği erişimin nerede olduğu).
+**AYRI BİR `LICENSING.md` AÇILMADI**: konsolidasyon zaten README'nin
+lisans bölümündeydi; beşinci bir yer bilgiyi çoğaltır ve ayrışma riskini
+artırırdı — bugün ayrışan da tam olarak buydu.
+Sözleşme: `tests/test_licence_documentation_regressions.py` (9 test);
+kapanan bir maddenin yeniden "açık" yazılmasını da engelliyor.
+
 **LİSANS/HUKUK — BEKLEMEDE (kullanıcı kararı, 17 Ağustos 2026).**
 Kullanıcı "lisans olayı beklesin, unutma" dedi. Bu liste o yüzden
 hafızada değil BURADA durur; sıradaki tur bunlarla AÇILMAZ ama silinmez.

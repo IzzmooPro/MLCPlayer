@@ -113,22 +113,33 @@ lisansı aynı şey değildir.
 
 ### Yayın öncesi açık maddeler
 
-Bunlar bilerek açık bırakılmıştır ve dağıtımdan önce kapatılmalıdır:
+**Açık kalan iki madde.** İkisi de kod değişikliğiyle kapanmaz; karar
+kullanıcıya, gerekirse hukukçuya aittir:
 
-- GPLv3+ kapsamındaki birleşik executable için **karşılık gelen kaynak
-  erişimi** yükümlülüğünün nasıl sağlanacağı.
-- FFmpeg codec'lerinin **patent** tarafı (H.264/H.265). Lisans sorunu
-  değildir — `libx264`/`libx265` GPL'dir ve GPLv3 ile uyumludur — ama
-  patent havuzu yükümlülüğü lisanstan ayrı bir konudur.
-- OpenSubtitles API kullanım şartlarının gözden geçirilmesi.
+- **FFmpeg codec'lerinin patent tarafı (H.264/H.265).** Lisans sorunu
+  DEĞİLDİR — `libx264`/`libx265` GPL'dir ve GPLv3 ile uyumludur. Patent
+  havuzu yükümlülüğü lisanstan ayrı bir konudur ve VLC de bunu deposunda
+  çözmez. MLC Player yalnız ÇÖZER (kodlama yapmaz), ücretsizdir ve küçük
+  ölçeklidir; bu en düşük maruziyet konumudur.
+- **OpenSubtitles API kullanım şartlarının gözden geçirilmesi.** Mevcut
+  tasarımda her kullanıcı KENDİ API anahtarını girer, yani şartları kendi
+  adına kabul eder. Tek bir anahtarın programa gömülmesi bu sorumluluğu
+  bize taşırdı.
 
-Kapanan madde: pakete giren `mpv-2.dll` derlemesinin lisansı **doğrulandı**.
-Yapı `--enable-gpl --enable-version3` taşıyor, `--enable-nonfree` TAŞIMIYOR
-ve nonfree gerektiren hiçbir bileşen (fdk-aac, libnpp, cuda-nvcc) içermiyor.
-Sürüm, kaynak URL ve SHA-256 `bin/RUNTIME_MANIFEST.txt` içindedir. Önceki
-derleme `nonfree` taşıdığı için dağıtılamazdı ve 16 Ağustos 2026'da
-değiştirildi.
-- GPLv3'ün önerdiği **dosya başı telif/lisans bildirimlerinin** kaynak
-  dosyalara eklenmesi (şu an yalnız kök `LICENSE` ve bu bölüm vardır).
+**Kapanan maddeler:**
 
-Bu bölüm hukuki danışmanlık değildir; yayın öncesi kontrol listesidir.
+- `mpv-2.dll` derlemesinin lisansı **doğrulandı** (16 Ağustos 2026). Yapı
+  `--enable-gpl --enable-version3` taşıyor, `--enable-nonfree` TAŞIMIYOR
+  ve nonfree gerektiren hiçbir bileşen (fdk-aac, libnpp, cuda-nvcc)
+  içermiyor. Önceki derleme `nonfree` taşıdığı için dağıtılamazdı.
+- **Karşılık gelen kaynak erişimi** (17 Ağustos 2026). `licenses/mpv-NOTICE.txt`
+  ve `bin/RUNTIME_MANIFEST.txt` artık kurulan paketin İÇİNDE; her bileşenin
+  sürümü, kaynak adresi ve SHA-256'sı orada. Kaynakta değişiklik yapmıyoruz.
+- **Dosya başı telif/lisans bildirimleri** (17 Ağustos 2026). 228 Python
+  dosyası ve 5 betik SPDX kısa biçimini taşıyor: `GPL-3.0-only`. Kimliğin
+  resmî SPDX listesinde bulunduğu ve `LICENSE` dosyasının kanonik gnu.org
+  metniyle birebir aynı olduğu ölçülerek doğrulandı.
+- **Hakkında penceresinde lisans bildirimi** (17 Ağustos 2026). Pencere
+  artık lisans adını, garanti reddini ve kaynak kodu adresini gösteriyor.
+
+Bu bölüm hukuki danışmanlık değildir; bir kontrol listesidir.

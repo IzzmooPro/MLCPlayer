@@ -138,27 +138,48 @@ Two things are worth knowing before you send a change:
 
 Copyright (C) 2026 MLC Player contributors.
 
-MLC Player is licensed under the **GNU General Public License v3.0**; the full
-text is in [`LICENSE`](LICENSE) (the canonical gnu.org text, unmodified).
+MLC Player is licensed under the **GNU General Public License v3.0**, SPDX
+identifier **`GPL-3.0-only`**. Every source file carries that identifier in a
+two-line SPDX header, and the full licence text is in [`LICENSE`](LICENSE) —
+the canonical gnu.org text, byte for byte, which a test keeps pinned by its
+SHA-256.
 
 This program is free software: you may redistribute it and/or modify it under
 the terms of the GNU GPL version 3. It comes with **no warranty** — not even
 the implied warranty of merchantability or fitness for a particular purpose.
 See the GNU GPL for details.
 
-The distributed package includes third-party components under their own
-licences:
+### Third-party components
 
-| Component | Licence | Text |
-|---|---|---|
-| mpv / libmpv | **GPLv3** (FFmpeg `--enable-gpl --enable-version3`) | `bin/RUNTIME_MANIFEST.txt` |
-| yt-dlp (source) | Unlicense | `licenses/yt-dlp-LICENSE.txt` |
-| yt-dlp (official binary) | GPLv3+ | `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` |
-| deno | MIT | `licenses/deno-LICENSE.txt` |
+The distributed package includes components under their own licences:
+
+| Component | Licence | Where it ships | Notice |
+|---|---|---|---|
+| mpv / libmpv (with FFmpeg) | **GPLv3** (`--enable-gpl --enable-version3`, no `--enable-nonfree`) | main package | `licenses/mpv-NOTICE.txt` |
+| yt-dlp (source) | Unlicense | Internet Video add-on | `licenses/yt-dlp-LICENSE.txt` |
+| yt-dlp (official binary) | GPLv3+ | Internet Video add-on | `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` |
+| deno | MIT | Internet Video add-on | `licenses/deno-LICENSE.txt` |
 
 The official `yt-dlp.exe` contains third-party GPLv3+ code, which makes the
 **combined executable GPLv3+**. A project's source licence and the licence of
 a binary it ships are not the same thing.
 
-Open licensing items are tracked in [`README.tr.md`](README.tr.md#yayın-öncesi-açık-maddeler);
-that section is a pre-release checklist, not legal advice.
+### Corresponding source
+
+For MLC Player itself the corresponding source is this repository. For the
+third-party binaries we redistribute, every component is recorded in
+[`bin/RUNTIME_MANIFEST.txt`](bin/RUNTIME_MANIFEST.txt) with its exact version,
+the upstream URL it came from and its SHA-256, and
+[`licenses/mpv-NOTICE.txt`](licenses/mpv-NOTICE.txt) names the upstream
+repositories for mpv, FFmpeg and the build recipe. Both files ship inside the
+installed package, not only here. We do not modify any of those sources.
+
+If an upstream address ever becomes unreachable, ask for the source through
+this repository.
+
+### Open items
+
+Two licensing questions are deliberately still open and are tracked in
+[`README.tr.md`](README.tr.md#yayın-öncesi-açık-maddeler): the patent side of
+the H.264/H.265 codecs, which is separate from licensing, and a review of the
+OpenSubtitles API terms. That section is a checklist, not legal advice.
