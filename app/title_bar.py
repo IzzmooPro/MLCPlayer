@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QMenu,
 
 from app.app_icon import application_icon
 from app.ui_icons import make_media_icon
+from app.i18n import tr
 
 TITLE_BAR_HEIGHT = 48
 # Baslik cubugu yuksekligini BUYUTMEYEN logo olcusu.
@@ -86,7 +87,7 @@ class TitleBar(QWidget):
         # boylece baslik surukleme ve dugmeler etkilenmez.
         self.logo_label = QLabel(self)
         self.logo_label.setObjectName("titleLogo")
-        self.logo_label.setAccessibleName("MLC Player simgesi")
+        self.logo_label.setAccessibleName(tr("MLC Player simgesi"))
         self.logo_label.setFixedSize(TITLE_LOGO_SIZE, TITLE_LOGO_SIZE)
         self.logo_label.setAttribute(
             Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
@@ -111,7 +112,7 @@ class TitleBar(QWidget):
         layout.addSpacing(8)
 
         self.open_button = self._make_button(
-            "titleOpenFile", "open_folder", "Dosya Aç")
+            "titleOpenFile", "open_folder", tr("Dosya Aç"))
         self.open_button.clicked.connect(lambda: self.player.open_file())
         layout.addWidget(self.open_button, 0, Qt.AlignmentFlag.AlignVCenter)
 
@@ -120,7 +121,8 @@ class TitleBar(QWidget):
         self.playlist_button.clicked.connect(lambda: self.player.show_playlist())
         layout.addWidget(self.playlist_button, 0, Qt.AlignmentFlag.AlignVCenter)
 
-        self.more_button = self._make_button("titleMore", "more", "Menü")
+        self.more_button = self._make_button("titleMore", "more",
+                                             tr("Menü"))
         self.more_button.clicked.connect(self.show_overflow_menu)
         # Durumlar BAŞTAN tanımlı olmalı; aksi halde ilk repolish'e kadar
         # seçici hiç eşleşmez.
@@ -133,16 +135,17 @@ class TitleBar(QWidget):
         layout.addStretch(1)
 
         self.minimize_button = self._make_button(
-            "titleMinimize", "minimize", "Küçült")
+            "titleMinimize", "minimize", tr("Küçült"))
         self.minimize_button.clicked.connect(lambda: self.player.showMinimized())
         layout.addWidget(self.minimize_button, 0, Qt.AlignmentFlag.AlignVCenter)
 
         self.maximize_button = self._make_button(
-            "titleMaximize", "maximize", "Büyüt")
+            "titleMaximize", "maximize", tr("Büyüt"))
         self.maximize_button.clicked.connect(self.toggle_maximized)
         layout.addWidget(self.maximize_button, 0, Qt.AlignmentFlag.AlignVCenter)
 
-        self.close_button = self._make_button("titleClose", "close", "Kapat")
+        self.close_button = self._make_button("titleClose", "close",
+                                              tr("Kapat"))
         self.close_button.clicked.connect(lambda: self.player.close())
         layout.addWidget(self.close_button, 0, Qt.AlignmentFlag.AlignVCenter)
 
@@ -260,7 +263,7 @@ class TitleBar(QWidget):
 
     def update_maximize_state(self):
         maximized = self.player.isMaximized()
-        label = "Geri Yükle" if maximized else "Büyüt"
+        label = tr("Geri Yükle") if maximized else tr("Büyüt")
         if self.maximize_button.accessibleName() == label:
             return
         self.maximize_button.setAccessibleName(label)

@@ -31,6 +31,7 @@ from PyQt6.QtWidgets import QApplication
 from app.opensubtitles import (
     SubtitleServiceError, UntrustedUrlError, is_trusted_download_url,
     safe_message)
+from app.translate import tr_mark
 from app.subtitle_service import (
     NotSrtError, SubtitleStore, SubtitleSession, SubtitleWriteError,
     TRACK_WAIT_ATTEMPTS, TRACK_WAIT_INTERVAL_S, subtitle_target_path)
@@ -39,9 +40,11 @@ from app.subtitle_service import (
 # TRACK_WAIT_ATTEMPTS x TRACK_WAIT_INTERVAL_MS ≈ 400 ms.
 TRACK_WAIT_INTERVAL_MS = max(1, int(round(TRACK_WAIT_INTERVAL_S * 1000)))
 
-STATUS_DOWNLOADING = "Altyazı indiriliyor…"
-STATUS_DOWNLOADED = "Altyazı indirildi."
-STATUS_APPLIED = "Altyazı indirildi ve uygulandı."
+# Modul duzeyi durum metinleri: yalniz ISARETLENIR; ceviri TEK sinirda,
+# `set_operation_status()` icinde yapilir.
+STATUS_DOWNLOADING = tr_mark("Altyazı indiriliyor…")
+STATUS_DOWNLOADED = tr_mark("Altyazı indirildi.")
+STATUS_APPLIED = tr_mark("Altyazı indirildi ve uygulandı.")
 # Hedef videodan tek anlamlı biçimde türer ve kullanıcı zaten "indir"
 # demiştir: üzerine yazma AYRI bir soru DEĞİLDİR. Store'un fail-closed
 # kuralı korunsun diye açık ve tek yerde tanımlı bir "evet" verilir.
@@ -50,8 +53,9 @@ STATUS_APPLIED = "Altyazı indirildi ve uygulandı."
 def _always_overwrite(_target):
     return True
 
-STATUS_PARTIAL = "Altyazı indirildi ancak oynatıcıya uygulanamadı."
-STATUS_GENERIC_ERROR = "Altyazı indirilemedi."
+STATUS_PARTIAL = tr_mark(
+    "Altyazı indirildi ancak oynatıcıya uygulanamadı.")
+STATUS_GENERIC_ERROR = tr_mark("Altyazı indirilemedi.")
 
 
 class QtDownloadWorker(QObject):

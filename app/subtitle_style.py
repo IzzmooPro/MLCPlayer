@@ -21,6 +21,8 @@ Bu modül dosya sistemi, ağ veya kullanıcı arayüzü KULLANMAZ.
 """
 from PyQt6.QtGui import QColor
 
+from app.translate import tr_mark, translate_marked
+
 # MPV `sub-border-style` değerleri.
 BACKGROUND_BOX = "background-box"
 OUTLINE_AND_SHADOW = "outline-and-shadow"
@@ -131,8 +133,8 @@ STYLE_SCHEMA_VERSION = 2
 
 # Kullanıcıya gösterilen tek güvenli mesaj: ham hata, traceback veya yol
 # taşımaz.
-APPLY_ERROR_MESSAGE = ("Altyazı ayarları uygulanamadı. Önceki ayarlar "
-                       "korundu, lütfen tekrar deneyin.")
+APPLY_ERROR_MESSAGE = tr_mark(
+    "Altyazı ayarları uygulanamadı. Önceki ayarlar korundu, lütfen tekrar deneyin.")
 
 
 # Görüntü tabanlı (bitmap) altyazılar MPV'de metin stiliyle
@@ -141,9 +143,9 @@ BITMAP_SUB_CODECS = frozenset({
     "hdmv_pgs_subtitle", "pgs", "dvd_subtitle", "dvdsub", "vobsub",
     "dvb_subtitle", "dvbsub", "dvb_teletext", "xsub",
 })
-BITMAP_STYLE_NOTICE = ("Seçili altyazı görüntü tabanlı olduğu için renk, "
-                       "arka plan ve kenarlık ayarları bu parçaya "
-                       "uygulanmaz.")
+BITMAP_STYLE_NOTICE = tr_mark(
+    "Seçili altyazı görüntü tabanlı olduğu için renk, arka plan ve "
+    "kenarlık ayarları bu parçaya uygulanmaz.")
 
 
 def is_bitmap_subtitle(codec):
@@ -174,7 +176,8 @@ def style_notice(track_list, sid=None):
     üretilmez.
     """
     codec = selected_subtitle_codec(track_list, sid)
-    return BITMAP_STYLE_NOTICE if is_bitmap_subtitle(codec) else ""
+    return (translate_marked(BITMAP_STYLE_NOTICE)
+            if is_bitmap_subtitle(codec) else "")
 
 
 def qcolor_to_mpv_argb(color):

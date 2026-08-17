@@ -191,8 +191,12 @@ class SubtitleCenterSettingsDialog(QDialog):
         return self._center.language_box
 
     def set_operation_status(self, text):
-        """Ayar durumu BU pencerede gösterilir; arama durumu ezilmez."""
-        self.status_label.setText(text or "")
+        """Ayar durumu BU pencerede gösterilir; arama durumu ezilmez.
+
+        `SubtitleCenterDialog.set_operation_status()` ile AYNI sözleşme:
+        gelen metin işaretlenmiştir, çeviri burada yapılır.
+        """
+        self.status_label.setText(translate_marked(text) if text else "")
 
     def status_text(self):
         return self.status_label.text()

@@ -62,7 +62,7 @@ if not defined ISCC (
     goto :fail
 )
 
-echo ADIM 1/7  On kontrol
+echo ADIM 1/8  On kontrol
 python "%VERIFY%" --pre
 if errorlevel 1 goto :fail
 rem Yayimlanabilirlik: kurulu istemcilerin GOREMEYECEGI bir surum uretilmesin
@@ -71,13 +71,21 @@ python "packaging\check_publishable.py"
 if errorlevel 1 goto :fail
 echo.
 
-echo ADIM 2/7  Onceki ciktilarin temizligi
+echo ADIM 2/8  Onceki ciktilarin temizligi
 if exist "build" rmdir /s /q "build"
 if exist "dist"  rmdir /s /q "dist"
 echo   OK  build\ ve dist\ temizlendi
 echo.
 
-echo ADIM 3/7  PyInstaller (onedir)  -  birkac dakika surebilir
+echo ADIM 3/8  Ceviri derleme (.ts -^> .qm)
+rem `.qm` uretilmis dosyadir ve depoda TUTULMAZ; MLCPlayer.spec onlari
+rem translations\ icinden toplar. Derleme burada yapilmazsa temiz bir
+rem kopyada paket CEVIRISIZ cikar ve kullanici sessizce yalniz Turkce gorur.
+python "packaging\compile_translations.py"
+if errorlevel 1 goto :fail
+echo.
+
+echo ADIM 4/8  PyInstaller (onedir)  -  birkac dakika surebilir
 python -m PyInstaller "%SPEC%" --noconfirm --clean --log-level WARN
 if errorlevel 1 (
     echo HATA: PyInstaller basarisiz oldu.
@@ -87,7 +95,7 @@ python "%VERIFY%" --post
 if errorlevel 1 goto :fail
 echo.
 
-echo ADIM 4/7  Inno Setup kurulum dosyasi
+echo ADIM 5/8  Inno Setup kurulum dosyasi
 echo   Derleyici: %ISCC%
 "%ISCC%" /Q "%ISS%"
 if errorlevel 1 (
@@ -97,7 +105,7 @@ if errorlevel 1 (
 echo   OK  derleme tamamlandi
 echo.
 
-echo ADIM 5/7  Internet Videosu ek paketi
+echo ADIM 6/8  Internet Videosu ek paketi
 rem yt-dlp + deno ana pakette DEGIL; ayri, istege bagli kurulumla gelir.
 for /f "usebackq delims=" %%V in (`python -c "import sys; sys.path.insert(0,'.'); from app.config import APP_VERSION, WINDOWS_VERSION; print(APP_VERSION + '|' + WINDOWS_VERSION)"`) do (
     for /f "tokens=1,2 delims=|" %%A in ("%%V") do (
@@ -113,7 +121,7 @@ if errorlevel 1 (
 echo   OK  ek paket derlendi
 echo.
 
-echo ADIM 6/7  Yayinci imzasi
+echo ADIM 7/8  Yayinci imzasi
 rem UNUTULAMAZ OLMASI ICIN ZINCIRDE: imzasiz yayimlanan bir surumu
 rem guncelleyici REDDEDER (fail-closed) ve kullanici sebebini goremez.
 set "SETUP_TO_SIGN="
@@ -133,7 +141,7 @@ if defined ADDON_TO_SIGN (
 )
 echo.
 
-echo ADIM 7/7  Sonuc
+echo ADIM 8/8  Sonuc
 set "SETUP="
 for %%F in ("installer_output\MLCPlayer_Setup_*.exe") do set "SETUP=installer_output\%%~nxF"
 if not defined SETUP (

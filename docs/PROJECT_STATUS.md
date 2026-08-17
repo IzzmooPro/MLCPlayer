@@ -1359,50 +1359,50 @@ riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.
    - ✅ **C. Boru hattı**: `packaging/extract_translations.py` (AST tabanlı;
      `pylupdate6` sarmalayıcıyı GÖREMİYOR — ölçüldü) → `.ts` →
      `pyside6-lrelease` → `.qm`. İngilizce 75/75 TAM ve testle kanıtlı.
-   - 🔄 **B2. Kalan kullanıcı metinleri**: SÜRÜYOR. 17 Ağustos 2026'da
-     AST ile yeniden ölçüldü: 511 sarmalanmamış Türkçe metin.
-     **BİTEN DOSYALAR (15):** `media_controls.py`, `player.py`,
-     `menu_actions.py`, `video_frame.py`, `updater.py`,
-     `track_labels.py`, `media_info.py`,
-     `subtitle_appearance_dialog.py`, `subtitle_center.py`,
-     `subtitle_center_settings_dialog.py`, `errors.py`,
-     `error_details_dialog.py`, `log_management_dialog.py`,
-     `opensubtitles.py`, `playlist_panel.py`. Hepsinde kalan
-     satırlar yalnız `safe_console`/`log`/`VerificationError`/`tr_mark`
-     ve BİLEREK Türkçe. Çıkarılan metin **75 → 401**, İngilizce
-     **401/401 TAM**. İki taramayla ölçülen KALAN aday: **70**
-     (16 dosya, en yoğunu `title_bar.py` ve
-     `subtitle_settings_controller.py` ile 8'er).
-     ÖLÇÜM DERSİ (dosya kapatırken zorunlu): "bitti" denen dört dosyada
-     sonradan gerçek atlama bulundu (`Ayarlar` ×2, `Daha sonra`,
-     `Dikey konum`) — hepsi ASCII veya arayüz çağrısı argümanıydı ve
-     yalnız Türkçe harf arayan tarama bunları GÖRMÜYORDU. Dosya ancak
-     İKİ tarama birlikte temiz olduğunda kapatılır: (a) Türkçe harf
-     taşıyan sabitler, (b) arayüz çağrılarının (`setAccessibleName`,
-     `setToolTip`, `QPushButton`, `QLabel`…) sabit argümanları.
-     Sırada: `title_bar.py` (8), `subtitle_settings_controller.py` (8),
-     `release_signature.py` (7), `subtitle_service.py` (6),
-     `subtitle_connection_test_controller.py` (6), `ui_components.py` (5).
-     `menu_actions.py`'de iki metin BLOK olmaktan çıkarılıp VERİDEN
-     kuruldu (Klavye Kısayolları tablosu, Hakkında listesi): tek dev
-     HTML bloğu çevirmene `<td>` etiketlerini de teslim ederdi ve bozuk
-     bir etiket bütün pencereyi bozardı. Tuş adları (`Ctrl+O`)
-     çevrilmez, yön adları (`Sağ Ok`) çevrilir.
-     ÖLÇÜM ARACININ SINIRI: Türkçe'ye özgü harf arayan tarama
-     `Sessiz`, `Ses`, `Oynat` gibi ASCII-only kullanıcı metinlerini
-     KAÇIRIR. Dosya bitirilirken ayrıca arayüz çağrılarının
-     (`show_osd`, `setText`, `warning`, `QPushButton`…) sabit
-     argümanları AST ile taranmalıdır; `media_controls.py`'de üç metin
-     yalnız bu ikinci taramayla bulundu.
-     (eski kayıt) 615+ sarmalanmamış Türkçe metin, EN YOĞUN:
-     `media_controls.py` (115), `video_frame.py` (73), `player.py` (56),
-     `errors.py` (50).
-     UYARI: bunların ÇOĞU kullanıcıya görünmez (`safe_console`, günlük,
-     mpv değerleri) ve çevrilmemelidir. Toplu regex BU TURDA İKİ KEZ kod
-     kırdı (çok satırlı metin birleştirmesini böldü); dosya dosya ve
-     karar vererek ilerlenmeli, her dosyadan sonra AST doğrulaması.
-   - ⬜ **D. Diğer 6 dil**: `.ts` dosyaları hazır ve boş. ÖNCE B2 bitmeli,
-     yoksa aynı metinler iki kez çevrilir.
+   - ✅ **B2. Kalan kullanıcı metinleri: BİTTİ (17 Ağustos 2026).**
+     Çıkarılan metin **75 → 437**, İngilizce **437/437 TAM**.
+     Sarmalanan dosyalar (24): `media_controls`, `player`, `menu_actions`,
+     `video_frame`, `updater`, `track_labels`, `media_info`,
+     `subtitle_appearance_dialog`, `subtitle_center`,
+     `subtitle_center_settings_dialog`, `errors`, `error_details_dialog`,
+     `log_management_dialog`, `opensubtitles`, `playlist_panel`,
+     `title_bar`, `ui_components`, `subtitle_settings_controller`,
+     `subtitle_download_controller`,
+     `subtitle_connection_test_controller`,
+     `subtitle_center_composition`, `subtitle_style`, `runtime_binaries`,
+     `main.py`.
+
+     **KALAN 57 ADAY BİLEREK ÇEVRİLMEZ** ve her biri denetlendi:
+     `safe_console`/günlük metinleri (errors, updater'ın asset reddetme
+     gerekçeleri), `objectName` değerleri, kullanıcıya ham gösterilmeyen
+     iç istisna metinleri (`release_signature`, `subtitle_service`,
+     `ui_icons`), ayar deposunun KAYNAK dildeki dil adları
+     (`local_subtitle`, `subtitle_settings`, `subtitle_search_controller`),
+     `i18n.LANGUAGE_NAMES` (her dil KENDİ dilinde yazılır) ve ürün adı.
+
+     Üç yerleşik desen çıktı ve hepsi tekrarlanabilir:
+     (a) modül düzeyi sabit/tablo `tr_mark()` ile işaretlenir, çeviri
+     kullanım anında `translate_marked()` ile yapılır;
+     (b) denetleyicilerin durum metinleri için TEK çeviri sınırı
+     `set_operation_status()`tir — dağınık yama yoktur;
+     (c) `objectName`, sözlük anahtarı ve depo biçimi KAYNAK metinden
+     türer, çeviriden DEĞİL.
+
+     ÖLÇÜM: dosya ancak İKİ tarama birlikte temiz olduğunda kapatılır —
+     (1) Türkçe harf taşıyan sabitler, (2) arayüz çağrılarının
+     (`setAccessibleName`, `setToolTip`, `QPushButton`, `QLabel`…) sabit
+     argümanları. İlk tarama tek başına dört metni kaçırmıştı.
+
+   - ⏸ **D. Diğer 6 dil — ERTELENDİ (kullanıcı kararı, 17 Ağustos 2026).**
+     Şimdilik yalnız Türkçe + İngilizce. Gerekçe ölçüldü: 401 dizge × 6 dil
+     = 2406 çeviri ve tek kişinin sürdüreceği kalıcı yük; VLC'nin 104 dili
+     var ama Türkçesi 2017'den beri güncellenmemiş. `.ts` dosyaları
+     KALIYOR; bir dil tamamlandığı an menüye kendiliğinden girer.
+     **Menü artık sabit listeden değil ÇEVİRİ DOSYALARINDAN türer**
+     (`i18n.available_languages()`): kullanıcı `Deutsch` seçip uyarısız
+     İngilizce görmüyor, o seçenek hiç sunulmuyor. Karşılanamayan KAYITLI
+     tercih silinmez; dil tamamlanınca geri gelir.
+     Sözleşme: `tests/test_available_language_regressions.py` (9 test).
    - ⬜ **E. Arapça (RTL)**: ayrı tur; yerleşim aynalanmalı.
 
    (eski plan) — EN BÜYÜK ve EN RİSKLİ iş; aşamalı.
@@ -1463,6 +1463,15 @@ bağlandı. `LANGUAGE_CODES` geriye dönük yedek olarak duruyor.
 Sözleşme: `tests/test_subtitle_language_translation_regressions.py`
 (8 test; ikisi gerçek İngilizce `.qm` yükleyip ölçer).
 
+**ÇÖZÜLEN PAKETLEME AÇIĞI — `.qm` üreten adım YOKTU.** `.qm` üretilmiş
+dosyadır ve `.gitignore` içindedir; `MLCPlayer.spec` onları
+`translations/` içinden TOPLUYOR ama zincirde onları DERLEYEN hiçbir adım
+yoktu. Temiz bir kopyada `build_release.bat` çevirisiz paket üretirdi ve
+kullanıcı uyarısız yalnız Türkçe görürdü — `available_languages()`
+İngilizceyi bile sunamazdı. Yeni `packaging/compile_translations.py`
+zincire ADIM 3/8 olarak eklendi (PyInstaller'dan ÖNCE) ve çevirisi
+olmayan dilleri atlar; boş `.qm` paketlenmez, atlananlar RAPOR EDİLİR.
+
 **DEVİR NOTU (17 Ağustos 2026, ikinci tur).** VLC incelemesi BİTTİ
 (yukarıdaki bölüm). Ağaç KİRLİ ve commit EDİLMEDİ. Değişenler:
 `app/i18n.py`, `app/translate.py` (YENİ), `app/media_controls.py`,
@@ -1476,8 +1485,14 @@ Sözleşme: `tests/test_subtitle_language_translation_regressions.py`
 dosyası (`test_translation_fallback_regressions.py`,
 `test_menu_order_translation_regressions.py`,
 `test_subtitle_language_translation_regressions.py`).
-Tam paket **3369 passed, 17 skipped**; `compileall` ve `git diff --check`
-temiz. Sıradaki iş: B2'de `title_bar.py`.
+Tam paket **3380 passed, 17 skipped**; `compileall` ve `git diff --check`
+temiz.
+
+**SIRADAKİ İŞ:** i18n'in A-D maddeleri kapandı. Kalanlar:
+`E. Arapça (RTL)` (ayrı tur, yerleşim aynalanmalı) ve README/CONTRIBUTING
+turunda çevirmen yolu (`.ts` + Qt Linguist). Ürün tarafında açık kusur
+YOK; eski açık riskler (aralıklı child takılması, `timeline`/dragdrop
+otomasyon BLOCKED, bitmap altyazı bandı) değişmedi.
 
 (eski kayıt) Ağaç temiz, `origin/master` ile aynı
 hizada, tam paket 3347 passed, `v0.33` yayında (imzalı, ek paketiyle).

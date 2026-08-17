@@ -10,6 +10,7 @@ biçimini tanır ve `app/i18n.tr()` sarmalayıcısını GÖREMEZ. Bu yüzden ç�
 """
 
 import importlib.util
+import os
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -23,6 +24,14 @@ from app import i18n
 ROOT = Path(__file__).resolve().parent.parent
 TRANSLATIONS = ROOT / "translations"
 ENGLISH_TS = TRANSLATIONS / "mlcplayer_en.ts"
+
+
+def _compiler():
+    path = ROOT / "packaging" / "compile_translations.py"
+    spec = importlib.util.spec_from_file_location("mlc_compile", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def _extractor():
@@ -157,6 +166,37 @@ def test_the_user_facing_url_constants_are_marked():
 
 
 # ── Paketleme ────────────────────────────────────────────────────────────
+
+def test_the_release_chain_compiles_the_translations():
+    """`.qm` ÜRETİLMEZSE paket çevirisiz çıkar — sessizce.
+
+    KIRMIZI KANIT: `.qm` `.gitignore` içindedir (üretilmiş dosyadır) ve
+    `MLCPlayer.spec` onları `translations/` içinden TOPLAR, ama zinciri
+    kuran hiçbir adım onları DERLEMİYORDU. Temiz bir kopyada
+    `build_release.bat` çalıştırıldığında klasör boş olur; kullanıcı hiçbir
+    uyarı almadan yalnız Türkçe görür ve `available_languages()` İngilizceyi
+    bile sunamaz.
+    """
+    chain = (ROOT / "packaging" / "build_release.bat").read_text(
+        encoding="utf-8", errors="replace")
+    assert "compile_translations.py" in chain, (
+        "yayın zinciri çevirileri derlemiyor")
+    # Derleme PyInstaller'ın GERÇEK koşumundan ÖNCE olmalı; sonra olursa
+    # pakete girmez. Ölçüt `--version` ön kontrolü DEĞİL, spec ile yapılan
+    # asıl çağrıdır (o kontrol dosyanın başında yer alır).
+    build_call = 'PyInstaller "%SPEC%"'
+    assert build_call in chain
+    assert chain.index("compile_translations.py") < chain.index(build_call)
+
+
+def test_the_compiler_skips_untranslated_languages(tmp_path):
+    """Boş `.qm` üretmek anlamsızdır; dil zaten sunulamaz."""
+    module = _compiler()
+    written, skipped = module.compile_all(str(TRANSLATIONS), str(tmp_path))
+    assert "mlcplayer_en.qm" in [os.path.basename(p) for p in written]
+    assert any("mlcplayer_de" in name for name in skipped), skipped
+    assert not (tmp_path / "mlcplayer_de.qm").exists()
+
 
 def test_compiled_translations_are_packaged():
     """`.qm` pakete girmezse kurulu sürüm hep Türkçe açılır."""

@@ -17,14 +17,19 @@ from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from app.opensubtitles import (
     AuthError, OpenSubtitlesClient, SubtitleServiceError, safe_message)
+from app.translate import tr_mark
 
-STATUS_NEEDS_KEY = "Önce API anahtarını girin."
-STATUS_PARTIAL_ACCOUNT = ("Kullanıcı adı ve parolanın ikisini de girin ya da "
-                          "ikisini de boş bırakın.")
-STATUS_TESTING = "Bağlantı test ediliyor…"
-STATUS_OK = "Bağlantı başarılı."
-STATUS_AUTH_FAILED = "API anahtarı, kullanıcı adı veya parola doğrulanamadı."
-STATUS_FAILED = "Bağlantı doğrulanamadı."
+# Modul duzeyi durum metinleri: yalniz ISARETLENIR; ceviri TEK sinirda,
+# `set_operation_status()` icinde yapilir.
+STATUS_NEEDS_KEY = tr_mark("Önce API anahtarını girin.")
+STATUS_PARTIAL_ACCOUNT = tr_mark(
+    "Kullanıcı adı ve parolanın ikisini de girin ya da ikisini de boş "
+    "bırakın.")
+STATUS_TESTING = tr_mark("Bağlantı test ediliyor…")
+STATUS_OK = tr_mark("Bağlantı başarılı.")
+STATUS_AUTH_FAILED = tr_mark(
+    "API anahtarı, kullanıcı adı veya parola doğrulanamadı.")
+STATUS_FAILED = tr_mark("Bağlantı doğrulanamadı.")
 
 # Kota tüketmeyen, sabit ve kamusal sentetik sorgu.
 PROBE_QUERY = "The Matrix"

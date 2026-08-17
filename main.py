@@ -163,11 +163,13 @@ if __name__ == "__main__":
         os._exit(ret)
     else:
         log("DLL bulunamadı - program kapatılıyor", 'ERROR')
+        from app.i18n import tr
         show_error(
-            "MPV Bileşeni Bulunamadı",
-            "Program çalıştırılamadı: gerekli MPV bileşeni (mpv-2.dll) bulunamadı.\n\n"
-            "Çözüm: Programın yanındaki 'bin' klasörünün eksiksiz olduğundan emin olun. "
-            "Programı kurulum klasöründen başlatın.\n\n"
-            "Bu klasör silinmiş veya program başka bir yere taşınmış olabilir."
+            tr("MPV Bileşeni Bulunamadı"),
+            tr("Program çalıştırılamadı: gerekli MPV bileşeni (mpv-2.dll) "
+               "bulunamadı.\n\nÇözüm: Programın yanındaki 'bin' klasörünün "
+               "eksiksiz olduğundan emin olun. Programı kurulum klasöründen "
+               "başlatın.\n\nBu klasör silinmiş veya program başka bir yere "
+               "taşınmış olabilir.")
         )
         sys.exit(1)

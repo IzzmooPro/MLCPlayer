@@ -1070,4 +1070,5 @@ class SubtitleAppearanceDialog(QDialog):
         if self._error_reporter is not None:
             from app.subtitle_style import APPLY_ERROR_MESSAGE
             self._error_reporter(tr("Altyazı Ayarları Uygulanamadı"),
-                                 APPLY_ERROR_MESSAGE, exc=error)
+                                 translate_marked(APPLY_ERROR_MESSAGE),
+                                 exc=error)

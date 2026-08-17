@@ -556,8 +556,9 @@ def update_url_loading(player):
         show_user_error(player, translate_marked(URL_FAILED_TITLE),
                         translate_marked(URL_FAILED_MESSAGE))
     else:
-        show_user_error(player, INTERNET_VIDEO_MISSING_TITLE,
-                        INTERNET_VIDEO_MISSING_MESSAGE)
+        show_user_error(player,
+                        translate_marked(INTERNET_VIDEO_MISSING_TITLE),
+                        translate_marked(INTERNET_VIDEO_MISSING_MESSAGE))
     return False
 
 

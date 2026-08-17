@@ -80,20 +80,73 @@ def language_name(code):
     return LANGUAGE_NAMES.get(code, code)
 
 
+#: `available_languages()` sonucu; her menü açılışında disk taranmaz.
+_AVAILABLE_CACHE = None
+
+
+def forget_available_languages():
+    """Önbelleği düşürür. Yalnız testler ve `.qm` yeniden üretimi için."""
+    global _AVAILABLE_CACHE
+    _AVAILABLE_CACHE = None
+
+
+def _translation_has_content(code):
+    """`.qm` dosyası VAR MI ve GERÇEKTEN çeviri taşıyor mu?
+
+    Dosyanın varlığı YETMEZ: tamamı `unfinished` olan bir `.ts` derlendiğinde
+    geçerli ama BOŞ bir `.qm` çıkar. Öyle bir dili menüde sunmak, kullanıcıyı
+    uyarısızca İngilizceye düşürmek demektir.
+    """
+    path = translation_file(code)
+    if not path or not os.path.isfile(path):
+        return False
+    translator = QTranslator()
+    if not translator.load(path):
+        return False
+    return not translator.isEmpty()
+
+
+def available_languages():
+    """Arayüzün GERÇEKTEN sunabildiği diller, sabit listeden değil diskten.
+
+    KULLANICI KARARI (17 Ağustos 2026): şimdilik Türkçe + İngilizce.
+    Menü sabit `SUPPORTED_LANGUAGES` listesini gösterirken kullanıcı
+    `Deutsch` seçip uyarısız İngilizce görüyordu; altı dilin `.ts` dosyası
+    0/401 çeviri taşıyor (ölçüldü).
+
+    `SUPPORTED_LANGUAGES` KÜÇÜLTÜLMEZ: kurulum sihirbazı sekiz dildedir ve
+    `.ts` dosyaları o küme için üretilir. Bir dil tamamlandığında burası
+    KENDİLİĞİNDEN büyür; kod değişmez.
+    """
+    global _AVAILABLE_CACHE
+    if _AVAILABLE_CACHE is None:
+        codes = [SOURCE_LANGUAGE]
+        codes.extend(code for code in SUPPORTED_LANGUAGES
+                     if code != SOURCE_LANGUAGE
+                     and _translation_has_content(code))
+        _AVAILABLE_CACHE = tuple(codes)
+    return _AVAILABLE_CACHE
+
+
 def detect_language(locale=None):
-    """Windows'un dilinden desteklenen bir dil seçer.
+    """Windows'un dilinden SUNULABİLEN bir dil seçer.
 
     Önce tam eşleşme (`pt_BR`), sonra yalnız dil kodu (`de_AT` → `de`).
     Hiçbiri tutmazsa yedek dile düşer — Portekiz Portekizcesi gibi yakın ama
     DESTEKLENMEYEN diller de buraya düşer; yanlış lehçe göstermektense
     İngilizce göstermek dürüsttür.
+
+    Ölçüt `SUPPORTED_LANGUAGES` DEĞİL `available_languages()`tir: çevirisi
+    olmayan bir dili "seçildi" diye raporlamak, kullanıcı İngilizce görürken
+    menünün Almanca'yı işaretli göstermesi demekti.
     """
     locale = locale if locale is not None else QLocale.system()
+    available = available_languages()
     name = locale.name()                      # örn. "de_DE"
-    if name in SUPPORTED_LANGUAGES:
+    if name in available:
         return name
     base = name.split("_", 1)[0]
-    if base in SUPPORTED_LANGUAGES:
+    if base in available:
         return base
     return FALLBACK_LANGUAGE
 
@@ -105,12 +158,15 @@ def stored_language():
     except Exception:
         return ""
     value = str(value or "").strip()
-    return value if value in SUPPORTED_LANGUAGES else ""
+    # Karşılanamayan tercih (çevirisi henüz yok) "sistem dilini izle" gibi
+    # davranır. KAYIT SİLİNMEZ: o dil tamamlandığında tercih kendiliğinden
+    # geri gelir.
+    return value if value in available_languages() else ""
 
 
 def store_language(code):
     """Tercihi kaydeder. Boş değer "sistem dilini izle" demektir."""
-    value = code if code in SUPPORTED_LANGUAGES else ""
+    value = code if code in available_languages() else ""
     _settings().setValue(SETTINGS_KEY, value)
 
 

@@ -19,26 +19,30 @@ Yaşam döngüsü kuralları (diğer altyazı controller'larıyla aynı):
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from app.subtitle_settings import DEFAULT_LANGUAGE
+from app.translate import tr_mark
 
-STATUS_SAVED = "Ayarlar kaydedildi."
-STATUS_SAVED_SESSION_ONLY = ("Ayarlar kaydedildi; gizli bilgiler yalnız bu "
-                             "oturumda kullanılacak.")
-STATUS_SAVE_FAILED = "Ayarlar kaydedilemedi."
-STATUS_ROLLBACK_FAILED = ("Ayarlar kaydedilemedi; güvenli bilgiler eski "
-                          "durumuna döndürülemedi.")
-STATUS_SECRETS_FAILED = ("Ayarlar kaydedilemedi; gizli bilgiler güvenli "
-                         "depoya yazılamadı.")
-STATUS_CLEANUP_FAILED = ("Ayarlar kaydedilemedi; eski güvenli bilgiler "
-                         "temizlenemedi.")
-STATUS_MIGRATION_FAILED = ("API anahtarı güvenli depoya taşınamadı; "
-                           "yeniden girin.")
+# Modul duzeyi durum metinleri: import aninda cevirmen yoktur; yalniz
+# ISARETLENIR. Ceviri TEK sinirda, `set_operation_status()` icinde
+# yapilir (bkz. app/subtitle_center.py).
+STATUS_SAVED = tr_mark("Ayarlar kaydedildi.")
+STATUS_SAVED_SESSION_ONLY = tr_mark(
+    "Ayarlar kaydedildi; gizli bilgiler yalnız bu oturumda kullanılacak.")
+STATUS_SAVE_FAILED = tr_mark("Ayarlar kaydedilemedi.")
+STATUS_ROLLBACK_FAILED = tr_mark(
+    "Ayarlar kaydedilemedi; güvenli bilgiler eski durumuna döndürülemedi.")
+STATUS_SECRETS_FAILED = tr_mark(
+    "Ayarlar kaydedilemedi; gizli bilgiler güvenli depoya yazılamadı.")
+STATUS_CLEANUP_FAILED = tr_mark(
+    "Ayarlar kaydedilemedi; eski güvenli bilgiler temizlenemedi.")
+STATUS_MIGRATION_FAILED = tr_mark(
+    "API anahtarı güvenli depoya taşınamadı; yeniden girin.")
 # OpenSubtitles REST API'de anahtar ZORUNLUDUR; hesap bilgileri yalnızca
 # daha yüksek kota içindir. Kullanıcı yalnız kullanıcı adı/parola girip
 # arama yapmayı denemişti.
-STATUS_API_KEY_REQUIRED = "API anahtarı zorunludur."
-STATUS_ACCOUNT_INCOMPLETE = ("Hesapla giriş için kullanıcı adı ve parolanın "
-                             "ikisi de gerekir; ya ikisini de girin ya da "
-                             "ikisini de boş bırakın.")
+STATUS_API_KEY_REQUIRED = tr_mark("API anahtarı zorunludur.")
+STATUS_ACCOUNT_INCOMPLETE = tr_mark(
+    "Hesapla giriş için kullanıcı adı ve parolanın ikisi de gerekir; "
+    "ya ikisini de girin ya da ikisini de boş bırakın.")
 
 class SubtitleSettingsController(QObject):
     """Çekmece alanları ↔ kalıcı ayar deposu."""

@@ -19,6 +19,9 @@ hesabi ve varlik durumu uretir. Ham yol veya istisna kullaniciya cikmaz.
 """
 import os
 
+# Qt'yi import aninda yuklemez (bkz. app/translate.py).
+from app.translate import tr_mark
+
 # Bilesen adi -> paketteki dosya adi. Tek kaynak burasidir.
 RUNTIME_BINARIES = (
     ("yt-dlp", "yt-dlp.exe"),
@@ -31,11 +34,12 @@ INTERNET_VIDEO_MISSING_CODE = "INTERNET_VIDEO_RUNTIME_MISSING"
 
 # Kullaniciya gosterilen TEK metin: ham yol, istisna, traceback veya
 # kurulum komutu icermez.
-INTERNET_VIDEO_MISSING_MESSAGE = (
+INTERNET_VIDEO_MISSING_MESSAGE = tr_mark(
     "İnternet videosu bileşenleri kurulu değil. "
     "MLC Player İnternet Videosu ek paketini kurup tekrar deneyin."
 )
-INTERNET_VIDEO_MISSING_TITLE = "İnternet Videosu Kullanılamıyor"
+INTERNET_VIDEO_MISSING_TITLE = tr_mark(
+    "İnternet Videosu Kullanılamıyor")
 
 # mpv `ytdl_hook` betiginin yt-dlp yolunu ALAN resmi script-opt adi.
 YTDL_PATH_OPTION = "ytdl_hook-ytdl_path"

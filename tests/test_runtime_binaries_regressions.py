@@ -125,7 +125,15 @@ def test_the_runtime_module_never_shells_out_or_self_updates():
     """Gercek sozlesme IMPORT'lardir; docstring metni taranmaz.
 
     Alt surec, ag, registry veya PATH aramasi yapabilmek icin bir modul
-    IMPORT edilmek zorundadir. `os` disinda hicbir sey ice aktarilmaz.
+    IMPORT edilmek zorundadir. Bu yuzden ice aktarilanlar TEK TEK sayilir.
+
+    17 Agustos 2026'da izin listesine `app.translate` eklendi: bu modulun
+    iki sabiti kullaniciya GORUNEN hata metnidir
+    (`INTERNET_VIDEO_MISSING_TITLE` / `_MESSAGE`) ve cevrilmek zorundadir.
+    `app.translate` alt surec, ag, registry veya PATH aramasi YAPMAZ; Qt'yi
+    bile import aninda yuklemez. Sozlesme GEVSETILMEDI: asagidaki yasakli
+    liste aynen durur ve izin listesi TAM ADLA yazilir, yani `app.*`
+    altindan baska bir modul girerse test kirilir.
     """
     import ast
 
@@ -134,11 +142,13 @@ def test_the_runtime_module_never_shells_out_or_self_updates():
     imported = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
-            imported.update(alias.name.split(".")[0] for alias in node.names)
+            imported.update(alias.name for alias in node.names)
         elif isinstance(node, ast.ImportFrom) and node.module:
-            imported.add(node.module.split(".")[0])
+            imported.add(node.module)
 
-    assert imported == {"os"}, f"beklenmeyen import: {sorted(imported)}"
+    assert imported == {"os", "app.translate"}, (
+        f"beklenmeyen import: {sorted(imported)}")
+    imported = {name.split(".")[0] for name in imported}
     for forbidden in ("subprocess", "urllib", "requests", "winreg",
                       "shutil", "socket"):
         assert forbidden not in imported

@@ -1000,7 +1000,8 @@ def build_language_menu(player):
     menu.addAction(system_action)
     menu.addSeparator()
 
-    for code in i18n.SUPPORTED_LANGUAGES:
+    # Sabit liste DEĞİL: yalnız çevirisi gerçekten var olan diller.
+    for code in i18n.available_languages():
         action = QAction(i18n.language_name(code), player)
         action.setCheckable(True)
         action.setChecked(current == code)

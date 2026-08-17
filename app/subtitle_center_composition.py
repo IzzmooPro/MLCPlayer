@@ -47,11 +47,12 @@ from app.subtitle_download_controller import SubtitleDownloadController
 from app.subtitle_search_controller import SubtitleSearchController
 from app.subtitle_settings import SubtitleSettingsStore
 from app.subtitle_settings_controller import SubtitleSettingsController
+from app.translate import tr_mark, translate_marked
 
-LOCAL_MEDIA_REQUIRED = "Önce bir video açın."
-CLOSE_STILL_BUSY = "Altyazı işlemi sürüyor; bitince kapanacak."
-MISSING_CREDENTIALS = ("OpenSubtitles API anahtarı tanımlı değil. "
-                       "Ayarlar bölümünden ekleyin.")
+LOCAL_MEDIA_REQUIRED = tr_mark("Önce bir video açın.")
+CLOSE_STILL_BUSY = tr_mark("Altyazı işlemi sürüyor; bitince kapanacak.")
+MISSING_CREDENTIALS = tr_mark(
+    "OpenSubtitles API anahtarı tanımlı değil. Ayarlar bölümünden ekleyin.")
 
 _REMOTE_SCHEMES = ("http://", "https://", "ftp://", "rtsp://", "rtmp://",
                    "smb://", "mms://", "srt://", "udp://", "rtp://")
@@ -299,7 +300,7 @@ class SubtitleCenterCoordinator(QObject):
         """Menü eylemi. Yerel video yoksa pencere AÇILMAZ."""
         path = self.local_media_path()
         if not path:
-            self._notify(LOCAL_MEDIA_REQUIRED)
+            self._notify(translate_marked(LOCAL_MEDIA_REQUIRED))
             return False
 
         dialog = self.dialog
@@ -321,7 +322,7 @@ class SubtitleCenterCoordinator(QObject):
         self._start_hash(path)
         if not self.has_credentials():
             # Ağ isteği YOK; kullanıcı önce anahtarı girsin.
-            self._dialog.show_error(MISSING_CREDENTIALS)
+            self._dialog.show_error(translate_marked(MISSING_CREDENTIALS))
             self.open_settings()
         return True
 
@@ -673,7 +674,7 @@ class SubtitleCenterCoordinator(QObject):
             if (not self._close_notified
                     and time.monotonic() >= self._close_deadline):
                 self._close_notified = True
-                self._notify(CLOSE_STILL_BUSY)
+                self._notify(translate_marked(CLOSE_STILL_BUSY))
             return
         self._stop_close_timer()
         self._closing = False

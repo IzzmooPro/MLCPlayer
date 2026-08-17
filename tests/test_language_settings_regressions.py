@@ -28,6 +28,26 @@ def isolated_settings(tmp_path, monkeypatch):
     return store
 
 
+@pytest.fixture(autouse=True)
+def every_language_translated(monkeypatch):
+    """Bu dosya ALGILAMA ve TERCİH mantığını ölçer, çeviri durumunu değil.
+
+    17 Ağustos 2026'da sunulan dil kümesi sabit `SUPPORTED_LANGUAGES`
+    listesinden `available_languages()`e taşındı: altı dilin çevirisi
+    0/401 olduğu için menü tutamayacağı bir söz veriyordu
+    (`tests/test_available_language_regressions.py`). Aşağıdaki testler
+    o değişiklikten ÖNCE yazıldı ve `de`/`ru`/`pt_BR` gibi bugün
+    sunulmayan dilleri kullanıyor.
+
+    GEVŞETİLMEDİLER: kapsam daraltmak yerine "bütün diller tamamlanmış"
+    dünyası açıkça kurulur, böylece algılama ve tercih mantığı eskisi gibi
+    tam kümede ölçülmeye devam eder. Kümenin nasıl TÜRETİLDİĞİ ayrı
+    dosyada sınanır.
+    """
+    monkeypatch.setattr(i18n, "available_languages",
+                        lambda: i18n.SUPPORTED_LANGUAGES)
+
+
 # ── Desteklenen diller ───────────────────────────────────────────────────
 
 def test_turkish_is_the_source_language():
@@ -125,16 +145,22 @@ def test_the_language_change_needs_a_restart_notice():
 
 # ── Ayar menüsü ve açılış bağlantısı ─────────────────────────────────────
 
-def test_the_menu_offers_system_plus_every_language(qt_app_for_menu):
-    """Kullanıcı dili programın kendi ayarından değiştirebilmelidir."""
+def test_the_menu_offers_system_plus_every_available_language(
+        qt_app_for_menu):
+    """Kullanıcı dili programın kendi ayarından değiştirebilmelidir.
+
+    Eski ad `..._every_language` idi ve sabit listeyi ölçüyordu. Menü artık
+    SUNULABİLEN kümeyi gösterir; bu testte fixture o kümeyi tam listeye
+    eşitlediği için beklenti DARALMADI.
+    """
     from app.menu_actions import build_language_menu
 
     menu = build_language_menu(None)
     actions = [a for a in menu.actions() if not a.isSeparator()]
-    assert len(actions) == len(i18n.SUPPORTED_LANGUAGES) + 1
+    assert len(actions) == len(i18n.available_languages()) + 1
     assert actions[0].text().startswith("Sistem dili")
     codes = [a.data() for a in actions if a.data()]
-    assert codes == list(i18n.SUPPORTED_LANGUAGES)
+    assert codes == list(i18n.available_languages())
 
 
 def test_the_menu_marks_the_current_choice(qt_app_for_menu, isolated_settings):

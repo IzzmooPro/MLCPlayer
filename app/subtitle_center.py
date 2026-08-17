@@ -513,7 +513,8 @@ class SubtitleCenterDialog(QDialog):
         self._operation_text = ""
         self._clear_results()
         self._result_count = 0
-        self._state_text = message or tr("Beklenmeyen bir sorun oluştu.")
+        self._state_text = (translate_marked(message) if message
+                            else tr("Beklenmeyen bir sorun oluştu."))
         self._refresh_status()
         self._sync_action_state()
 
@@ -569,8 +570,14 @@ class SubtitleCenterDialog(QDialog):
         return self.status_label.text()
 
     def set_operation_status(self, text):
-        """Kısa işlem durumu (indiriliyor/indirildi/uygulandı/hata)."""
-        self._operation_text = text or ""
+        """Kısa işlem durumu (indiriliyor/indirildi/uygulandı/hata).
+
+        TEK ÇEVİRİ SINIRI. Denetleyicilerin durum metinleri modül
+        düzeyinde `tr_mark()` ile İŞARETLENİR; çeviri burada yapılır.
+        Zaten çevrilmiş metin (ör. `safe_message()` çıktısı) katalogda
+        yer almadığı için AYNEN geri döner.
+        """
+        self._operation_text = translate_marked(text) if text else ""
         self._refresh_status()
 
     def _refresh_status(self):

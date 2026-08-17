@@ -159,7 +159,7 @@ def setup_controls(player):
     player.play_button.setIconSize(QSize(16, 16))
     player.play_button.setFixedSize(24, 24)
     player.play_button.clicked.connect(player.play_pause)
-    player.play_button.setToolTip("Oynat/Duraklat (Space)")
+    player.play_button.setToolTip(tr("Oynat/Duraklat (Space)"))
     control_layout.addWidget(player.play_button)
 
     # Icon referanslarını sakla
@@ -174,7 +174,7 @@ def setup_controls(player):
     player.stop_button.setIconSize(QSize(16, 16))
     player.stop_button.setFixedSize(24, 24)
     player.stop_button.clicked.connect(player.stop)
-    player.stop_button.setToolTip("Durdur")
+    player.stop_button.setToolTip(tr("Durdur"))
     control_layout.addWidget(player.stop_button)
 
     # Orta kısım - Boşluk
@@ -190,7 +190,7 @@ def setup_controls(player):
     player.fullscreen_button.setIconSize(QSize(14, 14))
     player.fullscreen_button.setFixedSize(24, 24)
     player.fullscreen_button.clicked.connect(player.toggle_fullscreen)
-    player.fullscreen_button.setToolTip("Tam Ekran (F)")
+    player.fullscreen_button.setToolTip(tr("Tam Ekran (F)"))
     control_layout.addWidget(player.fullscreen_button)
 
     # Altyazı butonu
@@ -222,7 +222,7 @@ def setup_controls(player):
     player.volume_icon.setIconSize(QSize(14, 14))
     player.volume_icon.setFixedSize(24, 24)
     player.volume_icon.clicked.connect(player.toggle_mute)
-    player.volume_icon.setToolTip("Sessiz (M)")
+    player.volume_icon.setToolTip(tr("Sessiz (M)"))
     control_layout.addWidget(player.volume_icon)
 
     # Ses seviyesi etiketi - volume_slider'dan ÖNCE oluşturulmalı ki
@@ -243,7 +243,7 @@ def setup_controls(player):
     # valueChanged sinyalini önce bağla ki setValue varsayılan ses seviyesini MPV'ye uygulasın
     player.volume_slider.valueChanged.connect(player.set_volume)
     player.volume_slider.setValue(DEFAULT_VOLUME)
-    player.volume_slider.setToolTip("Ses Seviyesi")
+    player.volume_slider.setToolTip(tr("Ses Seviyesi"))
     control_layout.addWidget(player.volume_slider)
     control_layout.addWidget(player.volume_label)
 
