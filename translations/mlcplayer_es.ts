@@ -603,6 +603,16 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/menu_actions.py" line="1060" />
+            <source>Bu paket mpv/FFmpeg bileşenini içerir; künyesi ve kaynak adresi için kurulum dizinindeki &lt;code&gt;licenses&lt;/code&gt; klasörüne bakın.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/menu_actions.py" line="1054" />
+            <source>Bu program ÖZGÜR YAZILIMDIR ve GNU GPL sürüm 3 koşullarıyla dağıtılır.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/media_controls.py" line="743" />
             <location filename="app/menu_actions.py" line="127" />
             <location filename="app/menu_actions.py" line="754" />
@@ -1034,7 +1044,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="290" />
-            <location filename="app/menu_actions.py" line="1055" />
+            <location filename="app/menu_actions.py" line="1073" />
             <source>Hakkında</source>
             <translation type="unfinished" />
         </message>
@@ -1068,6 +1078,11 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
         <message>
             <location filename="app/subtitle_settings_controller.py" line="43" />
             <source>Hesapla giriş için kullanıcı adı ve parolanın ikisi de gerekir; ya ikisini de girin ya da ikisini de boş bırakın.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/menu_actions.py" line="1056" />
+            <source>HİÇBİR GARANTİ VERİLMEZ; satılabilirlik veya belirli bir amaca uygunluk zımni garantisi dahil değildir.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1145,6 +1160,11 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
         <message>
             <location filename="app/updater.py" line="552" />
             <source>Kaynak koddan çalışan kopya kurulumla güncellenmez.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/menu_actions.py" line="1058" />
+            <source>Kaynak kodu:</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1279,6 +1299,11 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/menu_actions.py" line="1053" />
+            <source>MLC Player katkıcıları</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/title_bar.py" line="90" />
             <source>MLC Player simgesi</source>
             <translation type="unfinished" />
@@ -1296,7 +1321,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/menu_actions.py" line="1050" />
+            <location filename="app/menu_actions.py" line="1067" />
             <source>MPV tabanlı minimal video oynatıcı.</source>
             <translation type="unfinished" />
         </message>
@@ -1892,7 +1917,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/menu_actions.py" line="1048" />
+            <location filename="app/menu_actions.py" line="1065" />
             <source>Sürüm</source>
             <translation type="unfinished" />
         </message>
@@ -2313,7 +2338,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/menu_actions.py" line="1051" />
+            <location filename="app/menu_actions.py" line="1068" />
             <source>Özellikler:</source>
             <translation type="unfinished" />
         </message>

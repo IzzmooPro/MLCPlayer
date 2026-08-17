@@ -609,6 +609,16 @@ Sensitive information has been hidden automatically.</translation>
             <translation>No supported media files were found in this folder.</translation>
         </message>
         <message>
+            <location filename="app/menu_actions.py" line="1060" />
+            <source>Bu paket mpv/FFmpeg bileşenini içerir; künyesi ve kaynak adresi için kurulum dizinindeki &lt;code&gt;licenses&lt;/code&gt; klasörüne bakın.</source>
+            <translation>This package includes the mpv/FFmpeg component; see the &lt;code&gt;licenses&lt;/code&gt; folder in the installation directory for its notice and source address.</translation>
+        </message>
+        <message>
+            <location filename="app/menu_actions.py" line="1054" />
+            <source>Bu program ÖZGÜR YAZILIMDIR ve GNU GPL sürüm 3 koşullarıyla dağıtılır.</source>
+            <translation>This program is FREE SOFTWARE and is distributed under the terms of the GNU GPL version 3.</translation>
+        </message>
+        <message>
             <location filename="app/media_controls.py" line="743" />
             <location filename="app/menu_actions.py" line="127" />
             <location filename="app/menu_actions.py" line="754" />
@@ -1044,7 +1054,7 @@ Solution: unlock the file or copy it to another folder.</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="290" />
-            <location filename="app/menu_actions.py" line="1055" />
+            <location filename="app/menu_actions.py" line="1073" />
             <source>Hakkında</source>
             <translation>About</translation>
         </message>
@@ -1079,6 +1089,11 @@ Solution: unlock the file or copy it to another folder.</translation>
             <location filename="app/subtitle_settings_controller.py" line="43" />
             <source>Hesapla giriş için kullanıcı adı ve parolanın ikisi de gerekir; ya ikisini de girin ya da ikisini de boş bırakın.</source>
             <translation>Signing in with an account needs both the username and the password; either enter both or leave both empty.</translation>
+        </message>
+        <message>
+            <location filename="app/menu_actions.py" line="1056" />
+            <source>HİÇBİR GARANTİ VERİLMEZ; satılabilirlik veya belirli bir amaca uygunluk zımni garantisi dahil değildir.</source>
+            <translation>It comes with NO WARRANTY; not even the implied warranty of merchantability or fitness for a particular purpose.</translation>
         </message>
         <message>
             <location filename="app/track_labels.py" line="45" />
@@ -1156,6 +1171,11 @@ Solution: unlock the file or copy it to another folder.</translation>
             <location filename="app/updater.py" line="552" />
             <source>Kaynak koddan çalışan kopya kurulumla güncellenmez.</source>
             <translation>A copy running from source code cannot be updated by an installer.</translation>
+        </message>
+        <message>
+            <location filename="app/menu_actions.py" line="1058" />
+            <source>Kaynak kodu:</source>
+            <translation>Source code:</translation>
         </message>
         <message>
             <location filename="app/error_details_dialog.py" line="46" />
@@ -1289,6 +1309,11 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Clear Playlist</translation>
         </message>
         <message>
+            <location filename="app/menu_actions.py" line="1053" />
+            <source>MLC Player katkıcıları</source>
+            <translation>MLC Player contributors</translation>
+        </message>
+        <message>
             <location filename="app/title_bar.py" line="90" />
             <source>MLC Player simgesi</source>
             <translation>MLC Player icon</translation>
@@ -1308,7 +1333,7 @@ Solution: unlock the file or copy it to another folder.</translation>
 Solution: make sure the program's 'bin' folder is complete. Run the program from its installation folder.</translation>
         </message>
         <message>
-            <location filename="app/menu_actions.py" line="1050" />
+            <location filename="app/menu_actions.py" line="1067" />
             <source>MPV tabanlı minimal video oynatıcı.</source>
             <translation>a minimal MPV-based video player.</translation>
         </message>
@@ -1911,7 +1936,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Drag to reorder — double-click to play</translation>
         </message>
         <message>
-            <location filename="app/menu_actions.py" line="1048" />
+            <location filename="app/menu_actions.py" line="1065" />
             <source>Sürüm</source>
             <translation>Version</translation>
         </message>
@@ -2332,7 +2357,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Sample rate</translation>
         </message>
         <message>
-            <location filename="app/menu_actions.py" line="1051" />
+            <location filename="app/menu_actions.py" line="1068" />
             <source>Özellikler:</source>
             <translation>Features:</translation>
         </message>

@@ -5,6 +5,10 @@ APP_NAME = "MLC Player"
 APP_VERSION = "v0.33"
 # Windows sürüm alanları dört sayılı olmak zorundadır; elle yazılmaz.
 WINDOWS_VERSION = ".".join((APP_VERSION.lstrip("v").split(".") + ["0", "0", "0"])[:4])
+# Telif yılının TEK kaynağı. README ve Hakkında penceresi ayrı ayrı
+# yazıldığında ayrışmıştı (README 2026, pencere 2025);
+# `tests/test_about_licence_regressions.py` ikisini birbirine bağlar.
+COPYRIGHT_YEAR = "2026"
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 450
 DEFAULT_VOLUME = 70

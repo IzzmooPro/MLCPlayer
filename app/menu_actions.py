@@ -10,7 +10,7 @@ from app import track_labels
 from app.errors import show_user_error, safe_console
 from app import i18n
 from app.i18n import tr
-from app.config import APP_VERSION, SUBTITLE_DEFAULTS
+from app.config import APP_VERSION, COPYRIGHT_YEAR, SUBTITLE_DEFAULTS
 from app.updater import check_for_updates
 from app.media_info import build_media_info, media_info_refresh_key
 from app.media_controls import is_remote_media_url, safe_media_host
@@ -1043,6 +1043,23 @@ def show_about(player):
         tr("Tekrarla / karışık oynatma modları"),
     ]
     items = "\n".join(f"    <li>{feature}</li>" for feature in features)
+    # LİSANS BLOĞU. GPLv3, etkileşimli bir programın uygun telif uyarısını
+    # ve GARANTİ REDDİNİ göstermesini bekler; ayrıca §6 karşılık gelen
+    # KAYNAĞA erişim ister. Bunları yalnız `LICENSE` dosyasına bırakmak
+    # kullanıcının o dosyayı açmasını gerektiriyordu.
+    # Telif yılı README ile AYNI olmalıdır (tests/test_about_licence_*).
+    from app.updater import GITHUB_URL
+    licence = (
+        f"    <p>© {COPYRIGHT_YEAR} {tr('MLC Player katkıcıları')}</p>\n"
+        f"    <p>{tr('Bu program ÖZGÜR YAZILIMDIR ve GNU GPL sürüm 3 '
+                     'koşullarıyla dağıtılır.')}<br>\n"
+        f"    {tr('HİÇBİR GARANTİ VERİLMEZ; satılabilirlik veya belirli bir '
+                  'amaca uygunluk zımni garantisi dahil değildir.')}</p>\n"
+        f"    <p>{tr('Kaynak kodu:')} "
+        f'<a href="{GITHUB_URL}">{GITHUB_URL}</a></p>\n'
+        f"    <p>{tr('Bu paket mpv/FFmpeg bileşenini içerir; künyesi ve '
+                     'kaynak adresi için kurulum dizinindeki '
+                     '<code>licenses</code> klasörüne bakın.')}</p>\n")
     about_text = (
         "\n    <h2>MLC Player</h2>\n"
         f"    <p>{tr('Sürüm')} {APP_VERSION}</p>\n"
@@ -1050,6 +1067,7 @@ def show_about(player):
         f"{tr('MPV tabanlı minimal video oynatıcı.')}</p>\n"
         f"    <p>{tr('Özellikler:')}</p>\n"
         f"    <ul>\n{items}\n    </ul>\n"
-        "    <p>© 2025</p>\n    ")
+        "    <hr>\n"
+        f"{licence}    ")
 
     QMessageBox.about(player, tr("Hakkında"), about_text)

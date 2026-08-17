@@ -1512,11 +1512,13 @@ hafızada değil BURADA durur; sıradaki tur bunlarla AÇILMAZ ama silinmez.
    Melez seçenek: gömülü anahtar varsayılan, isteyen kendi anahtarını
    girer. Kod buna zaten yakın (`STATUS_API_KEY_REQUIRED` yolu isteğe
    bağlı hâle getirilir).
-3. **Hakkında penceresinde lisans bildirimi YOK.** İçerik şu an sürüm +
-   özellik listesi + `© 2025`. GPLv3 etkileşimli programdan uygun telif
-   uyarısı ve GARANTİ REDDİ bekler; VLC'nin Hakkında penceresinde ayrı
-   bir License sekmesi vardır. Ayrıca telif yılı README (`2026`) ile
-   çelişiyor.
+3. ✅ **Hakkında penceresi lisans bildirimi — KAPANDI (17 Ağustos 2026).**
+   Pencere artık lisans adını (GNU GPL v3), GARANTİ REDDİNİ, kaynak kodu
+   adresini (`updater.GITHUB_URL`, GPLv3 §6) ve mpv/FFmpeg künyesine yolu
+   gösteriyor. Telif yılı ayrışması da kapandı: `config.COPYRIGHT_YEAR`
+   tek kaynaktır ve test onu README ile bağlar (README 2026, pencere
+   2025 yazıyordu). Dört cümle çeviri kataloğunda.
+   Sözleşme: `tests/test_about_licence_regressions.py` (7 test).
 4. **Dosya başı telif/lisans bildirimleri.** GPLv3 öneriyor; bizde yalnız
    kök `LICENSE` ve README bölümü var.
 
