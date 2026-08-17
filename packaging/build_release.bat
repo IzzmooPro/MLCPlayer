@@ -9,7 +9,7 @@ rem    1. Pre-flight check (source files + runtime SHA-256)
 rem    2. Translation compile (.ts -> .qm)
 rem    3. PyInstaller (onedir -> dist\MLC Player\)
 rem    4. Package check (are bin/licenses/assets complete)
-rem    5. Inno Setup (-> installer_output\MLCPlayer_Setup_*.exe)
+rem    5. Inno Setup (-> installer_output\MLCPlayer_Setup_<APP_VERSION>.exe)
 rem    6. Publisher signature
 rem    7. Result report
 rem
@@ -66,6 +66,37 @@ if not defined ISCC (
     goto :fail
 )
 
+rem --- Version: read ONCE, up front -------------------------------
+rem MEASURED RISK: installer_output holds every build from v0.1 to v0.36
+rem side by side. The chain used to pick the file to sign with a wildcard
+rem (`MLCPlayer_Setup_*.exe`); `for` walks the matches and the LAST one
+rem wins, and that order comes from the filesystem. The sharp failure is
+rem not ordering though: if Inno does not produce the new EXE, a wildcard
+rem quietly selects an OLD one, signs it, and reports it as the new
+rem release. Every artifact path below is EXACT.
+set "APP_VER="
+set "APP_NUM="
+for /f "usebackq delims=" %%V in (`python -c "import sys; sys.path.insert(0,'.'); from app.config import APP_VERSION, WINDOWS_VERSION; print(APP_VERSION + '|' + WINDOWS_VERSION)"`) do (
+    for /f "tokens=1,2 delims=|" %%A in ("%%V") do (
+        set "APP_VER=%%A"
+        set "APP_NUM=%%B"
+    )
+)
+if not defined APP_VER (
+    echo ERROR: APP_VERSION could not be read from app\config.py.
+    goto :fail
+)
+if not defined APP_NUM (
+    echo ERROR: WINDOWS_VERSION could not be read from app\config.py.
+    goto :fail
+)
+set "MAIN_SETUP=installer_output\MLCPlayer_Setup_!APP_VER!.exe"
+set "ADDON_SETUP=installer_output\MLCPlayer_InternetVideo_!APP_VER!.exe"
+echo   Version  : !APP_VER!  (!APP_NUM!)
+echo   Installer: !MAIN_SETUP!
+echo   Add-on   : !ADDON_SETUP!
+echo.
+
 echo STEP 1/8  Pre-flight check
 python "%VERIFY%" --pre
 if errorlevel 1 goto :fail
@@ -76,9 +107,42 @@ if errorlevel 1 goto :fail
 echo.
 
 echo STEP 2/8  Cleaning previous output
-if exist "build" rmdir /s /q "build"
-if exist "dist"  rmdir /s /q "dist"
-echo   OK  build\ and dist\ cleaned
+rem MEASURED GAP: `rmdir /s /q` can fail silently -- a locked file, an
+rem open Explorer window or a permission problem leaves the tree in
+rem place. The result was never checked, so the chain could carry on with
+rem LAST RUN's build\ and dist\ and what looked like fresh PyInstaller
+rem output could be a leftover. Each removal is now verified.
+if exist "build" (
+    rmdir /s /q "build"
+    if exist "build" (
+        echo ERROR: the stale build\ tree could not be removed.
+        echo        Close anything holding it open and run again.
+        goto :fail
+    )
+)
+if exist "dist" (
+    rmdir /s /q "dist"
+    if exist "dist" (
+        echo ERROR: the stale dist\ tree could not be removed.
+        echo        Close anything holding it open and run again.
+        goto :fail
+    )
+)
+rem ONLY this version's four exact outputs. Older releases in
+rem installer_output are KEPT: they are the artifacts already published,
+rem and a broad `del *.exe` would destroy them. A stale file that cannot
+rem be removed STOPS the chain -- otherwise the next steps could not tell
+rem a fresh build from last run's leftover.
+for %%T in ("!MAIN_SETUP!" "!MAIN_SETUP!.sig" "!ADDON_SETUP!" "!ADDON_SETUP!.sig") do (
+    if exist "%%~T" (
+        del /f /q "%%~T"
+        if exist "%%~T" (
+            echo ERROR: the stale output could not be removed: %%~T
+            goto :fail
+        )
+    )
+)
+echo   OK  build\ and dist\ cleaned, this version's outputs removed
 echo.
 
 echo STEP 3/8  Compiling translations (.ts -^> .qm)
@@ -107,54 +171,50 @@ if errorlevel 1 (
     echo ERROR: the Inno Setup build failed.
     goto :fail
 )
-echo   OK  build finished
+rem The EXACT file must exist. Without this a silent Inno failure left the
+rem old installer in place and the wildcard signed THAT.
+if not exist "!MAIN_SETUP!" (
+    echo ERROR: the expected installer was not produced: !MAIN_SETUP!
+    goto :fail
+)
+echo   OK  build finished  ^(!MAIN_SETUP!^)
 echo.
 
 echo STEP 6/8  Internet Video add-on
 rem yt-dlp + deno are NOT in the main package; they ship as a separate,
 rem optional install.
-for /f "usebackq delims=" %%V in (`python -c "import sys; sys.path.insert(0,'.'); from app.config import APP_VERSION, WINDOWS_VERSION; print(APP_VERSION + '|' + WINDOWS_VERSION)"`) do (
-    for /f "tokens=1,2 delims=|" %%A in ("%%V") do (
-        set "ADDON_VER=%%A"
-        set "ADDON_NUM=%%B"
-    )
-)
-"%ISCC%" /Q /DAddonVersion=!ADDON_VER! /DAddonNumericVersion=!ADDON_NUM! "packaging\MLCPlayer_InternetVideo.iss"
+rem The version was read ONCE at the top; it is NOT read again here.
+"%ISCC%" /Q /DAddonVersion=!APP_VER! /DAddonNumericVersion=!APP_NUM! "packaging\MLCPlayer_InternetVideo.iss"
 if errorlevel 1 (
     echo ERROR: the Internet Video add-on could not be built.
     goto :fail
 )
-echo   OK  add-on built
+rem The add-on is MANDATORY. It used to be signed only `if defined`, so a
+rem missing add-on was skipped in silence and the release went out without
+rem it.
+if not exist "!ADDON_SETUP!" (
+    echo ERROR: the expected add-on was not produced: !ADDON_SETUP!
+    goto :fail
+)
+echo   OK  add-on built  ^(!ADDON_SETUP!^)
 echo.
 
 echo STEP 7/8  Publisher signature
 rem IN THE CHAIN SO IT CANNOT BE FORGOTTEN: the updater REJECTS an
 rem unsigned release (fail-closed) and the user cannot see why.
-set "SETUP_TO_SIGN="
-for %%F in ("installer_output\MLCPlayer_Setup_*.exe") do set "SETUP_TO_SIGN=installer_output\%%~nxF"
-python "packaging\sign_release.py" "%SETUP_TO_SIGN%"
+python "packaging\sign_release.py" "!MAIN_SETUP!"
 if errorlevel 1 (
     echo ERROR: the installer could not be signed. Without a private key,
     echo        run first: python packaging\sign_release.py --init
     goto :fail
 )
 rem The add-on is signed too: the user downloads it from GitHub as well.
-set "ADDON_TO_SIGN="
-for %%F in ("installer_output\MLCPlayer_InternetVideo_*.exe") do set "ADDON_TO_SIGN=installer_output\%%~nxF"
-if defined ADDON_TO_SIGN (
-    python "packaging\sign_release.py" "!ADDON_TO_SIGN!"
-    if errorlevel 1 goto :fail
-)
+python "packaging\sign_release.py" "!ADDON_SETUP!"
+if errorlevel 1 goto :fail
 echo.
 
 echo STEP 8/8  Result
-set "SETUP="
-for %%F in ("installer_output\MLCPlayer_Setup_*.exe") do set "SETUP=installer_output\%%~nxF"
-if not defined SETUP (
-    echo ERROR: no installer found in installer_output.
-    goto :fail
-)
-python "%VERIFY%" --final "%SETUP%"
+python "%VERIFY%" --final "!MAIN_SETUP!"
 if errorlevel 1 goto :fail
 
 echo.
@@ -162,9 +222,9 @@ echo ============================================================
 echo   DONE
 echo.
 echo   Folder   : dist\MLC Player\      (move the whole folder together)
-echo   Installer: %SETUP%
-echo   Signature: %SETUP%.sig   (MUST be uploaded to the release with it)
-echo   Add-on   : !ADDON_TO_SIGN! (+ .sig)  - internet video components
+echo   Installer: !MAIN_SETUP!
+echo   Signature: !MAIN_SETUP!.sig   (MUST be uploaded to the release with it)
+echo   Add-on   : !ADDON_SETUP! (+ .sig)  - internet video components
 echo.
 echo   The file you SEND to someone else is the installer.
 echo ============================================================

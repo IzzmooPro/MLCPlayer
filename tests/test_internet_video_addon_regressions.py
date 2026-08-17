@@ -68,9 +68,40 @@ def test_the_addon_has_its_own_identity():
 
 
 def test_the_chain_builds_and_signs_the_addon():
+    """Zincir ek paketi üretir, VARLIĞINI doğrular ve KESİN yolu imzalar.
+
+    SÖZLEŞME GÜNCELLENDİ (17 Ağustos 2026), gevşetilmedi.
+
+    Eski hâli `ADDON_TO_SIGN` adlı geçici bir değişkenin varlığını arıyordu
+    — bu bir DAVRANIŞ değil, uygulama ayrıntısıdır. O değişken jokerle
+    doldurulan bir arama sonucuydu:
+
+        for %%F in ("installer_output\\MLCPlayer_InternetVideo_*.exe") ...
+
+    Ürün artık kesin `ADDON_SETUP` yolunu doğrudan imzalıyor; joker
+    kaldırıldığı için değişken de kalktı ve test ürün DÜZELDİĞİ için
+    kırmızıya döndü. Ölçülen şey artık davranıştır: üret, varlığını
+    doğrula, kesin yolu imzala — bu sırayla.
+    """
     chain = CHAIN.read_text(encoding="utf-8", errors="ignore")
-    assert "MLCPlayer_InternetVideo.iss" in chain, "zincir ek paketi üretmiyor"
-    assert "ADDON_TO_SIGN" in chain, "ek paket imzalanmıyor"
+
+    build = chain.find('"packaging\\MLCPlayer_InternetVideo.iss"')
+    guard = chain.find('if not exist "!ADDON_SETUP!"')
+    sign = chain.find('python "packaging\\sign_release.py" "!ADDON_SETUP!"')
+
+    assert build != -1, "zincir ek paketi üretmiyor"
+    assert guard != -1, (
+        "ek paket üretilmediğinde zincir durmuyor; joker eskisini seçebilir")
+    assert sign != -1, "ek paket KESİN yoluyla imzalanmıyor"
+
+    assert build < guard < sign, (
+        f"sıra yanlış: build={build}, koruma={guard}, imza={sign}; "
+        "beklenen build < varlık koruması < imzalama")
+
+    # Jokerli imzalama KABUL EDİLMEZ: eski artifact imzalanabilirdi.
+    for line in chain.splitlines():
+        if "sign_release.py" in line:
+            assert "*" not in line, f"jokerli imzalama: {line.strip()}"
 
 
 def test_the_product_still_handles_the_missing_runtime_safely():
