@@ -129,15 +129,16 @@ değişiklik henüz kalıcı değildir.
 ## TEST-001
 
 - **Kimlik:** TEST-001
-- **Baslik:** Tam paket **taban** (baseline) sonucu ve açık bir çökme riski
+- **Baslik:** Tam paket **taban** (baseline), milestone ve güncel checkpoint sonucu
 - **Onem:** Orta — ölçüm hijyeni
-- **Durum:** KANITLANDI (taban), CANLI KABUL BEKLIYOR (güncel koşum)
+- **Durum:** KANITLANDI → TAMAMLANDI (güncel checkpoint)
 - **Kanit:**
 
   | koşum | sonuç | süre |
   |---|---|---|
   | **Taban** (REL-001…004 ÖNCESİ) | 3716 passed / 17 skipped | ~68 sn |
   | **Milestone** (17 Ağustos 2026, REL-001…005 SONRASI) | **3931 passed / 17 skipped / 1 failed** | **100,01 sn** |
+  | **Güncel checkpoint** (18 Ağustos 2026, NATIVE-001 commit'i SONRASI) | **3992 passed / 17 skipped / 0 failed; exit 0; stderr BOŞ** | **82,44 sn** |
 
   Taban ve milestone AYRI değerlerdir; taban güncel sonuç gibi
   sunulmamalıdır.
@@ -150,10 +151,10 @@ değişiklik henüz kalıcı değildir.
   Ayrıntı: TEST-002.
 - **Kok neden:** —
 - **Degisen dosyalar:** —
-- **Test kaniti:** Yukarıdaki taban koşumu.
-- **Canli kabul:** Milestone koşumu yapıldı (yukarıdaki tablo). Bayat test düzeltildikten **sonra** tam paket bilerek yeniden çalıştırılmadı; 3931 yeşil testi tek bir test-only düzeltme için yeniden koşturmak gereksizdir.
-- **Kalan risk:** **`0xe24c4a02` YENİDEN GÖRÜLDÜ** — aynı cover-art gerçek-mpv testinde, milestone koşumunda. Windows ölümcül istisnası, pytest `exit 0` verdiği hâlde ortaya çıkıyor. Risk **AÇIK**; pytest çıkış kodundan **bağımsız** izlenmelidir, çünkü yeşil sonuç onu gizliyor. Kök neden hâlâ araştırılmadı.
-- **Commit durumu:** —
+- **Test kaniti:** 18 Ağustos 2026'da temiz `a7ced18` HEAD'i üzerinde tek tam koşum: **3992 passed / 17 skipped / 0 failed**, pytest **exit 0**, yakalanan stderr **0 bayt**. Stdout/stderr ayrı dosyalara yazıldı; koşum tekrarlanmadı.
+- **Canli kabul:** Güncel tam paket checkpoint'i tamamlandı. Milestone'daki bayat TEST-002 assertion'ı artık kapalı; NATIVE-001'in child-process stderr kapısı tam paket içinde de yeşil kaldı.
+- **Kalan risk:** Tek yeşil tam koşum zaman içindeki bütün aralıklı native davranışları dışlamaz. `0xe24c4a02` artık exit 0 arkasında sessizce geçemez ve bu koşumda görülmedi; ancak native kaynak modül ve ürün etkisi ayrı NATIVE-001 riski olarak açıktır.
+- **Commit durumu:** COMMIT EDILDI (bu güncel checkpoint kaydı)
 
 ---
 

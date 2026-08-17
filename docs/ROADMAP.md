@@ -1,7 +1,7 @@
 # MLC Player yol haritası
 
-**Snapshot: 17 Ağustos 2026** — tam paket milestone koşumu ve TEST-002
-turunun ardından güncellendi. Bu belge her kabul edilen turun sonunda
+**Snapshot: 18 Ağustos 2026** — NATIVE-001 commit'i ve güncel tam paket
+checkpoint'inin ardından güncellendi. Bu belge her kabul edilen turun sonunda
 yenilenir; buradaki durumlar o tarihteki ölçümleri yansıtır, kalıcı
 gerçek değildir.
 
@@ -15,9 +15,11 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 ## Su anki asama
 
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
-testlerle kapatıldı ve üç mantıksal yerel commit'e ayrıldı. **Push
+testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
+ve toplam dört mantıksal yerel commit oluşturuldu. Güncel tam paket
+**3992 passed / 17 skipped / 0 failed**, exit 0 ve stderr boştur. **Push
 yapılmadı**; canlı bir build/yayın koşumu da yapılmadı. Sıradaki teknik
-risk, tam paket koşumunda yeniden görülen `0xe24c4a02` istisnasıdır.
+risk, NATIVE-001'in bilinmeyen native kök nedeni ve ürün etkisidir.
 
 ---
 
@@ -85,7 +87,12 @@ yeniden koşturmak ölçüm değil, tekrardır. Bir sonraki tam koşum commit
 - **Durum:** TAMAMLANDI (hedef kapanış kanıtıyla)
 - **Bagimlilik:** yukarıdaki milestone
 - **Olcut:** tam `pytest -q tests` yeşil (0 failed); milestone 3931/17/1 ile karşılaştırılıp fark açıklanmış; `compileall` ve `git diff --check` temiz
-- **Kullanici onayi:** verildi; üç yerel commit oluşturuldu, push yapılmadı
+- **Kullanici onayi:** verildi; dört yerel commit oluşturuldu, push yapılmadı
+
+18 Ağustos 2026 güncel HEAD checkpoint'i: **3992 passed / 17 skipped /
+0 failed**, pytest **exit 0**, stderr **0 bayt**, **82,44 sn**. Koşum bir kez
+yapıldı. TEST-002'nin bayat assertion'ı ve NATIVE-001 sonrası eklenen
+regresyonlar artık aynı tam paket sonucunda birlikte yeşildir.
 
 ---
 
@@ -153,6 +160,11 @@ Güncel gerçek sonuç: **deterministik 61 passed**. Native kabul, child
 üretim kodu değişmediği için tekrarlanmadı; geçerli canlı sonuç önceki
 turun **39 passed / exit 0 / stderr BOŞ** koşumudur. Raporlanan iki-test
 sıra regresyonu **iki yönde de yeşil**.
+
+18 Ağustos 2026 tam paket checkpoint'i de **3992 passed / 17 skipped /
+0 failed**, exit 0 ve stderr boş tamamlandı. Bu, görünürlük kapısının
+tam paket içinde çalıştığını gösterir; native kök nedeni veya ürün
+muafiyeti kanıtı değildir.
 
 **Kapatılmayan:** istisnayı doğuran native modül belirlenmedi ve ürün
 üzerindeki etki ölçülmedi. **Tek yeşil native koşum, aralıklı olgunun
