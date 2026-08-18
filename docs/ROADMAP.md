@@ -654,12 +654,23 @@ ve **Hakkında v0.37**; bağımsız ölçümde kalan süreç 0, medya boyutu
 yt-dlp/deno hash'leri kaynaklarla eşleşti. Kaldırma yapılmadı; release-ready
 madde 7 AÇIK. Dolu kullanıcı ayarıyla yükseltme korunumu da henüz ölçülmedi.
 
-İlk kaldırma döngüsü yeni REL-006 kusurunu kanıtladı: ana ve add-on
-kaldırıldıktan sonra uninstall kaydı 0 ve kalan süreç 0 olduğu hâlde **0 öğe
-/ 0 bayt** boş program klasörü kaldı. Add-on'a yalnız boş `{app}` dizinini
-hedefleyen `dirifempty` eklendi; etkin kurallarda **filesandordirs yok**.
-Hedef paketler **45 passed**; düzeltme **COMMIT/REBUILD/CANLI RETEST
-BEKLIYOR**. Release-ready madde 7 bu canlı retest geçmeden AÇIK kalır.
+İlk kaldırma döngüsü REL-006 kusurunu kanıtladı: ana ve add-on kaldırıldıktan
+sonra uninstall kaydi 0 ve kalan surec 0 olduğu hâlde **0 öğe / 0 bayt** boş
+program klasörü kaldı. Yalnız boş `{app}` dizinini hedefleyen ilk `dirifempty`
+düzeltmesi `332779c` ile commit edildi.
+
+`332779c` sonrasındaki tek rebuild exit 0 verdi. Ana installer SHA-256
+`61ae94ae6d53611aedc24880c0f52f4c224717130e688645694fb42a54c9ddf6`, add-on
+SHA-256 `308e82bb2ced6d298f467794d21798b1ae9786fb7e05a369fd183539ee43f140`.
+Kullanıcı onaylı ilk REL-006 canlı retest başarısız: iki kurulum ve iki
+kaldırıcı exit 0, uninstall kaydi 0, kalan surec 0, dosya ve kısayol 0;
+ancak `_internal\bin`, `_internal\licenses` ve `_internal` olmak üzere **3 bos
+alt dizin** kaldı. İlk tek `{app}` kuralı bu nedenle yetersizdi.
+
+İkinci regresyon-first düzeltme dört `dirifempty` yolunu **en derinden
+yukariya** sıralıyor; etkin kurallarda **filesandordirs yok**. Hedef paketler **46
+passed**. Kaynak/test değişikliği commit bekliyor ve **ikinci rebuild/canlı
+retest bekliyor**. Release-ready madde 7 bu fiziksel retest geçmeden AÇIK kalır.
 
 ---
 

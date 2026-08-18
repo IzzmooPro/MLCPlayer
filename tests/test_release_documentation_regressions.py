@@ -511,6 +511,32 @@ def test_the_empty_install_directory_uninstall_defect_is_recorded_everywhere():
             assert flat(fact) in block, f"{label}: {fact}"
 
 
+def test_the_first_rel006_live_retest_failure_and_second_fix_are_recorded():
+    records = {
+        "ENGINEERING_AUDIT": read(AUDIT_DOC),
+        "ROADMAP": read(ROADMAP_DOC),
+        "PROJECT_STATUS": read(PROJECT_STATUS_DOC),
+    }
+
+    for label, record in records.items():
+        block = flat(record)
+        for fact in (
+            "332779c",
+            "61ae94ae6d53611aedc24880c0f52f4c224717130e688645694fb42a54c9ddf6",
+            "308e82bb2ced6d298f467794d21798b1ae9786fb7e05a369fd183539ee43f140",
+            "ilk rel-006 canli retest basarisiz",
+            "3 bos alt dizin",
+            "_internal\\bin",
+            "_internal\\licenses",
+            "uninstall kaydi 0",
+            "kalan surec 0",
+            "en derinden yukariya",
+            "46 passed",
+            "ikinci rebuild/canli retest bekliyor",
+        ):
+            assert flat(fact) in block, f"{label}: {fact}"
+
+
 def test_the_cover_art_fatal_exception_is_recorded_as_open_risk():
     text = read(AUDIT_DOC)
 

@@ -91,6 +91,11 @@ Source: "..\licenses\deno-LICENSE.txt"; DestDir: "{app}\_internal\licenses"; Fla
 ; kaldirildiginda butun dosyalar ve iki uninstall kaydi gidiyor ama ortak
 ; `{app}` klasoru 0 bayt / 0 oge olarak kaliyor. Yalniz GERCEKTEN BOSSA
 ; kaldir; `filesandordirs` kullanmak baska dosyalari silebilirdi.
+; Canli retest, add-on'un bos `bin` ve `licenses` alt dizinlerinin de once
+; kaldirilmasi gerektigini gosterdi. En derinden yukariya, yalniz bos dizinler.
+Type: dirifempty; Name: "{app}\_internal\bin"
+Type: dirifempty; Name: "{app}\_internal\licenses"
+Type: dirifempty; Name: "{app}\_internal"
 Type: dirifempty; Name: "{app}"
 
 [Code]

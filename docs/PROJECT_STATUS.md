@@ -1836,13 +1836,26 @@ AÇIK. Önceden karşılaştırılabilir dolu kullanıcı ayarı bulunmadığın
 koruma senaryosu ayrıca kanıtlanmadı. Kayıt **COMMIT BEKLIYOR**.
 
 **REL-006 — boş program klasörü artığı (19 Ağustos 2026):** Ana program ve
-add-on ayrı ayrı exit 0 ile kaldırıldı; uninstall kaydı 0, kalan süreç 0,
+add-on ayrı ayrı exit 0 ile kaldırıldı; uninstall kaydi 0, kalan surec 0,
 kısayol ve program dosyası yoktu. Fakat `C:\Program Files\MLC Player`
 altında **0 öğe / 0 bayt** boş program klasörü kaldı. Bu manuel silinip
-gizlenmedi. Add-on ISS'e yalnız boş `{app}` için `dirifempty` eklendi;
-etkin kurallarda **filesandordirs yok**. İlk kırmızı eksik
-`[UninstallDelete]` bölümüydü; ilgili hedefler **45 passed**. Düzeltme
-**COMMIT/REBUILD/CANLI RETEST BEKLIYOR**; fiziksel matris tamamlanmadı.
+gizlenmedi. Add-on ISS'e yalnız boş `{app}` için ilk `dirifempty` düzeltmesi
+eklendi, hedefler 45 passed verdi ve değişiklik `332779c` ile commit edildi.
+
+`332779c` sonrasında onaylanan tek rebuild exit 0 verdi: ana installer SHA-256
+`61ae94ae6d53611aedc24880c0f52f4c224717130e688645694fb42a54c9ddf6`, add-on
+SHA-256 `308e82bb2ced6d298f467794d21798b1ae9786fb7e05a369fd183539ee43f140`.
+İki kurulum ve iki kaldırıcı exit 0 vermesine, uninstall kaydi 0 ve kalan surec
+0 olmasına rağmen **ilk REL-006 canlı retest başarısız**: `_internal\bin`,
+`_internal\licenses` ve `_internal` olmak üzere **3 bos alt dizin** kaldı.
+
+İkinci kırmızı bu dizinlerin ayrı kuralları olmadığını kanıtladı. Güncel
+regresyon-first düzeltme `_internal\bin`, `_internal\licenses`, `_internal` ve
+`{app}` yollarını **en derinden yukariya** yalnız `dirifempty` ile kaldırıyor;
+etkin kurallarda **filesandordirs yok**. Add-on + artifact + installer-language
+hedefleri **46 passed**. İkinci kaynak/test düzeltmesi commit bekliyor;
+**ikinci rebuild/canlı retest bekliyor**. Fiziksel matris ve release-ready
+madde 7 hâlâ AÇIK.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 

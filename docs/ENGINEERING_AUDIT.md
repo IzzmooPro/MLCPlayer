@@ -132,14 +132,14 @@ değişiklik henüz kalıcı değildir.
 - **Kimlik:** REL-006
 - **Baslik:** Add-on son kaldırıcı olduğunda boş program klasörü kalıyordu
 - **Onem:** Orta — uygulama ve kayıtlar gitse de Program Files altında artık dizin bırakılıyordu
-- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → **COMMIT/REBUILD/CANLI RETEST BEKLIYOR**
+- **Durum:** KANITLANDI → ILK DUZELTME COMMIT EDILDI (`332779c`) → ILK REL-006 CANLI RETEST BASARISIZ → IKINCI DUZELTME HEDEF TESTLERLE DOGRULANDI → **IKINCI REBUILD/CANLI RETEST BEKLIYOR**
 - **Kanit:** Fiziksel v0.37 kabulünde ana program önce, add-on sonra kaldırıldı. İki uninstall kaydı 0, kalan süreç 0, kısayollar ve bütün program dosyaları silinmişti; buna rağmen `C:\Program Files\MLC Player` altında **0 öğe / 0 bayt** boş program klasörü kaldı. Kullanıcı ayar ve logları bilinçli olarak korundu.
 - **Kok neden:** Ayrı AppId kullanan add-on kaldırıcı ortak `{app}` dizinindeki kendi dosyalarını kaldırıyor fakat son bileşen olduğunda boş ortak dizini temizleyecek `[UninstallDelete]` kuralı taşımıyordu.
 - **Degisen dosyalar:** `packaging/MLCPlayer_InternetVideo.iss`, `tests/test_internet_video_addon_regressions.py`
-- **Test kaniti:** İlk kırmızı “add-on `[UninstallDelete]` bölümü yok” idi. Minimum kural `Type: dirifempty; Name: "{app}"`; yalnız boş dizini hedefler, etkin kurallarda **filesandordirs yok**. Add-on + artifact + installer-language hedefleri **45 passed**.
-- **Canli kabul:** İlk kaldırmada boş program klasörü kaldı; kaynak düzeltmesi için canlı retest bekliyor. Düzeltme henüz yeniden build edilmedi ve kurulum/kaldırma döngüsünde ölçülmedi.
-- **Kalan risk:** Inno kuralının gerçek yükseltilmiş v0.37 add-on kaldırıcısında boş dizini temizlediği tek fiziksel döngüyle doğrulanmalı; dolu `{app}` dizinini silmediği `dirifempty` semantiğiyle sınırlıdır.
-- **Commit durumu:** COMMIT BEKLIYOR
+- **Test kaniti:** İlk kırmızı “add-on `[UninstallDelete]` bölümü yok” idi. İlk minimum kural `Type: dirifempty; Name: "{app}"`; yalnız boş dizini hedefledi ve `332779c` ile commit edildi. İlk canlı retest bunun yetersiz olduğunu ölçtü: kök dizin boş değildi çünkü add-on'un oluşturduğu **3 bos alt dizin** kalmıştı. İkinci kırmızı test yalnız `{app}` kuralını gördü; düzeltme `_internal\bin`, `_internal\licenses`, `_internal` ve `{app}` yollarını **en derinden yukariya** sıralıyor. Bütün kurallar `dirifempty`; etkin kurallarda **filesandordirs yok**. Add-on + artifact + installer-language hedefleri **46 passed**.
+- **Canli kabul:** İlk REL-006 canlı retest başarısız. `332779c` sonrasında tek rebuild exit 0 verdi; ana installer SHA-256 `61ae94ae6d53611aedc24880c0f52f4c224717130e688645694fb42a54c9ddf6`, add-on SHA-256 `308e82bb2ced6d298f467794d21798b1ae9786fb7e05a369fd183539ee43f140`. Kullanıcı onaylı kur/kaldır döngüsünde ana ve add-on kurulumları ile iki kaldırıcı exit 0 verdi; **uninstall kaydi 0**, **kalan surec 0**, kısayollar ve dosyalar yoktu. Buna rağmen `{app}` altında yalnız `_internal\bin`, `_internal\licenses` ve `_internal` olmak üzere **3 bos alt dizin** kaldı. Kanıt elle silinmedi.
+- **Kalan risk:** İkinci düzeltme henüz yeniden build edilmedi ve fiziksel döngüde ölçülmedi. Gerçek add-on kaldırıcısının bu dört boş dizini en derinden yukarıya kaldırdığı doğrulanmadan release-ready madde 7 kapanmaz.
+- **Commit durumu:** İlk düzeltme COMMIT EDILDI (`332779c`); ikinci kaynak/test düzeltmesi **COMMIT BEKLIYOR**, **IKINCI REBUILD/CANLI RETEST BEKLIYOR**.
 
 ---
 

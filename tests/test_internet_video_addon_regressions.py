@@ -89,6 +89,28 @@ def test_the_last_addon_uninstaller_removes_only_an_empty_player_directory():
     assert "filesandordirs" not in active.lower(), active
 
 
+def test_addon_empty_directories_are_removed_deepest_first():
+    """`{app}` ancak add-on'un bos alt dizinleri once kalkarsa bosalir."""
+    iss = ADDON_ISS.read_text(encoding="utf-8-sig")
+    match = re.search(
+        r"^\[UninstallDelete\]\s*$([\s\S]*?)(?=^\[|\Z)",
+        iss, re.MULTILINE)
+    assert match
+    active = "\n".join(
+        line for line in match.group(1).splitlines()
+        if line.strip() and not line.lstrip().startswith(";"))
+    paths = re.findall(
+        r'^Type:\s*dirifempty;\s*Name:\s*"([^"]+)"\s*$',
+        active, re.MULTILINE)
+
+    assert paths == [
+        r"{app}\_internal\bin",
+        r"{app}\_internal\licenses",
+        r"{app}\_internal",
+        r"{app}",
+    ]
+
+
 def test_the_chain_builds_and_signs_the_addon():
     """Zincir ek paketi üretir, VARLIĞINI doğrular ve KESİN yolu imzalar.
 
