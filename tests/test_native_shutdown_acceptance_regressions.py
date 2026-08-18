@@ -738,6 +738,8 @@ def test_opt_in_with_valid_media_does_reach_subprocess(tmp_path, monkeypatch):
     assert len(calls) == 1, "subprocess sinirina ULASILMADI"
     assert problems == [], problems
     assert detail["returncode"] == 0
+    assert detail["raw_stdout"] == GOOD_STDOUT.encode("utf-8")
+    assert detail["raw_stderr"] == b""
     assert detail["media_before"] == detail["media_after"]
 
     # Child ortami ENJEKTE EDILEN ortamdan turer; global ortam kullanilmaz.

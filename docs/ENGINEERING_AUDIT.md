@@ -196,7 +196,7 @@ değişiklik henüz kalıcı değildir.
 - **Kimlik:** NATIVE-001
 - **Baslik:** Native `0xe24c4a02` istisnası yeşil pytest sonucunun arkasında gizleniyordu
 - **Onem:** Yüksek — ölümcül görünümlü bir native olay, `exit 0` nedeniyle hiçbir kapıya takılmıyordu
-- **Durum:** KANITLANDI → UYGULANDI → **Aşama 1:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`a7ced18`); **Aşama 2:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → **CANLI KABUL BASARISIZ** (18 Ağustos 2026); **debugger kanıt ayrıştırması:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`ddcfc40`); **exact PDB teşhis kapısı:** KANITLANDI → COMMIT EDILDI (`a4f10ee`) → **ONAY B ENGELLENDI**; **PDB'siz mpv trace kapısı:** HEDEF TESTLERLE DOGRULANDI → COMMIT BEKLIYOR → CANLI TANI BEKLIYOR
+- **Durum:** KANITLANDI → UYGULANDI → **Aşama 1:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`a7ced18`); **Aşama 2:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → **CANLI KABUL BASARISIZ** (18 Ağustos 2026); **debugger kanıt ayrıştırması:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`ddcfc40`); **exact PDB teşhis kapısı:** KANITLANDI → COMMIT EDILDI (`a4f10ee`) → **ONAY B ENGELLENDI**; **PDB'siz trace kapısı:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4f5bc87`) → **ONAY B TEK KOSUM BASARISIZ / TANI SONUCSUZ**
 - **Kanit (olculen):**
   - `tests/test_cover_art_regressions.py` ANA pytest sürecinde doğrudan `mpv.MPV` kuruyordu; fixture yalnız `terminate()` çağırıyordu (ürün kapanışı `stop() -> terminate()` kullanır).
   - Bağımsız dosya koşumu: **3 passed / exit 0**, buna rağmen stderr'de
@@ -299,7 +299,7 @@ değişiklik henüz kalıcı değildir.
 
   Geçici harness yalnız ön hazırlık olarak fail-closed bırakıldı: exact GUID/age ve `symchk /pf` geçmeden runner kontrollü olarak durur; statik preflight geçti. **ONAY B ENGELLENDI.** ONAY A sırasında CDB hedefi, Python child, MLC Player, mpv, PyQt ve video **çalıştırılmadı**; run sentinel, debugger logu ve child çıktısı oluşmadı. Geçici klasör kalıcı artifact değildir ve mutlak kullanıcı yolu kayda alınmaz.
 
-  **PDB'siz mpv trace teşhis kapısı (18 Ağustos 2026; native/video koşumu YAPILMADI):** exact DLL PDB'si yayımlanmadığı için ikinci yol yalnız test child'ında hazırlandı. `tests/native_mpv_trace_contract.py` saf codec, yol doğrulaması, iki opt-in, trace log ayrıştırması ve runner sınırının tek kaynağıdır; `tests/native_player_shutdown_child.py` yalnız trace açıkken `configure_trace_mode()` çağırır. Ürün kodu ve normal `MPV_CONFIG` değişmedi. Trace seçenekleri child'a ait kopyada tam olarak `log_file=<mutlak yeni .log>`, `msg_level=all=trace`, `msg_time=yes`, `msg_module=yes`; kurulu python-mpv kaynağındaki `k.replace('_', '-')` dönüşümü salt-okunur doğrulandı.
+  **PDB'siz mpv trace teşhis kapısı (18 Ağustos 2026):** exact DLL PDB'si yayımlanmadığı için ikinci yol yalnız test child'ında hazırlandı. `tests/native_mpv_trace_contract.py` saf codec, yol doğrulaması, iki opt-in, trace log ayrıştırması ve runner sınırının tek kaynağıdır; `tests/native_player_shutdown_child.py` yalnız trace açıkken `configure_trace_mode()` çağırır. Ürün kodu ve normal `MPV_CONFIG` değişmedi. Trace seçenekleri child'a ait kopyada tam olarak `log_file=<mutlak yeni .log>`, `msg_level=all=trace`, `msg_time=yes`, `msg_module=yes`; kurulu python-mpv kaynağındaki `k.replace('_', '-')` dönüşümü salt-okunur doğrulandı.
 
   **Güvenlik ve kanıt sözleşmesi:** `MLC_NATIVE_SHUTDOWN_ACCEPTANCE=1` ile `MLC_NATIVE_MPV_TRACE=1` birlikte zorunlu; hedef `MLC_NATIVE_MPV_TRACE_LOG` mutlak, yeni, `.log`, var olan üst dizinde ve medyadan ayrı olmalıdır. Eksik/yanlış izin veya hedefte shutdown runner çağrılmaz. Yol marker'ı strict Base64 + strict UTF-8 ile kayıpsızdır; boş, bozuk, mevcut, eksik, aşırı büyük veya normal dosya olmayan trace fail-closed olur. Parser yalnız zaman/seviye/modül dilbilgisine uyan Lua error/traceback satırlarını `stats`, `select`, `ytdl_hook`, `lua/*` veya açık Lua mesajı üzerinden raporlar; normal cplayer hatası hedef kanıt sayılmaz. Yalnız traceback varsa asıl hata mesajı, yalnız genel `cplayer` Lua satırı varsa script kaynağı **kısmi/sonuçsuz** kalır; ikisi de tanıyı yeşile çevirmez.
 
@@ -310,6 +310,18 @@ değişiklik henüz kalıcı değildir.
   **Kapsam:** `tests/native_mpv_trace_contract.py`, `tests/test_native_mpv_trace_regressions.py`, `tests/native_player_shutdown_child.py`, `tests/test_native_shutdown_acceptance_regressions.py`, `docs/ENGINEERING_AUDIT.md`, `docs/ROADMAP.md`, `tests/test_release_documentation_regressions.py`.
 
   **Denetim sırasında sınır notu:** python-mpv seçenek dönüşümünü incelemek için bir `mpv` import denemesi yapıldı; PATH'e DLL eklenmediği için `mpv import denemesi OSError ile durdu`. **libmpv yüklenmedi ve MPV instance oluşturulmadı**; ardından doğrulama yalnız `mpv.py` kaynak dosyası okunarak tamamlandı. Bu deneme native/video kabulü değildir, fakat “hiç mpv importuna teşebbüs edilmedi” denemez.
+
+  **ONAY B — PDB'siz mpv trace, TEK KOSUM (18 Ağustos 2026): BASARISIZ / TANI SONUCSUZ.** Bilinen Resident Alien videosuyla yalnız bir kez çalıştırıldı; **otomatik tekrar yapılmadı**, CDB kullanılmadı ve ürün kodu değiştirilmedi. **pytest exit 1** verdi (2,448 sn). Koşumdan sonra artık child/pytest süreci yoktu.
+
+  Medya salt-okunur kaldı: boyut önce/sonra **2.651.661.814 bayt**, `mtime` ticks önce/sonra **638811093472871806**; yani **boyut ve mtime değişmedi**. Hash bu koşumda hesaplanmadı.
+
+  mpv trace geçerli biçimde üretildi: **2.341.534 bayt**, **31.858 satır**, SHA-256 `125D0F347EF3DC1D3E5BFFB718E5BBB506FF46062C57A5FBD498896E6A007FB8`. `ytdl_hook` 7, `stats` 6 ve `select` 6 kayıt taşıdı; trace genelinde `fatal`, `error` ve `warn` seviyelerinin her biri 0'dı. Buna rağmen **Lua hata/traceback kaydı yok** ve parser `trace_records=[]` döndürdü; bu nedenle tanı fail-closed biçimde **TANI SONUCSUZ** kaldı. Bu, parser biçim hatası ya da hatanın yokluğu olarak yorumlanamaz: yalnızca bu koşumda olağan mpv log kanalına hedef Lua hata metni düşmediğini ölçer. **Kök neden AÇIK** kalır.
+
+  Ayrı shutdown değerlendirmesi child stderr'inde **14.799 karakter** ve `Windows fatal exception: code 0xe24c4a02` / `MPVEventHandlerThread` / `mpv.py::_event_generator` / `_loop` izi bildirdi; bu yüzden ürün kabulü de FAIL kaldı. Ancak runner **raw child stdout/stderr akışlarını kalıcı ayrı artifact olarak yazmadı**; pytest assertion özeti stderr'in yalnız başlangıcını taşıyor. Bu kanıt boşluğu nedeniyle bu ONAY B koşumundan eksiksiz marker kümesi veya bütün kapanış adımları hakkında yeni bir **marker iddiası** kurulmaz.
+
+  Geçici kanıt klasörü kalıcı artifact değildir. Kayda mutlak kullanıcı yolu alınmadı; kalıcı eşleme için `mpv_trace.log` özeti ile pytest stdout özeti (`D6919A44C44E7C050CD4978BA8237710395A5D15FE3F67852893F2013060CC13`) tutuldu. pytest stderr'i 0 bayttı; native iz, pytest'in yakaladığı child stderr içeriği olarak stdout failure raporunda yer aldı.
+
+  **Gelecek koşumlar için raw stream kanıt boşluğu kapatıldı (deterministik; canlı koşum tekrarlanmadı):** `run_native_shutdown()` artık çözümlenmiş metnin yanında tam `raw_stdout` ve `raw_stderr` baytlarını döndürür. Trace runner bunları trace yolundan türetilen `.child_stdout.bin` ve `.child_stderr.bin` dosyalarına `xb` ile yazar; mevcut artifact varsa önceki kanıtı ezmeden child'ı engeller. Eksik/bayt olmayan stream ve kontrollü yazma hataları fail-closed testlidir. Hedef paketler **331 passed, 2 skipped**; iki skip gerçek native düğümlerdir. **CANLI KOSUM TEKRARLANMADI.** Bu düzeltme önceki ONAY B sonucunu geriye dönük yükseltmez: o tek koşum **TANI SONUCSUZ** kalır ve **ONAY B sonuc kaydı COMMIT BEKLIYOR**.
 
   **Süreç ihlali kaydı:** geçici harness, ilk kodlama ön testinden sonra **bağımsız denetime sunulmadan** değiştirildi ve çalıştırıldı. İkinci CDB koşumu yapılmamış ve repo değişmemiş olsa da bu bir **onay zinciri ihlali**dir; raporun thread ve second-chance yorumları bu yüzden ayrıca bağımsız ayrıştırmayla doğrulanmıştır.
 
@@ -340,12 +352,12 @@ değişiklik henüz kalıcı değildir.
 
   **SIRADAKI TEKNIK ADIM — AYRI KULLANICI ONAYI GEREKIR (bu turda YAPILMADI):**
   - Exact `libmpv-2.pdb` üreticiden sağlanmadan özel sembol harness'iyle native koşum **YAPILMAZ**.
-  - PDB beklenmeden ilerleyen diagnostic child trace kapısı hedef testlerle hazırdır; commit edildikten sonra gerçek koşum için ayrıca ONAY B alınır.
+  - PDB'siz trace tek koşumu sonuçsuz kaldı; otomatik tekrar yapılmaz. Bir sonraki native koşumdan önce raw child stdout/stderr'i ayrı artifact olarak saklayan kanıt zinciri deterministik testlerle düzeltilmeli veya exact `libmpv-2.pdb` sağlanmalıdır.
   - Yeni debugger/native koşumu gerçek pencere ve gerçek medya kullanacağı için **ayrıca ONAY B ister**; ürün kodu değiştirilmemelidir.
   - **4K / H.265 kabulü ancak kök neden düzeltmesinden SONRA yapılacaktır.**
 
-- **Kalan risk:** **Canlı kabul BAŞARISIZDIR ve asıl Lua hatası AÇIKTIR.** Debugger, olayın LuaJIT `LUA_ERRRUN` taşıması olduğunu ve fault thread dağılımını belirledi; fakat Lua hata metnini, onu doğuran çağrıyı veya kullanıcıya görünen etkiyi belirlemedi. Kapanış sözleşmesi (stop/terminate sırası, thread 0, exec 0) sağlanmış olsa da bu olayın güvenli olduğu anlamına gelmez. İstisna artık child'da oluşursa üst test FAIL verir — gizlenmez, fakat **önlenmiş değildir**.
-- **Commit durumu:** Aşama 1 **COMMIT EDILDI** (`a7ced18`); Aşama 2 **COMMIT EDILDI** (`4ed5c79`, `5c83c05`); debugger kanıt ayrıştırması ve kayıt düzeltmesi **COMMIT EDILDI** (`ddcfc40`); ONAY A PDB kaydı **COMMIT EDILDI** (`a4f10ee`); PDB'siz trace kapısı ve bu kayıt **COMMIT BEKLIYOR**.
+- **Kalan risk:** **Canlı kabul BAŞARISIZDIR ve asıl Lua hatası AÇIKTIR.** Debugger, olayın LuaJIT `LUA_ERRRUN` taşıması olduğunu ve fault thread dağılımını belirledi; PDB'siz trace koşumu mpv loglamasının çalıştığını ve ilgili scriptlerin etkin olduğunu gösterdi fakat Lua hata metnini üretmedi. Onu doğuran çağrı ve kullanıcıya görünen etki belirlenmedi. Önceki kapanış sözleşmesi kanıtları korunur; bu son trace koşumunda raw child akışları ayrı artifact olmadığı için aynı marker sonuçları yeniden iddia edilmez. İstisna artık child'da oluşursa üst test FAIL verir — gizlenmez, fakat **önlenmiş değildir**.
+- **Commit durumu:** Aşama 1 **COMMIT EDILDI** (`a7ced18`); Aşama 2 **COMMIT EDILDI** (`4ed5c79`, `5c83c05`); debugger kanıt ayrıştırması ve kayıt düzeltmesi **COMMIT EDILDI** (`ddcfc40`); ONAY A PDB kaydı **COMMIT EDILDI** (`a4f10ee`); PDB'siz trace kapısı **COMMIT EDILDI** (`4f5bc87`); bu ONAY B sonuç kaydı **COMMIT BEKLIYOR**.
 
 ---
 

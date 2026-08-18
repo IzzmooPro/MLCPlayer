@@ -23,6 +23,8 @@ TRACE_OPT_IN_VARIABLE = "MLC_NATIVE_MPV_TRACE"
 TRACE_LOG_VARIABLE = "MLC_NATIVE_MPV_TRACE_LOG"
 TRACE_OPT_IN_VALUE = "1"
 TRACE_FIELD_PREFIX = "trace_b64="
+CHILD_STDOUT_SUFFIX = ".child_stdout.bin"
+CHILD_STDERR_SUFFIX = ".child_stderr.bin"
 SHUTDOWN_OPT_IN_VARIABLE = "MLC_NATIVE_SHUTDOWN_ACCEPTANCE"
 MAX_TRACE_BYTES = 16 * 1024 * 1024
 
@@ -41,6 +43,51 @@ def trace_requested(env=None):
     """PDB'siz trace kosumu acikca istendi mi? Yalniz tam `1`."""
     environment = os.environ if env is None else env
     return environment.get(TRACE_OPT_IN_VARIABLE, "") == TRACE_OPT_IN_VALUE
+
+
+def child_artifact_paths(trace_path):
+    """Trace hedefinden kayipsiz raw child kanit yollarini turet."""
+    absolute = os.path.abspath(os.fspath(trace_path))
+    return {
+        "stdout": absolute + CHILD_STDOUT_SUFFIX,
+        "stderr": absolute + CHILD_STDERR_SUFFIX,
+    }
+
+
+def _child_artifact_blockers(paths):
+    problems = []
+    for stream, path in paths.items():
+        if os.path.lexists(path):
+            problems.append(
+                f"{stream} child artifact zaten var; onceki kanit ezilmez: "
+                f"{path!r}")
+    return problems
+
+
+def _persist_child_artifacts(detail, paths):
+    """Raw stream'leri yeni dosyalara yazar; metinden geri uretmez."""
+    raw = {}
+    problems = []
+    for stream in ("stdout", "stderr"):
+        key = f"raw_{stream}"
+        value = detail.get(key)
+        if not isinstance(value, bytes):
+            problems.append(
+                f"{key} bayt olarak raporlanmadi; child kaniti yazilmadi")
+        else:
+            raw[stream] = value
+    if problems:
+        return problems
+
+    for stream in ("stdout", "stderr"):
+        try:
+            with open(paths[stream], "xb") as handle:
+                handle.write(raw[stream])
+        except OSError as exc:
+            problems.append(
+                f"{stream} child artifact yazilamadi: "
+                f"{type(exc).__name__}: {exc}")
+    return problems
 
 
 def encode_trace_path(path):
@@ -286,8 +333,10 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
     """
     environment = dict(os.environ if env is None else env)
     blockers = trace_run_blockers(video, trace_path, environment)
+    artifacts = child_artifact_paths(trace_path)
+    blockers.extend(_child_artifact_blockers(artifacts))
     empty_detail = {"shutdown_problems": [], "shutdown_detail": {},
-                    "trace_records": []}
+                    "trace_records": [], "child_artifacts": artifacts}
     if blockers:
         return blockers, empty_detail
 
@@ -301,8 +350,10 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
     shutdown_problems, shutdown_detail = shutdown_runner(
         video, timeout=timeout, env=child_env)
 
-    diagnostic_problems = extract_trace_marker_problems(
-        shutdown_detail.get("stdout", ""), absolute_trace)
+    diagnostic_problems = _persist_child_artifacts(
+        shutdown_detail, artifacts)
+    diagnostic_problems.extend(extract_trace_marker_problems(
+        shutdown_detail.get("stdout", ""), absolute_trace))
     read_problems, raw = _read_new_trace(absolute_trace)
     diagnostic_problems.extend(read_problems)
     records = []
@@ -315,4 +366,5 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
         "shutdown_detail": shutdown_detail,
         "trace_records": records,
         "trace_path": absolute_trace,
+        "child_artifacts": artifacts,
     }

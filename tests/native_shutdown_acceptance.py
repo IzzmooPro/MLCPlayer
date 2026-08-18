@@ -463,12 +463,14 @@ def run_native_shutdown(video, timeout=DEFAULT_TIMEOUT_S, env=None):
     if blockers:
         stat_now = media_stat(video) if video else None
         return blockers, {"returncode": None, "stdout": "", "stderr": "",
+                          "raw_stdout": b"", "raw_stderr": b"",
                           "media_before": stat_now, "media_after": stat_now}
 
     before = media_stat(video)
     if before is None:
         return (["medya kosum ONCESI okunamadi; child BASLATILMADI"],
                 {"returncode": None, "stdout": "", "stderr": "",
+                 "raw_stdout": b"", "raw_stderr": b"",
                  "media_before": None, "media_after": None})
 
     environment["MLC_NATIVE_TEST_VIDEO"] = os.path.abspath(video)
@@ -483,17 +485,25 @@ def run_native_shutdown(video, timeout=DEFAULT_TIMEOUT_S, env=None):
         after = media_stat(video)
         problems = timeout_problems(timeout)
         problems.extend(media_stat_problems(before, after))
+        raw_stdout = bytes(expired.stdout or b"")
+        raw_stderr = bytes(expired.stderr or b"")
         return problems, {"returncode": None,
-                          "stdout": decode_stream(expired.stdout),
-                          "stderr": decode_stream(expired.stderr),
+                          "stdout": decode_stream(raw_stdout),
+                          "stderr": decode_stream(raw_stderr),
+                          "raw_stdout": raw_stdout,
+                          "raw_stderr": raw_stderr,
                           "media_before": before, "media_after": after}
 
     after = media_stat(video)
+    raw_stdout = bytes(result.stdout or b"")
+    raw_stderr = bytes(result.stderr or b"")
     problems = evaluate_shutdown_result(
-        result.returncode, result.stdout, result.stderr,
+        result.returncode, raw_stdout, raw_stderr,
         expected_basename=os.path.basename(video))
     problems.extend(media_stat_problems(before, after))
     return problems, {"returncode": result.returncode,
-                      "stdout": decode_stream(result.stdout),
-                      "stderr": decode_stream(result.stderr),
+                      "stdout": decode_stream(raw_stdout),
+                      "stderr": decode_stream(raw_stderr),
+                      "raw_stdout": raw_stdout,
+                      "raw_stderr": raw_stderr,
                       "media_before": before, "media_after": after}

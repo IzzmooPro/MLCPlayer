@@ -299,6 +299,8 @@ def test_diagnostic_success_is_separate_from_shutdown_failure(tmp_path):
                   + encode_trace_path(str(log)) + "\n")
         return ["stderr bos DEGIL"], {
             "returncode": 0, "stdout": marker, "stderr": "fatal",
+            "raw_stdout": marker.encode("utf-8"),
+            "raw_stderr": b"fatal",
             "media_before": {"size": 5}, "media_after": {"size": 5},
         }
 
@@ -323,7 +325,9 @@ def test_a_missing_trace_after_the_fake_run_is_fail_closed(tmp_path):
     def fake_shutdown(video, timeout, env):
         marker = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
                   + encode_trace_path(str(log)) + "\n")
-        return [], {"returncode": 0, "stdout": marker, "stderr": ""}
+        return [], {"returncode": 0, "stdout": marker, "stderr": "",
+                    "raw_stdout": marker.encode("utf-8"),
+                    "raw_stderr": b""}
 
     problems, detail = run_native_trace(
         str(media), str(log),
@@ -343,7 +347,9 @@ def test_an_empty_trace_after_the_fake_run_is_fail_closed(tmp_path):
         log.write_bytes(b"")
         marker = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
                   + encode_trace_path(str(log)) + "\n")
-        return [], {"returncode": 0, "stdout": marker, "stderr": ""}
+        return [], {"returncode": 0, "stdout": marker, "stderr": "",
+                    "raw_stdout": marker.encode("utf-8"),
+                    "raw_stderr": b""}
 
     problems, detail = run_native_trace(
         str(media), str(log),
@@ -365,7 +371,9 @@ def test_an_oversized_trace_after_the_fake_run_is_fail_closed(
         log.write_bytes(b"123456789")
         marker = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
                   + encode_trace_path(str(log)) + "\n")
-        return [], {"returncode": 0, "stdout": marker, "stderr": ""}
+        return [], {"returncode": 0, "stdout": marker, "stderr": "",
+                    "raw_stdout": marker.encode("utf-8"),
+                    "raw_stderr": b""}
 
     problems, detail = run_native_trace(
         str(media), str(log),
@@ -386,7 +394,9 @@ def test_a_good_trace_cannot_rescue_a_wrong_child_marker(tmp_path):
         wrong = tmp_path / "other.log"
         marker = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
                   + encode_trace_path(str(wrong)) + "\n")
-        return [], {"returncode": 0, "stdout": marker, "stderr": ""}
+        return [], {"returncode": 0, "stdout": marker, "stderr": "",
+                    "raw_stdout": marker.encode("utf-8"),
+                    "raw_stderr": b""}
 
     problems, detail = run_native_trace(
         str(media), str(log),
@@ -408,7 +418,9 @@ def test_injected_trace_environment_does_not_leak_globally(tmp_path,
         log.write_bytes(GOOD_TRACE)
         marker = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
                   + encode_trace_path(str(log)) + "\n")
-        return [], {"returncode": 0, "stdout": marker, "stderr": ""}
+        return [], {"returncode": 0, "stdout": marker, "stderr": "",
+                    "raw_stdout": marker.encode("utf-8"),
+                    "raw_stderr": b""}
 
     problems, _ = run_native_trace(
         str(media), str(log),
@@ -417,6 +429,138 @@ def test_injected_trace_environment_does_not_leak_globally(tmp_path,
 
     assert problems == []
     assert TRACE_LOG_VARIABLE not in os.environ
+
+
+def test_child_artifact_paths_are_derived_without_losing_the_trace_suffix(
+        tmp_path):
+    log = tmp_path / "mpv trace.log"
+
+    paths = trace.child_artifact_paths(str(log))
+
+    assert paths == {
+        "stdout": os.path.abspath(str(log)) + ".child_stdout.bin",
+        "stderr": os.path.abspath(str(log)) + ".child_stderr.bin",
+    }
+
+
+def test_the_trace_runner_persists_exact_raw_child_streams(tmp_path):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+    raw_stdout = b"MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX.encode(
+        "ascii") + encode_trace_path(str(log)).encode("ascii") + b"\n\xff"
+    raw_stderr = b"Windows fatal exception: code 0xe24c4a02\r\n\xfe"
+
+    def fake_shutdown(video, timeout, env):
+        log.write_bytes(GOOD_TRACE)
+        marker = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
+                  + encode_trace_path(str(log)) + "\n")
+        return ["stderr bos DEGIL"], {
+            "returncode": 0,
+            "stdout": marker,
+            "stderr": "Windows fatal exception: code 0xe24c4a02",
+            "raw_stdout": raw_stdout,
+            "raw_stderr": raw_stderr,
+        }
+
+    problems, detail = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1"},
+        shutdown_runner=fake_shutdown)
+
+    paths = trace.child_artifact_paths(str(log))
+    assert problems == [], problems
+    with open(paths["stdout"], "rb") as handle:
+        assert handle.read() == raw_stdout
+    with open(paths["stderr"], "rb") as handle:
+        assert handle.read() == raw_stderr
+    assert detail["child_artifacts"] == paths
+
+
+@pytest.mark.parametrize("stream", ["stdout", "stderr"])
+def test_a_preexisting_child_artifact_blocks_the_runner(tmp_path, stream):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+    paths = {
+        "stdout": os.path.abspath(str(log)) + ".child_stdout.bin",
+        "stderr": os.path.abspath(str(log)) + ".child_stderr.bin",
+    }
+    with open(paths[stream], "wb") as handle:
+        handle.write(b"OLD EVIDENCE")
+    calls = []
+
+    problems, detail = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1"},
+        shutdown_runner=lambda *args, **kwargs: calls.append((args, kwargs)))
+
+    assert calls == []
+    assert any("child artifact" in problem and "zaten var" in problem
+               for problem in problems), problems
+    assert detail["child_artifacts"] == paths
+    with open(paths[stream], "rb") as handle:
+        assert handle.read() == b"OLD EVIDENCE"
+
+
+@pytest.mark.parametrize("raw_key", ["raw_stdout", "raw_stderr"])
+def test_missing_raw_child_stream_is_fail_closed_without_artifacts(
+        tmp_path, raw_key):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+
+    def fake_shutdown(video, timeout, env):
+        log.write_bytes(GOOD_TRACE)
+        marker = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
+                  + encode_trace_path(str(log)) + "\n")
+        detail = {
+            "returncode": 0, "stdout": marker, "stderr": "",
+            "raw_stdout": marker.encode("utf-8"), "raw_stderr": b"",
+        }
+        del detail[raw_key]
+        return [], detail
+
+    problems, detail = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1"},
+        shutdown_runner=fake_shutdown)
+
+    assert any(raw_key in problem and "bayt" in problem
+               for problem in problems), problems
+    assert all(not os.path.exists(path)
+               for path in detail["child_artifacts"].values())
+
+
+def test_an_artifact_write_error_is_reported_without_a_traceback(
+        tmp_path, monkeypatch):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+
+    def fake_shutdown(video, timeout, env):
+        log.write_bytes(GOOD_TRACE)
+        marker = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
+                  + encode_trace_path(str(log)) + "\n")
+        return [], {
+            "returncode": 0, "stdout": marker, "stderr": "",
+            "raw_stdout": marker.encode("utf-8"), "raw_stderr": b"",
+        }
+
+    def denied_open(*args, **kwargs):
+        raise PermissionError("DENIED FOR TEST")
+
+    monkeypatch.setattr(trace, "open", denied_open, raising=False)
+
+    problems, detail = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1"},
+        shutdown_runner=fake_shutdown)
+
+    assert any("child artifact yazilamadi" in problem
+               and "PermissionError" in problem for problem in problems)
+    assert all(not os.path.exists(path)
+               for path in detail["child_artifacts"].values())
 
 
 def test_trace_module_imports_neither_qt_nor_libmpv():

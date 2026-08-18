@@ -739,8 +739,8 @@ def test_debugger_parser_commit_is_recorded_as_committed():
 def test_roadmap_snapshot_has_the_measured_local_commit_count():
     text = fold(flat(read(ROADMAP_DOC))).lower()
 
-    assert "dokuz commit" in text, "ROADMAP guncel ahead=9 olcumunu tasimiyor"
-    for stale in ("bes commit", "sekiz commit"):
+    assert "on commit" in text, "ROADMAP guncel ahead=10 olcumunu tasimiyor"
+    for stale in ("bes commit", "sekiz commit", "dokuz commit"):
         assert stale not in text, f"ROADMAP hala bayat sayiyi tasiyor: {stale}"
 
 
@@ -795,11 +795,97 @@ def test_native_record_has_the_current_trace_test_results():
         assert "476 passed, 4 skipped" in flattened, label
 
 
-def test_native_record_says_the_trace_gate_was_not_run_live():
+def test_native_record_carries_the_single_live_trace_result():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        for fact in (
+            "ONAY B",
+            "TEK KOSUM",
+            "PYTEST EXIT 1",
+            "OTOMATIK TEKRAR YAPILMADI",
+            "TANI SONUCSUZ",
+        ):
+            expected = fold(flat(fact)).upper()
+            assert expected in flattened, (
+                f"{label} canli trace kaniti eksik: {fact}")
+
+
+def test_native_record_carries_the_trace_artifact_evidence():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        for fact in (
+            "2.341.534 bayt",
+            "31.858 satır",
+            "125D0F347EF3DC1D3E5BFFB718E5BBB506FF46062C57A5FBD498896E6A007FB8",
+            "14.799 karakter",
+            "0xe24c4a02",
+        ):
+            assert flat(fact) in flattened, (
+                f"{label} trace artifact kaniti eksik: {fact}")
+
+
+def test_native_record_does_not_turn_an_empty_trace_parse_into_success():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        assert fold(flat("Lua hata/traceback kaydı yok")).upper() in flattened, label
+        assert "TANI SONUCSUZ" in flattened, label
+        assert "KOK NEDEN" in flattened and "ACIK" in flattened, label
+
+
+def test_native_record_preserves_media_and_process_safety_evidence():
+    block = flat(native_record())
+
+    assert "2.651.661.814" in block
+    assert "638811093472871806" in block
+    assert flat("boyut ve mtime değişmedi") in block
+    assert flat("artık child/pytest süreci yok") in block
+    assert "cdb" in block and flat("kullanılmadı") in block
+    assert flat("Ürün kodu değiştirilmedi") in block
+
+
+def test_native_record_discloses_the_raw_child_stream_evidence_gap():
     block = fold(flat(native_record())).upper()
 
-    assert "NATIVE/VIDEO KOSUMU YAPILMADI" in block
-    assert "COMMIT BEKLIYOR" in block
+    assert "RAW CHILD STDOUT/STDERR" in block
+    assert "KALICI AYRI ARTIFACT" in block
+    assert "YAZILMADI" in block
+    assert "MARKER" in block and "IDDIASI" in block
+
+
+def test_native_record_marks_the_trace_gate_commit_as_committed():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        assert "4F5BC87" in flattened, label
+        assert "PDB'SIZ TRACE KAPISI" in flattened, label
+        assert "COMMIT EDILDI" in flattened, label
+
+
+def test_native_record_says_the_raw_stream_gap_is_closed_for_future_runs():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        for fact in (
+            "RAW_STDOUT",
+            "RAW_STDERR",
+            ".CHILD_STDOUT.BIN",
+            ".CHILD_STDERR.BIN",
+            "331 PASSED, 2 SKIPPED",
+            "CANLI KOSUM TEKRARLANMADI",
+        ):
+            assert fact in flattened, f"{label} raw stream duzeltmesi eksik: {fact}"
+
+
+def test_native_record_does_not_retroactively_upgrade_the_failed_run():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        assert "ONAY B" in flattened and "TANI SONUCSUZ" in flattened, label
+        assert "ONAY B SONUC KAYDI" in flattened
+        assert "COMMIT BEKLIYOR" in flattened
 
 
 def test_native_record_preserves_the_failed_mpv_import_probe():

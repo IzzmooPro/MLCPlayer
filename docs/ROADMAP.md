@@ -17,7 +17,7 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
 testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
 ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
-`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **dokuz
+`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **on
 commit** ilerisindedir ve **push yapılmadı**. Güncel tam paket
 **3992 passed / 17 skipped / 0 failed**, exit 0 ve stderr boştur. **Push
 yapılmadı**; canlı bir build/yayın koşumu da yapılmadı. Sıradaki teknik
@@ -253,9 +253,35 @@ birlikte zorunludur.
 
 Trace paketinin sonucu **54 passed, 1 skipped**; shutdown/child/player/
 cover-art ile dar regresyon **476 passed, 4 skipped**. Skip edilen düğümler
-gerçek native koşumlardır. **Native/video koşumu YAPILMADI.** Tanı başarısı
-ürün kabulü değildir; Lua mesajı yakalansa bile stderr veya kapanış sorununu
-aklamaz. Trace kapısı COMMIT BEKLIYOR; gerçek tek koşum ayrıca ONAY B ister.
+gerçek native koşumlardır. Tanı başarısı ürün kabulü değildir; Lua mesajı
+yakalansa bile stderr veya kapanış sorununu aklamaz. PDB'siz trace kapısı
+**COMMIT EDILDI (`4f5bc87`)**.
+
+**ONAY B — TEK KOSUM (18 Ağustos 2026): pytest exit 1, TANI SONUCSUZ.**
+Bilinen Resident Alien videosuyla bir koşum yapıldı; **otomatik tekrar
+yapılmadı**, CDB kullanılmadı ve ürün kodu değiştirilmedi. Medya boyutu
+önce/sonra **2.651.661.814 bayt**, `mtime` ticks önce/sonra
+`638811093472871806`; boyut ve mtime değişmedi. Koşumdan sonra artık
+child/pytest süreci yoktu.
+
+Trace **2.341.534 bayt / 31.858 satır**, SHA-256
+`125D0F347EF3DC1D3E5BFFB718E5BBB506FF46062C57A5FBD498896E6A007FB8`.
+Loglama ve ilgili scriptler etkindi, fakat **Lua hata/traceback kaydı yok**;
+bu yüzden tanı **TANI SONUCSUZ**, kök neden **AÇIK**. Ayrı shutdown sonucu
+child stderr'inde **14.799 karakter** ve `0xe24c4a02` izi bildirdi; ürün
+kabulü FAIL kaldı. Raw child stdout/stderr kalıcı ayrı artifact olarak
+yazılmadığından bu koşum için eksiksiz marker iddiası kurulmaz. Yeni native
+koşumdan önce bu kanıt boşluğu deterministik olarak kapatılmalı veya exact
+DLL PDB'si sağlanmalı; her yeni koşum ayrıca kullanıcı onayı ister.
+
+**Raw stream boşluğu gelecek koşumlar için kapatıldı; CANLI KOSUM
+TEKRARLANMADI.** Shutdown runner tam `raw_stdout` / `raw_stderr` baytlarını
+koruyor; trace runner bunları `.child_stdout.bin` ve `.child_stderr.bin`
+olarak, eski kanıtı ezmeden yazıyor. Eksik stream, mevcut hedef ve yazma
+hatası fail-closed. Deterministik sonuç **331 passed, 2 skipped**; skip'ler
+gerçek native düğümlerdir. Bu değişiklik önceki tek koşumu geriye dönük
+başarıya çevirmez: ONAY B **TANI SONUCSUZ**, **ONAY B sonuc kaydı COMMIT
+BEKLIYOR**.
 
 **Talimat ihlali (gizlenmiyor):** bir önceki turun mutasyon koşumunda
 "medya türü denetimi yok" varyantı gerçek child'ı bir kez, yaklaşık
@@ -273,7 +299,8 @@ sonuç: **268 passed, 1 deselected**.
 **Commit durumu:** Aşama 1 COMMIT EDILDI (`a7ced18`); Aşama 2'nin YEDİ
 dosyası iki commit ile tamamlandı: `4ed5c79` ve `5c83c05`. Debugger kanıt
 ayrıştırması COMMIT EDILDI (`ddcfc40`); ONAY A PDB kaydı COMMIT EDILDI
-(`a4f10ee`); PDB'siz trace kapısı COMMIT BEKLIYOR. Ayrıntılı liste:
+(`a4f10ee`); PDB'siz trace kapısı COMMIT EDILDI (`4f5bc87`), ONAY B tek
+koşum sonuç kaydı COMMIT BEKLIYOR. Ayrıntılı liste:
 `docs/ENGINEERING_AUDIT.md` → NATIVE-001.
 
 **Kapatılmayan:** LuaJIT'in taşıdığı asıl Lua hatası belirlenmedi ve ürüne
