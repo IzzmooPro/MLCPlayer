@@ -134,9 +134,9 @@ regresyonlar artık aynı tam paket sonucunda birlikte yeşildir.
 
 ## SIRADAKI TEKNIK RISK: `0xe24c4a02` (NATIVE-001)
 
-- **Durum:** GORUNURLUK KUSURU KAPATILDI; eski kapının canlı FAIL'i kaynak denetiminde **YANLIS POZITIF**; CPython/LuaJIT sınıflandırması **HEDEF TESTLERLE DOGRULANDI → COMMIT BEKLIYOR → CANLI KABUL BEKLIYOR**; alttaki Lua error koşulu ve kullanıcı etkisi **AÇIK**
+- **Durum:** GORUNURLUK KUSURU KAPATILDI; eski kapının canlı FAIL'i kaynak denetiminde **YANLIS POZITIF**; CPython/LuaJIT sınıflandırması **HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`7d4c07f`) → CANLI KABUL BASARILI**; alttaki Lua error koşulu ve bilinçli risk kararı **AÇIK**
 - **Bagimlilik:** yok — commit'i beklemez
-- **Olcut:** (a) gerçek fatal/kapanış kusuru sessizce geçemez → **sağlandı**; (b) yakalanmış LuaJIT first-chance raporu fail-closed ayrılır → **hedef testlerle sağlandı, canlı kabul bekliyor**; (c) alttaki Lua runtime error koşulu bulunmuş ya da bilinçli kabul edilmiş değil → **sağlanmadı**
+- **Olcut:** (a) gerçek fatal/kapanış kusuru sessizce geçemez → **sağlandı**; (b) yakalanmış LuaJIT first-chance raporu fail-closed ayrılır → **hedef testler ve tek canlı kabul ile sağlandı**; (c) alttaki Lua runtime error koşulu bulunmuş ya da bilinçli kabul edilmiş değil → **sağlanmadı**
 - **Kullanici onayi:** gerçek-mpv/native koşum için **gerekir**
 
 Ayrıntılı kayıt: `docs/ENGINEERING_AUDIT.md` → **NATIVE-001**.
@@ -458,8 +458,8 @@ katkısı olmadığını veya başka bir clienti kesin kök neden yapmaz. Ayar
 kullanılmayan yüzeyi kapatmak için korunur, `0xe24c4a02` düzeltmesi sayılmaz.
 Release-ready madde 8 ve kesin kök neden **AÇIK**.
 
-**Kabul kapısı kaynak düzeltmesi (18 Ağustos 2026; COMMIT BEKLIYOR, native
-koşum yok):** CPython v3.14.3 Windows faulthandler
+**Kabul kapısı kaynak düzeltmesi (18 Ağustos 2026; COMMIT EDILDI `7d4c07f`):**
+CPython v3.14.3 Windows faulthandler
 `AddVectoredExceptionHandler` ile bir vectored exception handler'ı önce
 kurar; `0xe24c4a02` için yanıltıcı `Windows fatal exception`
 başlığını yazdıktan sonra `EXCEPTION_CONTINUE_SEARCH` döndürür. CPython
@@ -475,9 +475,19 @@ Truncated/farklı kod, ek stderr, stdout fatal, bozuk UTF-8, nonzero exit,
 eksik marker ve thread sızıntısı FAIL kalır. Shutdown ve cover-art kapıları
 aynı parser'ı kullanır. Çok-thread mutasyonu her thread bölümünü ayrı başlık
 ve en az bir frame'e bağladı. Deterministik sonuç **537 passed, 2 deselected**;
-iki deselected düğüm gerçek native kabuldür. Düzeltilmiş kapıyla native koşum
-yapılmadı ve eski raw çıktı kalıcı artifact olmadığı için geriye dönük PASS
-yazılmadı. Release-ready madde 8 ayrı ONAY B'ye kadar **AÇIK**.
+iki deselected düğüm gerçek native kabuldür. Eski raw çıktı kalıcı artifact
+olmadığı için geriye dönük PASS yazılmadı.
+
+**Düzeltilmiş kapı ONAY B — TEK KOSUM: CANLI KABUL BASARILI.** Commit
+`7d4c07f`, pytest exit 0 / **1 passed / 1,96 sn**. Normal ürün yapılandırması,
+otomatik tekrar/CDB/trace/ablation/bisection yok. PASS; child exit 0, tam
+marker/RESULTS, `stop → terminate`, pencere kapanışı, `app.exec()` 0, kalan
+MPV thread 0 ve medya stat eşliğini birlikte doğrular. Boyut
+**2.651.661.814**, `mtime` ticks **638811093472871806** değişmedi; artık hedef
+süreç 0 ve çalışma ağacı temizdi. Başarılı düğüm child akışlarını basmadığı
+için stderr boşluğu ve `0xe24c4a02` sayısı **ÖLÇÜLMEDİ**. Teknik kapı sağlandı;
+madde 8 alttaki Lua koşulu bulunana veya kullanıcı residual riski bilinçli
+kabul edene kadar **AÇIK**.
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,
@@ -641,11 +651,11 @@ Bir sürüm ancak şunların **hepsi** sağlandığında yayına hazır sayılı
 6. Sekiz varlığın ad/boyut/SHA-256 eşliği doğrulanmış
 7. Fiziksel kabul matrisi koşulmuş
 8. `0xe24c4a02` riski ya kapatılmış ya bilinçli olarak kabul edilmiş
-   — **güncel durum (18 Ağustos 2026): AÇIK.** Görünürlük kapısı hem
-   cover-art hem ürün kapanış yolu için hazır ve ürün yolunda TEK geçerli
-   canlı koşum yapıldı: **BAŞARISIZ** (child stderr'inde dokuz kez
-   `0xe24c4a02`). Kök neden ve kullanıcıya görünen etki hâlâ bilinmiyor;
-   madde AÇIK kalır.
+   — **güncel durum (18 Ağustos 2026): AÇIK.** CPython/LuaJIT yanlış-pozitif
+   mekanizması kaynak ve CDB ile açıklandı; düzeltilmiş ürün kapanış kapısı
+   tek canlı koşumda **BAŞARILI**. Alttaki Lua runtime error koşulu bulunmadı
+   ve kullanıcı residual riski bilinçli kabul etmedi; madde bu karar verilene
+   kadar AÇIK kalır.
 
 - **Durum:** ERTELENDI
 - **Bagimlilik:** 1–8

@@ -567,7 +567,7 @@ def test_the_native_record_separates_the_two_stage_commit_states():
     assert "ASAMA 1" in folded and "ASAMA 2" in folded, (
         f"Durum satiri asamalari ayirmiyor: {status_line[0]}")
     for fact in ("ESKI KAPIYLA CANLI FAIL", "YANLIS POZITIF",
-                 "CANLI KABUL BEKLIYOR"):
+                 "7D4C07F", "CANLI KABUL BASARILI"):
         assert fact in folded, (
             f"Durum satiri guncel kabul ayrimini yazmiyor ({fact}): "
             f"{status_line[0]}")
@@ -1451,11 +1451,20 @@ def test_native_record_keeps_the_revised_gate_fail_closed():
         assert flat(fact) in block, fact
 
 
-def test_revised_gate_has_no_retroactive_or_unmeasured_live_pass():
+def test_revised_gate_records_the_single_live_pass_without_inventing_streams():
     block = flat(native_record())
 
-    assert "duzeltilmis kapiyla gercek native kabul calistirilmadi" in block
     assert "geriye donuk pass ilan edilmedi" in block
+    for fact in (
+        "duzeltilmis kapi onay b",
+        "canli kabul basarili",
+        "7d4c07f",
+        "pytest **exit 0 / 1 passed / 1,96 sn**",
+        "2.651.661.814",
+        "638811093472871806",
+        "stderr'inin bos oldugu veya `0xe24c4a02` sayisi **olculmedi**",
+    ):
+        assert flat(fact) in block, fact
     assert "release-ready madde 8" in block and "**acik**" in block
 
 
@@ -1465,7 +1474,7 @@ def test_native_summary_separates_the_explained_trace_from_the_open_lua_error():
 
     for label, block in (("ENGINEERING_AUDIT", audit), ("ROADMAP", roadmap)):
         assert "YANLIS POZITIF" in block, label
-        assert "CANLI KABUL BEKLIYOR" in block, label
+        assert "CANLI KABUL BASARILI" in block, label
         assert "LUA" in block and "ACIK" in block, label
     assert "YANILTICI WINDOWS FATAL EXCEPTION CIKTISININ MEKANIZMASI BULUNDU" in audit
 

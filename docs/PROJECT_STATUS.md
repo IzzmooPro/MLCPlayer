@@ -1769,7 +1769,7 @@ oluştuğundan bu örnekte gerekli değildir. Ayar kullanılmayan yüzeyi kapatm
 için korunur, native kusurun çözümü sayılmaz. Kesin kök neden ve release-ready
 madde 8 **AÇIK** kaldı.
 
-**Kabul kapısı kaynak düzeltmesi (18 Ağustos 2026; COMMIT BEKLIYOR):** exact
+**Kabul kapısı kaynak düzeltmesi (18 Ağustos 2026; COMMIT EDILDI `7d4c07f`):** exact
 CPython v3.14.3 kaynağı Windows faulthandler'in `0xe24c4a02`yi handler'lar
 yakalamadan önce `fatal` diye yazıp `EXCEPTION_CONTINUE_SEARCH` döndürdüğünü;
 exact LuaJIT kaynağı kodun `0xe24c4a00 | LUA_ERRRUN(2)` ile kasıtlı
@@ -1784,7 +1784,16 @@ aynı kaynağı kullanır. Çok-thread mutasyonu her thread bölümünü ayrı b
 ve en az bir frame'e bağladı. **537 passed, 2 deselected**; native koşum
 yapılmadı.
 Eski raw çıktı kalıcı artifact olmadığı için geriye dönük PASS yazılmadı.
-Release-ready madde 8 yeni ayrı ONAY B'ye kadar **AÇIK**.
+
+**Düzeltilmiş kapı ONAY B — TEK KOSUM: CANLI KABUL BASARILI.** Commit
+`7d4c07f`; pytest exit 0 / **1 passed / 1,96 sn**. Normal ürün yapılandırması
+kullanıldı; otomatik tekrar/CDB/trace/ablation/bisection yoktu. PASS bütün
+kapanış marker/RESULTS, child exit 0, thread 0 ve medya stat eşliğini zorunlu
+kılar. Boyut **2.651.661.814**, `mtime` ticks **638811093472871806** değişmedi;
+artık hedef süreç yoktu. Başarılı test child akışlarını basmadığı için stderr
+boşluğu ve `0xe24c4a02` sayısı **ÖLÇÜLMEDİ**. Teknik kapı sağlandı; alttaki Lua
+runtime error koşulu veya bilinçli kullanıcı risk kararı bulunmadığından
+release-ready madde 8 **AÇIK**.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 
