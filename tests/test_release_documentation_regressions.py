@@ -739,8 +739,8 @@ def test_debugger_parser_commit_is_recorded_as_committed():
 def test_roadmap_snapshot_has_the_measured_local_commit_count():
     text = fold(flat(read(ROADMAP_DOC))).lower()
 
-    assert "on commit" in text, "ROADMAP guncel ahead=10 olcumunu tasimiyor"
-    for stale in ("bes commit", "sekiz commit", "dokuz commit"):
+    assert "on bir commit" in text, "ROADMAP guncel ahead=11 olcumunu tasimiyor"
+    for stale in ("bes commit", "sekiz commit", "dokuz commit", "on commit"):
         assert stale not in text, f"ROADMAP hala bayat sayiyi tasiyor: {stale}"
 
 
@@ -886,6 +886,83 @@ def test_native_record_does_not_retroactively_upgrade_the_failed_run():
         assert "ONAY B" in flattened and "TANI SONUCSUZ" in flattened, label
         assert "ONAY B SONUC KAYDI" in flattened
         assert "COMMIT BEKLIYOR" in flattened
+
+
+def test_native_record_carries_the_raw_artifact_live_run_result():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        for fact in (
+            "C251ABD",
+            "IKINCI PDB'SIZ TRACE ONAY B",
+            "TEK KOSUM",
+            "PYTEST EXIT 1",
+            "OTOMATIK TEKRAR YAPILMADI",
+            "TANI SONUCSUZ",
+            "11 AYRI",
+            "0XE24C4A02",
+        ):
+            assert fact in flattened, f"{label} ikinci ONAY B kaniti eksik: {fact}"
+
+
+def test_native_record_carries_all_three_new_artifact_hashes():
+    hashes = (
+        "C5532F519D26496873AD52A77CDC6B391DCA7361035DFDF4C3954A660012B720",
+        "C2D866AB63CDD91BFD3EE61A6F291D263BDBC3EB57FEE9C1B3D64FA869A4B0F5",
+        "CF5BC570743E015FEFEC28250D49C83CDB0100230133A798D8297038679D0011",
+    )
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        for digest in hashes:
+            assert digest in block, f"{label} artifact SHA-256 eksik: {digest}"
+
+
+def test_native_record_preserves_the_successful_shutdown_markers():
+    block = fold(flat(native_record())).upper()
+    for fact in (
+        "DURATION=2782.27",
+        "POSITION=0.04",
+        "STOP=1",
+        "TERMINATE=1",
+        "VISIBLE=FALSE",
+        "APP.EXEC=0",
+        "MPV THREAD=0",
+        "RESULTS FAILURES=NONE",
+        "MAIN RETURNED 0",
+    ):
+        assert fact in block, f"raw stdout kapanis kaniti eksik: {fact}"
+
+
+def test_native_record_discloses_the_trace_overflow_limit():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        assert "LOG MESSAGE BUFFER OVERFLOW" in flattened, label
+        assert "155 MESAJ" in flattened, label
+        assert "TUM MPV LOG MESAJLARININ KORUNDUGUNU KANITLAMAZ" in flattened, label
+
+
+def test_native_record_carries_the_overflow_prevention_contract():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        for fact in (
+            "LOGLEVEL=WARN",
+            "MSG_LEVEL=ALL=TRACE",
+            "337 PASSED, 2 SKIPPED",
+            "CANLI KOSUM TEKRARLANMADI",
+            "OVERFLOW",
+            "FAIL-CLOSED",
+        ):
+            assert fact in flattened, f"{label} overflow onlemi eksik: {fact}"
+
+
+def test_native_record_links_the_primary_mpv_logging_contracts():
+    block = native_record()
+
+    assert "https://mpv.io/manual/master/#options" in block
+    assert "github.com/mpv-player/mpv/blob/master/include/mpv/client.h" in block
+    assert "mpv_request_log_messages" in block
 
 
 def test_native_record_preserves_the_failed_mpv_import_probe():

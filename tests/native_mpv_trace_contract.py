@@ -23,6 +23,7 @@ TRACE_OPT_IN_VARIABLE = "MLC_NATIVE_MPV_TRACE"
 TRACE_LOG_VARIABLE = "MLC_NATIVE_MPV_TRACE_LOG"
 TRACE_OPT_IN_VALUE = "1"
 TRACE_FIELD_PREFIX = "trace_b64="
+TRACE_CLIENT_LOG_LEVEL = "warn"
 CHILD_STDOUT_SUFFIX = ".child_stdout.bin"
 CHILD_STDERR_SUFFIX = ".child_stderr.bin"
 SHUTDOWN_OPT_IN_VARIABLE = "MLC_NATIVE_SHUTDOWN_ACCEPTANCE"
@@ -119,8 +120,23 @@ def diagnostic_mpv_config(base_config, trace_path):
         "msg_level": "all=trace",
         "msg_time": "yes",
         "msg_module": "yes",
+        # python-mpv bunu mpv secenegi olarak gondermez; ayri `loglevel`
+        # parametresiyle `mpv_request_log_messages()` esigini ayarlar.
+        # Trace DOSYASI all=trace kalirken Python event kuyrugu sinirlanir.
+        "loglevel": TRACE_CLIENT_LOG_LEVEL,
     })
     return configured
+
+
+def trace_capture_problems(stdout):
+    """Child log-event akisi mesaj kaybettiyse tani fail-closed kalir."""
+    if isinstance(stdout, bytes):
+        stdout = stdout.decode("utf-8", errors="replace")
+    text = str(stdout)
+    if re.search(r"log message buffer overflow:\s*\d+\s+messages?\s+skipped",
+                 text, flags=re.IGNORECASE):
+        return ["mpv log event buffer overflow; mesajlar atlandi ve tani eksik"]
+    return []
 
 
 def trace_target_problems(video, trace_path):
@@ -352,6 +368,8 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
 
     diagnostic_problems = _persist_child_artifacts(
         shutdown_detail, artifacts)
+    diagnostic_problems.extend(trace_capture_problems(
+        shutdown_detail.get("stdout", "")))
     diagnostic_problems.extend(extract_trace_marker_problems(
         shutdown_detail.get("stdout", ""), absolute_trace))
     read_problems, raw = _read_new_trace(absolute_trace)

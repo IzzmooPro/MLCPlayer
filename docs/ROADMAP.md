@@ -17,7 +17,7 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
 testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
 ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
-`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **on
+`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **on bir
 commit** ilerisindedir ve **push yapılmadı**. Güncel tam paket
 **3992 passed / 17 skipped / 0 failed**, exit 0 ve stderr boştur. **Push
 yapılmadı**; canlı bir build/yayın koşumu da yapılmadı. Sıradaki teknik
@@ -283,6 +283,37 @@ gerçek native düğümlerdir. Bu değişiklik önceki tek koşumu geriye dönü
 başarıya çevirmez: ONAY B **TANI SONUCSUZ**, **ONAY B sonuc kaydı COMMIT
 BEKLIYOR**.
 
+**IKINCI PDB'SIZ TRACE ONAY B (18 Ağustos 2026): TEK KOSUM, pytest exit 1,
+TANI SONUCSUZ.** Raw artifact zinciri commit'i `c251abd` üzerinde aynı
+Resident Alien videosuyla çalıştırıldı; otomatik tekrar yapılmadı, CDB ve
+ürün kodu değişikliği yok. Medya boyutu/mtime değişmedi, timeout ve artık
+süreç yok.
+
+Raw stdout kapanışı doğruladı: `duration=2782.27`, `position=0.04`,
+`stop=1` → `terminate=1`, `visible=False`, `app.exec=0`, **MPV thread=0**,
+`RESULTS failures=none`, **main returned 0**. Raw stderr yine de **11 ayrı**
+`0xe24c4a02` olayı taşıdı; ürün kabulü FAIL kaldı.
+
+Artifact özetleri: trace
+`C5532F519D26496873AD52A77CDC6B391DCA7361035DFDF4C3954A660012B720`,
+raw stdout
+`C2D866AB63CDD91BFD3EE61A6F291D263BDBC3EB57FEE9C1B3D64FA869A4B0F5`,
+raw stderr
+`CF5BC570743E015FEFEC28250D49C83CDB0100230133A798D8297038679D0011`.
+Trace Lua hata/traceback kaydı üretmedi. Raw stdout ayrıca `log message
+buffer overflow` ve **155 mesaj** atlandığını bildirdi; bu nedenle trace
+**tüm mpv log mesajlarının korunduğunu kanıtlamaz**. Overflow giderilmeden
+yeni native koşum yapılmaz; her yeni koşum ayrıca kullanıcı onayı ister.
+**ONAY B sonuc kaydı COMMIT BEKLIYOR.**
+
+**Overflow önleme deterministik olarak hazır; CANLI KOSUM TEKRARLANMADI.**
+Trace dosyası için `msg_level=all=trace` korunurken python-mpv client event
+kuyruğu ayrı `loglevel=warn` eşiğine alındı. Ürün `MPV_CONFIG`'i değişmedi.
+Gelecekte `log message buffer overflow` yeniden görülürse tanı, geçerli Lua
+kaydı olsa bile **FAIL-CLOSED** kalır. Kaynak bağı `mpv_request_log_messages`
+API'si ve mpv seçenek kılavuzuyla testlidir. Deterministik sonuç **337
+passed, 2 skipped**; bu sayı canlı overflow'un bittiğinin kanıtı değildir.
+
 **Talimat ihlali (gizlenmiyor):** bir önceki turun mutasyon koşumunda
 "medya türü denetimi yok" varyantı gerçek child'ı bir kez, yaklaşık
 26,8 sn boyunca geçersiz bir `.py` girdisiyle başlattı. **Bu koşum canlı
@@ -299,8 +330,9 @@ sonuç: **268 passed, 1 deselected**.
 **Commit durumu:** Aşama 1 COMMIT EDILDI (`a7ced18`); Aşama 2'nin YEDİ
 dosyası iki commit ile tamamlandı: `4ed5c79` ve `5c83c05`. Debugger kanıt
 ayrıştırması COMMIT EDILDI (`ddcfc40`); ONAY A PDB kaydı COMMIT EDILDI
-(`a4f10ee`); PDB'siz trace kapısı COMMIT EDILDI (`4f5bc87`), ONAY B tek
-koşum sonuç kaydı COMMIT BEKLIYOR. Ayrıntılı liste:
+(`a4f10ee`); PDB'siz trace kapısı COMMIT EDILDI (`4f5bc87`), raw artifact
+zinciri COMMIT EDILDI (`c251abd`), ikinci ONAY B sonuç kaydı ve overflow
+önleme düzeltmesi COMMIT BEKLIYOR. Ayrıntılı liste:
 `docs/ENGINEERING_AUDIT.md` → NATIVE-001.
 
 **Kapatılmayan:** LuaJIT'in taşıdığı asıl Lua hatası belirlenmedi ve ürüne

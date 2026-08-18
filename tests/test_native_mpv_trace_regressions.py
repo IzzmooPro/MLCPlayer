@@ -62,6 +62,7 @@ def test_diagnostic_config_is_a_copy_with_exact_trace_options(tmp_path):
     assert configured["msg_level"] == "all=trace"
     assert configured["msg_time"] == "yes"
     assert configured["msg_module"] == "yes"
+    assert configured["loglevel"] == "warn"
 
 
 def test_python_mpv_converts_the_option_keys_to_real_dash_names():
@@ -73,6 +74,19 @@ def test_python_mpv_converts_the_option_keys_to_real_dash_names():
     assert re.search(
         r"k\.replace\(\s*['\"]_['\"]\s*,\s*['\"]-['\"]\s*\)", source), (
         "python-mpv kwargs icin underscore -> dash donusumu bulunamadi")
+
+
+def test_python_mpv_has_a_separate_client_loglevel_parameter():
+    """Client event esigi, mpv `msg-level` seceneginden ayri API'dir."""
+    spec = importlib.util.find_spec("mpv")
+    assert spec is not None and spec.origin
+    with open(spec.origin, encoding="utf-8") as handle:
+        source = handle.read()
+
+    assert "def __init__(self, *extra_mpv_flags, log_handler=None" in source
+    assert "loglevel=None" in source
+    assert "self.set_loglevel(loglevel or 'terminal-default')" in source
+    assert "_mpv_request_log_messages" in source
 
 
 def test_trace_mode_off_does_not_mutate_the_player_module(tmp_path):
@@ -225,6 +239,50 @@ def test_invalid_utf8_in_the_trace_is_fail_closed():
     assert problems
     assert any("UTF-8" in problem for problem in problems)
     assert records == []
+
+
+@pytest.mark.parametrize("line", [
+    "[fatal] [overflow] log message buffer overflow: 155 messages skipped",
+    "log message buffer overflow: 1 message skipped",
+    "LOG MESSAGE BUFFER OVERFLOW: 999 MESSAGES SKIPPED",
+])
+def test_any_log_message_overflow_makes_the_diagnosis_incomplete(line):
+    problems = trace.trace_capture_problems(line + "\n")
+
+    assert problems
+    assert any("overflow" in problem and "eksik" in problem
+               for problem in problems)
+
+
+def test_normal_child_stdout_has_no_trace_capture_problem():
+    assert trace.trace_capture_problems(
+        "MARK_TRACE_CONFIGURED t=0.10 trace_b64=YWJj\n") == []
+
+
+def test_a_good_trace_cannot_rescue_an_overflowed_child_stream(tmp_path):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+
+    def fake_shutdown(video, timeout, env):
+        log.write_bytes(GOOD_TRACE)
+        stdout = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
+                  + encode_trace_path(str(log)) + "\n"
+                  + "[fatal] [overflow] log message buffer overflow: "
+                  + "155 messages skipped\n")
+        return [], {
+            "returncode": 0, "stdout": stdout, "stderr": "",
+            "raw_stdout": stdout.encode("utf-8"), "raw_stderr": b"",
+        }
+
+    problems, detail = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1"},
+        shutdown_runner=fake_shutdown)
+
+    assert any("overflow" in problem and "eksik" in problem
+               for problem in problems), problems
+    assert detail["trace_records"], "gecerli trace yine ayristirilmali"
 
 
 def test_non_lua_errors_do_not_masquerade_as_the_target():
@@ -589,7 +647,8 @@ def test_product_config_source_contains_no_trace_options():
                           "app", "config.py")
     source = open(config, encoding="utf-8").read()
 
-    for option in ("log_file", "msg_level", "msg_time", "msg_module"):
+    for option in ("log_file", "msg_level", "msg_time", "msg_module",
+                   "loglevel"):
         assert option not in source, f"urun MPV_CONFIG trace ile kirlendi: {option}"
 
 
