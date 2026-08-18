@@ -20,6 +20,10 @@ import native_mpv_trace_contract as trace  # noqa: E402
 from native_mpv_trace_contract import (  # noqa: E402
     BUILTIN_SCRIPT_DISABLE_CONFIG,
     SCRIPT_ABLATION_VARIABLE,
+    SCRIPT_BISECTION_INITIAL_BUDGET,
+    SCRIPT_BISECTION_MARKER,
+    SCRIPT_BISECTION_PROFILES,
+    SCRIPT_BISECTION_VARIABLE,
     TRACE_FIELD_PREFIX,
     TRACE_LOG_VARIABLE,
     TRACE_OPT_IN_VARIABLE,
@@ -31,10 +35,13 @@ from native_mpv_trace_contract import (  # noqa: E402
     encode_trace_path,
     evaluate_trace_log,
     evaluate_script_ablation_trace,
+    evaluate_script_bisection_trace,
+    extract_script_bisection_marker_problems,
     extract_script_ablation_marker_problems,
     extract_trace_marker_problems,
     run_native_trace,
     script_ablation_requested,
+    script_bisection_profile,
     trace_requested,
     trace_run_blockers,
 )
@@ -64,6 +71,36 @@ def test_script_ablation_opt_in_is_exact(value):
 
 def test_script_ablation_opt_in_accepts_only_one():
     assert script_ablation_requested({SCRIPT_ABLATION_VARIABLE: "1"})
+
+
+def test_script_bisection_profiles_and_first_budget_are_exact():
+    assert SCRIPT_BISECTION_PROFILES == {
+        "stats_ytdl": frozenset({"stats", "ytdl_hook"}),
+        "select": frozenset({"select"}),
+        "stats": frozenset({"stats"}),
+        "ytdl_hook": frozenset({"ytdl_hook"}),
+    }
+    assert SCRIPT_BISECTION_INITIAL_BUDGET == ("stats_ytdl", "select")
+    assert len(SCRIPT_BISECTION_INITIAL_BUDGET) == 2
+
+
+@pytest.mark.parametrize("value", [
+    "STATS", "stats ", "stats+ytdl", "all", "none", "osc", "true", "1",
+])
+def test_script_bisection_profile_is_exact_and_fail_closed(value):
+    profile, problems = script_bisection_profile(
+        {SCRIPT_BISECTION_VARIABLE: value})
+
+    assert profile is None
+    assert problems and "gecersiz" in problems[0]
+
+
+@pytest.mark.parametrize("profile", [
+    "stats_ytdl", "select", "stats", "ytdl_hook",
+])
+def test_script_bisection_accepts_only_recorded_profiles(profile):
+    assert script_bisection_profile(
+        {SCRIPT_BISECTION_VARIABLE: profile}) == (profile, [])
 
 
 def test_script_ablation_disables_every_builtin_and_external_auto_load():
@@ -155,6 +192,59 @@ def test_valid_script_ablation_overrides_runtime_ytdl_reenable():
         assert FakePlayerModule.MPV_CONFIG[key] == value
 
 
+@pytest.mark.parametrize(("profile", "expected"), [
+    ("stats_ytdl", {"load_stats_overlay": True, "ytdl": True}),
+    ("select", {"load_select": True}),
+    ("stats", {"load_stats_overlay": True}),
+    ("ytdl_hook", {"ytdl": True}),
+])
+def test_script_bisection_reenables_only_the_selected_profile(profile,
+                                                               expected):
+    class FakePlayerModule:
+        MPV_CONFIG = {"vo": "gpu", "ytdl": True}
+
+        @staticmethod
+        def build_ytdl_config(_):
+            return {"ytdl": True, "script_opts": "real-runtime"}
+
+    original_ytdl_builder = FakePlayerModule.build_ytdl_config
+    env = {
+        OPT_IN_VARIABLE: "1",
+        TRACE_OPT_IN_VARIABLE: "1",
+        SCRIPT_ABLATION_VARIABLE: "1",
+        SCRIPT_BISECTION_VARIABLE: profile,
+    }
+
+    applied, problems = configure_script_ablation(FakePlayerModule, env=env)
+
+    assert applied and problems == []
+    wanted = dict(BUILTIN_SCRIPT_DISABLE_CONFIG)
+    wanted.update(expected)
+    for key, value in wanted.items():
+        assert FakePlayerModule.MPV_CONFIG[key] == value
+    if "ytdl_hook" in SCRIPT_BISECTION_PROFILES[profile]:
+        assert FakePlayerModule.build_ytdl_config is original_ytdl_builder
+    else:
+        assert FakePlayerModule.build_ytdl_config("bin") == {"ytdl": False}
+
+
+def test_script_bisection_requires_all_three_existing_opt_ins():
+    class FakePlayerModule:
+        MPV_CONFIG = {"vo": "gpu"}
+
+        @staticmethod
+        def build_ytdl_config(_):
+            return {"ytdl": True}
+
+    before = FakePlayerModule.MPV_CONFIG
+    applied, problems = configure_script_ablation(
+        FakePlayerModule, env={SCRIPT_BISECTION_VARIABLE: "select"})
+
+    assert not applied
+    assert len(problems) == 3
+    assert FakePlayerModule.MPV_CONFIG is before
+
+
 @pytest.mark.parametrize("key", ["script", "scripts"])
 def test_script_ablation_rejects_explicit_script_files(key):
     class FakePlayerModule:
@@ -195,6 +285,25 @@ def test_script_ablation_marker_accepts_one_exact_timestamped_line():
         "MARK_SCRIPT_ABLATION_CONFIGURED t=0.10\n") == []
 
 
+@pytest.mark.parametrize("line", [
+    "",
+    "MARK_SCRIPT_BISECTION_CONFIGURED",
+    "MARK_SCRIPT_BISECTION_CONFIGURED t=0.10",
+    "MARK_SCRIPT_BISECTION_CONFIGURED t=nan profile=select",
+    "MARK_SCRIPT_BISECTION_CONFIGURED t=0.10 profile=SELECT",
+    "MARK_SCRIPT_BISECTION_CONFIGURED t=0.10 profile=select extra=1",
+])
+def test_script_bisection_marker_fails_closed(line):
+    assert extract_script_bisection_marker_problems(line, "select")
+
+
+def test_script_bisection_marker_accepts_the_exact_selected_profile():
+    line = (SCRIPT_BISECTION_MARKER
+            + " t=0.10 profile=stats_ytdl\n")
+    assert extract_script_bisection_marker_problems(
+        line, "stats_ytdl") == []
+
+
 def test_script_ablation_trace_rejects_any_builtin_lua_module():
     raw = (b"[   0.100][v][cplayer] starting playback\n"
            b"[   0.200][v][lua/stats] script loaded\n")
@@ -209,6 +318,41 @@ def test_script_ablation_trace_accepts_a_non_lua_trace():
            b"[   0.200][d][vo/gpu] reconfig\n")
 
     assert evaluate_script_ablation_trace(raw) == []
+
+
+def test_script_bisection_trace_requires_every_selected_module():
+    raw = (b"[   0.100][v][cplayer] starting playback\n"
+           b"[   0.200][v][stats] script loaded\n")
+
+    problems = evaluate_script_bisection_trace(raw, "stats_ytdl")
+
+    assert problems and "ytdl_hook" in problems[0]
+
+
+def test_script_bisection_trace_rejects_an_unselected_lua_module():
+    raw = (b"[   0.100][v][select] script loaded\n"
+           b"[   0.200][v][lua/stats] unexpected script\n")
+
+    problems = evaluate_script_bisection_trace(raw, "select")
+
+    assert problems and "stats" in problems[0]
+
+
+def test_script_bisection_trace_rejects_an_unknown_lua_client():
+    raw = (b"[   0.100][v][select] script loaded\n"
+           b"[   0.200][v][lua/custom_script] unexpected script\n")
+
+    problems = evaluate_script_bisection_trace(raw, "select")
+
+    assert problems and "custom_script" in problems[0]
+
+
+def test_script_bisection_trace_accepts_exactly_the_selected_group():
+    raw = (b"[   0.100][v][cplayer] starting playback\n"
+           b"[   0.200][v][stats] script loaded\n"
+           b"[   0.300][v][ytdl_hook] script loaded\n")
+
+    assert evaluate_script_bisection_trace(raw, "stats_ytdl") == []
 
 
 def test_diagnostic_config_is_a_copy_with_exact_trace_options(tmp_path):
@@ -613,6 +757,85 @@ def test_script_ablation_run_rejects_a_lua_client_in_the_trace(tmp_path):
                for problem in problems), problems
 
 
+def test_invalid_script_bisection_profile_never_starts_the_child(tmp_path):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+    calls = []
+
+    def forbidden_shutdown(*args, **kwargs):
+        calls.append((args, kwargs))
+        raise AssertionError("gecersiz profil child baslatmamali")
+
+    problems, detail = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1",
+             SCRIPT_ABLATION_VARIABLE: "1",
+             SCRIPT_BISECTION_VARIABLE: "unknown"},
+        shutdown_runner=forbidden_shutdown)
+
+    assert problems and "gecersiz" in problems[0]
+    assert calls == []
+    assert detail["script_bisection_profile"] is None
+
+
+def test_script_bisection_run_uses_marker_and_exact_trace_contract(tmp_path):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+
+    def fake_shutdown(video, timeout, env):
+        log.write_bytes(
+            b"[ 0.1][v][cplayer] starting playback\n"
+            b"[ 0.2][v][stats] script loaded\n"
+            b"[ 0.3][v][ytdl_hook] script loaded\n")
+        stdout = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
+                  + encode_trace_path(str(log)) + "\n"
+                  + "MARK_SCRIPT_ABLATION_CONFIGURED t=0.11\n"
+                  + SCRIPT_BISECTION_MARKER
+                  + " t=0.12 profile=stats_ytdl\n")
+        return [], {
+            "returncode": 0, "stdout": stdout, "stderr": "",
+            "raw_stdout": stdout.encode("utf-8"), "raw_stderr": b"",
+        }
+
+    problems, detail = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1",
+             SCRIPT_ABLATION_VARIABLE: "1",
+             SCRIPT_BISECTION_VARIABLE: "stats_ytdl"},
+        shutdown_runner=fake_shutdown)
+
+    assert problems == [], problems
+    assert detail["script_ablation"] is True
+    assert detail["script_bisection_profile"] == "stats_ytdl"
+
+
+def test_script_bisection_run_rejects_a_missing_profile_marker(tmp_path):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+
+    def fake_shutdown(video, timeout, env):
+        log.write_bytes(b"[ 0.1][v][select] script loaded\n")
+        stdout = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
+                  + encode_trace_path(str(log)) + "\n"
+                  + "MARK_SCRIPT_ABLATION_CONFIGURED t=0.11\n")
+        return [], {
+            "returncode": 0, "stdout": stdout, "stderr": "",
+            "raw_stdout": stdout.encode("utf-8"), "raw_stderr": b"",
+        }
+
+    problems, _ = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1",
+             SCRIPT_ABLATION_VARIABLE: "1",
+             SCRIPT_BISECTION_VARIABLE: "select"},
+        shutdown_runner=fake_shutdown)
+
+    assert any(SCRIPT_BISECTION_MARKER in problem for problem in problems)
+
+
 def test_a_missing_trace_after_the_fake_run_is_fail_closed(tmp_path):
     media = tmp_path / "video.mkv"
     media.write_bytes(b"media")
@@ -888,9 +1111,14 @@ def test_child_applies_script_ablation_after_trace_and_before_player_creation():
     trace_at = source.find("configure_trace_mode(")
     ablation_at = source.find("configure_script_ablation(")
     marker_at = source.find('mark("MARK_SCRIPT_ABLATION_CONFIGURED")')
+    profile_at = source.find("script_bisection_profile(os.environ)")
+    bisection_marker_at = source.find(
+        'mark("MARK_SCRIPT_BISECTION_CONFIGURED"')
     create_at = source.find("player = MPVPlayer()")
-    assert -1 not in (trace_at, ablation_at, marker_at, create_at)
-    assert trace_at < ablation_at < marker_at < create_at
+    assert -1 not in (trace_at, ablation_at, marker_at, profile_at,
+                      bisection_marker_at, create_at)
+    assert (trace_at < ablation_at < marker_at < profile_at
+            < bisection_marker_at < create_at)
 
 
 def test_product_config_source_contains_no_trace_options():

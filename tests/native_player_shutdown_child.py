@@ -62,7 +62,8 @@ from native_media_contract import (MEDIA_FIELD_PREFIX,  # noqa: E402
                                    encode_media_basename,
                                    is_supported_media)
 from native_mpv_trace_contract import (configure_script_ablation,  # noqa: E402
-                                       configure_trace_mode)
+                                       configure_trace_mode,
+                                       script_bisection_profile)
 
 VIDEO_PATH = os.environ.get("MLC_NATIVE_TEST_VIDEO", "")
 READY_TIMEOUT_S = float(os.environ.get("MLC_READY_TIMEOUT", "25"))
@@ -188,6 +189,10 @@ def main():
         os._exit(2)
     if ablation_applied:
         mark("MARK_SCRIPT_ABLATION_CONFIGURED")
+        bisection_profile, _ = script_bisection_profile(os.environ)
+        if bisection_profile is not None:
+            mark("MARK_SCRIPT_BISECTION_CONFIGURED",
+                 "profile=" + bisection_profile)
 
     QSettings.setDefaultFormat(QSettings.Format.IniFormat)
     QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,

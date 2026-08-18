@@ -278,13 +278,21 @@ olduğunu veya JIT trace abort yolunu **kanıtlamaz**. Canlı sonuç kaydı
 **COMMIT BEKLIYOR**. Kayıt sonrası ilgili deterministik paketler
 **611 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir.
 
-**Sıradaki teknik adım:** bu ONAY B dışındaki **YENİ NATIVE KOSUM YAPILMADI**
-ve ürün düzeltmesi bu turda YAPILMAZ. Önce yalnız test tarafında fail-closed bir **script-bisection**
-sözleşmesi tasarlanacak; built-in scriptleri kontrollü gruplar hâlinde yeniden
-açacak ve aralıklı olay için sonlu koşum bütçesini peşinen tanımlayacak. Bu
-tasarımdan sonraki her gerçek koşum yine **AYRI KULLANICI ONAYI** ister ve tek
-negatif örnek nedensellik sayılmaz. **4K/H.265 kabulü ancak kök neden
-düzeltmesinden sonra.**
+**Script-bisection kapısı deterministik olarak hazırlandı; yeni native koşum
+yapılmadı.** `MLC_NATIVE_MPV_SCRIPT_BISECTION` yalnız `stats_ytdl`, `select`,
+`stats`, `ytdl_hook` profillerini kabul eder. Önce bütün scriptler kapanır,
+yalnız seçilen profil açılır; marker profil adını doğrular. Seçilmeyen Lua
+modülü görülürse veya seçilen Lua modülü görülmedi ise sonuç fail-closed'dur.
+Bilinmeyen herhangi bir `lua/*` client'i de seçilmeyen sayılır; sessizce
+geçmez. Geçersiz profil subprocess sınırına ulaşmaz ve ürün `MPV_CONFIG`
+değişmedi. Hedef trace paketi **126 passed, 1 skipped**.
+
+**İlk aşama bütçesi 2** koşumdur: `stats_ytdl` ve `select`. Bu iki koşum
+otomatik yetkilendirilmiş değildir. Aralıklı olayda **tek negatif** sonuç
+**eleme kanıtı değildir**; her gerçek koşum **AYRI KULLANICI ONAYI** ister.
+İlgili deterministik paketler birlikte **645 passed, 4 skipped**; dört skip
+gerçek opt-in düğümleridir. Kapı ve kayıt değişiklikleri **COMMIT BEKLIYOR**.
+**4K/H.265 kabulü ancak kök neden düzeltmesinden sonra.**
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,

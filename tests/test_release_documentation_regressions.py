@@ -757,6 +757,40 @@ def test_script_ablation_live_record_keeps_the_interpretation_bounded():
     assert "AYRI KULLANICI ONAYI" in roadmap
 
 
+def test_native_record_documents_the_deterministic_script_bisection_gate():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        for exact in (
+            "MLC_NATIVE_MPV_SCRIPT_BISECTION",
+            "stats_ytdl",
+            "select",
+            "stats",
+            "ytdl_hook",
+            "MPV_CONFIG",
+        ):
+            assert exact in block, f"{label} bisection adi eksik: {exact}"
+        flattened = plain(block)
+        for fact in (
+            "ILK ASAMA BUTCESI 2",
+            "SECILMEYEN LUA MODULU",
+            "SECILEN LUA MODULU GORULMEDI",
+            "YENI NATIVE KOSUM YAPILMADI",
+            "645 PASSED, 4 SKIPPED",
+            "COMMIT BEKLIYOR",
+        ):
+            assert fact in flattened, f"{label} bisection kaydi eksik: {fact}"
+        assert "URUN" in flattened and "DEGISMEDI" in flattened, label
+
+
+def test_script_bisection_record_does_not_treat_one_negative_as_exclusion():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = plain(block)
+        assert "TEK NEGATIF" in flattened, label
+        assert "ELEME KANITI DEGILDIR" in flattened, label
+        assert "HER GERCEK KOSUM AYRI KULLANICI ONAYI" in flattened, label
+
+
 def test_project_status_marks_the_old_harmless_conclusion_as_superseded():
     text = read(PROJECT_STATUS_DOC)
     start = text.index("## Kapanış erişim ihlali")

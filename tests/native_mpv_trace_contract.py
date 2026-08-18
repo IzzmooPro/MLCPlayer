@@ -24,6 +24,8 @@ TRACE_LOG_VARIABLE = "MLC_NATIVE_MPV_TRACE_LOG"
 TRACE_OPT_IN_VALUE = "1"
 SCRIPT_ABLATION_VARIABLE = "MLC_NATIVE_MPV_SCRIPT_ABLATION"
 SCRIPT_ABLATION_MARKER = "MARK_SCRIPT_ABLATION_CONFIGURED"
+SCRIPT_BISECTION_VARIABLE = "MLC_NATIVE_MPV_SCRIPT_BISECTION"
+SCRIPT_BISECTION_MARKER = "MARK_SCRIPT_BISECTION_CONFIGURED"
 TRACE_FIELD_PREFIX = "trace_b64="
 TRACE_CLIENT_LOG_LEVEL = "warn"
 CHILD_STDOUT_SUFFIX = ".child_stdout.bin"
@@ -48,6 +50,20 @@ BUILTIN_SCRIPT_DISABLE_CONFIG = {
     "load_context_menu": False,
     "load_scripts": False,
 }
+SCRIPT_BISECTION_PROFILES = {
+    # Debugger kanitinda gorulen uc client once iki gruba ayrilir. Ilk dal
+    # pozitifse stats/ytdl_hook profilleri ikinci asamada ayrilabilir.
+    "stats_ytdl": frozenset({"stats", "ytdl_hook"}),
+    "select": frozenset({"select"}),
+    "stats": frozenset({"stats"}),
+    "ytdl_hook": frozenset({"ytdl_hook"}),
+}
+SCRIPT_BISECTION_INITIAL_BUDGET = ("stats_ytdl", "select")
+_SCRIPT_ENABLE_CONFIG = {
+    "stats": {"load_stats_overlay": True},
+    "ytdl_hook": {"ytdl": True},
+    "select": {"load_select": True},
+}
 _KNOWN_LUA_MODULES = {
     "osc", "ytdl_hook", "stats", "console", "auto_profiles", "select",
     "positioning", "commands", "context_menu",
@@ -69,6 +85,19 @@ def script_ablation_requested(env=None):
     """Built-in Lua ayrimi acikca istendi mi? Yalniz tam `1`."""
     environment = os.environ if env is None else env
     return environment.get(SCRIPT_ABLATION_VARIABLE, "") == "1"
+
+
+def script_bisection_profile(env=None):
+    """Kesin profil adi veya kontrollu problem; bos deger ayrim istemez."""
+    environment = os.environ if env is None else env
+    value = environment.get(SCRIPT_BISECTION_VARIABLE, "")
+    if value == "":
+        return None, []
+    if value not in SCRIPT_BISECTION_PROFILES:
+        return None, [
+            f"script-bisection profili gecersiz: {value!r}; beklenen "
+            + ", ".join(SCRIPT_BISECTION_PROFILES)]
+    return value, []
 
 
 def child_artifact_paths(trace_path):
@@ -160,13 +189,27 @@ def diagnostic_script_ablation_config(base_config):
     return configured
 
 
+def diagnostic_script_bisection_config(base_config, profile):
+    """Her seyi kapat, yalniz secilen profil modullerini yeniden ac."""
+    configured = diagnostic_script_ablation_config(base_config)
+    for module in SCRIPT_BISECTION_PROFILES[profile]:
+        configured.update(_SCRIPT_ENABLE_CONFIG[module])
+    return configured
+
+
 def configure_script_ablation(player_module, env=None):
     """Uc acik opt-in olmadan script ayrimini kurma ve config'i degistirme."""
     environment = os.environ if env is None else env
-    if not script_ablation_requested(environment):
+    profile, profile_problems = script_bisection_profile(environment)
+    ablation = script_ablation_requested(environment)
+    if not ablation and profile is None and not profile_problems:
         return False, []
 
-    problems = []
+    problems = list(profile_problems)
+    if profile is not None and not ablation:
+        problems.append(
+            f"script-bisection ISTENMEDI: {SCRIPT_ABLATION_VARIABLE} "
+            "tam '1' degil")
     if environment.get(SHUTDOWN_OPT_IN_VARIABLE, "") != "1":
         problems.append(
             f"script ayrimi ISTENMEDI: {SHUTDOWN_OPT_IN_VARIABLE} tam '1' degil")
@@ -182,13 +225,18 @@ def configure_script_ablation(player_module, env=None):
     if problems:
         return False, problems
 
-    player_module.MPV_CONFIG = diagnostic_script_ablation_config(
-        player_module.MPV_CONFIG)
+    if profile is None:
+        player_module.MPV_CONFIG = diagnostic_script_ablation_config(
+            player_module.MPV_CONFIG)
+    else:
+        player_module.MPV_CONFIG = diagnostic_script_bisection_config(
+            player_module.MPV_CONFIG, profile)
 
     # MPVPlayer.__init__ MPV_CONFIG kopyasindan SONRA build_ytdl_config()
     # sonucunu uygular. Yalniz config'e `ytdl=False` yazmak yetmez; hazir
     # runtime varsa script yeniden acilirdi. Child'a ozel bu vekil onu kapatir.
-    player_module.build_ytdl_config = lambda _bin_dir: {"ytdl": False}
+    if profile is None or "ytdl_hook" not in SCRIPT_BISECTION_PROFILES[profile]:
+        player_module.build_ytdl_config = lambda _bin_dir: {"ytdl": False}
     return True, []
 
 
@@ -208,6 +256,27 @@ def extract_script_ablation_marker_problems(stdout):
             not _finite_non_negative(parts[1][2:])):
         return [f"{SCRIPT_ABLATION_MARKER} kesin `t=<sonlu>` ister: "
                 f"{' '.join(parts)!r}"]
+    return []
+
+
+def extract_script_bisection_marker_problems(stdout, expected_profile):
+    """Bisection marker'i tam bir kez, kesin zaman ve profille gelmeli."""
+    if isinstance(stdout, bytes):
+        stdout = stdout.decode("utf-8", errors="replace")
+    found = []
+    for line in str(stdout).splitlines():
+        parts = line.strip().split()
+        if parts[:1] == [SCRIPT_BISECTION_MARKER]:
+            found.append(parts)
+    if len(found) != 1:
+        return [f"{SCRIPT_BISECTION_MARKER} {len(found)} kez yazilmis; "
+                "beklenen 1"]
+    parts = found[0]
+    expected = f"profile={expected_profile}"
+    if (len(parts) != 3 or not parts[1].startswith("t=") or
+            not _finite_non_negative(parts[1][2:]) or parts[2] != expected):
+        return [f"{SCRIPT_BISECTION_MARKER} kesin `t=<sonlu> {expected}` "
+                f"ister: {' '.join(parts)!r}"]
     return []
 
 
@@ -239,6 +308,50 @@ def evaluate_script_ablation_trace(raw):
         return ["script ayrimi acikken built-in Lua modulu etkin: " +
                 ", ".join(sorted(set(loaded)))]
     return []
+
+
+def evaluate_script_bisection_trace(raw, profile):
+    """Trace'te yalniz secilen client'ler etkin ve hepsi gorunur olmali."""
+    if profile not in SCRIPT_BISECTION_PROFILES:
+        return [f"script-bisection profili gecersiz: {profile!r}"]
+    if isinstance(raw, str):
+        text = raw
+    else:
+        try:
+            text = bytes(raw).decode("utf-8", errors="strict")
+        except (TypeError, UnicodeDecodeError):
+            return ["script-bisection trace'i gecerli UTF-8 degil"]
+    if not text.strip():
+        return ["script-bisection trace'i bos"]
+
+    parsed = 0
+    active = set()
+    for line in text.splitlines():
+        match = _TRACE_LINE.match(line.strip())
+        if not match or not _finite_non_negative(match.group("time")):
+            continue
+        parsed += 1
+        module = match.group("module").strip().lower()
+        if module.startswith("lua/"):
+            # Bilinmeyen `lua/*` client'i de secilmemistir; sessizce yok
+            # saymak dis scriptin bisection sonucunu kirletmesine izin verirdi.
+            active.add(module[4:] or module)
+        elif module in _KNOWN_LUA_MODULES:
+            active.add(module)
+    if not parsed:
+        return ["script-bisection trace'inde ayrisabilen mpv satiri yok"]
+
+    expected = set(SCRIPT_BISECTION_PROFILES[profile])
+    unexpected = active - expected
+    missing = expected - active
+    problems = []
+    if unexpected:
+        problems.append("script-bisection secilmeyen Lua modulu etkin: "
+                        + ", ".join(sorted(unexpected)))
+    if missing:
+        problems.append("script-bisection secilen Lua modulu gorulmedi: "
+                        + ", ".join(sorted(missing)))
+    return problems
 
 
 def trace_capture_problems(stdout):
@@ -290,6 +403,12 @@ def trace_run_blockers(video, trace_path, env=None):
         problems.append(
             f"mpv trace kosumu ISTENMEDI: {TRACE_OPT_IN_VARIABLE} tam '1' "
             "degil")
+    profile, profile_problems = script_bisection_profile(environment)
+    problems.extend(profile_problems)
+    if profile is not None and not script_ablation_requested(environment):
+        problems.append(
+            f"script-bisection ISTENMEDI: {SCRIPT_ABLATION_VARIABLE} "
+            "tam '1' degil")
     if not is_supported_media(video):
         problems.append(f"gecerli .mkv/.mp4 medya degil: {video!r}")
     problems.extend(trace_target_problems(video, trace_path))
@@ -462,12 +581,14 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
     """
     environment = dict(os.environ if env is None else env)
     ablation = script_ablation_requested(environment)
+    bisection_profile, _ = script_bisection_profile(environment)
     blockers = trace_run_blockers(video, trace_path, environment)
     artifacts = child_artifact_paths(trace_path)
     blockers.extend(_child_artifact_blockers(artifacts))
     empty_detail = {"shutdown_problems": [], "shutdown_detail": {},
                     "trace_records": [], "child_artifacts": artifacts,
-                    "script_ablation": ablation}
+                    "script_ablation": ablation,
+                    "script_bisection_profile": bisection_profile}
     if blockers:
         return blockers, empty_detail
 
@@ -490,11 +611,17 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
     if ablation:
         diagnostic_problems.extend(extract_script_ablation_marker_problems(
             shutdown_detail.get("stdout", "")))
+    if bisection_profile is not None:
+        diagnostic_problems.extend(extract_script_bisection_marker_problems(
+            shutdown_detail.get("stdout", ""), bisection_profile))
     read_problems, raw = _read_new_trace(absolute_trace)
     diagnostic_problems.extend(read_problems)
     records = []
     if not read_problems:
-        if ablation:
+        if bisection_profile is not None:
+            diagnostic_problems.extend(evaluate_script_bisection_trace(
+                raw, bisection_profile))
+        elif ablation:
             diagnostic_problems.extend(evaluate_script_ablation_trace(raw))
         else:
             log_problems, records = evaluate_trace_log(raw)
@@ -507,4 +634,5 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
         "trace_path": absolute_trace,
         "child_artifacts": artifacts,
         "script_ablation": ablation,
+        "script_bisection_profile": bisection_profile,
     }
