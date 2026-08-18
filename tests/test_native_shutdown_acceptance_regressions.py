@@ -60,6 +60,8 @@ FATAL_STDERR = ("Windows fatal exception: code 0xe24c4a02\n"
                 "Thread 0x000021f4 [MPVEventHandlerThread] (most recent "
                 "call first):\n")
 
+GENERIC_FATAL_STDERR = "Windows fatal exception: code 0xc0000005\n"
+
 MEDIA_BEFORE = {"path": "C:\\media\\ornek.mkv", "size": 12345,
                 "mtime_ns": 1755400000000000000}
 
@@ -89,6 +91,22 @@ def test_exit_zero_with_a_fatal_stderr_is_rejected():
 
     assert problems, "exit 0 + fatal stderr KABUL EDILDI"
     assert any("Windows fatal exception" in p for p in problems), problems
+
+
+def test_luajit_runtime_error_is_classified_without_becoming_a_pass():
+    problems = evaluate_shutdown_result(0, GOOD_STDOUT, FATAL_STDERR)
+
+    assert any("LuaJIT" in problem and "LUA_ERRRUN" in problem
+               for problem in problems), problems
+    assert not any("fatal iz" in problem and "Windows fatal exception" in problem
+                   for problem in problems), problems
+
+
+def test_an_unrelated_windows_fatal_exception_keeps_the_generic_guard():
+    problems = evaluate_shutdown_result(0, GOOD_STDOUT, GENERIC_FATAL_STDERR)
+
+    assert any("fatal iz" in problem and "Windows fatal exception" in problem
+               for problem in problems), problems
 
 
 @pytest.mark.parametrize("pattern", FAILURE_PATTERNS)

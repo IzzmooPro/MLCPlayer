@@ -69,6 +69,11 @@ EXTRA_FAILURE_PATTERNS = ("Traceback", "PYTHON_EXCEPTION")
 FAILURE_PATTERNS = tuple(dict.fromkeys(
     tuple(NATIVE_FAILURE_PATTERNS) + EXTRA_FAILURE_PATTERNS))
 
+# LuaJIT, Windows'ta Lua calisma zamani hatasini bu SEH koduyla tasir.
+# Bu iz tek basina crash veya second-chance kaniti degildir; yine de stderr
+# sozlesmesini bozar ve kabul kesinlikle FAIL kalir.
+LUAJIT_RUNTIME_ERROR_TRACE = "Windows fatal exception: code 0xe24c4a02"
+
 #: Kabul edilen TEK RESULTS satiri.
 EXPECTED_RESULTS = "RESULTS: failures=none stop=1 terminate=1"
 
@@ -314,10 +319,17 @@ def evaluate_shutdown_result(returncode, stdout, stderr,
     stderr = decode_stream(stderr)
     context = {"expected_basename": expected_basename}
 
-    # 1. Fatal desenler ONCE: exit 0 ve tam marker seti bunlari AKLAMAZ.
+    # 1. Hata izleri ONCE: exit 0 ve tam marker seti bunlari AKLAMAZ.
     for stream_name, text in (("stdout", stdout), ("stderr", stderr)):
+        scan_text = text
+        if LUAJIT_RUNTIME_ERROR_TRACE in scan_text:
+            problems.append(
+                f"{stream_name} icinde LuaJIT LUA_ERRRUN SEH izi var "
+                f"({LUAJIT_RUNTIME_ERROR_TRACE!r}); bu akistan handled/"
+                "second-chance ayrimi yapilamaz ve kabul edilmez")
+            scan_text = scan_text.replace(LUAJIT_RUNTIME_ERROR_TRACE, "")
         for pattern in FAILURE_PATTERNS:
-            if pattern in text:
+            if pattern in scan_text:
                 problems.append(
                     f"{stream_name} icinde fatal iz var ({pattern!r}); "
                     "exit 0 olsa bile kabul edilmez")

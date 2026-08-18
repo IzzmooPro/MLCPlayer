@@ -196,7 +196,7 @@ değişiklik henüz kalıcı değildir.
 - **Kimlik:** NATIVE-001
 - **Baslik:** Native `0xe24c4a02` istisnası yeşil pytest sonucunun arkasında gizleniyordu
 - **Onem:** Yüksek — ölümcül görünümlü bir native olay, `exit 0` nedeniyle hiçbir kapıya takılmıyordu
-- **Durum (asamali; kayit butunu icin yalin "COMMIT EDILDI" YAZILMAZ):** KANITLANDI → UYGULANDI → **Aşama 1:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`a7ced18`); **Aşama 2:** HEDEF TESTLERLE DOGRULANDI → COMMIT BEKLIYOR → **CANLI KABUL BASARISIZ** (18 Ağustos 2026)
+- **Durum:** KANITLANDI → UYGULANDI → **Aşama 1:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`a7ced18`); **Aşama 2:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → **CANLI KABUL BASARISIZ** (18 Ağustos 2026); **debugger kanıt ayrıştırması:** UYGULANDI → COMMIT BEKLIYOR
 - **Kanit (olculen):**
   - `tests/test_cover_art_regressions.py` ANA pytest sürecinde doğrudan `mpv.MPV` kuruyordu; fixture yalnız `terminate()` çağırıyordu (ürün kapanışı `stop() -> terminate()` kullanır).
   - Bağımsız dosya koşumu: **3 passed / exit 0**, buna rağmen stderr'de
@@ -240,7 +240,7 @@ değişiklik henüz kalıcı değildir.
   **Neden tekrarlanmadı:** dördüncü düzeltme yalnız **saf `evaluate_child` dilbilgisini** değiştirdi; child'in üretim/native senaryo kodu (MPV kurulumu, oynatma, kapanış, `mark()` çağrıları) **değişmedi**. Aynı native senaryoyu yeniden koşturmak yeni bilgi üretmeyeceği için koşum **bilinçli olarak tekrarlanmadı**.
 
   **Dilbilgisi sonrası bağımsız ölçüm:** deterministik **61 passed** (native koşum içermez).
-- **Asama 2 (18 Ağustos 2026) — ÜRÜN KAPANIŞ YOLUNUN KABUL KAPISI:** durum **HEDEF TESTLERLE DOGRULANDI → COMMIT BEKLIYOR → CANLI KABUL BASARISIZ**.
+- **Asama 2 (18 Ağustos 2026) — ÜRÜN KAPANIŞ YOLUNUN KABUL KAPISI:** durum **HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → CANLI KABUL BASARISIZ**.
 
   **Ölçülen ürün yolu:** `player.close() -> closeEvent() -> stop() -> terminate()`. Yeni child YAZILMADI; mevcut `tests/native_player_shutdown_child.py` kullanıldı. Child kapanışı kendisi başlatmaz, yalnız `player.close()` çağırır; `stop`/`terminate` sınıf düzeyinde saydam kaydediciyle sarılır (ürünün MPV nesnesine fazladan referans EKLENMEZ) ve çıkış ürünle aynı `os._exit(exit_code)` politikasını korur.
 
@@ -285,9 +285,17 @@ değişiklik henüz kalıcı değildir.
 
   **Ham kanit:** yerel geçici çıktının SHA-256'sı `0E946B021E66DBF8CAB8AF628F6D4C54E01821C3495627D7E030F16E80FCF256`. Çıktı geçicidir; kalıcı bir artifact değildir ve mutlak kullanıcı yolu bu belgeye yazılmaz.
 
+  **Debugger teşhisi ve düzeltilen rapor (18 Ağustos 2026; yeni native koşum yapılmadı):** CDB metni bağımsız olarak yeniden ayrıştırıldı. Komut yankısındaki marker metinleri kanıt sayılınca oluşan eski “second-chance” sonucu yanlıştı. Kesin satır dilbilgisiyle ölçüm **14 first-chance**, **13 tekrar**, **0 second-chance** oldu. İlk fault thread: `lua/stats` (TID `302c`); dağılım `lua/stats` = 2, `lua/ytdl_hook` = 1, `lua/select` = 11. `MPVEventHandlerThread` logda bulunur fakat kaynak fault thread değildir.
+
+  **Kodun sınıflandırması (birincil kaynak):** LuaJIT Windows hata taşıması `LJ_EXCODE = 0xe24c4a00` tabanına Lua hata kodunu ekler; `LUA_ERRRUN = 2` olduğundan `0xe24c4a02`, LuaJIT'in Lua çalışma-zamanı hatasını SEH üzerinden taşıdığı koddur. Stack ve modül aralığı bu taşımanın depo `bin/mpv-2.dll` içindeki gömülü LuaJIT'ten geçtiğini gösterir; bu bulgu tek başına “mpv-2.dll çöktü” veya second-chance kanıtı değildir. Kaynaklar: [LuaJIT `lj_err.c`](https://github.com/LuaJIT/LuaJIT/blob/v2.1/src/lj_err.c), [Lua `lua.h`](https://github.com/LuaJIT/LuaJIT/blob/v2.1/src/lua.h), [mpv Lua belgeleri](https://github.com/mpv-player/mpv/blob/master/DOCS/man/lua.rst).
+
+  Kabul kapısı gevşetilmedi: tam `Windows fatal exception: code 0xe24c4a02` izi artık genel “fatal” etiketi yerine **LuaJIT / LUA_ERRRUN SEH izi** olarak sınıflandırılır; stderr boş olmadığı için sonuç yine FAIL'dir. Diğer Windows fatal kodları genel fail-closed korumada kalır.
+
+  **Süreç ihlali kaydı:** geçici harness, ilk kodlama ön testinden sonra **bağımsız denetime sunulmadan** değiştirildi ve çalıştırıldı. İkinci CDB koşumu yapılmamış ve repo değişmemiş olsa da bu bir **onay zinciri ihlali**dir; raporun thread ve second-chance yorumları bu yüzden ayrıca bağımsız ayrıştırmayla doğrulanmıştır.
+
   **Commit durumu (asamalara gore):**
   - **Aşama 1** (cover-art child yalıtımı + stderr görünürlük kapısı): **COMMIT EDILDI** — `a7ced18`.
-  - **Aşama 2** (ürün kapanış yolu kabul kapısı + başarısız canlı kabulün kaydı): **COMMIT BEKLIYOR** — çalışma ağacındadır, commit edilmemiştir. Kapsam **YEDİ dosyadır** ve **İKİ mantıksal commit'e** ayrılır:
+  - **Aşama 2** (ürün kapanış yolu kabul kapısı + başarısız canlı kabulün kaydı): **COMMIT EDILDI** — `4ed5c79` ve `5c83c05`. Kapsam **YEDİ dosyaydı** ve **İKİ mantıksal commit'e** ayrıldı:
 
     **1) `test: add product shutdown native acceptance gate`** — kapı uygulaması, **DÖRT** dosya:
     `tests/native_player_shutdown_child.py`, `tests/native_media_contract.py`, `tests/native_shutdown_acceptance.py`, `tests/test_native_shutdown_acceptance_regressions.py`.
@@ -295,7 +303,7 @@ değişiklik henüz kalıcı değildir.
     **2) `docs: record failed native shutdown acceptance`** — kayıt ve belge koruması, **ÜÇ** dosya:
     `docs/ENGINEERING_AUDIT.md`, `docs/ROADMAP.md`, `tests/test_release_documentation_regressions.py`.
 
-    Belge koruması kendi regresyon testini de değiştirdiği için kapsam altı değil **yedi** dosyadır; bu sayı `tests/test_release_documentation_regressions.py` içinde mekanik olarak korunur.
+    Belge koruması kendi regresyon testini de değiştirdiği için kapsam altı değil **yedi** dosyaydı; bu tarihsel kapsam `tests/test_release_documentation_regressions.py` içinde mekanik olarak korunur.
   - **Canlı kabul:** **BASARISIZ** (18 Ağustos 2026; yukarıdaki tek koşum).
 
   **Canli kosum komutu (Windows PowerShell — bu kayit turunda TEKRAR CALISTIRILMADI):**
@@ -308,16 +316,16 @@ değişiklik henüz kalıcı değildir.
 
   Bash biçimindeki `VAR=1 python ...` örneği KALDIRILDI; Windows PowerShell'de çalışmaz.
 
-  **Hala OLCULMEYENLER:** `0xe24c4a02`'nin kaynak native modülü, istisna anındaki native stack ve yüklü modül adresi, kullanıcıya görünen etki ve olgunun sıklığı. Ölçülen şey yalnızca **bir** koşumdur.
+  **Hala OLCULMEYENLER:** `0xe24c4a02` ile taşınan asıl Lua hata mesajı ve onu doğuran Lua çağrısı, kullanıcıya görünen etki ve olgunun sıklığı. Ölçülen şey yalnızca **bir** ürün koşumu ve onun tek debugger kaydıdır.
 
   **SIRADAKI TEKNIK ADIM — AYRI KULLANICI ONAYI GEREKIR (bu turda YAPILMADI):**
   - Yeni native koşum **YAPILMAZ** ve ürün düzeltmesi **YAPILMAZ**; önce teşhis planı onaylanır.
-  - Amaç: istisna anındaki **native modül adı**, **native stack** ve **yüklü modülün bellek adresi** belirlenecek — first-chance exception'ı yakalayan bir debugger ile (ör. WinDbg/CDB `sxe -c` ile `0xe24c4a02`, `lm`/`!analyze -v`), mpv/FFmpeg sembolleri elde edilebildiği ölçüde.
-  - Debugger koşumu gerçek pencere ve gerçek medya kullanacağı için **ayrıca onay ister**; teşhis salt-okunur olmalı, ürün kodu değiştirilmemelidir.
+  - Amaç: LuaJIT taşımasının içindeki **asıl Lua hata metni ve çağrı kaynağı** belirlenecek; mevcut debugger kanıtı yeniden koşulmadan önce salt-okunur yöntem ve yakalama planı ayrıca onaylanacaktır.
+  - Yeni debugger/native koşumu gerçek pencere ve gerçek medya kullanacağı için **ayrıca onay ister**; ürün kodu değiştirilmemelidir.
   - **4K / H.265 kabulü ancak kök neden düzeltmesinden SONRA yapılacaktır.**
 
-- **Kalan risk:** **Canlı kabul BAŞARISIZDIR ve kök neden AÇIKTIR.** Olay gerçek ürün kapanış yolunda, faulthandler açıkken, tek koşumda dokuz kez görüldü; buna rağmen kapanış sözleşmesinin tamamı (stop/terminate sırası, thread 0, exec 0) sağlandı. Bu ikisi birlikte, olgunun **görünür etkisi ölçülemeden** var olduğunu gösterir. **Tek native koşum, aralıklı kusurun tamamen bittiğini İSPATLAMAZ.** Ayrıca bu kaydın ilk hâli bağımsız denetimde REDDEDİLDİ; "hedef testler yeşil" tek başına yeterli kanıt olmadı — sıraya bağımlı bir iddia, eksik kapsama ve aklanan bir hata ancak dış denetimle görüldü. Olgu ölçümlerde ~%20-40 sıklıkla görülmüştü; bir yeşil koşum bunu dışlamaz. İstisna artık child'da oluşursa üst test FAIL verir — yani gizlenmez, ama **önlenmiş de değildir**. `module`-scoped fixture'a bilerek geçilmedi: instance sayısını azaltmak olguyu gizler, çözmez.
-- **Commit durumu:** Aşama 1 **COMMIT EDILDI** (`a7ced18`); Aşama 2 **COMMIT BEKLIYOR** — yukarıda sayılan YEDİ dosya çalışma ağacındadır ve iki commit'e ayrılacaktır (dört kapı dosyası + üç kayıt dosyası). Genel bir "COMMIT EDILDI" ifadesi bu kayıt için YANLIŞ olur.
+- **Kalan risk:** **Canlı kabul BAŞARISIZDIR ve asıl Lua hatası AÇIKTIR.** Debugger, olayın LuaJIT `LUA_ERRRUN` taşıması olduğunu ve fault thread dağılımını belirledi; fakat Lua hata metnini, onu doğuran çağrıyı veya kullanıcıya görünen etkiyi belirlemedi. Kapanış sözleşmesi (stop/terminate sırası, thread 0, exec 0) sağlanmış olsa da bu olayın güvenli olduğu anlamına gelmez. İstisna artık child'da oluşursa üst test FAIL verir — gizlenmez, fakat **önlenmiş değildir**.
+- **Commit durumu:** Aşama 1 **COMMIT EDILDI** (`a7ced18`); Aşama 2 **COMMIT EDILDI** (`4ed5c79`, `5c83c05`); bu debugger kanıt ayrıştırması ve kayıt düzeltmesi **COMMIT BEKLIYOR**.
 
 ---
 

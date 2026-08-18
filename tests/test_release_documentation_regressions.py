@@ -543,7 +543,8 @@ def test_the_native_record_separates_the_two_stage_commit_states():
     block = fold(native_record()).upper()
 
     assert "A7CED18" in block, "Asama 1 commit'i (a7ced18) yazilmamis"
-    assert "COMMIT BEKLIYOR" in block, "Asama 2 COMMIT BEKLIYOR yazilmamis"
+    for commit in ("4ED5C79", "5C83C05"):
+        assert commit in block, f"Asama 2 commit'i ({commit}) yazilmamis"
 
     status_line = [line for line in native_record().splitlines()
                    if line.startswith("- **Durum")]
@@ -562,6 +563,42 @@ def test_the_roadmap_summary_does_not_undercount_local_commits():
 
     assert fold("dört yerel commit").lower() not in fold(text).lower(), (
         "ROADMAP hala 'dört yerel commit' diyor; sayi guncel degil")
+
+
+def test_native_record_carries_the_correct_debugger_counts_and_threads():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        for fact in ("14 first-chance", "13 tekrar", "0 second-chance",
+                     "lua/stats", "lua/ytdl_hook", "lua/select"):
+            assert flat(fact) in flattened, f"{label} kaniti eksik: {fact}"
+
+
+def test_native_record_does_not_misidentify_the_fault_thread():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        assert "MPVEventHandlerThread kaynak thread" not in block, (
+            f"{label} fault thread'i yanlis adlandiriyor")
+        assert "fault thread: `lua/stats`" in block, (
+            f"{label} gercek fault thread'i yazmiyor")
+
+
+def test_native_record_classifies_the_code_from_primary_sources():
+    block = native_record()
+
+    for fact in ("LJ_EXCODE", "0xe24c4a00", "LUA_ERRRUN", "mpv-2.dll"):
+        assert fact in block, f"NATIVE-001 siniflandirmasi eksik: {fact}"
+    for url in ("github.com/LuaJIT/LuaJIT/blob/v2.1/src/lj_err.c",
+                "github.com/LuaJIT/LuaJIT/blob/v2.1/src/lua.h",
+                "github.com/mpv-player/mpv/blob/master/DOCS/man/lua.rst"):
+        assert url in block, f"NATIVE-001 birincil kaynagi eksik: {url}"
+
+
+def test_native_record_preserves_the_approval_chain_violation():
+    block = flat(native_record())
+
+    assert flat("bağımsız denetime sunulmadan") in block
+    assert flat("onay zinciri ihlali") in block
 
 
 # =====================================================================

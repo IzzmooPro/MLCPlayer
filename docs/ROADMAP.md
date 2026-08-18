@@ -136,7 +136,7 @@ regresyonlar artık aynı tam paket sonucunda birlikte yeşildir.
 
 - **Durum:** GORUNURLUK KUSURU KAPATILDI (HEDEF TESTLERLE DOGRULANDI, COMMIT EDILDI); **CANLI KABUL BASARISIZ (18 Ağustos 2026)**; **kök neden ve ürün etkisi AÇIK**
 - **Bagimlilik:** yok — commit'i beklemez
-- **Olcut:** (a) native istisna artık sessizce geçemez → **sağlandı**; (b) ürün kapanış yolunda tek yalıtılmış canlı kabul → **koşum YAPILDI ve BAŞARISIZ**; kapı hedef testlerle hazır fakat hâlâ COMMIT EDİLMEDİ; (c) kök neden bulunmuş ya da bilinçli kabul edilmiş → **sağlanmadı**
+- **Olcut:** (a) native istisna artık sessizce geçemez → **sağlandı ve commit edildi**; (b) ürün kapanış yolunda tek yalıtılmış canlı kabul → **koşum YAPILDI ve BAŞARISIZ**; (c) LuaJIT taşıması sınıflandırıldı, fakat asıl Lua hatası bulunmuş ya da bilinçli kabul edilmiş değil → **sağlanmadı**
 - **Kullanici onayi:** gerçek-mpv/native koşum için **gerekir**
 
 Ayrıntılı kayıt: `docs/ENGINEERING_AUDIT.md` → **NATIVE-001**.
@@ -169,7 +169,8 @@ tam paket içinde çalıştığını gösterir; native kök nedeni veya ürün
 muafiyeti kanıtı değildir.
 
 **Aşama 2 (18 Ağustos 2026): ürün kapanış yolu kabul kapısı HEDEF
-TESTLERLE HAZIR, COMMIT BEKLIYOR; CANLI KABUL BAŞARISIZ.** Mevcut
+TESTLERLE HAZIR ve COMMIT EDILDI (`4ed5c79`, `5c83c05`); CANLI KABUL
+BAŞARISIZ.** Mevcut
 `tests/native_player_shutdown_child.py` üzerinden
 `player.close() -> closeEvent() -> stop() -> terminate()` yolunu ölçen saf
 bir kapı eklendi; faulthandler artık PyQt/mpv importundan ÖNCE ve
@@ -212,10 +213,22 @@ olay faulthandler açıkken gerçek ürün yolunda görüldü. Ancak bu tek koş
 kullanıcıya görünen bir çökme/donma kanıtı DEĞİLDİR; child normal biçimde
 exit 0 verdi. Olay **zararsız veya güvenli sayılamaz**.
 
+**Debugger kanıt düzeltmesi (yeni native koşum yok):** komut yankısındaki
+marker metinleri olay sayılmadan yapılan kesin ayrıştırma **14 first-chance**,
+**13 tekrar**, **0 second-chance** verdi. İlk fault thread: `lua/stats`;
+dağılım `lua/stats` = 2, `lua/ytdl_hook` = 1, `lua/select` = 11.
+`MPVEventHandlerThread` logda vardır fakat kaynak fault thread değildir.
+Birincil LuaJIT kaynaklarına göre kod, `LJ_EXCODE = 0xe24c4a00` tabanı ile
+`LUA_ERRRUN = 2` birleşimidir: `0xe24c4a02` gömülü LuaJIT'in çalışma-zamanı
+hatasını Windows SEH üzerinden taşıdığını gösterir; tek başına “mpv-2.dll
+çöktü” veya second-chance kanıtı değildir. Asıl Lua hata metni ve çağrı
+kaynağı hâlâ açıktır. Kabul kapısı gevşetilmedi; bu özel iz doğru adla FAIL,
+diğer fatal kodlar genel fail-closed korumayla FAIL olur.
+
 **Sıradaki teknik adım (AYRI KULLANICI ONAYI GEREKİR):** yeni native koşum
-ve ürün düzeltmesi YAPILMAZ; önce first-chance exception'ı yakalayan bir
-debugger ile istisna anındaki **native modül + stack + yüklü modül adresi**
-belirlenecek. **4K/H.265 kabulü ancak kök neden düzeltmesinden sonra.**
+ve ürün düzeltmesi YAPILMAZ; önce LuaJIT taşımasının içindeki **asıl Lua hata
+metni ve çağrı kaynağını** yakalama yöntemi onaylanacak. **4K/H.265 kabulü
+ancak kök neden düzeltmesinden sonra.**
 
 **Talimat ihlali (gizlenmiyor):** bir önceki turun mutasyon koşumunda
 "medya türü denetimi yok" varyantı gerçek child'ı bir kez, yaklaşık
@@ -230,13 +243,12 @@ düğümü denetliyordu; `run_native_shutdown()` doğrudan çağrılırsa geçer
 bir `.mkv` ile açık izin olmadan süreç başlatabiliyordu. Deterministik
 sonuç: **268 passed, 1 deselected**.
 
-**Commit durumu:** Aşama 1 COMMIT EDILDI (`a7ced18`); **Aşama 2'nin YEDİ
-dosyası commit EDİLMEDİ**, çalışma ağacındadır ve iki commit'e ayrılacaktır:
-`test: add product shutdown native acceptance gate` (dört kapı dosyası) ve
-`docs: record failed native shutdown acceptance` (iki belge + belge
-regresyon testi). Ayrıntılı liste: `docs/ENGINEERING_AUDIT.md` → NATIVE-001.
+**Commit durumu:** Aşama 1 COMMIT EDILDI (`a7ced18`); Aşama 2'nin YEDİ
+dosyası iki commit ile tamamlandı: `4ed5c79` ve `5c83c05`. Debugger kanıt
+ayrıştırması ve bu kayıt düzeltmesi COMMIT BEKLIYOR. Ayrıntılı liste:
+`docs/ENGINEERING_AUDIT.md` → NATIVE-001.
 
-**Kapatılmayan:** istisnayı doğuran native modül belirlenmedi ve ürüne
+**Kapatılmayan:** LuaJIT'in taşıdığı asıl Lua hatası belirlenmedi ve ürüne
 görünen etki ölçülmedi. Canlı kabul **başarısızdır**; olgu artık gerçek
 ürün kapanış yolunda kanıtlanmıştır. **Tek koşum, ne olgunun bittiğini ne
 de zararsız olduğunu ispatlar.** Yayına hazırlık ölçütlerinden biri olmaya
