@@ -1682,6 +1682,13 @@ belirli bir scriptin suçlu olduğunu veya JIT trace abort yolunu
 **kanıtlamaz**. Yalnız built-in script ilişkisi hipotezini güçlendirir.
 Canlı sonuç kaydı **COMMIT BEKLIYOR**.
 
+**`stats_ytdl` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** yalnız bu
+profil **1 passed / pytest exit 0**; otomatik tekrar yapılmadı. Child stderr
+**0 bayt**, `0xe24c4a02` sayısı **0**; trace görünürlüğü stats 6,
+ytdl_hook 7, select 0 olarak ölçüldü. Medya boyutu ve mtime değişmedi,
+kapanış tamamlandı ve artık süreç kalmadı. Bu tek negatif örnek grubu elemez;
+ürün düzeltmesi değildir. Sonuç kaydı **COMMIT BEKLIYOR**.
+
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 
 Sıra: `v0.3` → **`v0.31`** → `v0.32` … Ara sürümler ikinci haneye eklenir.

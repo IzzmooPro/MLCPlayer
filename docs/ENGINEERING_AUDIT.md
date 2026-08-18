@@ -315,6 +315,14 @@ değişiklik henüz kalıcı değildir.
 
   Aralıklı olayda **tek negatif** sonuç **eleme kanıtı değildir**. Her gerçek koşum **AYRI KULLANICI ONAYI** ve önceden belirlenmiş bütçe ister; bu turda **YENİ NATIVE KOSUM YAPILMADI**. İlgili native/trace/shutdown/player/belge paketleri birlikte **645 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir. Kapı ve kayıt değişiklikleri **COMMIT BEKLIYOR**.
 
+  **`stats_ytdl` bisection ONAY B — TEK KOSUM (18 Ağustos 2026): pytest exit 0 / 1 passed.** Bilinen Resident Alien videosuyla yalnız bu profil bir kez çalıştırıldı; **otomatik tekrar yapılmadı**, CDB kullanılmadı ve `select` koşumu yapılmadı. Marker profili doğru bildirdi. Trace görünürlüğü tam hedefe uydu: stats 6, ytdl_hook 7, select 0, diğer bilinen built-in modüller 0; bisection değerlendiricisi `[]` döndürdü. Child stderr **0 bayt**, `0xe24c4a02` sayısı **0**, overflow/fatal/error 0; kapanış marker'ları tamamlandı, kalan MPV thread 0 ve artık child/pytest süreci yoktu.
+
+  Medya salt-okunur kaldı: boyut önce/sonra **2.651.661.814** bayt, `mtime` ticks önce/sonra **638811093472871806**. Trace **2.316.712 bayt / 31.672 satır**, SHA-256 `8B2E8B35453ECCC7EC5E81D11E70CA2A6AD09053110EBE65C3CBA370A6FDB9BB`; child stdout **996 bayt**, SHA-256 `0F9C71848625D6936FD9E844D871564DE338139668FDA3A70B8CB1532A3280BF`; boş child stderr SHA-256 `E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`. Geçici çıktılar kalıcı repo artifact'i değildir.
+
+  **Kanıt düzeltmesi:** İlk regex sayımı geçersizdi; trace köşeli parantezleri arasında boşluk varsaydığı için etkin `stats`/`ytdl_hook` satırlarını yanlışlıkla 0 saydı. Bu sonuç **kanıt olarak kullanılmadı**. Gerçek satır biçimi doğrudan okunup ortak değerlendiriciyle çaprazlandı ve yukarıdaki 6/7/0 sayıları alındı.
+
+  **Sınır ve sonraki adım:** Bu tek negatif örnek `stats_ytdl` grubunu **elemez** ve belirli bir scripti ya da JIT yolunu aklamaz. İlk bütçenin ikinci profili olan `select` profili **AYRI ONAY B** ister; select koşumu yapılmadı. Kayıt sonrası ilgili deterministik paketler **648 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir. Sonuç kaydı **COMMIT BEKLIYOR**.
+
   Kabul kapısı gevşetilmedi: tam `Windows fatal exception: code 0xe24c4a02` izi artık genel “fatal” etiketi yerine **LuaJIT / LUA_ERRRUN SEH izi** olarak sınıflandırılır; stderr boş olmadığı için sonuç yine FAIL'dir. Diğer Windows fatal kodları genel fail-closed korumada kalır.
 
   **ONAY A — exact PDB uygunluk denetimi (18 Ağustos 2026; native koşum yok):** GitHub Actions workflow run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`) indirildi. Artifact arşivi `mpv-debug-x86_64-20260814-git-7b8915bc1d.7z`, 57.309.570 bayt ve SHA-256 `873EF06F0996F993120F7633099A18CD1011CF4CDBE139CBE21A8F0575866787`; arşiv **yalnız `mpv.pdb`** içeriyor.

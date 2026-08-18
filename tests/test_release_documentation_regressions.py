@@ -791,6 +791,60 @@ def test_script_bisection_record_does_not_treat_one_negative_as_exclusion():
         assert "HER GERCEK KOSUM AYRI KULLANICI ONAYI" in flattened, label
 
 
+def test_stats_ytdl_bisection_result_is_recorded_in_all_status_documents():
+    documents = (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    )
+    for label, block in documents:
+        assert "stats_ytdl" in block, label
+        assert "ytdl_hook 7" in flat(block), label
+        flattened = plain(block)
+        for fact in (
+            "BISECTION ONAY B",
+            "TEK KOSUM",
+            "1 PASSED",
+            "PYTEST EXIT 0",
+            "CHILD STDERR 0 BAYT",
+            "0XE24C4A02 SAYISI 0",
+            "STATS 6",
+            "SELECT 0",
+            "OTOMATIK TEKRAR YAPILMADI",
+            "SONUC KAYDI COMMIT BEKLIYOR",
+        ):
+            assert fact in flattened, f"{label} stats_ytdl sonucu eksik: {fact}"
+
+
+def test_stats_ytdl_record_carries_exact_artifact_evidence():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        for fact in (
+            "648 passed, 4 skipped",
+            "2.316.712 bayt",
+            "31.672 satır",
+            "8B2E8B35453ECCC7EC5E81D11E70CA2A6AD09053110EBE65C3CBA370A6FDB9BB",
+            "0F9C71848625D6936FD9E844D871564DE338139668FDA3A70B8CB1532A3280BF",
+            "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+            "2.651.661.814",
+            "638811093472871806",
+        ):
+            assert flat(fact) in flattened, (
+                f"{label} stats_ytdl artifact kaniti eksik: {fact}")
+
+
+def test_stats_ytdl_record_discards_the_bad_regex_and_bounds_the_result():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = plain(block)
+        assert "ILK REGEX SAYIMI GECERSIZ" in flattened, label
+        assert "KANIT OLARAK KULLANILMADI" in flattened, label
+        assert "GRUB" in flattened and "ELEMEZ" in flattened, label
+        assert "SELECT PROFILI AYRI ONAY B" in flattened, label
+        assert "SELECT KOSUMU YAPILMADI" in flattened, label
+
+
 def test_project_status_marks_the_old_harmless_conclusion_as_superseded():
     text = read(PROJECT_STATUS_DOC)
     start = text.index("## Kapanış erişim ihlali")

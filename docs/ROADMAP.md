@@ -294,6 +294,29 @@ otomatik yetkilendirilmiş değildir. Aralıklı olayda **tek negatif** sonuç
 gerçek opt-in düğümleridir. Kapı ve kayıt değişiklikleri **COMMIT BEKLIYOR**.
 **4K/H.265 kabulü ancak kök neden düzeltmesinden sonra.**
 
+**`stats_ytdl` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest
+exit 0 / **1 passed**; otomatik tekrar yapılmadı, CDB kullanılmadı ve
+`select` koşumu yapılmadı. Trace profili doğruladı: stats 6, ytdl_hook 7,
+select 0, diğer bilinen built-in modüller 0. Child stderr **0 bayt**,
+`0xe24c4a02` sayısı **0**, overflow/fatal/error 0; kapanış tamamlandı,
+kalan MPV thread ve artık süreç yoktu. Medya boyutu **2.651.661.814** bayt,
+`mtime` ticks **638811093472871806** olarak önce/sonra değişmedi.
+
+Trace **2.316.712 bayt / 31.672 satır**, SHA-256
+`8B2E8B35453ECCC7EC5E81D11E70CA2A6AD09053110EBE65C3CBA370A6FDB9BB`;
+child stdout SHA-256
+`0F9C71848625D6936FD9E844D871564DE338139668FDA3A70B8CB1532A3280BF`;
+boş child stderr SHA-256
+`E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`.
+
+İlk regex sayımı geçersizdi: köşeli parantezler arasında boşluk varsayıp
+etkin modülleri 0 gösterdi ve **kanıt olarak kullanılmadı**. Gerçek satırlar
+ve ortak değerlendirici 6/7/0 sonucunu doğruladı. Bu tek negatif sonuç grubu
+**elemez**. İlk bütçenin `select` profili **AYRI ONAY B** ister; select koşumu
+yapılmadı. Kayıt sonrası ilgili deterministik paketler **648 passed, 4
+skipped**; dört skip gerçek opt-in düğümleridir. Sonuç kaydı **COMMIT
+BEKLIYOR**.
+
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,
 arşiv SHA-256 `873EF06F0996F993120F7633099A18CD1011CF4CDBE139CBE21A8F0575866787`)
