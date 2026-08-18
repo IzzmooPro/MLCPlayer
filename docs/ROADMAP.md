@@ -17,7 +17,7 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
 testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
 ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
-`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **beş
+`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **sekiz
 commit** ilerisindedir ve **push yapılmadı**. Güncel tam paket
 **3992 passed / 17 skipped / 0 failed**, exit 0 ve stderr boştur. **Push
 yapılmadı**; canlı bir build/yayın koşumu da yapılmadı. Sıradaki teknik
@@ -230,6 +230,23 @@ ve ürün düzeltmesi YAPILMAZ; önce LuaJIT taşımasının içindeki **asıl L
 metni ve çağrı kaynağını** yakalama yöntemi onaylanacak. **4K/H.265 kabulü
 ancak kök neden düzeltmesinden sonra.**
 
+**ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
+run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,
+arşiv SHA-256 `873EF06F0996F993120F7633099A18CD1011CF4CDBE139CBE21A8F0575866787`)
+**yalnız `mpv.pdb`** taşıyor. Repo `mpv-2.dll` CodeView kimliği
+`C2123266-4DC7-8196-4C4C-44205044422E` / age 1; indirilen PDB kimliği
+`83981475-63BC-A938-4C4C-44205044422E` / age 1. PDB, aynı workflow'un
+`mpv.exe` dosyasıyla `symchk /pf` denetiminden geçti; `mpv-2.dll` için
+**mismatched** sonucu verdi. Böylece **exact `libmpv-2.pdb` elde edilemedi**
+ve özel sembol koşumu için **ONAY B ENGELLENDI**. Fail-closed geçici harness
+statik preflight'tan geçti; CDB hedefi, Python child, MLC Player, mpv, PyQt
+ve video çalıştırılmadı. Ayrıntılı kanıt `ENGINEERING_AUDIT.md` içindedir.
+
+Exact DLL PDB'si üreticiden sağlanmadan özel sembol harness'i çalıştırılmaz.
+Bir sonraki uygulanabilir seçenek, ürün koduna dokunmadan diagnostic child'da
+mpv trace logunu açacak ayrı kapının önce deterministik/statik testlerle
+hazırlanmasıdır; gerçek native/video koşumu yine ayrı ONAY B ister.
+
 **Talimat ihlali (gizlenmiyor):** bir önceki turun mutasyon koşumunda
 "medya türü denetimi yok" varyantı gerçek child'ı bir kez, yaklaşık
 26,8 sn boyunca geçersiz bir `.py` girdisiyle başlattı. **Bu koşum canlı
@@ -245,7 +262,7 @@ sonuç: **268 passed, 1 deselected**.
 
 **Commit durumu:** Aşama 1 COMMIT EDILDI (`a7ced18`); Aşama 2'nin YEDİ
 dosyası iki commit ile tamamlandı: `4ed5c79` ve `5c83c05`. Debugger kanıt
-ayrıştırması ve bu kayıt düzeltmesi COMMIT BEKLIYOR. Ayrıntılı liste:
+ayrıştırması COMMIT EDILDI (`ddcfc40`); bu ONAY A PDB kaydı COMMIT BEKLIYOR. Ayrıntılı liste:
 `docs/ENGINEERING_AUDIT.md` → NATIVE-001.
 
 **Kapatılmayan:** LuaJIT'in taşıdığı asıl Lua hatası belirlenmedi ve ürüne

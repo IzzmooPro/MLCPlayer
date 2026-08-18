@@ -196,7 +196,7 @@ değişiklik henüz kalıcı değildir.
 - **Kimlik:** NATIVE-001
 - **Baslik:** Native `0xe24c4a02` istisnası yeşil pytest sonucunun arkasında gizleniyordu
 - **Onem:** Yüksek — ölümcül görünümlü bir native olay, `exit 0` nedeniyle hiçbir kapıya takılmıyordu
-- **Durum:** KANITLANDI → UYGULANDI → **Aşama 1:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`a7ced18`); **Aşama 2:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → **CANLI KABUL BASARISIZ** (18 Ağustos 2026); **debugger kanıt ayrıştırması:** UYGULANDI → COMMIT BEKLIYOR
+- **Durum:** KANITLANDI → UYGULANDI → **Aşama 1:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`a7ced18`); **Aşama 2:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → **CANLI KABUL BASARISIZ** (18 Ağustos 2026); **debugger kanıt ayrıştırması:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`ddcfc40`); **exact PDB teşhis kapısı:** KANITLANDI → **ONAY B ENGELLENDI**
 - **Kanit (olculen):**
   - `tests/test_cover_art_regressions.py` ANA pytest sürecinde doğrudan `mpv.MPV` kuruyordu; fixture yalnız `terminate()` çağırıyordu (ürün kapanışı `stop() -> terminate()` kullanır).
   - Bağımsız dosya koşumu: **3 passed / exit 0**, buna rağmen stderr'de
@@ -291,6 +291,14 @@ değişiklik henüz kalıcı değildir.
 
   Kabul kapısı gevşetilmedi: tam `Windows fatal exception: code 0xe24c4a02` izi artık genel “fatal” etiketi yerine **LuaJIT / LUA_ERRRUN SEH izi** olarak sınıflandırılır; stderr boş olmadığı için sonuç yine FAIL'dir. Diğer Windows fatal kodları genel fail-closed korumada kalır.
 
+  **ONAY A — exact PDB uygunluk denetimi (18 Ağustos 2026; native koşum yok):** GitHub Actions workflow run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`) indirildi. Artifact arşivi `mpv-debug-x86_64-20260814-git-7b8915bc1d.7z`, 57.309.570 bayt ve SHA-256 `873EF06F0996F993120F7633099A18CD1011CF4CDBE139CBE21A8F0575866787`; arşiv **yalnız `mpv.pdb`** içeriyor.
+
+  Repo `bin/mpv-2.dll` dosyasının SHA-256'sı manifest ile aynı: `F709C7CA8B183BEC76B8158BF0C45C53018C63366750729352612F228FF7BDEA`. DLL'in CodeView kimliği `C2123266-4DC7-8196-4C4C-44205044422E`, age 1 ve beklediği ad `libmpv-2.pdb`. İndirilen `mpv.pdb` kimliği ise `83981475-63BC-A938-4C4C-44205044422E`, age 1. Yeniden adlandırılmış kopya da `symchk` tarafından `mpv-2.dll` için **mismatched** olarak reddedildi (exit 1).
+
+  PDB'nin kaynağı ayrıca bağımsız ölçüldü: aynı workflow'un normal artifact'indeki `mpv.exe` ile `symchk /pf` denetiminden geçti (exit 0; private semboller, satır ve tip bilgisi mevcut). `lj_err_run`, `lj_err_throw`, `lua_State`, `TValue` ve `GCstr` bulunuyor; fakat bunlar `mpv.exe` PDB'sindedir ve repo DLL'inin adres/simge kanıtı olarak kullanılamaz. Sonuç: **exact `libmpv-2.pdb` elde edilemedi**; yayımlanan debug artifact DLL PDB'sini taşımıyor.
+
+  Geçici harness yalnız ön hazırlık olarak fail-closed bırakıldı: exact GUID/age ve `symchk /pf` geçmeden runner kontrollü olarak durur; statik preflight geçti. **ONAY B ENGELLENDI.** ONAY A sırasında CDB hedefi, Python child, MLC Player, mpv, PyQt ve video **çalıştırılmadı**; run sentinel, debugger logu ve child çıktısı oluşmadı. Geçici klasör kalıcı artifact değildir ve mutlak kullanıcı yolu kayda alınmaz.
+
   **Süreç ihlali kaydı:** geçici harness, ilk kodlama ön testinden sonra **bağımsız denetime sunulmadan** değiştirildi ve çalıştırıldı. İkinci CDB koşumu yapılmamış ve repo değişmemiş olsa da bu bir **onay zinciri ihlali**dir; raporun thread ve second-chance yorumları bu yüzden ayrıca bağımsız ayrıştırmayla doğrulanmıştır.
 
   **Commit durumu (asamalara gore):**
@@ -319,13 +327,13 @@ değişiklik henüz kalıcı değildir.
   **Hala OLCULMEYENLER:** `0xe24c4a02` ile taşınan asıl Lua hata mesajı ve onu doğuran Lua çağrısı, kullanıcıya görünen etki ve olgunun sıklığı. Ölçülen şey yalnızca **bir** ürün koşumu ve onun tek debugger kaydıdır.
 
   **SIRADAKI TEKNIK ADIM — AYRI KULLANICI ONAYI GEREKIR (bu turda YAPILMADI):**
-  - Yeni native koşum **YAPILMAZ** ve ürün düzeltmesi **YAPILMAZ**; önce teşhis planı onaylanır.
-  - Amaç: LuaJIT taşımasının içindeki **asıl Lua hata metni ve çağrı kaynağı** belirlenecek; mevcut debugger kanıtı yeniden koşulmadan önce salt-okunur yöntem ve yakalama planı ayrıca onaylanacaktır.
-  - Yeni debugger/native koşumu gerçek pencere ve gerçek medya kullanacağı için **ayrıca onay ister**; ürün kodu değiştirilmemelidir.
+  - Exact `libmpv-2.pdb` üreticiden sağlanmadan özel sembol harness'iyle native koşum **YAPILMAZ**.
+  - PDB beklenmeden ilerlemek için alternatif, ürün kodunu değiştirmeyen diagnostic child'da mpv trace logunu açıp Lua hata metni/script kaynağını yakalayan ayrı bir kapıdır; önce deterministik ve statik testleri yazılır.
+  - Yeni debugger/native koşumu gerçek pencere ve gerçek medya kullanacağı için **ayrıca ONAY B ister**; ürün kodu değiştirilmemelidir.
   - **4K / H.265 kabulü ancak kök neden düzeltmesinden SONRA yapılacaktır.**
 
 - **Kalan risk:** **Canlı kabul BAŞARISIZDIR ve asıl Lua hatası AÇIKTIR.** Debugger, olayın LuaJIT `LUA_ERRRUN` taşıması olduğunu ve fault thread dağılımını belirledi; fakat Lua hata metnini, onu doğuran çağrıyı veya kullanıcıya görünen etkiyi belirlemedi. Kapanış sözleşmesi (stop/terminate sırası, thread 0, exec 0) sağlanmış olsa da bu olayın güvenli olduğu anlamına gelmez. İstisna artık child'da oluşursa üst test FAIL verir — gizlenmez, fakat **önlenmiş değildir**.
-- **Commit durumu:** Aşama 1 **COMMIT EDILDI** (`a7ced18`); Aşama 2 **COMMIT EDILDI** (`4ed5c79`, `5c83c05`); bu debugger kanıt ayrıştırması ve kayıt düzeltmesi **COMMIT BEKLIYOR**.
+- **Commit durumu:** Aşama 1 **COMMIT EDILDI** (`a7ced18`); Aşama 2 **COMMIT EDILDI** (`4ed5c79`, `5c83c05`); debugger kanıt ayrıştırması ve kayıt düzeltmesi **COMMIT EDILDI** (`ddcfc40`); bu ONAY A PDB kaydı **COMMIT BEKLIYOR**.
 
 ---
 

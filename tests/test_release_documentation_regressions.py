@@ -657,3 +657,87 @@ def test_the_stale_six_file_scope_is_gone(stale):
                            ("ROADMAP", roadmap_native_section())):
         assert flat(stale) not in flat(section), (
             f"{label} bayat kapsami hala tasiyor: {stale}")
+
+
+# =====================================================================
+# NATIVE-001 ONAY A: exact libmpv PDB uygunluk kapisi
+# =====================================================================
+#
+# OLCULEN OLGU (18 Agustos 2026): workflow run 31755832255 icindeki
+# `mpv-x86_64-debug` artifact'i yalniz `mpv.pdb` tasiyor. Bu PDB ayni
+# workflow'un mpv.exe dosyasiyla private-symbol denetiminden gecer; repo
+# bin/mpv-2.dll dosyasiyla GUID/age bakimindan ESLESMEZ. Yanlis PDB ile
+# ONAY B kosumu baslatilamaz.
+
+
+def test_native_record_names_the_exact_debug_artifact_and_hash():
+    block = native_record()
+
+    for fact in (
+        "31755832255",
+        "9203486934",
+        "mpv-x86_64-debug",
+        "873EF06F0996F993120F7633099A18CD1011CF4CDBE139CBE21A8F0575866787",
+    ):
+        assert fact in block, f"ONAY A artifact kaniti eksik: {fact}"
+
+
+def test_native_record_carries_both_codeview_identities():
+    block = native_record()
+
+    for identity in (
+        "C2123266-4DC7-8196-4C4C-44205044422E",
+        "83981475-63BC-A938-4C4C-44205044422E",
+    ):
+        assert identity in block, f"CodeView GUID kaydi eksik: {identity}"
+    assert "age 1" in block
+
+
+def test_native_record_proves_the_downloaded_pdb_belongs_to_mpv_exe():
+    block = flat(native_record())
+
+    assert "`mpv.exe`" in native_record()
+    assert "`symchk /pf`" in native_record()
+    assert "`mpv-2.dll`" in native_record()
+    assert "mismatched" in block
+
+
+def test_native_record_does_not_claim_the_exact_libmpv_pdb_was_obtained():
+    block = flat(native_record())
+
+    assert "exact `libmpv-2.pdb` elde edilemedi" in native_record()
+    assert "yalnız `mpv.pdb`" in native_record()
+
+
+def test_native_record_blocks_onay_b_without_the_exact_pdb():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        folded = fold(flat(block)).upper()
+        assert "ONAY B" in folded, f"{label} ONAY B sinirini yazmiyor"
+        assert "ENGELLENDI" in folded, f"{label} ONAY B'yi engellemiyor"
+
+
+def test_native_record_says_no_native_target_was_started_in_onay_a():
+    block = flat(native_record())
+
+    for process in ("CDB hedefi", "Python child", "MLC Player", "mpv",
+                    "PyQt", "video"):
+        assert flat(process) in block, f"ONAY A calistirmama kaniti eksik: {process}"
+    assert flat("çalıştırılmadı") in block
+
+
+def test_debugger_parser_commit_is_recorded_as_committed():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        folded = fold(flat(block)).upper()
+        assert "DDCFC40" in folded, f"{label} debugger commit'ini yazmiyor"
+        assert flat("debugger kanıt ayrıştırması") in flat(block)
+
+    assert "debugger kanıt ayrıştırması ve kayıt düzeltmesi **COMMIT BEKLIYOR**" not in native_record()
+
+
+def test_roadmap_snapshot_has_the_measured_local_commit_count():
+    text = fold(flat(read(ROADMAP_DOC))).lower()
+
+    assert "sekiz commit" in text, "ROADMAP guncel ahead=8 olcumunu tasimiyor"
+    assert "bes commit" not in text, "ROADMAP hala bayat ahead=5 sayisini tasiyor"
