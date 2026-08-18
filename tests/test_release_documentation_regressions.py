@@ -499,6 +499,14 @@ def roadmap_native_section():
     return section
 
 
+def project_status_native_section():
+    """`PROJECT_STATUS.md` icindeki guncel kapanis bolumu."""
+    text = read(PROJECT_STATUS_DOC)
+    start = text.index("## Kapanış erişim ihlali")
+    end = text.index("## Sürüm numaralandırma", start)
+    return text[start:end]
+
+
 STALE_CLAIMS = (
     "Geçerli gerçek medya ile canlı koşum YAPILMADI",
     "hiçbir canlı ölçüm yoktur",
@@ -510,6 +518,11 @@ STALE_CLAIMS = (
 def flat(text):
     """Bosluklari tekillestirir: satir sonuna bolunen cumle de yakalanir."""
     return " ".join(fold(text).lower().split())
+
+
+def plain(text):
+    """Markdown vurgusundan bagimsiz semantik metin."""
+    return re.sub(r"[`*_]", "", flat(text)).upper()
 
 
 @pytest.mark.parametrize("claim", STALE_CLAIMS)
@@ -665,7 +678,8 @@ def test_script_ablation_phase_records_the_latest_deterministic_result():
         assert "608 PASSED, 4 SKIPPED" in flattened, label
         assert "ABLATION ASAMASI" in flattened, label
         assert "CANLI KOSUM YAPILMADI" in flattened, label
-        assert "COMMIT BEKLIYOR" in flattened, label
+        assert "COMMIT EDILDI" in flattened, label
+        assert "583BB3D" in flattened, label
 
 
 @pytest.mark.parametrize("path", [
@@ -681,6 +695,66 @@ def test_script_ablation_phase_records_its_exact_seven_file_scope(path):
     for label, block in (("ENGINEERING_AUDIT", native_record()),
                          ("ROADMAP", roadmap_native_section())):
         assert path in block, f"{label} ablation kapsami eksik: {path}"
+
+
+def test_script_ablation_live_result_is_recorded_in_all_status_documents():
+    documents = (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    )
+    for label, block in documents:
+        flattened = plain(block)
+        for fact in (
+            "BUILT-IN SCRIPT ABLATION ONAY B",
+            "TEK KOSUM",
+            "1 PASSED",
+            "PYTEST EXIT 0",
+            "CHILD STDERR 0 BAYT",
+            "0XE24C4A02 SAYISI 0",
+            "BUILT-IN LUA MODULU 0",
+            "OTOMATIK TEKRAR YAPILMADI",
+            "SONUC KAYDI COMMIT BEKLIYOR",
+        ):
+            assert fact in flattened, f"{label} ablation sonucu eksik: {fact}"
+
+
+def test_script_ablation_live_record_carries_artifact_integrity_evidence():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        for fact in (
+            "611 passed, 4 skipped",
+            "2.367.767 bayt",
+            "32.416 satır",
+            "8F3E1EB01A9EB506D9977880E0DB9EE0F5A07381426CA920593A57A6FF42C1D1",
+            "CC316FB8DE055F8F578F89A50CA220E4E75ABE925B22C2A7B36AF189F772D72F",
+            "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+            "2.651.661.814",
+            "638811093472871806",
+        ):
+            assert flat(fact) in flattened, (
+                f"{label} ablation kaniti eksik: {fact}")
+
+
+def test_script_ablation_live_record_keeps_the_interpretation_bounded():
+    documents = (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    )
+    for label, block in documents:
+        flattened = plain(block)
+        assert "KOK NEDEN ACIK" in flattened, label
+        assert "URUN DUZELTMESI DEGILDIR" in flattened, label
+        assert "BELIRLI BIR SCRIPT" in flattened, label
+        assert "KANITLAMAZ" in flattened, label
+
+    roadmap = plain(roadmap_native_section())
+    assert "ONCE HAZIRLANAN BUILT-IN SCRIPT ABLATION KOSUMU" not in roadmap
+    assert "SCRIPT-BISECTION" in roadmap
+    assert "YENI NATIVE KOSUM YAPILMADI" in roadmap
+    assert "AYRI KULLANICI ONAYI" in roadmap
 
 
 def test_project_status_marks_the_old_harmless_conclusion_as_superseded():

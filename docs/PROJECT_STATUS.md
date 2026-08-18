@@ -1670,9 +1670,17 @@ Eski “yalnız gerçek pencere + `vo=gpu` yıkımı” hipotezi de kesin tanı 
 `0xe24c4a02` olayları üretti. Exact kaynak bu kodu LuaJIT `LUA_ERRRUN` SEH
 taşımasıyla eşledi; asıl Lua çağrısı ve kullanıcıya görünen etki hâlâ AÇIKTIR.
 
-Sıradaki aday düzeltme (YAPILMADI, ürün değişmezi gereği testsiz
-dokunulmamalı): `terminate()` öncesinde video çıkışının pencereden
-ayrılması. Denemesi iki GUI child koşumu gerektirir.
+**Built-in script ablation ONAY B — TEK KOSUM (18 Ağustos 2026):** açık üç
+opt-in ile gerçek ürün kapanış yolunda **1 passed / pytest exit 0**. Otomatik
+tekrar yapılmadı ve CDB kullanılmadı. Child stderr **0 bayt**,
+`0xe24c4a02` sayısı **0**, built-in Lua modülü **0**; kapanış tamamlandı,
+kalan MPV thread ve artık süreç yoktu. Medya boyutu ve mtime değişmedi.
+
+Bu sonuç **ürün düzeltmesi değildir**; kök neden **AÇIK** kalır. Aralıklı
+olayın tek negatif örneği built-in scriptlerin gerekli koşul olduğunu,
+belirli bir scriptin suçlu olduğunu veya JIT trace abort yolunu
+**kanıtlamaz**. Yalnız built-in script ilişkisi hipotezini güçlendirir.
+Canlı sonuç kaydı **COMMIT BEKLIYOR**.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 

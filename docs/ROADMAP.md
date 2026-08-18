@@ -250,16 +250,41 @@ ablation koşumu **AYRI ONAY B** ister ve otomatik tekrarlanmaz.
 
 **Ablation aşaması son doğrulaması (yalnız deterministik):** hedef paketler
 **608 passed, 4 skipped**; dört skip açık opt-in isteyen gerçek native
-düğümlerdir. **CANLI KOSUM YAPILMADI**, video/mpv child/CDB başlatılmadı.
-Aşama **COMMIT BEKLIYOR**. Kesin yedi dosya:
+düğümlerdir. Bu doğrulama sırasında **CANLI KOSUM YAPILMADI**, video/mpv
+child/CDB başlatılmadı. Kapı **COMMIT EDILDI (`583bb3d`)**. Kesin yedi dosya:
 `docs/ENGINEERING_AUDIT.md`, `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`,
 `tests/native_mpv_trace_contract.py`, `tests/native_player_shutdown_child.py`,
 `tests/test_native_mpv_trace_regressions.py`,
 `tests/test_release_documentation_regressions.py`.
 
-**Sıradaki teknik adım (AYRI KULLANICI ONAYI GEREKİR):** yeni native koşum
-ve ürün düzeltmesi YAPILMAZ; önce hazırlanan built-in script ablation koşumu
-ayrıca onaylanacak. **4K/H.265 kabulü ancak kök neden düzeltmesinden sonra.**
+**Built-in script ablation ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest
+exit 0, **1 passed**; otomatik tekrar yapılmadı, CDB kullanılmadı ve ürün
+kodu değişmedi. Child stderr **0 bayt**, `0xe24c4a02` sayısı **0**, built-in
+Lua modülü **0**, overflow/fatal/error sayısı 0; kapanış marker'ları tamam,
+kalan MPV thread 0 ve artık süreç yoktu. Medya boyutu **2.651.661.814** bayt,
+`mtime` ticks **638811093472871806** olarak önce/sonra değişmedi.
+
+Trace **2.367.767 bayt / 32.416 satır**, SHA-256
+`8F3E1EB01A9EB506D9977880E0DB9EE0F5A07381426CA920593A57A6FF42C1D1`;
+child stdout SHA-256
+`CC316FB8DE055F8F578F89A50CA220E4E75ABE925B22C2A7B36AF189F772D72F`;
+boş child stderr SHA-256
+`E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`.
+Geçici çıktılar kalıcı depo artifact'i değildir.
+
+Bu tek negatif örnek **ürün düzeltmesi değildir**; kök neden **AÇIK** kalır.
+Built-in scriptlerin gerekli koşul olduğunu, belirli bir scriptin suçlu
+olduğunu veya JIT trace abort yolunu **kanıtlamaz**. Canlı sonuç kaydı
+**COMMIT BEKLIYOR**. Kayıt sonrası ilgili deterministik paketler
+**611 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir.
+
+**Sıradaki teknik adım:** bu ONAY B dışındaki **YENİ NATIVE KOSUM YAPILMADI**
+ve ürün düzeltmesi bu turda YAPILMAZ. Önce yalnız test tarafında fail-closed bir **script-bisection**
+sözleşmesi tasarlanacak; built-in scriptleri kontrollü gruplar hâlinde yeniden
+açacak ve aralıklı olay için sonlu koşum bütçesini peşinen tanımlayacak. Bu
+tasarımdan sonraki her gerçek koşum yine **AYRI KULLANICI ONAYI** ister ve tek
+negatif örnek nedensellik sayılmaz. **4K/H.265 kabulü ancak kök neden
+düzeltmesinden sonra.**
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,
