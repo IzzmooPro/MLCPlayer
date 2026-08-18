@@ -89,7 +89,8 @@ değişiklik henüz kalıcı değildir.
 - **Degisen dosyalar:** `packaging/build_release.bat`, `tests/test_release_artifact_selection_regressions.py`
 - **Test kaniti:** Eski 9 publishability testi **korundu** (`test_release_guard_regressions.py`, HEAD'e göre değişmemiş); 20 yeni artifact testi eklendi. Toplam **29 passed**. Sürüm/yol türetmesi ayrıca gerçek `cmd` ile doğrulandı (hiçbir şey silmeden).
 - **Canli kabul:** Temiz `6cdacf1` HEAD'i üzerinde `packaging\build_release.bat` **yalnız bir kez** çalıştırıldı ve `DONE` başarı yoluna ulaştı; bu yol betikte `exit /b 0` ile biter. Otomatik tekrar yapılmadı. Kesin v0.37 çıktıları: ana installer **58.255.939 bayt**, SHA-256 `fa0a5f03cbe0f3a42c29fa162648fdabea4efffcbbaef2754d7c2657155474da`; add-on **49.268.164 bayt**, SHA-256 `05937a59c5f0e29b32d15fecc5080351ce65d55720508fc8901a6d347bfaf67b`. Ayrı salt-okunur denetimde `MAIN_SIGNATURE_OK=True` ve `ADDON_SIGNATURE_OK=True`; iki `.sig` de 88 bayt. `verify_build.py --final` ana installer için tekrar exit 0 verdi. Dist EXE `FileVersion/ProductVersion=v0.37`; iki installer Windows alanı `0.37.0.0`.
-- **Kalan risk:** Fiziksel kurulum/kaldırma/ilk açılış kabul matrisi henüz koşulmadı. Build başarılıdır; yayın hazır kabulü değildir.
+- **Fiziksel yükseltme/oynatma kabulü (19 Ağustos 2026):** mevcut `v0.36 -> v0.37` yükseltmesi bir kez yapıldı; ana installer exit 0, add-on exit 0. Kurulu EXE ve iki uninstall kaydı v0.37; kurulu yt-dlp/deno kaynak hash'leriyle birebir. Bilinen Resident Alien medyası bir kez açıldı. **Kullanıcı gözlemi:** “görüntü/ses tamam”, Hakkında v0.37 ve normal X ile temiz kapanış. **Bağımsız ölçüm:** uygulama yanıt veriyordu; kapanıştan sonra kalan süreç 0; medya boyutu **2.651.661.814** ve mtime ticks **638811093472871806** değişmedi. Bu aşamada kaldırma yapılmadı. Önceden kullanıcı ayar anahtarında karşılaştırılabilir değer bulunmadığı için gerçek dolu-ayar yükseltme korunumu ölçülmedi.
+- **Kalan risk:** Kaldırma ve ardından temiz-kurulum kabulü henüz koşulmadı; dolu kullanıcı ayarıyla yükseltme korunumu ölçülmedi. Build ve yükseltme/oynatma başarılıdır; fiziksel matris tamamlanmadan yayın hazır kabulü değildir.
 - **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı **COMMIT BEKLIYOR**.
 
 ---
@@ -123,6 +124,22 @@ değişiklik henüz kalıcı değildir.
 - **Canli kabul:** 19 Ağustos 2026 tek v0.37 build'inde önceki `build/` ve `dist/` vardı; STEP 2 ikisini kaldırdı, yokluklarını doğruladı ve ancak sonra başarı mesajı verdi. Zincir temiz PyInstaller ağacını yeniden üretti. Kilitli klasör hata yolu canlı ölçülmedi.
 - **Kalan risk:** Kilitli klasör senaryosu gerçek Windows'ta yeniden üretilmedi; `rmdir` başarısızlığının bu koşulda gerçekten `if exist` ile yakalandığı ayrıca ölçülmeli.
 - **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı **COMMIT BEKLIYOR**.
+
+---
+
+## REL-006
+
+- **Kimlik:** REL-006
+- **Baslik:** Add-on son kaldırıcı olduğunda boş program klasörü kalıyordu
+- **Onem:** Orta — uygulama ve kayıtlar gitse de Program Files altında artık dizin bırakılıyordu
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → **COMMIT/REBUILD/CANLI RETEST BEKLIYOR**
+- **Kanit:** Fiziksel v0.37 kabulünde ana program önce, add-on sonra kaldırıldı. İki uninstall kaydı 0, kalan süreç 0, kısayollar ve bütün program dosyaları silinmişti; buna rağmen `C:\Program Files\MLC Player` altında **0 öğe / 0 bayt** boş program klasörü kaldı. Kullanıcı ayar ve logları bilinçli olarak korundu.
+- **Kok neden:** Ayrı AppId kullanan add-on kaldırıcı ortak `{app}` dizinindeki kendi dosyalarını kaldırıyor fakat son bileşen olduğunda boş ortak dizini temizleyecek `[UninstallDelete]` kuralı taşımıyordu.
+- **Degisen dosyalar:** `packaging/MLCPlayer_InternetVideo.iss`, `tests/test_internet_video_addon_regressions.py`
+- **Test kaniti:** İlk kırmızı “add-on `[UninstallDelete]` bölümü yok” idi. Minimum kural `Type: dirifempty; Name: "{app}"`; yalnız boş dizini hedefler, etkin kurallarda **filesandordirs yok**. Add-on + artifact + installer-language hedefleri **45 passed**.
+- **Canli kabul:** İlk kaldırmada boş program klasörü kaldı; kaynak düzeltmesi için canlı retest bekliyor. Düzeltme henüz yeniden build edilmedi ve kurulum/kaldırma döngüsünde ölçülmedi.
+- **Kalan risk:** Inno kuralının gerçek yükseltilmiş v0.37 add-on kaldırıcısında boş dizini temizlediği tek fiziksel döngüyle doğrulanmalı; dolu `{app}` dizinini silmediği `dirifempty` semantiğiyle sınırlıdır.
+- **Commit durumu:** COMMIT BEKLIYOR
 
 ---
 

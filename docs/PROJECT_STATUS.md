@@ -1824,6 +1824,26 @@ bilinçli olarak `upx=False`; antivirüs yanlış pozitifleri ve başlangıç s�
 ölçülmeden UPX açılmayacak. Build başarılıdır; fiziksel kurulum/kaldırma/ilk
 açılış kabulü hâlâ bekliyor. Kayıt **COMMIT BEKLIYOR**.
 
+**v0.37 fiziksel yükseltme/oynatma kabulü (19 Ağustos 2026): KISMEN
+BASARILI.** Mevcut `v0.36 -> v0.37` yükseltmesi bir kez yapıldı; ana
+installer exit 0 ve add-on exit 0. Kurulu ana EXE ile iki uninstall kaydı
+v0.37; yt-dlp/deno kaynak hash'leriyle birebir. Bilinen Resident Alien
+medyası tek kez açıldı. **Kullanıcı gözlemi:** görüntü/ses tamam, Hakkında
+v0.37 ve normal X ile kapanış. **Bağımsız ölçüm:** uygulama yanıt veriyordu,
+kalan süreç 0; medya boyutu **2.651.661.814** ve mtime ticks
+**638811093472871806** değişmedi. Kaldırma yapılmadı; release-ready madde 7
+AÇIK. Önceden karşılaştırılabilir dolu kullanıcı ayarı bulunmadığından ayar
+koruma senaryosu ayrıca kanıtlanmadı. Kayıt **COMMIT BEKLIYOR**.
+
+**REL-006 — boş program klasörü artığı (19 Ağustos 2026):** Ana program ve
+add-on ayrı ayrı exit 0 ile kaldırıldı; uninstall kaydı 0, kalan süreç 0,
+kısayol ve program dosyası yoktu. Fakat `C:\Program Files\MLC Player`
+altında **0 öğe / 0 bayt** boş program klasörü kaldı. Bu manuel silinip
+gizlenmedi. Add-on ISS'e yalnız boş `{app}` için `dirifempty` eklendi;
+etkin kurallarda **filesandordirs yok**. İlk kırmızı eksik
+`[UninstallDelete]` bölümüydü; ilgili hedefler **45 passed**. Düzeltme
+**COMMIT/REBUILD/CANLI RETEST BEKLIYOR**; fiziksel matris tamamlanmadı.
+
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 
 Sıra: `v0.3` → **`v0.31`** → `v0.32` … Ara sürümler ikinci haneye eklenir.

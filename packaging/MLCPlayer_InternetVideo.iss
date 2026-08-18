@@ -86,6 +86,13 @@ Source: "..\licenses\yt-dlp-LICENSE.txt"; DestDir: "{app}\_internal\licenses"; F
 Source: "..\licenses\yt-dlp-THIRD_PARTY_LICENSES.txt"; DestDir: "{app}\_internal\licenses"; Flags: ignoreversion
 Source: "..\licenses\deno-LICENSE.txt"; DestDir: "{app}\_internal\licenses"; Flags: ignoreversion
 
+[UninstallDelete]
+; OLCULEN KUSUR (19 Agustos 2026): ana program once, ek paket sonra
+; kaldirildiginda butun dosyalar ve iki uninstall kaydi gidiyor ama ortak
+; `{app}` klasoru 0 bayt / 0 oge olarak kaliyor. Yalniz GERCEKTEN BOSSA
+; kaldir; `filesandordirs` kullanmak baska dosyalari silebilirdi.
+Type: dirifempty; Name: "{app}"
+
 [Code]
 function PlayerDirectory(Param: String): String;
 var

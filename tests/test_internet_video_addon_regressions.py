@@ -67,6 +67,28 @@ def test_the_addon_has_its_own_identity():
     assert match.group(1).upper() != player_id, "ana programla aynı kimlik"
 
 
+def test_the_last_addon_uninstaller_removes_only_an_empty_player_directory():
+    """Ana program önce kaldırılınca add-on boş `{app}` klasörünü bırakmamalı.
+
+    Güvenlik sınırı: yalnız `dirifempty`; `filesandordirs` gibi geniş bir
+    kural başka dosyaları veya kullanıcı verisini silebilir.
+    """
+    iss = ADDON_ISS.read_text(encoding="utf-8-sig")
+    match = re.search(
+        r"^\[UninstallDelete\]\s*$([\s\S]*?)(?=^\[|\Z)",
+        iss, re.MULTILINE)
+
+    assert match, "add-on [UninstallDelete] bölümü yok"
+    section = match.group(1)
+    assert re.search(
+        r'^Type:\s*dirifempty;\s*Name:\s*"\{app\}"\s*$',
+        section, re.MULTILINE), section
+    active = "\n".join(
+        line for line in section.splitlines()
+        if line.strip() and not line.lstrip().startswith(";"))
+    assert "filesandordirs" not in active.lower(), active
+
+
 def test_the_chain_builds_and_signs_the_addon():
     """Zincir ek paketi üretir, VARLIĞINI doğrular ve KESİN yolu imzalar.
 

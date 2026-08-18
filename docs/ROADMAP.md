@@ -630,7 +630,7 @@ devam ediyor (bkz. madde 8).
 
 ## Gercek Windows build ve kabul matrisi
 
-- **Durum:** **BUILD BASARILI - FIZIKSEL KABUL BEKLIYOR**
+- **Durum:** **YUKSELTME/OYNATMA KABULU BASARILI - KALDIRMA BEKLIYOR**
 - **Bagimlilik:** REL-001, REL-003
 - **Olcut:** `build_release.bat` uçtan uca exit 0; dört artifact üretilmiş ve imzalanmış; fiziksel kabul matrisi koşulmuş
 - **Kullanici onayi:** **gerekir** — build ayrı bir onaydır
@@ -646,6 +646,20 @@ Bağımsız imza denetimleri `MAIN_SIGNATURE_OK=True` ve
 üretildi; kilitli klasör hata yolu canlı ölçülmedi. Artık hedef süreç yoktu.
 Bu sonuç fiziksel kurulum, kaldırma ve ilk açılış kabulünün yerine geçmez.
 Canlı build sonuç kaydı **COMMIT BEKLIYOR**.
+
+Fiziksel kabulün ilk yarısı 19 Ağustos 2026'da tamamlandı: `v0.36 -> v0.37`,
+ana installer exit 0, add-on exit 0. Kullanıcı gözlemi **görüntü/ses tamam**
+ve **Hakkında v0.37**; bağımsız ölçümde kalan süreç 0, medya boyutu
+**2.651.661.814** ve mtime ticks **638811093472871806** değişmedi. Kurulu
+yt-dlp/deno hash'leri kaynaklarla eşleşti. Kaldırma yapılmadı; release-ready
+madde 7 AÇIK. Dolu kullanıcı ayarıyla yükseltme korunumu da henüz ölçülmedi.
+
+İlk kaldırma döngüsü yeni REL-006 kusurunu kanıtladı: ana ve add-on
+kaldırıldıktan sonra uninstall kaydı 0 ve kalan süreç 0 olduğu hâlde **0 öğe
+/ 0 bayt** boş program klasörü kaldı. Add-on'a yalnız boş `{app}` dizinini
+hedefleyen `dirifempty` eklendi; etkin kurallarda **filesandordirs yok**.
+Hedef paketler **45 passed**; düzeltme **COMMIT/REBUILD/CANLI RETEST
+BEKLIYOR**. Release-ready madde 7 bu canlı retest geçmeden AÇIK kalır.
 
 ---
 
@@ -669,6 +683,8 @@ Bir sürüm ancak şunların **hepsi** sağlandığında yayına hazır sayılı
 5. Uzak peeled tag commit'i == yerel HEAD
 6. Sekiz varlığın ad/boyut/SHA-256 eşliği doğrulanmış
 7. Fiziksel kabul matrisi koşulmuş
+   — **güncel durum: AÇIK.** Yükseltme, add-on, ilk açılış, oynatma, sürüm
+   görünümü ve temiz kapanış geçti; kaldırma yapılmadı.
 8. `0xe24c4a02` riski ya kapatılmış ya bilinçli olarak kabul edilmiş
    — **güncel durum (18 Ağustos 2026): SAGLANDI - BILINCLI KABUL.** CPython/LuaJIT yanlış-pozitif
    mekanizması kaynak ve CDB ile açıklandı; düzeltilmiş ürün kapanış kapısı

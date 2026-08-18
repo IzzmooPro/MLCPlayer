@@ -438,7 +438,7 @@ def test_the_v0_37_windows_build_is_recorded_with_exact_artifacts():
 def test_the_build_record_separates_success_from_pending_physical_acceptance():
     roadmap = flat(read(ROADMAP_DOC))
 
-    assert flat("BUILD BASARILI - FIZIKSEL KABUL BEKLIYOR") in roadmap
+    assert flat("YUKSELTME/OYNATMA KABULU BASARILI - KALDIRMA BEKLIYOR") in roadmap
     assert flat("otomatik tekrar yapilmadi") in roadmap
     assert flat("kilitli klasor hata yolu canli olculmedi") in roadmap
 
@@ -455,6 +455,60 @@ def test_the_build_record_preserves_the_measured_compression_policy():
         "%70",
     ):
         assert flat(fact) in status, fact
+
+
+def test_the_v0_37_upgrade_and_playback_acceptance_is_recorded_everywhere():
+    records = {
+        "ENGINEERING_AUDIT": read(AUDIT_DOC),
+        "ROADMAP": read(ROADMAP_DOC),
+        "PROJECT_STATUS": read(PROJECT_STATUS_DOC),
+    }
+
+    for label, record in records.items():
+        block = flat(record)
+        for fact in (
+            "v0.36 -> v0.37",
+            "ana installer exit 0",
+            "add-on exit 0",
+            "goruntu/ses tamam",
+            "hakkinda v0.37",
+            "kullanici gozlemi",
+            "kalan surec 0",
+            "2.651.661.814",
+            "638811093472871806",
+        ):
+            assert flat(fact) in block, f"{label}: {fact}"
+
+
+def test_physical_acceptance_does_not_claim_uninstall_was_run():
+    roadmap = flat(read(ROADMAP_DOC))
+
+    assert flat("YUKSELTME/OYNATMA KABULU BASARILI - KALDIRMA BEKLIYOR") in roadmap
+    assert flat("kaldirma yapilmadi") in roadmap
+    assert flat("release-ready madde 7 acik") in roadmap
+
+
+def test_the_empty_install_directory_uninstall_defect_is_recorded_everywhere():
+    records = {
+        "ENGINEERING_AUDIT": read(AUDIT_DOC),
+        "ROADMAP": read(ROADMAP_DOC),
+        "PROJECT_STATUS": read(PROJECT_STATUS_DOC),
+    }
+
+    for label, record in records.items():
+        block = flat(record)
+        for fact in (
+            "0 oge",
+            "0 bayt",
+            "uninstall kaydi 0",
+            "kalan surec 0",
+            "bos program klasoru kaldi",
+            "dirifempty",
+            "filesandordirs yok",
+            "45 passed",
+            "canli retest bekliyor",
+        ):
+            assert flat(fact) in block, f"{label}: {fact}"
 
 
 def test_the_cover_art_fatal_exception_is_recorded_as_open_risk():
