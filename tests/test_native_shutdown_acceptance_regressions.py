@@ -943,7 +943,12 @@ def test_the_child_enables_faulthandler_before_qt_and_mpv():
         f"yalniz ana thread izleniyor: {call!r}; native istisna MPV olay "
         "thread'inde olusuyor")
 
-    for later in ("from PyQt6", "from app.player import"):
+    player_imports = ("from app.player import", "import app.player as")
+    player_import = next((item for item in player_imports if item in source),
+                         None)
+    assert player_import is not None, "app.player importu yok"
+
+    for later in ("from PyQt6", player_import):
         at = source.find(later)
         assert at != -1, later
         assert enabled_at < at, (

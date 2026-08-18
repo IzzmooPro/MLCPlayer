@@ -61,6 +61,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from native_media_contract import (MEDIA_FIELD_PREFIX,  # noqa: E402
                                    encode_media_basename,
                                    is_supported_media)
+from native_mpv_trace_contract import configure_trace_mode  # noqa: E402
 
 VIDEO_PATH = os.environ.get("MLC_NATIVE_TEST_VIDEO", "")
 READY_TIMEOUT_S = float(os.environ.get("MLC_READY_TIMEOUT", "25"))
@@ -93,7 +94,9 @@ mark("MARK_FAULTHANDLER_ENABLED")
 from PyQt6.QtCore import QSettings, QTimer  # noqa: E402
 from PyQt6.QtWidgets import QApplication  # noqa: E402
 
-from app.player import MPVPlayer  # noqa: E402
+import app.player as player_module  # noqa: E402
+
+MPVPlayer = player_module.MPVPlayer
 
 
 def install_call_recorder():
@@ -155,6 +158,22 @@ def main():
         shutil.rmtree(WORKSPACE, ignore_errors=True)
         mark("MARK_MAIN_RETURNED", 2)
         os._exit(2)
+
+    # PDB'siz tani YALNIZ iki acik opt-in + gecerli yeni `.log` hedefiyle
+    # kurulur. Normal child kosumunda `MPV_CONFIG` aynen kalir. Trace
+    # secenekleri ortak saf sozlesmeden gelir; burada kopyalanmaz.
+    trace_field, trace_problems = configure_trace_mode(
+        player_module, video, env=os.environ)
+    if trace_problems:
+        for problem in trace_problems:
+            print("TRACE_CONFIG_ERROR " + problem, flush=True)
+        print("RESULTS: failures=trace_config_invalid stop=0 terminate=0",
+              flush=True)
+        shutil.rmtree(WORKSPACE, ignore_errors=True)
+        mark("MARK_MAIN_RETURNED", 2)
+        os._exit(2)
+    if trace_field:
+        mark("MARK_TRACE_CONFIGURED", trace_field)
 
     QSettings.setDefaultFormat(QSettings.Format.IniFormat)
     QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,

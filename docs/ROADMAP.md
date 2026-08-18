@@ -17,7 +17,7 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
 testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
 ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
-`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **sekiz
+`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **dokuz
 commit** ilerisindedir ve **push yapılmadı**. Güncel tam paket
 **3992 passed / 17 skipped / 0 failed**, exit 0 ve stderr boştur. **Push
 yapılmadı**; canlı bir build/yayın koşumu da yapılmadı. Sıradaki teknik
@@ -243,9 +243,19 @@ statik preflight'tan geçti; CDB hedefi, Python child, MLC Player, mpv, PyQt
 ve video çalıştırılmadı. Ayrıntılı kanıt `ENGINEERING_AUDIT.md` içindedir.
 
 Exact DLL PDB'si üreticiden sağlanmadan özel sembol harness'i çalıştırılmaz.
-Bir sonraki uygulanabilir seçenek, ürün koduna dokunmadan diagnostic child'da
-mpv trace logunu açacak ayrı kapının önce deterministik/statik testlerle
-hazırlanmasıdır; gerçek native/video koşumu yine ayrı ONAY B ister.
+PDB'siz alternatif kapı ürün koduna dokunmadan diagnostic child'da hazırlandı:
+`tests/native_mpv_trace_contract.py` ve
+`tests/test_native_mpv_trace_regressions.py`. Normal `MPV_CONFIG` değişmedi;
+child kopyası `log_file`, `msg_level`, `msg_time`, `msg_module` seçeneklerini
+yalnız iki açık izinle alır. `MLC_NATIVE_SHUTDOWN_ACCEPTANCE=1`,
+`MLC_NATIVE_MPV_TRACE=1` ve yeni mutlak `MLC_NATIVE_MPV_TRACE_LOG` hedefi
+birlikte zorunludur.
+
+Trace paketinin sonucu **54 passed, 1 skipped**; shutdown/child/player/
+cover-art ile dar regresyon **476 passed, 4 skipped**. Skip edilen düğümler
+gerçek native koşumlardır. **Native/video koşumu YAPILMADI.** Tanı başarısı
+ürün kabulü değildir; Lua mesajı yakalansa bile stderr veya kapanış sorununu
+aklamaz. Trace kapısı COMMIT BEKLIYOR; gerçek tek koşum ayrıca ONAY B ister.
 
 **Talimat ihlali (gizlenmiyor):** bir önceki turun mutasyon koşumunda
 "medya türü denetimi yok" varyantı gerçek child'ı bir kez, yaklaşık
@@ -262,7 +272,8 @@ sonuç: **268 passed, 1 deselected**.
 
 **Commit durumu:** Aşama 1 COMMIT EDILDI (`a7ced18`); Aşama 2'nin YEDİ
 dosyası iki commit ile tamamlandı: `4ed5c79` ve `5c83c05`. Debugger kanıt
-ayrıştırması COMMIT EDILDI (`ddcfc40`); bu ONAY A PDB kaydı COMMIT BEKLIYOR. Ayrıntılı liste:
+ayrıştırması COMMIT EDILDI (`ddcfc40`); ONAY A PDB kaydı COMMIT EDILDI
+(`a4f10ee`); PDB'siz trace kapısı COMMIT BEKLIYOR. Ayrıntılı liste:
 `docs/ENGINEERING_AUDIT.md` → NATIVE-001.
 
 **Kapatılmayan:** LuaJIT'in taşıdığı asıl Lua hatası belirlenmedi ve ürüne

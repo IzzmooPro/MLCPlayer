@@ -739,5 +739,71 @@ def test_debugger_parser_commit_is_recorded_as_committed():
 def test_roadmap_snapshot_has_the_measured_local_commit_count():
     text = fold(flat(read(ROADMAP_DOC))).lower()
 
-    assert "sekiz commit" in text, "ROADMAP guncel ahead=8 olcumunu tasimiyor"
-    assert "bes commit" not in text, "ROADMAP hala bayat ahead=5 sayisini tasiyor"
+    assert "dokuz commit" in text, "ROADMAP guncel ahead=9 olcumunu tasimiyor"
+    for stale in ("bes commit", "sekiz commit"):
+        assert stale not in text, f"ROADMAP hala bayat sayiyi tasiyor: {stale}"
+
+
+# =====================================================================
+# NATIVE-001 PDB'siz mpv trace tani kapisi
+# =====================================================================
+
+
+def test_native_record_names_the_pdb_free_trace_gate_files():
+    block = native_record()
+
+    for path in (
+        "tests/native_mpv_trace_contract.py",
+        "tests/test_native_mpv_trace_regressions.py",
+        "tests/native_player_shutdown_child.py",
+        "tests/test_native_shutdown_acceptance_regressions.py",
+        "docs/ENGINEERING_AUDIT.md",
+        "docs/ROADMAP.md",
+        "tests/test_release_documentation_regressions.py",
+    ):
+        assert path in block, f"PDB'siz trace kapsami kayitsiz: {path}"
+
+
+def test_native_record_carries_both_trace_opt_ins():
+    block = native_record()
+
+    for variable in ("MLC_NATIVE_SHUTDOWN_ACCEPTANCE",
+                     "MLC_NATIVE_MPV_TRACE", "MLC_NATIVE_MPV_TRACE_LOG"):
+        assert variable in block, f"trace ortam sozlesmesi eksik: {variable}"
+
+
+def test_native_record_keeps_trace_out_of_the_product_config():
+    block = native_record()
+
+    assert "Ürün kodu ve normal `MPV_CONFIG` değişmedi" in block
+    for option in ("log_file", "msg_level", "msg_time", "msg_module"):
+        assert option in block, f"trace secenegi kayitsiz: {option}"
+
+
+def test_native_record_separates_diagnostic_success_from_product_acceptance():
+    block = flat(native_record())
+
+    assert flat("tanı başarısı ürün kabulü değildir") in block
+    assert flat("stderr veya kapanış sorununu aklamaz") in block
+
+
+def test_native_record_has_the_current_trace_test_results():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        assert "54 passed, 1 skipped" in flattened, label
+        assert "476 passed, 4 skipped" in flattened, label
+
+
+def test_native_record_says_the_trace_gate_was_not_run_live():
+    block = fold(flat(native_record())).upper()
+
+    assert "NATIVE/VIDEO KOSUMU YAPILMADI" in block
+    assert "COMMIT BEKLIYOR" in block
+
+
+def test_native_record_preserves_the_failed_mpv_import_probe():
+    block = flat(native_record())
+
+    assert flat("mpv import denemesi OSError ile durdu") in block
+    assert flat("libmpv yüklenmedi ve MPV instance oluşturulmadı") in block
