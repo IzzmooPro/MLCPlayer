@@ -429,7 +429,22 @@ kesin kök neden yapmaz** ve **tek clienti kesin kök neden yapmaz**. Koşumlar
 aralıklı ayrı örneklerdir; **önceki select tek negatif**, **eleme kanıtı
 değildir**. Yeni native koşum yetkilendirilmedi. Kök neden ile release-ready
 madde 8 **AÇIK**. Kayıt sonrası ilgili deterministik paketler **735 passed, 4
-skipped**; iki ikili sonuç kaydı **COMMIT BEKLIYOR**.
+skipped**; iki ikili sonuç kaydı **COMMIT EDILDI (`cc94ff7`)**.
+
+**Dar ürün adayı — `load_select=False` (18 Ağustos 2026):** exact mpv
+kaynağında varsayılanı açık olan `select.lua`, mpv konsol seçimi,
+`menu-data`, native `context-menu` ve `select/*` bindingleri içindir. MLC Player
+bu mpv API'lerini kullanmaz; kendi Qt menülerini kurar ve mpv varsayılan
+klavye bindinglerini kapatır. Bu nedenle kullanılmayan istemci
+`MPV_CONFIG` içinde açıkça kapatıldı; stats/ytdl topluca kapatılmadı. İlk
+kırmızı `None is False`; düzeltme sonrası gerçek constructor yolu da
+`load_select=False` aldı. İlgili deterministik sonuçlar **288 passed, 1
+skipped, 2 deselected** ve constructor odaklı **6 passed**. Tek tam paket
+kapanış koşumu **4511 passed, 19 skipped, exit 0; 115,85 sn** verdi; bu canlı
+ürün kabulü değildir. **Commit ve canlı kabul bekliyor; bu turda native koşum
+yapılmadı.** Select kesin kök neden
+ilan edilmedi; release-ready madde 8 ayrı ONAY B canlı kabulüne kadar
+**AÇIK**.
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,

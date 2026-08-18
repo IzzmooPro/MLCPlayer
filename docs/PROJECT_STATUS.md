@@ -1747,8 +1747,20 @@ yapmaz**.
 client select**. Bu, **selecti kesin kök neden yapmaz**; koşumlar ayrı ve olay
 aralıklıdır. **Önceki select tek negatif**, **eleme kanıtı değildir**. Yeni
 native koşum yetkilendirilmedi. Kayıt sonrası ilgili deterministik paketler
-**735 passed, 4 skipped**. İki ikili sonuç kaydı **COMMIT BEKLIYOR**; ayrıntılı
+**735 passed, 4 skipped**. İki ikili sonuç kaydı **COMMIT EDILDI (`cc94ff7`)**; ayrıntılı
 hash'ler NATIVE-001 kaydındadır.
+
+**Dar ürün adayı — `load_select=False` (18 Ağustos 2026):** MLC Player mpv
+`menu-data`, native `context-menu` veya `select/*` bindinglerini kullanmaz;
+kendi Qt menülerini kurar. Exact mpv kaynağında varsayılanı açık olan bu
+kullanılmayan istemci `MPV_CONFIG` içinde kapatıldı; stats/ytdl ayarlarına
+dokunulmadı. İlk kırmızı `None is False`; gerçek constructor aktarımı dahil
+deterministik doğrulamalar **288 passed, 1 skipped, 2 deselected** ve **6
+passed** verdi. Tek tam paket kapanış koşumu **4511 passed, 19 skipped, exit
+0; 115,85 sn** verdi; bu canlı ürün kabulü değildir. **Ürün değişikliği
+commit ve ayrı ONAY B canlı kabulü
+bekliyor; native koşum yapılmadı.** Select kesin kök neden ilan edilmedi ve
+release-ready madde 8 **AÇIK** kaldı.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 

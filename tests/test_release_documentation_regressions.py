@@ -1364,6 +1364,39 @@ def test_native_record_keeps_trace_out_of_the_product_config():
         assert option in block, f"trace secenegi kayitsiz: {option}"
 
 
+def test_native_record_carries_the_narrow_select_product_candidate():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        for fact in (
+            "load_select=False",
+            "CANLI KABUL",
+            "NATIVE KOSUM YAPILMADI",
+            "KESIN KOK NEDEN",
+            "MADDE 8",
+            "ACIK",
+        ):
+            assert fold(fact).upper() in flattened, (
+                f"{label} dar urun adayi sinirini yazmiyor: {fact}")
+
+
+def test_native_record_carries_the_select_candidate_test_evidence():
+    block = flat(native_record())
+
+    assert "none is false" in block
+    assert "288 passed, 1 skipped, 2 deselected" in block
+    assert "6 passed" in block
+    assert "4511 passed, 19 skipped, exit 0; 115,85 sn" in block
+
+
+def test_pairwise_bisection_results_are_recorded_as_committed():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        assert "cc94ff7" in flattened, label
+        assert "iki ikili sonuc kaydi **commit bekliyor**" not in flattened
+
+
 def test_native_record_separates_diagnostic_success_from_product_acceptance():
     block = flat(native_record())
 

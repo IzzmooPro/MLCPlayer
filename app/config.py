@@ -41,6 +41,11 @@ SUBTITLE_DEFAULTS = {
 MPV_CONFIG = {
     "hwdec": "auto-safe",
     "vo": "gpu",
+    # MLC Player secim ve baglam menulerini Qt ile kurar; mpv'nin yerlesik
+    # select.lua istemcisini, menu-data/context-menu ve select/* bindinglerini
+    # kullanmaz. Windows shutdown bisection'inda iki pozitif ikilinin ortak
+    # istemcisiydi; bu dar kapatma onu kesin kok neden ilan etmez.
+    "load_select": False,
     "keep_open": "yes",
     "video_sync": "audio",
     # Geniş `fuzzy` yerine mpv'nin resmî `exact` davranışı: yalnız tam video
