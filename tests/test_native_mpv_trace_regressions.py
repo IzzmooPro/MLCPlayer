@@ -18,16 +18,23 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import native_mpv_trace_contract as trace  # noqa: E402
 from native_mpv_trace_contract import (  # noqa: E402
+    BUILTIN_SCRIPT_DISABLE_CONFIG,
+    SCRIPT_ABLATION_VARIABLE,
     TRACE_FIELD_PREFIX,
     TRACE_LOG_VARIABLE,
     TRACE_OPT_IN_VARIABLE,
     TraceRecord,
+    configure_script_ablation,
     decode_trace_path,
     diagnostic_mpv_config,
+    diagnostic_script_ablation_config,
     encode_trace_path,
     evaluate_trace_log,
+    evaluate_script_ablation_trace,
+    extract_script_ablation_marker_problems,
     extract_trace_marker_problems,
     run_native_trace,
+    script_ablation_requested,
     trace_requested,
     trace_run_blockers,
 )
@@ -48,6 +55,160 @@ def test_trace_opt_in_is_exact(value):
 
 def test_trace_opt_in_accepts_only_one():
     assert trace_requested({TRACE_OPT_IN_VARIABLE: "1"})
+
+
+@pytest.mark.parametrize("value", ["", "0", "true", "yes", "2", "1 ", "TRUE"])
+def test_script_ablation_opt_in_is_exact(value):
+    assert not script_ablation_requested({SCRIPT_ABLATION_VARIABLE: value})
+
+
+def test_script_ablation_opt_in_accepts_only_one():
+    assert script_ablation_requested({SCRIPT_ABLATION_VARIABLE: "1"})
+
+
+def test_script_ablation_disables_every_builtin_and_external_auto_load():
+    expected = {
+        "osc": False,
+        "ytdl": False,
+        "load_stats_overlay": False,
+        "load_console": False,
+        "load_auto_profiles": "no",
+        "load_select": False,
+        "load_positioning": False,
+        "load_commands": False,
+        "load_context_menu": False,
+        "load_scripts": False,
+    }
+
+    assert BUILTIN_SCRIPT_DISABLE_CONFIG == expected
+    assert len(BUILTIN_SCRIPT_DISABLE_CONFIG) == 10
+    assert set(BUILTIN_SCRIPT_DISABLE_CONFIG) != {"load_scripts"}
+
+
+def test_script_ablation_config_is_a_copy():
+    original = {"vo": "gpu", "ytdl": True}
+
+    configured = diagnostic_script_ablation_config(original)
+
+    assert original == {"vo": "gpu", "ytdl": True}
+    assert configured is not original
+    assert configured["vo"] == "gpu"
+    for key, value in BUILTIN_SCRIPT_DISABLE_CONFIG.items():
+        assert configured[key] == value
+
+
+def test_script_ablation_off_does_not_mutate_player_module():
+    class FakePlayerModule:
+        MPV_CONFIG = {"vo": "gpu"}
+
+        @staticmethod
+        def build_ytdl_config(_):
+            return {"ytdl": True}
+
+    before = FakePlayerModule.MPV_CONFIG
+    applied, problems = configure_script_ablation(FakePlayerModule, env={})
+
+    assert not applied and problems == []
+    assert FakePlayerModule.MPV_CONFIG is before
+    assert FakePlayerModule.build_ytdl_config("bin") == {"ytdl": True}
+
+
+def test_script_ablation_requires_the_shutdown_and_trace_opt_ins():
+    class FakePlayerModule:
+        MPV_CONFIG = {"vo": "gpu"}
+
+        @staticmethod
+        def build_ytdl_config(_):
+            return {"ytdl": True}
+
+    before = FakePlayerModule.MPV_CONFIG
+    applied, problems = configure_script_ablation(
+        FakePlayerModule, env={SCRIPT_ABLATION_VARIABLE: "1"})
+
+    assert not applied and len(problems) == 2
+    assert FakePlayerModule.MPV_CONFIG is before
+    assert FakePlayerModule.build_ytdl_config("bin") == {"ytdl": True}
+
+
+def test_valid_script_ablation_overrides_runtime_ytdl_reenable():
+    class FakePlayerModule:
+        MPV_CONFIG = {"vo": "gpu", "ytdl": True}
+
+        @staticmethod
+        def build_ytdl_config(_):
+            return {"ytdl": True, "script_opts": "ytdl_hook-ytdl_path=x"}
+
+    original = FakePlayerModule.MPV_CONFIG
+    env = {
+        OPT_IN_VARIABLE: "1",
+        TRACE_OPT_IN_VARIABLE: "1",
+        SCRIPT_ABLATION_VARIABLE: "1",
+    }
+
+    applied, problems = configure_script_ablation(FakePlayerModule, env=env)
+
+    assert applied and problems == []
+    assert FakePlayerModule.MPV_CONFIG is not original
+    assert original["ytdl"] is True
+    assert FakePlayerModule.build_ytdl_config("bin") == {"ytdl": False}
+    for key, value in BUILTIN_SCRIPT_DISABLE_CONFIG.items():
+        assert FakePlayerModule.MPV_CONFIG[key] == value
+
+
+@pytest.mark.parametrize("key", ["script", "scripts"])
+def test_script_ablation_rejects_explicit_script_files(key):
+    class FakePlayerModule:
+        MPV_CONFIG = {"vo": "gpu", key: "custom.lua"}
+
+        @staticmethod
+        def build_ytdl_config(_):
+            return {"ytdl": True}
+
+    before = FakePlayerModule.MPV_CONFIG
+    env = {
+        OPT_IN_VARIABLE: "1",
+        TRACE_OPT_IN_VARIABLE: "1",
+        SCRIPT_ABLATION_VARIABLE: "1",
+    }
+
+    applied, problems = configure_script_ablation(FakePlayerModule, env=env)
+
+    assert not applied and any("explicit script" in problem
+                               for problem in problems)
+    assert FakePlayerModule.MPV_CONFIG is before
+
+
+@pytest.mark.parametrize("line", [
+    "",
+    "MARK_SCRIPT_ABLATION_CONFIGURED",
+    "MARK_SCRIPT_ABLATION_CONFIGURED t=nan",
+    "MARK_SCRIPT_ABLATION_CONFIGURED t=0.10 extra",
+    "MARK_SCRIPT_ABLATION_CONFIGURED t=0.10\n"
+    "MARK_SCRIPT_ABLATION_CONFIGURED t=0.11",
+])
+def test_script_ablation_marker_fails_closed(line):
+    assert extract_script_ablation_marker_problems(line)
+
+
+def test_script_ablation_marker_accepts_one_exact_timestamped_line():
+    assert extract_script_ablation_marker_problems(
+        "MARK_SCRIPT_ABLATION_CONFIGURED t=0.10\n") == []
+
+
+def test_script_ablation_trace_rejects_any_builtin_lua_module():
+    raw = (b"[   0.100][v][cplayer] starting playback\n"
+           b"[   0.200][v][lua/stats] script loaded\n")
+
+    problems = evaluate_script_ablation_trace(raw)
+
+    assert problems and "lua/stats" in problems[0]
+
+
+def test_script_ablation_trace_accepts_a_non_lua_trace():
+    raw = (b"[   0.100][v][cplayer] starting playback\n"
+           b"[   0.200][d][vo/gpu] reconfig\n")
+
+    assert evaluate_script_ablation_trace(raw) == []
 
 
 def test_diagnostic_config_is_a_copy_with_exact_trace_options(tmp_path):
@@ -375,6 +536,83 @@ def test_diagnostic_success_is_separate_from_shutdown_failure(tmp_path):
     assert child_env[TRACE_LOG_VARIABLE] == os.path.abspath(log)
 
 
+def test_script_ablation_run_uses_its_own_trace_contract(tmp_path):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+
+    def fake_shutdown(video, timeout, env):
+        log.write_bytes(
+            b"[ 0.1][v][cplayer] starting playback\n"
+            b"[ 0.2][d][vo/gpu] reconfig\n")
+        stdout = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
+                  + encode_trace_path(str(log)) + "\n"
+                  + "MARK_SCRIPT_ABLATION_CONFIGURED t=0.11\n")
+        return [], {
+            "returncode": 0, "stdout": stdout, "stderr": "",
+            "raw_stdout": stdout.encode("utf-8"), "raw_stderr": b"",
+        }
+
+    problems, detail = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1",
+             SCRIPT_ABLATION_VARIABLE: "1"},
+        shutdown_runner=fake_shutdown)
+
+    assert problems == [], problems
+    assert detail["script_ablation"] is True
+    assert detail["trace_records"] == []
+
+
+def test_script_ablation_run_requires_its_child_marker(tmp_path):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+
+    def fake_shutdown(video, timeout, env):
+        log.write_bytes(b"[ 0.1][v][cplayer] starting playback\n")
+        stdout = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
+                  + encode_trace_path(str(log)) + "\n")
+        return [], {
+            "returncode": 0, "stdout": stdout, "stderr": "",
+            "raw_stdout": stdout.encode("utf-8"), "raw_stderr": b"",
+        }
+
+    problems, _ = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1",
+             SCRIPT_ABLATION_VARIABLE: "1"},
+        shutdown_runner=fake_shutdown)
+
+    assert any("MARK_SCRIPT_ABLATION_CONFIGURED" in problem
+               for problem in problems), problems
+
+
+def test_script_ablation_run_rejects_a_lua_client_in_the_trace(tmp_path):
+    media = tmp_path / "video.mkv"
+    media.write_bytes(b"media")
+    log = tmp_path / "trace.log"
+
+    def fake_shutdown(video, timeout, env):
+        log.write_bytes(b"[ 0.1][v][lua/select] script loaded\n")
+        stdout = ("MARK_TRACE_CONFIGURED t=0.10 " + TRACE_FIELD_PREFIX
+                  + encode_trace_path(str(log)) + "\n"
+                  + "MARK_SCRIPT_ABLATION_CONFIGURED t=0.11\n")
+        return [], {
+            "returncode": 0, "stdout": stdout, "stderr": "",
+            "raw_stdout": stdout.encode("utf-8"), "raw_stderr": b"",
+        }
+
+    problems, _ = run_native_trace(
+        str(media), str(log),
+        env={OPT_IN_VARIABLE: "1", TRACE_OPT_IN_VARIABLE: "1",
+             SCRIPT_ABLATION_VARIABLE: "1"},
+        shutdown_runner=fake_shutdown)
+
+    assert any("built-in Lua" in problem and "lua/select" in problem
+               for problem in problems), problems
+
+
 def test_a_missing_trace_after_the_fake_run_is_fail_closed(tmp_path):
     media = tmp_path / "video.mkv"
     media.write_bytes(b"media")
@@ -640,6 +878,19 @@ def test_child_has_a_conditional_trace_mode_before_player_creation():
     assert configure_at != -1 and configure_at < create_at
     assert "diagnostic_mpv_config" not in source, (
         "trace optionlari child'da kopyalanmis; ortak sozlesmeden gelmeli")
+
+
+def test_child_applies_script_ablation_after_trace_and_before_player_creation():
+    child = os.path.join(os.path.dirname(__file__),
+                         "native_player_shutdown_child.py")
+    source = open(child, encoding="utf-8").read()
+
+    trace_at = source.find("configure_trace_mode(")
+    ablation_at = source.find("configure_script_ablation(")
+    marker_at = source.find('mark("MARK_SCRIPT_ABLATION_CONFIGURED")')
+    create_at = source.find("player = MPVPlayer()")
+    assert -1 not in (trace_at, ablation_at, marker_at, create_at)
+    assert trace_at < ablation_at < marker_at < create_at
 
 
 def test_product_config_source_contains_no_trace_options():

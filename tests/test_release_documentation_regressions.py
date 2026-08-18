@@ -23,6 +23,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RELEASE_DOC = os.path.join(ROOT, "docs", "RELEASE_PROCESS.md")
 AUDIT_DOC = os.path.join(ROOT, "docs", "ENGINEERING_AUDIT.md")
 ROADMAP_DOC = os.path.join(ROOT, "docs", "ROADMAP.md")
+PROJECT_STATUS_DOC = os.path.join(ROOT, "docs", "PROJECT_STATUS.md")
 CLAUDE_DOC = os.path.join(ROOT, "CLAUDE.md")
 PACKAGING_DOC = os.path.join(ROOT, "docs", "PACKAGING_PLAN.md")
 PREPUBLISH = os.path.join(ROOT, "packaging", "prepublish.py")
@@ -588,10 +589,108 @@ def test_native_record_classifies_the_code_from_primary_sources():
 
     for fact in ("LJ_EXCODE", "0xe24c4a00", "LUA_ERRRUN", "mpv-2.dll"):
         assert fact in block, f"NATIVE-001 siniflandirmasi eksik: {fact}"
-    for url in ("github.com/LuaJIT/LuaJIT/blob/v2.1/src/lj_err.c",
-                "github.com/LuaJIT/LuaJIT/blob/v2.1/src/lua.h",
-                "github.com/mpv-player/mpv/blob/master/DOCS/man/lua.rst"):
+    for url in (
+        "github.com/openresty/luajit2/blob/52f52587b37867ab19236eb6917001c2d6b662e7/src/lj_err.c",
+        "github.com/openresty/luajit2/blob/52f52587b37867ab19236eb6917001c2d6b662e7/src/lua.h",
+        "github.com/mpv-player/mpv/blob/7b8915bc1d04c7e1b61184e00c7fbfaab1911e75/player/lua.c",
+    ):
         assert url in block, f"NATIVE-001 birincil kaynagi eksik: {url}"
+
+
+def test_native_record_uses_the_runtime_builds_exact_source_chain():
+    block = native_record()
+
+    for revision in (
+        "7b8915bc1d04c7e1b61184e00c7fbfaab1911e75",
+        "cd1edc11dc6887a50f705717619d879f5a93a488",
+        "52f52587b37867ab19236eb6917001c2d6b662e7",
+    ):
+        assert revision in block, f"NATIVE-001 exact kaynak kimligi eksik: {revision}"
+    for source in ("openresty/luajit2", "v2.1-agentzh", "player/lua.c"):
+        assert source in block, f"NATIVE-001 exact kaynak zinciri eksik: {source}"
+
+
+def test_native_record_does_not_overstate_the_luajit_provenance():
+    block = fold(flat(native_record())).upper()
+
+    assert "LUAJIT COMMIT'I ARTIFACT ICINDE SABITLENMEMISTIR" in block
+    assert "KRIPTOGRAFIK OLARAK KANITLANMIS SAYILMAZ" in block
+
+
+def test_native_record_keeps_source_classification_bounded():
+    block = fold(flat(native_record())).upper()
+
+    assert "LUAJIT HATA TASIMASI" in block
+    assert "ASIL LUA CAGRISINI" in block
+    assert "GUVENLI VEYA ZARARSIZ" in block
+    assert "KANITLAMAZ" in block
+
+
+def test_native_record_carries_the_internal_jit_abort_alternative():
+    block = fold(flat(native_record())).upper()
+
+    for fact in ("LJ_TRACE_ERR", "LJ_VM_CPCALL", "LUA_ERRRUN",
+                 "JIT TRACE ABORT"):
+        assert fact in block, f"NATIVE-001 JIT ic yolu eksik: {fact}"
+    assert "SCRIPT RUNTIME HATASI ILE JIT TRACE ABORT" in block
+    assert "AYIRT ETMEZ" in block
+
+
+def test_native_record_documents_the_unrun_script_ablation_gate():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        for fact in (
+            "MLC_NATIVE_MPV_SCRIPT_ABLATION",
+            "DOKUZ BUILT-IN",
+            "CALISTIRILMADI",
+            "AYRI ONAY B",
+        ):
+            assert fact in flattened, f"{label} ablation kaydi eksik: {fact}"
+        assert "LOAD-SCRIPTS=NO" in flattened, label
+        assert "TEK BASINA YETMEZ" in flattened, label
+
+
+def test_native_record_does_not_claim_that_ablation_is_a_product_fix():
+    block = fold(flat(native_record())).upper()
+
+    assert "URUN DUZELTMESI DEGILDIR" in block
+    assert "URUN" in block and "MPV_CONFIG" in block and "DEGISMEDI" in block
+
+
+def test_script_ablation_phase_records_the_latest_deterministic_result():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        assert "608 PASSED, 4 SKIPPED" in flattened, label
+        assert "ABLATION ASAMASI" in flattened, label
+        assert "CANLI KOSUM YAPILMADI" in flattened, label
+        assert "COMMIT BEKLIYOR" in flattened, label
+
+
+@pytest.mark.parametrize("path", [
+    "docs/ENGINEERING_AUDIT.md",
+    "docs/PROJECT_STATUS.md",
+    "docs/ROADMAP.md",
+    "tests/native_mpv_trace_contract.py",
+    "tests/native_player_shutdown_child.py",
+    "tests/test_native_mpv_trace_regressions.py",
+    "tests/test_release_documentation_regressions.py",
+])
+def test_script_ablation_phase_records_its_exact_seven_file_scope(path):
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        assert path in block, f"{label} ablation kapsami eksik: {path}"
+
+
+def test_project_status_marks_the_old_harmless_conclusion_as_superseded():
+    text = read(PROJECT_STATUS_DOC)
+    start = text.index("## Kapanış erişim ihlali")
+    block = fold(flat(text[start:start + 2500])).upper()
+
+    assert "GECERSIZ KILINDI" in block or "YURURLUKTEN KALDIRILDI" in block
+    assert "0XE24C4A02 KODU ZARARSIZDIR" not in block
+    assert "URETIMDE ETKISI GORUNMEZ" not in block
 
 
 def test_native_record_preserves_the_approval_chain_violation():

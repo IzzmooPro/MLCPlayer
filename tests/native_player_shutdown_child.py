@@ -61,7 +61,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from native_media_contract import (MEDIA_FIELD_PREFIX,  # noqa: E402
                                    encode_media_basename,
                                    is_supported_media)
-from native_mpv_trace_contract import configure_trace_mode  # noqa: E402
+from native_mpv_trace_contract import (configure_script_ablation,  # noqa: E402
+                                       configure_trace_mode)
 
 VIDEO_PATH = os.environ.get("MLC_NATIVE_TEST_VIDEO", "")
 READY_TIMEOUT_S = float(os.environ.get("MLC_READY_TIMEOUT", "25"))
@@ -174,6 +175,19 @@ def main():
         os._exit(2)
     if trace_field:
         mark("MARK_TRACE_CONFIGURED", trace_field)
+
+    ablation_applied, ablation_problems = configure_script_ablation(
+        player_module, env=os.environ)
+    if ablation_problems:
+        for problem in ablation_problems:
+            print("SCRIPT_ABLATION_CONFIG_ERROR " + problem, flush=True)
+        print("RESULTS: failures=script_ablation_invalid stop=0 terminate=0",
+              flush=True)
+        shutil.rmtree(WORKSPACE, ignore_errors=True)
+        mark("MARK_MAIN_RETURNED", 2)
+        os._exit(2)
+    if ablation_applied:
+        mark("MARK_SCRIPT_ABLATION_CONFIGURED")
 
     QSettings.setDefaultFormat(QSettings.Format.IniFormat)
     QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,

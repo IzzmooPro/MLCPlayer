@@ -1647,14 +1647,17 @@ doğruyken bile (`FileDescription='MLC Player'` ölçüldü) Explorer adı
 AÇIK — kapaklı bir ses dosyasıyla albüm kapağı henüz kullanıcı gözüyle
 doğrulanmadı (otomatik testler gerçek libmpv ile geçiyor).
 
-## Kapanış erişim ihlali — ÖLÇÜLDÜ, TEŞHİS DÜZELTİLDİ (17 Ağustos 2026)
+## Kapanış erişim ihlali — ESKİ SONUÇ YÜRÜRLÜKTEN KALDIRILDI (18 Ağustos 2026)
 
-Önceki kayıt "aralıklı Python 3.14/ctypes/python-mpv riski" diyordu; bu
-teşhis YANLIŞTI. Ölçümler:
+Bu bölümün 17 Ağustos 2026 tarihli “zararsız / üretimde görünmez” sonucu,
+18 Ağustos 2026 NATIVE-001 canlı koşumları ve exact kaynak eşlemesiyle
+**GEÇERSİZ KILINDI**. Aşağıdaki eski ölçümler tarihsel kanıttır; eski yorumlar
+güncel mühendislik kararı olarak kullanılamaz. Güncel ve ayrıntılı kayıt
+`docs/ENGINEERING_AUDIT.md` içindeki NATIVE-001'dir.
 
-1. `0xE24C4A02` kodu ZARARSIZDIR. Penceresiz düz mpv koşumunda da yazılıyor,
-   süreç sağ kalıyor ve çıkış kodu 0. `faulthandler` yakalanan bir yapısal
-   istisnayı raporluyor; çökme DEĞİL.
+1. Penceresiz düz mpv koşumunda olay görüldü, süreç sağ kaldı ve çıkış kodu
+   0 oldu. Bu yalnız o koşumun tamamlandığını gösterir; kodun zararsızlığını,
+   kullanıcı etkisinin bulunmadığını veya bütün ürün yollarını kanıtlamaz.
 2. GERÇEK çökme ayrı bir şeydir: koşum sonunda, `terminate()` çağrısından
    HEMEN SONRA, `MPVEventHandlerThread` içinde `access violation`. Süreç
    orada ölüyor; bu yüzden `MARK_APP_EXEC_RETURNED` ve `MARK_DONE` hiç
@@ -1662,10 +1665,10 @@ teşhis YANLIŞTI. Ölçümler:
 3. Gözlemciler (`time-pos`, `duration`, `core-idle`) SUÇLU DEĞİL: penceresiz
    koşumda (`vo=null`) gözlemciler kayıtlıyken kapanış 3/3 TEMİZ.
 
-Kalan şüphe: gerçek pencere + `vo=gpu` yolunda video çıkışının yıkımı.
-Üretimde etkisi görünmez, çünkü `main.py` zaten `os._exit()` ile çıkar ve
-pencere kapanmıştır; bedeli YALNIZ native kabul koşumlarının INCOMPLETE
-sayılmasıdır.
+Eski “yalnız gerçek pencere + `vo=gpu` yıkımı” hipotezi de kesin tanı değildir.
+18 Ağustos ürün-yolu koşumları kapanış marker'larını tamamladığı hâlde ayrı
+`0xe24c4a02` olayları üretti. Exact kaynak bu kodu LuaJIT `LUA_ERRRUN` SEH
+taşımasıyla eşledi; asıl Lua çağrısı ve kullanıcıya görünen etki hâlâ AÇIKTIR.
 
 Sıradaki aday düzeltme (YAPILMADI, ürün değişmezi gereği testsiz
 dokunulmamalı): `terminate()` öncesinde video çıkışının pencereden

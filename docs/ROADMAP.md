@@ -225,10 +225,41 @@ hatasını Windows SEH üzerinden taşıdığını gösterir; tek başına “mp
 kaynağı hâlâ açıktır. Kabul kapısı gevşetilmedi; bu özel iz doğru adla FAIL,
 diğer fatal kodlar genel fail-closed korumayla FAIL olur.
 
+Exact kaynak zinciri 18 Ağustos 2026'da ağ üzerinden salt-okunur eşlendi:
+mpv `7b8915bc1d04c7e1b61184e00c7fbfaab1911e75`, build tanımı
+`cd1edc11dc6887a50f705717619d879f5a93a488`, yayın anındaki
+`openresty/luajit2` dal başı `52f52587b37867ab19236eb6917001c2d6b662e7`.
+Build `v2.1-agentzh` hareketli dalını kullandığından LuaJIT commit'i artifact
+içinde sabitlenmemiştir; dal/zaman eşlemesi exact binary provenansı yerine
+geçmez. Kaynak, olayın LuaJIT hata taşıması olduğunu gösterir; **asıl Lua
+çağrısını**, suçlu scripti, güvenli veya zararsız olduğunu kanıtlamaz.
+
+Exact LuaJIT `lj_trace.c`, `lj_trace_err` yolunun JIT trace derlemesini
+`LUA_ERRRUN` ile abort edip `lj_vm_cpcall` içinde `LJ_TRACE_ERR` olarak
+yakaladığını da gösterir. Dolayısıyla kod tek başına **script runtime hatası
+ile JIT trace abort** yolunu **ayırt etmez**; “mutlaka loglanacak asıl Lua hata
+mesajı vardır” varsayımı kaldırıldı.
+
+Sonraki deterministik kapı hazırlandı fakat **ÇALIŞTIRILMADI**:
+`MLC_NATIVE_MPV_SCRIPT_ABLATION=1`, mevcut shutdown ve trace opt-in'leriyle
+birlikte gerekir. `load-scripts=no` tek başına yetmez; yalnız kullanıcı script
+dizinini kapatır. Kapı **dokuz built-in** script seçeneğini ve dış script
+auto-load'unu birlikte kapatır, marker/trace ile fail-closed doğrular. Bu bir
+**ürün düzeltmesi değildir**; ürün `MPV_CONFIG` **değişmedi**. Tek gerçek
+ablation koşumu **AYRI ONAY B** ister ve otomatik tekrarlanmaz.
+
+**Ablation aşaması son doğrulaması (yalnız deterministik):** hedef paketler
+**608 passed, 4 skipped**; dört skip açık opt-in isteyen gerçek native
+düğümlerdir. **CANLI KOSUM YAPILMADI**, video/mpv child/CDB başlatılmadı.
+Aşama **COMMIT BEKLIYOR**. Kesin yedi dosya:
+`docs/ENGINEERING_AUDIT.md`, `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`,
+`tests/native_mpv_trace_contract.py`, `tests/native_player_shutdown_child.py`,
+`tests/test_native_mpv_trace_regressions.py`,
+`tests/test_release_documentation_regressions.py`.
+
 **Sıradaki teknik adım (AYRI KULLANICI ONAYI GEREKİR):** yeni native koşum
-ve ürün düzeltmesi YAPILMAZ; önce LuaJIT taşımasının içindeki **asıl Lua hata
-metni ve çağrı kaynağını** yakalama yöntemi onaylanacak. **4K/H.265 kabulü
-ancak kök neden düzeltmesinden sonra.**
+ve ürün düzeltmesi YAPILMAZ; önce hazırlanan built-in script ablation koşumu
+ayrıca onaylanacak. **4K/H.265 kabulü ancak kök neden düzeltmesinden sonra.**
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,

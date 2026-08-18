@@ -22,6 +22,8 @@ from native_media_contract import is_supported_media
 TRACE_OPT_IN_VARIABLE = "MLC_NATIVE_MPV_TRACE"
 TRACE_LOG_VARIABLE = "MLC_NATIVE_MPV_TRACE_LOG"
 TRACE_OPT_IN_VALUE = "1"
+SCRIPT_ABLATION_VARIABLE = "MLC_NATIVE_MPV_SCRIPT_ABLATION"
+SCRIPT_ABLATION_MARKER = "MARK_SCRIPT_ABLATION_CONFIGURED"
 TRACE_FIELD_PREFIX = "trace_b64="
 TRACE_CLIENT_LOG_LEVEL = "warn"
 CHILD_STDOUT_SUFFIX = ".child_stdout.bin"
@@ -32,7 +34,24 @@ MAX_TRACE_BYTES = 16 * 1024 * 1024
 TraceRecord = namedtuple("TraceRecord", "level module message")
 
 _LEVEL_NAMES = {"f": "fatal", "e": "error", "w": "warning"}
-_KNOWN_LUA_MODULES = {"stats", "select", "ytdl_hook"}
+BUILTIN_SCRIPT_DISABLE_CONFIG = {
+    # `load_scripts=False` yalniz kullanici `scripts/` dizinini kapatir;
+    # built-in scriptler options.c/scripting.c icindeki ayri seceneklerdir.
+    "osc": False,
+    "ytdl": False,
+    "load_stats_overlay": False,
+    "load_console": False,
+    "load_auto_profiles": "no",
+    "load_select": False,
+    "load_positioning": False,
+    "load_commands": False,
+    "load_context_menu": False,
+    "load_scripts": False,
+}
+_KNOWN_LUA_MODULES = {
+    "osc", "ytdl_hook", "stats", "console", "auto_profiles", "select",
+    "positioning", "commands", "context_menu",
+}
 _GENERIC_MPV_MODULES = {"cplayer", "global", "libmpv", "terminal"}
 _TRACE_LINE = re.compile(
     r"^\[\s*(?P<time>\d+(?:\.\d+)?)\]"
@@ -44,6 +63,12 @@ def trace_requested(env=None):
     """PDB'siz trace kosumu acikca istendi mi? Yalniz tam `1`."""
     environment = os.environ if env is None else env
     return environment.get(TRACE_OPT_IN_VARIABLE, "") == TRACE_OPT_IN_VALUE
+
+
+def script_ablation_requested(env=None):
+    """Built-in Lua ayrimi acikca istendi mi? Yalniz tam `1`."""
+    environment = os.environ if env is None else env
+    return environment.get(SCRIPT_ABLATION_VARIABLE, "") == "1"
 
 
 def child_artifact_paths(trace_path):
@@ -126,6 +151,94 @@ def diagnostic_mpv_config(base_config, trace_path):
         "loglevel": TRACE_CLIENT_LOG_LEVEL,
     })
     return configured
+
+
+def diagnostic_script_ablation_config(base_config):
+    """Urun sozlugunu MUTATE ETMEDEN butun scriptleri kapatan child kopyasi."""
+    configured = dict(base_config)
+    configured.update(BUILTIN_SCRIPT_DISABLE_CONFIG)
+    return configured
+
+
+def configure_script_ablation(player_module, env=None):
+    """Uc acik opt-in olmadan script ayrimini kurma ve config'i degistirme."""
+    environment = os.environ if env is None else env
+    if not script_ablation_requested(environment):
+        return False, []
+
+    problems = []
+    if environment.get(SHUTDOWN_OPT_IN_VARIABLE, "") != "1":
+        problems.append(
+            f"script ayrimi ISTENMEDI: {SHUTDOWN_OPT_IN_VARIABLE} tam '1' degil")
+    if not trace_requested(environment):
+        problems.append(
+            f"script ayrimi ISTENMEDI: {TRACE_OPT_IN_VARIABLE} tam '1' degil")
+    explicit = [key for key in ("script", "scripts")
+                if player_module.MPV_CONFIG.get(key)]
+    if explicit:
+        problems.append(
+            "explicit script girdisi varken tam ablation kanitlanamaz: " +
+            ", ".join(explicit))
+    if problems:
+        return False, problems
+
+    player_module.MPV_CONFIG = diagnostic_script_ablation_config(
+        player_module.MPV_CONFIG)
+
+    # MPVPlayer.__init__ MPV_CONFIG kopyasindan SONRA build_ytdl_config()
+    # sonucunu uygular. Yalniz config'e `ytdl=False` yazmak yetmez; hazir
+    # runtime varsa script yeniden acilirdi. Child'a ozel bu vekil onu kapatir.
+    player_module.build_ytdl_config = lambda _bin_dir: {"ytdl": False}
+    return True, []
+
+
+def extract_script_ablation_marker_problems(stdout):
+    """Script ayrimi marker'i tam bir kez, yalniz sonlu `t=` ile gelmeli."""
+    if isinstance(stdout, bytes):
+        stdout = stdout.decode("utf-8", errors="replace")
+    found = []
+    for line in str(stdout).splitlines():
+        parts = line.strip().split()
+        if parts[:1] == [SCRIPT_ABLATION_MARKER]:
+            found.append(parts)
+    if len(found) != 1:
+        return [f"{SCRIPT_ABLATION_MARKER} {len(found)} kez yazilmis; beklenen 1"]
+    parts = found[0]
+    if (len(parts) != 2 or not parts[1].startswith("t=") or
+            not _finite_non_negative(parts[1][2:])):
+        return [f"{SCRIPT_ABLATION_MARKER} kesin `t=<sonlu>` ister: "
+                f"{' '.join(parts)!r}"]
+    return []
+
+
+def evaluate_script_ablation_trace(raw):
+    """Ayrım trace'inde built-in Lua client'i kalmadiğini fail-closed olc."""
+    if isinstance(raw, str):
+        text = raw
+    else:
+        try:
+            text = bytes(raw).decode("utf-8", errors="strict")
+        except (TypeError, UnicodeDecodeError):
+            return ["script ayrimi trace'i gecerli UTF-8 degil"]
+    if not text.strip():
+        return ["script ayrimi trace'i bos"]
+
+    parsed = 0
+    loaded = []
+    for line in text.splitlines():
+        match = _TRACE_LINE.match(line.strip())
+        if not match or not _finite_non_negative(match.group("time")):
+            continue
+        parsed += 1
+        module = match.group("module").strip().lower()
+        if module.startswith("lua/") or module in _KNOWN_LUA_MODULES:
+            loaded.append(module)
+    if not parsed:
+        return ["script ayrimi trace'inde ayrisabilen mpv satiri yok"]
+    if loaded:
+        return ["script ayrimi acikken built-in Lua modulu etkin: " +
+                ", ".join(sorted(set(loaded)))]
+    return []
 
 
 def trace_capture_problems(stdout):
@@ -348,11 +461,13 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
     urun kapanis sorunlari AYRI raporlanir.
     """
     environment = dict(os.environ if env is None else env)
+    ablation = script_ablation_requested(environment)
     blockers = trace_run_blockers(video, trace_path, environment)
     artifacts = child_artifact_paths(trace_path)
     blockers.extend(_child_artifact_blockers(artifacts))
     empty_detail = {"shutdown_problems": [], "shutdown_detail": {},
-                    "trace_records": [], "child_artifacts": artifacts}
+                    "trace_records": [], "child_artifacts": artifacts,
+                    "script_ablation": ablation}
     if blockers:
         return blockers, empty_detail
 
@@ -372,12 +487,18 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
         shutdown_detail.get("stdout", "")))
     diagnostic_problems.extend(extract_trace_marker_problems(
         shutdown_detail.get("stdout", ""), absolute_trace))
+    if ablation:
+        diagnostic_problems.extend(extract_script_ablation_marker_problems(
+            shutdown_detail.get("stdout", "")))
     read_problems, raw = _read_new_trace(absolute_trace)
     diagnostic_problems.extend(read_problems)
     records = []
     if not read_problems:
-        log_problems, records = evaluate_trace_log(raw)
-        diagnostic_problems.extend(log_problems)
+        if ablation:
+            diagnostic_problems.extend(evaluate_script_ablation_trace(raw))
+        else:
+            log_problems, records = evaluate_trace_log(raw)
+            diagnostic_problems.extend(log_problems)
 
     return diagnostic_problems, {
         "shutdown_problems": list(shutdown_problems),
@@ -385,4 +506,5 @@ def run_native_trace(video, trace_path, timeout=180, env=None,
         "trace_records": records,
         "trace_path": absolute_trace,
         "child_artifacts": artifacts,
+        "script_ablation": ablation,
     }
