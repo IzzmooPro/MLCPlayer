@@ -933,7 +933,7 @@ def test_evidence_synthesis_records_the_next_interaction_profile():
             "TEK NEGATIF KOSUM",
             "ELEMEZ",
             "719 PASSED, 4 SKIPPED",
-            "COMMIT BEKLIYOR",
+            "COMMIT EDILDI",
         ):
             assert fact in flattened, f"{label} kanit sentezi eksik: {fact}"
 
@@ -1007,6 +1007,39 @@ def test_observed_trio_record_carries_exact_artifact_evidence():
         ):
             assert flat(fact) in flattened, (
                 f"{label} observed_trio artifact kaniti eksik: {fact}")
+
+
+def test_observed_trio_checkpoint_is_recorded_as_committed_everywhere():
+    for label, block in (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    ):
+        flattened = plain(block)
+        assert "OBSERVEDTRIO SONUC KAYDI COMMIT EDILDI" in flattened, label
+        assert "4e26d24" in block, label
+        assert "OBSERVEDTRIO SONUC KAYDI COMMIT BEKLIYOR" not in flattened
+
+
+def test_pair_bisection_budget_is_recorded_without_native_overclaim():
+    for label, block in (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    ):
+        flattened = plain(block)
+        for fact in (
+            "STATSSELECT",
+            "YTDLSELECT",
+            "IKILI PROFIL BUTCESI 2",
+            "HER GERCEK KOSUM AYRI ONAY B",
+            "YENI NATIVE KOSUM YAPILMADI",
+            "TEK NEGATIF KOSUM CIFTTEN BIRINI ELEMEZ",
+            "TEK POZITIF KOSUM TEK CLIENTI KESIN KOK NEDEN YAPMAZ",
+            "729 PASSED, 4 SKIPPED",
+            "IKILI PROFIL DEGISIKLIKLERI COMMIT BEKLIYOR",
+        ):
+            assert fact in flattened, f"{label} ikili profil kaydi eksik: {fact}"
 
 
 def test_project_status_marks_the_old_harmless_conclusion_as_superseded():

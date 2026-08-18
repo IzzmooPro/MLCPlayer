@@ -61,9 +61,12 @@ SCRIPT_BISECTION_PROFILES = {
     # client'in birlikte yeterli olup olmadigini diger built-in'ler kapaliyken
     # sinayan ayri etkilesim profili. Gercek kosum ayri ONAY B ister.
     "observed_trio": frozenset({"stats", "ytdl_hook", "select"}),
+    "stats_select": frozenset({"stats", "select"}),
+    "ytdl_select": frozenset({"ytdl_hook", "select"}),
 }
 SCRIPT_BISECTION_INITIAL_BUDGET = ("stats_ytdl", "select")
 SCRIPT_BISECTION_INTERACTION_PROFILE = "observed_trio"
+SCRIPT_BISECTION_PAIR_BUDGET = ("stats_select", "ytdl_select")
 _SCRIPT_ENABLE_CONFIG = {
     "stats": {"load_stats_overlay": True},
     "ytdl_hook": {"ytdl": True},

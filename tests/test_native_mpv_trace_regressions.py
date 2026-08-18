@@ -22,6 +22,7 @@ from native_mpv_trace_contract import (  # noqa: E402
     SCRIPT_ABLATION_VARIABLE,
     SCRIPT_BISECTION_INITIAL_BUDGET,
     SCRIPT_BISECTION_INTERACTION_PROFILE,
+    SCRIPT_BISECTION_PAIR_BUDGET,
     SCRIPT_BISECTION_MARKER,
     SCRIPT_BISECTION_PROFILES,
     SCRIPT_BISECTION_VARIABLE,
@@ -81,10 +82,14 @@ def test_script_bisection_profiles_and_first_budget_are_exact():
         "stats": frozenset({"stats"}),
         "ytdl_hook": frozenset({"ytdl_hook"}),
         "observed_trio": frozenset({"stats", "ytdl_hook", "select"}),
+        "stats_select": frozenset({"stats", "select"}),
+        "ytdl_select": frozenset({"ytdl_hook", "select"}),
     }
     assert SCRIPT_BISECTION_INITIAL_BUDGET == ("stats_ytdl", "select")
     assert len(SCRIPT_BISECTION_INITIAL_BUDGET) == 2
     assert SCRIPT_BISECTION_INTERACTION_PROFILE == "observed_trio"
+    assert SCRIPT_BISECTION_PAIR_BUDGET == ("stats_select", "ytdl_select")
+    assert len(SCRIPT_BISECTION_PAIR_BUDGET) == 2
 
 
 @pytest.mark.parametrize("value", [
@@ -100,6 +105,7 @@ def test_script_bisection_profile_is_exact_and_fail_closed(value):
 
 @pytest.mark.parametrize("profile", [
     "stats_ytdl", "select", "stats", "ytdl_hook", "observed_trio",
+    "stats_select", "ytdl_select",
 ])
 def test_script_bisection_accepts_only_recorded_profiles(profile):
     assert script_bisection_profile(
@@ -202,6 +208,9 @@ def test_valid_script_ablation_overrides_runtime_ytdl_reenable():
     ("ytdl_hook", {"ytdl": True}),
     ("observed_trio", {
         "load_stats_overlay": True, "ytdl": True, "load_select": True}),
+    ("stats_select", {
+        "load_stats_overlay": True, "load_select": True}),
+    ("ytdl_select", {"ytdl": True, "load_select": True}),
 ])
 def test_script_bisection_reenables_only_the_selected_profile(profile,
                                                                expected):
@@ -373,6 +382,23 @@ def test_interaction_trace_requires_the_observed_trio_and_nothing_else():
         missing, "observed_trio")[0]
     assert "console" in evaluate_script_bisection_trace(
         polluted, "observed_trio")[0]
+
+
+@pytest.mark.parametrize(("profile", "first", "second", "excluded"), [
+    ("stats_select", "stats", "select", "ytdl_hook"),
+    ("ytdl_select", "ytdl_hook", "select", "stats"),
+])
+def test_pair_trace_requires_exactly_its_two_clients(profile, first, second,
+                                                      excluded):
+    exact = (f"[   0.100][v][{first}] script loaded\n"
+             f"[   0.200][v][{second}] script loaded\n").encode("ascii")
+    missing = f"[   0.100][v][{first}] script loaded\n".encode("ascii")
+    polluted = exact + (
+        f"[   0.300][v][lua/{excluded}] unexpected script\n".encode("ascii"))
+
+    assert evaluate_script_bisection_trace(exact, profile) == []
+    assert second in evaluate_script_bisection_trace(missing, profile)[0]
+    assert excluded in evaluate_script_bisection_trace(polluted, profile)[0]
 
 
 def test_diagnostic_config_is_a_copy_with_exact_trace_options(tmp_path):

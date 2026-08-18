@@ -353,7 +353,7 @@ diğer bütün built-in'ler kapalı kalır. **Tek pozitif koşum kesin kök nede
 kanıtlamaz**; **tek negatif koşum üçlüyü elemez**. Gerçek koşum ancak yeni,
 açık tek koşumluk bütçe ve **ayrı ONAY B** ile yapılabilir. İlgili
 deterministik paketler **719 passed, 4 skipped**; profil ve kayıt değişiklikleri
-**COMMIT BEKLIYOR**.
+sonraki sonuç kaydıyla birlikte commit edildi.
 
 **`observed_trio` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest
 exit 0 / **1 passed**, ancak **shutdown kabulü BASARISIZ**. Otomatik tekrar
@@ -375,8 +375,16 @@ Medya boyutu **2.651.661.814**, `mtime` ticks **638811093472871806** olarak
 Üçlü bu tek örnekte olayı üretmeye **yeterli** oldu; bu, tek bir client'i veya
 etkileşimi **kesin kök neden olarak kanıtlamaz** ve kullanıcıya görünen
 çökme/donma kanıtı değildir. Kök neden ve release-ready madde 8 **AÇIK**;
-kayıt sonrası ilgili deterministik paketler **721 passed, 4 skipped**; sonuç
-kaydı **COMMIT BEKLIYOR**.
+kayıt sonrası ilgili deterministik paketler **721 passed, 4 skipped**.
+`observed_trio` sonuç kaydı **COMMIT EDILDI (`4e26d24`)**.
+
+**Sıradaki deterministik ayrım; yeni native koşum yapılmadı:** ikili profil
+bütçesi **2**: `stats_select` = stats + select ve `ytdl_select` = ytdl_hook +
+select. İkisi de yalnız seçilen client'leri açar. **Her gerçek koşum ayrı ONAY
+B** ister. Aralıklılık nedeniyle **tek negatif koşum çiftten birini elemez**;
+**tek pozitif koşum tek clienti kesin kök neden yapmaz**. Ürün kodu değişmedi.
+İlgili deterministik paketler **729 passed, 4 skipped**; ikili profil
+değişiklikleri **COMMIT BEKLIYOR**.
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,

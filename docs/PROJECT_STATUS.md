@@ -1703,8 +1703,8 @@ sonuç kaydı **COMMIT EDILDI (`6f00ee3`)**.
 kapalıdır. **Tek pozitif koşum kesin kök neden kanıtlamaz**, yalnız üçlünün o
 örnekte yeterli olduğunu gösterir. **Tek negatif koşum üçlüyü elemez**.
 Koşum için yeni tek-koşum bütçesi ve **ayrı ONAY B** gerekir.
-İlgili deterministik paketler **719 passed, 4 skipped**; profil ve kayıt
-değişiklikleri **COMMIT BEKLIYOR**.
+İlgili deterministik paketler **719 passed, 4 skipped**; hazırlık sonraki
+sonuç kaydıyla birlikte commit edildi.
 
 **`observed_trio` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** Bilinen
 Resident Alien videosuyla pytest exit 0 / **1 passed**; otomatik tekrar
@@ -1715,8 +1715,15 @@ diğer bilinen built-in modüller 0. Buna karşın child stderr **19.755 bayt** 
 **yeterli** oldu, fakat tek client'i/etkileşimi veya **kesin kök neden**i
 **kanıtlamaz**. Medya değişmedi, kapanış marker'ları tamamlandı ve artık süreç
 kalmadı. Kayıt sonrası ilgili deterministik paketler **721 passed, 4 skipped**.
-Sonuç kaydı **COMMIT BEKLIYOR**; ayrıntılı artifact hash'leri NATIVE-001
-kaydındadır.
+`observed_trio` sonuç kaydı **COMMIT EDILDI (`4e26d24`)**; ayrıntılı artifact
+hash'leri NATIVE-001 kaydındadır.
+
+**Sıradaki ayrım hazır; yeni native koşum yapılmadı:** ikili profil bütçesi
+**2**: `stats_select` ve `ytdl_select`. **Her gerçek koşum ayrı ONAY B** ister.
+Aralıklı olay nedeniyle **tek negatif koşum çiftten birini elemez**; **tek
+pozitif koşum tek clienti kesin kök neden yapmaz**. Ürün kodu değişmedi.
+İlgili deterministik paketler **729 passed, 4 skipped**; ikili profil
+değişiklikleri **COMMIT BEKLIYOR**.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 
