@@ -1750,17 +1750,41 @@ native koşum yetkilendirilmedi. Kayıt sonrası ilgili deterministik paketler
 **735 passed, 4 skipped**. İki ikili sonuç kaydı **COMMIT EDILDI (`cc94ff7`)**; ayrıntılı
 hash'ler NATIVE-001 kaydındadır.
 
-**Dar ürün adayı — `load_select=False` (18 Ağustos 2026):** MLC Player mpv
+**Dar ürün adayı — `load_select=False` (18 Ağustos 2026; COMMIT EDILDI
+`9a91e18` → CANLI KABUL BASARISIZ):** MLC Player mpv
 `menu-data`, native `context-menu` veya `select/*` bindinglerini kullanmaz;
 kendi Qt menülerini kurar. Exact mpv kaynağında varsayılanı açık olan bu
 kullanılmayan istemci `MPV_CONFIG` içinde kapatıldı; stats/ytdl ayarlarına
 dokunulmadı. İlk kırmızı `None is False`; gerçek constructor aktarımı dahil
 deterministik doğrulamalar **288 passed, 1 skipped, 2 deselected** ve **6
 passed** verdi. Tek tam paket kapanış koşumu **4511 passed, 19 skipped, exit
-0; 115,85 sn** verdi; bu canlı ürün kabulü değildir. **Ürün değişikliği
-commit ve ayrı ONAY B canlı kabulü
-bekliyor; native koşum yapılmadı.** Select kesin kök neden ilan edilmedi ve
-release-ready madde 8 **AÇIK** kaldı.
+0; 115,85 sn** verdi; bu canlı ürün kabulü değildir.
+
+Sonraki tek ONAY B koşumunda pytest exit **1** ve canlı kabul **BASARISIZ**:
+child exit 0 ve bütün kapanış marker'ları doğruydu, fakat stderr **3427
+karakter** ve tam **2** adet `0xe24c4a02` taşıdı. Medya boyutu/mtime değişmedi,
+artık hedef süreç yoktu, CDB/trace/ablation/bisection ve otomatik tekrar
+yoktu. `load_select=False` **yeterli değildir**; select kapalıyken de olay
+oluştuğundan bu örnekte gerekli değildir. Ayar kullanılmayan yüzeyi kapatmak
+için korunur, native kusurun çözümü sayılmaz. Kesin kök neden ve release-ready
+madde 8 **AÇIK** kaldı.
+
+**Kabul kapısı kaynak düzeltmesi (18 Ağustos 2026; COMMIT BEKLIYOR):** exact
+CPython v3.14.3 kaynağı Windows faulthandler'in `0xe24c4a02`yi handler'lar
+yakalamadan önce `fatal` diye yazıp `EXCEPTION_CONTINUE_SEARCH` döndürdüğünü;
+exact LuaJIT kaynağı kodun `0xe24c4a00 | LUA_ERRRUN(2)` ile kasıtlı
+üretildiğini gösterdi. Önceki CDB sonucu 14 first-chance ve 0 second-chance,
+ürün child sonucu exit 0 ve eksiksiz kapanıştır. Eski kapı bu yüzden yanlış
+pozitifti.
+
+Yeni ortak parser yalnız tam CPython `0xe24c4a02` raporu + exit 0 + eksiksiz
+marker/RESULTS birleşimini tanısal gürültü sayar. Diğer bütün fatal/stderr,
+nonzero exit ve kapanış kusurları FAIL kalır; shutdown ile cover-art kapıları
+aynı kaynağı kullanır. Çok-thread mutasyonu her thread bölümünü ayrı başlık
+ve en az bir frame'e bağladı. **537 passed, 2 deselected**; native koşum
+yapılmadı.
+Eski raw çıktı kalıcı artifact olmadığı için geriye dönük PASS yazılmadı.
+Release-ready madde 8 yeni ayrı ONAY B'ye kadar **AÇIK**.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 

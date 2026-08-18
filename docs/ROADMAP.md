@@ -134,9 +134,9 @@ regresyonlar artık aynı tam paket sonucunda birlikte yeşildir.
 
 ## SIRADAKI TEKNIK RISK: `0xe24c4a02` (NATIVE-001)
 
-- **Durum:** GORUNURLUK KUSURU KAPATILDI (HEDEF TESTLERLE DOGRULANDI, COMMIT EDILDI); **CANLI KABUL BASARISIZ (18 Ağustos 2026)**; **kök neden ve ürün etkisi AÇIK**
+- **Durum:** GORUNURLUK KUSURU KAPATILDI; eski kapının canlı FAIL'i kaynak denetiminde **YANLIS POZITIF**; CPython/LuaJIT sınıflandırması **HEDEF TESTLERLE DOGRULANDI → COMMIT BEKLIYOR → CANLI KABUL BEKLIYOR**; alttaki Lua error koşulu ve kullanıcı etkisi **AÇIK**
 - **Bagimlilik:** yok — commit'i beklemez
-- **Olcut:** (a) native istisna artık sessizce geçemez → **sağlandı ve commit edildi**; (b) ürün kapanış yolunda tek yalıtılmış canlı kabul → **koşum YAPILDI ve BAŞARISIZ**; (c) LuaJIT taşıması sınıflandırıldı, fakat asıl Lua hatası bulunmuş ya da bilinçli kabul edilmiş değil → **sağlanmadı**
+- **Olcut:** (a) gerçek fatal/kapanış kusuru sessizce geçemez → **sağlandı**; (b) yakalanmış LuaJIT first-chance raporu fail-closed ayrılır → **hedef testlerle sağlandı, canlı kabul bekliyor**; (c) alttaki Lua runtime error koşulu bulunmuş ya da bilinçli kabul edilmiş değil → **sağlanmadı**
 - **Kullanici onayi:** gerçek-mpv/native koşum için **gerekir**
 
 Ayrıntılı kayıt: `docs/ENGINEERING_AUDIT.md` → **NATIVE-001**.
@@ -431,7 +431,8 @@ değildir**. Yeni native koşum yetkilendirilmedi. Kök neden ile release-ready
 madde 8 **AÇIK**. Kayıt sonrası ilgili deterministik paketler **735 passed, 4
 skipped**; iki ikili sonuç kaydı **COMMIT EDILDI (`cc94ff7`)**.
 
-**Dar ürün adayı — `load_select=False` (18 Ağustos 2026):** exact mpv
+**Dar ürün adayı — `load_select=False` (18 Ağustos 2026; COMMIT EDILDI
+`9a91e18` → CANLI KABUL BASARISIZ):** exact mpv
 kaynağında varsayılanı açık olan `select.lua`, mpv konsol seçimi,
 `menu-data`, native `context-menu` ve `select/*` bindingleri içindir. MLC Player
 bu mpv API'lerini kullanmaz; kendi Qt menülerini kurar ve mpv varsayılan
@@ -441,10 +442,42 @@ kırmızı `None is False`; düzeltme sonrası gerçek constructor yolu da
 `load_select=False` aldı. İlgili deterministik sonuçlar **288 passed, 1
 skipped, 2 deselected** ve constructor odaklı **6 passed**. Tek tam paket
 kapanış koşumu **4511 passed, 19 skipped, exit 0; 115,85 sn** verdi; bu canlı
-ürün kabulü değildir. **Commit ve canlı kabul bekliyor; bu turda native koşum
-yapılmadı.** Select kesin kök neden
-ilan edilmedi; release-ready madde 8 ayrı ONAY B canlı kabulüne kadar
-**AÇIK**.
+ürün kabulü değildir.
+
+**ONAY B — TEK KOSUM:** normal ürün yapılandırmasında pytest exit **1** ve
+canlı kabul **BASARISIZ**. Child exit 0; medya hazır (`duration=2782.27`),
+`stop=1` → `terminate=1`, pencere kapalı, `app.exec()` 0, kalan MPV thread 0
+ve `RESULTS failures=none`. Buna rağmen stderr **3427 karakter** ve tam **2**
+adet `0xe24c4a02` taşıdı. Medya boyutu **2.651.661.814** ve `mtime` ticks
+**638811093472871806** olarak değişmedi; artık hedef süreç yoktu. CDB/trace/
+ablation/bisection ve otomatik tekrar yoktu.
+
+Sonuç: `load_select=False` **yeterli değildir**; olay select kapalıyken de
+oluştuğu için select bu örnekte gerekli değildir. Bu, select'in hiçbir
+katkısı olmadığını veya başka bir clienti kesin kök neden yapmaz. Ayar
+kullanılmayan yüzeyi kapatmak için korunur, `0xe24c4a02` düzeltmesi sayılmaz.
+Release-ready madde 8 ve kesin kök neden **AÇIK**.
+
+**Kabul kapısı kaynak düzeltmesi (18 Ağustos 2026; COMMIT BEKLIYOR, native
+koşum yok):** CPython v3.14.3 Windows faulthandler
+`AddVectoredExceptionHandler` ile bir vectored exception handler'ı önce
+kurar; `0xe24c4a02` için yanıltıcı `Windows fatal exception`
+başlığını yazdıktan sonra `EXCEPTION_CONTINUE_SEARCH` döndürür. CPython
+issue #75882 bunun daha sonra yakalanan exception'ları da yazabildiğini
+belgeler. Exact LuaJIT kaynağı ise `0xe24c4a00 | LUA_ERRRUN(2)` kodunu
+`RaiseException` ile üretir. Bu, mevcut **14 first-chance / 0 second-chance**
+CDB ve child exit 0 kanıtıyla birlikte eski kapının yanlış pozitif olduğunu
+gösterir.
+
+Ortak `native_windows_exception_contract.py` yalnız tam CPython rapor(lar)ı
++ exit 0 + eksiksiz marker/RESULTS birleşimini tanısal gürültü sayar.
+Truncated/farklı kod, ek stderr, stdout fatal, bozuk UTF-8, nonzero exit,
+eksik marker ve thread sızıntısı FAIL kalır. Shutdown ve cover-art kapıları
+aynı parser'ı kullanır. Çok-thread mutasyonu her thread bölümünü ayrı başlık
+ve en az bir frame'e bağladı. Deterministik sonuç **537 passed, 2 deselected**;
+iki deselected düğüm gerçek native kabuldür. Düzeltilmiş kapıyla native koşum
+yapılmadı ve eski raw çıktı kalıcı artifact olmadığı için geriye dönük PASS
+yazılmadı. Release-ready madde 8 ayrı ONAY B'ye kadar **AÇIK**.
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,

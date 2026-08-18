@@ -566,9 +566,11 @@ def test_the_native_record_separates_the_two_stage_commit_states():
     folded = fold(status_line[0]).upper()
     assert "ASAMA 1" in folded and "ASAMA 2" in folded, (
         f"Durum satiri asamalari ayirmiyor: {status_line[0]}")
-    assert "CANLI KABUL BASARISIZ" in folded, (
-        f"Durum satiri canli kabulun basarisiz oldugunu yazmiyor: "
-        f"{status_line[0]}")
+    for fact in ("ESKI KAPIYLA CANLI FAIL", "YANLIS POZITIF",
+                 "CANLI KABUL BEKLIYOR"):
+        assert fact in folded, (
+            f"Durum satiri guncel kabul ayrimini yazmiyor ({fact}): "
+            f"{status_line[0]}")
 
 
 def test_the_roadmap_summary_does_not_undercount_local_commits():
@@ -1338,6 +1340,7 @@ def test_native_record_names_the_pdb_free_trace_gate_files():
 
     for path in (
         "tests/native_mpv_trace_contract.py",
+        "tests/native_windows_exception_contract.py",
         "tests/test_native_mpv_trace_regressions.py",
         "tests/native_player_shutdown_child.py",
         "tests/test_native_shutdown_acceptance_regressions.py",
@@ -1370,8 +1373,8 @@ def test_native_record_carries_the_narrow_select_product_candidate():
         flattened = fold(flat(block)).upper()
         for fact in (
             "load_select=False",
-            "CANLI KABUL",
-            "NATIVE KOSUM YAPILMADI",
+            "9a91e18",
+            "CANLI KABUL BASARISIZ",
             "KESIN KOK NEDEN",
             "MADDE 8",
             "ACIK",
@@ -1387,6 +1390,84 @@ def test_native_record_carries_the_select_candidate_test_evidence():
     assert "288 passed, 1 skipped, 2 deselected" in block
     assert "6 passed" in block
     assert "4511 passed, 19 skipped, exit 0; 115,85 sn" in block
+
+
+def test_native_record_carries_the_failed_select_off_live_result():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        for fact in (
+            "pytest exit 1",
+            "child exit **0**",
+            "3427 karakter",
+            "tam **2** adet",
+            "load_select=false",
+            "yeterli degildir",
+            "otomatik tekrar",
+        ):
+            assert flat(fact) in flattened, (
+                f"{label} select-off canli kaniti eksik: {fact}")
+
+
+def test_select_off_result_does_not_claim_a_definitive_root_cause():
+    flattened = flat(native_record())
+
+    assert "select bu kosumda olayin olusmasi icin **gerekli degildir**" in flattened
+    assert "baska client/etkilesimlerin kesin kok neden oldugunu kanitlamaz" in flattened
+
+
+def test_native_record_explains_the_cpython_faulthandler_false_positive():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = plain(block)
+        for fact in (
+            "cpython v3.14.3",
+            "addvectoredexceptionhandler",
+            "exception_continue_search",
+            "issue #75882",
+            "0xe24c4a00 | lua_errrun(2)",
+            "14 first-chance",
+            "0 second-chance",
+            "yanlis pozitif",
+        ):
+            assert plain(fact) in flattened, (
+                f"{label} faulthandler kaynak kanitini yazmiyor: {fact}")
+
+
+def test_native_record_keeps_the_revised_gate_fail_closed():
+    block = flat(native_record())
+
+    for fact in (
+        "truncated rapor",
+        "farkli windows kodu",
+        "ek stderr",
+        "stdout fatal",
+        "bozuk utf-8",
+        "nonzero exit",
+        "eksik/bozuk marker",
+        "thread sizintisi",
+        "537 passed, 2 deselected",
+    ):
+        assert flat(fact) in block, fact
+
+
+def test_revised_gate_has_no_retroactive_or_unmeasured_live_pass():
+    block = flat(native_record())
+
+    assert "duzeltilmis kapiyla gercek native kabul calistirilmadi" in block
+    assert "geriye donuk pass ilan edilmedi" in block
+    assert "release-ready madde 8" in block and "**acik**" in block
+
+
+def test_native_summary_separates_the_explained_trace_from_the_open_lua_error():
+    audit = plain(native_record())
+    roadmap = plain(roadmap_native_section())
+
+    for label, block in (("ENGINEERING_AUDIT", audit), ("ROADMAP", roadmap)):
+        assert "YANLIS POZITIF" in block, label
+        assert "CANLI KABUL BEKLIYOR" in block, label
+        assert "LUA" in block and "ACIK" in block, label
+    assert "YANILTICI WINDOWS FATAL EXCEPTION CIKTISININ MEKANIZMASI BULUNDU" in audit
 
 
 def test_pairwise_bisection_results_are_recorded_as_committed():

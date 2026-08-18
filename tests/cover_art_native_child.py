@@ -10,8 +10,9 @@ exit 0** verdigi halde stderr'e su dustu:
       MPVEventHandlerThread -> mpv.py:689 _event_generator
 
 Olay hem fixture gecisinde hem AKTIF testin `wait_until_playing()`
-satirinda gorulmustur. Exit kodu yesil oldugu icin pytest bunu SESSIZCE
-geciyordu.
+satirinda gorulmustur. Sonraki exact kaynak + CDB denetimi CPython Windows
+faulthandler'in yakalanmis LuaJIT first-chance olayini da "fatal" diye
+yazdigini kanitladi; baslik tek basina crash kaniti degildir.
 
 BU MODUL `mpv`yi MODUL DUZEYINDE IMPORT ETMEZ. Ust test buradan yalnizca
 saf yardimcilari alir; import etmek libmpv'yi ana surece SOKMAZ.
@@ -43,6 +44,9 @@ import sys
 import threading
 import time
 import wave
+
+from native_windows_exception_contract import (
+    complete_luajit_faulthandler_reports)
 
 #: stderr'de bunlardan biri varsa kosum BASARISIZDIR -- exit 0 olsa bile.
 NATIVE_FAILURE_PATTERNS = (
@@ -157,9 +161,13 @@ def evaluate_child(returncode, stdout, stderr):
     stdout = decode_stream(stdout)
     stderr = decode_stream(stderr)
 
-    # 1. stderr ONCE: exit 0 ve tam marker seti native istisnayi AKLAMAZ.
+    # 1. Genel stderr/fatal izleri ONCE. CPython VEH'nin tam LuaJIT raporu
+    # exit 0 ile tanisal gurultudur; marker hatalari asagida yine FAIL verir.
+    handled_luajit_stderr = (
+        returncode == 0 and complete_luajit_faulthandler_reports(stderr))
+    stderr_to_scan = "" if handled_luajit_stderr else stderr
     for pattern in NATIVE_FAILURE_PATTERNS:
-        if pattern in stderr:
+        if pattern in stderr_to_scan:
             problems.append(
                 f"stderr'de native/olumcul iz var ({pattern!r}); "
                 "exit 0 olsa bile kabul edilmez")

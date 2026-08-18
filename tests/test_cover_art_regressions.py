@@ -12,6 +12,9 @@ gerçek `mpv.MPV` kuruyordu. Bağımsız koşumda **3 passed / exit 0**
 verildiği hâlde stderr'e `Windows fatal exception: code 0xe24c4a02`
 düşüyordu (`MPVEventHandlerThread -> mpv.py:689`). Olay hem fixture
 geçişinde hem AKTİF testin `wait_until_playing()` satırında görüldü.
+Sonraki exact kaynak + CDB denetimi bunun CPython faulthandler'in yakalanmis
+LuaJIT first-chance olayina koydugu yaniltici baslik olabilecegini kanitladi;
+baslik tek basina crash kaniti sayilmaz.
 
 ÖLÇÜLEN ÜÇÜNCÜ SORUN (aynı gün, bağımsız denetim): bu dosyanın ilk
 düzeltmesi `assert "mpv" not in sys.modules` yazıyordu. `app.player`
@@ -63,6 +66,15 @@ GOOD_STDOUT = "\n".join([
     "MARK_DONE",
 ]) + "\n"
 
+HANDLED_LUAJIT_STDERR = (
+    "Windows fatal exception: code 0xe24c4a02\n\n"
+    "Thread 0x1234 [MPVEventHandlerThread] (most recent call first):\n"
+    "  File \"C:\\\\Python\\\\Lib\\\\site-packages\\\\mpv.py\", "
+    "line 689 in _event_generator\n"
+    "\n"
+    "Current thread's C stack trace (most recent call first):\n"
+    "  <cannot get C stack on this system>\n")
+
 
 def drop_marker(marker, stdout=None):
     """Verilen marker satirini cikarir (TAM ilk-token eslesmesiyle)."""
@@ -90,6 +102,25 @@ def test_a_fatal_native_exception_fails_even_with_exit_zero():
 
     assert problems, "exit 0 + fatal stderr KABUL EDILDI"
     assert any("Windows fatal exception" in p for p in problems), problems
+
+
+def test_a_complete_handled_luajit_report_is_not_a_cover_art_crash():
+    assert evaluate_child(0, GOOD_STDOUT, HANDLED_LUAJIT_STDERR) == []
+
+
+def test_a_handled_luajit_report_does_not_acquit_nonzero_exit():
+    problems = evaluate_child(
+        0xE24C4A02, GOOD_STDOUT, HANDLED_LUAJIT_STDERR)
+
+    assert any("exit" in problem.lower() for problem in problems), problems
+
+
+def test_extra_stderr_after_a_luajit_report_still_fails_cover_art():
+    problems = evaluate_child(
+        0, GOOD_STDOUT, HANDLED_LUAJIT_STDERR + "ek uyari\n")
+
+    assert problems
+    assert any("Windows fatal exception" in problem for problem in problems)
 
 
 @pytest.mark.parametrize("pattern", NATIVE_FAILURE_PATTERNS)
@@ -372,9 +403,9 @@ def test_cover_display_is_configured_in_the_single_mpv_config():
 def test_the_native_cover_art_scenarios_pass_in_a_child_process():
     """Gercek libmpv kabulu: ayri surec, TEK kosum.
 
-    Akislar BAYT yakalanir (`text=True` YOK). Child exit 0 verse ve
-    butun marker'lari tasisa bile stderr'de native istisna varsa bu test
-    FAIL verir.
+    Akislar BAYT yakalanir (`text=True` YOK). Yalniz tam CPython/LuaJIT VEH
+    raporu + exit 0 + eksiksiz marker sozlesmesi tanisal gurultu sayilir;
+    diger fatal/stderr ve kapanis kusurlari FAIL verir.
     """
     result = subprocess.run(
         [sys.executable, CHILD],

@@ -13,8 +13,10 @@ Olculen urun yolu:
 
 Child bu yolu KENDI baslatmaz; yalnizca `player.close()` cagirir.
 
-FAIL-CLOSED: child `exit 0` verse ve butun marker'lari tasisa bile
-stderr'de tek bir bayt varsa veya fatal desen gorulurse kabul DUSER.
+FAIL-CLOSED: child `exit 0` verse ve butun marker'lari tasisa bile genel
+stderr/fatal izleri kabul DUSURUR. Tek dar istisna, CPython'in Windows VEH
+faulthandler'inin yakalanmis LuaJIT `LUA_ERRRUN` SEH olayi icin yazdigi TAM
+biçimli rapordur; nonzero exit, eksik marker veya ek stderr bunu aklayamaz.
 
 OLCULEN BES FAIL-OPEN (18 Agustos 2026, bagimsiz denetim) ve kapatilmasi:
 
@@ -53,6 +55,8 @@ from native_media_contract import (MEDIA_EXTENSIONS,  # noqa: E402
                                    MEDIA_FIELD_PREFIX,
                                    decode_media_basename,
                                    encode_media_basename, is_supported_media)
+from native_windows_exception_contract import (  # noqa: E402
+    LUAJIT_RUNTIME_ERROR_TRACE, complete_luajit_faulthandler_reports)
 
 CHILD = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                      "native_player_shutdown_child.py")
@@ -68,11 +72,6 @@ EXTRA_FAILURE_PATTERNS = ("Traceback", "PYTHON_EXCEPTION")
 #: stdout VE stderr icinde aranan tum desenler.
 FAILURE_PATTERNS = tuple(dict.fromkeys(
     tuple(NATIVE_FAILURE_PATTERNS) + EXTRA_FAILURE_PATTERNS))
-
-# LuaJIT, Windows'ta Lua calisma zamani hatasini bu SEH koduyla tasir.
-# Bu iz tek basina crash veya second-chance kaniti degildir; yine de stderr
-# sozlesmesini bozar ve kabul kesinlikle FAIL kalir.
-LUAJIT_RUNTIME_ERROR_TRACE = "Windows fatal exception: code 0xe24c4a02"
 
 #: Kabul edilen TEK RESULTS satiri.
 EXPECTED_RESULTS = "RESULTS: failures=none stop=1 terminate=1"
@@ -319,8 +318,14 @@ def evaluate_shutdown_result(returncode, stdout, stderr,
     stderr = decode_stream(stderr)
     context = {"expected_basename": expected_basename}
 
-    # 1. Hata izleri ONCE: exit 0 ve tam marker seti bunlari AKLAMAZ.
-    for stream_name, text in (("stdout", stdout), ("stderr", stderr)):
+    # 1. Hata izleri ONCE: genel fatal desenleri exit 0 AKLAMAZ. Yalniz
+    # CPython VEH'nin tam LuaJIT raporu, exit 0 ile birlikte stderr taramasindan
+    # cikarilir; marker/RESULTS bozuksa asagidaki kontroller yine FAIL verir.
+    handled_luajit_stderr = (
+        returncode == 0 and complete_luajit_faulthandler_reports(stderr))
+    stderr_to_scan = "" if handled_luajit_stderr else stderr
+    for stream_name, text in (("stdout", stdout),
+                              ("stderr", stderr_to_scan)):
         scan_text = text
         if LUAJIT_RUNTIME_ERROR_TRACE in scan_text:
             problems.append(
@@ -334,8 +339,9 @@ def evaluate_shutdown_result(returncode, stdout, stderr,
                     f"{stream_name} icinde fatal iz var ({pattern!r}); "
                     "exit 0 olsa bile kabul edilmez")
 
-    # 2. stderr TAMAMEN bos olmali. Ilk turda "zararsiz uyari" muafiyeti YOK.
-    if stderr.strip():
+    # 2. Genel stderr TAMAMEN bos olmali. Tam CPython/LuaJIT VEH raporu disinda
+    # "zararsiz uyari" muafiyeti YOK.
+    if stderr_to_scan.strip():
         problems.append(
             f"stderr bos DEGIL ({len(stderr)} karakter); ilk turda hicbir "
             f"uyari muaf tutulmaz: {stderr.strip()[:400]!r}")

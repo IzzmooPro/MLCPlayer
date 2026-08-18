@@ -6,13 +6,14 @@ Bu dosya GERCEK MPV veya urun kodu YUKLEMEZ. Yalnizca saf
 `evaluate_shutdown_result()` sozlesmesini olcer; canli kabul ayri ve TEK
 bir kosumdur (`test_the_product_shutdown_path_survives_a_real_run`).
 
-ASIL KIRMIZI: child `exit 0` verir, butun basari marker'lari yazilmistir
-ve `RESULTS: failures=none` bildirir; fakat stderr'de
-`Windows fatal exception: code 0xe24c4a02` vardir. Bu sonuc KESINLIKLE
-kabul edilmemelidir. Aralikli native olguyu kirmizi uretmek icin canli
-test TEKRARLANMAZ; ilk kirmizi bu simule edilmis ciktiyla alinir.
+CPython 3.14 Windows faulthandler, daha sonra LuaJIT tarafindan yakalanan
+first-chance `0xe24c4a02` olayini da "fatal" diye yazar. Yalniz TAM CPython
+raporu + exit 0 + eksiksiz marker/RESULTS sozlesmesi kabul edilir. Truncated
+rapor, baska kod, ek stderr, nonzero exit ve eksik marker fail-closed kalir.
+Aralikli native olguyu kirmizi uretmek icin canli test TEKRARLANMAZ.
 """
 
+import ast
 import os
 import subprocess
 import sys
@@ -25,6 +26,8 @@ from native_media_contract import (MEDIA_FIELD_PREFIX,  # noqa: E402
                                    decode_media_basename,
                                    encode_media_basename,
                                    is_supported_media)
+from native_windows_exception_contract import (  # noqa: E402
+    LUAJIT_RUNTIME_ERROR_TRACE, complete_luajit_faulthandler_reports)
 import native_shutdown_acceptance as acceptance  # noqa: E402
 from native_shutdown_acceptance import (CHILD, EXPECTED_RESULTS,  # noqa: E402
                                         FAILURE_PATTERNS, MARKER_GRAMMAR,
@@ -60,6 +63,18 @@ FATAL_STDERR = ("Windows fatal exception: code 0xe24c4a02\n"
                 "Thread 0x000021f4 [MPVEventHandlerThread] (most recent "
                 "call first):\n")
 
+HANDLED_LUAJIT_STDERR = (
+    "Windows fatal exception: code 0xe24c4a02\n\n"
+    "Thread 0x000021f4 [MPVEventHandlerThread] (most recent call first):\n"
+    "  File \"C:\\\\Python\\\\Lib\\\\site-packages\\\\mpv.py\", "
+    "line 689 in _event_generator\n"
+    "\n"
+    "Thread 0x00001234 (most recent call first):\n"
+    "  File \"C:\\\\project\\\\app\\\\player.py\", line 460 in update_ui\n"
+    "\n"
+    "Current thread's C stack trace (most recent call first):\n"
+    "  <cannot get C stack on this system>\n")
+
 GENERIC_FATAL_STDERR = "Windows fatal exception: code 0xc0000005\n"
 
 MEDIA_BEFORE = {"path": "C:\\media\\ornek.mkv", "size": 12345,
@@ -86,7 +101,7 @@ def test_a_completely_healthy_shutdown_is_accepted():
 
 
 def test_exit_zero_with_a_fatal_stderr_is_rejected():
-    """ASIL KIRMIZI: exit 0 + tam marker seti + failures=none + fatal stderr."""
+    """Eksik/truncated `fatal` metni yakalanmis SEH kaniti sayilamaz."""
     problems = evaluate_shutdown_result(0, GOOD_STDOUT, FATAL_STDERR)
 
     assert problems, "exit 0 + fatal stderr KABUL EDILDI"
@@ -100,6 +115,99 @@ def test_luajit_runtime_error_is_classified_without_becoming_a_pass():
                for problem in problems), problems
     assert not any("fatal iz" in problem and "Windows fatal exception" in problem
                    for problem in problems), problems
+
+
+def test_a_complete_handled_luajit_faulthandler_report_is_not_a_crash():
+    """CPython VEH first-chance'i `fatal` yazar; exit 0 yakalandigini kanitlar."""
+    assert evaluate_shutdown_result(
+        0, GOOD_STDOUT, HANDLED_LUAJIT_STDERR) == []
+
+
+def test_multiple_complete_handled_luajit_reports_are_accepted():
+    stderr = HANDLED_LUAJIT_STDERR + HANDLED_LUAJIT_STDERR
+
+    assert evaluate_shutdown_result(0, GOOD_STDOUT, stderr) == []
+
+
+def test_a_luajit_report_with_nonzero_exit_is_still_rejected():
+    problems = evaluate_shutdown_result(
+        0xE24C4A02, GOOD_STDOUT, HANDLED_LUAJIT_STDERR)
+
+    assert any("exit code" in problem for problem in problems), problems
+
+
+def test_a_luajit_report_cannot_acquit_an_incomplete_shutdown():
+    problems = evaluate_shutdown_result(
+        0, drop_marker("MARK_MAIN_RETURNED"), HANDLED_LUAJIT_STDERR)
+
+    assert any("MARK_MAIN_RETURNED" in problem for problem in problems)
+
+
+def test_extra_stderr_next_to_a_luajit_report_is_rejected():
+    problems = evaluate_shutdown_result(
+        0, GOOD_STDOUT, HANDLED_LUAJIT_STDERR + "libpng warning: iCCP\n")
+
+    assert any("stderr bos DEGIL" in problem for problem in problems), problems
+
+
+def test_a_complete_luajit_report_on_stdout_is_never_exempt():
+    problems = evaluate_shutdown_result(
+        0, GOOD_STDOUT + HANDLED_LUAJIT_STDERR, "")
+
+    assert problems
+    assert any("Windows fatal exception" in problem for problem in problems)
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda text: text.replace(
+        LUAJIT_RUNTIME_ERROR_TRACE + "\n\n",
+        LUAJIT_RUNTIME_ERROR_TRACE + "\n", 1),
+    lambda text: text.replace(
+        "Thread 0x000021f4 [MPVEventHandlerThread] "
+        "(most recent call first):\n", "", 1),
+    lambda text: text.replace(
+        "  File \"C:\\\\Python\\\\Lib\\\\site-packages\\\\mpv.py\", "
+        "line 689 in _event_generator\n", "", 1),
+    lambda text: text.replace(
+        "Current thread's C stack trace (most recent call first):\n", "", 1),
+    lambda text: text.replace(
+        "  <cannot get C stack on this system>\n", "", 1),
+    lambda text: "\ufffd" + text,
+    lambda text: "on ek\n" + text,
+    lambda text: text + "son ek\n",
+])
+def test_incomplete_or_contaminated_luajit_reports_are_rejected(mutate):
+    broken = mutate(HANDLED_LUAJIT_STDERR)
+
+    assert broken != HANDLED_LUAJIT_STDERR
+    assert not complete_luajit_faulthandler_reports(broken)
+    assert evaluate_shutdown_result(0, GOOD_STDOUT, broken)
+
+
+def test_the_windows_exception_contract_is_native_import_free():
+    path = os.path.join(os.path.dirname(__file__),
+                        "native_windows_exception_contract.py")
+    with open(path, encoding="utf-8") as handle:
+        source = handle.read()
+
+    imported = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            imported.update(alias.name.split(".")[0] for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imported.add(node.module.split(".")[0])
+    assert "mpv" not in imported
+    assert "PyQt6" not in imported
+
+
+def test_both_native_gates_use_the_single_windows_exception_classifier():
+    root = os.path.dirname(__file__)
+    for name in ("native_shutdown_acceptance.py",
+                 "cover_art_native_child.py"):
+        with open(os.path.join(root, name), encoding="utf-8") as handle:
+            source = handle.read()
+        assert "complete_luajit_faulthandler_reports" in source, name
+        assert "def complete_luajit_faulthandler_reports" not in source, name
 
 
 def test_an_unrelated_windows_fatal_exception_keeps_the_generic_guard():
