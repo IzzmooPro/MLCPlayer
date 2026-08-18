@@ -83,14 +83,14 @@ değişiklik henüz kalıcı değildir.
 - **Kimlik:** REL-003
 - **Baslik:** `build_release.bat` jokerle eski installer seçebiliyordu
 - **Onem:** Yüksek — eski bir artifact imzalanıp yeni sürüm gibi raporlanabilirdi
-- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI → CANLI KABUL BEKLIYOR
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI → **CANLI BUILD BASARILI** (19 Ağustos 2026)
 - **Kanit:** `for %%F in ("installer_output\MLCPlayer_Setup_*.exe")` — `for` eşleşenleri gezer, SON eşleşme kazanır ve sıra dosya sistemine bağlıdır. Klasör birikimlidir. Asıl tehlike sıralama değil: Inno adımı yeni EXE'yi üretemezse joker sessizce eskisini seçer.
 - **Kok neden:** Sonuç dosyası hesaplanmak yerine **aranıyordu**.
 - **Degisen dosyalar:** `packaging/build_release.bat`, `tests/test_release_artifact_selection_regressions.py`
 - **Test kaniti:** Eski 9 publishability testi **korundu** (`test_release_guard_regressions.py`, HEAD'e göre değişmemiş); 20 yeni artifact testi eklendi. Toplam **29 passed**. Sürüm/yol türetmesi ayrıca gerçek `cmd` ile doğrulandı (hiçbir şey silmeden).
-- **Canli kabul:** Gerçek build **YAPILMADI**.
-- **Kalan risk:** Betik uçtan uca çalıştırılmadı; PyInstaller/Inno/imza adımları bu turlarda koşmadı. Adlandırmanın ISS `OutputBaseFilename` ile bağı testle korunuyor ama iki yerde ayrı yazılı.
-- **Commit durumu:** COMMIT EDILDI — `85dda6d`
+- **Canli kabul:** Temiz `6cdacf1` HEAD'i üzerinde `packaging\build_release.bat` **yalnız bir kez** çalıştırıldı ve `DONE` başarı yoluna ulaştı; bu yol betikte `exit /b 0` ile biter. Otomatik tekrar yapılmadı. Kesin v0.37 çıktıları: ana installer **58.255.939 bayt**, SHA-256 `fa0a5f03cbe0f3a42c29fa162648fdabea4efffcbbaef2754d7c2657155474da`; add-on **49.268.164 bayt**, SHA-256 `05937a59c5f0e29b32d15fecc5080351ce65d55720508fc8901a6d347bfaf67b`. Ayrı salt-okunur denetimde `MAIN_SIGNATURE_OK=True` ve `ADDON_SIGNATURE_OK=True`; iki `.sig` de 88 bayt. `verify_build.py --final` ana installer için tekrar exit 0 verdi. Dist EXE `FileVersion/ProductVersion=v0.37`; iki installer Windows alanı `0.37.0.0`.
+- **Kalan risk:** Fiziksel kurulum/kaldırma/ilk açılış kabul matrisi henüz koşulmadı. Build başarılıdır; yayın hazır kabulü değildir.
+- **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı **COMMIT BEKLIYOR**.
 
 ---
 
@@ -115,14 +115,14 @@ değişiklik henüz kalıcı değildir.
 - **Kimlik:** REL-005
 - **Baslik:** `build`/`dist` temizliği doğrulanmadan zincir devam ediyordu
 - **Onem:** Yüksek — PyInstaller'ın ürettiği sanılan ağaç, önceki koşumun artığı olabilirdi
-- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI → CANLI KABUL BEKLIYOR
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI → **CANLI BASARI YOLU DOGRULANDI; KILITLI HATA YOLU BEKLIYOR**
 - **Kanit:** `packaging/build_release.bat` STEP 2'de `if exist "build" rmdir /s /q "build"` ve `dist` için aynısı vardı; **sonuç hiç denetlenmiyordu**. `rmdir /s /q` sessizce başarısız olabilir (kilitli dosya, açık Explorer penceresi, yetki sorunu) ve komut hata kodu döndürmeyebilir.
 - **Kok neden:** Silme **denendi**, ama silinip silinmediği **ölçülmedi**. Aynı kusur sınıfı `installer_output` tarafında zaten kapatılmıştı (kesin dört hedef + `goto :fail`); `build`/`dist` o turda atlanmıştı.
 - **Degisen dosyalar:** `packaging/build_release.bat`, `tests/test_release_artifact_selection_regressions.py`
 - **Test kaniti:** Dört yeni kaynak-regresyon testi: `build` ve `dist` için ayrı ayrı `if exist … goto :fail` koruması, başarı mesajının **iki denetimden de sonra** geldiği, `rmdir`in yalnız bu iki hedefte ve jokersiz kullanıldığı, `installer_output` davranışının **değişmediği**. Dosya sonucu: **25 passed**.
-- **Canli kabul:** Gerçek build **YAPILMADI**; betik bu turda çalıştırılmadı ve hiçbir klasör silinmedi. Koruma yalnız kaynak metninde ölçüldü.
-- **Kalan risk:** Kilitli klasör senaryosu gerçek Windows'ta yeniden üretilmedi; `rmdir` başarısızlığının bu koşulda gerçekten `if exist` ile yakalandığı canlı koşumda görülmeli.
-- **Commit durumu:** COMMIT EDILDI — `85dda6d`
+- **Canli kabul:** 19 Ağustos 2026 tek v0.37 build'inde önceki `build/` ve `dist/` vardı; STEP 2 ikisini kaldırdı, yokluklarını doğruladı ve ancak sonra başarı mesajı verdi. Zincir temiz PyInstaller ağacını yeniden üretti. Kilitli klasör hata yolu canlı ölçülmedi.
+- **Kalan risk:** Kilitli klasör senaryosu gerçek Windows'ta yeniden üretilmedi; `rmdir` başarısızlığının bu koşulda gerçekten `if exist` ile yakalandığı ayrıca ölçülmeli.
+- **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı **COMMIT BEKLIYOR**.
 
 ---
 

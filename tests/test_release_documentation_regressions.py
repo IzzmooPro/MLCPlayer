@@ -413,6 +413,50 @@ def test_the_roadmap_summary_has_the_current_local_commit_count():
     assert "4543 passed / 19 skipped / 0 failed" in summary
 
 
+def test_the_v0_37_windows_build_is_recorded_with_exact_artifacts():
+    records = {
+        "ENGINEERING_AUDIT": read(AUDIT_DOC),
+        "ROADMAP": read(ROADMAP_DOC),
+        "PROJECT_STATUS": read(PROJECT_STATUS_DOC),
+    }
+
+    for label, record in records.items():
+        block = flat(record)
+        for fact in (
+            "v0.37",
+            "6cdacf1",
+            "58.255.939",
+            "49.268.164",
+            "fa0a5f03cbe0f3a42c29fa162648fdabea4efffcbbaef2754d7c2657155474da",
+            "05937a59c5f0e29b32d15fecc5080351ce65d55720508fc8901a6d347bfaf67b",
+            "main_signature_ok=true",
+            "addon_signature_ok=true",
+        ):
+            assert flat(fact) in block, f"{label}: {fact}"
+
+
+def test_the_build_record_separates_success_from_pending_physical_acceptance():
+    roadmap = flat(read(ROADMAP_DOC))
+
+    assert flat("BUILD BASARILI - FIZIKSEL KABUL BEKLIYOR") in roadmap
+    assert flat("otomatik tekrar yapilmadi") in roadmap
+    assert flat("kilitli klasor hata yolu canli olculmedi") in roadmap
+
+
+def test_the_build_record_preserves_the_measured_compression_policy():
+    status = flat(read(PROJECT_STATUS_DOC))
+
+    for fact in (
+        "lzma2/max",
+        "solidcompression=yes",
+        "upx=false",
+        "187,8 mb",
+        "55,6 mb",
+        "%70",
+    ):
+        assert flat(fact) in status, fact
+
+
 def test_the_cover_art_fatal_exception_is_recorded_as_open_risk():
     text = read(AUDIT_DOC)
 

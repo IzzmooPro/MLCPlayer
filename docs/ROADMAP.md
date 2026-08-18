@@ -41,7 +41,7 @@ risk, NATIVE-001'in bilinmeyen native kök nedeni ve ürün etkisidir.
 - **Kullanici onayi:** commit verildi ve uygulandı; push ayrı onay ister
 
 ### Kesin artifact seçimi (REL-003)
-- **Durum:** HEDEF TESTLERLE DOGRULANDI, COMMIT EDILDI (`85dda6d`), CANLI KABUL BEKLIYOR
+- **Durum:** HEDEF TESTLERLE DOGRULANDI, COMMIT EDILDI (`85dda6d`), **CANLI BUILD BASARILI** (`v0.37`, 19 Ağustos 2026)
 - **Bagimlilik:** gerçek Windows build
 - **Olcut:** zincir uçtan uca koşup doğru sürümü imzalamalı
 - **Kullanici onayi:** commit uygulandı; canlı build ayrıca onay ister
@@ -53,7 +53,7 @@ risk, NATIVE-001'in bilinmeyen native kök nedeni ve ürün etkisidir.
 - **Kullanici onayi:** commit uygulandı; push/release ayrı onay ister
 
 ### build/dist temizliği doğrulaması (REL-005)
-- **Durum:** HEDEF TESTLERLE DOGRULANDI, COMMIT EDILDI (`85dda6d`), CANLI KABUL BEKLIYOR
+- **Durum:** HEDEF TESTLERLE DOGRULANDI, COMMIT EDILDI (`85dda6d`), CANLI BASARI YOLU DOGRULANDI; kilitli hata yolu bekliyor
 - **Bagimlilik:** REL-003 (aynı betik), gerçek Windows build
 - **Olcut:** `rmdir` başarısız olduğunda zincir gerçekten durmalı — kilitli klasörle canlı koşumda görülmeli
 - **Kullanici onayi:** commit uygulandı; canlı build ayrıca onay ister
@@ -630,10 +630,22 @@ devam ediyor (bkz. madde 8).
 
 ## Gercek Windows build ve kabul matrisi
 
-- **Durum:** CANLI KABUL BEKLIYOR
+- **Durum:** **BUILD BASARILI - FIZIKSEL KABUL BEKLIYOR**
 - **Bagimlilik:** REL-001, REL-003
 - **Olcut:** `build_release.bat` uçtan uca exit 0; dört artifact üretilmiş ve imzalanmış; fiziksel kabul matrisi koşulmuş
 - **Kullanici onayi:** **gerekir** — build ayrı bir onaydır
+
+19 Ağustos 2026'da temiz `6cdacf1` HEAD'i üzerinde v0.37 build'i yalnız bir
+kez çalıştırıldı; `DONE` başarı yoluna ulaştı ve otomatik tekrar yapılmadı.
+Ana installer **58.255.939 bayt**, SHA-256
+`fa0a5f03cbe0f3a42c29fa162648fdabea4efffcbbaef2754d7c2657155474da`;
+add-on **49.268.164 bayt**, SHA-256
+`05937a59c5f0e29b32d15fecc5080351ce65d55720508fc8901a6d347bfaf67b`.
+Bağımsız imza denetimleri `MAIN_SIGNATURE_OK=True` ve
+`ADDON_SIGNATURE_OK=True`. `build/` ve `dist/` başarıyla temizlenip yeniden
+üretildi; kilitli klasör hata yolu canlı ölçülmedi. Artık hedef süreç yoktu.
+Bu sonuç fiziksel kurulum, kaldırma ve ilk açılış kabulünün yerine geçmez.
+Canlı build sonuç kaydı **COMMIT BEKLIYOR**.
 
 ---
 

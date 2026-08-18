@@ -1807,6 +1807,23 @@ cover-art libmpv child testi çalıştı; başarısızlık ve otomatik tekrar ol
 Stdout/stderr ayrı yakalanmadı; stderr bayt sayısı ölçülmedi ve boş olduğu
 iddia edilmez. Bu checkpoint kaydı **COMMIT BEKLIYOR**.
 
+**v0.37 gerçek Windows build'i (19 Ağustos 2026, `6cdacf1`): BASARILI.**
+`packaging\build_release.bat` yalnız bir kez çalıştırıldı, sekiz adımın
+tamamından geçip `DONE` başarı yoluna ulaştı; otomatik tekrar yapılmadı.
+Ana installer **58.255.939 bayt**, SHA-256
+`fa0a5f03cbe0f3a42c29fa162648fdabea4efffcbbaef2754d7c2657155474da`;
+add-on **49.268.164 bayt**, SHA-256
+`05937a59c5f0e29b32d15fecc5080351ce65d55720508fc8901a6d347bfaf67b`.
+İki imza da bağımsız doğrulandı: `MAIN_SIGNATURE_OK=True`,
+`ADDON_SIGNATURE_OK=True`. Artık hedef süreç yoktu.
+
+Sıkıştırma zaten Inno tarafında `Compression=lzma2/max` ve
+`SolidCompression=yes`; ana kurulum **187,8 MB** kurulu ağacı **55,6 MB**
+installer'a indirdi (build raporu **%70** sıkıştırma). PyInstaller tarafı
+bilinçli olarak `upx=False`; antivirüs yanlış pozitifleri ve başlangıç süresi
+ölçülmeden UPX açılmayacak. Build başarılıdır; fiziksel kurulum/kaldırma/ilk
+açılış kabulü hâlâ bekliyor. Kayıt **COMMIT BEKLIYOR**.
+
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 
 Sıra: `v0.3` → **`v0.31`** → `v0.32` … Ara sürümler ikinci haneye eklenir.
