@@ -714,9 +714,10 @@ def test_script_ablation_live_result_is_recorded_in_all_status_documents():
             "0XE24C4A02 SAYISI 0",
             "BUILT-IN LUA MODULU 0",
             "OTOMATIK TEKRAR YAPILMADI",
-            "SONUC KAYDI COMMIT BEKLIYOR",
+            "ABLATION SONUC KAYDI COMMIT EDILDI",
         ):
             assert fact in flattened, f"{label} ablation sonucu eksik: {fact}"
+        assert "29e017a" in block, label
 
 
 def test_script_ablation_live_record_carries_artifact_integrity_evidence():
@@ -867,9 +868,10 @@ def test_select_bisection_result_is_recorded_in_all_status_documents():
             "STATS 0",
             "YTDL HOOK 0",
             "OTOMATIK TEKRAR YAPILMADI",
-            "SONUC KAYDI COMMIT BEKLIYOR",
+            "SONUC KAYDI COMMIT EDILDI",
         ):
             assert fact in flattened, f"{label} select sonucu eksik: {fact}"
+        assert "6f00ee3" in block, label
 
 
 def test_select_record_carries_exact_artifact_evidence():
@@ -898,7 +900,113 @@ def test_select_record_closes_the_initial_budget_without_overclaiming():
         assert "HICBIR GRUP ELENMEDI" in flattened, label
         assert "KOK NEDEN ACIK" in flattened, label
         assert "YENI NATIVE KOSUM YETKILENDIRILMEDI" in flattened, label
-        assert "SIRADAKI ADIM SALT-OKUNUR KANIT DEGERLENDIRMESI" in flattened
+        assert "SALT-OKUNUR KANIT SENTEZI" in flattened
+
+
+def test_select_result_is_recorded_as_committed_everywhere():
+    for label, block in (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    ):
+        flattened = plain(block)
+        assert "SELECT SONUC KAYDI COMMIT EDILDI" in flattened, label
+        assert "6f00ee3" in block, label
+        assert "SELECT SONUC KAYDI COMMIT BEKLIYOR" not in flattened, label
+
+
+def test_evidence_synthesis_records_the_next_interaction_profile():
+    for label, block in (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    ):
+        flattened = plain(block)
+        for fact in (
+            "OBSERVEDTRIO",
+            "STATS + YTDLHOOK + SELECT",
+            "YENI NATIVE KOSUM YAPILMADI",
+            "AYRI ONAY B",
+            "TEK POZITIF KOSUM",
+            "KESIN KOK NEDEN",
+            "KANITLAMAZ",
+            "TEK NEGATIF KOSUM",
+            "ELEMEZ",
+            "719 PASSED, 4 SKIPPED",
+            "COMMIT BEKLIYOR",
+        ):
+            assert fact in flattened, f"{label} kanit sentezi eksik: {fact}"
+
+
+def test_evidence_synthesis_preserves_the_measured_comparison():
+    for label, block in (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+    ):
+        flattened = plain(block)
+        for fact in (
+            "11",
+            "13",
+            "CONSOLE",
+            "AUTOPROFILES",
+            "POSITIONING",
+            "COMMANDS",
+            "AYRI LUA STATE",
+            "ILK TRACE KISMI",
+            "TAM RAW KANIT DEGILDIR",
+        ):
+            assert fact in flattened, f"{label} karsilastirma kaniti eksik: {fact}"
+
+
+def test_observed_trio_single_live_result_is_recorded_without_false_acceptance():
+    documents = (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    )
+    for label, block in documents:
+        flattened = plain(block)
+        for fact in (
+            "OBSERVEDTRIO BISECTION ONAY B",
+            "TEK KOSUM",
+            "PYTEST EXIT 0",
+            "1 PASSED",
+            "15",
+            "0XE24C4A02",
+            "SHUTDOWN KABULU BASARISIZ",
+            "PYTEST PASS URUN KABULU DEGILDIR",
+            "SELECT 6",
+            "STATS 6",
+            "YTDLHOOK 7",
+            "DIGER BILINEN BUILT-IN MODULLER 0",
+            "OTOMATIK TEKRAR YAPILMADI",
+            "CDB KULLANILMADI",
+            "BU TEK ORNEKTE",
+            "YETERLI",
+            "KESIN KOK NEDEN",
+            "KANITLAMAZ",
+            "721 PASSED, 4 SKIPPED",
+        ):
+            assert fact in flattened, f"{label} observed_trio sonucu eksik: {fact}"
+
+
+def test_observed_trio_record_carries_exact_artifact_evidence():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        for fact in (
+            "2.332.921 bayt",
+            "31.715 satır",
+            "147ED1F9D889D69F030DB996757C47E7F6973E979213F4D2559FB9118FFFBD53",
+            "19.755 bayt",
+            "DF1E20C0BF19D210C6CCA86029D26AA8A267E19D97EE8E68E3AD6836356032DC",
+            "999 bayt",
+            "43D92579AD85D88B34EFC0ECBFDEA113D62FB6FA1BB5502FF5E66DEC24070B1D",
+            "2.651.661.814",
+            "638811093472871806",
+        ):
+            assert flat(fact) in flattened, (
+                f"{label} observed_trio artifact kaniti eksik: {fact}")
 
 
 def test_project_status_marks_the_old_harmless_conclusion_as_superseded():

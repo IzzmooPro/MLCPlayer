@@ -1680,7 +1680,7 @@ Bu sonuç **ürün düzeltmesi değildir**; kök neden **AÇIK** kalır. Aralık
 olayın tek negatif örneği built-in scriptlerin gerekli koşul olduğunu,
 belirli bir scriptin suçlu olduğunu veya JIT trace abort yolunu
 **kanıtlamaz**. Yalnız built-in script ilişkisi hipotezini güçlendirir.
-Canlı sonuç kaydı commit edildi; ayrıntılı commit kimlikleri NATIVE-001
+Ablation sonuç kaydı **COMMIT EDILDI (`29e017a`)**; ayrıntılı kanıt NATIVE-001
 kaydındadır.
 
 **`stats_ytdl` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** yalnız bu
@@ -1695,8 +1695,28 @@ kapanış tamamlandı ve artık süreç kalmadı. Bu tek negatif örnek grubu el
 **0 bayt**, `0xe24c4a02` sayısı **0**; trace görünürlüğü select 6, stats 0,
 ytdl hook 0 olarak ölçüldü. Medya boyutu ve mtime değişmedi, kapanış
 tamamlandı ve artık süreç kalmadı. İlk iki profillik bütçe tamamlandı fakat
-aralıklı kusur nedeniyle hiçbir grup elenmedi; kök neden açıktır. Yeni native
-koşum yetkilendirilmedi. `select` sonuç kaydı **COMMIT BEKLIYOR**.
+aralıklı kusur nedeniyle hiçbir grup elenmedi; kök neden açıktır. `select`
+sonuç kaydı **COMMIT EDILDI (`6f00ee3`)**.
+
+**Sıradaki tanısal profil (hazır; yeni native koşum yapılmadı):**
+`observed_trio` = **stats + ytdl_hook + select**; diğer built-in scriptler
+kapalıdır. **Tek pozitif koşum kesin kök neden kanıtlamaz**, yalnız üçlünün o
+örnekte yeterli olduğunu gösterir. **Tek negatif koşum üçlüyü elemez**.
+Koşum için yeni tek-koşum bütçesi ve **ayrı ONAY B** gerekir.
+İlgili deterministik paketler **719 passed, 4 skipped**; profil ve kayıt
+değişiklikleri **COMMIT BEKLIYOR**.
+
+**`observed_trio` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** Bilinen
+Resident Alien videosuyla pytest exit 0 / **1 passed**; otomatik tekrar
+yapılmadı ve CDB kullanılmadı. Trace yalnız stats 6, ytdl_hook 7 ve select 6;
+diğer bilinen built-in modüller 0. Buna karşın child stderr **19.755 bayt** ve
+**15** adet `0xe24c4a02` taşıdı; **shutdown kabulü BASARISIZ**. Bu nedenle
+**pytest PASS ürün kabulü değildir**. Üçlü bu tek örnekte olayı üretmeye
+**yeterli** oldu, fakat tek client'i/etkileşimi veya **kesin kök neden**i
+**kanıtlamaz**. Medya değişmedi, kapanış marker'ları tamamlandı ve artık süreç
+kalmadı. Kayıt sonrası ilgili deterministik paketler **721 passed, 4 skipped**.
+Sonuç kaydı **COMMIT BEKLIYOR**; ayrıntılı artifact hash'leri NATIVE-001
+kaydındadır.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 

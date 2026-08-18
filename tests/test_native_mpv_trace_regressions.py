@@ -21,6 +21,7 @@ from native_mpv_trace_contract import (  # noqa: E402
     BUILTIN_SCRIPT_DISABLE_CONFIG,
     SCRIPT_ABLATION_VARIABLE,
     SCRIPT_BISECTION_INITIAL_BUDGET,
+    SCRIPT_BISECTION_INTERACTION_PROFILE,
     SCRIPT_BISECTION_MARKER,
     SCRIPT_BISECTION_PROFILES,
     SCRIPT_BISECTION_VARIABLE,
@@ -79,9 +80,11 @@ def test_script_bisection_profiles_and_first_budget_are_exact():
         "select": frozenset({"select"}),
         "stats": frozenset({"stats"}),
         "ytdl_hook": frozenset({"ytdl_hook"}),
+        "observed_trio": frozenset({"stats", "ytdl_hook", "select"}),
     }
     assert SCRIPT_BISECTION_INITIAL_BUDGET == ("stats_ytdl", "select")
     assert len(SCRIPT_BISECTION_INITIAL_BUDGET) == 2
+    assert SCRIPT_BISECTION_INTERACTION_PROFILE == "observed_trio"
 
 
 @pytest.mark.parametrize("value", [
@@ -96,7 +99,7 @@ def test_script_bisection_profile_is_exact_and_fail_closed(value):
 
 
 @pytest.mark.parametrize("profile", [
-    "stats_ytdl", "select", "stats", "ytdl_hook",
+    "stats_ytdl", "select", "stats", "ytdl_hook", "observed_trio",
 ])
 def test_script_bisection_accepts_only_recorded_profiles(profile):
     assert script_bisection_profile(
@@ -197,6 +200,8 @@ def test_valid_script_ablation_overrides_runtime_ytdl_reenable():
     ("select", {"load_select": True}),
     ("stats", {"load_stats_overlay": True}),
     ("ytdl_hook", {"ytdl": True}),
+    ("observed_trio", {
+        "load_stats_overlay": True, "ytdl": True, "load_select": True}),
 ])
 def test_script_bisection_reenables_only_the_selected_profile(profile,
                                                                expected):
@@ -353,6 +358,21 @@ def test_script_bisection_trace_accepts_exactly_the_selected_group():
            b"[   0.300][v][ytdl_hook] script loaded\n")
 
     assert evaluate_script_bisection_trace(raw, "stats_ytdl") == []
+
+
+def test_interaction_trace_requires_the_observed_trio_and_nothing_else():
+    exact = (b"[   0.100][v][stats] script loaded\n"
+             b"[   0.200][v][ytdl_hook] script loaded\n"
+             b"[   0.300][v][select] script loaded\n")
+    missing = (b"[   0.100][v][stats] script loaded\n"
+               b"[   0.200][v][select] script loaded\n")
+    polluted = exact + b"[   0.400][v][lua/console] unexpected script\n"
+
+    assert evaluate_script_bisection_trace(exact, "observed_trio") == []
+    assert "ytdl_hook" in evaluate_script_bisection_trace(
+        missing, "observed_trio")[0]
+    assert "console" in evaluate_script_bisection_trace(
+        polluted, "observed_trio")[0]
 
 
 def test_diagnostic_config_is_a_copy_with_exact_trace_options(tmp_path):

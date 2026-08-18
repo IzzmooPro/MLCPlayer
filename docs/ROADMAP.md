@@ -274,13 +274,13 @@ Geçici çıktılar kalıcı depo artifact'i değildir.
 
 Bu tek negatif örnek **ürün düzeltmesi değildir**; kök neden **AÇIK** kalır.
 Built-in scriptlerin gerekli koşul olduğunu, belirli bir scriptin suçlu
-olduğunu veya JIT trace abort yolunu **kanıtlamaz**. Canlı sonuç kaydı
-**COMMIT BEKLIYOR**. Kayıt sonrası ilgili deterministik paketler
+olduğunu veya JIT trace abort yolunu **kanıtlamaz**. Ablation sonuç kaydı
+**COMMIT EDILDI (`29e017a`)**. Kayıt sonrası ilgili deterministik paketler
 **611 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir.
 
-**Script-bisection kapısı deterministik olarak hazırlandı; yeni native koşum
-yapılmadı.** `MLC_NATIVE_MPV_SCRIPT_BISECTION` yalnız `stats_ytdl`, `select`,
-`stats`, `ytdl_hook` profillerini kabul eder. Önce bütün scriptler kapanır,
+**Script-bisection kapısı deterministik olarak hazırlandı.**
+`MLC_NATIVE_MPV_SCRIPT_BISECTION` `stats_ytdl`, `select`, `stats`, `ytdl_hook`
+ve `observed_trio` profillerini kabul eder. Önce bütün scriptler kapanır,
 yalnız seçilen profil açılır; marker profil adını doğrular. Seçilmeyen Lua
 modülü görülürse veya seçilen Lua modülü görülmedi ise sonuç fail-closed'dur.
 Bilinmeyen herhangi bir `lua/*` client'i de seçilmeyen sayılır; sessizce
@@ -335,10 +335,48 @@ boş child stderr SHA-256
 
 **İlk iki profillik bütçe tamamlandı.** İki sonuç da tek-negatiftir; aralıklı
 kusur nedeniyle **hiçbir grup elenmedi** ve kök neden **AÇIK**. Yeni native
-koşum yetkilendirilmedi. Sıradaki adım salt-okunur kanıt değerlendirmesi;
-tekrar/ikinci aşama yeni açık bütçe ve ayrı kullanıcı onayı ister. Kayıt
-sonrası ilgili deterministik paketler **651 passed, 4 skipped**; dört skip
-gerçek opt-in düğümleridir. `select` sonuç kaydı **COMMIT BEKLIYOR**.
+koşum yetkilendirilmedi. Kayıt sonrası ilgili deterministik paketler
+**651 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir. `select`
+sonuç kaydı **COMMIT EDILDI (`6f00ee3`)**.
+
+**Salt-okunur kanıt sentezi (18 Ağustos 2026; yeni native koşum yapılmadı):**
+tam raw kanıt taşıyan iki normal-script koşumunda `0xe24c4a02` sayıları **11**
+ve **13**; her ikisinde stats, ytdl_hook, select ile birlikte **console,
+auto_profiles, positioning ve commands** etkin görünüyordu. All-off,
+`stats_ytdl` ve `select` tek koşumlarında sayı 0 kaldı. İlk trace kısmi pytest
+stderr gösterimidir ve **tam raw kanıt değildir**. Exact mpv kaynağı her script
+client'inin **ayrı Lua state** ve ayrı mpv client kullandığını söyler; bu bilgi
+tek başına kaynağı belirlemez.
+
+Sıradaki deterministik profil `observed_trio` = **stats + ytdl_hook + select**:
+diğer bütün built-in'ler kapalı kalır. **Tek pozitif koşum kesin kök neden
+kanıtlamaz**; **tek negatif koşum üçlüyü elemez**. Gerçek koşum ancak yeni,
+açık tek koşumluk bütçe ve **ayrı ONAY B** ile yapılabilir. İlgili
+deterministik paketler **719 passed, 4 skipped**; profil ve kayıt değişiklikleri
+**COMMIT BEKLIYOR**.
+
+**`observed_trio` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest
+exit 0 / **1 passed**, ancak **shutdown kabulü BASARISIZ**. Otomatik tekrar
+yapılmadı ve CDB kullanılmadı. Trace yalnız stats 6, ytdl_hook 7 ve select 6;
+diğer bilinen built-in modüller 0. Trace fatal/error/warn seviyeleri ve stdout
+overflow problemi 0; bisection değerlendiricisi `[]`. Child stderr ise
+**19.755 bayt** ve **15** adet `0xe24c4a02` taşıdı. Saf shutdown kapısı LuaJIT
+SEH izi ile boş olmayan stderr'i reddetti; **pytest PASS ürün kabulü değildir**.
+
+Trace **2.332.921 bayt / 31.715 satır**, SHA-256
+`147ED1F9D889D69F030DB996757C47E7F6973E979213F4D2559FB9118FFFBD53`;
+child stdout **999 bayt**, SHA-256
+`43D92579AD85D88B34EFC0ECBFDEA113D62FB6FA1BB5502FF5E66DEC24070B1D`;
+child stderr SHA-256
+`DF1E20C0BF19D210C6CCA86029D26AA8A267E19D97EE8E68E3AD6836356032DC`.
+Medya boyutu **2.651.661.814**, `mtime` ticks **638811093472871806** olarak
+önce/sonra değişmedi; kapanış tamamlandı ve artık süreç kalmadı.
+
+Üçlü bu tek örnekte olayı üretmeye **yeterli** oldu; bu, tek bir client'i veya
+etkileşimi **kesin kök neden olarak kanıtlamaz** ve kullanıcıya görünen
+çökme/donma kanıtı değildir. Kök neden ve release-ready madde 8 **AÇIK**;
+kayıt sonrası ilgili deterministik paketler **721 passed, 4 skipped**; sonuç
+kaydı **COMMIT BEKLIYOR**.
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,
