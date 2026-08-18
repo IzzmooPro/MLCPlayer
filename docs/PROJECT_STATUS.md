@@ -1792,8 +1792,12 @@ kapanış marker/RESULTS, child exit 0, thread 0 ve medya stat eşliğini zorunl
 kılar. Boyut **2.651.661.814**, `mtime` ticks **638811093472871806** değişmedi;
 artık hedef süreç yoktu. Başarılı test child akışlarını basmadığı için stderr
 boşluğu ve `0xe24c4a02` sayısı **ÖLÇÜLMEDİ**. Teknik kapı sağlandı; alttaki Lua
-runtime error koşulu veya bilinçli kullanıcı risk kararı bulunmadığından
-release-ready madde 8 **AÇIK**.
+runtime error koşulu bilinmiyor. Residual risk **BILINCLI KABUL EDILDI**
+(kullanıcı kararı, 18 Ağustos 2026); release-ready madde 8 bu dar kabul ile
+sağlandı. Kabul yalnız exact `0xe24c4a02`, tam CPython raporu, child exit 0,
+eksiksiz marker/RESULTS ve ek stderr yok birleşimidir. Diğer hata biçimleri
+FAIL kalır. Bu karar kök nedenin tamamen çözüldüğü anlamına gelmez; yeniden
+açma şartlarının resmî kaydı `docs/ENGINEERING_AUDIT.md` NATIVE-001'dir.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 

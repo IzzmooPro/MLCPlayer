@@ -134,9 +134,9 @@ regresyonlar artık aynı tam paket sonucunda birlikte yeşildir.
 
 ## SIRADAKI TEKNIK RISK: `0xe24c4a02` (NATIVE-001)
 
-- **Durum:** GORUNURLUK KUSURU KAPATILDI; eski kapının canlı FAIL'i kaynak denetiminde **YANLIS POZITIF**; CPython/LuaJIT sınıflandırması **HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`7d4c07f`) → CANLI KABUL BASARILI**; alttaki Lua error koşulu ve bilinçli risk kararı **AÇIK**
+- **Durum:** GORUNURLUK KUSURU KAPATILDI; eski kapının canlı FAIL'i kaynak denetiminde **YANLIS POZITIF**; CPython/LuaJIT sınıflandırması **HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`7d4c07f`) → CANLI KABUL BASARILI**; residual risk **BILINCLI KABUL EDILDI** (kullanıcı kararı, 18 Ağustos 2026)
 - **Bagimlilik:** yok — commit'i beklemez
-- **Olcut:** (a) gerçek fatal/kapanış kusuru sessizce geçemez → **sağlandı**; (b) yakalanmış LuaJIT first-chance raporu fail-closed ayrılır → **hedef testler ve tek canlı kabul ile sağlandı**; (c) alttaki Lua runtime error koşulu bulunmuş ya da bilinçli kabul edilmiş değil → **sağlanmadı**
+- **Olcut:** (a) gerçek fatal/kapanış kusuru sessizce geçemez → **sağlandı**; (b) yakalanmış LuaJIT first-chance raporu fail-closed ayrılır → **hedef testler ve tek canlı kabul ile sağlandı**; (c) alttaki Lua runtime error koşulu bilinmiyor, fakat dar residual risk kullanıcı tarafından bilinçli kabul edildi → **sağlandı**
 - **Kullanici onayi:** gerçek-mpv/native koşum için **gerekir**
 
 Ayrıntılı kayıt: `docs/ENGINEERING_AUDIT.md` → **NATIVE-001**.
@@ -651,11 +651,12 @@ Bir sürüm ancak şunların **hepsi** sağlandığında yayına hazır sayılı
 6. Sekiz varlığın ad/boyut/SHA-256 eşliği doğrulanmış
 7. Fiziksel kabul matrisi koşulmuş
 8. `0xe24c4a02` riski ya kapatılmış ya bilinçli olarak kabul edilmiş
-   — **güncel durum (18 Ağustos 2026): AÇIK.** CPython/LuaJIT yanlış-pozitif
+   — **güncel durum (18 Ağustos 2026): SAGLANDI - BILINCLI KABUL.** CPython/LuaJIT yanlış-pozitif
    mekanizması kaynak ve CDB ile açıklandı; düzeltilmiş ürün kapanış kapısı
-   tek canlı koşumda **BAŞARILI**. Alttaki Lua runtime error koşulu bulunmadı
-   ve kullanıcı residual riski bilinçli kabul etmedi; madde bu karar verilene
-   kadar AÇIK kalır.
+   tek canlı koşumda **BAŞARILI**. Alttaki Lua runtime error koşulu hâlâ
+   bilinmiyor; bu bilinmeyen, dar ve fail-closed kapı korunarak kullanıcı
+   tarafından **BILINCLI KABUL EDILDI**. Bu karar hatanın tamamen çözüldüğü
+   anlamına gelmez; yeniden açma şartları NATIVE-001 kaydındadır.
 
 - **Durum:** ERTELENDI
 - **Bagimlilik:** 1–8

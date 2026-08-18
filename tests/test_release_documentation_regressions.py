@@ -1465,7 +1465,8 @@ def test_revised_gate_records_the_single_live_pass_without_inventing_streams():
         "stderr'inin bos oldugu veya `0xe24c4a02` sayisi **olculmedi**",
     ):
         assert flat(fact) in block, fact
-    assert "release-ready madde 8" in block and "**acik**" in block
+    assert "release-ready madde 8" in block
+    assert "bilincli kabul edildi" in block
 
 
 def test_native_summary_separates_the_explained_trace_from_the_open_lua_error():
@@ -1475,8 +1476,76 @@ def test_native_summary_separates_the_explained_trace_from_the_open_lua_error():
     for label, block in (("ENGINEERING_AUDIT", audit), ("ROADMAP", roadmap)):
         assert "YANLIS POZITIF" in block, label
         assert "CANLI KABUL BASARILI" in block, label
-        assert "LUA" in block and "ACIK" in block, label
+        assert "LUA" in block and "BILINMIYOR" in block, label
+        assert "BILINCLI KABUL EDILDI" in block, label
     assert "YANILTICI WINDOWS FATAL EXCEPTION CIKTISININ MEKANIZMASI BULUNDU" in audit
+
+
+def test_native_residual_risk_is_consciously_accepted_in_every_current_record():
+    records = {
+        "ENGINEERING_AUDIT": native_record(),
+        "ROADMAP": roadmap_native_section(),
+        "PROJECT_STATUS": read(PROJECT_STATUS_DOC),
+    }
+
+    for label, record in records.items():
+        block = fold(flat(record)).upper()
+        assert "BILINCLI KABUL EDILDI" in block, label
+        assert "KULLANICI KARARI" in block, label
+        assert "18 AGUSTOS 2026" in block, label
+
+
+def test_native_risk_acceptance_is_narrow_and_does_not_weaken_the_gate():
+    block = flat(native_record())
+
+    for fact in (
+        "exact `0xe24c4a02`",
+        "tam cpython raporu",
+        "child exit 0",
+        "eksiksiz marker/results",
+        "ek stderr yok",
+        "diger exception kodlari",
+        "nonzero exit",
+        "kapanis kusuru",
+        "fail kalir",
+    ):
+        assert flat(fact) in block, fact
+
+
+def test_native_risk_acceptance_keeps_unknowns_and_evidence_separate():
+    block = flat(native_record())
+
+    for fact in (
+        "0 second-chance",
+        "1 passed / 1,96 sn",
+        "kullaniciya gorunen cokme, donma veya veri kaybi olculmedi",
+        "lua runtime error kosulu bilinmiyor",
+        "kok neden tamamen cozuldu denmez",
+    ):
+        assert flat(fact) in block, fact
+
+
+def test_native_risk_acceptance_records_when_the_decision_must_be_reopened():
+    block = flat(native_record())
+
+    for trigger in (
+        "nonzero exit",
+        "eksik veya bozuk marker/results",
+        "farkli fatal veya exception kodu",
+        "ek stderr",
+        "thread sizintisi",
+        "cokme, donma veya veri kaybi",
+        "python, mpv veya luajit surumu degisirse",
+    ):
+        assert flat(trigger) in block, trigger
+
+
+def test_release_ready_criterion_eight_is_satisfied_by_conscious_acceptance():
+    roadmap = flat(read(ROADMAP_DOC))
+
+    assert flat("8. `0xe24c4a02` riski") in roadmap
+    assert flat("SAGLANDI - BILINCLI KABUL") in roadmap
+    assert flat("kriter 8 acik") not in roadmap
 
 
 def test_pairwise_bisection_results_are_recorded_as_committed():
