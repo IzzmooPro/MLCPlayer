@@ -1,6 +1,6 @@
 # MLC Player yol haritası
 
-**Snapshot: 18 Ağustos 2026** — NATIVE-001 commit'i ve güncel tam paket
+**Snapshot: 19 Ağustos 2026** — NATIVE-001 residual-risk kararı ve güncel tam paket
 checkpoint'inin ardından güncellendi. Bu belge her kabul edilen turun sonunda
 yenilenir; buradaki durumlar o tarihteki ölçümleri yansıtır, kalıcı
 gerçek değildir.
@@ -17,9 +17,10 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
 testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
 ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
-`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **on üç
+`master` şu an (19 Ağustos 2026 snapshot'ı) `origin/master`'ın **25
 commit** ilerisindedir ve **push yapılmadı**. Güncel tam paket
-**3992 passed / 17 skipped / 0 failed**, exit 0 ve stderr boştur. **Push
+**4543 passed / 19 skipped / 0 failed**, exit 0 ve **82,88 sn** sürdü.
+Stdout/stderr ayrı yakalanmadığı için stderr boşluğu iddia edilmez. **Push
 yapılmadı**; canlı bir build/yayın koşumu da yapılmadı. Sıradaki teknik
 risk, NATIVE-001'in bilinmeyen native kök nedeni ve ürün etkisidir.
 
@@ -95,6 +96,12 @@ yeniden koşturmak ölçüm değil, tekrardır. Bir sonraki tam koşum commit
 0 failed**, pytest **exit 0**, stderr **0 bayt**, **82,44 sn**. Koşum bir kez
 yapıldı. TEST-002'nin bayat assertion'ı ve NATIVE-001 sonrası eklenen
 regresyonlar artık aynı tam paket sonucunda birlikte yeşildir.
+
+19 Ağustos 2026 güncel `acaa556` checkpoint'i: **4543 passed / 19 skipped /
+0 failed**, pytest **exit 0**, **82,88 sn**. Tam paket yalnız bir kez
+çalıştırıldı; cover-art libmpv child testi pakete dahildi. Stdout/stderr ayrı
+yakalanmadı, dolayısıyla stderr bayt sayısı ölçülmedi. Bu sonuç önceki
+checkpoint'i silmez; daha yeni kabul ölçümüdür. Kayıt **COMMIT BEKLIYOR**.
 
 ---
 

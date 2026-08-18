@@ -138,7 +138,8 @@ değişiklik henüz kalıcı değildir.
   |---|---|---|
   | **Taban** (REL-001…004 ÖNCESİ) | 3716 passed / 17 skipped | ~68 sn |
   | **Milestone** (17 Ağustos 2026, REL-001…005 SONRASI) | **3931 passed / 17 skipped / 1 failed** | **100,01 sn** |
-  | **Güncel checkpoint** (18 Ağustos 2026, NATIVE-001 commit'i SONRASI) | **3992 passed / 17 skipped / 0 failed; exit 0; stderr BOŞ** | **82,44 sn** |
+  | **Önceki checkpoint** (18 Ağustos 2026, NATIVE-001 commit'i SONRASI) | **3992 passed / 17 skipped / 0 failed; exit 0; stderr BOŞ** | **82,44 sn** |
+  | **Güncel checkpoint** (19 Ağustos 2026, `acaa556` SONRASI) | **4543 passed / 19 skipped / 0 failed; exit 0** | **82,88 sn** |
 
   Taban ve milestone AYRI değerlerdir; taban güncel sonuç gibi
   sunulmamalıdır.
@@ -151,10 +152,10 @@ değişiklik henüz kalıcı değildir.
   Ayrıntı: TEST-002.
 - **Kok neden:** —
 - **Degisen dosyalar:** —
-- **Test kaniti:** 18 Ağustos 2026'da temiz `a7ced18` HEAD'i üzerinde tek tam koşum: **3992 passed / 17 skipped / 0 failed**, pytest **exit 0**, yakalanan stderr **0 bayt**. Stdout/stderr ayrı dosyalara yazıldı; koşum tekrarlanmadı.
-- **Canli kabul:** Güncel tam paket checkpoint'i tamamlandı. Milestone'daki bayat TEST-002 assertion'ı artık kapalı; NATIVE-001'in child-process stderr kapısı tam paket içinde de yeşil kaldı.
-- **Kalan risk:** Tek yeşil tam koşum zaman içindeki bütün aralıklı native davranışları dışlamaz. `0xe24c4a02` artık exit 0 arkasında sessizce geçemez ve bu koşumda görülmedi; ancak native kaynak modül ve ürün etkisi ayrı NATIVE-001 riski olarak açıktır.
-- **Commit durumu:** COMMIT EDILDI (bu güncel checkpoint kaydı)
+- **Test kaniti:** 19 Ağustos 2026'da temiz `acaa556` HEAD'i üzerinde `python -m pytest -q` **yalnız bir kez** çalıştırıldı: **4543 passed / 19 skipped / 0 failed**, pytest **exit 0**, **82,88 sn**. Paket içindeki gerçek cover-art libmpv child testi izin kapsamında çalıştı; ürün kapanış canlı kabulü açık opt-in olmadığı için skip sözleşmesini korudu. Bu koşumda stdout/stderr ayrı yakalanmadı; stderr bayt sayısı ölçülmedi ve boş olduğu iddia edilmez. Önceki 3992/17 checkpoint'i tarihsel satır olarak korunur.
+- **Canli kabul:** Güncel tam paket checkpoint'i tamamlandı. Yeni residual-risk belge regresyonları ve NATIVE-001'in fail-closed child kapısı aynı paket içinde yeşil kaldı. Başarısızlık olmadığı için otomatik tekrar yapılmadı.
+- **Kalan risk:** Tek yeşil tam koşum zaman içindeki bütün aralıklı native davranışları dışlamaz. NATIVE-001 residual riski dar kapsamla bilinçli kabul edilmiştir; bu kabul alttaki Lua runtime error koşulunu çözülmüş yapmaz.
+- **Commit durumu:** COMMIT BEKLIYOR (19 Ağustos 2026 checkpoint kaydı)
 
 ---
 

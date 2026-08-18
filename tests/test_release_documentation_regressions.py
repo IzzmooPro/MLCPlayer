@@ -380,6 +380,39 @@ def test_the_baseline_suite_result_is_marked_as_a_baseline():
         "tam paket sonucu taban olarak isaretlenmemis")
 
 
+def test_the_current_full_suite_checkpoint_is_recorded_everywhere():
+    records = {
+        "ENGINEERING_AUDIT": read(AUDIT_DOC),
+        "ROADMAP": read(ROADMAP_DOC),
+        "PROJECT_STATUS": read(PROJECT_STATUS_DOC),
+    }
+
+    for label, record in records.items():
+        block = flat(record)
+        for fact in (
+            "19 agustos 2026",
+            "acaa556",
+            "4543 passed / 19 skipped / 0 failed",
+            "exit 0",
+            "82,88 sn",
+        ):
+            assert flat(fact) in block, f"{label}: {fact}"
+
+
+def test_the_current_checkpoint_does_not_invent_a_separate_stderr_result():
+    audit = flat(read(AUDIT_DOC))
+
+    assert flat("stdout/stderr ayri yakalanmadi") in audit
+    assert flat("stderr bayt sayisi olculmedi") in audit
+
+
+def test_the_roadmap_summary_has_the_current_local_commit_count():
+    summary = flat(read(ROADMAP_DOC).split("---", 1)[0])
+
+    assert "25 commit" in summary
+    assert "4543 passed / 19 skipped / 0 failed" in summary
+
+
 def test_the_cover_art_fatal_exception_is_recorded_as_open_risk():
     text = read(AUDIT_DOC)
 
@@ -1324,9 +1357,9 @@ def test_debugger_parser_commit_is_recorded_as_committed():
 def test_roadmap_snapshot_has_the_measured_local_commit_count():
     text = fold(flat(read(ROADMAP_DOC))).lower()
 
-    assert "on uc commit" in text, "ROADMAP commit sonrasi ahead=13 durumunu tasimiyor"
+    assert "25 commit" in text, "ROADMAP guncel ahead=25 durumunu tasimiyor"
     for stale in ("bes commit", "sekiz commit", "dokuz commit", "on commit",
-                  "on bir commit", "on iki commit"):
+                  "on bir commit", "on iki commit", "on uc commit"):
         assert stale not in text, f"ROADMAP hala bayat sayiyi tasiyor: {stale}"
 
 

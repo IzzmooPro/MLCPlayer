@@ -1799,6 +1799,14 @@ eksiksiz marker/RESULTS ve ek stderr yok birleşimidir. Diğer hata biçimleri
 FAIL kalır. Bu karar kök nedenin tamamen çözüldüğü anlamına gelmez; yeniden
 açma şartlarının resmî kaydı `docs/ENGINEERING_AUDIT.md` NATIVE-001'dir.
 
+**Güncel tam paket checkpoint'i (19 Ağustos 2026, `acaa556`):** ONAY B ile
+`python -m pytest -q` yalnız bir kez çalıştırıldı ve **4543 passed / 19
+skipped / 0 failed**, **exit 0**, **82,88 sn** verdi. Paket içindeki gerçek
+cover-art libmpv child testi çalıştı; başarısızlık ve otomatik tekrar olmadı.
+Çalışma ağacı koşum öncesi/sonrası temizdi ve artık hedef süreç yoktu.
+Stdout/stderr ayrı yakalanmadı; stderr bayt sayısı ölçülmedi ve boş olduğu
+iddia edilmez. Bu checkpoint kaydı **COMMIT BEKLIYOR**.
+
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 
 Sıra: `v0.3` → **`v0.31`** → `v0.32` … Ara sürümler ikinci haneye eklenir.
