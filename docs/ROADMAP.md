@@ -384,7 +384,52 @@ select. İkisi de yalnız seçilen client'leri açar. **Her gerçek koşum ayrı
 B** ister. Aralıklılık nedeniyle **tek negatif koşum çiftten birini elemez**;
 **tek pozitif koşum tek clienti kesin kök neden yapmaz**. Ürün kodu değişmedi.
 İlgili deterministik paketler **729 passed, 4 skipped**; ikili profil
-değişiklikleri **COMMIT BEKLIYOR**.
+değişiklikleri **COMMIT EDILDI (`dedef7c`)**.
+
+**`stats_select` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest
+exit 0 / **1 passed**, fakat **shutdown kabulü BASARISIZ**. Otomatik tekrar
+yapılmadı, CDB kullanılmadı ve `ytdl_select` koşumu yapılmadı. Trace stats 6,
+select 6, ytdl_hook 0 ve diğer bilinen built-in modüller 0; fatal/error/warn,
+overflow ve bisection problemi 0. Child stderr **1.718 bayt** ve
+`0xe24c4a02` sayısı **1**.
+
+Trace **2.322.628 bayt / 31.761 satır**, SHA-256
+`24AA35E57316D748BF5C4AFC0DC4E113B70E8DEC1648B1828F2FC2FE3346A2CB`;
+child stdout **994 bayt**, SHA-256
+`38FFCF3AB4035E481B7F431CE1E3BCACFE2114DE1CE84FE3BBA1BD5BBF434702`;
+child stderr SHA-256
+`A6CD855ECE8BC2529AD740398D97B8A88B0DB3351BDF7D0E3F8C8E54BCD642F5`.
+Medya boyutu **2.651.661.814**, `mtime` ticks **638811093472871806** olarak
+değişmedi; kapanış tamamlandı ve artık süreç kalmadı.
+
+Stats+select **bu tek örnekte yeterli** oldu; bu sonuç **tek clienti kesin kök
+neden yapmaz** ve stats/select etkileşimini kesinleştirmez. `ytdl_select`
+koşumu yapılmadı ve **ayrı ONAY B** ister. Kök neden ile release-ready madde 8
+**AÇIK**. Kayıt sonrası ilgili deterministik paketler **732 passed, 4
+skipped**; sonuç kaydı **COMMIT BEKLIYOR**.
+
+**`ytdl_select` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest
+exit 0 / **1 passed**, fakat **shutdown kabulü BASARISIZ**. Otomatik tekrar
+yapılmadı ve CDB kullanılmadı. Trace ytdl_hook 7, select 6, stats 0 ve diğer
+bilinen built-in modüller 0; fatal/error/warn, overflow ve bisection problemi
+0. Child stderr **10.236 bayt** ve `0xe24c4a02` sayısı **8**.
+
+Trace **2.337.261 bayt / 31.762 satır**, SHA-256
+`05A001E5229E54BDDAFF3D9A15C6EE0F6B31C7D5D9E6EDB8E0AA857846098B93`;
+child stdout **993 bayt**, SHA-256
+`32C5E9AFA784046E53402D59C0C3936987AEE67B35194FE10ECA28FA5F3FB3D7`;
+child stderr SHA-256
+`24BDBE901FE706F0EEB96E6F64B80FA2ED870C8CF4E4CF0D0468813B381D8429`.
+Medya boyutu **2.651.661.814**, `mtime` ticks **638811093472871806** olarak
+değişmedi; kapanış tamamlandı ve artık süreç kalmadı.
+
+**İkili profil bütçesi tamamlandı:** **iki ikili de tek pozitif** ve **ortak
+client select**. Ytdl_hook+select bu tek örnekte yeterliydi; bu, **selecti
+kesin kök neden yapmaz** ve **tek clienti kesin kök neden yapmaz**. Koşumlar
+aralıklı ayrı örneklerdir; **önceki select tek negatif**, **eleme kanıtı
+değildir**. Yeni native koşum yetkilendirilmedi. Kök neden ile release-ready
+madde 8 **AÇIK**. Kayıt sonrası ilgili deterministik paketler **735 passed, 4
+skipped**; iki ikili sonuç kaydı **COMMIT BEKLIYOR**.
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,

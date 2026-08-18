@@ -1723,7 +1723,32 @@ hash'leri NATIVE-001 kaydındadır.
 Aralıklı olay nedeniyle **tek negatif koşum çiftten birini elemez**; **tek
 pozitif koşum tek clienti kesin kök neden yapmaz**. Ürün kodu değişmedi.
 İlgili deterministik paketler **729 passed, 4 skipped**; ikili profil
-değişiklikleri **COMMIT BEKLIYOR**.
+değişiklikleri **COMMIT EDILDI (`dedef7c`)**.
+
+**`stats_select` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest
+exit 0 / **1 passed**, fakat **shutdown kabulü BASARISIZ**. Otomatik tekrar
+yapılmadı, CDB kullanılmadı ve `ytdl_select` koşumu yapılmadı. Trace stats 6,
+select 6, ytdl_hook 0, diğer bilinen built-in modüller 0; child stderr
+**1.718 bayt** ve `0xe24c4a02` sayısı **1**. Medya değişmedi, kapanış
+tamamlandı ve artık süreç kalmadı. Stats+select **bu tek örnekte yeterli**
+oldu; **tek clienti kesin kök neden yapmaz**. `ytdl_select` ayrı ONAY B ister.
+Kayıt sonrası ilgili deterministik paketler **732 passed, 4 skipped**. Sonuç
+kaydı **COMMIT BEKLIYOR**; ayrıntılı hash'ler NATIVE-001 kaydındadır.
+
+**`ytdl_select` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest
+exit 0 / **1 passed**, fakat **shutdown kabulü BASARISIZ**. Otomatik tekrar
+yapılmadı ve CDB kullanılmadı. Trace ytdl_hook 7, select 6, stats 0 ve diğer
+bilinen built-in modüller 0; child stderr **10.236 bayt** ve `0xe24c4a02`
+sayısı **8**. Medya değişmedi, kapanış tamamlandı ve artık süreç kalmadı.
+Ytdl_hook+select **bu tek örnekte yeterli** oldu; **tek clienti kesin kök neden
+yapmaz**.
+
+**İkili profil bütçesi tamamlandı:** **iki ikili de tek pozitif** ve **ortak
+client select**. Bu, **selecti kesin kök neden yapmaz**; koşumlar ayrı ve olay
+aralıklıdır. **Önceki select tek negatif**, **eleme kanıtı değildir**. Yeni
+native koşum yetkilendirilmedi. Kayıt sonrası ilgili deterministik paketler
+**735 passed, 4 skipped**. İki ikili sonuç kaydı **COMMIT BEKLIYOR**; ayrıntılı
+hash'ler NATIVE-001 kaydındadır.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 

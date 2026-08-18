@@ -1037,9 +1037,134 @@ def test_pair_bisection_budget_is_recorded_without_native_overclaim():
             "TEK NEGATIF KOSUM CIFTTEN BIRINI ELEMEZ",
             "TEK POZITIF KOSUM TEK CLIENTI KESIN KOK NEDEN YAPMAZ",
             "729 PASSED, 4 SKIPPED",
-            "IKILI PROFIL DEGISIKLIKLERI COMMIT BEKLIYOR",
+            "IKILI PROFIL DEGISIKLIKLERI COMMIT EDILDI",
         ):
             assert fact in flattened, f"{label} ikili profil kaydi eksik: {fact}"
+
+
+def test_pair_bisection_gate_checkpoint_is_recorded_as_committed():
+    for label, block in (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    ):
+        flattened = plain(block)
+        assert "IKILI PROFIL DEGISIKLIKLERI COMMIT EDILDI" in flattened, label
+        assert "dedef7c" in block, label
+        assert "IKILI PROFIL DEGISIKLIKLERI COMMIT BEKLIYOR" not in flattened
+
+
+def test_stats_select_single_live_result_is_recorded_without_overclaim():
+    for label, block in (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    ):
+        flattened = plain(block)
+        for fact in (
+            "STATSSELECT BISECTION ONAY B",
+            "TEK KOSUM",
+            "PYTEST EXIT 0",
+            "1 PASSED",
+            "SHUTDOWN KABULU BASARISIZ",
+            "0XE24C4A02 SAYISI 1",
+            "STATS 6",
+            "SELECT 6",
+            "YTDLHOOK 0",
+            "DIGER BILINEN BUILT-IN MODULLER 0",
+            "OTOMATIK TEKRAR YAPILMADI",
+            "CDB KULLANILMADI",
+            "BU TEK ORNEKTE YETERLI",
+            "TEK CLIENTI KESIN KOK NEDEN YAPMAZ",
+            "YTDLSELECT KOSUMU YAPILMADI",
+            "AYRI ONAY B",
+            "732 PASSED, 4 SKIPPED",
+        ):
+            assert fact in flattened, f"{label} stats_select sonucu eksik: {fact}"
+
+
+def test_stats_select_record_carries_exact_artifact_evidence():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        for fact in (
+            "2.322.628 bayt",
+            "31.761 satır",
+            "24AA35E57316D748BF5C4AFC0DC4E113B70E8DEC1648B1828F2FC2FE3346A2CB",
+            "1.718 bayt",
+            "A6CD855ECE8BC2529AD740398D97B8A88B0DB3351BDF7D0E3F8C8E54BCD642F5",
+            "994 bayt",
+            "38FFCF3AB4035E481B7F431CE1E3BCACFE2114DE1CE84FE3BBA1BD5BBF434702",
+            "2.651.661.814",
+            "638811093472871806",
+        ):
+            assert flat(fact) in flattened, (
+                f"{label} stats_select artifact kaniti eksik: {fact}")
+
+
+def test_ytdl_select_single_live_result_is_recorded_without_overclaim():
+    for label, block in (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    ):
+        flattened = plain(block)
+        for fact in (
+            "YTDLSELECT BISECTION ONAY B",
+            "TEK KOSUM",
+            "PYTEST EXIT 0",
+            "1 PASSED",
+            "SHUTDOWN KABULU BASARISIZ",
+            "0XE24C4A02 SAYISI 8",
+            "YTDLHOOK 7",
+            "SELECT 6",
+            "STATS 0",
+            "DIGER BILINEN BUILT-IN MODULLER 0",
+            "OTOMATIK TEKRAR YAPILMADI",
+            "CDB KULLANILMADI",
+            "BU TEK ORNEKTE YETERLI",
+            "TEK CLIENTI KESIN KOK NEDEN YAPMAZ",
+        ):
+            assert fact in flattened, f"{label} ytdl_select sonucu eksik: {fact}"
+
+
+def test_ytdl_select_record_carries_exact_artifact_evidence():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        for fact in (
+            "2.337.261 bayt",
+            "31.762 satır",
+            "05A001E5229E54BDDAFF3D9A15C6EE0F6B31C7D5D9E6EDB8E0AA857846098B93",
+            "10.236 bayt",
+            "24BDBE901FE706F0EEB96E6F64B80FA2ED870C8CF4E4CF0D0468813B381D8429",
+            "993 bayt",
+            "32C5E9AFA784046E53402D59C0C3936987AEE67B35194FE10ECA28FA5F3FB3D7",
+            "2.651.661.814",
+            "638811093472871806",
+        ):
+            assert flat(fact) in flattened, (
+                f"{label} ytdl_select artifact kaniti eksik: {fact}")
+
+
+def test_pair_budget_closes_with_a_bounded_common_client_observation():
+    for label, block in (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    ):
+        flattened = plain(block)
+        for fact in (
+            "IKILI PROFIL BUTCESI TAMAMLANDI",
+            "IKI IKILI DE TEK POZITIF",
+            "ORTAK CLIENT SELECT",
+            "SELECTI KESIN KOK NEDEN YAPMAZ",
+            "ONCEKI SELECT TEK NEGATIF",
+            "ELEME KANITI DEGILDIR",
+            "YENI NATIVE KOSUM YETKILENDIRILMEDI",
+            "735 PASSED, 4 SKIPPED",
+        ):
+            assert fact in flattened, f"{label} ikili butce sonucu eksik: {fact}"
 
 
 def test_project_status_marks_the_old_harmless_conclusion_as_superseded():
