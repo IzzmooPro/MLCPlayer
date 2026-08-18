@@ -31,6 +31,12 @@ def test_app_version_has_release_format():
     assert re.fullmatch(r"v\d+\.\d+", APP_VERSION), APP_VERSION
 
 
+def test_current_release_target_is_v0_37():
+    """Bu yayin turunun acikca onaylanan hedefi sessizce ayrismamali."""
+    assert APP_VERSION == "v0.37"
+    assert WINDOWS_VERSION == "0.37.0.0"
+
+
 def test_windows_version_is_derived_from_app_version():
     """Windows sürüm alanları dört sayılıdır ve elle yazılmaz."""
     assert re.fullmatch(r"\d+\.\d+\.\d+\.\d+", WINDOWS_VERSION), WINDOWS_VERSION
