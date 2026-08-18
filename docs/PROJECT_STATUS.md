@@ -1680,14 +1680,23 @@ Bu sonuç **ürün düzeltmesi değildir**; kök neden **AÇIK** kalır. Aralık
 olayın tek negatif örneği built-in scriptlerin gerekli koşul olduğunu,
 belirli bir scriptin suçlu olduğunu veya JIT trace abort yolunu
 **kanıtlamaz**. Yalnız built-in script ilişkisi hipotezini güçlendirir.
-Canlı sonuç kaydı **COMMIT BEKLIYOR**.
+Canlı sonuç kaydı commit edildi; ayrıntılı commit kimlikleri NATIVE-001
+kaydındadır.
 
 **`stats_ytdl` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** yalnız bu
 profil **1 passed / pytest exit 0**; otomatik tekrar yapılmadı. Child stderr
 **0 bayt**, `0xe24c4a02` sayısı **0**; trace görünürlüğü stats 6,
 ytdl_hook 7, select 0 olarak ölçüldü. Medya boyutu ve mtime değişmedi,
 kapanış tamamlandı ve artık süreç kalmadı. Bu tek negatif örnek grubu elemez;
-ürün düzeltmesi değildir. Sonuç kaydı **COMMIT BEKLIYOR**.
+ürün düzeltmesi değildir. Sonuç kaydı **COMMIT EDILDI (`dc31bf9`)**.
+
+**`select` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** yalnız bu profil
+**1 passed / pytest exit 0**; otomatik tekrar yapılmadı. Child stderr
+**0 bayt**, `0xe24c4a02` sayısı **0**; trace görünürlüğü select 6, stats 0,
+ytdl hook 0 olarak ölçüldü. Medya boyutu ve mtime değişmedi, kapanış
+tamamlandı ve artık süreç kalmadı. İlk iki profillik bütçe tamamlandı fakat
+aralıklı kusur nedeniyle hiçbir grup elenmedi; kök neden açıktır. Yeni native
+koşum yetkilendirilmedi. `select` sonuç kaydı **COMMIT BEKLIYOR**.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 

@@ -776,9 +776,10 @@ def test_native_record_documents_the_deterministic_script_bisection_gate():
             "SECILEN LUA MODULU GORULMEDI",
             "YENI NATIVE KOSUM YAPILMADI",
             "645 PASSED, 4 SKIPPED",
-            "COMMIT BEKLIYOR",
+            "COMMIT EDILDI",
         ):
             assert fact in flattened, f"{label} bisection kaydi eksik: {fact}"
+        assert "06bd5f5" in block, label
         assert "URUN" in flattened and "DEGISMEDI" in flattened, label
 
 
@@ -811,9 +812,10 @@ def test_stats_ytdl_bisection_result_is_recorded_in_all_status_documents():
             "STATS 6",
             "SELECT 0",
             "OTOMATIK TEKRAR YAPILMADI",
-            "SONUC KAYDI COMMIT BEKLIYOR",
+            "SONUC KAYDI COMMIT EDILDI",
         ):
             assert fact in flattened, f"{label} stats_ytdl sonucu eksik: {fact}"
+        assert "dc31bf9" in block, label
 
 
 def test_stats_ytdl_record_carries_exact_artifact_evidence():
@@ -843,6 +845,60 @@ def test_stats_ytdl_record_discards_the_bad_regex_and_bounds_the_result():
         assert "GRUB" in flattened and "ELEMEZ" in flattened, label
         assert "SELECT PROFILI AYRI ONAY B" in flattened, label
         assert "SELECT KOSUMU YAPILMADI" in flattened, label
+
+
+def test_select_bisection_result_is_recorded_in_all_status_documents():
+    documents = (
+        ("ENGINEERING_AUDIT", native_record()),
+        ("ROADMAP", roadmap_native_section()),
+        ("PROJECT_STATUS", project_status_native_section()),
+    )
+    for label, block in documents:
+        assert "select" in block, label
+        flattened = plain(block)
+        for fact in (
+            "SELECT BISECTION ONAY B",
+            "TEK KOSUM",
+            "1 PASSED",
+            "PYTEST EXIT 0",
+            "CHILD STDERR 0 BAYT",
+            "0XE24C4A02 SAYISI 0",
+            "SELECT 6",
+            "STATS 0",
+            "YTDL HOOK 0",
+            "OTOMATIK TEKRAR YAPILMADI",
+            "SONUC KAYDI COMMIT BEKLIYOR",
+        ):
+            assert fact in flattened, f"{label} select sonucu eksik: {fact}"
+
+
+def test_select_record_carries_exact_artifact_evidence():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = flat(block)
+        for fact in (
+            "651 passed, 4 skipped",
+            "2.309.579 bayt",
+            "31.548 satır",
+            "D83214B45DBF615D8009D0537C58E322F1504569BBE5E7B07DA3C97E8CC659A2",
+            "B4942757310F5040616FF229C0D3A184D84F04D159492AE55D97269CE103C711",
+            "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+            "2.651.661.814",
+            "638811093472871806",
+        ):
+            assert flat(fact) in flattened, (
+                f"{label} select artifact kaniti eksik: {fact}")
+
+
+def test_select_record_closes_the_initial_budget_without_overclaiming():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = plain(block)
+        assert "ILK IKI PROFILLIK BUTCE TAMAMLANDI" in flattened, label
+        assert "HICBIR GRUP ELENMEDI" in flattened, label
+        assert "KOK NEDEN ACIK" in flattened, label
+        assert "YENI NATIVE KOSUM YETKILENDIRILMEDI" in flattened, label
+        assert "SIRADAKI ADIM SALT-OKUNUR KANIT DEGERLENDIRMESI" in flattened
 
 
 def test_project_status_marks_the_old_harmless_conclusion_as_superseded():

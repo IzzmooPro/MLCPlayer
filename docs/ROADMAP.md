@@ -291,7 +291,8 @@ değişmedi. Hedef trace paketi **126 passed, 1 skipped**.
 otomatik yetkilendirilmiş değildir. Aralıklı olayda **tek negatif** sonuç
 **eleme kanıtı değildir**; her gerçek koşum **AYRI KULLANICI ONAYI** ister.
 İlgili deterministik paketler birlikte **645 passed, 4 skipped**; dört skip
-gerçek opt-in düğümleridir. Kapı ve kayıt değişiklikleri **COMMIT BEKLIYOR**.
+gerçek opt-in düğümleridir. Kapı ve kayıt değişiklikleri **COMMIT EDILDI
+(`06bd5f5`)**.
 **4K/H.265 kabulü ancak kök neden düzeltmesinden sonra.**
 
 **`stats_ytdl` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest
@@ -313,9 +314,31 @@ boş child stderr SHA-256
 etkin modülleri 0 gösterdi ve **kanıt olarak kullanılmadı**. Gerçek satırlar
 ve ortak değerlendirici 6/7/0 sonucunu doğruladı. Bu tek negatif sonuç grubu
 **elemez**. İlk bütçenin `select` profili **AYRI ONAY B** ister; select koşumu
-yapılmadı. Kayıt sonrası ilgili deterministik paketler **648 passed, 4
-skipped**; dört skip gerçek opt-in düğümleridir. Sonuç kaydı **COMMIT
-BEKLIYOR**.
+bu kayıt anında yapılmamıştı. Kayıt sonrası ilgili deterministik paketler
+**648 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir. `stats_ytdl`
+sonuç kaydı **COMMIT EDILDI (`dc31bf9`)**.
+
+**`select` bisection ONAY B — TEK KOSUM (18 Ağustos 2026):** pytest exit 0 /
+**1 passed**; otomatik tekrar yapılmadı ve CDB kullanılmadı. Trace profili
+doğruladı: select 6, stats 0, ytdl hook 0, diğer bilinen built-in modüller 0.
+Child stderr **0 bayt**, `0xe24c4a02` sayısı **0**, overflow/fatal/error 0;
+kapanış tamamlandı, kalan MPV thread ve artık süreç yoktu. Medya boyutu
+**2.651.661.814** bayt, `mtime` ticks **638811093472871806** olarak
+önce/sonra değişmedi.
+
+Trace **2.309.579 bayt / 31.548 satır**, SHA-256
+`D83214B45DBF615D8009D0537C58E322F1504569BBE5E7B07DA3C97E8CC659A2`;
+child stdout SHA-256
+`B4942757310F5040616FF229C0D3A184D84F04D159492AE55D97269CE103C711`;
+boş child stderr SHA-256
+`E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`.
+
+**İlk iki profillik bütçe tamamlandı.** İki sonuç da tek-negatiftir; aralıklı
+kusur nedeniyle **hiçbir grup elenmedi** ve kök neden **AÇIK**. Yeni native
+koşum yetkilendirilmedi. Sıradaki adım salt-okunur kanıt değerlendirmesi;
+tekrar/ikinci aşama yeni açık bütçe ve ayrı kullanıcı onayı ister. Kayıt
+sonrası ilgili deterministik paketler **651 passed, 4 skipped**; dört skip
+gerçek opt-in düğümleridir. `select` sonuç kaydı **COMMIT BEKLIYOR**.
 
 **ONAY A — exact PDB sonucu (18 Ağustos 2026; native koşum yok):** workflow
 run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`,
