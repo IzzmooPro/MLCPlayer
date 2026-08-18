@@ -17,7 +17,7 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
 testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
 ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
-`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **on bir
+`master` şu an (18 Ağustos 2026 snapshot'ı) `origin/master`'ın **on üç
 commit** ilerisindedir ve **push yapılmadı**. Güncel tam paket
 **3992 passed / 17 skipped / 0 failed**, exit 0 ve stderr boştur. **Push
 yapılmadı**; canlı bir build/yayın koşumu da yapılmadı. Sıradaki teknik
@@ -314,6 +314,24 @@ kaydı olsa bile **FAIL-CLOSED** kalır. Kaynak bağı `mpv_request_log_messages
 API'si ve mpv seçenek kılavuzuyla testlidir. Deterministik sonuç **337
 passed, 2 skipped**; bu sayı canlı overflow'un bittiğinin kanıtı değildir.
 
+**UCUNCU PDB'SIZ TRACE ONAY B (18 Ağustos 2026): TEK KOSUM, pytest exit 1,
+TANI SONUCSUZ.** Temiz `0ac71f8` üzerinde aynı video kullanıldı; otomatik
+tekrar, CDB ve ürün kodu değişikliği yok. Raw stdout ölçümü **`overflow=0`**,
+**`messages skipped=0`**: log-event taşması bu koşumda giderildi. Kapanış
+marker'ları eksiksizdi (`stop=1` → `terminate=1`, `visible=False`,
+`app.exec=0`, MPV thread=0, `RESULTS failures=none`, main returned 0).
+
+Raw stderr yine de **13 ayrı** `0xe24c4a02` olayı taşıdı; trace Lua
+hata/traceback kaydı üretmedi. Ölçülen sınır: **overflow olaylar için gerekli
+bir koşul değildi**. Kök neden ve kullanıcıya görünen etki **AÇIK**.
+Artifact SHA-256 değerleri: trace
+`27E6407134BCC6609FBAC41F29F8B6A1E35692A5BB34906B2C904F4A39F18C30`,
+raw stdout
+`5BBFA4F383DB321919FCFB0EF6A5141C44194BD0FC26469970DADA79241ACEE4`,
+raw stderr
+`3CDAAC57BD4B7027DF99B77B1F34D6B5B6B18C29965D1E43ADF75AC6B9889A10`.
+**Üçüncü ONAY B sonuç kaydı bu kayıt commit'iyle COMMIT EDILDI.**
+
 **Talimat ihlali (gizlenmiyor):** bir önceki turun mutasyon koşumunda
 "medya türü denetimi yok" varyantı gerçek child'ı bir kez, yaklaşık
 26,8 sn boyunca geçersiz bir `.py` girdisiyle başlattı. **Bu koşum canlı
@@ -332,7 +350,8 @@ dosyası iki commit ile tamamlandı: `4ed5c79` ve `5c83c05`. Debugger kanıt
 ayrıştırması COMMIT EDILDI (`ddcfc40`); ONAY A PDB kaydı COMMIT EDILDI
 (`a4f10ee`); PDB'siz trace kapısı COMMIT EDILDI (`4f5bc87`), raw artifact
 zinciri COMMIT EDILDI (`c251abd`), ikinci ONAY B sonuç kaydı ve overflow
-önleme düzeltmesi COMMIT BEKLIYOR. Ayrıntılı liste:
+önleme düzeltmesi COMMIT EDILDI (`0ac71f8`), üçüncü ONAY B sonuç kaydı
+bu kayıt commit'iyle COMMIT EDILDI. Ayrıntılı liste:
 `docs/ENGINEERING_AUDIT.md` → NATIVE-001.
 
 **Kapatılmayan:** LuaJIT'in taşıdığı asıl Lua hatası belirlenmedi ve ürüne

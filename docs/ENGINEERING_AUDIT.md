@@ -196,7 +196,7 @@ değişiklik henüz kalıcı değildir.
 - **Kimlik:** NATIVE-001
 - **Baslik:** Native `0xe24c4a02` istisnası yeşil pytest sonucunun arkasında gizleniyordu
 - **Onem:** Yüksek — ölümcül görünümlü bir native olay, `exit 0` nedeniyle hiçbir kapıya takılmıyordu
-- **Durum:** KANITLANDI → UYGULANDI → **Aşama 1:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`a7ced18`); **Aşama 2:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → **CANLI KABUL BASARISIZ** (18 Ağustos 2026); **debugger kanıt ayrıştırması:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`ddcfc40`); **exact PDB teşhis kapısı:** KANITLANDI → COMMIT EDILDI (`a4f10ee`) → **ONAY B ENGELLENDI**; **PDB'siz trace kapısı:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4f5bc87`); **raw artifact zinciri:** COMMIT EDILDI (`c251abd`) → **IKINCI PDB'SIZ TRACE ONAY B TEK KOSUM BASARISIZ / TANI SONUCSUZ**; **overflow önleme:** HEDEF TESTLERLE DOGRULANDI → COMMIT BEKLIYOR → CANLI KABUL BEKLIYOR
+- **Durum:** KANITLANDI → UYGULANDI → **Aşama 1:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`a7ced18`); **Aşama 2:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → **CANLI KABUL BASARISIZ** (18 Ağustos 2026); **debugger kanıt ayrıştırması:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`ddcfc40`); **exact PDB teşhis kapısı:** KANITLANDI → COMMIT EDILDI (`a4f10ee`) → **ONAY B ENGELLENDI**; **PDB'siz trace kapısı:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4f5bc87`); **raw artifact zinciri:** COMMIT EDILDI (`c251abd`) → **IKINCI PDB'SIZ TRACE ONAY B TEK KOSUM BASARISIZ / TANI SONUCSUZ**; **overflow önleme:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`0ac71f8`) → **UCUNCU PDB'SIZ TRACE ONAY B TEK KOSUM BASARISIZ / TANI SONUCSUZ**
 - **Kanit (olculen):**
   - `tests/test_cover_art_regressions.py` ANA pytest sürecinde doğrudan `mpv.MPV` kuruyordu; fixture yalnız `terminate()` çağırıyordu (ürün kapanışı `stop() -> terminate()` kullanır).
   - Bağımsız dosya koşumu: **3 passed / exit 0**, buna rağmen stderr'de
@@ -335,6 +335,14 @@ değişiklik henüz kalıcı değildir.
 
   Birincil sözleşmeler: [mpv seçenek kılavuzu](https://mpv.io/manual/master/#options), `--log-file` ile `--msg-level` ilişkisinin ve `trace` seviyesinin çok gürültülü olduğunun kaynağıdır; [libmpv `client.h`](https://github.com/mpv-player/mpv/blob/master/include/mpv/client.h), her client handle'ın kendi `mpv_request_log_messages` durumuna sahip olduğunu belgeler. Hedef/dar deterministik sonuç **337 passed, 2 skipped**; skip'ler gerçek native düğümlerdir. Bu sonuç overflow'un canlıda bittiğini kanıtlamaz; yalnız ayrımı, kaynak bağını ve fail-closed kapıyı doğrular.
 
+  **UCUNCU PDB'SIZ TRACE ONAY B — overflow önleme canlı doğrulaması (18 Ağustos 2026): TEK KOSUM, pytest exit 1, TANI SONUCSUZ.** Temiz `0ac71f8` HEAD'inde aynı Resident Alien videosuyla çalıştırıldı; **otomatik tekrar yapılmadı**, CDB kullanılmadı ve ürün kodu değiştirilmedi. Süre 1,965 sn; timeout yok. Medya boyutu/mtime değişmedi; artık child/pytest süreci yok.
+
+  Amaçlanan dar sonuç canlıda görüldü: raw stdout içinde **`overflow=0`** ve **`messages skipped=0`**; önceki `155 messages skipped` satırı yoktu. Kapanış marker'ları yine tamdı: `duration=2782.27`, `position=0.04`, `stop=1` → `terminate=1`, `visible=False`, `app.exec=0`, MPV thread=0, `RESULTS failures=none`, main returned 0.
+
+  Buna rağmen raw stderr **13 ayrı** `0xe24c4a02` olayı taşıdı (15.916 bayt); trace **31.707 satır** olmasına rağmen Lua hata/traceback kaydı yine 0'dı. Ölçülen sınır: **overflow olaylar için gerekli bir koşul değildi** — bu koşumda overflow yokken olaylar sürdü. Bu, overflow'un hiçbir etkisi olmadığını, olayların kesin kaynağını veya kullanıcıya görünen etkiyi belirlemez; **kök neden AÇIK** kalır.
+
+  Üç kalıcı eşleme özeti: trace SHA-256 `27E6407134BCC6609FBAC41F29F8B6A1E35692A5BB34906B2C904F4A39F18C30`; raw stdout SHA-256 `5BBFA4F383DB321919FCFB0EF6A5141C44194BD0FC26469970DADA79241ACEE4`; raw stderr SHA-256 `3CDAAC57BD4B7027DF99B77B1F34D6B5B6B18C29965D1E43ADF75AC6B9889A10`. **Üçüncü ONAY B sonuç kaydı bu kayıt commit'iyle COMMIT EDILDI.**
+
   **Süreç ihlali kaydı:** geçici harness, ilk kodlama ön testinden sonra **bağımsız denetime sunulmadan** değiştirildi ve çalıştırıldı. İkinci CDB koşumu yapılmamış ve repo değişmemiş olsa da bu bir **onay zinciri ihlali**dir; raporun thread ve second-chance yorumları bu yüzden ayrıca bağımsız ayrıştırmayla doğrulanmıştır.
 
   **Commit durumu (asamalara gore):**
@@ -369,7 +377,7 @@ değişiklik henüz kalıcı değildir.
   - **4K / H.265 kabulü ancak kök neden düzeltmesinden SONRA yapılacaktır.**
 
 - **Kalan risk:** **Canlı kabul BAŞARISIZDIR ve asıl Lua hatası AÇIKTIR.** Debugger, olayın LuaJIT `LUA_ERRRUN` taşıması olduğunu ve fault thread dağılımını belirledi; PDB'siz trace koşumu mpv loglamasının çalıştığını ve ilgili scriptlerin etkin olduğunu gösterdi fakat Lua hata metnini üretmedi. Onu doğuran çağrı ve kullanıcıya görünen etki belirlenmedi. Önceki kapanış sözleşmesi kanıtları korunur; bu son trace koşumunda raw child akışları ayrı artifact olmadığı için aynı marker sonuçları yeniden iddia edilmez. İstisna artık child'da oluşursa üst test FAIL verir — gizlenmez, fakat **önlenmiş değildir**.
-- **Commit durumu:** Aşama 1 **COMMIT EDILDI** (`a7ced18`); Aşama 2 **COMMIT EDILDI** (`4ed5c79`, `5c83c05`); debugger kanıt ayrıştırması ve kayıt düzeltmesi **COMMIT EDILDI** (`ddcfc40`); ONAY A PDB kaydı **COMMIT EDILDI** (`a4f10ee`); PDB'siz trace kapısı **COMMIT EDILDI** (`4f5bc87`); raw artifact zinciri **COMMIT EDILDI** (`c251abd`); ikinci ONAY B sonuç kaydı ve overflow önleme düzeltmesi **COMMIT BEKLIYOR**.
+- **Commit durumu:** Aşama 1 **COMMIT EDILDI** (`a7ced18`); Aşama 2 **COMMIT EDILDI** (`4ed5c79`, `5c83c05`); debugger kanıt ayrıştırması ve kayıt düzeltmesi **COMMIT EDILDI** (`ddcfc40`); ONAY A PDB kaydı **COMMIT EDILDI** (`a4f10ee`); PDB'siz trace kapısı **COMMIT EDILDI** (`4f5bc87`); raw artifact zinciri **COMMIT EDILDI** (`c251abd`); ikinci ONAY B sonuç kaydı ve overflow önleme düzeltmesi **COMMIT EDILDI** (`0ac71f8`); üçüncü ONAY B sonuç kaydı **bu kayıt commit'iyle COMMIT EDILDI**.
 
 ---
 

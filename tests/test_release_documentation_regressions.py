@@ -739,8 +739,9 @@ def test_debugger_parser_commit_is_recorded_as_committed():
 def test_roadmap_snapshot_has_the_measured_local_commit_count():
     text = fold(flat(read(ROADMAP_DOC))).lower()
 
-    assert "on bir commit" in text, "ROADMAP guncel ahead=11 olcumunu tasimiyor"
-    for stale in ("bes commit", "sekiz commit", "dokuz commit", "on commit"):
+    assert "on uc commit" in text, "ROADMAP commit sonrasi ahead=13 durumunu tasimiyor"
+    for stale in ("bes commit", "sekiz commit", "dokuz commit", "on commit",
+                  "on bir commit", "on iki commit"):
         assert stale not in text, f"ROADMAP hala bayat sayiyi tasiyor: {stale}"
 
 
@@ -963,6 +964,45 @@ def test_native_record_links_the_primary_mpv_logging_contracts():
     assert "https://mpv.io/manual/master/#options" in block
     assert "github.com/mpv-player/mpv/blob/master/include/mpv/client.h" in block
     assert "mpv_request_log_messages" in block
+
+
+def test_native_record_carries_the_overflow_free_live_result():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        for fact in (
+            "0AC71F8",
+            "UCUNCU PDB'SIZ TRACE ONAY B",
+            "TEK KOSUM",
+            "PYTEST EXIT 1",
+            "OVERFLOW=0",
+            "MESSAGES SKIPPED=0",
+            "13 AYRI",
+            "TANI SONUCSUZ",
+            "OTOMATIK TEKRAR YAPILMADI",
+        ):
+            assert fact in flattened, f"{label} ucuncu ONAY B kaniti eksik: {fact}"
+
+
+def test_native_record_carries_the_overflow_free_artifact_hashes():
+    hashes = (
+        "27E6407134BCC6609FBAC41F29F8B6A1E35692A5BB34906B2C904F4A39F18C30",
+        "5BBFA4F383DB321919FCFB0EF6A5141C44194BD0FC26469970DADA79241ACEE4",
+        "3CDAAC57BD4B7027DF99B77B1F34D6B5B6B18C29965D1E43ADF75AC6B9889A10",
+    )
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        for digest in hashes:
+            assert digest in block, f"{label} ucuncu kosum SHA-256 eksik: {digest}"
+
+
+def test_native_record_keeps_the_overflow_interpretation_bounded():
+    for label, block in (("ENGINEERING_AUDIT", native_record()),
+                         ("ROADMAP", roadmap_native_section())):
+        flattened = fold(flat(block)).upper()
+        assert "OVERFLOW OLAYLAR ICIN GEREKLI BIR KOSUL DEGILDI" in flattened, label
+        assert "KOK NEDEN" in flattened and "ACIK" in flattened, label
+        assert "KULLANICIYA GORUNEN ETKI" in flattened, label
 
 
 def test_native_record_preserves_the_failed_mpv_import_probe():
