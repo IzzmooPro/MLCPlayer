@@ -1,7 +1,7 @@
 # MLC Player yol haritası
 
-**Snapshot: 19 Ağustos 2026** — NATIVE-001 residual-risk kararı ve güncel tam paket
-checkpoint'inin ardından güncellendi. Bu belge her kabul edilen turun sonunda
+**Snapshot: 20 Ağustos 2026** — v0.37 fiziksel kabul matrisi ve REL-006'nın
+kapanmasının ardından güncellendi. Bu belge her kabul edilen turun sonunda
 yenilenir; buradaki durumlar o tarihteki ölçümleri yansıtır, kalıcı
 gerçek değildir.
 
@@ -17,12 +17,12 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
 testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
 ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
-`master` şu an (19 Ağustos 2026 snapshot'ı) `origin/master`'ın **25
-commit** ilerisindedir ve **push yapılmadı**. Güncel tam paket
-**4543 passed / 19 skipped / 0 failed**, exit 0 ve **82,88 sn** sürdü.
-Stdout/stderr ayrı yakalanmadığı için stderr boşluğu iddia edilmez. **Push
-yapılmadı**; canlı bir build/yayın koşumu da yapılmadı. Sıradaki teknik
-risk, NATIVE-001'in bilinmeyen native kök nedeni ve ürün etkisidir.
+`master` bu kayıt commit'iyle `origin/master`'ın **31 commit** ilerisindedir
+ve **push yapılmadı**. Güncel tam paket **4556 passed / 19 skipped / 0
+failed**, exit 0 ve **87,60 sn** sürdü. Stdout/stderr ayrı yakalanmadığı için
+stderr boşluğu iddia edilmez. v0.37 build ve fiziksel kabul matrisi başarılı;
+yerel tag, push ve release yapılmadı. Sıradaki adım temiz HEAD üzerinde nihai
+build, kaynak aynası, annotated tag ve yerel prepublish kapısıdır.
 
 ---
 
@@ -97,11 +97,18 @@ yeniden koşturmak ölçüm değil, tekrardır. Bir sonraki tam koşum commit
 yapıldı. TEST-002'nin bayat assertion'ı ve NATIVE-001 sonrası eklenen
 regresyonlar artık aynı tam paket sonucunda birlikte yeşildir.
 
-19 Ağustos 2026 güncel `acaa556` checkpoint'i: **4543 passed / 19 skipped /
+19 Ağustos 2026 `acaa556` checkpoint'i: **4543 passed / 19 skipped /
 0 failed**, pytest **exit 0**, **82,88 sn**. Tam paket yalnız bir kez
 çalıştırıldı; cover-art libmpv child testi pakete dahildi. Stdout/stderr ayrı
 yakalanmadı, dolayısıyla stderr bayt sayısı ölçülmedi. Bu sonuç önceki
-checkpoint'i silmez; daha yeni kabul ölçümüdür. Kayıt **COMMIT BEKLIYOR**.
+checkpoint'i silmez; tarihsel kabul ölçümüdür.
+
+20 Ağustos 2026 güncel `b65bd9c` checkpoint'i: **4556 passed / 19 skipped /
+0 failed**, pytest **exit 0**, **87,60 sn**. Sandbox ACL'sine takılan iki
+deneme ürün sonucu sayılmadı; erişilebilir benzersiz `--basetemp` ile sandbox
+dışında koşulan gerçek tam paket tek geçerli sonuçtur. Stdout/stderr ayrı
+yakalanmadı; stderr boşluğu iddia edilmez. Bu kayıt bu commit'le
+**COMMIT EDILDI**.
 
 ---
 
@@ -630,7 +637,7 @@ devam ediyor (bkz. madde 8).
 
 ## Gercek Windows build ve kabul matrisi
 
-- **Durum:** **YUKSELTME/OYNATMA KABULU BASARILI - KALDIRMA BEKLIYOR**
+- **Durum:** **FIZIKSEL KABUL MATRISI BASARILI**
 - **Bagimlilik:** REL-001, REL-003
 - **Olcut:** `build_release.bat` uçtan uca exit 0; dört artifact üretilmiş ve imzalanmış; fiziksel kabul matrisi koşulmuş
 - **Kullanici onayi:** **gerekir** — build ayrı bir onaydır
@@ -645,7 +652,7 @@ Bağımsız imza denetimleri `MAIN_SIGNATURE_OK=True` ve
 `ADDON_SIGNATURE_OK=True`. `build/` ve `dist/` başarıyla temizlenip yeniden
 üretildi; kilitli klasör hata yolu canlı ölçülmedi. Artık hedef süreç yoktu.
 Bu sonuç fiziksel kurulum, kaldırma ve ilk açılış kabulünün yerine geçmez.
-Canlı build sonuç kaydı **COMMIT BEKLIYOR**.
+Canlı build sonuç kaydı bu kayıt commit'iyle **COMMIT EDILDI**.
 
 Fiziksel kabulün ilk yarısı 19 Ağustos 2026'da tamamlandı: `v0.36 -> v0.37`,
 ana installer exit 0, add-on exit 0. Kullanıcı gözlemi **görüntü/ses tamam**
@@ -669,8 +676,18 @@ alt dizin** kaldı. İlk tek `{app}` kuralı bu nedenle yetersizdi.
 
 İkinci regresyon-first düzeltme dört `dirifempty` yolunu **en derinden
 yukariya** sıralıyor; etkin kurallarda **filesandordirs yok**. Hedef paketler **46
-passed**. Kaynak/test değişikliği commit bekliyor ve **ikinci rebuild/canlı
-retest bekliyor**. Release-ready madde 7 bu fiziksel retest geçmeden AÇIK kalır.
+passed** ve değişiklik `b65bd9c` ile commit edildi.
+
+İkinci REL-006 canlı retest 20 Ağustos 2026'da **başarılı** oldu. Tam release
+zinciri exit 0 / `DONE`; ana installer **58.252.266 bayt**, SHA-256
+`b6f284c6b8db626f99815f31685c785c279ae0fd5a4d967fd3d03e22e5bb5a1b`;
+add-on **49.268.116 bayt**, SHA-256
+`c0ec451b434ff94e13273709ca708493a29ce45695aef8f90c85ed885f6ce479`;
+iki imza bağımsız `True`. Ana kurulum, add-on kurulumu, ana kaldırıcı ve add-on
+kaldırıcı exit 0 verdi. Ana program önce kaldırıldığında add-on kaydı ve dosyaları
+korundu; add-on son kaldırıcı olduğunda ana program klasörü yok, iki uninstall
+kaydı 0, uygulama kaydı 0, kısayol 0 ve kalan süreç 0. Restart gerekmedi.
+Önceki yükseltme/oynatma kabulüyle birlikte release-ready madde 7 sağlandı.
 
 ---
 
@@ -694,8 +711,9 @@ Bir sürüm ancak şunların **hepsi** sağlandığında yayına hazır sayılı
 5. Uzak peeled tag commit'i == yerel HEAD
 6. Sekiz varlığın ad/boyut/SHA-256 eşliği doğrulanmış
 7. Fiziksel kabul matrisi koşulmuş
-   — **güncel durum: AÇIK.** Yükseltme, add-on, ilk açılış, oynatma, sürüm
-   görünümü ve temiz kapanış geçti; kaldırma yapılmadı.
+   — **güncel durum (20 Ağustos 2026): SAGLANDI.** Yükseltme, add-on, ilk
+   açılış, oynatma, sürüm görünümü, temiz kapanış ve ana-program-önce/add-on-sonra
+   kaldırma döngüsü geçti; program klasörü, kayıt, kısayol ve süreç artığı yok.
 8. `0xe24c4a02` riski ya kapatılmış ya bilinçli olarak kabul edilmiş
    — **güncel durum (18 Ağustos 2026): SAGLANDI - BILINCLI KABUL.** CPython/LuaJIT yanlış-pozitif
    mekanizması kaynak ve CDB ile açıklandı; düzeltilmiş ürün kapanış kapısı

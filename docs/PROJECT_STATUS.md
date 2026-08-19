@@ -1,11 +1,12 @@
 # MLC Player güncel durum
 
-Güncelleme: 17 Ağustos 2026
+Güncelleme: 20 Ağustos 2026
 
 ## DEVİR NOTU — buradan başla
 
-**Ağaç TEMİZ, `origin/master` ile senkron, `v0.36` yayında.**
-Tam paket: **3689 passed, 17 skipped** (~68 sn). Açık ürün kusuru YOK.
+**Ağaç TEMİZ; `master`, `origin/master`dan 31 commit ileride.** Güncel tam
+paket: **4556 passed, 19 skipped** (87,60 sn). `v0.37` build ve fiziksel
+kabul matrisi başarılıdır; bu turda tag/push/release yapılmadı.
 
 `v0.36` (17 Ağustos 2026) boyutlandırma donmasının YAZMA yarısını
 kapatır; ayrıntı aşağıdaki "ÇÖZÜLDÜ — boyutlandırmada donma" bölümünde.
@@ -1799,13 +1800,20 @@ eksiksiz marker/RESULTS ve ek stderr yok birleşimidir. Diğer hata biçimleri
 FAIL kalır. Bu karar kök nedenin tamamen çözüldüğü anlamına gelmez; yeniden
 açma şartlarının resmî kaydı `docs/ENGINEERING_AUDIT.md` NATIVE-001'dir.
 
-**Güncel tam paket checkpoint'i (19 Ağustos 2026, `acaa556`):** ONAY B ile
+**Önceki tam paket checkpoint'i (19 Ağustos 2026, `acaa556`):** ONAY B ile
 `python -m pytest -q` yalnız bir kez çalıştırıldı ve **4543 passed / 19
 skipped / 0 failed**, **exit 0**, **82,88 sn** verdi. Paket içindeki gerçek
 cover-art libmpv child testi çalıştı; başarısızlık ve otomatik tekrar olmadı.
 Çalışma ağacı koşum öncesi/sonrası temizdi ve artık hedef süreç yoktu.
 Stdout/stderr ayrı yakalanmadı; stderr bayt sayısı ölçülmedi ve boş olduğu
-iddia edilmez. Bu checkpoint kaydı **COMMIT BEKLIYOR**.
+iddia edilmez.
+
+**Güncel tam paket checkpoint'i (20 Ağustos 2026, `b65bd9c`):** erişilebilir
+benzersiz `--basetemp` ile sandbox dışında çalışan geçerli tek tam paket
+**4556 passed / 19 skipped / 0 failed**, **exit 0**, **87,60 sn** verdi.
+Sandbox ACL hatasıyla `PermissionError` üreten iki koşum ürün sonucu değildir.
+Stdout/stderr ayrı yakalanmadı ve stderr boşluğu iddia edilmez. Bu sonuç kaydı
+bu commit'le **COMMIT EDILDI**.
 
 **v0.37 gerçek Windows build'i (19 Ağustos 2026, `6cdacf1`): BASARILI.**
 `packaging\build_release.bat` yalnız bir kez çalıştırıldı, sekiz adımın
@@ -1821,8 +1829,9 @@ Sıkıştırma zaten Inno tarafında `Compression=lzma2/max` ve
 `SolidCompression=yes`; ana kurulum **187,8 MB** kurulu ağacı **55,6 MB**
 installer'a indirdi (build raporu **%70** sıkıştırma). PyInstaller tarafı
 bilinçli olarak `upx=False`; antivirüs yanlış pozitifleri ve başlangıç süresi
-ölçülmeden UPX açılmayacak. Build başarılıdır; fiziksel kurulum/kaldırma/ilk
-açılış kabulü hâlâ bekliyor. Kayıt **COMMIT BEKLIYOR**.
+ölçülmeden UPX açılmayacak. Bu ilk build kaydı sırasında fiziksel
+kurulum/kaldırma/ilk açılış kabulü henüz bekliyordu; aşağıdaki 19–20 Ağustos
+kayıtları matrisi tamamlar. Kayıt bu commit'le **COMMIT EDILDI**.
 
 **v0.37 fiziksel yükseltme/oynatma kabulü (19 Ağustos 2026): KISMEN
 BASARILI.** Mevcut `v0.36 -> v0.37` yükseltmesi bir kez yapıldı; ana
@@ -1853,9 +1862,23 @@ SHA-256 `308e82bb2ced6d298f467794d21798b1ae9786fb7e05a369fd183539ee43f140`.
 regresyon-first düzeltme `_internal\bin`, `_internal\licenses`, `_internal` ve
 `{app}` yollarını **en derinden yukariya** yalnız `dirifempty` ile kaldırıyor;
 etkin kurallarda **filesandordirs yok**. Add-on + artifact + installer-language
-hedefleri **46 passed**. İkinci kaynak/test düzeltmesi commit bekliyor;
-**ikinci rebuild/canlı retest bekliyor**. Fiziksel matris ve release-ready
-madde 7 hâlâ AÇIK.
+hedefleri **46 passed**. İkinci kaynak/test düzeltmesi `b65bd9c` ile commit
+edildi.
+
+**İkinci REL-006 canlı retest başarılı (20 Ağustos 2026).** `b65bd9c`
+üzerindeki tam release zinciri exit 0 / `DONE` verdi. Yeni ana installer
+**58.252.266 bayt**, SHA-256
+`b6f284c6b8db626f99815f31685c785c279ae0fd5a4d967fd3d03e22e5bb5a1b`;
+add-on **49.268.116 bayt**, SHA-256
+`c0ec451b434ff94e13273709ca708493a29ce45695aef8f90c85ed885f6ce479`.
+İki Ed25519 imzası bağımsız olarak `True` doğrulandı. Temiz fiziksel döngüde
+ana kurulum, add-on kurulumu, ana kaldırıcı ve add-on kaldırıcı ayrı ayrı exit
+0 verdi. Ana program önce kaldırıldığında add-on kaydı ve kaynakla hash-birebir
+beş dosyası korundu. Add-on son kaldırıcı olduğunda ana program klasörü yok,
+iki uninstall kaydı 0, uygulama kaydı 0, kısayol 0 ve kalan süreç 0 ölçüldü;
+restart gerekmedi. REL-006 kapandı ve önceki yükseltme/oynatma kabulüyle
+birlikte release-ready madde 7 sağlandı. Bu sonuç kaydı bu commit'le
+**COMMIT EDILDI**.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 

@@ -390,11 +390,11 @@ def test_the_current_full_suite_checkpoint_is_recorded_everywhere():
     for label, record in records.items():
         block = flat(record)
         for fact in (
-            "19 agustos 2026",
-            "acaa556",
-            "4543 passed / 19 skipped / 0 failed",
+            "20 agustos 2026",
+            "b65bd9c",
+            "4556 passed / 19 skipped / 0 failed",
             "exit 0",
-            "82,88 sn",
+            "87,60 sn",
         ):
             assert flat(fact) in block, f"{label}: {fact}"
 
@@ -409,8 +409,8 @@ def test_the_current_checkpoint_does_not_invent_a_separate_stderr_result():
 def test_the_roadmap_summary_has_the_current_local_commit_count():
     summary = flat(read(ROADMAP_DOC).split("---", 1)[0])
 
-    assert "25 commit" in summary
-    assert "4543 passed / 19 skipped / 0 failed" in summary
+    assert "31 commit" in summary
+    assert "4556 passed / 19 skipped / 0 failed" in summary
 
 
 def test_the_v0_37_windows_build_is_recorded_with_exact_artifacts():
@@ -435,10 +435,10 @@ def test_the_v0_37_windows_build_is_recorded_with_exact_artifacts():
             assert flat(fact) in block, f"{label}: {fact}"
 
 
-def test_the_build_record_separates_success_from_pending_physical_acceptance():
+def test_the_build_record_preserves_limits_and_current_physical_acceptance():
     roadmap = flat(read(ROADMAP_DOC))
 
-    assert flat("YUKSELTME/OYNATMA KABULU BASARILI - KALDIRMA BEKLIYOR") in roadmap
+    assert flat("FIZIKSEL KABUL MATRISI BASARILI") in roadmap
     assert flat("otomatik tekrar yapilmadi") in roadmap
     assert flat("kilitli klasor hata yolu canli olculmedi") in roadmap
 
@@ -480,12 +480,12 @@ def test_the_v0_37_upgrade_and_playback_acceptance_is_recorded_everywhere():
             assert flat(fact) in block, f"{label}: {fact}"
 
 
-def test_physical_acceptance_does_not_claim_uninstall_was_run():
+def test_physical_acceptance_records_the_successful_uninstall_cycle():
     roadmap = flat(read(ROADMAP_DOC))
 
-    assert flat("YUKSELTME/OYNATMA KABULU BASARILI - KALDIRMA BEKLIYOR") in roadmap
-    assert flat("kaldirma yapilmadi") in roadmap
-    assert flat("release-ready madde 7 acik") in roadmap
+    assert flat("FIZIKSEL KABUL MATRISI BASARILI") in roadmap
+    assert flat("ana program klasoru yok") in roadmap
+    assert flat("release-ready madde 7 saglandi") in roadmap
 
 
 def test_the_empty_install_directory_uninstall_defect_is_recorded_everywhere():
@@ -506,12 +506,11 @@ def test_the_empty_install_directory_uninstall_defect_is_recorded_everywhere():
             "dirifempty",
             "filesandordirs yok",
             "45 passed",
-            "canli retest bekliyor",
         ):
             assert flat(fact) in block, f"{label}: {fact}"
 
 
-def test_the_first_rel006_live_retest_failure_and_second_fix_are_recorded():
+def test_the_first_rel006_failure_and_successful_second_retest_are_recorded():
     records = {
         "ENGINEERING_AUDIT": read(AUDIT_DOC),
         "ROADMAP": read(ROADMAP_DOC),
@@ -532,7 +531,13 @@ def test_the_first_rel006_live_retest_failure_and_second_fix_are_recorded():
             "kalan surec 0",
             "en derinden yukariya",
             "46 passed",
-            "ikinci rebuild/canli retest bekliyor",
+            "b65bd9c",
+            "ikinci rel-006 canli retest",
+            "b6f284c6b8db626f99815f31685c785c279ae0fd5a4d967fd3d03e22e5bb5a1b",
+            "c0ec451b434ff94e13273709ca708493a29ce45695aef8f90c85ed885f6ce479",
+            "ana program klasoru yok",
+            "kisayol 0",
+            "release-ready madde 7 saglandi",
         ):
             assert flat(fact) in block, f"{label}: {fact}"
 
@@ -1481,7 +1486,7 @@ def test_debugger_parser_commit_is_recorded_as_committed():
 def test_roadmap_snapshot_has_the_measured_local_commit_count():
     text = fold(flat(read(ROADMAP_DOC))).lower()
 
-    assert "25 commit" in text, "ROADMAP guncel ahead=25 durumunu tasimiyor"
+    assert "31 commit" in text, "ROADMAP guncel ahead=31 durumunu tasimiyor"
     for stale in ("bes commit", "sekiz commit", "dokuz commit", "on commit",
                   "on bir commit", "on iki commit", "on uc commit"):
         assert stale not in text, f"ROADMAP hala bayat sayiyi tasiyor: {stale}"

@@ -91,7 +91,7 @@ değişiklik henüz kalıcı değildir.
 - **Canli kabul:** Temiz `6cdacf1` HEAD'i üzerinde `packaging\build_release.bat` **yalnız bir kez** çalıştırıldı ve `DONE` başarı yoluna ulaştı; bu yol betikte `exit /b 0` ile biter. Otomatik tekrar yapılmadı. Kesin v0.37 çıktıları: ana installer **58.255.939 bayt**, SHA-256 `fa0a5f03cbe0f3a42c29fa162648fdabea4efffcbbaef2754d7c2657155474da`; add-on **49.268.164 bayt**, SHA-256 `05937a59c5f0e29b32d15fecc5080351ce65d55720508fc8901a6d347bfaf67b`. Ayrı salt-okunur denetimde `MAIN_SIGNATURE_OK=True` ve `ADDON_SIGNATURE_OK=True`; iki `.sig` de 88 bayt. `verify_build.py --final` ana installer için tekrar exit 0 verdi. Dist EXE `FileVersion/ProductVersion=v0.37`; iki installer Windows alanı `0.37.0.0`.
 - **Fiziksel yükseltme/oynatma kabulü (19 Ağustos 2026):** mevcut `v0.36 -> v0.37` yükseltmesi bir kez yapıldı; ana installer exit 0, add-on exit 0. Kurulu EXE ve iki uninstall kaydı v0.37; kurulu yt-dlp/deno kaynak hash'leriyle birebir. Bilinen Resident Alien medyası bir kez açıldı. **Kullanıcı gözlemi:** “görüntü/ses tamam”, Hakkında v0.37 ve normal X ile temiz kapanış. **Bağımsız ölçüm:** uygulama yanıt veriyordu; kapanıştan sonra kalan süreç 0; medya boyutu **2.651.661.814** ve mtime ticks **638811093472871806** değişmedi. Bu aşamada kaldırma yapılmadı. Önceden kullanıcı ayar anahtarında karşılaştırılabilir değer bulunmadığı için gerçek dolu-ayar yükseltme korunumu ölçülmedi.
 - **Kalan risk:** Kaldırma ve ardından temiz-kurulum kabulü henüz koşulmadı; dolu kullanıcı ayarıyla yükseltme korunumu ölçülmedi. Build ve yükseltme/oynatma başarılıdır; fiziksel matris tamamlanmadan yayın hazır kabulü değildir.
-- **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı **COMMIT BEKLIYOR**.
+- **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı bu kayıt commit'iyle **COMMIT EDILDI**.
 
 ---
 
@@ -123,7 +123,7 @@ değişiklik henüz kalıcı değildir.
 - **Test kaniti:** Dört yeni kaynak-regresyon testi: `build` ve `dist` için ayrı ayrı `if exist … goto :fail` koruması, başarı mesajının **iki denetimden de sonra** geldiği, `rmdir`in yalnız bu iki hedefte ve jokersiz kullanıldığı, `installer_output` davranışının **değişmediği**. Dosya sonucu: **25 passed**.
 - **Canli kabul:** 19 Ağustos 2026 tek v0.37 build'inde önceki `build/` ve `dist/` vardı; STEP 2 ikisini kaldırdı, yokluklarını doğruladı ve ancak sonra başarı mesajı verdi. Zincir temiz PyInstaller ağacını yeniden üretti. Kilitli klasör hata yolu canlı ölçülmedi.
 - **Kalan risk:** Kilitli klasör senaryosu gerçek Windows'ta yeniden üretilmedi; `rmdir` başarısızlığının bu koşulda gerçekten `if exist` ile yakalandığı ayrıca ölçülmeli.
-- **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı **COMMIT BEKLIYOR**.
+- **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı bu kayıt commit'iyle **COMMIT EDILDI**.
 
 ---
 
@@ -132,14 +132,14 @@ değişiklik henüz kalıcı değildir.
 - **Kimlik:** REL-006
 - **Baslik:** Add-on son kaldırıcı olduğunda boş program klasörü kalıyordu
 - **Onem:** Orta — uygulama ve kayıtlar gitse de Program Files altında artık dizin bırakılıyordu
-- **Durum:** KANITLANDI → ILK DUZELTME COMMIT EDILDI (`332779c`) → ILK REL-006 CANLI RETEST BASARISIZ → IKINCI DUZELTME HEDEF TESTLERLE DOGRULANDI → **IKINCI REBUILD/CANLI RETEST BEKLIYOR**
+- **Durum:** KANITLANDI → ILK DUZELTME COMMIT EDILDI (`332779c`) → ILK REL-006 CANLI RETEST BASARISIZ → IKINCI DUZELTME COMMIT EDILDI (`b65bd9c`) → **IKINCI REL-006 CANLI RETEST BASARILI / KAPANDI**
 - **Kanit:** Fiziksel v0.37 kabulünde ana program önce, add-on sonra kaldırıldı. İki uninstall kaydı 0, kalan süreç 0, kısayollar ve bütün program dosyaları silinmişti; buna rağmen `C:\Program Files\MLC Player` altında **0 öğe / 0 bayt** boş program klasörü kaldı. Kullanıcı ayar ve logları bilinçli olarak korundu.
 - **Kok neden:** Ayrı AppId kullanan add-on kaldırıcı ortak `{app}` dizinindeki kendi dosyalarını kaldırıyor fakat son bileşen olduğunda boş ortak dizini temizleyecek `[UninstallDelete]` kuralı taşımıyordu.
 - **Degisen dosyalar:** `packaging/MLCPlayer_InternetVideo.iss`, `tests/test_internet_video_addon_regressions.py`
 - **Test kaniti:** İlk kırmızı “add-on `[UninstallDelete]` bölümü yok” idi. İlk minimum kural `Type: dirifempty; Name: "{app}"`; yalnız boş dizini hedefledi ve `332779c` ile commit edildi. İlk canlı retest bunun yetersiz olduğunu ölçtü: kök dizin boş değildi çünkü add-on'un oluşturduğu **3 bos alt dizin** kalmıştı. İkinci kırmızı test yalnız `{app}` kuralını gördü; düzeltme `_internal\bin`, `_internal\licenses`, `_internal` ve `{app}` yollarını **en derinden yukariya** sıralıyor. Bütün kurallar `dirifempty`; etkin kurallarda **filesandordirs yok**. Add-on + artifact + installer-language hedefleri **46 passed**.
-- **Canli kabul:** İlk REL-006 canlı retest başarısız. `332779c` sonrasında tek rebuild exit 0 verdi; ana installer SHA-256 `61ae94ae6d53611aedc24880c0f52f4c224717130e688645694fb42a54c9ddf6`, add-on SHA-256 `308e82bb2ced6d298f467794d21798b1ae9786fb7e05a369fd183539ee43f140`. Kullanıcı onaylı kur/kaldır döngüsünde ana ve add-on kurulumları ile iki kaldırıcı exit 0 verdi; **uninstall kaydi 0**, **kalan surec 0**, kısayollar ve dosyalar yoktu. Buna rağmen `{app}` altında yalnız `_internal\bin`, `_internal\licenses` ve `_internal` olmak üzere **3 bos alt dizin** kaldı. Kanıt elle silinmedi.
-- **Kalan risk:** İkinci düzeltme henüz yeniden build edilmedi ve fiziksel döngüde ölçülmedi. Gerçek add-on kaldırıcısının bu dört boş dizini en derinden yukarıya kaldırdığı doğrulanmadan release-ready madde 7 kapanmaz.
-- **Commit durumu:** İlk düzeltme COMMIT EDILDI (`332779c`); ikinci kaynak/test düzeltmesi **COMMIT BEKLIYOR**, **IKINCI REBUILD/CANLI RETEST BEKLIYOR**.
+- **Canli kabul:** İlk REL-006 canlı retest başarısız. `332779c` sonrasında tek rebuild exit 0 verdi; ana installer SHA-256 `61ae94ae6d53611aedc24880c0f52f4c224717130e688645694fb42a54c9ddf6`, add-on SHA-256 `308e82bb2ced6d298f467794d21798b1ae9786fb7e05a369fd183539ee43f140`. Kullanıcı onaylı kur/kaldır döngüsünde ana ve add-on kurulumları ile iki kaldırıcı exit 0 verdi; **uninstall kaydi 0**, **kalan surec 0**, kısayollar ve dosyalar yoktu. Buna rağmen `{app}` altında yalnız `_internal\bin`, `_internal\licenses` ve `_internal` olmak üzere **3 bos alt dizin** kaldı. Kanıt elle silinmedi. İkinci REL-006 canlı retest 20 Ağustos 2026'da `b65bd9c` üzerinde başarılı oldu: release zinciri exit 0 / `DONE`; ana installer **58.252.266 bayt** ve SHA-256 `b6f284c6b8db626f99815f31685c785c279ae0fd5a4d967fd3d03e22e5bb5a1b`, add-on **49.268.116 bayt** ve SHA-256 `c0ec451b434ff94e13273709ca708493a29ce45695aef8f90c85ed885f6ce479`; iki imza `True`. Ana kurulum, add-on kurulumu, ana kaldırıcı ve add-on kaldırıcı exit 0 verdi. Ana program önce kaldırıldığında add-on dosyaları ve kaydı korundu; add-on son kaldırıcı olduğunda ana program klasörü yok, iki uninstall kaydı 0, uygulama kaydı 0, kısayol 0 ve kalan süreç 0. Restart gerekmedi; release-ready madde 7 sağlandı.
+- **Kalan risk:** REL-006 için açık kalan risk yok. `dirifempty` kuralları yalnız gerçekten boş dizinleri hedeflediğinden yabancı dosyaları silme davranışı fiziksel kabulün parçası değildir ve tasarım gereği yoktur.
+- **Commit durumu:** İlk düzeltme COMMIT EDILDI (`332779c`); ikinci kaynak/test düzeltmesi COMMIT EDILDI (`b65bd9c`); başarılı ikinci canlı retest sonuç kaydı bu kayıt commit'iyle **COMMIT EDILDI**.
 
 ---
 
@@ -156,7 +156,8 @@ değişiklik henüz kalıcı değildir.
   | **Taban** (REL-001…004 ÖNCESİ) | 3716 passed / 17 skipped | ~68 sn |
   | **Milestone** (17 Ağustos 2026, REL-001…005 SONRASI) | **3931 passed / 17 skipped / 1 failed** | **100,01 sn** |
   | **Önceki checkpoint** (18 Ağustos 2026, NATIVE-001 commit'i SONRASI) | **3992 passed / 17 skipped / 0 failed; exit 0; stderr BOŞ** | **82,44 sn** |
-  | **Güncel checkpoint** (19 Ağustos 2026, `acaa556` SONRASI) | **4543 passed / 19 skipped / 0 failed; exit 0** | **82,88 sn** |
+  | **Önceki checkpoint** (19 Ağustos 2026, `acaa556` SONRASI) | **4543 passed / 19 skipped / 0 failed; exit 0** | **82,88 sn** |
+  | **Güncel checkpoint** (20 Ağustos 2026, `b65bd9c`) | **4556 passed / 19 skipped / 0 failed; exit 0** | **87,60 sn** |
 
   Taban ve milestone AYRI değerlerdir; taban güncel sonuç gibi
   sunulmamalıdır.
@@ -169,10 +170,10 @@ değişiklik henüz kalıcı değildir.
   Ayrıntı: TEST-002.
 - **Kok neden:** —
 - **Degisen dosyalar:** —
-- **Test kaniti:** 19 Ağustos 2026'da temiz `acaa556` HEAD'i üzerinde `python -m pytest -q` **yalnız bir kez** çalıştırıldı: **4543 passed / 19 skipped / 0 failed**, pytest **exit 0**, **82,88 sn**. Paket içindeki gerçek cover-art libmpv child testi izin kapsamında çalıştı; ürün kapanış canlı kabulü açık opt-in olmadığı için skip sözleşmesini korudu. Bu koşumda stdout/stderr ayrı yakalanmadı; stderr bayt sayısı ölçülmedi ve boş olduğu iddia edilmez. Önceki 3992/17 checkpoint'i tarihsel satır olarak korunur.
+- **Test kaniti:** 19 Ağustos 2026'da temiz `acaa556` HEAD'i üzerinde `python -m pytest -q` **yalnız bir kez** çalıştırıldı: **4543 passed / 19 skipped / 0 failed**, pytest **exit 0**, **82,88 sn**. Paket içindeki gerçek cover-art libmpv child testi izin kapsamında çalıştı; ürün kapanış canlı kabulü açık opt-in olmadığı için skip sözleşmesini korudu. 20 Ağustos 2026'da `b65bd9c` üzerinde erişilebilir benzersiz `--basetemp` ile sandbox dışında çalışan geçerli tam paket **4556 passed / 19 skipped / 0 failed**, pytest **exit 0**, **87,60 sn** verdi. Sandbox ACL `PermissionError` koşumları ürün sonucu sayılmadı. İki geçerli koşumda da stdout/stderr ayrı yakalanmadı; stderr bayt sayısı ölçülmedi ve boş olduğu iddia edilmez. Önceki 3992/17 ve 4543/19 checkpoint'leri tarihsel satır olarak korunur.
 - **Canli kabul:** Güncel tam paket checkpoint'i tamamlandı. Yeni residual-risk belge regresyonları ve NATIVE-001'in fail-closed child kapısı aynı paket içinde yeşil kaldı. Başarısızlık olmadığı için otomatik tekrar yapılmadı.
 - **Kalan risk:** Tek yeşil tam koşum zaman içindeki bütün aralıklı native davranışları dışlamaz. NATIVE-001 residual riski dar kapsamla bilinçli kabul edilmiştir; bu kabul alttaki Lua runtime error koşulunu çözülmüş yapmaz.
-- **Commit durumu:** COMMIT BEKLIYOR (19 Ağustos 2026 checkpoint kaydı)
+- **Commit durumu:** 19–20 Ağustos checkpoint kayıtları bu kayıt commit'iyle **COMMIT EDILDI**.
 
 ---
 
