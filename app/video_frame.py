@@ -448,8 +448,8 @@ class VideoFrame(QWidget):
             "border-radius: 4px; } "
             f"QPushButton#overlayPlayPause {{ border: 2px solid {OVERLAY_ACCENT}; "
             f"border-radius: 22px; background: {OVERLAY_HIT_BACKGROUND}; }} "
-            f"QWidget#controlOverlayPreview[pipMode=\"true\"] "
-            f"QPushButton#overlayPlayPause {{ border-radius: 16px; }} "
+            f"QPushButton#overlayPlayPause[pipMode=\"true\"] "
+            f"{{ border-radius: 16px; }} "
             f"QPushButton#overlayPlayPause:hover {{ background: rgba(242, 106, 61, 45); }} "
             "QSlider::groove:horizontal { height: 3px; background: "
             "rgba(255, 255, 255, 70); border-radius: 1px; } "
@@ -736,8 +736,13 @@ class VideoFrame(QWidget):
             self.overlay_time_container.setMinimumWidth(0)
 
         self.control_overlay.setProperty("pipMode", enabled)
+        self.overlay_play_pause_button.setProperty("pipMode", enabled)
         self.control_overlay.style().unpolish(self.control_overlay)
         self.control_overlay.style().polish(self.control_overlay)
+        self.overlay_play_pause_button.style().unpolish(
+            self.overlay_play_pause_button)
+        self.overlay_play_pause_button.style().polish(
+            self.overlay_play_pause_button)
         self.update_overlay_geometry()
         self.show_overlay_for_interaction()
 

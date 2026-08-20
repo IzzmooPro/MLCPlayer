@@ -18,10 +18,22 @@ from PyQt6.QtWidgets import (
 
 from app.title_bar import (RESIZE_MARGIN, TITLE_BAR_HEIGHT, TitleBar,
                            resize_edges_at)
+from app.ui_icons import make_media_pixmap
 
 LEFT_ORDER = ("titleOpenFile", "titlePlaylist", "titleMore")
 RIGHT_ORDER = ("titleTransparency", "titlePictureInPicture", "titleMinimize",
                "titleMaximize", "titleClose")
+
+
+def test_transparency_icon_is_a_half_filled_opacity_symbol():
+    app = QApplication.instance() or QApplication([])
+    image = make_media_pixmap("transparency", 20).toImage()
+
+    opaque_half = image.pixelColor(7, 10)
+    transparent_half = image.pixelColor(13, 10)
+
+    assert opaque_half.alpha() > 200
+    assert transparent_half.alpha() < opaque_half.alpha() / 2
 
 
 @pytest.fixture

@@ -289,6 +289,21 @@ def test_picture_in_picture_uses_only_a_compact_control_strip(video_window):
     assert frame.overlay_pip_exit_button.isVisible() is False
 
 
+def test_picture_in_picture_play_border_is_visibly_round(video_window):
+    app, window, frame = video_window()
+    frame.set_picture_in_picture_mode(True)
+    app.processEvents()
+
+    image = frame.overlay_play_pause_button.grab().toImage()
+    corner = image.pixelColor(1, 1)
+    top_centre = image.pixelColor(image.width() // 2, 1)
+
+    assert top_centre.red() > 200 and top_centre.green() < 150
+    colour_distance = sum(abs(a - b) for a, b in zip(
+        corner.getRgb()[:3], top_centre.getRgb()[:3]))
+    assert colour_distance > 80
+
+
 def test_picture_in_picture_restores_previously_open_playlist(video_window):
     app, window, frame = video_window()
     frame.playlist_panel.open_animated()

@@ -11,7 +11,8 @@ from PyQt6.QtGui import QColor, QIcon, QPainter, QPainterPath, QPen, QPixmap
 ICON_KINDS = ("play", "pause", "previous", "next", "fullscreen",
               "subtitles", "volume", "volume_muted", "settings",
               "open_folder", "playlist", "more", "minimize",
-              "maximize", "restore", "close")
+              "maximize", "restore", "transparency",
+              "picture_in_picture", "close")
 
 
 def _triangle(width, height, offset_x=0.0, pointing_right=True):
@@ -250,14 +251,19 @@ def _draw_close(painter, size, colour):
 
 
 def _draw_transparency(painter, size, colour):
-    """Üst üste iki yarı saydam pencereyi anlatan sade simge."""
+    """PiP'den ayrılan, yarısı dolu standart opaklık simgesi."""
+    circle = QRectF(size * 0.20, size * 0.20, size * 0.60, size * 0.60)
+    painter.save()
+    painter.setPen(Qt.PenStyle.NoPen)
+    painter.setBrush(colour)
+    painter.setClipRect(QRectF(circle.left(), circle.top(),
+                               circle.width() / 2.0, circle.height()))
+    painter.drawEllipse(circle)
+    painter.restore()
+
     _stroke_pen(painter, size, colour, 0.055)
-    painter.drawRoundedRect(QRectF(size * 0.20, size * 0.20,
-                                   size * 0.46, size * 0.46),
-                            size * 0.05, size * 0.05)
-    painter.drawRoundedRect(QRectF(size * 0.34, size * 0.34,
-                                   size * 0.46, size * 0.46),
-                            size * 0.05, size * 0.05)
+    painter.setBrush(Qt.BrushStyle.NoBrush)
+    painter.drawEllipse(circle)
 
 
 def _draw_picture_in_picture(painter, size, colour):
