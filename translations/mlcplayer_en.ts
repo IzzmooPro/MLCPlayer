@@ -5,28 +5,28 @@
         <message>
             <location filename="app/menu_actions.py" line="256" />
             <location filename="app/menu_actions.py" line="961" />
-            <location filename="app/video_frame.py" line="2437" />
+            <location filename="app/video_frame.py" line="2442" />
             <source>30 Saniye Geri</source>
             <translation>Back 30 Seconds</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="251" />
             <location filename="app/menu_actions.py" line="960" />
-            <location filename="app/video_frame.py" line="2438" />
+            <location filename="app/video_frame.py" line="2443" />
             <source>30 Saniye İleri</source>
             <translation>Forward 30 Seconds</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="246" />
             <location filename="app/menu_actions.py" line="959" />
-            <location filename="app/video_frame.py" line="2435" />
+            <location filename="app/video_frame.py" line="2440" />
             <source>5 Saniye Geri</source>
             <translation>Back 5 Seconds</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="241" />
             <location filename="app/menu_actions.py" line="958" />
-            <location filename="app/video_frame.py" line="2436" />
+            <location filename="app/video_frame.py" line="2441" />
             <source>5 Saniye İleri</source>
             <translation>Forward 5 Seconds</translation>
         </message>
@@ -80,14 +80,14 @@
         </message>
         <message>
             <location filename="app/media_info.py" line="65" />
-            <location filename="app/video_frame.py" line="2321" />
+            <location filename="app/video_frame.py" line="2326" />
             <source>Altyazı</source>
             <translation>Subtitle</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="234" />
             <location filename="app/subtitle_appearance_dialog.py" line="780" />
-            <location filename="app/video_frame.py" line="2414" />
+            <location filename="app/video_frame.py" line="2419" />
             <source>Altyazı Ayarları</source>
             <translation>Subtitle Settings</translation>
         </message>
@@ -97,7 +97,7 @@
             <translation>Could Not Apply Subtitle Settings</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2412" />
+            <location filename="app/video_frame.py" line="2417" />
             <source>Altyazı Bul</source>
             <translation>Find Subtitles</translation>
         </message>
@@ -123,7 +123,7 @@
             <translation>Subtitles Files</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2408" />
+            <location filename="app/video_frame.py" line="2413" />
             <source>Altyazı Dosyası Ekle</source>
             <translation>Add Subtitle File</translation>
         </message>
@@ -162,7 +162,7 @@
             <location filename="app/media_info.py" line="570" />
             <location filename="app/menu_actions.py" line="231" />
             <location filename="app/track_labels.py" line="74" />
-            <location filename="app/video_frame.py" line="2401" />
+            <location filename="app/video_frame.py" line="2406" />
             <source>Altyazı Parçası</source>
             <translation>Subtitle Track</translation>
         </message>
@@ -256,13 +256,13 @@
         </message>
         <message>
             <location filename="app/menu_actions.py" line="716" />
-            <location filename="app/video_frame.py" line="2406" />
+            <location filename="app/video_frame.py" line="2411" />
             <source>Altyazı parçaları yüklenemedi</source>
             <translation>Subtitle tracks could not be loaded</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="722" />
-            <location filename="app/video_frame.py" line="2405" />
+            <location filename="app/video_frame.py" line="2410" />
             <source>Altyazı parçası bulunamadı</source>
             <translation>No subtitle track found</translation>
         </message>
@@ -326,12 +326,12 @@
             <translation>Show Subtitles</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2397" />
+            <location filename="app/video_frame.py" line="2402" />
             <source>Altyazıları Gizle</source>
             <translation>Hide Subtitles</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2398" />
+            <location filename="app/video_frame.py" line="2403" />
             <source>Altyazıları Göster</source>
             <translation>Show Subtitles</translation>
         </message>
@@ -506,7 +506,7 @@
             <translation>The connection timed out. Check your internet connection and try again.</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2310" />
+            <location filename="app/video_frame.py" line="2315" />
             <source>Bağlantıdan Oynat</source>
             <translation>Play from Link</translation>
         </message>
@@ -712,7 +712,7 @@ Sensitive information has been hidden automatically.</translation>
             <location filename="app/menu_actions.py" line="30" />
             <location filename="app/menu_actions.py" line="951" />
             <location filename="app/title_bar.py" line="139" />
-            <location filename="app/video_frame.py" line="2308" />
+            <location filename="app/video_frame.py" line="2313" />
             <source>Dosya Aç</source>
             <translation>Open File</translation>
         </message>
@@ -777,14 +777,14 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Saturation:</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2297" />
+            <location filename="app/video_frame.py" line="2302" />
             <source>Duraklat</source>
             <translation>Pause</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="113" />
             <location filename="app/ui_components.py" line="179" />
-            <location filename="app/video_frame.py" line="2300" />
+            <location filename="app/video_frame.py" line="2305" />
             <source>Durdur</source>
             <translation>Stop</translation>
         </message>
@@ -808,7 +808,7 @@ Solution: unlock the file or copy it to another folder.</translation>
         <message>
             <location filename="app/menu_actions.py" line="91" />
             <location filename="app/menu_actions.py" line="953" />
-            <location filename="app/video_frame.py" line="2427" />
+            <location filename="app/video_frame.py" line="2432" />
             <source>Ekran Görüntüsü Al</source>
             <translation>Take Screenshot</translation>
         </message>
@@ -944,7 +944,7 @@ Solution: unlock the file or copy it to another folder.</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="90" />
-            <location filename="app/video_frame.py" line="2322" />
+            <location filename="app/video_frame.py" line="2327" />
             <source>Görüntü</source>
             <translation>Video</translation>
         </message>
@@ -1133,7 +1133,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Container</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2457" />
+            <location filename="app/video_frame.py" line="2462" />
             <source>Karıştır</source>
             <translation>Shuffle</translation>
         </message>
@@ -1197,7 +1197,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <location filename="app/media_controls.py" line="198" />
             <location filename="app/media_controls.py" line="217" />
             <location filename="app/menu_actions.py" line="35" />
-            <location filename="app/video_frame.py" line="2309" />
+            <location filename="app/video_frame.py" line="2314" />
             <source>Klasör Aç</source>
             <translation>Open Folder</translation>
         </message>
@@ -1338,13 +1338,13 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>a minimal MPV-based video player.</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2307" />
+            <location filename="app/video_frame.py" line="2312" />
             <source>Medya Aç</source>
             <translation>Open Media</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="58" />
-            <location filename="app/video_frame.py" line="2326" />
+            <location filename="app/video_frame.py" line="2331" />
             <source>Medya Bilgisi</source>
             <translation>Media Information</translation>
         </message>
@@ -1447,7 +1447,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
         <message>
             <location filename="app/media_controls.py" line="937" />
             <location filename="app/video_frame.py" line="563" />
-            <location filename="app/video_frame.py" line="2298" />
+            <location filename="app/video_frame.py" line="2303" />
             <source>Oynat</source>
             <translation>Play</translation>
         </message>
@@ -1464,13 +1464,13 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
         </message>
         <message>
             <location filename="app/menu_actions.py" line="106" />
-            <location filename="app/video_frame.py" line="2323" />
+            <location filename="app/video_frame.py" line="2328" />
             <source>Oynatma</source>
             <translation>Playback</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="165" />
-            <location filename="app/video_frame.py" line="2446" />
+            <location filename="app/video_frame.py" line="2451" />
             <source>Oynatma Hızı</source>
             <translation>Playback Speed</translation>
         </message>
@@ -1490,7 +1490,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <location filename="app/media_controls.py" line="1173" />
             <location filename="app/playlist_panel.py" line="489" />
             <location filename="app/playlist_panel.py" line="557" />
-            <location filename="app/video_frame.py" line="2317" />
+            <location filename="app/video_frame.py" line="2322" />
             <source>Oynatma Listesi</source>
             <translation>Playlist</translation>
         </message>
@@ -1528,7 +1528,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Save Playlist</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2453" />
+            <location filename="app/video_frame.py" line="2458" />
             <source>Oynatma Listesini Tekrarla</source>
             <translation>Repeat Playlist</translation>
         </message>
@@ -1697,7 +1697,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
         <message>
             <location filename="app/title_bar.py" line="169" />
             <location filename="app/title_bar.py" line="394" />
-            <location filename="app/video_frame.py" line="2423" />
+            <location filename="app/video_frame.py" line="2428" />
             <source>Resim İçinde Resim</source>
             <translation>Picture in Picture</translation>
         </message>
@@ -1739,7 +1739,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <location filename="app/media_controls.py" line="48" />
             <location filename="app/media_info.py" line="64" />
             <location filename="app/menu_actions.py" line="180" />
-            <location filename="app/video_frame.py" line="2320" />
+            <location filename="app/video_frame.py" line="2325" />
             <source>Ses</source>
             <translation>Audio</translation>
         </message>
@@ -1757,7 +1757,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <location filename="app/media_info.py" line="542" />
             <location filename="app/menu_actions.py" line="201" />
             <location filename="app/track_labels.py" line="73" />
-            <location filename="app/video_frame.py" line="2380" />
+            <location filename="app/video_frame.py" line="2385" />
             <source>Ses Parçası</source>
             <translation>Audio Track</translation>
         </message>
@@ -1799,13 +1799,13 @@ That folder may have been deleted, or the program may have been moved elsewhere.
         </message>
         <message>
             <location filename="app/menu_actions.py" line="565" />
-            <location filename="app/video_frame.py" line="2384" />
+            <location filename="app/video_frame.py" line="2389" />
             <source>Ses parçaları yüklenemedi</source>
             <translation>Audio tracks could not be loaded</translation>
         </message>
         <message>
             <location filename="app/menu_actions.py" line="571" />
-            <location filename="app/video_frame.py" line="2384" />
+            <location filename="app/video_frame.py" line="2389" />
             <source>Ses parçası bulunamadı</source>
             <translation>No audio track found</translation>
         </message>
@@ -1816,7 +1816,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
         </message>
         <message>
             <location filename="app/menu_actions.py" line="204" />
-            <location filename="app/video_frame.py" line="2388" />
+            <location filename="app/video_frame.py" line="2393" />
             <source>Ses Çıkışı</source>
             <translation>Audio Device</translation>
         </message>
@@ -1832,8 +1832,8 @@ That folder may have been deleted, or the program may have been moved elsewhere.
         </message>
         <message>
             <location filename="app/menu_actions.py" line="181" />
-            <location filename="app/video_frame.py" line="1017" />
-            <location filename="app/video_frame.py" line="2376" />
+            <location filename="app/video_frame.py" line="1022" />
+            <location filename="app/video_frame.py" line="2381" />
             <source>Sesi Aç</source>
             <translation>Volume Up</translation>
         </message>
@@ -1851,8 +1851,8 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <location filename="app/media_controls.py" line="37" />
             <location filename="app/menu_actions.py" line="966" />
             <location filename="app/video_frame.py" line="603" />
-            <location filename="app/video_frame.py" line="1017" />
-            <location filename="app/video_frame.py" line="2377" />
+            <location filename="app/video_frame.py" line="1022" />
+            <location filename="app/video_frame.py" line="2382" />
             <source>Sessiz</source>
             <translation>Muted</translation>
         </message>
@@ -1902,7 +1902,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
         </message>
         <message>
             <location filename="app/menu_actions.py" line="51" />
-            <location filename="app/video_frame.py" line="2313" />
+            <location filename="app/video_frame.py" line="2318" />
             <source>Son Açılanlar</source>
             <translation>Recent Files</translation>
         </message>
@@ -1918,7 +1918,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
         </message>
         <message>
             <location filename="app/video_frame.py" line="570" />
-            <location filename="app/video_frame.py" line="2303" />
+            <location filename="app/video_frame.py" line="2308" />
             <source>Sonraki</source>
             <translation>Next</translation>
         </message>
@@ -1977,7 +1977,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <location filename="app/menu_actions.py" line="96" />
             <location filename="app/menu_actions.py" line="956" />
             <location filename="app/video_frame.py" line="628" />
-            <location filename="app/video_frame.py" line="2419" />
+            <location filename="app/video_frame.py" line="2424" />
             <source>Tam Ekran</source>
             <translation>Fullscreen</translation>
         </message>
@@ -2018,7 +2018,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
         </message>
         <message>
             <location filename="app/menu_actions.py" line="144" />
-            <location filename="app/video_frame.py" line="2449" />
+            <location filename="app/video_frame.py" line="2454" />
             <source>Tek Dosyayı Tekrarla</source>
             <translation>Repeat One</translation>
         </message>
@@ -2087,7 +2087,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Apply</translation>
         </message>
         <message>
-            <location filename="app/video_frame.py" line="2330" />
+            <location filename="app/video_frame.py" line="2335" />
             <source>Uygulamadan Çık</source>
             <translation>Quit the Application</translation>
         </message>
@@ -2135,7 +2135,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <location filename="app/menu_actions.py" line="271" />
             <location filename="app/menu_actions.py" line="432" />
             <location filename="app/video_frame.py" line="595" />
-            <location filename="app/video_frame.py" line="2430" />
+            <location filename="app/video_frame.py" line="2435" />
             <source>Video Ayarları</source>
             <translation>Video Settings</translation>
         </message>
@@ -2235,7 +2235,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
         <message>
             <location filename="app/media_controls.py" line="1191" />
             <location filename="app/menu_actions.py" line="968" />
-            <location filename="app/video_frame.py" line="2444" />
+            <location filename="app/video_frame.py" line="2449" />
             <source>Zamana Git</source>
             <translation>Go to Time</translation>
         </message>
@@ -2354,7 +2354,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
         </message>
         <message>
             <location filename="app/video_frame.py" line="554" />
-            <location filename="app/video_frame.py" line="2301" />
+            <location filename="app/video_frame.py" line="2306" />
             <source>Önceki</source>
             <translation>Previous</translation>
         </message>
