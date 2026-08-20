@@ -361,7 +361,7 @@ bilesen INDIRILMEZ.
 
 | Bilesen | Surum | Kaynak |
 |---|---|---|
-| `yt-dlp.exe` | `2026.07.04` | resmi GitHub release (degismez tag) |
+| `yt-dlp.exe` | `2026.08.19` | resmi GitHub release (degismez tag) |
 | `deno.exe` | `v2.9.5` | resmi GitHub release ZIP (degismez tag) |
 
 Kesin URL, byte boyutu ve SHA-256 degerleri `bin/RUNTIME_MANIFEST.txt`
@@ -399,7 +399,7 @@ zaten icerir).
   girer. Bu ayrim kritiktir: kaynak lisansi ile dagitilan ikilinin lisansi
   ayni sey DEGILDIR.
 - Ucuncu taraf lisans metinlerinin RESMI derlemesi pakete DAHILDIR:
-  `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` (sabitlenmis tag'den, 231397
+  `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` (sabitlenmis commit'ten, 243550
   bayt, degistirilmeden). Iki dosya FARKLI seyi belgeler; ikisi de paketlenir.
 - `deno` **MIT** lisanslidir; resmi metin `licenses/deno-LICENSE.txt`.
 - Lisans metinleri OZETLENMEZ; resmi halleriyle tasinir.

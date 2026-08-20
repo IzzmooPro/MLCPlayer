@@ -4,7 +4,7 @@
   "blockers": [
     "The exact transitive source revisions selected by the 20260814 mpv Windows workflow are no longer available from its expired build logs; the current libmpv binary must be replaced by a build whose complete source set is captured.",
     "The cryptography wheel's OpenSSL and Rust dependency sources have not all been collected.",
-    "The complete source set used to build the official yt-dlp executable has not been collected.",
+    "The complete transitive source set used to build the official yt-dlp 2026.08.19 executable has not been collected.",
     "The installed license, notice and Qt relinking package has not been completed and verified."
   ],
   "sources": [
@@ -93,10 +93,10 @@
       "sha256": "8b92a254771496b0dcc23017c2734bfa7545441d3e6a37958b063d6e7814a657"
     },
     {
-      "name": "yt-dlp-fdec00e0bf530dc6c3cc7b1dd780e95d9ae460e9.tar.gz",
-      "url": "https://codeload.github.com/yt-dlp/yt-dlp/tar.gz/fdec00e0bf530dc6c3cc7b1dd780e95d9ae460e9",
-      "size": 3039055,
-      "sha256": "27c51a76a68621313f678aa8b9c48ce39b895e0db79e06963e07c1b1662c4786"
+      "name": "yt-dlp-2026.08.19.tar.gz",
+      "url": "https://github.com/yt-dlp/yt-dlp/releases/download/2026.08.19/yt-dlp.tar.gz",
+      "size": 6020567,
+      "sha256": "072aad4f2a7604e92155f61a275a4752dc64046c8f6d90df3710525d94cd37c1"
     },
     {
       "name": "deno-17fadf33a8df3af9488b9f42efd1f2290d6dc7a3.tar.gz",

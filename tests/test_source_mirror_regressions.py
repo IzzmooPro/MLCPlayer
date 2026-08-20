@@ -51,6 +51,7 @@ def test_the_checked_in_contract_records_the_verified_subset_and_mpv_blocker():
         "mpv-7b8915bc1d04c7e1b61184e00c7fbfaab1911e75.tar.gz",
         "FFmpeg-1d7b14f61d66fdf18f15204c613df9d65396c319.tar.gz",
         "openssl-4.0.1.tar.gz",
+        "yt-dlp-2026.08.19.tar.gz",
     ):
         assert expected in names
     assert len(names) == 24

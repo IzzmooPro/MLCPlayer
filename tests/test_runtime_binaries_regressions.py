@@ -280,12 +280,26 @@ def test_the_spec_excludes_tests_and_caches():
 def test_the_manifest_records_version_url_size_and_hash():
     text = read(MANIFEST)
 
-    for needed in ("yt-dlp.exe", "deno.exe", "2026.07.04", "v2.9.5",
+    for needed in ("yt-dlp.exe", "deno.exe", "2026.08.19", "v2.9.5",
                    "https://github.com/yt-dlp/yt-dlp/releases/download/",
                    "https://github.com/denoland/deno/releases/download/"):
         assert needed in text, f"manifestte yok: {needed}"
     assert "latest" not in text, "`latest` kalıcı build girdisi olmuş"
     assert len(re.findall(r"\b[0-9a-f]{64}\b", text)) >= 3
+
+
+def test_the_youtube_403_runtime_repair_is_recorded_without_install_claims():
+    status = read(os.path.join(PROJECT, "docs", "PROJECT_STATUS.md"))
+    for evidence in (
+        "yt-dlp `2026.08.19`",
+        "c=ANDROID_VR",
+        "HTTP 403 yok",
+        "exit `0`",
+        "MARK_DONE",
+        "kurulu v0.37",
+        "DEGISTIRILMEDI",
+    ):
+        assert evidence in status, f"403 onarim kaniti eksik: {evidence}"
 
 
 @pytest.mark.parametrize("name", ("yt-dlp.exe", "deno.exe"))
@@ -510,9 +524,9 @@ def test_the_player_stores_the_runtime_state_as_a_plain_flag():
 
 THIRD_PARTY = os.path.join(PROJECT, "licenses",
                            "yt-dlp-THIRD_PARTY_LICENSES.txt")
-THIRD_PARTY_SIZE = 231397
-THIRD_PARTY_SHA = ("b085c65586a953cdb4b13c6390d63ec984d66912e4b6a19e66ba3582"
-                   "f2ed104b")
+THIRD_PARTY_SIZE = 243550
+THIRD_PARTY_SHA = ("472aefe951c7db35e1657c1d13fd337140511ed6f2b329205105ad441"
+                   "c5a02b7")
 
 
 def test_the_third_party_license_is_present_with_the_exact_bytes():
