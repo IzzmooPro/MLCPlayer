@@ -8,12 +8,21 @@ import tempfile
 import threading
 import time
 
-if os.environ.get("MLC_NATIVE_SMOKE") != "1":
-    print("SKIPPED: OPT_IN_REQUIRED", flush=True)
-    raise SystemExit(0)
-
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
+
+from native_feature_contract import (MEDIA_VARIABLE, OPTIONAL_CHECKS,  # noqa: E402
+                                     OPT_IN_VALUE, OPT_IN_VARIABLE,
+                                     REQUIRED_CHECKS)
+from native_media_contract import is_supported_media  # noqa: E402
+
+if os.environ.get(OPT_IN_VARIABLE) != OPT_IN_VALUE:
+    print("SKIPPED: OPT_IN_REQUIRED", flush=True)
+    raise SystemExit(0)
+if not is_supported_media(os.environ.get(MEDIA_VARIABLE, "")):
+    print("BLOCKED invalid_explicit_media", flush=True)
+    raise SystemExit(2)
+
 os.environ["PATH"] = os.path.join(ROOT, "bin") + os.pathsep + os.environ["PATH"]
 os.environ.pop("QT_QPA_PLATFORM", None)
 
@@ -23,7 +32,6 @@ from PyQt6.QtTest import QTest  # noqa: E402
 from PyQt6.QtWidgets import QApplication  # noqa: E402
 
 from app.player import MPVPlayer  # noqa: E402
-from app.settings_store import user_settings  # noqa: E402
 
 
 def pump(app, seconds):
@@ -102,19 +110,13 @@ def native_window_rect(hwnd):
 
 def main():
     app = QApplication.instance() or QApplication([])
-    real_settings = user_settings()
-    recent = real_settings.value("recent_files", []) or []
-    if isinstance(recent, str):
-        recent = [recent]
-    media = next((item for item in recent
-                  if isinstance(item, str) and os.path.isfile(item)), "")
-    if not media:
-        print("BLOCKED no_local_recent_media", flush=True)
-        return 2
+    media = os.path.abspath(os.environ[MEDIA_VARIABLE])
 
     checks = []
+    check_names = []
 
     def record(name, passed, evidence):
+        check_names.append(name)
         checks.append(bool(passed))
         print(f"CHECK {'PASS' if passed else 'FAIL'} {name} :: {evidence}",
               flush=True)
@@ -342,9 +344,17 @@ def main():
         pump(app, 0.5)
         QCursor.setPos(old_cursor)
 
-    print(f"RESULT failures={checks.count(False)}", flush=True)
+    expected_checks = list(REQUIRED_CHECKS)
+    if os.environ.get("MLC_NATIVE_SCREENSHOT"):
+        expected_checks.extend(OPTIONAL_CHECKS)
+    contract_ok = tuple(check_names) == tuple(expected_checks)
+    if not contract_ok:
+        print(f"CONTRACT_ERROR expected={expected_checks!r} "
+              f"actual={check_names!r}", flush=True)
+    failures = checks.count(False) + (0 if contract_ok else 1)
+    print(f"RESULT failures={failures}", flush=True)
     print("MARK_DONE", flush=True)
-    return 1 if not all(checks) else 0
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":
