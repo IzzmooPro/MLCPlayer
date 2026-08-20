@@ -58,6 +58,18 @@ def test_the_exact_sources_and_build_recipe_are_recorded():
 
 def test_the_windows_libmpv_archive_is_required_and_validated():
     text = workflow_text()
+    build_step = text.split(
+        "- name: Build the Clang toolchain and package Windows libmpv", 1
+    )[1].split("- name: Validate and collect Windows archives", 1)[0]
+    targets = (
+        "ninja -C build_x86_64 llvm",
+        "ninja -C build_x86_64 rustup",
+        "ninja -C build_x86_64 llvm-clang",
+        "ninja -C build_x86_64 mpv",
+        "ninja -C build_x86_64 mpv-packaging",
+    )
+    positions = [build_step.index(target) for target in targets]
+    assert positions == sorted(positions)
     assert "ninja -C build_x86_64 mpv" in text
     assert "ninja -C build_x86_64 mpv-packaging" in text
     assert "mpv-dev-x86_64*.7z" in text

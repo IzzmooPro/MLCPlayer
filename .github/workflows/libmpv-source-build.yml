@@ -105,14 +105,20 @@ jobs:
           cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_x86_64/x86_64-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=OFF -DCLANG_PACKAGES_LTO=ON -G Ninja --fresh -B build_x86_64 -S $PWD
           ninja -C build_x86_64 download
           ninja -C build_x86_64 update
+          ninja -C build_x86_64 llvm
+          ninja -C build_x86_64 rustup
+          ninja -C build_x86_64 llvm-clang
           ninja -C build_x86_64 mpv
           ninja -C build_x86_64 mpv-packaging
           EOF
 
-      - name: Build and package Windows libmpv
+      - name: Build the Clang toolchain and package Windows libmpv
         working-directory: recipe
         run: |
           set -euo pipefail
+          ninja -C build_x86_64 llvm
+          ninja -C build_x86_64 rustup
+          ninja -C build_x86_64 llvm-clang
           ninja -C build_x86_64 mpv
           ninja -C build_x86_64 mpv-packaging
 
