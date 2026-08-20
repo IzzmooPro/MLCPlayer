@@ -40,6 +40,7 @@ SMOKE_CHILD = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 # Kullanıcının deneyebileceği her türlü legacy değer.
 LEGACY_VALUES = ("1", "true", "TRUE", "yes", "on", "0", "false", "", "evet")
+HOSTED_CI = os.environ.get("MLC_CI") == "1"
 
 
 def run_child(script, settings_dir, env_overrides=None):
@@ -130,6 +131,7 @@ def test_classic_control_panel_is_never_visible(request, fixture_name):
     assert report["control_container_height"] == 0
 
 
+@pytest.mark.skipif(HOSTED_CI, reason="main entry acceptance requires mpv-2.dll")
 def test_main_entry_is_cinematic_even_with_legacy_env(main_entry_with_legacy):
     """`python main.py` legacy env ile bile modern kabuğu kullanmalı."""
     report = main_entry_with_legacy

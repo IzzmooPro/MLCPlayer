@@ -71,8 +71,8 @@ def test_sitecustomize_never_stubs_mpv_without_the_ci_gate():
 
     result = subprocess.run(
         [sys.executable, "-c", (
-            "import mpv; "
-            "print(getattr(mpv, 'MLC_CI_STUB', False))"
+            "import sys; "
+            "print('mpv' in sys.modules)"
         )],
         cwd=root,
         env=env,

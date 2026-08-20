@@ -19,6 +19,7 @@ MAIN_CHILD = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 UI_ENV_VARS = ("MLCPLAYER_OVERLAY_PREVIEW", "MLCPLAYER_CLASSIC_UI")
+HOSTED_CI = os.environ.get("MLC_CI") == "1"
 
 
 # ÖLÇÜLEN SÜRE: child tek başına 0,3-0,5 sn (11/11 koşum), pytest altında
@@ -161,6 +162,7 @@ def test_main_entry_does_not_inject_ui_environment():
 
 # --- 4. Gerçek main.py giriş noktası ---
 
+@pytest.mark.skipif(HOSTED_CI, reason="main entry acceptance requires mpv-2.dll")
 def test_main_entry_starts_with_cinematic_ui(main_entry):
     assert main_entry["env_overlay_preview"] is None
     assert main_entry["env_classic_ui"] is None

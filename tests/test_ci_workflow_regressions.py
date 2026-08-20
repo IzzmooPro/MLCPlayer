@@ -72,3 +72,12 @@ def test_hosted_ci_explicitly_excludes_the_two_native_libmpv_acceptances():
     ).read_text(encoding="utf-8")
     assert "@pytest.mark.skipif(HOSTED_CI" in smoke
     assert "@pytest.mark.skipif(HOSTED_CI" in cover
+
+
+def test_hosted_ci_excludes_main_entry_checks_that_require_the_runtime_dll():
+    for name in (
+        "test_classic_ui_removal_regressions.py",
+        "test_default_cinematic_ui_regressions.py",
+    ):
+        source = (ROOT / "tests" / name).read_text(encoding="utf-8")
+        assert "main entry acceptance requires mpv-2.dll" in source
