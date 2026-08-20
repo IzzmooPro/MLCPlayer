@@ -17,12 +17,12 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
 testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
 ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
-`master` bu kayıt commit'iyle `origin/master`'ın **31 commit** ilerisindedir
-ve **push yapılmadı**. Güncel tam paket **4556 passed / 19 skipped / 0
-failed**, exit 0 ve **87,60 sn** sürdü. Stdout/stderr ayrı yakalanmadığı için
-stderr boşluğu iddia edilmez. v0.37 build ve fiziksel kabul matrisi başarılı;
-yerel tag, push ve release yapılmadı. Sıradaki adım temiz HEAD üzerinde nihai
-build, kaynak aynası, annotated tag ve yerel prepublish kapısıdır.
+`master` bu kayıt commit'iyle `origin/master`'ın **33 commit** ilerisindedir.
+Güncel tam paket **4574 passed / 19 skipped / 0 failed**, exit 0 ve **82,55
+sn** sürdü. Stdout/stderr ayrı yakalanmadığı için stderr boşluğu iddia edilmez.
+v0.37 final build ve uygulanabilir fiziksel kabul matrisi başarılıdır. Bu
+kayıttan sonraki sıra annotated tag, yerel prepublish kapısı ve açıkça
+onaylanmış dal+tag push'tur; release ayrıca yapılacaktır.
 
 ---
 
@@ -688,6 +688,20 @@ kaldırıcı exit 0 verdi. Ana program önce kaldırıldığında add-on kaydı 
 korundu; add-on son kaldırıcı olduğunda ana program klasörü yok, iki uninstall
 kaydı 0, uygulama kaydı 0, kısayol 0 ve kalan süreç 0. Restart gerekmedi.
 Önceki yükseltme/oynatma kabulüyle birlikte release-ready madde 7 sağlandı.
+
+Güncel final artifact kabulü `89123ca` build'i üzerinde tekrarlandı. Ana
+installer **58.247.692 bayt** / SHA-256
+`6010273f154ef370a0a474ac663cd2f08111020854707e954e913e5cb0fd773f`;
+add-on **49.268.645 bayt** / SHA-256
+`2292cfc93e75ba94dd1eac58ec0d08bc31e79538c86ce696c98808143623c857`.
+Fresh install, görünür Hakkında v0.37 ve çalışan Player üzerinde upgrade
+doğrulandı; farklı Temp klasöründeki aynı adlı süreç hayatta kaldı.
+`dist`teki **121 dosyada 0 boyut/hash farkı**; add-on runtime/lisanslarında
+kaynakla tam hash eşliği ölçüldü. İki kaldırma sırası da kalıntısız geçti;
+Player yokken add-on dosya/registry yazmadan hata verdi. Kullanıcı ayarının
+SHA-256'sı `66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c`
+olarak korundu. Yapay bozuk InstallLocation ve kilitli dosya fault injection
+kullanıcı kararıyla koşulmadı ve PASS sayılmıyor.
 
 ---
 

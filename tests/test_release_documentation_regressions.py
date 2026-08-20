@@ -423,8 +423,33 @@ def test_the_current_checkpoint_does_not_invent_a_separate_stderr_result():
 def test_the_roadmap_summary_has_the_current_local_commit_count():
     summary = flat(read(ROADMAP_DOC).split("---", 1)[0])
 
-    assert "31 commit" in summary
-    assert "4556 passed / 19 skipped / 0 failed" in summary
+    assert "33 commit" in summary
+    assert "4574 passed / 19 skipped / 0 failed" in summary
+
+
+def test_the_current_final_artifact_acceptance_is_recorded_everywhere():
+    records = {
+        "ENGINEERING_AUDIT": read(AUDIT_DOC),
+        "ROADMAP": read(ROADMAP_DOC),
+        "PROJECT_STATUS": read(PROJECT_STATUS_DOC),
+    }
+
+    for label, record in records.items():
+        block = flat(record)
+        for fact in (
+            "89123ca",
+            "58.247.692",
+            "49.268.645",
+            "6010273f154ef370a0a474ac663cd2f08111020854707e954e913e5cb0fd773f",
+            "2292cfc93e75ba94dd1eac58ec0d08bc31e79538c86ce696c98808143623c857",
+            "121 dosyada 0 boyut/hash farki",
+            "ayni adli surec hayatta kaldi",
+            "iki kaldirma sirasi",
+            "66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c",
+            "fault injection",
+            "pass sayilmiyor",
+        ):
+            assert flat(fact) in block, f"{label}: {fact}"
 
 
 def test_the_v0_37_windows_build_is_recorded_with_exact_artifacts():
@@ -1500,7 +1525,7 @@ def test_debugger_parser_commit_is_recorded_as_committed():
 def test_roadmap_snapshot_has_the_measured_local_commit_count():
     text = fold(flat(read(ROADMAP_DOC))).lower()
 
-    assert "31 commit" in text, "ROADMAP guncel ahead=31 durumunu tasimiyor"
+    assert "33 commit" in text, "ROADMAP guncel ahead=33 durumunu tasimiyor"
     for stale in ("bes commit", "sekiz commit", "dokuz commit", "on commit",
                   "on bir commit", "on iki commit", "on uc commit"):
         assert stale not in text, f"ROADMAP hala bayat sayiyi tasiyor: {stale}"

@@ -41,6 +41,22 @@ değişiklik henüz kalıcı değildir.
 
 ---
 
+## REL-007
+
+- **Kimlik:** REL-007
+- **Baslik:** Installer süreç hedefleme, add-on hedef yolu ve final artifact kabulü
+- **Onem:** Yüksek — ad-temelli zorla kapatma ilgisiz süreçte veri kaybına; bozuk InstallLocation yanlış klasöre yazmaya yol açabilirdi
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`89123ca`) → **UYGULANABILIR FIZIKSEL KABUL BASARILI**
+- **Kanit:** Ana ISS'teki `taskkill /F /IM` kaldırıldı; Restart Manager dosya kaynakları kullanılıyor. Add-on yerel/kök-olmayan yolu, uninstall ürün adını ve gerçek `MLC Player.exe`yi doğruluyor. Post-build kapısı lisans, README, manifest, ikon ve çeviriyi gerçek dist ağacında arıyor.
+- **Kok neden:** `CloseApplicationsFilter` süreç-adı filtresi sanılmış, zorlayıcı image-name kapatma eklenmiş ve add-on registry değerinin yalnız varlığı yeterli kabul edilmişti.
+- **Degisen dosyalar:** `packaging/MLCPlayer.iss`, `packaging/MLCPlayer_InternetVideo.iss`, `packaging/verify_build.py`, `docs/RELEASE_PROCESS.md`, dört regresyon testi
+- **Test kaniti:** Hedef yayın/installer paketi **266 passed**; tam paket **4574 passed, 19 skipped, 0 failed** / **82,55 sn**. Build commit'i `89123ca`. Ana installer **58.247.692 bayt**, SHA-256 `6010273f154ef370a0a474ac663cd2f08111020854707e954e913e5cb0fd773f`; add-on **49.268.645 bayt**, SHA-256 `2292cfc93e75ba94dd1eac58ec0d08bc31e79538c86ce696c98808143623c857`; iki Ed25519 imzası doğrulandı.
+- **Canli kabul:** Fresh install ve görünür Hakkında v0.37 geçti. Çalışan gerçek Player upgrade sırasında kapandı; farklı Temp klasöründeki aynı adlı süreç hayatta kaldı. Kurulumdaki **121 dosyada 0 boyut/hash farkı**; add-on'un iki runtime ve üç lisansı kaynakla hash-birebir. **İki kaldırma sırası** (ana-önce/add-on-sonra ve add-on-önce/ana-sonra) kalıntısız geçti. Player yokken add-on hata verip Program Files/registry yazmadı. Kullanıcı ayarı 674 bayt ve SHA-256 `66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c` olarak korundu; yalnız uygulama logu normal biçimde büyüdü.
+- **Kalan risk:** Yapay bozuk InstallLocation ve kilitli-dosya fault injection kullanıcı kararıyla koşulmadı; PASS sayılmıyor. Fiziksel matris bitiminde sistem temizdi; sonradan iptal edilen fault hazırlığı sonucunda ana v0.37 kurulu, add-on kurulu değil ve ilgili süreç 0.
+- **Commit durumu:** Ürün/test düzeltmesi `89123ca`; güncel fiziksel kabul sonucu bu kayıt commit'iyle **COMMIT EDILDI**.
+
+---
+
 ## REL-001
 
 - **Kimlik:** REL-001

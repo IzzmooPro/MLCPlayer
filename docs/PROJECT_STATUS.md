@@ -4,9 +4,10 @@ Güncelleme: 20 Ağustos 2026
 
 ## DEVİR NOTU — buradan başla
 
-**Ağaç TEMİZ; `master`, `origin/master`dan 31 commit ileride.** Güncel tam
-paket: **4556 passed, 19 skipped** (87,60 sn). `v0.37` build ve fiziksel
-kabul matrisi başarılıdır; bu turda tag/push/release yapılmadı.
+**Ağaç TEMİZ; bu kayıt commit'inden sonra `master`, `origin/master`dan 33
+commit ileride.** Güncel tam paket: **4574 passed, 19 skipped** (82,55 sn).
+`v0.37` final build ve uygulanabilir fiziksel kabul matrisi başarılıdır;
+tag/push bu kayıt commit'inden sonra, release ise ayrıca yapılacaktır.
 
 `v0.36` (17 Ağustos 2026) boyutlandırma donmasının YAZMA yarısını
 kapatır; ayrıntı aşağıdaki "ÇÖZÜLDÜ — boyutlandırmada donma" bölümünde.
@@ -1879,6 +1880,26 @@ iki uninstall kaydı 0, uygulama kaydı 0, kısayol 0 ve kalan süreç 0 ölçü
 restart gerekmedi. REL-006 kapandı ve önceki yükseltme/oynatma kabulüyle
 birlikte release-ready madde 7 sağlandı. Bu sonuç kaydı bu commit'le
 **COMMIT EDILDI**.
+
+**v0.37 final artifact fiziksel kabulü (20 Ağustos 2026): BAŞARILI.**
+Installer güvenliği düzeltmesi `89123ca` üzerinde build edildi. Ana installer
+**58.247.692 bayt**, SHA-256
+`6010273f154ef370a0a474ac663cd2f08111020854707e954e913e5cb0fd773f`;
+add-on **49.268.645 bayt**, SHA-256
+`2292cfc93e75ba94dd1eac58ec0d08bc31e79538c86ce696c98808143623c857`.
+İki Ed25519 imzası bağımsız doğrulandı. Fresh install ve görünür Hakkında
+**v0.37** geçti. Çalışan kurulu Player aynı artifact ile yükseltilirken eski
+Player kapandı; farklı Temp klasöründeki aynı adlı süreç hayatta kaldı.
+Kurulumdan sonra `dist`teki **121 dosyada 0 boyut/hash farkı** ölçüldü.
+Add-on'un iki runtime ve üç lisans dosyası kaynakla hash-birebir eşleşti.
+**İki kaldırma sırası** (ana-önce/add-on-sonra ve add-on-önce/ana-sonra)
+kalıntısız geçti. Player yokken add-on hata verip Program Files/registry
+yazmadan durdu. `%APPDATA%\MLCPlayer\MLCPlayer.ini` **674 bayt**, SHA-256
+`66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c`
+ve mtime değişmeden korundu; yalnız normal uygulama logu büyüdü.
+Kullanıcı kararıyla yapay bozuk-InstallLocation ve kilitli-dosya fault
+injection koşulmadı; bunlar PASS sayılmıyor. İptal edilen fault-injection
+hazırlığının sonunda ana v0.37 kurulu, add-on kurulu değil ve ilgili süreç 0.
 
 ## Sürüm numaralandırma (kullanıcı kararı, 16 Ağustos 2026)
 
