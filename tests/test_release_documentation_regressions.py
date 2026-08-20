@@ -27,6 +27,8 @@ PROJECT_STATUS_DOC = os.path.join(ROOT, "docs", "PROJECT_STATUS.md")
 CLAUDE_DOC = os.path.join(ROOT, "CLAUDE.md")
 PACKAGING_DOC = os.path.join(ROOT, "docs", "PACKAGING_PLAN.md")
 PREPUBLISH = os.path.join(ROOT, "packaging", "prepublish.py")
+README_EN = os.path.join(ROOT, "README.md")
+README_TR = os.path.join(ROOT, "README.tr.md")
 
 #: Ayrintili sira isareti: satir basinda `a)` ... `j)`.
 STEP_MARKER = re.compile(r"^\s*[a-j]\)", re.MULTILINE)
@@ -426,7 +428,7 @@ def test_the_roadmap_summary_has_the_current_local_commit_count():
     summary = flat(read(ROADMAP_DOC).split("---", 1)[0])
 
     assert flat("origin/master ile eşit (0 ileri / 0 geri)") in summary
-    assert "4626 passed / 26 skipped / 0 failed" in summary
+    assert "4678 passed / 26 skipped / 0 failed" in summary
 
 
 def test_the_current_final_artifact_acceptance_is_recorded_everywhere():
@@ -1542,14 +1544,38 @@ def test_v0_38_candidate_baseline_is_recorded_in_all_status_documents():
         block = flat(record)
         for fact in (
             "v0.38 aday tabanı",
-            "aceccf4..7ee2437 aralığında 8 aday-tabanı commiti",
-            "7ee2437",
-            "4626 passed / 26 skipped / 0 failed",
-            "32370784900",
+            "aceccf4..6db8534 aralığında 12 aday-tabanı commiti",
+            "6db8534",
+            "4678 passed / 26 skipped / 0 failed",
+            "32399570489",
             "kurulu v0.37",
             "v0.38 build yapılmadı",
         ):
             assert flat(fact) in block, f"{label}: {fact}"
+
+
+def test_readmes_do_not_advertise_the_hidden_subtitle_search_as_available():
+    english = flat(read(README_EN))
+    turkish = flat(read(README_TR))
+
+    assert "temporarily hidden" in english.lower()
+    assert "Subtitles → Find Subtitles… opens" not in english
+    assert flat("geçici olarak gizlidir") in turkish.lower()
+    assert flat("Alt Yazı → Altyazı Bul… Altyazı Merkezini açar") not in turkish
+
+
+def test_current_vlsub_research_separates_bundled_legacy_and_modern_extension():
+    block = flat(read(PROJECT_STATUS_DOC)).lower()
+
+    for fact in (
+        "vlsub-opensubtitles-com",
+        "VLSub.lua",
+        "OpenSubtitles.com REST",
+        "OpenSubtitles.org XML-RPC",
+        "uygulama başına tek API anahtarı",
+        "arama arayüzü kapalı kalacak",
+    ):
+        assert flat(fact).lower() in block, f"güncel VLSub ayrımı eksik: {fact}"
 
 
 # =====================================================================

@@ -30,10 +30,10 @@ thumbnails generated in the background, natural `1-2-10` ordering, folder
 opening and drag-and-drop. It does not overlap the video or float always on
 top.
 
-**Subtitle Centre.** Search, download and apply subtitles from OpenSubtitles.
-A downloaded subtitle is written next to the media as an atomic `.srt`.
-Local subtitles matching the media are found automatically and stay hidden
+**Subtitles.** Matching local subtitles are found automatically and stay hidden
 until you ask for them, so a file never opens with unexpected text on screen.
+The OpenSubtitles-powered Subtitle Centre is temporarily hidden while its API
+distribution terms are reviewed; its network code is not exposed in the UI.
 
 **Subtitle appearance.** Text, outline and background colour, size, outline
 width, vertical position and synchronisation, with a live preview. A safe
@@ -69,8 +69,8 @@ tracebacks, with details available separately; remote addresses appear as
   player; website extraction requires the Internet Video add-on described
   below.
 - Matching local subtitles are detected automatically but stay hidden until
-  selected. `Subtitles → Find Subtitles…` opens the Subtitle Centre; searching
-  OpenSubtitles requires your own account credentials and API key.
+  selected. Online subtitle search is temporarily hidden; local subtitle
+  loading and appearance controls remain available.
 - `Tools → Language` selects the interface language after restart.
   `Tools → Keyboard Shortcuts` lists every supported shortcut.
 

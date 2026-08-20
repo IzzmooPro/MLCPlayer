@@ -4,16 +4,18 @@ Güncelleme: 20 Ağustos 2026
 
 ## DEVİR NOTU — buradan başla
 
-**Snapshot `7ee2437`; ağaç temiz ve `master`, `origin/master ile eşit
+**Snapshot `6db8534`; ağaç temiz ve `master`, `origin/master ile eşit
 (0 ileri / 0 geri)`.** v0.37 tag/push/GitHub Release ile yayımlandı ve final
-artifact fiziksel kabul matrisi başarılıdır. DOC-002 checkpoint'i hariç,
-aceccf4..7ee2437 aralığında 8 aday-tabanı commiti vardır; bu küme **v0.38
+artifact fiziksel kabul matrisi başarılıdır.
+DOC-003 belge checkpoint'i hariç, aceccf4..6db8534 aralığında 12 aday-tabanı
+commiti vardır; bu küme **v0.38
 aday tabanı** olarak izlenir, yayın adayı olarak değil.
 
-Güncel GitHub Actions koşumu `32370784900`: kilitli bağımlılık, compile,
-çeviri/whitespace ve hosted tam paket **4626 passed / 26 skipped / 0 failed**.
+Güncel GitHub Actions koşumu `32399570489`: kilitli bağımlılık, compile,
+çeviri/whitespace ve hosted tam paket **4678 passed / 26 skipped / 0 failed**.
 Pencere şeffaflığı, PiP, oynatma yaşam döngüsü, kullanıcı kurulum rehberi,
-Windows CI ve yol gizleme performansı kaynakta bu sekiz commit içindedir.
+Windows CI, yol gizleme performansı, rollback güvenliği ve fail-closed native
+özellik kabul kapısı kaynakta bu on iki commit içindedir.
 **v0.38 build yapılmadı**; sürüm alanları ve kurulu v0.37 önceki yayın
 artifact'ına aittir. Kurulu v0.37, güncel kaynak davranışının fiziksel kabulü
 olarak kullanılamaz.
@@ -36,12 +38,12 @@ yayımlandı.
 
 ### Sıradaki iş — öncelik sırasıyla
 
-1. **v0.38 aday tabanı kaynak/etki denetimi.** Sekiz post-release commit,
-   özellikle PiP/pencere modları ve oynatma yaşam döngüsü, ürün kodu ile
-   deterministic/native/installed-artifact kanıtı ayrılarak incelenecek.
-2. **Güncel VLSub/OpenSubtitles + VLC kaynak araştırması.** 17 Ağustos tarihli
-   tarihsel bulgular korunacak; bugünkü kaynak ve kullanım şartları birincil
-   kaynaklardan yenilenecek. Kod/lisans alınmadan önce fark raporlanacak.
+1. **OpenSubtitles dağıtım modeli kararı.** Güncel kaynak araştırması tamamlandı;
+   uygulama anahtarı ile kullanıcı hesabının rolleri resmî şart veya doğrudan
+   sağlayıcı onayıyla kesinleştirilecek. Arayüz bu sırada kapalı kalacak.
+2. **Daha geniş VLC kaynak araştırması.** Altyazı tarafındaki modern/yerleşik
+   VLSub ayrımı kapandı; parça seçimi, sürükle-bırak, ses tekerleği, native
+   resize ve medya yaşam döngüsü ayrıca incelenecek.
 3. **Hukuki/uyumluluk ve dağıtım kontrol listesi.** OpenSubtitles şartları,
    GPL/codec/source sunumu, üçüncü taraf bildirimleri ve installer metinleri
    yeniden eşlenecek.
@@ -399,11 +401,10 @@ anahtarı kullanıcı adı/parola ile BİRLİKTE kullanır ve giriş yapılmadan
 devam ettirmez (`has_valid_authentication()`,
 `force_config_until_authenticated()`).
 
-**Sonuç:** "gömülü uygulama anahtarı + kullanıcının kendi hesabı"
-tasarımı hem meşru hem de kullanıcı sürtünmesini kaldırıyor. Mevcut
-tasarımımızda kullanıcı ÜÇ şey giriyor (anahtar + kullanıcı adı +
-parola); anahtar gömülürse İKİYE iner. Karar kullanıcıya bırakıldı;
-kalan tek doğrulama şartlar metninin okunmasıdır.
+**17 Ağustos sonucu artık kesin karar değildir.** Resmî eklentide gömülü
+anahtar bulunması bu modelin teknik bir referansıdır; tek başına MLC Player'ın
+dağıtımına sözleşmesel izin kanıtı değildir. Güncel değerlendirme aşağıdaki
+20 Ağustos bölümündedir.
 
 ### Bizde DAHA İYİ olan ve korunacak beş nokta
 
@@ -453,6 +454,41 @@ Bunlar VLSub'da yok; taklit edilmeyecek:
 (`map_to_opensubtitles_language`, `vlsubcom.lua:7446`). Bizim beş dilimiz
 (`tr/en/de/fr/es`) varyantsız olduğu için bugün SORUN DEĞİL. Dil listesi
 genişletilirse bu satır ÖNCE düzeltilmeli.
+
+## Güncel VLSub/OpenSubtitles ayrımı (20 Ağustos 2026)
+
+Bu tur yalnız birincil kaynak ve yerel kod incelemesidir; dış kod
+KOPYALANMADI, bağımlılık EKLENMEDİ ve gerçek API isteği GÖNDERİLMEDİ.
+
+- OpenSubtitles'ın ayrı `vlsub-opensubtitles-com` deposundaki modern eklenti
+  `vlsubcom.lua` 1.2.9'dur ve **OpenSubtitles.com REST** `/api/v1` uçlarını
+  kullanır. Kaynağında uygulamaya ait tek bir API anahtarı gömülüdür.
+- VideoLAN `vlc` deposunun `master` dalında paketlenen
+  `share/lua/extensions/VLSub.lua` ise 0.11.1'dir ve **OpenSubtitles.org
+  XML-RPC** dönemine aittir. Bu iki eklenti aynı ürün veya aynı API yolu gibi
+  ele alınmayacak. OpenSubtitles, eski `.org` API'nin üçüncü taraf uygulamalar
+  için tamamen kapatılacağını 29 Ocak 2026'da duyurdu.
+- Servis yöneticisinin 27 Mayıs 2025 tarihli geliştirici yanıtı, kullanıcı
+  başına ayrı anahtar yerine **uygulama başına tek API anahtarı** kullanılmasını
+  istiyor. Modern resmî eklenti de teknik olarak bu modeli gösteriyor. Ancak
+  genel API şartlarının anahtarın açık kaynak masaüstü uygulamasında dağıtımını
+  açıkça izinli sayan metni bu turda erişilebilir biçimde doğrulanamadı.
+  Dolayısıyla ne gömülü anahtarın hukuken kesin uygun olduğu ne de mevcut
+  "her kullanıcı kendi anahtarını girsin" modelinin kabul edildiği varsayılır.
+- MLC Player zaten REST `/subtitles` ve `/download`, HTTPS/host ve redirect
+  doğrulaması, sınırlı yanıt boyutu, kota tüketen POST için sıfır retry,
+  Credential Manager ve atomik kullanıcı-onaylı `.srt` yazımı kullanıyor.
+  Eski VLSub'un şifresiz HTTP'ye düşme ve mevcut altyazıyı onaysız ezme
+  davranışları alınmayacak.
+- Kota geri bildirimi ve çoklu tercih dili ileride değerlendirilebilir;
+  sunucu tarafı GuessIt gizlilik nedeniyle varsayılan olmayacak. Bunlar API
+  dağıtım modeli kapanmadan ürün kapsamına alınmayacak.
+
+**Karar:** `SUBTITLE_SEARCH_UI_ENABLED = False` korunacak; çevrimiçi altyazı
+arama arayüzü kapalı kalacak. Yerel altyazı bulma/yükleme bundan etkilenmez.
+Sağlayıcıdan yazılı dağıtım modeli doğrulaması veya açık resmî şart görülmeden
+API anahtarı gömülmeyecek ve kullanıcı-anahtarı akışı yeniden açılmayacak.
+README dosyaları kapalı özelliği kullanılabilir gibi anlatmayacak.
 
 ## Durum
 
@@ -3161,11 +3197,13 @@ yalnız değişikliğin etkilediği yol nokta atışı regresyonla doğrulanacak
      hedefli testlerle kilitlenecek. Görsel geçiş davranışı uygulama öncesinde
      ayrıca değerlendirilecek; bu kayıt henüz ürün kodu değişikliği değildir.
 
-8. **VLSub/OpenSubtitles incelemesi:** Tam kaynak güncel olarak incelenecek:
+8. ✅ **VLSub/OpenSubtitles incelemesi — KAPANDI (20 Ağustos 2026):**
+   Güncel kaynak incelendi:
    https://github.com/opensubtitles/vlsub-opensubtitles-com
-   Arama, kimlik doğrulama, dil/sonuç eşleme, indirme ve hata akışlarından
-   MLC Player'a gerçekten yarayacak fikirler çıkarılacak. Lisans ve kullanım
-   şartları doğrulanmadan kod kopyalanmayacak veya bağımlılık alınmayacak.
+   Modern ayrı eklenti ile VLC'ye paketli eski VLSub ayrıldı; arama, kimlik
+   doğrulama, dil/sonuç eşleme, indirme ve hata akışları MLC ile karşılaştırıldı.
+   Kod kopyalanmadı veya bağımlılık alınmadı. API anahtarı dağıtım modeli açık
+   şart/yazılı sağlayıcı doğrulaması beklediği için arayüz kapalı kalır.
 9. **VLC kaynak incelemesi:** Tam kaynak güncel olarak incelenecek:
    https://github.com/videolan/vlc
    Özellikle altyazı parçası seçimi, sürükle-bırak, ses tekerleği, frameless/
@@ -3183,7 +3221,7 @@ yalnız değişikliğin etkilediği yol nokta atışı regresyonla doğrulanacak
    iddiası değil, yayın öncesi somut kontrol listesi ve gerektiğinde uzman
    avukata yöneltilecek açık sorular olacak.
 
-Uygulama sırası: **1–7 TAMAMLANDI** → 8/9 kaynak araştırması → 10
+Uygulama sırası: **1–8 TAMAMLANDI** → 9 VLC kaynak araştırması → 10
 hukuki/uyumluluk kontrolü → kalan canlı/manual kabul → paketleme kararı.
 (GÜNCELLENDİ 17 Ağustos 2026) Kökte GPLv3 `LICENSE` ve iki README VAR.
 `LICENSE` kanonik gnu.org metniyle BİREBİR aynıdır ve SHA-256 ile teste

@@ -533,8 +533,12 @@ kullanici rutbesine bagli.
 - [x] `app/opensubtitles.py` `Api-Key` gonderiyor ve
       `USER_AGENT = "MLC Player Subtitle Center v1"` kullaniyor — sartlara
       uygun bicimde ad + surum tasiyor.
-- [x] API anahtari kullanicinin kendi anahtaridir; uygulamaya gomulu anahtar
-      YOKTUR.
+- [x] Mevcut kod API anahtarini kullanicidan alir; uygulamaya gomulu anahtar
+      YOKTUR. **Bu teknik durum bir uyumluluk karari degildir.** Servis
+      yoneticisinin uygulama basina tek anahtar yonlendirmesi nedeniyle
+      cevrimici arama arayuzu kapali tutulur; acik sart veya yazili saglayici
+      onayi olmadan ne gomulu anahtar ne de kullanici-basina-anahtar akisi
+      yayinlanir.
 - [x] **KAPANDI (16 Agustos 2026):** onleyici hiz sinirlamasi eklendi.
       `MIN_REQUEST_INTERVAL_S = 1.0` ve `_respect_rate_limit()`, butun
       isteklerin gectigi TEK bogaz noktasi olan `_call()` icinde. Bekleme
@@ -562,8 +566,10 @@ kullanici rutbesine bagli.
    karsiliyor mu, yoksa kopyayi bizim mi barindirmamiz gerekir?
 2. H.264/H.265 decode iceren bir masaustu oynaticinin Turkiye'den ucretsiz
    dagitiminda patent havuzu (MPEG-LA / Access Advance) yukumlulugu dogar mi?
-3. Kullanicinin kendi OpenSubtitles anahtarini girdigi bir istemcide,
-   servisin "uygulama basina tek anahtar" kurali nasil yorumlanir?
+3. Acik kaynak bir Windows masaustu istemcisinde "uygulama basina tek API
+   anahtari" nasil dagitilmalidir? Anahtarin kaynakta/ikili icinde gorulebilir
+   olmasi kabul ediliyor mu; kullanicinin kendi anahtarini girmesi yasak mi?
+   OpenSubtitles'tan yazili cevap alinmadan arayuz yeniden acilmayacak.
 
 ### Boyut etkisi (olculdu)
 

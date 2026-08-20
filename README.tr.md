@@ -27,8 +27,9 @@ görünümü kaldırılmıştır.
   Denetle`. İndirilen kurulumun yayımlanan boyutu, SHA-256 özeti ve yayıncı
   Ed25519 imzası doğrulanır; doğrulanamayan dosya çalıştırılmaz ve silinir.
   Kapanış üründen geçer, süreç zorla öldürülmez.
-- **Altyazı Merkezi:** OpenSubtitles üzerinden arama, indirme ve uygulama.
-  İndirilen altyazı medyanın yanına atomik `.srt` olarak yazılır.
+- **Altyazılar:** Eşleşen yerel altyazılar otomatik bulunur ve siz seçene kadar
+  gizli kalır. OpenSubtitles kullanan Altyazı Merkezi, API dağıtım şartları
+  incelenirken geçici olarak gizlidir; ağ işlevi arayüzden erişilemez.
 - **Altyazı görünümü:** yazı/kenarlık/arka plan rengi, boyut, kenarlık
   kalınlığı, dikey konum ve senkron. Canlı temsili önizleme içerir.
 - **Güvenli alt bant:** altyazı hiçbir durumda kontrol katmanıyla çakışmaz;
@@ -51,8 +52,8 @@ görünümü kaldırılmıştır.
   çalışabilir; site çıkarımı aşağıda anlatılan İnternet Videosu ek paketini
   gerektirir.
 - Eşleşen yerel altyazılar otomatik bulunur fakat siz seçene kadar gizli
-  kalır. `Alt Yazı → Altyazı Bul…` Altyazı Merkezini açar; OpenSubtitles
-  araması kendi hesap bilgileriniz ve API anahtarınızı gerektirir.
+  kalır. Çevrimiçi altyazı arama geçici olarak gizlidir; yerel altyazı yükleme
+  ve görünüm ayarları kullanılabilir.
 - Arayüz dili `Araçlar → Dil` üzerinden seçilir ve yeniden başlatınca uygulanır.
   Bütün desteklenen kısayollar `Araçlar → Klavye Kısayolları` içindedir.
 
@@ -179,9 +180,11 @@ kullanıcıya, gerekirse hukukçuya aittir:
   HEVC havuzları gözden geçirilir. HEVC tarafında AVC'ye denk bir
   ücretsiz katman DOĞRULANMAMIŞTIR.
 - **OpenSubtitles API kullanım şartlarının gözden geçirilmesi.** Mevcut
-  tasarımda her kullanıcı KENDİ API anahtarını girer, yani şartları kendi
-  adına kabul eder. Tek bir anahtarın programa gömülmesi bu sorumluluğu
-  bize taşırdı.
+  kod her kullanıcının kendi API anahtarını girmesini bekler; ancak servis
+  yöneticisinin güncel yönlendirmesi uygulama başına tek anahtar kullanılması
+  yönündedir. Anahtarın açık kaynak masaüstü uygulamasında nasıl dağıtılacağı
+  açık şart veya yazılı sağlayıcı cevabıyla doğrulanana kadar çevrimiçi arama
+  arayüzü kapalıdır. Bu bir hukuki görüş değildir.
 
 **Kapanan maddeler:**
 

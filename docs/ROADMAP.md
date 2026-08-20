@@ -1,6 +1,6 @@
 # MLC Player yol haritası
 
-**Snapshot: 20 Ağustos 2026 (`7ee2437`)** — v0.37 yayını ve sonraki v0.38
+**Snapshot: 20 Ağustos 2026 (`6db8534`)** — v0.37 yayını ve sonraki v0.38
 aday tabanı denetiminin ardından güncellendi. Bu belge her kabul edilen turun
 sonunda yenilenir; buradaki durumlar o tarihteki ölçümleri yansıtır, kalıcı
 gerçek değildir.
@@ -18,25 +18,28 @@ v0.37 tag, prepublish, dal/tag push ve GitHub Release adımları tamamlandı;
 final artifact fiziksel kabul matrisi başarılıdır. Bu tarihsel yayın kanıtı
 korunur ve sonraki kaynak değişikliklerine aktarılmaz.
 
-`master` HEAD `7ee2437` ve `origin/master ile eşit (0 ileri / 0 geri)`.
-DOC-002 checkpoint'i hariç, aceccf4..7ee2437 aralığında 8 aday-tabanı
-commiti vardır: kullanıcı kurulum belgeleri; pencere
+`master` HEAD `6db8534` ve `origin/master ile eşit (0 ileri / 0 geri)`.
+DOC-003 belge checkpoint'i hariç, aceccf4..6db8534 aralığında 12 aday-tabanı
+commiti vardır: kullanıcı kurulum
+belgeleri; pencere
 şeffaflığı, PiP ve oynatma yaşam döngüsü; kilitli Windows CI; checkout
-satır-sonu kararlılığı; hosted libmpv sınırı ve doğrusal yol gizleme taraması.
+satır-sonu kararlılığı; hosted libmpv sınırı; doğrusal yol gizleme taraması;
+rollback güvenliği ve fail-closed native özellik kabul kapısı.
 Bu küme **v0.38 aday tabanı**dır; henüz bir sürüm adayı değildir.
 
-GitHub Actions `32370784900` koşumunda kilitli bağımlılık, compile,
-çeviri/whitespace ve tam hosted paket geçti: **4626 passed / 26 skipped /
+GitHub Actions `32399570489` koşumunda kilitli bağımlılık, compile,
+çeviri/whitespace ve tam hosted paket geçti: **4678 passed / 26 skipped /
 0 failed**. Skip'ler hosted runner'da bulunmayan gerçek libmpv/kurulu-artifact
 kabulleridir; gizli PASS değildir. **v0.38 build yapılmadı**; sürüm alanları ve
 kurulu v0.37 önceki yayın artifact'ını göstermeye devam eder. Dolayısıyla
 kurulu v0.37, güncel PiP/pencere/yaşam-döngüsü kaynağının fiziksel kanıtı
 sayılamaz.
 
-Sıradaki sıra: sekiz commitlik v0.38
-aday tabanını kaynak/etki açısından denetlemek; güncel VLSub/OpenSubtitles ve
-VLC kaynak araştırmasını tamamlamak; hukuki/uyumluluk kontrol listesini
-yenilemek. Ancak bunlardan sonra ayrı onaylarla sürüm numarası, build,
+Sıradaki sıra: güncel VLSub/OpenSubtitles araştırmasının ortaya çıkardığı API
+dağıtım modeli belirsizliğini hukuki/uyumluluk kontrol listesinde kapatmak;
+ardından daha geniş VLC kaynak incelemesini tamamlamak. Çevrimiçi altyazı arama
+bu karar verilene kadar arayüzde kapalı kalır. Ancak bunlardan sonra ayrı
+onaylarla sürüm numarası, build,
 kurulum/fiziksel kabul, tag ve release değerlendirilir.
 
 ---

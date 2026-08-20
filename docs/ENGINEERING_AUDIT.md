@@ -41,6 +41,49 @@ değişiklik henüz kalıcı değildir.
 
 ---
 
+## DOC-003
+
+- **Kimlik:** DOC-003
+- **Baslik:** v0.38 snapshot ve kapalı OpenSubtitles özelliği belgelerde bayattı
+- **Onem:** Orta — README kullanıcıya görünmeyen bir menüyü kullanılabilir
+  gösteriyor, durum belgeleri ise dört kabul edilmiş commit ve güncel CI
+  sonucunu taşımıyordu
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI →
+  **COMMIT EDILDI**
+- **Kanit:** Kaynakta `SUBTITLE_SEARCH_UI_ENABLED = False`; buna rağmen iki
+  README çevrimiçi Altyazı Merkezini açık gösteriyordu. Salt-okunur Git/GitHub
+  ölçümünde `6db8534`, `origin/master ile eşit (0 ileri / 0 geri)`,
+  aceccf4..6db8534 aralığında 12 aday-tabanı commiti ve Actions
+  `32399570489` sonucu **4678 passed / 26 skipped / 0 failed** bulundu.
+- **Kaynak arastirmasi:** OpenSubtitles'ın modern
+  `vlsub-opensubtitles-com` eklentisi REST ve gömülü uygulama anahtarı
+  kullanırken, VLC `master` içindeki paketli `VLSub.lua` eski
+  OpenSubtitles.org XML-RPC akışıdır. Servis yöneticisi uygulama başına tek
+  API anahtarı istiyor; açık dağıtım izni metni doğrulanamadığı için bu teknik
+  örnek sözleşmesel izin sayılmadı.
+- **Karar:** Çevrimiçi altyazı arama arayüzü kapalı kalır; gömülü anahtar veya
+  kullanıcı başına anahtar modeli yazılı sağlayıcı doğrulaması olmadan
+  yayımlanmaz. Yerel altyazı davranışı değişmez.
+- **Ilk kirmizi:** Dar belge sözleşmesi **3 failed** verdi: güncel snapshot,
+  kapalı README davranışı ve modern/yerleşik VLSub ayrımı eksikti.
+- **Degisen dosyalar:** `README.md`, `README.tr.md`, `docs/ROADMAP.md`,
+  `docs/PROJECT_STATUS.md`, `docs/ENGINEERING_AUDIT.md`,
+  `docs/PACKAGING_PLAN.md`, `tests/test_release_documentation_regressions.py`
+- **Test kaniti:** İlk kırmızı **3 failed**; son hedef belge regresyonu
+  **207 passed / 0 failed**. `extract_translations.py --check` 447 çevrilebilir
+  metinle güncel, `git diff --check` temiz. Ürün kodu değişmediği ve güncel
+  hosted tam paket zaten aynı `6db8534` üzerinde yeşil olduğu için tam paket
+  yeniden çalıştırılmadı.
+- **Canli kabul:** Uygulanmaz; ürün kodu, ağ, build, kurulum, tag veya release
+  değişmedi.
+- **Kalan risk:** API anahtarının açık kaynak masaüstü uygulamasında dağıtımı
+  ve indirilen altyazının saklanması/yeniden dağıtımı için açık şart metni veya
+  sağlayıcının yazılı cevabı hâlâ gerekir. Daha geniş VLC kaynak incelemesi de
+  ayrı backlog maddesidir.
+- **Commit durumu:** COMMIT EDILDI — bu belge checkpoint'iyle aynı commit.
+
+---
+
 ## DOC-002
 
 - **Kimlik:** DOC-002
