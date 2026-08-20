@@ -93,6 +93,14 @@ OVERLAY_SIDE_PADDING = 28
 OVERLAY_NARROW_SIDE_PADDING = 8
 OVERLAY_NARROW_WIDTH = 560
 OVERLAY_ACCENT = "#F26A3D"
+# PiP, normal kontrol panelini kucuk pencereye sikistirmaz. YouTube benzeri
+# yalniz video deneyimi icin fareyle etkilesimde gorunen ince bir serit
+# kullanir; oynatma sirasinda mevcut auto-hide kuraliyla tamamen kaybolur.
+PIP_OVERLAY_HEIGHT = 54
+PIP_OVERLAY_SIDE_PADDING = 12
+PIP_OVERLAY_BOTTOM_PADDING = 4
+PIP_TIMELINE_HIT_HEIGHT = 18
+PIP_PLAY_BUTTON_SIZE = 32
 # OSD, kontrol katmanının AYRILMIŞ bandının üstünde durur. Katman
 # auto-hide veya opacity=0 olsa bile bant korunur; aksi halde katman geri
 # geldiğinde mesaj düğmelerin arkasında kalıyordu.
@@ -359,6 +367,8 @@ class VideoFrame(QWidget):
         self._overlay_fade_target = 1.0
         # CC göstergesi: None = henüz hiç hesaplanmadı
         self.overlay_subtitles_active = None
+        self._picture_in_picture_mode = False
+        self._pip_playlist_was_open = False
 
         # Mouse takibi için
         self.setMouseTracking(True)
@@ -438,6 +448,8 @@ class VideoFrame(QWidget):
             "border-radius: 4px; } "
             f"QPushButton#overlayPlayPause {{ border: 2px solid {OVERLAY_ACCENT}; "
             f"border-radius: 22px; background: {OVERLAY_HIT_BACKGROUND}; }} "
+            f"QWidget#controlOverlayPreview[pipMode=\"true\"] "
+            f"QPushButton#overlayPlayPause {{ border-radius: 16px; }} "
             f"QPushButton#overlayPlayPause:hover {{ background: rgba(242, 106, 61, 45); }} "
             "QSlider::groove:horizontal { height: 3px; background: "
             "rgba(255, 255, 255, 70); border-radius: 1px; } "
@@ -543,6 +555,7 @@ class VideoFrame(QWidget):
             OVERLAY_SKIP_BUTTON_SIZE, 25)
         previous.clicked.connect(
             lambda: self._run_overlay_action(self.main_window.play_previous))
+        self.overlay_previous_button = previous
         controls.addWidget(previous, 0, Qt.AlignmentFlag.AlignVCenter)
 
         # Referans görselde merkez sembol de turuncudur.
@@ -558,6 +571,7 @@ class VideoFrame(QWidget):
             OVERLAY_SKIP_BUTTON_SIZE, 25)
         next_button.clicked.connect(
             lambda: self._run_overlay_action(self.main_window.play_next))
+        self.overlay_next_button = next_button
         controls.addWidget(next_button, 0, Qt.AlignmentFlag.AlignVCenter)
 
         right_row = QHBoxLayout()
@@ -582,6 +596,7 @@ class VideoFrame(QWidget):
             OVERLAY_SIDE_BUTTON_SIZE, 22)
         settings.clicked.connect(lambda: self._run_overlay_action(
             self.main_window.setup_video_adjustments))
+        self.overlay_settings_button = settings
         right_row.addWidget(settings, 0, Qt.AlignmentFlag.AlignVCenter)
 
         self.overlay_volume_button = self._make_overlay_button(
@@ -614,7 +629,16 @@ class VideoFrame(QWidget):
             OVERLAY_SIDE_BUTTON_SIZE, 22)
         fullscreen.clicked.connect(lambda: self._run_overlay_action(
             self.main_window.toggle_fullscreen))
+        self.overlay_fullscreen_button = fullscreen
         right_row.addWidget(fullscreen, 0, Qt.AlignmentFlag.AlignVCenter)
+        self.overlay_pip_exit_button = self._make_overlay_button(
+            "overlayPipExit", "restore", tr("Normal Pencereye Dön"), 32, 19)
+        self.overlay_pip_exit_button.clicked.connect(
+            lambda: self._run_overlay_action(
+                lambda: self.main_window.toggle_picture_in_picture(False)))
+        self.overlay_pip_exit_button.hide()
+        right_row.addWidget(self.overlay_pip_exit_button, 0,
+                            Qt.AlignmentFlag.AlignVCenter)
         right_container = QWidget(self.control_overlay)
         right_container.setLayout(right_row)
         # NOT: kapsayicinin stylesheet'i cocuklarina da uygulanir. Duz
@@ -625,6 +649,7 @@ class VideoFrame(QWidget):
         right_container.setStyleSheet(
             f"background: {OVERLAY_HIT_BACKGROUND};")
         right_container.setMinimumWidth(0)
+        self.overlay_right_container = right_container
         controls.addWidget(right_container, 1, Qt.AlignmentFlag.AlignVCenter |
                            Qt.AlignmentFlag.AlignRight)
 
@@ -654,6 +679,83 @@ class VideoFrame(QWidget):
             target.installEventFilter(self)
         self._overlay_event_targets = tuple(targets)
         self._last_cursor_pos = QCursor.pos()
+
+    def set_picture_in_picture_mode(self, enabled):
+        """Normal panel ile PiP'nin ince, video-odakli seridini degistirir.
+
+        PiP ayni libmpv HWND'sini kullanir. Burada yalniz yardimci kontrol
+        yuzeyinin olculeri/gorunurlugu degisir; medya yeniden yuklenmez.
+        """
+        enabled = bool(enabled)
+        if self.control_overlay is None:
+            self._picture_in_picture_mode = enabled
+            return
+        if enabled == self._picture_in_picture_mode:
+            return
+
+        self._picture_in_picture_mode = enabled
+        panel = self.playlist_panel
+        if enabled and panel is not None:
+            self._pip_playlist_was_open = (
+                self._pip_playlist_was_open or bool(panel.is_open))
+            if panel.is_open:
+                panel.close_animated()
+                panel.finish_animation()
+
+        normal_only = (
+            self.overlay_previous_button,
+            self.overlay_next_button,
+            self.overlay_subtitles_button,
+            self.overlay_settings_button,
+            self.overlay_volume_button,
+            self.overlay_volume_slider,
+            self.overlay_fullscreen_button,
+            self.overlay_current_time_label,
+            self.overlay_time_separator,
+            self.overlay_total_time_label,
+        )
+        for widget in normal_only:
+            widget.setVisible(not enabled)
+        self.overlay_pip_exit_button.setVisible(enabled)
+
+        if enabled:
+            self.overlay_timeline.setFixedHeight(PIP_TIMELINE_HIT_HEIGHT)
+            self.overlay_play_pause_button.setFixedSize(
+                PIP_PLAY_BUTTON_SIZE, PIP_PLAY_BUTTON_SIZE)
+            self.overlay_play_pause_button.setIconSize(QSize(20, 20))
+            self.overlay_time_container.setMinimumWidth(
+                PIP_PLAY_BUTTON_SIZE)
+            self.control_overlay.setFixedHeight(PIP_OVERLAY_HEIGHT)
+        else:
+            self.control_overlay.setMinimumHeight(0)
+            self.control_overlay.setMaximumHeight(16777215)
+            self.overlay_timeline.setFixedHeight(
+                OVERLAY_TIMELINE_HIT_HEIGHT)
+            self.overlay_play_pause_button.setFixedSize(44, 44)
+            self.overlay_play_pause_button.setIconSize(QSize(27, 27))
+            self.overlay_time_container.setMinimumWidth(0)
+
+        self.control_overlay.setProperty("pipMode", enabled)
+        self.control_overlay.style().unpolish(self.control_overlay)
+        self.control_overlay.style().polish(self.control_overlay)
+        self.update_overlay_geometry()
+        self.show_overlay_for_interaction()
+
+        if not enabled and self._pip_playlist_was_open:
+            # Player ayni cagri icinde normal pencere geometrisini geri
+            # yukler. Bir event turu ertelemek paneli eski PiP kenarina
+            # yerlestirmeyi onler.
+            QTimer.singleShot(0, self._restore_playlist_after_pip)
+
+    def _restore_playlist_after_pip(self):
+        panel = self.playlist_panel
+        if self._picture_in_picture_mode:
+            return
+        should_restore = self._pip_playlist_was_open
+        self._pip_playlist_was_open = False
+        if (should_restore and not self._picture_in_picture_mode
+                and panel is not None and not panel.is_open):
+            panel.open_animated()
 
     def _create_playlist_panel(self):
         if self.playlist_panel is None:
@@ -702,8 +804,11 @@ class VideoFrame(QWidget):
 
     def toggle_playlist_panel(self):
         """Sinematik playlist'i aynı ikonla açar/kapatır."""
+        if self._picture_in_picture_mode:
+            # PiP'nin urun sozlesmesi video disinda sahipli pencere acmaz.
+            return False
         if self.playlist_panel is None:
-            return
+            return False
         if self.playlist_panel.is_open:
             self.playlist_panel.close_animated()
         else:
@@ -712,10 +817,16 @@ class VideoFrame(QWidget):
             self.playlist_panel.open_animated()
             # Panel açıkken kontrol overlay'i kendi kendine gizlenmemelidir.
             self.cancel_overlay_hide()
+        return self.playlist_panel.is_open
 
     def refresh_playlist_panel(self):
-        if self.playlist_panel is not None:
-            self.playlist_panel.refresh()
+        panel = self.playlist_panel
+        if panel is not None and panel.is_open:
+            # Kapalı panel açılırken `open_animated()` zaten taze modeli
+            # kurar. Gizli panelin bütün satır widget'larını her medya
+            # açılışında yeniden üretmek Windows'ta 170-840 ms GUI-thread
+            # maliyeti ölçtü ve timeline'ın ilk boyamasını geciktiriyordu.
+            panel.refresh()
 
     def update_playlist_panel_geometry(self):
         """Panele yerini YENIDEN hesaplattirir.
@@ -1247,19 +1358,27 @@ class VideoFrame(QWidget):
             return
         # Dar pencerede sağ kontrol grubu sığsın diye yan iç boşluk daralır;
         # böylece hiçbir ikon kırpılmaz ve katman video genişliğini aşmaz.
+        pip_mode = self._picture_in_picture_mode
         narrow = self.width() < OVERLAY_NARROW_WIDTH
         layout = self.control_overlay.layout()
         if layout is not None:
-            padding = (OVERLAY_NARROW_SIDE_PADDING if narrow
-                       else OVERLAY_SIDE_PADDING)
+            if pip_mode:
+                padding = PIP_OVERLAY_SIDE_PADDING
+                bottom = PIP_OVERLAY_BOTTOM_PADDING
+            else:
+                padding = (OVERLAY_NARROW_SIDE_PADDING if narrow
+                           else OVERLAY_SIDE_PADDING)
+                bottom = 18
             current = layout.contentsMargins()
-            if current.left() != padding:
+            if current.left() != padding or current.bottom() != bottom:
                 layout.setContentsMargins(padding, current.top(),
-                                          padding, current.bottom())
+                                          padding, bottom)
 
-        centre_spacing = (OVERLAY_NARROW_CENTRE_SPACING if narrow
+        centre_spacing = (0 if pip_mode else
+                          OVERLAY_NARROW_CENTRE_SPACING if narrow
                           else OVERLAY_CENTRE_SPACING)
-        right_spacing = (OVERLAY_NARROW_RIGHT_SPACING if narrow
+        right_spacing = (0 if pip_mode else
+                         OVERLAY_NARROW_RIGHT_SPACING if narrow
                          else OVERLAY_RIGHT_SPACING)
         controls_row = getattr(self, "_overlay_controls_row", None)
         if controls_row is not None and controls_row.spacing() != centre_spacing:
@@ -1270,17 +1389,19 @@ class VideoFrame(QWidget):
 
         # Dar pencerede süre metni yarım gösterilmektense tamamen gizlenir;
         # genişleyince kendiliğinden geri gelir.
-        for widget in (self.overlay_current_time_label,
-                       self.overlay_time_separator,
-                       self.overlay_total_time_label):
-            if widget.isVisibleTo(self.overlay_time_container) == narrow:
-                widget.setVisible(not narrow)
+        if not pip_mode:
+            for widget in (self.overlay_current_time_label,
+                           self.overlay_time_separator,
+                           self.overlay_total_time_label):
+                if widget.isVisibleTo(self.overlay_time_container) == narrow:
+                    widget.setVisible(not narrow)
 
         video_origin = self.mapToGlobal(QPoint(0, 0))
         # Referans: katman video alanının tüm genişliğini kaplar ve alta
         # sıfır boşlukla oturur.
         width = max(1, self.width())
-        height = max(1, min(OVERLAY_HEIGHT, self.height()))
+        target_height = PIP_OVERLAY_HEIGHT if pip_mode else OVERLAY_HEIGHT
+        height = max(1, min(target_height, self.height()))
         x = video_origin.x()
         y = video_origin.y() + self.height() - height
         self.control_overlay.setGeometry(x, y, width, height)
@@ -1796,7 +1917,10 @@ class VideoFrame(QWidget):
         # "wrapped C/C++ object has been deleted" hatası verirdi.
         for name in ("overlay_timeline", "overlay_volume_slider",
                      "overlay_play_pause_button", "overlay_subtitles_button",
-                     "overlay_volume_button", "overlay_time_container",
+                     "overlay_volume_button", "overlay_previous_button",
+                     "overlay_next_button", "overlay_settings_button",
+                     "overlay_fullscreen_button", "overlay_pip_exit_button",
+                     "overlay_right_container", "overlay_time_container",
                      "overlay_current_time_label", "overlay_time_separator",
                      "overlay_total_time_label"):
             if name in self.__dict__:
@@ -1972,7 +2096,9 @@ class VideoFrame(QWidget):
         # eski ana pencere masaüstünde ikinci bir pencere olarak görünür kalır.
         # Bunun yerine ana pencerenin kendisi tam ekran yapılır; böylece mpv
         # wid değeri de değişmez.
-        if self.is_video_fullscreen:
+        if (self.is_video_fullscreen
+                or getattr(self.main_window,
+                           "picture_in_picture_enabled", False)):
             return
         window = self.main_window
         self._pre_fullscreen_maximized = window.isMaximized()
@@ -2087,6 +2213,12 @@ class VideoFrame(QWidget):
             self.setCursor(Qt.CursorShape.BlankCursor)
 
     def mouseMoveEvent(self, event):
+        origin = getattr(self, "_pip_manual_move_origin", None)
+        if (self._picture_in_picture_mode and origin is not None
+                and event.buttons() & Qt.MouseButton.LeftButton):
+            self.main_window.move(event.globalPosition().toPoint() - origin)
+            event.accept()
+            return
         if self.is_video_fullscreen:
             self.setCursor(Qt.CursorShape.ArrowCursor)
             self.cursor_timer.start()
@@ -2094,9 +2226,29 @@ class VideoFrame(QWidget):
         self.show_overlay_for_interaction()
         super().mouseMoveEvent(event)
 
+    def _start_pip_system_move(self):
+        handle = self.main_window.windowHandle()
+        if handle is not None and hasattr(handle, "startSystemMove"):
+            return bool(handle.startSystemMove())
+        return False
+
     def mousePressEvent(self, event):
         self.setFocus()
+        if (self._picture_in_picture_mode
+                and event.button() == Qt.MouseButton.LeftButton):
+            if self._start_pip_system_move():
+                event.accept()
+                return
+            # Eski Qt/platform yolu: yalnız native taşıma yoksa kullanılır.
+            self._pip_manual_move_origin = (
+                event.globalPosition().toPoint() - self.main_window.pos())
+            event.accept()
+            return
         super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._pip_manual_move_origin = None
+        super().mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -2255,8 +2407,10 @@ class VideoFrame(QWidget):
             rescan=True)
         self._add_action(menu, tr("Altyazı Dosyası Ekle"),
                          player.open_subtitle)
-        self._add_action(menu, tr("Altyazı Bul"),
-                         player.open_subtitle_center)
+        from app.config import SUBTITLE_SEARCH_UI_ENABLED
+        if SUBTITLE_SEARCH_UI_ENABLED:
+            self._add_action(menu, tr("Altyazı Bul"),
+                             player.open_subtitle_center)
         self._add_action(menu, tr("Altyazı Ayarları"),
                          player.show_subtitle_settings)
 
@@ -2265,6 +2419,11 @@ class VideoFrame(QWidget):
         self._add_action(menu, tr("Tam Ekran"), player.toggle_fullscreen,
                          checkable=True,
                          checked=bool(self.is_video_fullscreen))
+        self._add_action(
+            menu, tr("Resim İçinde Resim"),
+            player.toggle_picture_in_picture, checkable=True,
+            pass_checked=True,
+            checked=bool(getattr(player, "picture_in_picture_enabled", False)))
         self._add_action(menu, tr("Ekran Görüntüsü Al"),
                          player.take_screenshot,
                          enabled=has_media)

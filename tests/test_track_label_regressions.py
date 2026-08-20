@@ -643,6 +643,7 @@ def context_frame(monkeypatch, tmp_path):
         # Gruplanmış sağ-tık menüsünün bağladığı BÜTÜN ürün metotları.
         for name in ("play_previous", "play_next", "play_pause", "stop",
                      "toggle_mute", "toggle_fullscreen",
+                     "toggle_picture_in_picture",
                      "setup_video_adjustments", "open_file", "open_folder",
                      "open_url", "open_path",
                      "take_screenshot", "show_playlist", "toggle_subtitles",

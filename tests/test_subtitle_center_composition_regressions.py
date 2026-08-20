@@ -234,7 +234,7 @@ def pump_until(app, predicate, timeout_ms=6000):
 # 1. Menü erişim noktası
 # =====================================================================
 
-def test_subtitle_menu_has_a_find_action():
+def test_subtitle_find_backend_action_exists_but_is_hidden_from_users():
     app = QApplication.instance() or QApplication([])
     from app.menu_actions import setup_menu
 
@@ -244,8 +244,9 @@ def test_subtitle_menu_has_a_find_action():
              for action in window.menuBar().actions() if action.menu()}
 
     assert "Alt Yazı" in menus
-    labels = [a.text() for a in menus["Alt Yazı"].actions()]
-    assert any("Altyazı Bul" in label for label in labels), labels
+    action = next(a for a in menus["Alt Yazı"].actions()
+                  if "Altyazı Bul" in a.text())
+    assert action.isVisible() is False
     window.close()
     window.deleteLater()
     app.processEvents()

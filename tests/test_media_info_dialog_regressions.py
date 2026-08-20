@@ -260,9 +260,9 @@ def test_the_default_and_minimum_sizes_are_reasonable(local_snapshot,
     snapshot, _path = local_snapshot
     dialog = make_dialog(snapshot)
 
-    assert 560 <= dialog.width() <= 900
+    assert dialog.width() == 600
     assert 380 <= dialog.height() <= 700
-    assert dialog.minimumWidth() >= 520
+    assert dialog.minimumWidth() == 520
     assert dialog.minimumHeight() >= 360
 
 

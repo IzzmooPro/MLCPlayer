@@ -20,7 +20,8 @@ from app.title_bar import (RESIZE_MARGIN, TITLE_BAR_HEIGHT, TitleBar,
                            resize_edges_at)
 
 LEFT_ORDER = ("titleOpenFile", "titlePlaylist", "titleMore")
-RIGHT_ORDER = ("titleMinimize", "titleMaximize", "titleClose")
+RIGHT_ORDER = ("titleTransparency", "titlePictureInPicture", "titleMinimize",
+               "titleMaximize", "titleClose")
 
 
 @pytest.fixture
@@ -42,9 +43,11 @@ def title_bar():
         window.setCentralWidget(window.central_widget)
         window.main_layout = QVBoxLayout(window.central_widget)
         window.main_layout.setContentsMargins(0, 0, 0, 0)
-        for name in ("open_file", "show_playlist"):
+        for name in ("open_file", "show_playlist", "toggle_picture_in_picture"):
             setattr(window, name,
                     lambda name=name: window.calls.append(name))
+        window.set_window_opacity_percent = lambda value: window.calls.extend(
+            ("set_window_opacity_percent", value))
         window.setWindowFlag(Qt.WindowType.FramelessWindowHint, True)
         # Gerçek üründeki gibi mevcut QMenuBar menüleri
         for label in ("Ortam", "Oynatma", "Ses", "Görüntü", "Alt Yazı",
@@ -147,6 +150,8 @@ def test_title_bar_buttons_expose_tooltip_and_accessible_name(title_bar):
         "titlePlaylist": "Playlist",
         "titleMore": "Menü",
         "titleMinimize": "Küçült",
+        "titleTransparency": "Şeffaflık",
+        "titlePictureInPicture": "Resim İçinde Resim",
         "titleMaximize": "Büyüt",
         "titleClose": "Kapat",
     }
@@ -231,6 +236,28 @@ def test_minimize_button_minimises_the_window(title_bar):
     app.processEvents()
 
 
+def test_transparency_button_opens_adjustable_slider(title_bar):
+    app, window, bar = title_bar()
+    window.window_opacity_percent = 100
+
+    button(bar, "titleTransparency").click()
+    app.processEvents()
+
+    assert bar.transparency_popup.isVisible()
+    assert bar.transparency_slider.minimum() == 35
+    assert bar.transparency_slider.maximum() == 100
+    bar.transparency_slider.setValue(58)
+    assert window.calls[-2:] == ["set_window_opacity_percent", 58]
+
+
+def test_picture_in_picture_button_calls_product_method(title_bar):
+    app, window, bar = title_bar()
+
+    button(bar, "titlePictureInPicture").click()
+
+    assert window.calls[-1] == "toggle_picture_in_picture"
+
+
 def test_maximize_button_toggles_and_updates_state(title_bar):
     app, window, bar = title_bar()
     maximize = button(bar, "titleMaximize")
@@ -238,7 +265,6 @@ def test_maximize_button_toggles_and_updates_state(title_bar):
 
     maximize.click()
     app.processEvents()
-    bar.update_maximize_state()
     assert window.isMaximized()
     assert maximize.accessibleName() == "Geri Yükle"
     assert maximize.toolTip() == "Geri Yükle"
@@ -246,7 +272,6 @@ def test_maximize_button_toggles_and_updates_state(title_bar):
 
     maximize.click()
     app.processEvents()
-    bar.update_maximize_state()
     assert not window.isMaximized()
     assert maximize.accessibleName() == "Büyüt"
 
@@ -295,18 +320,19 @@ def test_right_button_press_does_not_start_system_move(title_bar):
 
 def test_double_click_toggles_maximized_state(title_bar):
     app, window, bar = title_bar()
-    event = QMouseEvent(QEvent.Type.MouseButtonDblClick,
-                        QPoint(bar.width() // 2, 20).toPointF(),
-                        bar.mapToGlobal(QPoint(bar.width() // 2, 20)).toPointF(),
-                        Qt.MouseButton.LeftButton, Qt.MouseButton.LeftButton,
-                        Qt.KeyboardModifier.NoModifier)
+    def empty_title_event():
+        point = bar.title_label.mapTo(bar, bar.title_label.rect().center())
+        return QMouseEvent(
+            QEvent.Type.MouseButtonDblClick, point.toPointF(),
+            bar.mapToGlobal(point).toPointF(), Qt.MouseButton.LeftButton,
+            Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 
-    bar.mouseDoubleClickEvent(event)
+    bar.mouseDoubleClickEvent(empty_title_event())
     app.processEvents()
     assert window.isMaximized()
     assert button(bar, "titleMaximize").accessibleName() == "Geri Yükle"
 
-    bar.mouseDoubleClickEvent(event)
+    bar.mouseDoubleClickEvent(empty_title_event())
     app.processEvents()
     assert not window.isMaximized()
     assert button(bar, "titleMaximize").accessibleName() == "Büyüt"

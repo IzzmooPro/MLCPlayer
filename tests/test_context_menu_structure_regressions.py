@@ -38,8 +38,9 @@ MEDIA_ROWS = ["Dosya Aç", "Klasör Aç", "Bağlantıdan Oynat", "---",
               "Son Açılanlar"]
 AUDIO_ROWS = ["Sessiz", "Ses Parçası", "Ses Çıkışı"]
 SUBTITLE_ROWS = ["Altyazıları Göster", "Altyazı Parçası",
-                 "Altyazı Dosyası Ekle", "Altyazı Bul", "Altyazı Ayarları"]
-VIDEO_ROWS = ["Tam Ekran", "Ekran Görüntüsü Al", "Video Ayarları"]
+                 "Altyazı Dosyası Ekle", "Altyazı Ayarları"]
+VIDEO_ROWS = ["Tam Ekran", "Resim İçinde Resim", "Ekran Görüntüsü Al",
+              "Video Ayarları"]
 PLAYBACK_ROWS = ["5 Saniye Geri", "5 Saniye İleri", "30 Saniye Geri",
                  "30 Saniye İleri", "Zamana Git", "Oynatma Hızı", "---",
                  "Tek Dosyayı Tekrarla", "Oynatma Listesini Tekrarla",
@@ -125,7 +126,7 @@ def frame_factory(tmp_path):
                 is_paused=False, is_muted=False, sub_visibility=False,
                 playlist=None, index=0, loop_file=False, loop_playlist=False,
                 shuffle=False, fullscreen=False, device="wasapi/spk",
-                raise_tracks=False, devices=None, speed=1.0):
+                raise_tracks=False, devices=None, speed=1.0, pip=False):
         from app.video_frame import VideoFrame
 
         recorder = Recorder()
@@ -143,6 +144,7 @@ def frame_factory(tmp_path):
         window.loop_file = loop_file
         window.loop_playlist = loop_playlist
         window.shuffle = shuffle
+        window.picture_in_picture_enabled = pip
         window._updating_position_slider = False
         window._pending_subs = []
         window.recent_files = []
@@ -166,6 +168,7 @@ def frame_factory(tmp_path):
                      "select_subtitle_language", "open_subtitle",
                      "open_subtitle_center", "show_subtitle_settings",
                      "toggle_fullscreen", "take_screenshot",
+                     "toggle_picture_in_picture",
                      "setup_video_adjustments", "seek_relative", "goto_time",
                      "set_playback_speed", "set_loop_file",
                      "set_loop_playlist", "toggle_shuffle", "close",
@@ -434,9 +437,9 @@ def test_state_is_reread_on_every_build(frame_factory):
     (["Ses"], "Sessiz", "toggle_mute"),
     (["Altyazı"], "Altyazıları Göster", "toggle_subtitles"),
     (["Altyazı"], "Altyazı Dosyası Ekle", "open_subtitle"),
-    (["Altyazı"], "Altyazı Bul", "open_subtitle_center"),
     (["Altyazı"], "Altyazı Ayarları", "show_subtitle_settings"),
     (["Görüntü"], "Tam Ekran", "toggle_fullscreen"),
+    (["Görüntü"], "Resim İçinde Resim", "toggle_picture_in_picture"),
     (["Görüntü"], "Ekran Görüntüsü Al", "take_screenshot"),
     (["Görüntü"], "Video Ayarları", "setup_video_adjustments"),
     (["Oynatma"], "Zamana Git", "goto_time"),

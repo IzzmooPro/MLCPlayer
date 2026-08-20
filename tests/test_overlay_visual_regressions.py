@@ -10,7 +10,8 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import QPoint, QRect, Qt
+from PyQt6.QtCore import QEvent, QPoint, QRect, QSize, Qt
+from PyQt6.QtGui import QMouseEvent
 from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget)
@@ -263,6 +264,76 @@ def test_timeline_uses_orange_accent_and_thin_groove(video_window):
 
     assert "#f26a3d" in style
     assert "height: 3px" in style
+
+
+def test_picture_in_picture_uses_only_a_compact_control_strip(video_window):
+    app, window, frame = video_window()
+
+    frame.set_picture_in_picture_mode(True)
+    frame.update_overlay_geometry()
+
+    assert frame.control_overlay.height() <= 56
+    assert frame.overlay_timeline.height() == 18
+    assert frame.overlay_play_pause_button.size() == QSize(32, 32)
+    assert frame.overlay_previous_button.isVisible() is False
+    assert frame.overlay_next_button.isVisible() is False
+    assert frame.overlay_pip_exit_button.isVisible() is True
+    assert frame.overlay_subtitles_button.isVisible() is False
+    assert frame.overlay_volume_slider.isVisible() is False
+
+    frame.set_picture_in_picture_mode(False)
+    assert frame.overlay_timeline.height() == 48
+    assert frame.overlay_play_pause_button.size() == QSize(44, 44)
+    assert frame.overlay_previous_button.isVisible() is True
+    assert frame.overlay_next_button.isVisible() is True
+    assert frame.overlay_pip_exit_button.isVisible() is False
+
+
+def test_picture_in_picture_restores_previously_open_playlist(video_window):
+    app, window, frame = video_window()
+    frame.playlist_panel.open_animated()
+    frame.playlist_panel.finish_animation()
+    assert frame.playlist_panel.is_open is True
+
+    frame.set_picture_in_picture_mode(True)
+    assert frame.playlist_panel.is_open is False
+    assert frame.toggle_playlist_panel() is False
+
+    frame.set_picture_in_picture_mode(False)
+    app.processEvents()
+    assert frame.playlist_panel.is_open is True
+
+
+def test_picture_in_picture_video_press_starts_native_window_move(video_window):
+    app, window, frame = video_window()
+    calls = []
+    frame.set_picture_in_picture_mode(True)
+    frame._start_pip_system_move = lambda: calls.append("move") or True
+    local = QPoint(200, 100)
+    event = QMouseEvent(
+        QEvent.Type.MouseButtonPress, local.toPointF(),
+        frame.mapToGlobal(local).toPointF(), Qt.MouseButton.LeftButton,
+        Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+
+    frame.mousePressEvent(event)
+
+    assert calls == ["move"]
+    assert event.isAccepted()
+
+
+def test_normal_video_press_does_not_start_window_move(video_window):
+    app, window, frame = video_window()
+    calls = []
+    frame._start_pip_system_move = lambda: calls.append("move") or True
+    local = QPoint(200, 100)
+    event = QMouseEvent(
+        QEvent.Type.MouseButtonPress, local.toPointF(),
+        frame.mapToGlobal(local).toPointF(), Qt.MouseButton.LeftButton,
+        Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+
+    frame.mousePressEvent(event)
+
+    assert calls == []
 
 
 def test_time_labels_use_reference_colours(video_window):

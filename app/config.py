@@ -17,6 +17,11 @@ DEFAULT_VOLUME = 70
 # 100 üstü mpv amplifikasyonu; ses çubuğu 0-175 arası değer alır
 MAX_VOLUME = 175
 
+# OpenSubtitles arama/indirme altyapısı silinmez; yalnız kullanıcı arayüzü
+# geçici olarak kapatılır. Tek bayrak ana menü ve video sağ-tık menüsünün
+# yeniden ayrışmasını önler.
+SUBTITLE_SEARCH_UI_ENABLED = False
+
 # Altyazı görünüm ve senkron varsayılanları. Renk biçimi mpv için RGBA'dır.
 SUBTITLE_DEFAULTS = {
     "sub_delay": 0.0,

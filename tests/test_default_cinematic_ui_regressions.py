@@ -189,7 +189,8 @@ def test_timeline_click_seeks_on_default_launch(clean_env):
 def test_title_bar_exposes_all_expected_buttons(clean_env):
     assert clean_env["title_bar_buttons"] == [
         "titleClose", "titleMaximize", "titleMinimize", "titleMore",
-        "titleOpenFile", "titlePlaylist"]
+        "titleOpenFile", "titlePictureInPicture", "titlePlaylist",
+        "titleTransparency"]
 
 
 def test_title_bar_commands_and_menu_work_on_default_launch(clean_env):

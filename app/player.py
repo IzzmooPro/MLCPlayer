@@ -34,9 +34,13 @@ from app.media_controls import (clear_url_loading, is_remote_media_url,
     seek_position, seek_relative, seek_chapter, play_pause, stop, set_volume, change_volume, add_to_playlist, show_playlist,
     play_from_playlist, remove_from_playlist, clear_playlist, take_screenshot, play_next,
     play_previous, goto_time, set_playback_speed, save_playlist, load_playlist,
-    append_media_paths, media_suffixes
+    append_media_paths, media_suffixes, finish_media_at_start,
+    natural_end_should_rewind
 )
 from app.i18n import tr
+from app.window_modes import (MIN_OPACITY_PERCENT, PIP_MIN_SIZE,
+                              keep_pip_window_on_screen, pip_geometry_for,
+                              set_native_topmost)
 
 ESCAPE_WINDOW_WIDTH = 960
 ESCAPE_WINDOW_HEIGHT = 600
@@ -119,6 +123,14 @@ class MPVPlayer(QMainWindow):
         self._updating_position_slider = False
         # core-idle: dosya sonuna ulaşma takibi (END_FILE bu mpv build'inde wid ile gelmiyor)
         self._core_idle = False
+        self._eof_rewound = False
+        self.window_opacity_percent = 100
+        self.window_transparency_enabled = False
+        self.picture_in_picture_enabled = False
+        self._pip_restore_geometry = None
+        self._pip_restore_maximized = False
+        self._pip_restore_minimum = None
+        self._pip_title_bar_was_visible = False
         # Dosya yükleme takibi: duration uzun süre 0 kalırsa açma hatası göster
         self._load_started_at = 0
         # Ses kanalı menüsünün hangi dosya için doldurulduğunu takip eder
@@ -265,9 +277,9 @@ class MPVPlayer(QMainWindow):
     def mark_title_bar_raise_pending(self):
         """Oynatma başlangıcı için tek seferlik z-order yenilemesi işaretler.
 
-        Gerçek mpv_player.play() çağrısı BAŞARILI olduktan hemen sonra
-        çağrılır (open_path, open_url, play_from_playlist). Oynatma hata
-        verirse bayrak açılmaz, dolayısıyla stale pending oluşmaz.
+        Gerçek mpv yükleme komutu BAŞARIYLA kuyruğa alındıktan hemen sonra
+        çağrılır (open_path, open_url, play_from_playlist). Komut kuyruğa
+        alınamazsa bayrak açılmaz, dolayısıyla stale pending oluşmaz.
         """
         if not getattr(self, "cinematic_ui_enabled", False):
             return
@@ -286,6 +298,10 @@ class MPVPlayer(QMainWindow):
         çağrılır ve bayrak hemen temizlenir.
         """
         if not getattr(self, "cinematic_ui_enabled", False):
+            return
+        if getattr(self, "picture_in_picture_enabled", False):
+            # PiP bilerek basliksizdir. Medya yukleme tamamlaninca gelen
+            # gecikmis z-order yenilemesi bu urun sozlesmesini bozmamali.
             return
         title_bar = getattr(self, "title_bar", None)
         if title_bar is None:
@@ -465,17 +481,17 @@ class MPVPlayer(QMainWindow):
                 self._title_bar_raise_pending = False
                 self.ensure_title_bar_on_top()
 
-            # Dosya sonuna ulaşıldıysa oynatma listesinde otomatik sıradaki dosyaya geç
+            # Dosya sonuna ulaşıldıysa başa sar ve duraklat. Kullanıcının
+            # açık talebi gereği oynatma listesi otomatik devam ETMEZ.
             # NOT: Bu mpv build'i vo=gpu+wid ile END_FILE event'i göndermiyor;
             # core-idle >= dosya sonu kontrolü daha güvenilir.
-            if (self._core_idle and not self.loop_file and self.duration > 0
-                    and self.position >= self.duration - 0.2
-                    and self.playlist):
-                if self.current_playlist_index < len(self.playlist) - 1:
-                    self.current_playlist_index += 1
-                    play_from_playlist(self, self.current_playlist_index)
-                elif self.loop_playlist:
-                    play_from_playlist(self, 0)
+            if (self._eof_rewound and not self._core_idle and self.duration > 0
+                    and self.position < self.duration - 0.2):
+                # Asenkron seek gerçekten başa ulaştı; sonraki doğal son
+                # için tek-atım koruması yeniden kurulabilir.
+                self._eof_rewound = False
+            if natural_end_should_rewind(self):
+                finish_media_at_start(self)
 
             # Dosya açma hatası kontrolü: yükleme denendi ama 3 saniye içinde
             # süre bilgisi gelmediyse ve çekirdek boşta kaldıysa dosya açılamamıştır.
@@ -787,10 +803,116 @@ class MPVPlayer(QMainWindow):
         return self.shuffle
 
     def toggle_fullscreen(self):
+        if getattr(self, "picture_in_picture_enabled", False):
+            # PiP ve tam ekran birbirini dislayan pencere modlaridir. F,
+            # cift tik veya menuden gelen gecikmis komut PiP'yi buyutemez.
+            return False
         if not self.video_frame.is_video_fullscreen:
             self.video_frame.enter_fullscreen()
         else:
             self.video_frame.exit_fullscreen()
+        return True
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if getattr(self, "picture_in_picture_enabled", False):
+            # Resize event'i icinde tekrar geometri yazmak ic ice olay
+            # uretir; ayni event turunun sonunda tek kez sinirla.
+            if not getattr(self, "_pip_bounds_pending", False):
+                self._pip_bounds_pending = True
+                QTimer.singleShot(0, self._keep_pip_on_screen)
+
+    def _keep_pip_on_screen(self):
+        self._pip_bounds_pending = False
+        if getattr(self, "picture_in_picture_enabled", False):
+            keep_pip_window_on_screen(self)
+
+    def set_window_opacity_percent(self, percent):
+        """Pencere opaklığını ses çubuğu gibi ayarlanabilir biçimde uygular."""
+        try:
+            percent = int(round(float(percent)))
+        except (TypeError, ValueError):
+            percent = 100
+        percent = max(MIN_OPACITY_PERCENT, min(100, percent))
+        self.setWindowOpacity(percent / 100.0)
+        self.window_opacity_percent = percent
+        self.window_transparency_enabled = percent < 100
+        if self.title_bar is not None:
+            self.title_bar.update_window_mode_state()
+        return percent
+
+    def toggle_picture_in_picture(self, enabled=None):
+        """Aynı libmpv HWND'sini küçük, resizable ve üstte tutulan moda alır."""
+        target = (not self.picture_in_picture_enabled
+                  if enabled is None else bool(enabled))
+        if target == self.picture_in_picture_enabled:
+            return target
+
+        if target:
+            if self.video_frame.is_video_fullscreen:
+                self.video_frame.exit_fullscreen()
+            self._pip_restore_maximized = self.isMaximized()
+            self._pip_restore_geometry = self.normalGeometry()
+            self._pip_restore_minimum = self.minimumSize()
+            title_bar = self.title_bar
+            self._pip_title_bar_was_visible = bool(
+                title_bar is not None and title_bar.isVisible())
+            if title_bar is not None:
+                title_bar.hide_transparency_control()
+            self.setMinimumSize(PIP_MIN_SIZE)
+            self.showNormal()
+            self.setGeometry(pip_geometry_for(self))
+            # Windows'ta showNormal(), parent durumuyla birlikte daha once
+            # gizlenen child basligi yeniden gosterebilir. PiP basliksiz olma
+            # sozlesmesi bu durum degisiminden SONRA uygulanmalidir.
+            if title_bar is not None:
+                title_bar.hide()
+            self._title_bar_raise_pending = False
+            if not set_native_topmost(self, True):
+                # PiP'nin temel vaadi üstte kalmaktır; bu sağlanamıyorsa
+                # küçük pencere modunda sessizce bırakılmaz.
+                if self._pip_restore_maximized:
+                    self.showMaximized()
+                elif self._pip_restore_geometry is not None:
+                    self.setGeometry(self._pip_restore_geometry)
+                if self._pip_restore_minimum is not None:
+                    self.setMinimumSize(self._pip_restore_minimum)
+                if title_bar is not None and self._pip_title_bar_was_visible:
+                    title_bar.show()
+                self._pip_restore_geometry = None
+                self._pip_restore_maximized = False
+                self._pip_restore_minimum = None
+                self._pip_title_bar_was_visible = False
+                return False
+            self.picture_in_picture_enabled = True
+            self.video_frame.set_picture_in_picture_mode(True)
+        else:
+            if not set_native_topmost(self, False):
+                # TOPMOST gerçekten bırakılamadıysa durumun kapandığını
+                # söylemek yanlış ve şaşırtıcı olur; mevcut PiP korunur.
+                return True
+            self.picture_in_picture_enabled = False
+            self.video_frame.set_picture_in_picture_mode(False)
+            if self._pip_restore_minimum is not None:
+                self.setMinimumSize(self._pip_restore_minimum)
+            if self._pip_restore_maximized:
+                self.showMaximized()
+            elif self._pip_restore_geometry is not None:
+                self.showNormal()
+                self.setGeometry(self._pip_restore_geometry)
+            self._pip_restore_geometry = None
+            self._pip_restore_maximized = False
+            self._pip_restore_minimum = None
+            title_bar = self.title_bar
+            if title_bar is not None and self._pip_title_bar_was_visible:
+                title_bar.show()
+                self.ensure_title_bar_on_top()
+            self._pip_title_bar_was_visible = False
+
+        if self.title_bar is not None:
+            self.title_bar.update_window_mode_state()
+        self.video_frame.update_overlay_geometry()
+        return self.picture_in_picture_enabled
 
     def restore_default_window_size(self):
         """Pencere modunda Esc ile dengeli varsayılan boyuta dön ve ortala."""
@@ -819,7 +941,9 @@ class MPVPlayer(QMainWindow):
         if key == Qt.Key.Key_Space:
             play_pause(self)
         elif key == Qt.Key.Key_Escape:
-            if self.video_frame.is_video_fullscreen:
+            if getattr(self, "picture_in_picture_enabled", False):
+                self.toggle_picture_in_picture(False)
+            elif self.video_frame.is_video_fullscreen:
                 self.video_frame.exit_fullscreen()
             else:
                 self.restore_default_window_size()

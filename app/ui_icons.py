@@ -249,6 +249,27 @@ def _draw_close(painter, size, colour):
     painter.drawLine(QPointF(right, left), QPointF(left, right))
 
 
+def _draw_transparency(painter, size, colour):
+    """Üst üste iki yarı saydam pencereyi anlatan sade simge."""
+    _stroke_pen(painter, size, colour, 0.055)
+    painter.drawRoundedRect(QRectF(size * 0.20, size * 0.20,
+                                   size * 0.46, size * 0.46),
+                            size * 0.05, size * 0.05)
+    painter.drawRoundedRect(QRectF(size * 0.34, size * 0.34,
+                                   size * 0.46, size * 0.46),
+                            size * 0.05, size * 0.05)
+
+
+def _draw_picture_in_picture(painter, size, colour):
+    """Büyük ekran içinde sağ altta duran küçük oynatma penceresi."""
+    _stroke_pen(painter, size, colour, 0.055)
+    painter.drawRoundedRect(QRectF(size * 0.16, size * 0.20,
+                                   size * 0.68, size * 0.58),
+                            size * 0.05, size * 0.05)
+    painter.fillRect(QRectF(size * 0.48, size * 0.48,
+                            size * 0.27, size * 0.20), colour)
+
+
 _PAINTERS = {
     "play": _draw_play,
     "pause": _draw_pause,
@@ -265,6 +286,8 @@ _PAINTERS = {
     "minimize": _draw_minimize,
     "maximize": _draw_maximize,
     "restore": _draw_restore,
+    "transparency": _draw_transparency,
+    "picture_in_picture": _draw_picture_in_picture,
     "close": _draw_close,
 }
 

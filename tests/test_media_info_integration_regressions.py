@@ -49,6 +49,7 @@ PLAYER_METHODS = (
     "setup_video_adjustments", "show_about", "show_log_management",
     "show_media_info", "show_playlist", "show_shortcuts",
     "show_subtitle_settings", "stop", "take_screenshot", "toggle_fullscreen",
+    "toggle_picture_in_picture",
     "toggle_mute", "toggle_shuffle", "toggle_subtitles",
     "open_path", "seek_relative", "select_audio_track", "select_audio_device",
     "select_subtitle_language", "seek_position", "set_playback_speed",

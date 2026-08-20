@@ -6,10 +6,10 @@ Sinematik arayüzün parçasıdır ve normal açılışta kullanılır. Klasik Q
 gizlenir ama aksiyonları yaşamaya devam eder; üç nokta menüsü mevcut QMenu
 nesnelerini yeniden kullanır, kopya davranış üretmez.
 """
-from PyQt6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt
+from PyQt6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, QTimer
 from PyQt6.QtGui import QCursor
-from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QMenu,
-                             QPushButton, QSizePolicy, QWidget)
+from PyQt6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel, QMenu,
+                             QPushButton, QSizePolicy, QSlider, QWidget)
 
 from app.app_icon import application_icon
 from app.ui_icons import make_media_icon
@@ -75,6 +75,9 @@ class TitleBar(QWidget):
         super().__init__(player)
         self.player = player
         self._overflow_menu = None
+        self.transparency_popup = None
+        self.transparency_slider = None
+        self.transparency_value_label = None
         self.setObjectName("modernTitleBar")
         self.setFixedHeight(TITLE_BAR_HEIGHT)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -155,6 +158,22 @@ class TitleBar(QWidget):
 
         layout.addStretch(1)
 
+        self.transparency_button = self._make_button(
+            "titleTransparency", "transparency", tr("Şeffaflık"))
+        self.transparency_button.clicked.connect(self.show_transparency_control)
+        layout.addWidget(self.transparency_button, 0,
+                         Qt.AlignmentFlag.AlignVCenter)
+
+        self.picture_in_picture_button = self._make_button(
+            "titlePictureInPicture", "picture_in_picture",
+            tr("Resim İçinde Resim"))
+        self.picture_in_picture_button.clicked.connect(
+            lambda: self.player.toggle_picture_in_picture())
+        layout.addWidget(self.picture_in_picture_button, 0,
+                         Qt.AlignmentFlag.AlignVCenter)
+
+        # Kullanıcı kararı: küçültme simgesi önceki konumundan tam iki sıra
+        # sağa taşındı; şeffaflık ve PiP onun solunda kalır.
         self.minimize_button = self._make_button(
             "titleMinimize", "minimize", tr("Küçült"))
         self.minimize_button.clicked.connect(lambda: self.player.showMinimized())
@@ -188,6 +207,70 @@ class TitleBar(QWidget):
         return button
 
     # --- Menü ---
+
+    def _build_transparency_control(self):
+        popup = QFrame(self, Qt.WindowType.Popup |
+                       Qt.WindowType.FramelessWindowHint)
+        popup.setObjectName("transparencyPopup")
+        popup.setStyleSheet(
+            "QFrame#transparencyPopup { background: #1E252C; "
+            "border: 1px solid #36414C; border-radius: 7px; } "
+            "QSlider::groove:horizontal { height: 4px; background: #4A5562; "
+            "border-radius: 2px; } "
+            f"QSlider::sub-page:horizontal {{ height: 4px; background: "
+            f"{TITLE_BAR_ACCENT}; border-radius: 2px; }} "
+            "QSlider::handle:horizontal { width: 12px; height: 12px; "
+            "margin: -4px 0; background: #FFFFFF; border-radius: 6px; } "
+            "QLabel { color: #E6EAF0; background: transparent; "
+            "min-width: 38px; }")
+        layout = QHBoxLayout(popup)
+        layout.setContentsMargins(12, 8, 10, 8)
+        layout.setSpacing(8)
+        slider = QSlider(Qt.Orientation.Horizontal, popup)
+        slider.setObjectName("transparencySlider")
+        slider.setRange(35, 100)
+        slider.setSingleStep(1)
+        slider.setPageStep(5)
+        slider.setFixedWidth(125)
+        slider.setAccessibleName(tr("Şeffaflık Seviyesi"))
+        label = QLabel("%100", popup)
+        label.setObjectName("transparencyValue")
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        slider.valueChanged.connect(self._transparency_value_changed)
+        layout.addWidget(slider)
+        layout.addWidget(label)
+        popup.adjustSize()
+        self.transparency_popup = popup
+        self.transparency_slider = slider
+        self.transparency_value_label = label
+        return popup
+
+    def _transparency_value_changed(self, value):
+        value = int(value)
+        self.transparency_value_label.setText(f"%{value}")
+        self.player.set_window_opacity_percent(value)
+
+    def show_transparency_control(self):
+        popup = self.transparency_popup or self._build_transparency_control()
+        if popup.isVisible():
+            popup.hide()
+            return
+        value = int(getattr(self.player, "window_opacity_percent", 100))
+        self.transparency_slider.blockSignals(True)
+        self.transparency_slider.setValue(value)
+        self.transparency_slider.blockSignals(False)
+        self.transparency_value_label.setText(f"%{value}")
+        popup.adjustSize()
+        origin = self.transparency_button.mapToGlobal(
+            QPoint(self.transparency_button.width() - popup.width(),
+                   self.transparency_button.height() + 4))
+        popup.move(origin)
+        popup.show()
+        popup.raise_()
+
+    def hide_transparency_control(self):
+        if self.transparency_popup is not None:
+            self.transparency_popup.hide()
 
     def build_overflow_menu(self):
         """Kalıcı tek kök menüyü tazeler.
@@ -282,7 +365,11 @@ class TitleBar(QWidget):
             self.player.showNormal()
         else:
             self.player.showMaximized()
+        # Windows pencere durumunu aynı çağrı yığını içinde her zaman
+        # yayınlamaz. Bir sonraki Qt turundaki ikinci okuma ikon/tooltip'in
+        # eski durumda kalmasını engeller.
         self.update_maximize_state()
+        QTimer.singleShot(0, self.update_maximize_state)
 
     def update_maximize_state(self):
         maximized = self.player.isMaximized()
@@ -294,6 +381,19 @@ class TitleBar(QWidget):
         self.maximize_button.setIcon(make_media_icon(
             "restore" if maximized else "maximize",
             self.maximize_button.iconSize().width()))
+
+    def update_window_mode_state(self):
+        """Şeffaflık/PiP erişilebilir adlarını gerçek durumla eşitler."""
+        percent = int(getattr(self.player, "window_opacity_percent", 100))
+        transparency_label = f"{tr('Şeffaflık')}: %{percent}"
+        self.transparency_button.setAccessibleName(transparency_label)
+        self.transparency_button.setToolTip(transparency_label)
+
+        pip = bool(getattr(self.player, "picture_in_picture_enabled", False))
+        pip_label = (tr("Resim İçinde Resimden Çık") if pip
+                     else tr("Resim İçinde Resim"))
+        self.picture_in_picture_button.setAccessibleName(pip_label)
+        self.picture_in_picture_button.setToolTip(pip_label)
 
     def can_resize_window(self):
         return not (self.player.isMaximized() or self.player.isFullScreen()
@@ -445,12 +545,19 @@ class FramelessResizeFilter(QObject):
         if watched not in self.targets:
             return False
         event_type = event.type()
-        if event_type in (QEvent.Type.WindowDeactivate, QEvent.Type.Hide,
-                          QEvent.Type.Leave):
+        if event_type in (QEvent.Type.WindowDeactivate, QEvent.Type.Hide):
             # Odak kaybı / gizlenme / yüzeyden çıkış: bekleyen sürükleme ve
             # geçici imleç güvenle bırakılır.
             self._end_manual_resize()
             self._restore_resize_cursor()
+            return False
+        if event_type == QEvent.Type.Leave:
+            # Overlay birden çok child yüzeyden oluşur. Child A'nın Leave'i
+            # child B'nin Enter'ından hemen önce gelebilir; burada imleci
+            # anında sıfırlamak alt köşelerde resize okunu yok ediyordu.
+            self._end_manual_resize()
+            self._restore_resize_cursor()
+            QTimer.singleShot(0, self._refresh_resize_cursor_from_global)
             return False
         if event_type in (QEvent.Type.WindowStateChange,
                           QEvent.Type.WindowActivate, QEvent.Type.Show):
@@ -547,6 +654,35 @@ class FramelessResizeFilter(QObject):
             return
         self._apply_resize_cursor(watched,
                                   resize_edges_at(self.player.rect(), local))
+
+    def _refresh_resize_cursor_from_global(self):
+        """Leave sonrasında gerçek hedef/konumla kenar imlecini tazeler."""
+        if not self.title_bar.can_resize_window():
+            self._restore_resize_cursor()
+            return
+        try:
+            point = QCursor.pos()
+            watched = QApplication.widgetAt(point)
+            local = self.player.mapFromGlobal(point)
+        except (AttributeError, RuntimeError):
+            self._restore_resize_cursor()
+            return
+        edges = resize_edges_at(self.player.rect(), local)
+        if not edges:
+            self._restore_resize_cursor()
+            return
+        # Windows frameless pencerenin en dış pikselinde widgetAt() `None`
+        # döndürebilir. Nokta yine de ana pencerenin doğrulanmış resize
+        # bandındaysa ana yüzey güvenli yedektir; pencere dışında bu yol
+        # çalışmaz çünkü `edges` tek başına yeterli sayılmaz.
+        if watched not in self.targets:
+            global_rect = QRect(self.player.mapToGlobal(QPoint(0, 0)),
+                                self.player.size())
+            if not global_rect.contains(point):
+                self._restore_resize_cursor()
+                return
+            watched = self.player
+        self._apply_resize_cursor(watched, edges)
 
     def _apply_resize_cursor(self, watched, edges):
         """Resize imlecini olayın geldiği GERÇEK widget'a uygular.

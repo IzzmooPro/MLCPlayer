@@ -1128,6 +1128,7 @@ def frame_env(tmp_path):
                      "select_subtitle_language", "open_subtitle",
                      "open_subtitle_center", "show_subtitle_settings",
                      "toggle_fullscreen", "take_screenshot",
+                     "toggle_picture_in_picture",
                      "setup_video_adjustments", "seek_relative", "goto_time",
                      "set_playback_speed", "set_loop_file",
                      "set_loop_playlist", "toggle_shuffle", "close",

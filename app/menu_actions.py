@@ -216,8 +216,10 @@ def setup_menu(player):
 
     # Altyazı Merkezi: yerel dosya eklemenin hemen ardından, indirme yolu.
     # Kısayol verilmez; mevcut kısayollarla çakışma üretmez.
+    from app.config import SUBTITLE_SEARCH_UI_ENABLED
     subtitle_find_action = QAction(tr("Altyazı Bul…"), player)
     subtitle_find_action.triggered.connect(player.open_subtitle_center)
+    subtitle_find_action.setVisible(SUBTITLE_SEARCH_UI_ENABLED)
     subtitle_menu.addAction(subtitle_find_action)
     player.subtitle_find_action = subtitle_find_action
 

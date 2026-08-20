@@ -30,8 +30,8 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
 WINDOW_TITLE_PREFIX = "Medya Bilgisi"
 CLOSE_BUTTON_TEXT = "Kapat"
 
-DEFAULT_SIZE = (680, 520)
-MINIMUM_SIZE = (560, 380)
+DEFAULT_SIZE = (600, 520)
+MINIMUM_SIZE = (520, 380)
 
 STYLE = """
 QDialog#mediaInfo { background-color: #151A1F; }
@@ -60,7 +60,7 @@ class _BoundedScrollArea(QScrollArea):
     buyutuyordu. Sabit tercih, kaydirmayi tek buyume yolu birakir.
     """
 
-    HINT = QSize(520, 320)
+    HINT = QSize(460, 320)
 
     def sizeHint(self):
         return QSize(self.HINT)

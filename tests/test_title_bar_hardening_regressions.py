@@ -295,6 +295,37 @@ def test_filter_tracks_its_installed_targets(frameless_window):
     assert window.central_widget in resize_filter.targets
 
 
+def test_leave_between_bottom_corner_children_keeps_diagonal_cursor(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window()
+    target = window.central_widget
+    point = window.mapToGlobal(QPoint(window.width() - 1,
+                                      window.height() - 1))
+    monkeypatch.setattr("app.title_bar.QCursor.pos", lambda: point)
+    monkeypatch.setattr("app.title_bar.QApplication.widgetAt",
+                        lambda _point: target)
+
+    resize_filter._refresh_resize_cursor_from_global()
+
+    assert resize_filter._cursor_state[0] is target
+    assert resize_filter._cursor_state[3] == Qt.CursorShape.SizeFDiagCursor
+
+
+def test_windows_outer_bottom_corner_uses_player_when_widget_at_is_none(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window()
+    point = window.mapToGlobal(QPoint(window.width() - 1,
+                                      window.height() - 1))
+    monkeypatch.setattr("app.title_bar.QCursor.pos", lambda: point)
+    monkeypatch.setattr("app.title_bar.QApplication.widgetAt",
+                        lambda _point: None)
+
+    resize_filter._refresh_resize_cursor_from_global()
+
+    assert resize_filter._cursor_state[0] is window
+    assert resize_filter._cursor_state[3] == Qt.CursorShape.SizeFDiagCursor
+
+
 def test_remove_uninstalls_from_every_tracked_target(frameless_window):
     app, window, bar, resize_filter = frameless_window()
     started = spy_on_resize(resize_filter)

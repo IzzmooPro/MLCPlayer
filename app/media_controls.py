@@ -3,6 +3,7 @@
 import os
 import re
 import time
+import math
 from urllib.parse import urlsplit
 from PyQt6.QtWidgets import QFileDialog, QMessageBox, QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem, QInputDialog, QLineEdit, QStyle
 from PyQt6.QtCore import QDateTime, QStandardPaths
@@ -374,6 +375,7 @@ def open_path(player, path):
         player._audio_menu_file = ""
         player._chapter_menu_file = ""
         player._pending_subs = []
+        player._eof_rewound = False
         player.current_file = path
         if os.path.isfile(path):
             player.last_dir = os.path.dirname(path)
@@ -381,7 +383,7 @@ def open_path(player, path):
         _clear_title_bar_raise(player)
         _reset_subtitle_timing_for_new_media(player)
         _hide_subtitles_for_new_media(player)
-        player.mpv_player.play(path)
+        _load_media_without_blocking_ui(player.mpv_player, path)
         # Başarıyla doğrudan açılan yerel medya da görünür playlist'in tek
         # öğesidir. Böylece ekranda oynayan dosya ile sağ panel aynı modeli taşır.
         player.playlist = [path]
@@ -594,7 +596,8 @@ def open_url(player):
             _clear_title_bar_raise(player)
             _reset_subtitle_timing_for_new_media(player)
             _hide_subtitles_for_new_media(player)
-            player.mpv_player.play(url)
+            player._eof_rewound = False
+            _load_media_without_blocking_ui(player.mpv_player, url)
             _mark_title_bar_raise(player)
             player.play_button.setIcon(player.pause_icon)
             player.is_paused = False
@@ -766,7 +769,11 @@ def play_pause(player):
 
 def stop(player):
     try:
-        player.mpv_player.stop()
+        command_async = getattr(player.mpv_player, "command_async", None)
+        if callable(command_async):
+            command_async("stop")
+        else:
+            player.mpv_player.stop()
     except Exception as e:
         safe_console(f"MPV stop error: {e}")
     player.play_button.setIcon(player.play_icon)
@@ -792,6 +799,55 @@ def stop(player):
     if hasattr(player, 'total_time_label'):
         player.total_time_label.setText("00:00")
     player.video_frame.placeholder_label.show()
+
+
+def _load_media_without_blocking_ui(mpv_player, path):
+    """Dosya yükleme komutunu destekleniyorsa mpv olay kuyruğuna bırakır."""
+    command_async = getattr(mpv_player, "command_async", None)
+    if callable(command_async):
+        command_async("loadfile", path, "replace")
+        return
+    mpv_player.play(path)
+
+
+def finish_media_at_start(player):
+    """Doğal sona bir kez ulaşıldığında başa sar, duraklat ve listede kal."""
+    if getattr(player, "_eof_rewound", False):
+        return False
+    player._eof_rewound = True
+    try:
+        player.mpv_player.pause = True
+        command_async = getattr(player.mpv_player, "command_async", None)
+        if callable(command_async):
+            command_async("seek", 0, "absolute+exact")
+        else:
+            player.mpv_player.command("seek", 0, "absolute+exact")
+    except Exception as e:
+        safe_console(f"Could not rewind finished media: {type(e).__name__}")
+        player._eof_rewound = False
+        return False
+    player.position = 0
+    player.is_paused = True
+    player.play_button.setIcon(player.play_icon)
+    if player.video_frame.control_overlay is not None:
+        player.video_frame.update_overlay_play_state()
+    return True
+
+
+def natural_end_should_rewind(player):
+    """Sonlu yerel/URL medyanın doğal sona gerçekten ulaştığını ölçer."""
+    try:
+        duration = float(getattr(player, "duration", 0) or 0)
+        position = float(getattr(player, "position", 0) or 0)
+    except (TypeError, ValueError):
+        return False
+    return (bool(getattr(player, "current_file", ""))
+            and bool(getattr(player, "_core_idle", False))
+            and not bool(getattr(player, "loop_file", False))
+            and math.isfinite(duration)
+            and math.isfinite(position)
+            and duration > 0
+            and position >= duration - 0.2)
 
 def set_volume(player, volume):
     try:
@@ -917,7 +973,7 @@ def play_from_playlist(player, index):
     """Listedeki `index` girdisini oynatır.
 
     Dönüş değeri çağıranın GERİ ALMA kararı içindir: geçersiz index veya
-    senkron oynatma hatasında `False`, başarıda `True`. Mevcut çağıranlar
+    yükleme komutu gönderim hatasında `False`, başarıda `True`. Mevcut çağıranlar
     dönüşü yok sayar; davranışları değişmez.
     """
     if 0 <= index < len(player.playlist):
@@ -930,13 +986,14 @@ def play_from_playlist(player, index):
             player._audio_menu_file = ""
             player._chapter_menu_file = ""
             player._pending_subs = []
+            player._eof_rewound = False
             clear_url_loading(player)
             player.current_file = file_path
             player._load_started_at = time.time()
             _clear_title_bar_raise(player)
             _reset_subtitle_timing_for_new_media(player)
             _hide_subtitles_for_new_media(player)
-            player.mpv_player.play(file_path)
+            _load_media_without_blocking_ui(player.mpv_player, file_path)
             _mark_title_bar_raise(player)
             player.play_button.setIcon(player.pause_icon)
             player.is_paused = False
