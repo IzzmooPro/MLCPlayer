@@ -359,6 +359,8 @@ def test_the_no_network_behaviour_is_split_by_phase():
             if line.strip().startswith("|") and "Ag yok" in line]
     assert len(rows) >= 2, (
         f"'Ag yok' asamaya gore ayrilmamis; bulunan satir: {rows}")
+    assert "yerel tag" in text and "temizlikten once" in text, (
+        "ag yokken ayni surumun yerel tag korumasi belgelenmemis")
 
 
 # --- 7. Denetim kaydi -------------------------------------------------
@@ -1540,7 +1542,7 @@ def test_v0_38_candidate_baseline_is_recorded_in_all_status_documents():
         block = flat(record)
         for fact in (
             "v0.38 aday tabanı",
-            "v0.37 sonrasında 8 commit",
+            "aceccf4..7ee2437 aralığında 8 aday-tabanı commiti",
             "7ee2437",
             "4626 passed / 26 skipped / 0 failed",
             "32370784900",

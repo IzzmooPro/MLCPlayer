@@ -6,8 +6,9 @@ Güncelleme: 20 Ağustos 2026
 
 **Snapshot `7ee2437`; ağaç temiz ve `master`, `origin/master ile eşit
 (0 ileri / 0 geri)`.** v0.37 tag/push/GitHub Release ile yayımlandı ve final
-artifact fiziksel kabul matrisi başarılıdır. v0.37 sonrasında 8 commit vardır;
-bu küme **v0.38 aday tabanı** olarak izlenir, yayın adayı olarak değil.
+artifact fiziksel kabul matrisi başarılıdır. DOC-002 checkpoint'i hariç,
+aceccf4..7ee2437 aralığında 8 aday-tabanı commiti vardır; bu küme **v0.38
+aday tabanı** olarak izlenir, yayın adayı olarak değil.
 
 Güncel GitHub Actions koşumu `32370784900`: kilitli bağımlılık, compile,
 çeviri/whitespace ve hosted tam paket **4626 passed / 26 skipped / 0 failed**.

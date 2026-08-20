@@ -199,17 +199,18 @@ Adım (i)'de her varlık için üç değer karşılaştırılır: **ad**, **boyu
 | Artifact veya `.sig` eksik | (e) kapı | eksik release |
 | İmza geçersiz / başka EXE'ye ait | (e) kapı | güncelleyici fail-closed reddeder |
 | Ayna boyut/SHA-256 tutmuyor | (e) kapı | GPLv3 §6 yükümlülüğü |
-| Sürüm zaten yayında | (b) build | `check_publishable.py`, boşa build önlenir |
-| Ağ yok — **(b) build sırasında** | **durmaz** | `check_publishable` uyarır, build devam edebilir; ağsız makinede derleme engellenmemeli |
+| Sürüm yerel veya uzak tag olarak zaten var | (b) build | `check_publishable.py`, kabul edilmiş aynı sürüm çıktılarının temizlenip ezilmesini önler |
+| Ağ yok — **(b) build sırasında** | **koşullu** | aynı sürümün yerel tag'i varsa DURUR; tag yoksa `check_publishable` uyarır ve build devam edebilir |
 | Ağ yok — **(g) / (h) / (i) sırasında** | **DURUR** | uzak tag ve varlık eşliği KANITLANAMAZ; doğrulanmamış yayın açılmaz |
 | Uzak tag ≠ HEAD | (g) | asıl koruma; draft açılmaz |
 | Uzak varlık eşleşmiyor | (i) | draft yayımlanmaz |
 
 "Ağ yok" iki ayrı durumdur ve tek bir kuralla yönetilmez. Build
-aşamasında ağ yalnız **bilgi** verir (bu sürüm zaten yayında mı);
-yokluğu uyarıyla geçilir. Yayın aşamasında ağ **kanıt** kaynağıdır;
-yokluğunda uzak tag'in peeled commit'i ve varlık özetleri
-doğrulanamayacağı için yayın durur.
+aşamasında uzak sorgu yalnız **bilgi** verir; fakat checkout'ta aynı
+sürümün yerel tag'i bulunursa bu ayrıca kanıttır ve temizlikten önce build
+durur. Yerel tag de yoksa ağ yokluğu uyarıyla geçilir. Yayın aşamasında ağ
+**kanıt** kaynağıdır; yokluğunda uzak tag'in peeled commit'i ve varlık
+özetleri doğrulanamayacağı için yayın durur.
 
 ## Tarihsel tag kusuru (v0.35 / v0.36)
 

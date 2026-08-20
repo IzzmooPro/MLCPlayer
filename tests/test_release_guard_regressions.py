@@ -77,8 +77,44 @@ def test_missing_network_warns_but_does_not_stop_the_chain():
     assert "UYARI" in message and "elle dogrulayin" in message
 
 
+def test_a_local_release_tag_blocks_an_offline_rebuild(monkeypatch):
+    """Ağ yokluğu yayımlanmış yerel artefaktı ezmeye izin vermemeli."""
+    monkeypatch.delenv("MLC_ALLOW_REPUBLISH", raising=False)
+
+    ok, message = guard.evaluate("v0.37", None, local_tagged=True)
+
+    assert not ok
+    assert "YEREL" in message and "ZATEN" in message
+
+
+def test_a_local_rebuild_still_requires_the_explicit_override(monkeypatch):
+    monkeypatch.setenv("MLC_ALLOW_REPUBLISH", "1")
+
+    ok, message = guard.evaluate("v0.37", None, local_tagged=True)
+
+    assert ok
+    assert "YEREL" in message and "MLC_ALLOW_REPUBLISH=1" in message
+
+
+def test_the_local_tag_probe_does_not_use_a_shell(monkeypatch):
+    calls = []
+
+    def run(args, **kwargs):
+        calls.append((args, kwargs))
+        return type("Result", (), {"returncode": 0})()
+
+    monkeypatch.setattr(guard.subprocess, "run", run)
+
+    assert guard.local_tag_exists("v0.37") is True
+    assert calls[0][0] == [
+        "git", "rev-parse", "--verify", "--quiet", "refs/tags/v0.37^{}"]
+    assert calls[0][1]["shell"] is False
+
+
 def test_build_chain_runs_the_guard():
     """Kontrol betiği zincire bağlı değilse hiçbir şeyi korumaz."""
     chain = (ROOT / "packaging" / "build_release.bat").read_text(
         encoding="utf-8", errors="ignore")
     assert "check_publishable.py" in chain
+    assert chain.index("check_publishable.py") < chain.index(
+        "STEP 2/8  Cleaning previous output")

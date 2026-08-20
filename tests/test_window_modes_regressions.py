@@ -121,3 +121,28 @@ def test_pip_stays_enabled_if_windows_cannot_release_topmost(
     assert MPVPlayer.toggle_picture_in_picture(window, True) is True
     assert MPVPlayer.toggle_picture_in_picture(window, False) is True
     assert window.picture_in_picture_enabled is True
+
+
+def test_failed_pip_entry_restores_the_previous_fullscreen_mode(
+        mode_window, monkeypatch):
+    app, window = mode_window
+    transitions = []
+    window.video_frame.is_video_fullscreen = True
+
+    def exit_fullscreen():
+        transitions.append("exit")
+        window.video_frame.is_video_fullscreen = False
+
+    def enter_fullscreen():
+        transitions.append("enter")
+        window.video_frame.is_video_fullscreen = True
+
+    window.video_frame.exit_fullscreen = exit_fullscreen
+    window.video_frame.enter_fullscreen = enter_fullscreen
+    monkeypatch.setattr("app.player.set_native_topmost",
+                        lambda _window, _enabled: False)
+
+    assert MPVPlayer.toggle_picture_in_picture(window, True) is False
+    assert transitions == ["exit", "enter"]
+    assert window.video_frame.is_video_fullscreen is True
+    assert window.picture_in_picture_enabled is False

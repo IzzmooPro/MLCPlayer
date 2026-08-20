@@ -19,7 +19,8 @@ final artifact fiziksel kabul matrisi başarılıdır. Bu tarihsel yayın kanıt
 korunur ve sonraki kaynak değişikliklerine aktarılmaz.
 
 `master` HEAD `7ee2437` ve `origin/master ile eşit (0 ileri / 0 geri)`.
-v0.37 sonrasında 8 commit vardır: kullanıcı kurulum belgeleri; pencere
+DOC-002 checkpoint'i hariç, aceccf4..7ee2437 aralığında 8 aday-tabanı
+commiti vardır: kullanıcı kurulum belgeleri; pencere
 şeffaflığı, PiP ve oynatma yaşam döngüsü; kilitli Windows CI; checkout
 satır-sonu kararlılığı; hosted libmpv sınırı ve doğrusal yol gizleme taraması.
 Bu küme **v0.38 aday tabanı**dır; henüz bir sürüm adayı değildir.
@@ -32,7 +33,7 @@ kurulu v0.37 önceki yayın artifact'ını göstermeye devam eder. Dolayısıyla
 kurulu v0.37, güncel PiP/pencere/yaşam-döngüsü kaynağının fiziksel kanıtı
 sayılamaz.
 
-Sıradaki sıra: bu belge checkpoint'ini commit etmek; sekiz commitlik v0.38
+Sıradaki sıra: sekiz commitlik v0.38
 aday tabanını kaynak/etki açısından denetlemek; güncel VLSub/OpenSubtitles ve
 VLC kaynak araştırmasını tamamlamak; hukuki/uyumluluk kontrol listesini
 yenilemek. Ancak bunlardan sonra ayrı onaylarla sürüm numarası, build,

@@ -849,7 +849,8 @@ class MPVPlayer(QMainWindow):
             return target
 
         if target:
-            if self.video_frame.is_video_fullscreen:
+            was_fullscreen = bool(self.video_frame.is_video_fullscreen)
+            if was_fullscreen:
                 self.video_frame.exit_fullscreen()
             self._pip_restore_maximized = self.isMaximized()
             self._pip_restore_geometry = self.normalGeometry()
@@ -883,6 +884,10 @@ class MPVPlayer(QMainWindow):
                 self._pip_restore_maximized = False
                 self._pip_restore_minimum = None
                 self._pip_title_bar_was_visible = False
+                if was_fullscreen:
+                    # PiP girisi atomik olmali: native TOPMOST kurulamazsa
+                    # kullanicinin onceki tam ekran modu da geri gelir.
+                    self.video_frame.enter_fullscreen()
                 return False
             self.picture_in_picture_enabled = True
             self.video_frame.set_picture_in_picture_mode(True)

@@ -14,12 +14,13 @@ published one BY THE CLIENT'S OWN measure. A tag that falls into the trap
 is stopped before it can become a release.
 
 Exit codes:
-    0  publishable (or no network - a warning is printed, the chain goes on)
+    0  publishable (or no network without a matching local release tag)
     1  NOT PUBLISHABLE (clients cannot see this version, or the tag exists)
 """
 
 import json
 import os
+import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -30,6 +31,29 @@ from app.config import APP_VERSION                      # noqa: E402
 from app.updater import GITHUB_REPO, is_newer_version   # noqa: E402
 
 TIMEOUT = 8
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def local_tag_exists(version):
+    """`True` when this checkout already contains the exact release tag.
+
+    The probe is deliberately read-only and shell-free. `None` means Git or
+    the repository state could not be inspected; the remote check still gets
+    a chance to decide.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--verify", "--quiet",
+             f"refs/tags/{version}^{{}}"],
+            cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            timeout=5, check=False, shell=False)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode == 0:
+        return True
+    if result.returncode == 1:
+        return False
+    return None
 
 
 def published_tags():
@@ -46,8 +70,17 @@ def published_tags():
             if item.get("tag_name")]
 
 
-def evaluate(version, tags):
+def evaluate(version, tags, local_tagged=False):
     """`(publishable, message)`. `tags` is None when there is no network."""
+    if local_tagged is True:
+        if os.environ.get("MLC_ALLOW_REPUBLISH") == "1":
+            return True, (f"[UYARI] {version} YEREL etiketi ZATEN var; "
+                          "MLC_ALLOW_REPUBLISH=1 verildigi icin devam "
+                          "ediliyor.")
+        return False, (f"[HATA] {version} YEREL etiketi ZATEN var. Kabul "
+                       "edilmis ayni surum ciktilarini ezmemek icin surumu "
+                       "yukseltin; bilincli yeniden uretim icin "
+                       "MLC_ALLOW_REPUBLISH=1 gerekir.")
     if tags is None:
         return True, ("[UYARI] GitHub'a ulasilamadi; surum karsilastirmasi "
                       "YAPILAMADI. Yayindan once elle dogrulayin.")
@@ -73,7 +106,9 @@ def evaluate(version, tags):
 
 
 def main():
-    publishable, message = evaluate(APP_VERSION, published_tags())
+    local_tagged = local_tag_exists(APP_VERSION)
+    tags = None if local_tagged is True else published_tags()
+    publishable, message = evaluate(APP_VERSION, tags, local_tagged)
     print(message)
     return 0 if publishable else 1
 

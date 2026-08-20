@@ -47,7 +47,7 @@ değişiklik henüz kalıcı değildir.
 - **Baslik:** v0.37 sonrası kaynak, CI ve kurulu artifact durumu belgelerde ayrışmıştı
 - **Onem:** Yüksek — yol haritası hâlâ tag/push beklerken v0.37 yayımlanmıştı; güncel kaynak kurulu eski artifact ile karıştırılabilirdi
 - **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → **COMMIT EDILDI**
-- **Kanit:** `docs/ROADMAP.md` ve `docs/PROJECT_STATUS.md` `master` için bayat **33 commit ileride** ve sırada v0.37 tag/push bilgisini taşıyordu. Salt-okunur denetimde v0.37 tag ve GitHub Release mevcut; `7ee2437` HEAD `origin/master ile eşit (0 ileri / 0 geri)` ve v0.37 sonrasında 8 commit bulundu.
+- **Kanit:** `docs/ROADMAP.md` ve `docs/PROJECT_STATUS.md` `master` için bayat **33 commit ileride** ve sırada v0.37 tag/push bilgisini taşıyordu. Salt-okunur denetimde v0.37 tag ve GitHub Release mevcut; `7ee2437` HEAD `origin/master ile eşit (0 ileri / 0 geri)` ve DOC-002 checkpoint'i hariç aceccf4..7ee2437 aralığında 8 aday-tabanı commiti bulundu.
 - **Guncel taban:** Sekiz commitlik küme **v0.38 aday tabanı**dır. GitHub Actions `32370784900` tam hosted sonucu **4626 passed / 26 skipped / 0 failed**; kilitli bağımlılık, compile ve çeviri/whitespace kapıları da geçti.
 - **Artifact siniri:** **v0.38 build yapılmadı**. Sürüm alanları ve kurulu v0.37 önceki final artifact'a aittir; kurulu v0.37 güncel PiP, pencere modları ve oynatma yaşam döngüsü kaynağının fiziksel kabulü sayılamaz.
 - **Ilk kirmizi:** Yeni belge sözleşmesi eski kayıtta **3 failed** verdi: güncel dal eşitliği, CI sonucu ve üç belgede ortak v0.38 aday tabanı yoktu.
