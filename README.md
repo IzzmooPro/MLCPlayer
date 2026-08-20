@@ -8,7 +8,8 @@
 
 MLC Player has one interface and commits to it: a frameless window, an
 auto-hiding control layer drawn over the video, a wide timeline, and a
-playlist docked inside the main window rather than floating above it. There
+playlist in an owned window beside the main window. The playlist follows the
+player but does not overlap the video or stay above other applications. There
 is no classic menu-and-panel mode to fall back to.
 
 *[Türkçe README](README.tr.md)*
@@ -24,9 +25,10 @@ MKA for audio. The extension only marks a file as a candidate — libmpv decides
 what actually plays. Audio files show their embedded cover art, or a matching
 image beside the file, instead of a black frame.
 
-**Playlist.** Docked in the main window with a draggable width, thumbnails
-generated in the background, natural `1-2-10` ordering, folder opening and
-drag-and-drop.
+**Playlist.** An owned window beside the main window, with a draggable width,
+thumbnails generated in the background, natural `1-2-10` ordering, folder
+opening and drag-and-drop. It does not overlap the video or float always on
+top.
 
 **Subtitle Centre.** Search, download and apply subtitles from OpenSubtitles.
 A downloaded subtitle is written next to the media as an atomic `.srt`.
@@ -59,21 +61,57 @@ tracebacks, with details available separately; remote addresses appear as
 
 ---
 
+## Quick start
+
+- Open one file with `Ctrl+O`, open a folder from `Media → Open Folder`, or
+  drag media onto the player. Use `Ctrl+P` to show the adjacent playlist.
+- Use `Ctrl+U` for a URL. Direct HTTP/HLS streams can work with the main
+  player; website extraction requires the Internet Video add-on described
+  below.
+- Matching local subtitles are detected automatically but stay hidden until
+  selected. `Subtitles → Find Subtitles…` opens the Subtitle Centre; searching
+  OpenSubtitles requires your own account credentials and API key.
+- `Tools → Language` selects the interface language after restart.
+  `Tools → Keyboard Shortcuts` lists every supported shortcut.
+
+---
+
 ## Install
 
-Download the latest `MLCPlayer_Setup_v*.exe` from
-**[Releases](https://github.com/IzzmooPro/MLCPlayer/releases/latest)** and run
-it. Windows 10 or 11, 64-bit. Installed size is roughly 300 MB, most of it
-libmpv and the media tooling.
+Download the files from the same entry on the
+**[Releases](https://github.com/IzzmooPro/MLCPlayer/releases/latest)** page:
 
-Each release also carries a `.sig` file — the publisher's signature over the
-installer's SHA-256. The player uses it to verify updates automatically; you
-can also check the digest by hand against the one printed in the release notes.
+1. Install the main player first with `MLCPlayer_Setup_v*.exe`.
+2. To play website URLs that need extraction, also install the matching
+   `MLCPlayer_InternetVideo_v*.exe`. This optional add-on supplies the bundled
+   yt-dlp and Deno components; it is not needed for local media or direct
+   HTTP/HLS streams.
+
+The ready installer requires Windows 10 or 11, 64-bit, and administrator
+approval. The main package contains the player and libmpv; the separate add-on
+keeps the large internet-video tooling out of installations that do not need
+it. Installed size therefore depends on whether the add-on is present.
+
+Each installer has a matching `.sig` file — the publisher's Ed25519 signature
+over the installer's SHA-256. Before an automatic update is allowed to run,
+the player verifies the published size, SHA-256 and signature; anything that
+does not match is deleted. You do not run the `.sig` file yourself.
 
 The installer is not yet code-signed, so Windows SmartScreen will warn about
 an unknown publisher on first run.
 
-Already installed? `Help → Check for updates` does the rest.
+Already installed? `Help → Check for updates` verifies and updates the main
+player. The built-in updater updates only the main player; if you use the
+Internet Video add-on, download and run its matching new version from the same
+release as a separate step.
+
+### Uninstall and user data
+
+Uninstalling either package keeps your settings and logs so an upgrade or
+reinstall does not erase your preferences. Logs are stored under
+`%APPDATA%\MLCPlayer\logs` and can be inspected or deleted safely from
+`Tools → Log Management`. The add-on has its own uninstaller; removing it
+disables website extraction without removing the main player.
 
 ---
 
@@ -81,8 +119,8 @@ Already installed? `Help → Check for updates` does the rest.
 
 The quickest path is `Start.bat`: it locates Python 3.12+, installs it only
 if missing, installs the packages from `requirements.txt` only if they are
-absent, and starts the player. `Start.bat -CheckOnly` verifies everything
-without launching.
+absent, verifies all three runtime binaries and starts the player.
+`Start.bat -CheckOnly` verifies everything without launching.
 
 Manually:
 
@@ -91,10 +129,12 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Requirements: Windows, Python 3.12+, and the runtime binaries in `bin/`
-(`mpv-2.dll`, `yt-dlp.exe`, `deno.exe`). Those binaries are not stored in the
-repository because of their size; their versions and SHA-256 digests are
-tracked in `bin/RUNTIME_MANIFEST.txt` and `bin/SHA256SUMS.txt`.
+Manual local media playback requires Windows, Python 3.12+ and
+`bin/mpv-2.dll`. Internet video extraction additionally requires
+`bin/yt-dlp.exe` and `bin/deno.exe`; direct HTTP/HLS playback remains an mpv
+capability. `Start.bat` currently requires all three binaries. They are not
+stored in the repository because of their size; their versions and SHA-256
+digests are tracked in `bin/RUNTIME_MANIFEST.txt` and `bin/SHA256SUMS.txt`.
 
 ### Tests
 

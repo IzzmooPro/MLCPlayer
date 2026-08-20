@@ -5,8 +5,10 @@ Windows için sinematik arayüzlü, libmpv tabanlı medya oynatıcı.
 *[English README](README.md) — GitHub ana sayfasında görünen sürüm.*
 
 Tek bir arayüz vardır: çerçevesiz pencere, video üzerinde otomatik gizlenen
-kontrol katmanı, geniş zaman çizgisi ve gömülü oynatma listesi paneli.
-Klasik menü/panel görünümü kaldırılmıştır.
+kontrol katmanı, geniş zaman çizgisi ve ana pencerenin yanında duran sahipli
+bağımsız pencere biçiminde oynatma listesi. Liste oynatıcıyı takip eder,
+videoyla kesişmez ve diğer uygulamaların üzerinde yüzmez. Klasik menü/panel
+görünümü kaldırılmıştır.
 
 ## Öne çıkanlar
 
@@ -14,15 +16,17 @@ Klasik menü/panel görünümü kaldırılmıştır.
   MP4/MKV/AVI/MOV/WMV/FLV/MPEG/M4V/WEBM/TS/M2TS/VOB/OGV/3GP/ASF/MXF, ses için
   MP3/WAV/FLAC/OGG/M4A/AAC/OPUS/WMA/APE/ALAC/AIFF/AC3/DTS/MKA. Uzantı yalnız
   aday belirler; gerçek desteği libmpv verir.
-- **Oynatma listesi:** ana pencereye gömülü, genişliği sürüklenebilir panel;
-  küçük resim üretimi, doğal `1-2-10` sıralaması, klasör açma ve sürükle-bırak.
+- **Oynatma listesi:** ana pencerenin yanında duran, genişliği sürüklenebilir
+  sahipli bağımsız pencere; küçük resim üretimi, doğal `1-2-10` sıralaması,
+  klasör açma ve sürükle-bırak. Videoyla kesişmez ve her zaman üstte kalmaz.
 - **Albüm kapağı:** ses dosyalarında gömülü kapak (yoksa klasördeki resim)
   video alanında gösterilir; siyah kare kalmaz.
 - **Tek kopya:** ikinci başlatma yeni pencere açmaz; açık pencere öne gelir ve
   dosya oraya yüklenir. Böylece iki kopya birbirinin ayarlarını ezmez.
 - **Güncelleme denetimi:** açılışta sessiz kontrol ve `Yardım → Güncellemeleri
-  Denetle`. İndirilen kurulum SHA-256 ile doğrulanır; doğrulanamayan dosya
-  çalıştırılmaz ve silinir. Kapanış üründen geçer, süreç zorla öldürülmez.
+  Denetle`. İndirilen kurulumun yayımlanan boyutu, SHA-256 özeti ve yayıncı
+  Ed25519 imzası doğrulanır; doğrulanamayan dosya çalıştırılmaz ve silinir.
+  Kapanış üründen geçer, süreç zorla öldürülmez.
 - **Altyazı Merkezi:** OpenSubtitles üzerinden arama, indirme ve uygulama.
   İndirilen altyazı medyanın yanına atomik `.srt` olarak yazılır.
 - **Altyazı görünümü:** yazı/kenarlık/arka plan rengi, boyut, kenarlık
@@ -39,21 +43,67 @@ Klasik menü/panel görünümü kaldırılmıştır.
 - **Gizlilik:** uzak adresler pencere başlığında ve `Son Açılanlar` içinde
   tam hâliyle saklanmaz; yalnız güvenli `host[:port]` gösterilir.
 
+## Hızlı başlangıç
+
+- Tek dosya için `Ctrl+O` kullanın, `Ortam → Klasör Aç` ile bir klasör seçin
+  veya medyayı oynatıcıya sürükleyin. Yan oynatma listesini `Ctrl+P` ile açın.
+- URL için `Ctrl+U` kullanın. Doğrudan HTTP/HLS akışları ana oynatıcıyla
+  çalışabilir; site çıkarımı aşağıda anlatılan İnternet Videosu ek paketini
+  gerektirir.
+- Eşleşen yerel altyazılar otomatik bulunur fakat siz seçene kadar gizli
+  kalır. `Alt Yazı → Altyazı Bul…` Altyazı Merkezini açar; OpenSubtitles
+  araması kendi hesap bilgileriniz ve API anahtarınızı gerektirir.
+- Arayüz dili `Araçlar → Dil` üzerinden seçilir ve yeniden başlatınca uygulanır.
+  Bütün desteklenen kısayollar `Araçlar → Klavye Kısayolları` içindedir.
+
 ## Kurulum (hazır sürüm)
 
-Son kurulum dosyası: [Releases](https://github.com/IzzmooPro/MLCPlayer/releases/latest)
-(`MLCPlayer_Setup_v*.exe`, kurulu boyut ~295 MB). Kurulu bir sürüm varsa
-`Yardım → Güncellemeleri Denetle` ile de yükseltilebilir; indirilen dosya
-SHA-256 ile doğrulanmadan çalıştırılmaz.
+Aynı [Releases](https://github.com/IzzmooPro/MLCPlayer/releases/latest)
+kaydındaki dosyaları kullanın:
+
+1. Önce ana oynatıcıyı `MLCPlayer_Setup_v*.exe` ile kurun.
+2. Site çıkarımı gerektiren internet videolarını oynatacaksanız aynı sürümün
+   `MLCPlayer_InternetVideo_v*.exe` ek paketini de kurun. Bu isteğe bağlı paket
+   yt-dlp ve Deno bileşenlerini sağlar; yerel medya veya doğrudan HTTP/HLS
+   akışları için gerekli değildir.
+
+Hazır kurulum Windows 10 veya 11, 64-bit ve yönetici onayı gerektirir. Ana
+paket oynatıcı ile libmpv'yi içerir; büyük internet-video araçları yalnız ek
+paketle gelir. Bu nedenle kurulu boyut ek paketin bulunmasına göre değişir.
+
+Her kurulumun yanında bir `.sig` dosyası bulunur. Bu dosya, kurulumun SHA-256
+özetine ait yayıncı Ed25519 imzasıdır. Otomatik güncelleme çalıştırılmadan önce
+yayımlanan boyut, SHA-256 ve imza birlikte doğrulanır; uyuşmayan indirme
+silinir. `.sig` dosyasını kendiniz çalıştırmazsınız.
+
+Kurulum henüz kod imzalı değildir; Windows SmartScreen ilk çalıştırmada
+“bilinmeyen yayıncı” uyarısı gösterebilir.
+
+Kurulu sürüm `Yardım → Güncellemeleri Denetle` ile güvenli biçimde
+yükseltilebilir. Yerleşik güncelleyici yalnız ana oynatıcıyı günceller;
+İnternet Videosu ek paketini kullanıyorsanız aynı yeni sürümü Releases
+sayfasından ayrıca indirip çalıştırın.
+
+### Kaldırma ve kullanıcı verileri
+
+Paketlerden birini kaldırmak ayarlarınızı ve günlüklerinizi korur; böylece
+yükseltme veya yeniden kurulum tercihlerinizi silmez. Günlükler
+`%APPDATA%\MLCPlayer\logs` altında tutulur ve `Araçlar → Günlük Yönetimi`
+üzerinden güvenle incelenebilir veya silinebilir. Ek paketin ayrı kaldırıcısı
+vardır; onu kaldırmak ana oynatıcıyı silmeden site çıkarımını kapatır.
 
 ## Çalıştırma (kaynaktan)
 
 En kolay yol `Start.bat` dosyasına çift tıklamaktır: Python 3.12+ yoksa
 kurar, eksik paketleri `requirements.txt` üzerinden yükler ve programı açar.
-Her şey hazırsa hiçbir kurulum yapmadan doğrudan başlatır. Yalnızca kontrol
-için `Start.bat -CheckOnly` (program açılmaz).
+Başlatmadan önce üç çalışma zamanı ikilisini de doğrular. Her şey hazırsa
+hiçbir kurulum yapmadan doğrudan başlatır. Yalnızca kontrol için
+`Start.bat -CheckOnly` kullanın; program açılmaz.
 
-Elle kurulum gereksinimleri: Windows, Python 3.12+ ve `bin/mpv-2.dll`.
+Elle yerel medya oynatmak için Windows, Python 3.12+ ve `bin/mpv-2.dll`
+gerekir. İnternet videosu site çıkarımı ayrıca `bin/yt-dlp.exe` ve
+`bin/deno.exe` gerektirir; doğrudan HTTP/HLS oynatma mpv özelliğidir.
+Mevcut `Start.bat` üç ikiliyi de zorunlu tutar.
 
 ```bash
 pip install -r requirements.txt
@@ -63,8 +113,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-`bin/` dizinindeki çalışma zamanı ikilileri (`mpv-2.dll`, `yt-dlp.exe`,
-`deno.exe`) boyutları nedeniyle depoda tutulmaz; sağlamaları
+Bu çalışma zamanı ikilileri boyutları nedeniyle depoda tutulmaz; sağlamaları
 `bin/RUNTIME_MANIFEST.txt` ve `bin/SHA256SUMS.txt` içinde izlenir.
 
 ## Testler
@@ -100,12 +149,12 @@ Ayrıntılar için GNU GPL'e bakınız.
 Dağıtılan pakette üçüncü taraf bileşenler bulunur ve kendi lisanslarıyla
 gelirler:
 
-| Bileşen | Lisans | Metin |
-|---|---|---|
-| mpv / libmpv | **GPLv3** (FFmpeg `--enable-gpl --enable-version3`) | `bin/RUNTIME_MANIFEST.txt` |
-| yt-dlp (kaynak) | Unlicense | `licenses/yt-dlp-LICENSE.txt` |
-| yt-dlp (resmî ikili) | GPLv3+ | `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` |
-| deno | MIT | `licenses/deno-LICENSE.txt` |
+| Bileşen | Lisans | Geldiği paket | Metin |
+|---|---|---|---|
+| mpv / libmpv | **GPLv3** (FFmpeg `--enable-gpl --enable-version3`) | Ana paket | `licenses/mpv-NOTICE.txt` |
+| yt-dlp (kaynak) | Unlicense | İnternet Videosu ek paketi | `licenses/yt-dlp-LICENSE.txt` |
+| yt-dlp (resmî ikili) | GPLv3+ | İnternet Videosu ek paketi | `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` |
+| deno | MIT | İnternet Videosu ek paketi | `licenses/deno-LICENSE.txt` |
 
 Resmî `yt-dlp.exe` üçüncü taraf GPLv3+ kod içerir; bu nedenle **birleşik
 executable GPLv3+ kapsamındadır**. Kaynak lisansı ile dağıtılan ikilinin
