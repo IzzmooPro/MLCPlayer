@@ -139,14 +139,14 @@ _LINE_SPLIT = re.compile(r'(\r\n|\r|\n)')
 _SOURCE_SUFFIXES = (".py", ".pyw")
 
 
-def _path_start(line, offset):
-    """Satırda `offset`ten sonraki EN ERKEN yol kökü. Yoksa None."""
-    best = None
-    for pattern in _PATH_ROOTS:
-        match = pattern.search(line, offset)
-        if match is not None and (best is None or match.start() < best):
-            best = match.start()
-    return best
+def _path_starts(line):
+    """Return ordered roots after scanning each pattern exactly once."""
+    starts = {
+        match.start()
+        for pattern in _PATH_ROOTS
+        for match in pattern.finditer(line)
+    }
+    return sorted(starts)
 
 
 def _diagnostic_suffix(path_text):
@@ -163,11 +163,10 @@ def _mask_paths_in_line(line):
     """Satırdaki mutlak yolları sözleşmeye göre maskeler."""
     out = []
     index = 0
-    while True:
-        start = _path_start(line, index)
-        if start is None:
-            out.append(line[index:])
-            return "".join(out)
+    for start in _path_starts(line):
+        # Önceki tırnaklı yolun içinde kalan olası kökleri yeniden işleme.
+        if start < index:
+            continue
         out.append(line[index:start])
         quote = line[start - 1] if start > 0 else ""
         # YALNIZ çift tırnak güvenli sınırdır: `"` Windows dosya adında
@@ -188,6 +187,7 @@ def _mask_paths_in_line(line):
         # Tırnaksız veya tek tırnaklı yol: satır sonuna kadar maskele.
         out.append(MASK_PATH)
         return "".join(out)
+    return "".join((*out, line[index:]))
 
 
 def _mask_paths(text):

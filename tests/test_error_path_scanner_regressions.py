@@ -275,3 +275,19 @@ def test_scanner_stays_fast_on_a_100kb_input():
     elapsed = time.time() - started
     assert elapsed < 3.0, f"redact cok yavas: {elapsed:.2f}s"
     assert_clean(masked)
+
+
+def test_each_path_root_pattern_scans_a_line_only_once(monkeypatch):
+    class CountingPattern:
+        def __init__(self):
+            self.calls = 0
+
+        def finditer(self, _line):
+            self.calls += 1
+            return iter(())
+
+    patterns = tuple(CountingPattern() for _ in range(5))
+    monkeypatch.setattr(errors, "_PATH_ROOTS", patterns)
+
+    assert errors._mask_paths_in_line("normal metin " * 10_000)
+    assert [pattern.calls for pattern in patterns] == [1] * len(patterns)
