@@ -4,10 +4,18 @@ Güncelleme: 20 Ağustos 2026
 
 ## DEVİR NOTU — buradan başla
 
-**Ağaç TEMİZ; bu kayıt commit'inden sonra `master`, `origin/master`dan 33
-commit ileride.** Güncel tam paket: **4574 passed, 19 skipped** (82,55 sn).
-`v0.37` final build ve uygulanabilir fiziksel kabul matrisi başarılıdır;
-tag/push bu kayıt commit'inden sonra, release ise ayrıca yapılacaktır.
+**Snapshot `7ee2437`; ağaç temiz ve `master`, `origin/master ile eşit
+(0 ileri / 0 geri)`.** v0.37 tag/push/GitHub Release ile yayımlandı ve final
+artifact fiziksel kabul matrisi başarılıdır. v0.37 sonrasında 8 commit vardır;
+bu küme **v0.38 aday tabanı** olarak izlenir, yayın adayı olarak değil.
+
+Güncel GitHub Actions koşumu `32370784900`: kilitli bağımlılık, compile,
+çeviri/whitespace ve hosted tam paket **4626 passed / 26 skipped / 0 failed**.
+Pencere şeffaflığı, PiP, oynatma yaşam döngüsü, kullanıcı kurulum rehberi,
+Windows CI ve yol gizleme performansı kaynakta bu sekiz commit içindedir.
+**v0.38 build yapılmadı**; sürüm alanları ve kurulu v0.37 önceki yayın
+artifact'ına aittir. Kurulu v0.37, güncel kaynak davranışının fiziksel kabulü
+olarak kullanılamaz.
 
 `v0.36` (17 Ağustos 2026) boyutlandırma donmasının YAZMA yarısını
 kapatır; ayrıntı aşağıdaki "ÇÖZÜLDÜ — boyutlandırmada donma" bölümünde.
@@ -27,19 +35,21 @@ yayımlandı.
 
 ### Sıradaki iş — öncelik sırasıyla
 
-1. ~~**VLSub kaynak incelemesi**~~ → **YAPILDI (17 Ağustos 2026).**
-   Bulgular aşağıda "VLSub kaynak incelemesi" bölümünde.
-2. **OpenSubtitles API kullanım şartları** (kullanıcı okuyacak).
-   Açık soru: tek uygulama anahtarı gömülsün mü? **İnceleme bu soruyu
-   büyük ölçüde KAPATTI** — ayrıntı aşağıdaki bölümde. Kalan tek iş,
-   şartlar metninin kullanıcı tarafından okunup onaylanması.
-3. **Kod imzalama sertifikası + SmartScreen.** Bizim `.sig` dosyamız
+1. **v0.38 aday tabanı kaynak/etki denetimi.** Sekiz post-release commit,
+   özellikle PiP/pencere modları ve oynatma yaşam döngüsü, ürün kodu ile
+   deterministic/native/installed-artifact kanıtı ayrılarak incelenecek.
+2. **Güncel VLSub/OpenSubtitles + VLC kaynak araştırması.** 17 Ağustos tarihli
+   tarihsel bulgular korunacak; bugünkü kaynak ve kullanım şartları birincil
+   kaynaklardan yenilenecek. Kod/lisans alınmadan önce fark raporlanacak.
+3. **Hukuki/uyumluluk ve dağıtım kontrol listesi.** OpenSubtitles şartları,
+   GPL/codec/source sunumu, üçüncü taraf bildirimleri ve installer metinleri
+   yeniden eşlenecek.
+4. **Kod imzalama sertifikası + SmartScreen.** Bizim `.sig` dosyamız
    Ed25519'dur ve YALNIZ güncelleyici içindir; Windows'un tanıdığı
    Authenticode imzası DEĞİLDİR. Kullanıcı setup'ı çalıştırınca SmartScreen
    uyarısı alıyor. Bu gerçek bir kullanıcı sürtünmesi.
-4. **VLC kaynak incelemesinin kalanı.** Çeviri/lisans/paketleme/menü
-   tarafına bakıldı. BAKILMADI: altyazı parçası seçimi, sürükle-bırak,
-   ses tekerleği, frameless/native resize, medya yaşam döngüsü.
+5. **v0.38 sürüm kararı.** Yalnız önceki maddeler kapandıktan sonra ayrı
+   onaylarla sürüm alanı, build, kurulum/fiziksel kabul, tag ve release.
 
 ### Çalışırken bilinmesi gereken üç tuzak
 

@@ -423,8 +423,8 @@ def test_the_current_checkpoint_does_not_invent_a_separate_stderr_result():
 def test_the_roadmap_summary_has_the_current_local_commit_count():
     summary = flat(read(ROADMAP_DOC).split("---", 1)[0])
 
-    assert "33 commit" in summary
-    assert "4574 passed / 19 skipped / 0 failed" in summary
+    assert flat("origin/master ile eşit (0 ileri / 0 geri)") in summary
+    assert "4626 passed / 26 skipped / 0 failed" in summary
 
 
 def test_the_current_final_artifact_acceptance_is_recorded_everywhere():
@@ -1525,10 +1525,29 @@ def test_debugger_parser_commit_is_recorded_as_committed():
 def test_roadmap_snapshot_has_the_measured_local_commit_count():
     text = fold(flat(read(ROADMAP_DOC))).lower()
 
-    assert "33 commit" in text, "ROADMAP guncel ahead=33 durumunu tasimiyor"
-    for stale in ("bes commit", "sekiz commit", "dokuz commit", "on commit",
-                  "on bir commit", "on iki commit", "on uc commit"):
-        assert stale not in text, f"ROADMAP hala bayat sayiyi tasiyor: {stale}"
+    assert flat("origin/master ile eşit (0 ileri / 0 geri)") in text
+    assert "33 commit" not in text, "ROADMAP hala bayat ahead=33 durumunu tasiyor"
+
+
+def test_v0_38_candidate_baseline_is_recorded_in_all_status_documents():
+    records = {
+        "ENGINEERING_AUDIT": read(AUDIT_DOC),
+        "ROADMAP": read(ROADMAP_DOC),
+        "PROJECT_STATUS": read(PROJECT_STATUS_DOC),
+    }
+
+    for label, record in records.items():
+        block = flat(record)
+        for fact in (
+            "v0.38 aday tabanı",
+            "v0.37 sonrasında 8 commit",
+            "7ee2437",
+            "4626 passed / 26 skipped / 0 failed",
+            "32370784900",
+            "kurulu v0.37",
+            "v0.38 build yapılmadı",
+        ):
+            assert flat(fact) in block, f"{label}: {fact}"
 
 
 # =====================================================================

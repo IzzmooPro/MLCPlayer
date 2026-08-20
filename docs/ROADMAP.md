@@ -1,8 +1,8 @@
 # MLC Player yol haritası
 
-**Snapshot: 20 Ağustos 2026** — v0.37 fiziksel kabul matrisi ve REL-006'nın
-kapanmasının ardından güncellendi. Bu belge her kabul edilen turun sonunda
-yenilenir; buradaki durumlar o tarihteki ölçümleri yansıtır, kalıcı
+**Snapshot: 20 Ağustos 2026 (`7ee2437`)** — v0.37 yayını ve sonraki v0.38
+aday tabanı denetiminin ardından güncellendi. Bu belge her kabul edilen turun
+sonunda yenilenir; buradaki durumlar o tarihteki ölçümleri yansıtır, kalıcı
 gerçek değildir.
 
 Durum sözlüğü `docs/ENGINEERING_AUDIT.md` içindedir; aynı kelimeler
@@ -14,15 +14,29 @@ Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 
 ## Su anki asama
 
-Yayın altyapısı sertleştirme turunda beş kusur (REL-001…REL-005) hedef
-testlerle kapatıldı; NATIVE-001 ile native stderr görünürlük kapısı eklendi
-ve bunlar mantıksal olarak ayrılmış yerel commit'lere bölündü;
-`master` bu kayıt commit'iyle `origin/master`'ın **33 commit** ilerisindedir.
-Güncel tam paket **4574 passed / 19 skipped / 0 failed**, exit 0 ve **82,55
-sn** sürdü. Stdout/stderr ayrı yakalanmadığı için stderr boşluğu iddia edilmez.
-v0.37 final build ve uygulanabilir fiziksel kabul matrisi başarılıdır. Bu
-kayıttan sonraki sıra annotated tag, yerel prepublish kapısı ve açıkça
-onaylanmış dal+tag push'tur; release ayrıca yapılacaktır.
+v0.37 tag, prepublish, dal/tag push ve GitHub Release adımları tamamlandı;
+final artifact fiziksel kabul matrisi başarılıdır. Bu tarihsel yayın kanıtı
+korunur ve sonraki kaynak değişikliklerine aktarılmaz.
+
+`master` HEAD `7ee2437` ve `origin/master ile eşit (0 ileri / 0 geri)`.
+v0.37 sonrasında 8 commit vardır: kullanıcı kurulum belgeleri; pencere
+şeffaflığı, PiP ve oynatma yaşam döngüsü; kilitli Windows CI; checkout
+satır-sonu kararlılığı; hosted libmpv sınırı ve doğrusal yol gizleme taraması.
+Bu küme **v0.38 aday tabanı**dır; henüz bir sürüm adayı değildir.
+
+GitHub Actions `32370784900` koşumunda kilitli bağımlılık, compile,
+çeviri/whitespace ve tam hosted paket geçti: **4626 passed / 26 skipped /
+0 failed**. Skip'ler hosted runner'da bulunmayan gerçek libmpv/kurulu-artifact
+kabulleridir; gizli PASS değildir. **v0.38 build yapılmadı**; sürüm alanları ve
+kurulu v0.37 önceki yayın artifact'ını göstermeye devam eder. Dolayısıyla
+kurulu v0.37, güncel PiP/pencere/yaşam-döngüsü kaynağının fiziksel kanıtı
+sayılamaz.
+
+Sıradaki sıra: bu belge checkpoint'ini commit etmek; sekiz commitlik v0.38
+aday tabanını kaynak/etki açısından denetlemek; güncel VLSub/OpenSubtitles ve
+VLC kaynak araştırmasını tamamlamak; hukuki/uyumluluk kontrol listesini
+yenilemek. Ancak bunlardan sonra ayrı onaylarla sürüm numarası, build,
+kurulum/fiziksel kabul, tag ve release değerlendirilir.
 
 ---
 

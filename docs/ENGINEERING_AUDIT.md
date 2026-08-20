@@ -41,6 +41,25 @@ değişiklik henüz kalıcı değildir.
 
 ---
 
+## DOC-002
+
+- **Kimlik:** DOC-002
+- **Baslik:** v0.37 sonrası kaynak, CI ve kurulu artifact durumu belgelerde ayrışmıştı
+- **Onem:** Yüksek — yol haritası hâlâ tag/push beklerken v0.37 yayımlanmıştı; güncel kaynak kurulu eski artifact ile karıştırılabilirdi
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → **COMMIT EDILDI**
+- **Kanit:** `docs/ROADMAP.md` ve `docs/PROJECT_STATUS.md` `master` için bayat **33 commit ileride** ve sırada v0.37 tag/push bilgisini taşıyordu. Salt-okunur denetimde v0.37 tag ve GitHub Release mevcut; `7ee2437` HEAD `origin/master ile eşit (0 ileri / 0 geri)` ve v0.37 sonrasında 8 commit bulundu.
+- **Guncel taban:** Sekiz commitlik küme **v0.38 aday tabanı**dır. GitHub Actions `32370784900` tam hosted sonucu **4626 passed / 26 skipped / 0 failed**; kilitli bağımlılık, compile ve çeviri/whitespace kapıları da geçti.
+- **Artifact siniri:** **v0.38 build yapılmadı**. Sürüm alanları ve kurulu v0.37 önceki final artifact'a aittir; kurulu v0.37 güncel PiP, pencere modları ve oynatma yaşam döngüsü kaynağının fiziksel kabulü sayılamaz.
+- **Ilk kirmizi:** Yeni belge sözleşmesi eski kayıtta **3 failed** verdi: güncel dal eşitliği, CI sonucu ve üç belgede ortak v0.38 aday tabanı yoktu.
+- **Degisen dosyalar:** `docs/ROADMAP.md`, `docs/PROJECT_STATUS.md`, `docs/ENGINEERING_AUDIT.md`, `tests/test_release_documentation_regressions.py`
+- **Test kaniti:** `tests/test_release_documentation_regressions.py` **205 passed / 0 failed**. Yeni üçlü sözleşme dal eşitliği, hosted CI sonucu, aday tabanı ve eski kurulu artifact sınırını üç belgede birlikte zorunlu tutar.
+- **Canli kabul:** Uygulanmaz; bu tur belge/salt-okunur Git ve GitHub kanıtı turudur. Build, kurulum, native smoke, tag veya release yapılmadı.
+- **Kalan risk:** Sekiz post-release commit hosted CI'da yeşildir fakat v0.38 packaged/installed fiziksel kabulü yoktur. Güncel kaynak araştırması ve hukuki/uyumluluk kontrolü de henüz yapılmadı.
+- **Sıradaki iş:** Sekiz commitlik aday tabanı kaynak/etki denetimi; ardından güncel VLSub/OpenSubtitles ve VLC araştırması ile hukuki/uyumluluk kontrol listesi.
+- **Commit durumu:** COMMIT EDILDI — bu belge checkpoint'iyle aynı commit.
+
+---
+
 ## REL-007
 
 - **Kimlik:** REL-007
