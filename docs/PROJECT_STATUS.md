@@ -4,12 +4,19 @@ Güncelleme: 20 Ağustos 2026
 
 ## DEVİR NOTU — buradan başla
 
-**Snapshot `6db8534`; ağaç temiz ve `master`, `origin/master ile eşit
-(0 ileri / 0 geri)`.** v0.37 tag/push/GitHub Release ile yayımlandı ve final
+**Snapshot `57ad09e`; `master`, `origin/master ile eşit (0 ileri / 0 geri).**
+v0.37 tag/push/GitHub Release ile yayımlandı ve final
 artifact fiziksel kabul matrisi başarılıdır.
-DOC-003 belge checkpoint'i hariç, aceccf4..6db8534 aralığında 12 aday-tabanı
-commiti vardır; bu küme **v0.38
+aceccf4..57ad09e aralığında 13 aday-tabanı commiti vardır; bu küme **v0.38
 aday tabanı** olarak izlenir, yayın adayı olarak değil.
+Önceki belgelenmiş checkpoint, **aceccf4..6db8534 aralığında 12 aday-tabanı
+commiti** ve `6db8534` HEAD değeriydi; tarihsel kayıt olarak korunur.
+
+20 Ağustos hukuki/dağıtım kontrolünde mevcut `source_mirror` varlıklarının
+gerçek karşılık gelen kaynak olmadığı doğrulandı: mpv paketi yalnız binary,
+import library ve header; yt-dlp ile Deno girdileri çalıştırılabilir binary.
+Yeni `packaging/corresponding_sources.json` sözleşmesi tamamlanana kadar
+release kapısı bilerek kapalıdır. Bu düzeltmeler henüz commit edilmemiştir.
 
 Güncel GitHub Actions koşumu `32399570489`: kilitli bağımlılık, compile,
 çeviri/whitespace ve hosted tam paket **4678 passed / 26 skipped / 0 failed**.
@@ -38,15 +45,14 @@ yayımlandı.
 
 ### Sıradaki iş — öncelik sırasıyla
 
-1. **OpenSubtitles dağıtım modeli kararı.** Güncel kaynak araştırması tamamlandı;
-   uygulama anahtarı ile kullanıcı hesabının rolleri resmî şart veya doğrudan
-   sağlayıcı onayıyla kesinleştirilecek. Arayüz bu sırada kapalı kalacak.
-2. **Daha geniş VLC kaynak araştırması.** Altyazı tarafındaki modern/yerleşik
-   VLSub ayrımı kapandı; parça seçimi, sürükle-bırak, ses tekerleği, native
-   resize ve medya yaşam döngüsü ayrıca incelenecek.
-3. **Hukuki/uyumluluk ve dağıtım kontrol listesi.** OpenSubtitles şartları,
-   GPL/codec/source sunumu, üçüncü taraf bildirimleri ve installer metinleri
-   yeniden eşlenecek.
+1. **Kaynak/lisans release engelini kapat.** Taze build envanterinden bütün
+   bileşen ve sürümleri çıkar; gerçek yeniden derlenebilir kaynak arşivlerini,
+   build tariflerini ve lisans bildirimlerini sabitle. O zamana kadar release
+   kapısı kapalı kalacak.
+2. **OpenSubtitles dağıtım modeli kararı.** Sağlayıcıdan açık kaynak masaüstü
+   dağıtımı için yazılı izin/şart doğrulanana kadar arayüz kapalı kalacak.
+3. **VLC karşılaştırmasındaki dar ürün işleri.** Uzak URL/metin sürükle-bırak
+   desteği ve medya değişimi generation-race regresyon testi değerlendirilecek.
 4. **Kod imzalama sertifikası + SmartScreen.** Bizim `.sig` dosyamız
    Ed25519'dur ve YALNIZ güncelleyici içindir; Windows'un tanıdığı
    Authenticode imzası DEĞİLDİR. Kullanıcı setup'ı çalıştırınca SmartScreen

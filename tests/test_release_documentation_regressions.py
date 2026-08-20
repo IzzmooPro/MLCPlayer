@@ -74,7 +74,7 @@ def test_it_declares_itself_the_single_official_source():
 
 
 @pytest.mark.parametrize("heading", [
-    "Amac", "yetki", "prepublish", "annotated", "sekiz", "onay",
+    "Amac", "yetki", "prepublish", "annotated", "dinamik", "onay",
 ])
 def test_the_release_document_covers_every_required_topic(heading):
     text = fold(read(RELEASE_DOC)).lower()
@@ -143,12 +143,13 @@ def test_final_artifact_process_safety_is_a_pre_tag_gate():
         assert phrase in text, f"final-artifact kabulunde eksik: {phrase}"
 
 
-# --- 4. Sekiz varlik ve SHA-256 esligi --------------------------------
+# --- 4. Dinamik varlik ve SHA-256 esligi -------------------------------
 
-def test_the_eight_asset_contract_is_recorded():
+def test_the_dynamic_asset_contract_is_recorded():
     text = fold(read(RELEASE_DOC)).lower()
 
-    assert "sekiz" in text or "8 varlik" in text, "sekiz varlik yazmiyor"
+    assert "dinamik varlik" in text
+    assert "corresponding_sources.json" in text
     for name in ("MLCPlayer_Setup", "MLCPlayer_InternetVideo",
                  ".sig", "source_mirror"):
         assert name.lower() in text, f"varlik sozlesmesinde eksik: {name}"
@@ -212,7 +213,7 @@ def test_historical_tags_are_declared_untouched():
 
 # --- 6b. Release komutu GERCEKTEN calistirilabilir olmali -------------
 
-MIRROR_PATHS = (
+LEGACY_NOT_SOURCE_PATHS = (
     "source_mirror/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z",
     "source_mirror/yt-dlp.exe",
     "source_mirror/deno-x86_64-pc-windows-msvc.zip",
@@ -227,10 +228,17 @@ INSTALLER_PATHS = (
 )
 
 
-@pytest.mark.parametrize("path", INSTALLER_PATHS + MIRROR_PATHS)
-def test_the_release_example_lists_all_eight_exact_paths(path):
-    """Sekiz varligin TAMAMI kesin yol olarak yazili olmali."""
+@pytest.mark.parametrize("path", INSTALLER_PATHS)
+def test_the_release_example_lists_all_installer_paths(path):
     assert path in read(RELEASE_DOC), f"release orneginde eksik: {path}"
+
+
+def test_source_paths_are_derived_and_legacy_binaries_are_not_sources():
+    text = read(RELEASE_DOC)
+    assert "fetch_sources.plan()" in text
+    assert "source_mirror/" in text
+    for path in LEGACY_NOT_SOURCE_PATHS:
+        assert path not in text, f"binary yeniden kaynak sayildi: {path}"
 
 
 def test_the_release_example_has_no_unrunnable_placeholder():

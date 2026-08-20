@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "status": "blocked",
+  "blockers": [
+    "A fresh release build has not produced a complete component and version inventory.",
+    "Exact rebuildable source bundles for mpv, FFmpeg and the mpv Windows build recipe have not been verified.",
+    "Sources and required notices for the bundled Python, PyQt, Qt and Python dependency runtime have not been collected.",
+    "Sources and required notices for the Internet Video add-on runtime have not been collected."
+  ],
+  "sources": []
+}

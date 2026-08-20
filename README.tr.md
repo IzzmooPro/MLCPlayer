@@ -185,6 +185,10 @@ kullanıcıya, gerekirse hukukçuya aittir:
   yönündedir. Anahtarın açık kaynak masaüstü uygulamasında nasıl dağıtılacağı
   açık şart veya yazılı sağlayıcı cevabıyla doğrulanana kadar çevrimiçi arama
   arayüzü kapalıdır. Bu bir hukuki görüş değildir.
+- **Karşılık gelen kaynak paketleri.** Eski yayın akışı mpv geliştirme
+  paketini ve çalıştırılabilir add-on dosyalarını kaynak olarak sayıyordu;
+  bunlar gerçek, yeniden derlenebilir kaynak değildir. Ayrı kaynak sözleşmesi
+  tamamlanana kadar release kapısı kapalıdır.
 
 **Kapanan maddeler:**
 
@@ -192,9 +196,10 @@ kullanıcıya, gerekirse hukukçuya aittir:
   `--enable-gpl --enable-version3` taşıyor, `--enable-nonfree` TAŞIMIYOR
   ve nonfree gerektiren hiçbir bileşen (fdk-aac, libnpp, cuda-nvcc)
   içermiyor. Önceki derleme `nonfree` taşıdığı için dağıtılamazdı.
-- **Karşılık gelen kaynak erişimi** (17 Ağustos 2026). `licenses/mpv-NOTICE.txt`
-  ve `bin/RUNTIME_MANIFEST.txt` artık kurulan paketin İÇİNDE; her bileşenin
-  sürümü, kaynak adresi ve SHA-256'sı orada. Kaynakta değişiklik yapmıyoruz.
+- **Binary köken kaydı** (17 Ağustos 2026). `licenses/mpv-NOTICE.txt` ve
+  `bin/RUNTIME_MANIFEST.txt` kurulan paketin İÇİNDE; bunlar kullanılan
+  binary'nin sürümünü, adresini ve SHA-256'sını kaydeder. Karşılık gelen
+  kaynağın sunulduğu anlamına gelmez.
 - **Dosya başı telif/lisans bildirimleri** (17 Ağustos 2026). 228 Python
   dosyası ve 5 betik SPDX kısa biçimini taşıyor: `GPL-3.0-only`. Kimliğin
   resmî SPDX listesinde bulunduğu ve `LICENSE` dosyasının kanonik gnu.org

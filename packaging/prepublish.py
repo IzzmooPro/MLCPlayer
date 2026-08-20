@@ -24,9 +24,9 @@ DENETLENENLER
     2. Git calisma agaci TAMAMEN temiz (staged / tracked / untracked)
     3. Dort surumlu installer artifact'i mevcut
     4. Iki `.sig` KRIPTOGRAFIK olarak dogru (yalniz varlik degil)
-    5. Dort kaynak/lisans aynasi mevcut
-    6. Aynanin boyut + SHA-256 degerleri manifest ile ayni
-    7. Beklenen varlik sozlesmesi: bugun TOPLAM SEKIZ dosya
+    5. Corresponding-source sozlesmesinde acik engel yok
+    6. Sozlesmedeki her kaynak arsivi mevcut ve ozeti dogru
+    7. Beklenen varlik listesi sozlesmeden dinamik olarak turetiliyor
 
 FAIL-CLOSED ve AG KULLANMAZ. Hicbir Git YAZMA komutu calistirmaz: tag
 olusturmaz, push etmez, release acmaz. Calisan tek sey `git status` ve
@@ -50,7 +50,7 @@ from app import release_signature                      # noqa: E402
 
 INSTALLER_DIR = "installer_output"
 MIRROR_DIR = "source_mirror"
-MANIFEST = os.path.join("bin", "RUNTIME_MANIFEST.txt")
+SOURCE_CONTRACT = os.path.join("packaging", "corresponding_sources.json")
 
 #: Surumlu installer govdeleri. Her birinin `.sig`i de zorunludur.
 INSTALLER_STEMS = ("MLCPlayer_Setup", "MLCPlayer_InternetVideo")
@@ -81,18 +81,15 @@ def installer_assets(tag, root=None):
 
 
 def mirror_assets(root=None):
-    """Kaynak/lisans aynasi -- adlar `fetch_sources.FETCHABLE`TEN TURER.
-
-    Ikinci bir liste tutulmaz; manifest'e yeni bir bilesen eklenip
-    siniflandirilirsa kapi onu kendiliginden bekler.
-    """
+    """Gercek kaynak arsivleri source sozlesmesinden turer."""
     root = root or ROOT
-    return [os.path.join(root, MIRROR_DIR, name)
-            for name in fetch_sources.FETCHABLE]
+    contract = os.path.join(root, SOURCE_CONTRACT)
+    return [os.path.join(root, MIRROR_DIR, item.name)
+            for item in fetch_sources.plan(contract)]
 
 
 def expected_assets(tag, root=None):
-    """Yayina yuklenecek YEREL varliklarin TAMAMI (bugun sekiz dosya)."""
+    """Yayina yuklenecek yerel varliklarin dinamik tam listesi."""
     return installer_assets(tag, root) + mirror_assets(root)
 
 
@@ -144,40 +141,36 @@ def signature_is_valid(exe_path, log=print):
 
 
 def mirror_matches_manifest(root=None, log=print):
-    """Ayna dosyalari manifest'teki BOYUT ve SHA-256 ile ayni olmali."""
+    """Kaynak sozlesmesi hazir ve arsivler dogrulanmis olmali."""
     root = root or ROOT
-    manifest_path = os.path.join(root, MANIFEST)
+    manifest_path = os.path.join(root, SOURCE_CONTRACT)
     try:
+        open_blockers = fetch_sources.blockers(manifest_path)
         planned = fetch_sources.plan(manifest_path)
-    except OSError as exc:
-        return fail(f"manifest okunamadi: {exc}", log)
-    except (ValueError, TypeError) as exc:
-        # `plan()` icinde `int(size)` vardir; sayisal olmayan bir `size`
-        # alani `ValueError` firlatir. Bozuk manifest KONTROLLU hata
-        # uretmeli, traceback DEGIL (olculdu).
-        return fail(f"manifest bozuk (size alani sayisal degil?): {exc}", log)
+    except (OSError, ValueError, TypeError) as exc:
+        return fail(f"kaynak sozlesmesi okunamadi: {exc}", log)
 
-    expected = {item.name: item for item in planned}
-    missing = [name for name in fetch_sources.FETCHABLE if name not in expected]
-    if missing:
-        return fail(f"manifest kaydi eksik: {', '.join(missing)}", log)
+    if open_blockers:
+        fail("release kaynak kapisi KAPALI:", log)
+        for reason in open_blockers:
+            log(f"         {reason}")
+        return False
 
     ok = True
-    for name in fetch_sources.FETCHABLE:
-        item = expected[name]
-        path = os.path.join(root, MIRROR_DIR, name)
+    for item in planned:
+        path = os.path.join(root, MIRROR_DIR, item.name)
         if not os.path.isfile(path):
-            ok = fail(f"kaynak aynasi eksik: {name}", log) and ok
+            ok = fail(f"kaynak aynasi eksik: {item.name}", log) and ok
             continue
         actual_size = os.path.getsize(path)
         if actual_size != item.size:
-            ok = fail(f"{name} boyut UYUSMUYOR "
+            ok = fail(f"{item.name} boyut UYUSMUYOR "
                       f"(beklenen {item.size:,}, gercek {actual_size:,})",
                       log) and ok
             continue
         actual = digest(path)
         if actual != item.sha256:
-            ok = fail(f"{name} SHA-256 UYUSMUYOR "
+            ok = fail(f"{item.name} SHA-256 UYUSMUYOR "
                       f"(beklenen {item.sha256[:16]}..., "
                       f"gercek {actual[:16]}...)", log) and ok
     return ok
@@ -219,7 +212,12 @@ def run(tag, root=None, log=print):
     else:
         ok = False
 
-    assets = expected_assets(tag, root)
+    try:
+        assets = expected_assets(tag, root)
+    except (OSError, ValueError, TypeError) as exc:
+        fail(f"kaynak varlik listesi olusturulamadi: {exc}", log)
+        ok = False
+        assets = installer_assets(tag, root)
     log(f"  Yuklenecek varliklar ({len(assets)}):")
     for path in assets:
         mark = "OK " if os.path.isfile(path) else "YOK"

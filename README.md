@@ -258,13 +258,14 @@ the upstream URL it came from and its SHA-256, and
 repositories for mpv, FFmpeg and the build recipe. Both files ship inside the
 installed package, not only here. We do not modify any of those sources.
 
-If an upstream address ever becomes unreachable, ask for the source through
-this repository. To make that offer independent of upstream, run
-`python packaging/fetch_sources.py` before publishing a release: it
-downloads the archives named in the manifest, verifies each against the
-size and SHA-256 recorded there, and leaves them in `source_mirror/` ready
-to upload alongside the installer. A file that fails verification is
-deleted rather than kept.
+The runtime manifest records binary provenance; a binary, installer archive,
+or development archive is **not** corresponding source. The separate
+[`packaging/corresponding_sources.json`](packaging/corresponding_sources.json)
+contract lists rebuildable source archives. The release gate stays closed
+while that contract has any blocker. Once the exact build inventory and
+source bundles are verified, `python packaging/fetch_sources.py` will fetch
+only those source archives, verify their size and SHA-256, and place them in
+`source_mirror/` for publication beside the installers.
 
 ### Open items
 

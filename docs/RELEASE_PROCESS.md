@@ -73,9 +73,9 @@ değiştirmedikleridir**.
         bir build'in fiziksel kabulü yeni artifact için kanıt SAYILMAZ.
 
     c) python packaging/fetch_sources.py
-       GİRİŞ  : bin/RUNTIME_MANIFEST.txt güncel
-       ÇIKIŞ  : source_mirror içinde dört kaynak/lisans dosyası,
-                boyut + SHA-256 manifest ile doğrulanmış
+       GİRİŞ  : corresponding_sources.json `ready`, engel listesi boş
+       ÇIKIŞ  : source_mirror içinde sözleşmedeki gerçek kaynak arşivleri,
+                boyut + SHA-256 ile doğrulanmış
 
     d) Build BAŞARIYLA bittikten SONRA, test edilen HEAD üzerinde
        YEREL ANNOTATED tag:
@@ -85,7 +85,7 @@ değiştirmedikleridir**.
 
     e) python packaging/prepublish.py --tag vX.Y
        GİRİŞ  : yerel tag mevcut
-       ÇIKIŞ  : exit 0 — sekiz varlık yerinde ve doğrulanmış
+       ÇIKIŞ  : exit 0 — installer ve dinamik kaynak listesi doğrulanmış
 
     f) Commit ve tag AÇIKÇA push edilir:
            git push origin master
@@ -102,14 +102,14 @@ değiştirmedikleridir**.
     h) Draft release (PowerShell). Ters bölü satır devamı Windows'ta
        ÇALIŞMAZ; varlıklar bir diziye konup splat edilir.
        GİRİŞ  : g) geçti
-       ÇIKIŞ  : DRAFT release, sekiz varlık yüklü
+       ÇIKIŞ  : DRAFT release, bütün beklenen varlıklar yüklü
 
     i) Uzak varlık ad / boyut / SHA-256 eşliği:
            gh release view vX.Y --json assets
        Yerel dosyaların adı, byte boyutu ve SHA-256 değeri uzaktakiyle
        BİREBİR aynı olmalı.
        GİRİŞ  : draft hazır
-       ÇIKIŞ  : sekiz varlığın üçlüsü de eşleşti
+       ÇIKIŞ  : bütün varlıkların üçlüsü de eşleşti
 
     j) Draft yayımlanır:
            gh release edit vX.Y --draft=false --latest
@@ -124,19 +124,17 @@ $assets = @(
   "installer_output/MLCPlayer_Setup_vX.Y.exe.sig"
   "installer_output/MLCPlayer_InternetVideo_vX.Y.exe"
   "installer_output/MLCPlayer_InternetVideo_vX.Y.exe.sig"
-  "source_mirror/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z"
-  "source_mirror/yt-dlp.exe"
-  "source_mirror/deno-x86_64-pc-windows-msvc.zip"
-  "source_mirror/yt-dlp-THIRD_PARTY_LICENSES.txt"
 )
-if ($assets.Count -ne 8) { throw "sekiz varlik bekleniyor: $($assets.Count)" }
+$sourceAssets = python -c "import sys; sys.path.insert(0, 'packaging'); import fetch_sources; [print('source_mirror/' + x.name) for x in fetch_sources.plan()]"
+if ($LASTEXITCODE -ne 0) { throw "kaynak listesi okunamadi" }
+$assets += @($sourceAssets)
 
 gh release create vX.Y --verify-tag --draft --title "MLC Player vX.Y" --notes-file notlar.md @assets
 ```
 
-Kaynak/lisans adları bugünkü `bin/RUNTIME_MANIFEST.txt` sürümlerine
-aittir; manifest değişirse `packaging/fetch_sources.py::FETCHABLE`
-listesinden güncellenir.
+Kaynak adları `packaging/corresponding_sources.json` sözleşmesinden türer.
+`status` değeri `ready` değilse, engel varsa veya kaynak listesi boşsa yayın
+kapısı kapanır. `bin/RUNTIME_MANIFEST.txt` yalnız binary köken kaydıdır.
 
 ### Değişmez kurallar
 
@@ -162,13 +160,13 @@ Denetledikleri:
 3. Dört installer artifact'i mevcut
 4. İki `.sig` **kriptografik** olarak doğru (Ed25519, EXE'nin SHA-256'sı
    üzerinden) — yalnız varlık denetimi değil
-5. Dört kaynak/lisans aynası mevcut
-6. Aynanın boyut + SHA-256 değerleri manifest ile aynı
+5. Kaynak sözleşmesi hazır ve engelsiz
+6. Sözleşmedeki bütün kaynakların boyut + SHA-256 değerleri aynı
 
 **Ağ kullanmaz. Hiçbir Git yazma komutu çalıştırmaz.** Tag oluşturmaz,
 push etmez, release açmaz.
 
-## Sekiz varlık sözleşmesi
+## Dinamik varlık sözleşmesi
 
 | # | varlık | kaynak |
 |---|---|---|
@@ -176,12 +174,11 @@ push etmez, release açmaz.
 | 2 | `MLCPlayer_Setup_vX.Y.exe.sig` | build (b) |
 | 3 | `MLCPlayer_InternetVideo_vX.Y.exe` | build (b) |
 | 4 | `MLCPlayer_InternetVideo_vX.Y.exe.sig` | build (b) |
-| 5-8 | `source_mirror/` dört kaynak/lisans dosyası | fetch (c) |
+| 5+ | `source_mirror/` gerçek kaynak arşivleri | fetch (c) |
 
-5–8 `packaging/fetch_sources.py::FETCHABLE`ten **türer**, elle
-listelenmez: mpv `.7z`, `yt-dlp.exe`, deno `.zip`,
-`yt-dlp-THIRD_PARTY_LICENSES.txt`. GPLv3 §6 "karşılık gelen kaynak"
-yükümlülüğü içindir, süs değildir.
+Kaynak varlıkları `packaging/corresponding_sources.json` dosyasından türer.
+EXE, binary ZIP veya yalnız header/DLL taşıyan geliştirme paketi bu listeye
+konamaz. GPLv3 §6 "karşılık gelen kaynak" yükümlülüğü içindir, süs değildir.
 
 ## Yerel/uzak eşlik
 

@@ -76,14 +76,14 @@ def test_the_closed_items_are_recorded_as_closed():
     text = (ROOT / "README.tr.md").read_text(encoding="utf-8")
     assert "**Kapanan maddeler:**" in text
     closed = text.split("**Kapanan maddeler:**", 1)[1].lower()
-    for topic in ("dosya başı", "hakkında penceresi", "karşılık gelen kaynak"):
+    for topic in ("dosya başı", "hakkında penceresi", "binary köken kaydı"):
         assert topic in closed, topic
 
 
 def test_the_genuinely_open_items_are_still_listed():
     """Kapanmayanlar sessizce silinmemeli; üçü de kullanıcı/hukukçu işi."""
     body = open_items_section().lower()
-    for topic in ("patent", "opensubtitles"):
+    for topic in ("patent", "opensubtitles", "karşılık gelen kaynak"):
         assert topic in body, topic
 
 

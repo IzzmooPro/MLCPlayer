@@ -1,117 +1,91 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
-"""Mirrors the corresponding source archives for the binaries we ship.
+"""Fetches only verified corresponding-source archives for a release.
 
-WHY THIS EXISTS (GPLv3 section 6). The source for the third-party binaries
-MLC Player redistributes currently lives only at upstream addresses. If
-shinchiro's release, yt-dlp's tag or deno's version ever disappears, we
-have nowhere to point a user who asks for the source. This script fetches
-the archives recorded in `bin/RUNTIME_MANIFEST.txt`, verifies each one
-against the size and SHA-256 already written there, and leaves them in a
-folder ready to be uploaded to the release as extra assets.
-
-MEASURED TRAP - NOT EVERY MANIFEST ROW IS A DOWNLOADABLE ARCHIVE.
-The manifest carries seven rows, and what the SHA-256 is a digest OF
-changes from row to row:
-
-    mpv-2.dll        digest of the DLL,     URL is a .7z archive   DIFFER
-    deno.exe         digest of the EXE,     URL is a .zip archive  DIFFER
-    mpv-dev-....7z   digest of the archive, URL is that archive    SAME
-    yt-dlp.exe       digest of the exe,     URL is that exe        SAME
-
-A naive fetcher would download the URL on the `mpv-2.dll` row and compare
-it against the DLL's digest, then report a corrupt file - while having
-downloaded exactly the right archive.
-
-Comparing names does not settle it either: the row named
-`yt-dlp-THIRD_PARTY_LICENSES.txt` does not match the `THIRD_PARTY_LICENSES.txt`
-at the end of its URL, yet it is directly downloadable and its digest is of
-what the URL returns.
-
-So the classification below is EXPLICIT. Every manifest row appears either
-in `FETCHABLE` or in `NOT_FETCHABLE` with a reason, and a test fails if a
-new component is added to the manifest without being classified. Silent
-gaps are the thing this file exists to prevent.
+The old release flow treated redistributable executables and an mpv developer
+archive as "source". They are provenance inputs, not complete rebuildable
+source. This module uses a separate contract and fails closed while that
+contract has an open blocker.
 
 Usage:
     python packaging/fetch_sources.py
 """
 
 import hashlib
+import json
 import os
 import sys
 from collections import namedtuple
 from urllib.parse import urlsplit
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MANIFEST_PATH = os.path.join(ROOT, "bin", "RUNTIME_MANIFEST.txt")
-
-#: Downloaded archives land here. Build output, never tracked.
+SOURCE_MANIFEST_NAME = "corresponding_sources.json"
+SOURCE_MANIFEST_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), SOURCE_MANIFEST_NAME)
 OUTPUT_DIR_NAME = "source_mirror"
 
-#: Only these hosts are contacted. An address that drifts elsewhere is a
-#: reason to stop, not to follow.
-TRUSTED_HOSTS = frozenset({"github.com", "raw.githubusercontent.com",
-                           "objects.githubusercontent.com",
-                           "release-assets.githubusercontent.com"})
-
-#: Rows whose SHA-256 is the digest of exactly what their URL returns.
-FETCHABLE = (
-    "mpv-dev-x86_64-20260814-git-7b8915bc1d.7z",
-    "yt-dlp.exe",
-    "deno-x86_64-pc-windows-msvc.zip",
-    "yt-dlp-THIRD_PARTY_LICENSES.txt",
-)
-
-#: Rows we deliberately do not fetch, each with the reason. Keeping the
-#: reason here is what stops one of them being "fixed" into FETCHABLE later.
-NOT_FETCHABLE = {
-    "mpv-2.dll":
-        "digest is of the extracted DLL; the URL returns the .7z archive, "
-        "which is mirrored under its own row",
-    "libmpv.dll.a":
-        "extracted from the same .7z archive and carries no URL of its own",
-    "deno.exe":
-        "digest is of the extracted EXE; the URL returns the .zip archive, "
-        "which is mirrored under its own row",
-}
+TRUSTED_HOSTS = frozenset({
+    "github.com",
+    "raw.githubusercontent.com",
+    "objects.githubusercontent.com",
+    "release-assets.githubusercontent.com",
+    "codeload.github.com",
+    "download.qt.io",
+    "files.pythonhosted.org",
+    "www.python.org",
+})
 
 Item = namedtuple("Item", "name url size sha256")
 
 
-def manifest_rows(path=MANIFEST_PATH):
-    """Parses `file | version | url | size | sha256` rows."""
-    rows = []
+def load_contract(path=SOURCE_MANIFEST_PATH):
     with open(path, encoding="utf-8") as handle:
-        for line in handle:
-            line = line.strip()
-            if line.startswith("#") or "|" not in line:
-                continue
-            parts = [part.strip() for part in line.split("|")]
-            if len(parts) != 5:
-                continue
-            rows.append(parts)
-    return rows
+        contract = json.load(handle)
+    if contract.get("schema") != 1:
+        raise ValueError("unsupported corresponding-source schema")
+    if not isinstance(contract.get("blockers"), list):
+        raise ValueError("blockers must be a list")
+    if not isinstance(contract.get("sources"), list):
+        raise ValueError("sources must be a list")
+    return contract
 
 
-def plan(path=MANIFEST_PATH):
-    """The archives to mirror. Reads only; touches no network."""
+def blockers(path=SOURCE_MANIFEST_PATH):
+    """Returns every reason that keeps the source contract closed."""
+    contract = load_contract(path)
+    result = [str(value).strip() for value in contract["blockers"]
+              if str(value).strip()]
+    if contract.get("status") != "ready":
+        result.append("corresponding-source contract status is not ready")
+    if not contract["sources"]:
+        result.append("no corresponding-source archive is declared")
+    return result
+
+
+def plan(path=SOURCE_MANIFEST_PATH):
+    """Returns source archives declared by the contract; no network."""
     items = []
-    for name, _version, url, size, digest in manifest_rows(path):
-        if name not in FETCHABLE:
-            continue
-        items.append(Item(name=name, url=url, size=int(size),
-                          sha256=digest.lower()))
+    seen = set()
+    for raw in load_contract(path)["sources"]:
+        try:
+            name = raw["name"].strip()
+            url = raw["url"].strip()
+            size = int(raw["size"])
+            digest = raw["sha256"].strip().lower()
+        except (KeyError, AttributeError, TypeError, ValueError) as exc:
+            raise ValueError("invalid corresponding-source row") from exc
+        if not name or os.path.basename(name) != name or name in seen:
+            raise ValueError(f"invalid or duplicate source name: {name!r}")
+        if urlsplit(url).scheme != "https" or size <= 0 or len(digest) != 64:
+            raise ValueError(f"invalid source metadata: {name}")
+        int(digest, 16)
+        seen.add(name)
+        items.append(Item(name=name, url=url, size=size, sha256=digest))
     return items
 
 
 def verify(path, size, sha256):
-    """Checks a downloaded file. FAIL-CLOSED: a bad file is DELETED.
-
-    Size is compared first because it is cheap; there is no point hashing
-    40 MB to learn the download was truncated. A half-good mirror is worse
-    than none, so nothing unverified is left on disk.
-    """
+    """Checks a downloaded file; a bad or incomplete file is deleted."""
     try:
         actual_size = os.path.getsize(path)
     except OSError:
@@ -142,7 +116,6 @@ def output_dir():
 
 
 def _download(url, target):
-    """Fetches one URL. Imported here so importing this module stays cheap."""
     import urllib.request
 
     host = urlsplit(url).hostname or ""
@@ -161,14 +134,21 @@ def _download(url, target):
 
 
 def main():
-    items = plan()
-    if not items:
-        print("[ERROR] Nothing to mirror; is the manifest readable?")
+    try:
+        open_blockers = blockers()
+        items = plan()
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(f"[ERROR] Corresponding-source contract cannot be read: {exc}")
+        return 1
+    if open_blockers:
+        print("[ERROR] Release source gate is CLOSED:")
+        for reason in open_blockers:
+            print(f"  - {reason}")
         return 1
 
     folder = output_dir()
     os.makedirs(folder, exist_ok=True)
-    print(f"[INFO] Mirroring {len(items)} archives into {folder}")
+    print(f"[INFO] Mirroring {len(items)} source archives into {folder}")
 
     failed = []
     for item in items:
@@ -188,16 +168,14 @@ def main():
         if verify(target, item.size, item.sha256):
             print(f"[OK] {item.name}")
         else:
-            print(f"[ERROR] {item.name}: size or SHA-256 does not match the "
-                  f"manifest; the file was deleted")
+            print(f"[ERROR] {item.name}: size or SHA-256 mismatch; deleted")
             failed.append(item.name)
 
     if failed:
-        print(f"[ERROR] {len(failed)} archives could not be mirrored: "
+        print(f"[ERROR] {len(failed)} source archives failed: "
               + ", ".join(failed))
         return 1
-    print(f"[INFO] {len(items)} archives verified. Upload the contents of "
-          f"{OUTPUT_DIR_NAME}/ to the release as additional assets.")
+    print(f"[INFO] {len(items)} corresponding-source archives verified.")
     return 0
 
 

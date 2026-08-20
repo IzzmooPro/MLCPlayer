@@ -30,6 +30,7 @@ gercek artifact'lere ve yayinci anahtarina DOKUNMAZ.
 """
 import base64
 import hashlib
+import json
 import os
 import subprocess
 import sys
@@ -55,13 +56,10 @@ VersionInfoProductName=MLC Player
 VersionInfoProductVersion={windows}
 '''
 
-#: `packaging/fetch_sources.py::FETCHABLE` ile AYNI dort ad. Test bunu
-#: kopyalamaz; urunden turetildigini ayrica dogrular.
 MIRROR_CONTENTS = {
-    "mpv-dev-x86_64-20260814-git-7b8915bc1d.7z": b"sahte mpv arsivi",
-    "yt-dlp.exe": b"sahte yt-dlp",
-    "deno-x86_64-pc-windows-msvc.zip": b"sahte deno arsivi",
-    "yt-dlp-THIRD_PARTY_LICENSES.txt": b"sahte lisans metni",
+    "mpv-source.tar.gz": b"sahte mpv kaynak arsivi",
+    "ffmpeg-source.tar.xz": b"sahte ffmpeg kaynak arsivi",
+    "build-recipe-source.zip": b"sahte build tarifi",
 }
 
 
@@ -129,14 +127,18 @@ def release(tmp_path, signing_key):
         (repo / ".gitignore").write_text(
             "installer_output/\nsource_mirror/\nbin/\n", encoding="utf-8")
 
-        rows = ["# sahte manifest"]
+        sources = []
         for name, data in MIRROR_CONTENTS.items():
             (repo / "source_mirror" / name).write_bytes(data)
-            rows.append(
-                f"{name} | v1 | https://ornek/{name} | "
-                f"{len(data)} | {sha256_of(data)}")
-        (repo / "bin" / "RUNTIME_MANIFEST.txt").write_text(
-            "\n".join(rows) + "\n", encoding="utf-8")
+            sources.append({
+                "name": name,
+                "url": f"https://github.com/example/source/{name}",
+                "size": len(data),
+                "sha256": sha256_of(data),
+            })
+        (repo / "packaging" / "corresponding_sources.json").write_text(
+            json.dumps({"schema": 1, "status": "ready", "blockers": [],
+                        "sources": sources}), encoding="utf-8")
 
         chosen_tag = tag or version
         if tag_version is not None:
@@ -170,12 +172,12 @@ def test_a_complete_release_candidate_passes(release, capsys):
     assert "OK" in capsys.readouterr().out
 
 
-def test_exactly_eight_assets_are_expected_and_listed(release, capsys):
-    """SOZLESME: bugun toplam SEKIZ varlik; hepsi tek tek raporlanir."""
+def test_assets_are_derived_and_listed(release, capsys):
+    """Dort installer girdisi ve sozlesmedeki kaynaklar raporlanir."""
     repo = release()
     assets = prepublish.expected_assets("v0.37", repo)
 
-    assert len(assets) == 8, f"sekiz varlik bekleniyor: {assets}"
+    assert len(assets) == 4 + len(MIRROR_CONTENTS)
 
     prepublish.run("v0.37", repo)
     output = capsys.readouterr().out
@@ -183,17 +185,13 @@ def test_exactly_eight_assets_are_expected_and_listed(release, capsys):
         assert os.path.basename(path) in output, f"raporda yok: {path}"
 
 
-def test_the_mirror_names_come_from_fetch_sources(release):
-    """Kaynak/lisans adlari FETCHABLE'dan TURER; kopyalanmaz."""
-    from fetch_sources import FETCHABLE
-
+def test_the_mirror_names_come_from_the_source_contract(release):
     repo = release()
     assets = [os.path.basename(p)
               for p in prepublish.expected_assets("v0.37", repo)]
 
-    for name in FETCHABLE:
+    for name in MIRROR_CONTENTS:
         assert name in assets, f"{name} beklenen varliklarda yok"
-    assert len(FETCHABLE) == 4
 
 
 # --- 2. Calisma agaci TEMIZ olmali ------------------------------------
@@ -267,7 +265,7 @@ def test_a_same_size_corrupt_mirror_asset_fails_on_the_hash(release, capsys):
     kabul ediyordu ve boyut kisayolundan gecilse bile YESIL kalirdi.
     """
     repo = release()
-    target = os.path.join(repo, "source_mirror", "yt-dlp.exe")
+    target = os.path.join(repo, "source_mirror", "ffmpeg-source.tar.xz")
     original = open(target, "rb").read()
     flipped = bytes([original[0] ^ 0xFF]) + original[1:]
     open(target, "wb").write(flipped)
@@ -316,42 +314,46 @@ def test_a_signature_with_non_ascii_bytes_exits_one(release):
     assert prepublish.main(["--tag", "v0.37"], repo) == 1
 
 
-def test_a_non_numeric_manifest_size_is_fail_closed(release, capsys):
+def test_a_non_numeric_source_size_is_fail_closed(release, capsys):
     """Manifest `size` alani sayisal degilse arac COKMEZ, False doner.
 
     `fetch_sources.plan()` icinde `int(size)` `ValueError` firlatir;
     yalniz `OSError` yakalayan surum traceback ile duserdi.
     """
     repo = release()
-    manifest = os.path.join(repo, "bin", "RUNTIME_MANIFEST.txt")
-    rows = ["# bozuk manifest"]
-    for name, data in MIRROR_CONTENTS.items():
-        rows.append(f"{name} | v1 | https://ornek/{name} | "
-                    f"BOYUT_DEGIL | {sha256_of(data)}")
+    manifest = os.path.join(repo, "packaging",
+                            "corresponding_sources.json")
+    source = {"name": "source.tar.gz", "url": "https://github.com/x/y",
+              "size": "BOYUT_DEGIL", "sha256": "0" * 64}
     with open(manifest, "w", encoding="utf-8") as handle:
-        handle.write("\n".join(rows) + "\n")
+        json.dump({"schema": 1, "status": "ready", "blockers": [],
+                   "sources": [source]}, handle)
 
     passed = prepublish.run("v0.37", repo)
     output = capsys.readouterr().out
 
     assert passed is False
-    assert "manifest" in output.lower()
+    assert "kaynak sozlesmesi" in output.lower()
     assert "Traceback" not in output
 
 
-def test_a_non_numeric_manifest_size_exits_one(release):
+def test_a_non_numeric_source_size_exits_one(release):
     repo = release()
-    manifest = os.path.join(repo, "bin", "RUNTIME_MANIFEST.txt")
+    manifest = os.path.join(repo, "packaging",
+                            "corresponding_sources.json")
     with open(manifest, "w", encoding="utf-8") as handle:
-        handle.write("yt-dlp.exe | v1 | https://ornek | ??? | abc\n")
+        json.dump({"schema": 1, "status": "ready", "blockers": [],
+                   "sources": [{"name": "x", "url": "https://github.com/x",
+                                "size": "???", "sha256": "abc"}]}, handle)
 
     assert prepublish.main(["--tag", "v0.37"], repo) == 1
 
 
-def test_a_missing_manifest_file_is_fail_closed(release, capsys):
+def test_a_missing_source_contract_is_fail_closed(release, capsys):
     """Manifest hic yoksa da kontrollu hata."""
     repo = release()
-    os.remove(os.path.join(repo, "bin", "RUNTIME_MANIFEST.txt"))
+    os.remove(os.path.join(repo, "packaging",
+                           "corresponding_sources.json"))
 
     assert prepublish.run("v0.37", repo) is False
     assert "Traceback" not in capsys.readouterr().out
@@ -359,7 +361,7 @@ def test_a_missing_manifest_file_is_fail_closed(release, capsys):
 
 def test_a_wrong_size_mirror_asset_fails(release, capsys):
     repo = release()
-    target = os.path.join(repo, "source_mirror", "yt-dlp.exe")
+    target = os.path.join(repo, "source_mirror", "ffmpeg-source.tar.xz")
     open(target, "ab").write(b"fazladan")
 
     assert prepublish.run("v0.37", repo) is False
