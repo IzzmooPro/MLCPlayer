@@ -35,13 +35,16 @@ SOURCE_FILES = tuple(
     os.path.join("licenses", "yt-dlp-LICENSE.txt"),
     os.path.join("licenses", "yt-dlp-THIRD_PARTY_LICENSES.txt"),
     os.path.join("licenses", "deno-LICENSE.txt"),
+    os.path.join("licenses", "mpv-NOTICE.txt"),
     os.path.join("assets", "mlc-player-icon.ico"),
+    os.path.join("assets", "mlc-player-icon-transparent.ico"),
     # GPLv3: the licence text and the README MUST ACCOMPANY the
     # distribution. The spec places them in the `dist` tree, and setup also
     # copies them to the install root and shows them on the wizard screen.
     # If either is missing the build stops BEFORE it starts.
     "LICENSE",
     "README.md",
+    "README.tr.md",
     "MLCPlayer.spec",
     "main.py",
 )
@@ -59,7 +62,14 @@ FORBIDDEN_IN_DIST = (
 REQUIRED_IN_DIST = (
     "MLC Player.exe",
     os.path.join("_internal", "bin", "mpv-2.dll"),
+    os.path.join("_internal", "bin", "RUNTIME_MANIFEST.txt"),
+    os.path.join("_internal", "licenses", "mpv-NOTICE.txt"),
     os.path.join("_internal", "assets", "mlc-player-icon.ico"),
+    os.path.join("_internal", "assets", "mlc-player-icon-transparent.ico"),
+    os.path.join("_internal", "translations", "mlcplayer_en.qm"),
+    os.path.join("_internal", "LICENSE"),
+    os.path.join("_internal", "README.md"),
+    os.path.join("_internal", "README.tr.md"),
 )
 
 

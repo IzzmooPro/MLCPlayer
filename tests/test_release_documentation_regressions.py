@@ -127,6 +127,20 @@ def test_the_tag_is_never_created_before_the_build():
             f"{os.path.basename(path)} tag/push sirasini yazmiyor")
 
 
+def test_final_artifact_process_safety_is_a_pre_tag_gate():
+    """Source tests cannot prove the newly compiled installer's behavior."""
+    text = fold(read(RELEASE_DOC)).lower()
+    build = text.index("b) hedef testler")
+    smoke = text.index("final-artifact")
+    tag = text.index("yerel annotated tag")
+
+    assert build < smoke < tag
+    for phrase in (
+            "ayni adli", "hayatta", "silent", "interaktif", "appdata",
+            "hash", "byte", "upgrade", "uninstall", "degismemeli"):
+        assert phrase in text, f"final-artifact kabulunde eksik: {phrase}"
+
+
 # --- 4. Sekiz varlik ve SHA-256 esligi --------------------------------
 
 def test_the_eight_asset_contract_is_recorded():

@@ -51,9 +51,11 @@ VersionInfoCompany=IzzmooPro
 VersionInfoDescription={#AddonName}
 VersionInfoProductName={#AddonName}
 VersionInfoProductVersion={#AddonNumericVersion}
-; Calisan oynatici dosyalari kilitleyebilir.
+; `CloseApplicationsFilter` süreç adı değil, kilit denetimine girecek [Files]
+; girdilerinin ad filtresidir. Add-on'un gerçek çalıştırılabilir dosyalarını
+; denetle; ana oynatıcı EXE'si aşağıda ek Restart Manager kaynağıdır.
 CloseApplications=yes
-CloseApplicationsFilter="MLC Player.exe"
+CloseApplicationsFilter="yt-dlp.exe,deno.exe"
 RestartApplications=no
 
 [Languages]
@@ -99,27 +101,74 @@ Type: dirifempty; Name: "{app}\_internal"
 Type: dirifempty; Name: "{app}"
 
 [Code]
-function PlayerDirectory(Param: String): String;
 var
-  Location: String;
+  PlayerInstallDirectory: String;
+
+// Add-on dosyalarını kullanabilecek ana oynatıcıyı ad-temelli zorlayıcı
+// `taskkill` yerine kurulu TAM kaynağı üzerinden Restart Manager'a kaydet.
+// Böylece başka klasördeki aynı adlı ilgisiz bir süreç hedeflenmez.
+procedure RegisterExtraCloseApplicationsResources;
 begin
-  // Ana programin kurulum yeri kayittan okunur; tahmin EDILMEZ.
-  if RegQueryStringValue(HKLM,
+  if not RegisterExtraCloseApplicationsResource(
+      ExpandConstant('{app}\MLC Player.exe')) then
+    RaiseException('MLC Player Restart Manager kaynagi kaydedilemedi.');
+end;
+
+function ReadValidatedPlayerDirectory(var Location: String): Boolean;
+var
+  DisplayName: String;
+  DriveRoot: String;
+begin
+  Result := False;
+
+  // Uninstall anahtari tek basina yeterli degildir: eski ya da bozuk bir
+  // InstallLocation add-on dosyalarini ilgisiz bir klasore yonlendirebilir.
+  if not RegQueryStringValue(HKLM,
       'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#PlayerAppId}_is1',
       'InstallLocation', Location) then
-    Result := RemoveBackslashUnlessRoot(Location)
+    Exit;
+  if not RegQueryStringValue(HKLM,
+      'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#PlayerAppId}_is1',
+      'DisplayName', DisplayName) then
+    Exit;
+  if Pos('{#MyAppName} ', DisplayName) <> 1 then
+    Exit;
+
+  Location := RemoveBackslashUnlessRoot(Trim(Location));
+  if (Location = '') or (not PathIsRooted(Location)) then
+    Exit;
+  Location := RemoveBackslashUnlessRoot(ExpandFileName(Location));
+
+  // Add-on yalniz yerel, kok olmayan bir urun klasorune yazabilir. Eslenmis
+  // ag surucusu de ExpandUNCFileName ile UNC'ye donusur ve reddedilir.
+  if Copy(ExpandUNCFileName(Location), 1, 2) = '\\' then
+    Exit;
+  DriveRoot := AddBackslash(ExtractFileDrive(Location));
+  if (DriveRoot = '') or PathSame(Location, DriveRoot) then
+    Exit;
+  if not FileExists(AddBackslash(Location) + 'MLC Player.exe') then
+    Exit;
+
+  Result := True;
+end;
+
+function PlayerDirectory(Param: String): String;
+begin
+  if PlayerInstallDirectory <> '' then
+    Result := PlayerInstallDirectory
+  else if ReadValidatedPlayerDirectory(PlayerInstallDirectory) then
+    Result := PlayerInstallDirectory
   else
+    // InitializeSetup kurulumu durdurur; bu deger yalniz DefaultDirName
+    // genisletilirken gecici ve zararsiz bir yedektir.
     Result := ExpandConstant('{autopf}\MLC Player');
 end;
 
 function InitializeSetup(): Boolean;
-var
-  Location: String;
 begin
-  // MLC Player kurulu degilse ek paketin gidecegi yer YOKTUR.
-  Result := RegQueryStringValue(HKLM,
-      'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#PlayerAppId}_is1',
-      'InstallLocation', Location);
+  // Kayit eksik, eski, ag/kok/relative ya da gercek Player EXE'sinden
+  // kopuksa dosya yazmadan once fail-closed dur.
+  Result := ReadValidatedPlayerDirectory(PlayerInstallDirectory);
   if not Result then
     MsgBox(ExpandConstant('{cm:PlayerRequired}'), mbCriticalError, MB_OK);
 end;

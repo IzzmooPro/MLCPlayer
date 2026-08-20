@@ -58,6 +58,32 @@ def test_the_addon_refuses_to_run_without_the_player():
     assert "english.PlayerRequired=" in iss
 
 
+def test_the_addon_validates_the_registered_player_directory_fail_closed():
+    """A stale uninstall key must never redirect add-on writes elsewhere."""
+    iss = ADDON_ISS.read_text(encoding="utf-8-sig")
+
+    assert "function ReadValidatedPlayerDirectory" in iss
+    assert "PathIsRooted(Location)" in iss
+    assert "ExpandUNCFileName(Location)" in iss
+    assert "ExtractFileDrive(Location)" in iss
+    assert "PathSame(Location, DriveRoot)" in iss
+    assert "FileExists(AddBackslash(Location) + 'MLC Player.exe')" in iss
+    assert "'DisplayName', DisplayName" in iss
+    assert "Pos('{#MyAppName} ', DisplayName) <> 1" in iss
+    assert "ReadValidatedPlayerDirectory(PlayerInstallDirectory)" in iss
+
+
+def test_restart_manager_resource_registration_is_fail_closed():
+    """If exact-resource registration fails, setup must not continue."""
+    iss = ADDON_ISS.read_text(encoding="utf-8-sig")
+    assert re.search(
+        r"if\s+not\s+RegisterExtraCloseApplicationsResource\s*\(",
+        iss,
+        re.IGNORECASE,
+    )
+    assert "RaiseException(" in iss
+
+
 def test_the_addon_has_its_own_identity():
     """Ayrı kaldırılabilmeli; ana programın kaydını ezmemeli."""
     iss = ADDON_ISS.read_text(encoding="utf-8-sig")

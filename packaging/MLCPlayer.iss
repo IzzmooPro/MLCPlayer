@@ -60,8 +60,9 @@ SolidCompression=yes
 WizardStyle=modern
 
 ; AppMutex BİLEREK YOK (bkz. referans proje): Inno başlangıçta gereksiz
-; "uygulamayı kapatın" uyarısı gösteriyordu. Restart Manager çalışan
-; uygulamayı sessizce kapatır.
+; "uygulamayı kapatın" uyarısı gösteriyordu. Restart Manager interaktif
+; kurulumda etkilenen uygulamayı gösterip onay ister; sessiz kurulumda ise
+; CloseApplications=yes sözleşmesine göre kapatmayı dener.
 CloseApplications=yes
 CloseApplicationsFilter="MLC Player.exe"
 RestartApplications=no
@@ -123,8 +124,8 @@ Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:Add
 
 [Files]
 ; onedir: PyInstaller çıktısının TAMAMI kurulur (exe + _internal\).
-; `_internal\bin` içindeki mpv-2.dll, yt-dlp.exe ve deno.exe olmadan
-; program çalışmaz; alt klasörler birlikte taşınır.
+; `_internal\bin` içindeki mpv-2.dll çekirdek runtime'dır. yt-dlp ve deno
+; bilinçli olarak ana pakette yoktur; yalnız Internet Videosu ek paketindedir.
 Source: "..\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; GPLv3 metni ve README kurulum KÖKÜNDE de dursun: kullanıcı `_internal`
 ; içine bakmak zorunda kalmadan lisansa ulaşabilmelidir.
@@ -173,17 +174,4 @@ Filename: "{#MyAppUrl}"; Description: "{cm:OpenRepository}"; Flags: shellexec no
 function InitializeUninstall(): Boolean;
 begin
   Result := True;
-end;
-
-// Kurulumdan HEMEN ÖNCE çalışan uygulamayı KESİN kapat. MLC Player küçük
-// resim üretimi için AYNI exe'yi `--thumbnail-worker` ile yeniden başlatır;
-// asılı kalan bu alt süreçler de aynı görüntü adını taşır ve burada
-// sonlandırılır. Aksi halde `_internal` dosyaları kilitli kalabilir.
-function PrepareToInstall(var NeedsRestart: Boolean): String;
-var
-  ResultCode: Integer;
-begin
-  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM "MLC Player.exe"',
-       '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-  Result := '';
 end;

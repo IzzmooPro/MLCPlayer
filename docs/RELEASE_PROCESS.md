@@ -53,6 +53,25 @@ değiştirmedikleridir**.
        ÇIKIŞ  : dört installer artifact'i üretildi ve imzalandı
                 (zincir kendi içinde `--pre`, `--post`, `--final` yapar)
 
+    b2) TAG'DEN ÖNCE zorunlu final-artifact fiziksel kabulü
+        GİRİŞ  : b)'nin ürettiği TAM installer dosyaları
+        ÇIKIŞ  : ana paket ve add-on için install -> upgrade -> uninstall
+                 zinciri, interaktif ve silent yollar ayrı ayrı geçti
+        KORUMA :
+        - Gerçek kurulu Player, Restart Manager ile nazikçe kapanır; kapanış
+          marker'ı/exit durumu doğrulanır ve yardımcı süreç sızmaz.
+        - Başka klasörde çalışan aynı adlı `MLC Player.exe` hayatta kalır.
+        - Kapanmayı reddeden/asılı süreçte kurulum DURUR; kurulu program
+          ağacında tek bir byte bile değişmemeli.
+        - Test medyası ile `%APPDATA%\MLCPlayer` ayar/log ağacı önce/sonra
+          dosya listesi, metadata ve SHA-256 hash ile aynı kalır.
+        - Add-on, boş/relative/root/UNC/eski/wrong-product InstallLocation
+          kayıtlarını dosya yazmadan reddeder; aktif Player, yt-dlp ve deno
+          süreçleriyle gerçek upgrade ayrıca ölçülür.
+        - İki kaldırma sırası da denenir; yalnız boş kurulum dizinleri silinir.
+        Bu kabul yeni artifact'in ad/boyut/SHA-256 değeriyle kaydedilir. Eski
+        bir build'in fiziksel kabulü yeni artifact için kanıt SAYILMAZ.
+
     c) python packaging/fetch_sources.py
        GİRİŞ  : bin/RUNTIME_MANIFEST.txt güncel
        ÇIKIŞ  : source_mirror içinde dört kaynak/lisans dosyası,
@@ -61,7 +80,7 @@ değiştirmedikleridir**.
     d) Build BAŞARIYLA bittikten SONRA, test edilen HEAD üzerinde
        YEREL ANNOTATED tag:
            git tag -a vX.Y -m "MLC Player vX.Y"
-       GİRİŞ  : build ve fetch bitti, ağaç temiz
+       GİRİŞ  : build, final-artifact kabulü ve fetch bitti; ağaç temiz
        ÇIKIŞ  : yerel annotated tag HEAD'de
 
     e) python packaging/prepublish.py --tag vX.Y
