@@ -17,6 +17,7 @@ jobs:
     timeout-minutes: 20
     env:
       MLC_CI: '1'
+      PYTHONPATH: ${{ github.workspace }}/scripts
       PYTHONUTF8: '1'
       QT_QPA_PLATFORM: offscreen
 

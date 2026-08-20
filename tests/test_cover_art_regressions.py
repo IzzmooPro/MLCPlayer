@@ -39,6 +39,9 @@ import threading
 
 import pytest
 
+
+HOSTED_CI = os.environ.get("MLC_CI") == "1"
+
 from app.config import MPV_CONFIG
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -400,6 +403,7 @@ def test_cover_display_is_configured_in_the_single_mpv_config():
 # 4. GERCEK native kabul — TEK kosum
 # =====================================================================
 
+@pytest.mark.skipif(HOSTED_CI, reason="hosted CI has no native libmpv runtime")
 def test_the_native_cover_art_scenarios_pass_in_a_child_process():
     """Gercek libmpv kabulu: ayri surec, TEK kosum.
 

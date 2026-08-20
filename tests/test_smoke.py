@@ -4,7 +4,13 @@ import os
 import subprocess
 import sys
 
+import pytest
 
+
+HOSTED_CI = os.environ.get("MLC_CI") == "1"
+
+
+@pytest.mark.skipif(HOSTED_CI, reason="hosted CI has no native libmpv runtime")
 def test_player_opens_and_closes_cleanly(tmp_path):
     project_root = os.path.dirname(os.path.dirname(__file__))
     env = os.environ.copy()

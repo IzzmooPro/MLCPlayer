@@ -43,6 +43,7 @@ def test_ci_runs_static_translation_and_default_pytest_gates():
 def test_ci_does_not_opt_into_native_physical_or_release_actions():
     text = workflow_text()
     assert "MLC_CI: '1'" in text
+    assert "PYTHONPATH: ${{ github.workspace }}/scripts" in text
     forbidden = (
         "MLC_NATIVE_SMOKE: '1'",
         "MLC_PHYSICAL_ACCEPTANCE: '1'",
@@ -53,3 +54,21 @@ def test_ci_does_not_opt_into_native_physical_or_release_actions():
     )
     for value in forbidden:
         assert value not in text
+
+
+def test_exact_byte_licences_are_pinned_to_lf_in_every_checkout():
+    attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    assert "LICENSE text eol=lf" in attributes.splitlines()
+    assert (
+        "licenses/yt-dlp-THIRD_PARTY_LICENSES.txt text eol=lf"
+        in attributes.splitlines()
+    )
+
+
+def test_hosted_ci_explicitly_excludes_the_two_native_libmpv_acceptances():
+    smoke = (ROOT / "tests" / "test_smoke.py").read_text(encoding="utf-8")
+    cover = (
+        ROOT / "tests" / "test_cover_art_regressions.py"
+    ).read_text(encoding="utf-8")
+    assert "@pytest.mark.skipif(HOSTED_CI" in smoke
+    assert "@pytest.mark.skipif(HOSTED_CI" in cover
