@@ -7,7 +7,7 @@
 # binding.
 
 # Test suite.
-pytest>=8.0
+pytest==9.0.2
 
 # Qt translation tooling. `pyside6-lrelease` compiles translations/*.ts
 # into the .qm files the package ships, and `pyside6-linguist` is the
@@ -22,4 +22,8 @@ pytest>=8.0
 # `QCoreApplication.translate(...)` and cannot see the `app/i18n.tr()`
 # wrapper, so it would rewrite them without most of our strings.
 # Extraction is done by `packaging/extract_translations.py` over the AST.
-PySide6>=6.11
+PySide6==6.11.1
+
+# Release packaging. The build script checks this exact toolchain before it
+# removes any previous output.
+pyinstaller==6.19.0

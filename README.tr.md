@@ -94,13 +94,13 @@ vardır; onu kaldırmak ana oynatıcıyı silmeden site çıkarımını kapatır
 
 ## Çalıştırma (kaynaktan)
 
-En kolay yol `Start.bat` dosyasına çift tıklamaktır: Python 3.12+ yoksa
+En kolay yol `Start.bat` dosyasına çift tıklamaktır: Python 3.12-3.14 yoksa
 kurar, eksik paketleri `requirements.txt` üzerinden yükler ve programı açar.
 Başlatmadan önce üç çalışma zamanı ikilisini de doğrular. Her şey hazırsa
 hiçbir kurulum yapmadan doğrudan başlatır. Yalnızca kontrol için
 `Start.bat -CheckOnly` kullanın; program açılmaz.
 
-Elle yerel medya oynatmak için Windows, Python 3.12+ ve `bin/mpv-2.dll`
+Elle yerel medya oynatmak için Windows, Python 3.12-3.14 ve `bin/mpv-2.dll`
 gerekir. İnternet videosu site çıkarımı ayrıca `bin/yt-dlp.exe` ve
 `bin/deno.exe` gerektirir; doğrudan HTTP/HLS oynatma mpv özelliğidir.
 Mevcut `Start.bat` üç ikiliyi de zorunlu tutar.

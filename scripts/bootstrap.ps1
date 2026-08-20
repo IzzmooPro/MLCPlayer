@@ -15,19 +15,17 @@ param(
 
 $ErrorActionPreference = "Stop"
 $MinimumPython = [Version]"3.12"
+$MaximumPythonExclusive = [Version]"3.15"
 $Python = $null
 
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $MainFile = Join-Path $ProjectRoot "main.py"
 $Requirements = Join-Path $ProjectRoot "requirements.txt"
+$DependencyVerifier = Join-Path $ProjectRoot "packaging\verify_dependencies.py"
 
 # The runtime binaries are carried in the repository; pip does not
 # provide them.
 $RequiredBinaries = @("mpv-2.dll", "yt-dlp.exe", "deno.exe")
-
-# Import name <-> pip package. The check uses the import name, because
-# the python-mpv package installs a module called "mpv".
-$RequiredModules = @("PyQt6", "mpv", "cryptography")
 
 function Install-PythonFromOfficialSite {
     Write-Host "[INFO] Downloading Python from the official site..."
@@ -74,6 +72,7 @@ function Test-PythonCommand {
         $versionText = & $Executable @PrefixArgs -c "import sys; print('.'.join(map(str, sys.version_info[:3])))" 2>$null
         if ($LASTEXITCODE -ne 0) { return $null }
         if ([Version]$versionText -lt $MinimumPython) { return $null }
+        if ([Version]$versionText -ge $MaximumPythonExclusive) { return $null }
         return [PSCustomObject]@{
             Executable = $Executable
             PrefixArgs = $PrefixArgs
@@ -86,14 +85,10 @@ function Test-PythonCommand {
 }
 
 function Test-ModulesInstalled {
-    # Are the packages installed? If they are, pip is NOT touched at all.
-    #
-    # The modules are located, NOT imported: `import mpv` would try to load
-    # the libmpv DLL at run time and fail because bin/ is not on PATH yet,
-    # which would make pip run pointlessly on every launch.
-    $names = ($RequiredModules | ForEach-Object { "'$_'" }) -join ","
-    $probe = "import importlib.util as u,sys; sys.exit(1 if any(u.find_spec(m) is None for m in ($names,)) else 0)"
-    & $Python.Executable @($Python.PrefixArgs) -c $probe
+    # Metadata is checked without importing mpv, so the native DLL is not
+    # loaded here. A present but stale package is intentionally not accepted.
+    if (-not (Test-Path $DependencyVerifier)) { return $false }
+    & $Python.Executable @($Python.PrefixArgs) $DependencyVerifier $Requirements --quiet
     return ($LASTEXITCODE -eq 0)
 }
 
@@ -113,7 +108,7 @@ foreach ($candidate in $Candidates) {
 }
 
 if ($null -eq $Python) {
-    Write-Host "[INFO] Python 3.12+ not found. Installing Python 3.13..."
+    Write-Host "[INFO] Python 3.12-3.14 not found. Installing Python 3.13..."
     $installedWithWinget = $false
     if ($null -ne (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
         & winget.exe install --id Python.Python.3.13 --exact --scope user --accept-package-agreements --accept-source-agreements

@@ -117,7 +117,7 @@ disables website extraction without removing the main player.
 
 ## Build and run from source
 
-The quickest path is `Start.bat`: it locates Python 3.12+, installs it only
+The quickest path is `Start.bat`: it locates Python 3.12-3.14, installs it only
 if missing, installs the packages from `requirements.txt` only if they are
 absent, verifies all three runtime binaries and starts the player.
 `Start.bat -CheckOnly` verifies everything without launching.
@@ -129,7 +129,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Manual local media playback requires Windows, Python 3.12+ and
+Manual local media playback requires Windows, Python 3.12-3.14 and
 `bin/mpv-2.dll`. Internet video extraction additionally requires
 `bin/yt-dlp.exe` and `bin/deno.exe`; direct HTTP/HLS playback remains an mpv
 capability. `Start.bat` currently requires all three binaries. They are not
@@ -178,10 +178,15 @@ Two things are worth knowing before you send a change:
 release you also need the tooling:
 
 ```
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements-lock.txt
 ```
 
-That second file brings pytest and PySide6. PySide6 is there for one reason:
+The lock file is the reproducible Windows test/release environment.
+`requirements.txt` and `requirements-dev.txt` document the smaller direct
+runtime and developer dependency sets; their versions must match the lock.
+
+The developer set brings pytest, PyInstaller and PySide6. PySide6 is there for
+one reason:
 it provides `pyside6-lrelease`, which compiles the translations, and
 `pyside6-linguist`. PyQt6 — what the player itself runs on — ships
 `pylupdate6` but no `lrelease`. PySide6 is build tooling only and is excluded

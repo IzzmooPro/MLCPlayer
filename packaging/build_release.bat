@@ -25,6 +25,8 @@ set "PROJECT=%CD%"
 set "SPEC=MLCPlayer.spec"
 set "ISS=packaging\MLCPlayer.iss"
 set "VERIFY=packaging\verify_build.py"
+set "DEPENDENCY_VERIFY=packaging\verify_dependencies.py"
+set "DEPENDENCY_LOCK=requirements-lock.txt"
 
 echo.
 echo ============================================================
@@ -50,6 +52,14 @@ rem --- PyInstaller ---
 python -m PyInstaller --version >nul 2>&1
 if errorlevel 1 (
     echo ERROR: PyInstaller is not installed.  Install it with: pip install pyinstaller
+    goto :fail
+)
+
+rem --- Deterministic dependency gate (before any output is removed) ---
+python "%DEPENDENCY_VERIFY%" "%DEPENDENCY_LOCK%"
+if errorlevel 1 (
+    echo ERROR: Install the locked build environment with:
+    echo        python -m pip install -r %DEPENDENCY_LOCK%
     goto :fail
 )
 
