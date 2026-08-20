@@ -187,8 +187,11 @@ kullanıcıya, gerekirse hukukçuya aittir:
   arayüzü kapalıdır. Bu bir hukuki görüş değildir.
 - **Karşılık gelen kaynak paketleri.** Eski yayın akışı mpv geliştirme
   paketini ve çalıştırılabilir add-on dosyalarını kaynak olarak sayıyordu;
-  bunlar gerçek, yeniden derlenebilir kaynak değildir. Ayrı kaynak sözleşmesi
-  tamamlanana kadar release kapısı kapalıdır.
+  bunlar gerçek, yeniden derlenebilir kaynak değildir. Doğrulanmış 24 kaynak
+  arşivi toplanmıştır; ancak 20260814 mpv workflow'unun tam transitif commit
+  listesi süresi dolan build loglarıyla kaybolmuştur. Mevcut libmpv, bütün
+  kaynak girdileri birlikte yakalanan yeni bir build ile değiştirilene ve
+  lisans/relink paketi tamamlanana kadar release kapısı kapalıdır.
 
 **Kapanan maddeler:**
 

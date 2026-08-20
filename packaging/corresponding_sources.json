@@ -2,10 +2,155 @@
   "schema": 1,
   "status": "blocked",
   "blockers": [
-    "A fresh release build has not produced a complete component and version inventory.",
-    "Exact rebuildable source bundles for mpv, FFmpeg and the mpv Windows build recipe have not been verified.",
-    "Sources and required notices for the bundled Python, PyQt, Qt and Python dependency runtime have not been collected.",
-    "Sources and required notices for the Internet Video add-on runtime have not been collected."
+    "The exact transitive source revisions selected by the 20260814 mpv Windows workflow are no longer available from its expired build logs; the current libmpv binary must be replaced by a build whose complete source set is captured.",
+    "The cryptography wheel's OpenSSL and Rust dependency sources have not all been collected.",
+    "The complete source set used to build the official yt-dlp executable has not been collected.",
+    "The installed license, notice and Qt relinking package has not been completed and verified."
   ],
-  "sources": []
+  "sources": [
+    {
+      "name": "Python-3.14.3.tar.xz",
+      "url": "https://www.python.org/ftp/python/3.14.3/Python-3.14.3.tar.xz",
+      "size": 23778568,
+      "sha256": "a97d5549e9ad81fe17159ed02c68774ad5d266c72f8d9a0b5a9c371fe85d902b"
+    },
+    {
+      "name": "qtbase-everywhere-src-6.10.2.tar.xz",
+      "url": "https://download.qt.io/official_releases/qt/6.10/6.10.2/submodules/qtbase-everywhere-src-6.10.2.tar.xz",
+      "size": 50374380,
+      "sha256": "aeb78d29291a2b5fd53cb55950f8f5065b4978c25fb1d77f627d695ab9adf21e"
+    },
+    {
+      "name": "qtsvg-everywhere-src-6.10.2.tar.xz",
+      "url": "https://download.qt.io/official_releases/qt/6.10/6.10.2/submodules/qtsvg-everywhere-src-6.10.2.tar.xz",
+      "size": 2614740,
+      "sha256": "f07ff80f38caf235187200345392ca7479445ddf49a36c3694cd52a735dad6e1"
+    },
+    {
+      "name": "qtimageformats-everywhere-src-6.10.2.tar.xz",
+      "url": "https://download.qt.io/official_releases/qt/6.10/6.10.2/submodules/qtimageformats-everywhere-src-6.10.2.tar.xz",
+      "size": 2032388,
+      "sha256": "8b8f9c718638081e7b3c000e7f31910140b1202a98e98df5d1b496fe6f639d67"
+    },
+    {
+      "name": "pyqt6-6.10.2.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/96/03/e756f52e8b0d7bb5527baf8c46d59af0746391943bdb8655acba22ee4168/pyqt6-6.10.2.tar.gz",
+      "size": 1085573,
+      "sha256": "6c0db5d8cbb9a3e7e2b5b51d0ff3f283121fa27b864db6d2f35b663c9be5cc83"
+    },
+    {
+      "name": "pyqt6_sip-13.11.1.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/90/24/a753e1af94b9ae5b2da63d4598457308da3cdbf0838c959381db086ccc86/pyqt6_sip-13.11.1.tar.gz",
+      "size": 92574,
+      "sha256": "869c5b48afe38e55b1ee0dd72182b0886e968cc509b98023ff50010b013ce1be"
+    },
+    {
+      "name": "python_mpv-1.0.8.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/77/bc/6aa34c8805ff62e2fefc7d171563c60598aac215d5241186031a2c839935/python_mpv-1.0.8.tar.gz",
+      "size": 52680,
+      "sha256": "017fa359da059c831a94c419083491903e6d2f7c81b9841c33c196cabf4b3fe3"
+    },
+    {
+      "name": "cryptography-50.0.0.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/de/41/6cbdcf9142d00fe82836fbb51e503e58088575cf7a0fe1dbff6695bf0840/cryptography-50.0.0.tar.gz",
+      "size": 880201,
+      "sha256": "eeac2acb5a20ed25e0ad6d1df9891a520b78b404266b6d11778f25d5d691a6c9"
+    },
+    {
+      "name": "cffi-2.1.1.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz",
+      "size": 530807,
+      "sha256": "dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be"
+    },
+    {
+      "name": "pyinstaller-6.19.0.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/c8/63/fd62472b6371d89dc138d40c36d87a50dc2de18a035803bbdc376b4ffac4/pyinstaller-6.19.0.tar.gz",
+      "size": 4036072,
+      "sha256": "ec73aeb8bd9b7f2f1240d328a4542e90b3c6e6fbc106014778431c616592a865"
+    },
+    {
+      "name": "pyinstaller_hooks_contrib-2026.4.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/c7/fe/9278c29394bf69169febc21f96b4252c3ee7c8ec22c2fc545004bed47e71/pyinstaller_hooks_contrib-2026.4.tar.gz",
+      "size": 173050,
+      "sha256": "766c281acb1ecc32e21c8c667056d7ebf5da0aabd5e30c219f9c2a283620eeaa"
+    },
+    {
+      "name": "mpv-7b8915bc1d04c7e1b61184e00c7fbfaab1911e75.tar.gz",
+      "url": "https://codeload.github.com/mpv-player/mpv/tar.gz/7b8915bc1d04c7e1b61184e00c7fbfaab1911e75",
+      "size": 7403553,
+      "sha256": "5665448fdd02a5b6a9de40b4c0a32bf546b7ab5b7e065207b66a68460666dbba"
+    },
+    {
+      "name": "FFmpeg-1d7b14f61d66fdf18f15204c613df9d65396c319.tar.gz",
+      "url": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/1d7b14f61d66fdf18f15204c613df9d65396c319",
+      "size": 17536500,
+      "sha256": "3d1da4d3e7529855563ceff72b7f2ca910ba4fddc2f381f13666e0f1bce6f031"
+    },
+    {
+      "name": "mpv-winbuild-cmake-cd1edc11dc6887a50f705717619d879f5a93a488.tar.gz",
+      "url": "https://codeload.github.com/shinchiro/mpv-winbuild-cmake/tar.gz/cd1edc11dc6887a50f705717619d879f5a93a488",
+      "size": 81655,
+      "sha256": "8b92a254771496b0dcc23017c2734bfa7545441d3e6a37958b063d6e7814a657"
+    },
+    {
+      "name": "yt-dlp-fdec00e0bf530dc6c3cc7b1dd780e95d9ae460e9.tar.gz",
+      "url": "https://codeload.github.com/yt-dlp/yt-dlp/tar.gz/fdec00e0bf530dc6c3cc7b1dd780e95d9ae460e9",
+      "size": 3039055,
+      "sha256": "27c51a76a68621313f678aa8b9c48ce39b895e0db79e06963e07c1b1662c4786"
+    },
+    {
+      "name": "deno-17fadf33a8df3af9488b9f42efd1f2290d6dc7a3.tar.gz",
+      "url": "https://codeload.github.com/denoland/deno/tar.gz/17fadf33a8df3af9488b9f42efd1f2290d6dc7a3",
+      "size": 32650636,
+      "sha256": "8d062a782077caa485461c92383d521f19fccdb5b24650efd7d7f8fb3ef43607"
+    },
+    {
+      "name": "openssl-3.0.18.tar.gz",
+      "url": "https://github.com/openssl/openssl/releases/download/openssl-3.0.18/openssl-3.0.18.tar.gz",
+      "size": 15348046,
+      "sha256": "d80c34f5cf902dccf1f1b5df5ebb86d0392e37049e5d73df1b3abae72e4ffe8b"
+    },
+    {
+      "name": "openssl-4.0.1.tar.gz",
+      "url": "https://github.com/openssl/openssl/releases/download/openssl-4.0.1/openssl-4.0.1.tar.gz",
+      "size": 55079428,
+      "sha256": "2db3f3a0d6ea4b59e1f094ace2c8cd536dffb87cdc39084c5afa1e6f7f37dd09"
+    },
+    {
+      "name": "cpython-bzip2-05301997b2f9590f49c672cf3dfd3d3dfa7ad521.tar.gz",
+      "url": "https://codeload.github.com/python/cpython-source-deps/tar.gz/05301997b2f9590f49c672cf3dfd3d3dfa7ad521",
+      "size": 819016,
+      "sha256": "ab14accac86cdd92021d50465deeb221b476d6675bd1383d3c7fb83751c2e0a3"
+    },
+    {
+      "name": "cpython-libffi-73b247f34ef3ae1859b8c2c34d321d34ebc5db15.tar.gz",
+      "url": "https://codeload.github.com/python/cpython-source-deps/tar.gz/73b247f34ef3ae1859b8c2c34d321d34ebc5db15",
+      "size": 1376474,
+      "sha256": "a9b2840c1b99a2b57746c50f1f2ab902420628111690ec420e7293ec1f502d7b"
+    },
+    {
+      "name": "cpython-mpdecimal-48316ec025c1ebe500854c332be0a12c640c7301.tar.gz",
+      "url": "https://codeload.github.com/python/cpython-source-deps/tar.gz/48316ec025c1ebe500854c332be0a12c640c7301",
+      "size": 319969,
+      "sha256": "2db089d12f3467f7ec6cc964e821faa18fb662c467b2fa713e32a39c374441e3"
+    },
+    {
+      "name": "cpython-xz-c6bc0c612605622aaef101a33a751f9de2ecc193.tar.gz",
+      "url": "https://codeload.github.com/python/cpython-source-deps/tar.gz/c6bc0c612605622aaef101a33a751f9de2ecc193",
+      "size": 1745919,
+      "sha256": "115433c946ee069e857fd04cf41b38a4a74ed45d868a3b2e08ccd4a1f04f39d0"
+    },
+    {
+      "name": "cpython-zlib-ng-a502e047655c31db29601def76ad6539acacf43d.tar.gz",
+      "url": "https://codeload.github.com/python/cpython-source-deps/tar.gz/a502e047655c31db29601def76ad6539acacf43d",
+      "size": 2417691,
+      "sha256": "bdd663f25d83d29814bd903746392108b7bd5b880d101fc8a07aa3c12dd521f5"
+    },
+    {
+      "name": "cpython-zstd-eef946ae8cf1591c0e5cc5f43486210768647c2e.tar.gz",
+      "url": "https://codeload.github.com/python/cpython-source-deps/tar.gz/eef946ae8cf1591c0e5cc5f43486210768647c2e",
+      "size": 2442365,
+      "sha256": "21eb6a5658925a22148703284e70aa5603ce19ad688a116a2a3f08278c1e86bc"
+    }
+  ]
 }

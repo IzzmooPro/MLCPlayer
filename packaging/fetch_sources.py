@@ -9,6 +9,10 @@ contract has an open blocker.
 
 Usage:
     python packaging/fetch_sources.py
+    python packaging/fetch_sources.py --allow-incomplete
+
+The second form is a collection aid only. It downloads the already verified
+subset while preserving every blocker; it never makes a release publishable.
 """
 
 import hashlib
@@ -31,6 +35,7 @@ TRUSTED_HOSTS = frozenset({
     "release-assets.githubusercontent.com",
     "codeload.github.com",
     "download.qt.io",
+    "ftp.fau.de",
     "files.pythonhosted.org",
     "www.python.org",
 })
@@ -133,18 +138,34 @@ def _download(url, target):
                 handle.write(chunk)
 
 
-def main():
+def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    allow_incomplete = False
+    for argument in argv:
+        if argument == "--allow-incomplete":
+            allow_incomplete = True
+        else:
+            print(f"[ERROR] Unknown argument: {argument}")
+            return 1
     try:
         open_blockers = blockers()
         items = plan()
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"[ERROR] Corresponding-source contract cannot be read: {exc}")
         return 1
-    if open_blockers:
+    if open_blockers and not allow_incomplete:
         print("[ERROR] Release source gate is CLOSED:")
         for reason in open_blockers:
             print(f"  - {reason}")
         return 1
+    if not items:
+        print("[ERROR] No verified source archive is declared.")
+        return 1
+    if open_blockers:
+        print("[WARNING] Collecting the verified subset only; release remains "
+              "BLOCKED:")
+        for reason in open_blockers:
+            print(f"  - {reason}")
 
     folder = output_dir()
     os.makedirs(folder, exist_ok=True)

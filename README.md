@@ -267,6 +267,13 @@ source bundles are verified, `python packaging/fetch_sources.py` will fetch
 only those source archives, verify their size and SHA-256, and place them in
 `source_mirror/` for publication beside the installers.
 
+The verified subset can be collected during remediation with
+`python packaging/fetch_sources.py --allow-incomplete`; this does not open the
+release gate. The currently bundled 20260814 libmpv build cannot be completed
+from mpv and FFmpeg alone: its workflow linked many transitive libraries, and
+the exact revisions were kept only in expired build logs. It must be replaced
+by a build whose complete source inputs are captured alongside the binary.
+
 ### Open items
 
 Two licensing questions are deliberately still open and are tracked in

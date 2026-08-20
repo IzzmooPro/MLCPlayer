@@ -39,7 +39,23 @@ def source_row(name="mpv-source.tar.gz", payload=b"source"):
 def test_the_checked_in_contract_blocks_release_without_real_sources():
     fetch = module()
     assert fetch.blockers(), "eksik kaynaklara ragmen release kapisi acik"
-    assert fetch.plan() == []
+    assert fetch.plan(), "dogrulanmis dogrudan kaynaklar kaydedilmemis"
+
+
+def test_the_checked_in_contract_records_the_verified_subset_and_mpv_blocker():
+    fetch = module()
+    names = {item.name for item in fetch.plan()}
+    for expected in (
+        "Python-3.14.3.tar.xz",
+        "qtbase-everywhere-src-6.10.2.tar.xz",
+        "mpv-7b8915bc1d04c7e1b61184e00c7fbfaab1911e75.tar.gz",
+        "FFmpeg-1d7b14f61d66fdf18f15204c613df9d65396c319.tar.gz",
+        "openssl-4.0.1.tar.gz",
+    ):
+        assert expected in names
+    assert len(names) == 24
+    reasons = " ".join(fetch.blockers()).lower()
+    assert "mpv" in reasons and "replaced" in reasons
 
 
 def test_binary_and_developer_archives_are_not_called_source():
@@ -120,6 +136,11 @@ def test_the_plan_never_leaves_the_trusted_hosts(tmp_path):
         assert host in fetch.TRUSTED_HOSTS
 
 
+def test_the_reviewed_qt_mirror_is_explicitly_trusted():
+    fetch = module()
+    assert "ftp.fau.de" in fetch.TRUSTED_HOSTS
+
+
 def test_a_wrong_digest_is_rejected_and_removed(tmp_path):
     fetch = module()
     target = tmp_path / "bad.bin"
@@ -161,3 +182,15 @@ def test_import_does_not_download_anything():
     assert 'if __name__ == "__main__":' in source
     assert "urlopen" not in source.split('if __name__ == "__main__":')[0] \
         .split("def ")[0]
+
+
+def test_default_cli_refuses_a_blocked_contract(capsys):
+    fetch = module()
+    assert fetch.main([]) == 1
+    assert "CLOSED" in capsys.readouterr().out
+
+
+def test_unknown_cli_argument_is_rejected(capsys):
+    fetch = module()
+    assert fetch.main(["--unknown"]) == 1
+    assert "Unknown argument" in capsys.readouterr().out

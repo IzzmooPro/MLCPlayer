@@ -16,7 +16,19 @@ commiti** ve `6db8534` HEAD değeriydi; tarihsel kayıt olarak korunur.
 gerçek karşılık gelen kaynak olmadığı doğrulandı: mpv paketi yalnız binary,
 import library ve header; yt-dlp ile Deno girdileri çalıştırılabilir binary.
 Yeni `packaging/corresponding_sources.json` sözleşmesi tamamlanana kadar
-release kapısı bilerek kapalıdır. Bu düzeltmeler henüz commit edilmemiştir.
+release kapısı bilerek kapalıdır. Kapı düzeltmesi `73ac0d7` ile master'dadır;
+aşağıdaki kaynak toplama envanteri henüz commit edilmemiştir.
+
+Kaynak envanteri için `73ac0d7` üzerinde dar PyInstaller onedir build'i
+alındı: 121 dosya / 196.925.905 bayt; `verify_build --post` başarılı. Bu
+build kurulmadı, çalıştırılmadı ve native/installed kabul kanıtı değildir.
+Python 3.14.3, gerekli üç Qt 6.10.2 modülü, PyQt/python-mpv/cryptography/cffi,
+PyInstaller, mpv, FFmpeg, mpv build tarifi, yt-dlp, Deno, iki OpenSSL hattı
+ve CPython Windows dış kütüphaneleri için 24 arşiv (225.911.340 bayt)
+boyut+SHA-256 ile doğrulandı. Buna rağmen 20260814 mpv workflow'unun yaklaşık
+70 transitif kaynağa ait kesin commit listesi süresi dolmuş build loglarında
+kaldı; üst seviye mpv+FFmpeg arşivleri bu boşluğu kapatmaz. Mevcut libmpv,
+tam kaynak setini aynı anda yakalayan yeni bir build ile değiştirilmelidir.
 
 Güncel GitHub Actions koşumu `32399570489`: kilitli bağımlılık, compile,
 çeviri/whitespace ve hosted tam paket **4678 passed / 26 skipped / 0 failed**.
