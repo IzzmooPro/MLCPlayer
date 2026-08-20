@@ -42,6 +42,7 @@ def test_ci_runs_static_translation_and_default_pytest_gates():
 
 def test_ci_does_not_opt_into_native_physical_or_release_actions():
     text = workflow_text()
+    assert "MLC_CI: '1'" in text
     forbidden = (
         "MLC_NATIVE_SMOKE: '1'",
         "MLC_PHYSICAL_ACCEPTANCE: '1'",

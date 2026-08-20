@@ -14,6 +14,12 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 sys.path.insert(0, project_root)
 os.environ["PATH"] = os.path.join(project_root, "bin") + os.pathsep + os.environ["PATH"]
 
+# Hosted CI deliberately has no large/native runtime binaries. Product tests
+# patch MPV with their own doubles; this gate only lets those modules import.
+from scripts.ci_mpv_stub import install_ci_mpv_stub  # noqa: E402
+
+install_ci_mpv_stub()
+
 # ── Kullanıcı alanı izolasyonu (import anında, HER ŞEYDEN ÖNCE) ──────────
 #
 # ÖLÇÜLEN KUSUR: paket, kullanıcının GERÇEK `%APPDATA%\MLCPlayer\logs\

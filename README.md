@@ -185,8 +185,8 @@ The lock file is the reproducible Windows test/release environment.
 `requirements.txt` and `requirements-dev.txt` document the smaller direct
 runtime and developer dependency sets; their versions must match the lock.
 
-The developer set brings pytest, PyInstaller and PySide6. PySide6 is there for
-one reason:
+The developer set brings pytest, Pillow, PyInstaller and PySide6. PySide6 is
+there for one reason:
 it provides `pyside6-lrelease`, which compiles the translations, and
 `pyside6-linguist`. PyQt6 — what the player itself runs on — ships
 `pylupdate6` but no `lrelease`. PySide6 is build tooling only and is excluded

@@ -9,6 +9,10 @@
 # Test suite.
 pytest==9.0.2
 
+# Image/icon regression tests. It stays development-only and is excluded from
+# the packaged player.
+Pillow==12.2.0
+
 # Qt translation tooling. `pyside6-lrelease` compiles translations/*.ts
 # into the .qm files the package ships, and `pyside6-linguist` is the
 # editor a translator uses.

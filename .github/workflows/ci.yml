@@ -16,6 +16,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 20
     env:
+      MLC_CI: '1'
       PYTHONUTF8: '1'
       QT_QPA_PLATFORM: offscreen
 

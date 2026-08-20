@@ -34,7 +34,7 @@ def test_runtime_and_developer_dependencies_are_exactly_pinned():
     dev = exact_pins(DEV)
 
     assert {"pyqt6", "python-mpv", "cryptography"} <= runtime.keys()
-    assert {"pytest", "pyside6", "pyinstaller"} <= dev.keys()
+    assert {"pytest", "pyside6", "pyinstaller", "pillow"} <= dev.keys()
 
 
 def test_lock_covers_every_direct_dependency_at_the_same_version():
