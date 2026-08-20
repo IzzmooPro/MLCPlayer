@@ -145,6 +145,12 @@ def target_path(language):
                         f"{TRANSLATION_PREFIX}{language}.ts")
 
 
+def same_generated_content(existing, generated):
+    """Git checkout line endings are not a translation-content change."""
+    return existing.replace(b"\r\n", b"\n") == generated.replace(
+        b"\r\n", b"\n")
+
+
 def update(check_only=False):
     texts, dynamic = collect()
     os.makedirs(translations_directory(), exist_ok=True)
@@ -167,7 +173,7 @@ def update(check_only=False):
         before = open(path, "rb").read() if os.path.isfile(path) else b""
         payload = ET.tostring(document.getroot(), encoding="utf-8",
                               xml_declaration=True)
-        if payload != before:
+        if not same_generated_content(before, payload):
             changed.append(os.path.basename(path))
             if not check_only:
                 with open(path, "wb") as handle:

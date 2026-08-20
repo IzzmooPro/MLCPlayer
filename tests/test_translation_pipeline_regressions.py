@@ -76,6 +76,19 @@ def test_the_translation_files_are_up_to_date():
         "python packaging/extract_translations.py çalıştırılmalı")
 
 
+def test_translation_check_ignores_windows_checkout_line_endings():
+    extractor = _extractor()
+    generated = b"<TS>\n    <context />\n</TS>"
+    windows_checkout = generated.replace(b"\n", b"\r\n")
+
+    assert extractor.same_generated_content(windows_checkout, generated)
+
+
+def test_git_keeps_generated_translation_catalogues_on_lf():
+    attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    assert "translations/*.ts text eol=lf" in attributes
+
+
 def test_the_source_language_has_no_translation_file():
     assert not (TRANSLATIONS / "mlcplayer_tr.ts").exists()
 

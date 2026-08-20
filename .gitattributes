@@ -1,0 +1,2 @@
+# Generated translation XML must be byte-stable on every checkout platform.
+translations/*.ts text eol=lf
