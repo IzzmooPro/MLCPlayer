@@ -1,0 +1,214 @@
+name: libmpv source-captured build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: libmpv-source-build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Windows x86_64 libmpv and capture sources
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/shinchiro/archlinux@sha256:9bef1a43edf26ad4048d851e8fef712285200f82ba09e9575a6862c7ff3e293a
+    defaults:
+      run:
+        shell: bash
+    env:
+      RECIPE_COMMIT: cd1edc11dc6887a50f705717619d879f5a93a488
+
+    steps:
+      - name: Verify preinstalled build tools
+        run: |
+          set -euo pipefail
+          for tool in git cmake ninja tar zstd 7z sha256sum; do
+            command -v "$tool"
+          done
+
+      - name: Fetch the exact reviewed build recipe
+        run: |
+          set -euo pipefail
+          git init recipe
+          git -C recipe remote add origin https://github.com/shinchiro/mpv-winbuild-cmake.git
+          git -C recipe fetch --depth=1 origin "$RECIPE_COMMIT"
+          git -C recipe checkout --detach FETCH_HEAD
+          test "$(git -C recipe rev-parse HEAD)" = "$RECIPE_COMMIT"
+
+      - name: Configure and download every declared source
+        working-directory: recipe
+        run: |
+          set -euo pipefail
+          cmake \
+            -DTARGET_ARCH=x86_64-w64-mingw32 \
+            -DCOMPILER_TOOLCHAIN=clang \
+            -DCMAKE_INSTALL_PREFIX="$PWD/clang_root" \
+            -DMINGW_INSTALL_PREFIX="$PWD/build_x86_64/x86_64-w64-mingw32" \
+            -DSINGLE_SOURCE_LOCATION="$PWD/src_packages" \
+            -DRUSTUP_LOCATION="$PWD/clang_root/install_rustup" \
+            -DENABLE_CCACHE=OFF \
+            -DCLANG_PACKAGES_LTO=ON \
+            -G Ninja --fresh -B build_x86_64 -S "$PWD"
+          ninja -C build_x86_64 download
+          ninja -C build_x86_64 update
+
+      - name: Record the exact source revisions before building
+        working-directory: recipe
+        run: |
+          set -euo pipefail
+          evidence="$GITHUB_WORKSPACE/evidence"
+          mkdir -p "$evidence/recipe-source" "$evidence/metadata"
+          git archive HEAD | tar -x -C "$evidence/recipe-source"
+
+          lock="$evidence/metadata/SOURCE_LOCK.tsv"
+          printf 'name\ttype\torigin\trevision\ttree\n' > "$lock"
+          count=0
+          for source_dir in "$PWD"/src_packages/*; do
+            test -d "$source_dir" || continue
+            count=$((count + 1))
+            name="$(basename "$source_dir")"
+            if git -C "$source_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+              origin="$(git -C "$source_dir" remote get-url origin 2>/dev/null || true)"
+              revision="$(git -C "$source_dir" rev-parse HEAD)"
+              tree="$(git -C "$source_dir" rev-parse 'HEAD^{tree}')"
+              printf '%s\tgit\t%s\t%s\t%s\n' "$name" "$origin" "$revision" "$tree" >> "$lock"
+            else
+              tree="$(cd "$source_dir" && find . -type f -not -path '*/.git/*' -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')"
+              printf '%s\tarchive\t\t\t%s\n' "$name" "$tree" >> "$lock"
+            fi
+          done
+          test "$count" -ge 40
+
+          find src_packages -type f -not -path '*/.git/*' -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > "$evidence/metadata/SOURCE_FILES_PREBUILD.sha256"
+          printf '%s\n' "$count" > "$evidence/metadata/SOURCE_DIRECTORY_COUNT.txt"
+
+          {
+            printf 'recipe_commit=%s\n' "$RECIPE_COMMIT"
+            printf 'container_image=%s\n' 'ghcr.io/shinchiro/archlinux@sha256:9bef1a43edf26ad4048d851e8fef712285200f82ba09e9575a6862c7ff3e293a'
+            date -u '+built_at_utc=%Y-%m-%dT%H:%M:%SZ'
+            uname -a
+            git --version
+            cmake --version
+            ninja --version
+            zstd --version
+          } > "$evidence/metadata/BUILD_ENVIRONMENT.txt"
+
+          cat > "$evidence/metadata/BUILD_COMMANDS.txt" <<'EOF'
+          cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_x86_64/x86_64-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=OFF -DCLANG_PACKAGES_LTO=ON -G Ninja --fresh -B build_x86_64 -S $PWD
+          ninja -C build_x86_64 download
+          ninja -C build_x86_64 update
+          ninja -C build_x86_64 mpv
+          ninja -C build_x86_64 mpv-packaging
+          EOF
+
+      - name: Build and package Windows libmpv
+        working-directory: recipe
+        run: |
+          set -euo pipefail
+          ninja -C build_x86_64 mpv
+          ninja -C build_x86_64 mpv-packaging
+
+      - name: Validate and collect Windows archives
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/binary
+          mapfile -t dev_archives < <(find recipe/build_x86_64 -maxdepth 1 -type f -name 'mpv-dev-x86_64*.7z' | sort)
+          mapfile -t player_archives < <(find recipe/build_x86_64 -maxdepth 1 -type f -name 'mpv-x86_64-*.7z' | sort)
+          test "${#dev_archives[@]}" -eq 1
+          test "${#player_archives[@]}" -eq 1
+          7z l "${dev_archives[0]}" | grep -F 'libmpv-2.dll'
+          cp "${dev_archives[0]}" "${player_archives[0]}" artifacts/binary/
+          cp evidence/metadata/SOURCE_LOCK.tsv evidence/metadata/BUILD_ENVIRONMENT.txt artifacts/binary/
+          (cd artifacts/binary && sha256sum -- * > SHA256SUMS)
+
+      - name: Create the corresponding-source archive
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/source/parts
+          cargo_source=()
+          for path in \
+            recipe/clang_root/install_rustup/.cargo/registry/src \
+            recipe/clang_root/install_rustup/.cargo/git/checkouts; do
+            test ! -d "$path" || cargo_source+=("$path")
+          done
+
+          find recipe/src_packages "${cargo_source[@]}" \
+            -type f -not -path '*/.git/*' -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > evidence/metadata/SOURCE_FILES.sha256
+
+          source_archive="$GITHUB_WORKSPACE/artifacts/source/libmpv-corresponding-source.tar.zst"
+          tar \
+            --sort=name \
+            --mtime='UTC 1970-01-01' \
+            --owner=0 --group=0 --numeric-owner \
+            --exclude-vcs \
+            --zstd \
+            -cf "$source_archive" \
+            evidence/recipe-source \
+            evidence/metadata \
+            recipe/src_packages \
+            "${cargo_source[@]}"
+
+          split -b 1900M -d -a 2 \
+            "$source_archive" \
+            artifacts/source/parts/libmpv-corresponding-source.tar.zst.part-
+          sha256sum artifacts/source/parts/* > artifacts/source/SHA256SUMS
+          rm -f "$source_archive"
+
+          cat > artifacts/source/RESTORE.txt <<'EOF'
+          Verify the files with SHA256SUMS, then restore the archive with:
+          cat parts/libmpv-corresponding-source.tar.zst.part-* > libmpv-corresponding-source.tar.zst
+          tar --zstd -xf libmpv-corresponding-source.tar.zst
+          EOF
+
+      - name: Collect build logs
+        if: always()
+        run: |
+          set -u
+          mkdir -p artifacts/logs
+          test ! -f recipe/build_x86_64/CMakeCache.txt \
+            || cp recipe/build_x86_64/CMakeCache.txt artifacts/logs/
+          while IFS= read -r -d '' log; do
+            target="artifacts/logs/${log#recipe/build_x86_64/}"
+            mkdir -p "$(dirname "$target")"
+            cp "$log" "$target"
+          done < <(find recipe/build_x86_64 -type f \
+            \( -name '*.log' -o -path '*/ffbuild/config.log' \) -print0 2>/dev/null || true)
+
+      - name: Upload Windows archives and build evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: libmpv-windows-x86_64
+          path: artifacts/binary
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+      - name: Upload corresponding sources
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: libmpv-corresponding-source
+          path: artifacts/source
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: libmpv-build-logs
+          path: artifacts/logs
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
