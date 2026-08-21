@@ -533,6 +533,32 @@
         "The actual v0.38 artifact version and installed licence layout remain unproved until the fresh build completes."
       ],
       "next_action": "Commit the tested v0.38 source state, then run the separately authorized build from the clean commit."
+    },
+    {
+      "id": "EV-20260821-027",
+      "recorded_at_utc": "2026-08-21T19:35:42Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "f64188f4d7fb6544fc0b810688fc5eba6d503b68",
+      "subject": "v0.38 Windows source build and licence-bundle dist evidence",
+      "evidence": [
+        "packaging/build_release.bat: DONE, exit 0 on clean f64188f",
+        "dependency lock matched; v0.38 > published v0.37; PyInstaller 6.19.0 on Python 3.14.3",
+        "dist/MLC Player: 181.3 MB; packaging/verify_build.py --post passed",
+        "12 main-package licence/notice files in dist/_internal/licenses were byte-identical to the checked-in sources",
+        "MLCPlayer_Setup_v0.38.exe: 56293597 bytes, sha256:cb9d047bb8836a855a2c4329a3e72763d870b4bc50fcd74926366c06125d8b85",
+        "MLCPlayer_Setup_v0.38.exe.sig: 88 bytes; embedded Ed25519 public-key verification passed",
+        "MLCPlayer_InternetVideo_v0.38.exe: 48896317 bytes, sha256:16416b7c098d4557ac53274413cae484f5de8b3d7ea8cca92667b64eb8369d28",
+        "MLCPlayer_InternetVideo_v0.38.exe.sig: 88 bytes; embedded Ed25519 public-key verification passed",
+        "main installer version resource: FileVersion 0.38.0.0, ProductVersion 0.38.0.0"
+      ],
+      "summary": "The clean v0.38 source commit produced both signed Windows installers. The complete main-package licence bundle reached the verified dist tree and the installer carries the correct v0.38 version resource.",
+      "limitations": [
+        "This source-build evidence does not prove actual installation, Windows desktop behavior, native playback or uninstall safety.",
+        "Installer payload placement is inferred from the successful Inno compile over the verified whole dist tree; installed-artifact acceptance is still required.",
+        "No installation, native smoke, push, tag or release occurred."
+      ],
+      "next_action": "With separate user approval, install the exact hashed v0.38 artifact and verify the installed licence/relinking paths before changing the source contract to ready."
     }
   ]
 }

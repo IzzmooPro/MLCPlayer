@@ -116,19 +116,23 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    release ön-kontrolü geçti (`EV-20260821-026`). Build henüz yapılmadı.
 21. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-22. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
-   kaynak ya da yeni DLL için kabul kanıtı değildir.
+22. Temiz `f64188f` üzerinde v0.38 kaynak build'i **DONE / exit 0** verdi.
+   Ana installer `56.293.597` bayt ve SHA-256 `cb9d047b...d8b85`; add-on
+   `48.896.317` bayt ve SHA-256 `16416b7c...9d28`. İki Ed25519 imzası
+   doğrulandı; ana `dist` içindeki 12 lisans/notice dosyası kaynakla bayt bayt
+   aynı ve installer sürümü `0.38.0.0` (`EV-20260821-027`). Kurulum, tag,
+   push veya release yapılmadı; Kurulu v0.37 bu artifact için kanıt değildir.
 
 ## Sıradaki tek adım
 
-Commit sonrasında önceden verilmiş ayrı build onayıyla taze v0.38 build üret; yeni lisans/notice ve
-Qt dinamik değiştirme (relinking) dosyalarının dist ve installer içindeki gerçek
-yerleşimini doğrula. Kurulum için ayrıca onay almadan installed-artifact kabulü
-yapma.
+Kullanıcının ayrı kurulum onayıyla tam adı ve SHA-256 değeri yukarıda kayıtlı
+v0.38 installer'ı kur; kurulu lisans/notice ve Qt dinamik değiştirme
+(relinking) dosyalarının gerçek yerleşimini doğrula. Onay olmadan kurma veya
+kaldırma yapma.
 
 ## Sonraki sıra
 
-1. Taze build içinde lisans/notice ve Qt dinamik değiştirme paketini doğrula.
+1. v0.38 artifact'ını kurup lisans/notice ve Qt değiştirme paketini doğrula.
 2. `corresponding_sources.json` gerçekten `ready` ve blockers boş olmadan
    sürüm değerlendirmesine geçme.
 3. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak

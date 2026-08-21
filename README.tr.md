@@ -196,8 +196,9 @@ kullanıcıya, gerekirse hukukçuya aittir:
   Resmî yt-dlp 2026.08.19 ikilisinin Python, PyInstaller, paket ve native curl
   kaynak zinciri de hash ile sabitlendi. Kurulu lisans/notice paketi, tam Qt
   LGPLv3 metni ve dinamik Qt DLL değiştirme talimatı kaynakta tamamlandı.
-  Taze build ve kurulu-artifact kabulü bu dosyaların gerçekten installer'a
-  ulaştığını kanıtlayana kadar release kapısı kapalıdır.
+  v0.38 kaynak build'i ana `dist` paketindeki 12 lisans/notice dosyasını
+  kanıtladı. Ayrı onaylı kurulu-artifact kabulü gerçek kurulumu kanıtlayana
+  kadar release kapısı kapalıdır.
 
 **Kapanan maddeler:**
 

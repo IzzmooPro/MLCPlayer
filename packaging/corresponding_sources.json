@@ -2,7 +2,7 @@
   "schema": 1,
   "status": "blocked",
   "blockers": [
-    "A fresh build and installed-artifact acceptance have not yet proved the checked-in license, notice and Qt dynamic-replacement bundle."
+    "Installed-artifact acceptance has not yet proved the built license, notice and Qt dynamic-replacement bundle."
   ],
   "sources": [
     {
