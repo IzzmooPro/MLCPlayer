@@ -20,8 +20,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
+from PyQt6.QtNetwork import QLocalServer, QLocalSocket
 from PyQt6.QtWidgets import QApplication
 
+import app.single_instance as single_instance
 from app.single_instance import (SingleInstanceGuard, activate_window,
                                  is_worker_invocation)
 
@@ -84,6 +86,124 @@ def test_first_launch_becomes_the_primary(qt_app, name):
         guard.release()
 
 
+def test_process_mutex_allows_only_one_primary_holder(name):
+    """Windows'ta QLocalServer dinlemek dışlama değildir; mutex atomik olmalı."""
+    mutex_type = getattr(single_instance, "_ProcessMutex", None)
+    assert mutex_type is not None, "atomik süreç mutex'i henüz yok"
+    first = mutex_type(name)
+    second = mutex_type(name)
+    try:
+        assert first.acquire() is True
+        assert second.acquire() is False
+    finally:
+        first.release()
+    try:
+        assert second.acquire() is True
+    finally:
+        second.release()
+
+
+def test_server_explicitly_accepts_only_the_current_user(qt_app, name):
+    guard = SingleInstanceGuard(name)
+    try:
+        assert guard.acquire() is True
+        options = guard._server.socketOptions()
+        assert options & QLocalServer.SocketOption.UserAccessOption
+    finally:
+        guard.release()
+
+
+def test_failed_ack_is_exposed_instead_of_silently_discarded(
+        qt_app, name, monkeypatch):
+    class ExistingMutex:
+        def acquire(self):
+            return False
+
+        def release(self):
+            pass
+
+    class ConnectedSocket:
+        def connectToServer(self, _name):
+            pass
+
+        def waitForConnected(self, _timeout):
+            return True
+
+        def abort(self):
+            pass
+
+    monkeypatch.setattr(single_instance, "_ProcessMutex",
+                        lambda _name: ExistingMutex())
+    monkeypatch.setattr(single_instance, "QLocalSocket", ConnectedSocket)
+    guard = SingleInstanceGuard(name)
+    monkeypatch.setattr(guard, "_hand_over", lambda _socket, _payload: False)
+
+    assert guard.acquire(r"I:\film.mkv") is False
+    assert guard.handoff_failed is True
+
+
+def test_split_frame_is_emitted_only_after_it_is_complete(qt_app, name):
+    encode = getattr(single_instance, "_encode_frame", None)
+    assert encode is not None, "sürümlü mesaj çerçevesi henüz yok"
+    guard = SingleInstanceGuard(name)
+    received = []
+    client = QLocalSocket()
+    try:
+        assert guard.acquire() is True
+        guard.activation_requested.connect(received.append)
+        client.connectToServer(guard._name)
+        assert client.waitForConnected(1000)
+        frame = encode(r"I:\film.mkv")
+        midpoint = len(frame) // 2
+        assert client.write(frame[:midpoint]) == midpoint
+        client.flush()
+        for _ in range(10):
+            qt_app.processEvents()
+        assert received == [], "eksik mesaj erken işlendi"
+
+        assert client.write(frame[midpoint:]) == len(frame) - midpoint
+        client.flush()
+        _pump(qt_app, received, seconds=2)
+        assert received == [r"I:\film.mkv"]
+        assert client.waitForReadyRead(1000)
+        assert bytes(client.readAll()) == single_instance.ACK
+    finally:
+        client.abort()
+        guard.release()
+
+
+def test_oversized_frame_is_rejected_without_activation(qt_app, name):
+    header = getattr(single_instance, "FRAME_HEADER", None)
+    maximum = getattr(single_instance, "MAX_PAYLOAD_BYTES", None)
+    assert header is not None and maximum is not None, "boyut sınırı henüz yok"
+    guard = SingleInstanceGuard(name)
+    received = []
+    client = QLocalSocket()
+    try:
+        assert guard.acquire() is True
+        guard.activation_requested.connect(received.append)
+        client.connectToServer(guard._name)
+        assert client.waitForConnected(1000)
+        client.write(header.pack(single_instance.FRAME_MAGIC,
+                                 single_instance.PROTOCOL_VERSION,
+                                 maximum + 1))
+        client.flush()
+        for _ in range(20):
+            qt_app.processEvents()
+            time.sleep(0.005)
+        assert received == []
+    finally:
+        client.abort()
+        guard.release()
+
+
+def test_primary_server_never_blocks_the_gui_thread_for_reads():
+    import inspect
+
+    source = inspect.getsource(SingleInstanceGuard._on_new_connection)
+    assert "waitForReadyRead" not in source
+
+
 def test_second_launch_is_refused_and_hands_over_the_file(qt_app, name,
                                                           tmp_path):
     primary = SingleInstanceGuard(name)
@@ -140,11 +260,11 @@ def test_stale_server_name_is_reclaimed(qt_app, name):
     """Çökme sonrası artakalan ad BİR KEZ geri alınır (fail-open)."""
     from PyQt6.QtNetwork import QLocalServer
 
+    guard = SingleInstanceGuard(name)
     stale = QLocalServer()
-    assert stale.listen(name)
+    assert stale.listen(guard._name)
     stale.close()          # dinlemeyi bırakır, ad geride kalabilir
 
-    guard = SingleInstanceGuard(name)
     try:
         assert guard.acquire() is True
     finally:
@@ -179,7 +299,7 @@ def test_activation_raises_the_window_and_opens_the_file():
         def activateWindow(self):
             calls.append("activate")
 
-        def open_path(self, path):
+        def open_external_target(self, path):
             calls.append(("open", path))
 
         def setWindowFlag(self, *args):        # çağrılmamalı
@@ -202,8 +322,22 @@ def test_activation_without_a_file_only_raises():
         def activateWindow(self):
             calls.append("activate")
 
-        def open_path(self, path):
+        def open_external_target(self, path):
             calls.append("ACILDI")
 
     activate_window(FakeWindow(), "")
     assert calls == ["raise", "activate"]
+
+
+def test_initial_cli_target_uses_the_same_safe_router():
+    """İlk süreç ile IPC aynı dosya/URL karar noktasından geçmelidir."""
+    source = (ROOT / "main.py").read_text(encoding="utf-8")
+    assert "player.open_external_target(sys.argv[1])" in source
+    assert "player.open_path(sys.argv[1])" not in source
+
+
+def test_failed_delivery_is_visible_and_returns_an_error():
+    source = (ROOT / "main.py").read_text(encoding="utf-8")
+    assert "instance_guard.handoff_failed" in source
+    assert "QMessageBox.warning" in source
+    assert "sys.exit(2)" in source

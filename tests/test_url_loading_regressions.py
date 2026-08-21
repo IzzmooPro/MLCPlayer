@@ -176,6 +176,49 @@ def test_a_valid_address_is_played_exactly_once(player_factory, monkeypatch,
     assert player.current_file == raw.strip()
 
 
+def test_external_http_target_uses_the_url_lifecycle(player_factory,
+                                                     monkeypatch, console):
+    player = player_factory()
+
+    assert media_controls.open_external_target(player, PLAIN_URL) is True
+
+    assert player.mpv_player.played == [PLAIN_URL]
+    assert player.current_file == PLAIN_URL
+    assert player._url_loading_active is True
+    assert player._load_started_at == 0
+
+
+def test_external_local_target_keeps_the_file_lifecycle(player_factory,
+                                                        tmp_path, console):
+    player = player_factory()
+    local = tmp_path / "Film.mkv"
+    local.write_bytes(b"0")
+
+    assert media_controls.open_external_target(player, str(local)) is True
+
+    assert player.mpv_player.played == [str(local)]
+    assert player.current_file == str(local)
+    assert player._url_loading_active is False
+    assert player._load_started_at > 0
+
+
+@pytest.mark.parametrize("target", (
+    "file:///C:/gizli/film.mkv", "javascript:alert(1)",
+    "ftp://ornek.test/film.mkv", "dvd://1", "bad\x00path.mkv",
+))
+def test_external_pseudo_schemes_never_reach_mpv(
+        player_factory, monkeypatch, console, target):
+    player = player_factory()
+    player.current_file = "C:/onceki.mkv"
+    seen = errors(monkeypatch)
+
+    assert media_controls.open_external_target(player, target) is False
+
+    assert player.mpv_player.played == []
+    assert player.current_file == "C:/onceki.mkv"
+    assert seen, "geçersiz dış hedef kullanıcıya bildirilmedi"
+
+
 # =====================================================================
 # 2. Yuklenme gorunumu
 # =====================================================================

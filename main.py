@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 import os
 import sys
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtCore import QTimer
 
 # Konsol cikisinin merkezi guvenli siniri (bkz. app/errors.py).
@@ -128,6 +128,13 @@ if __name__ == "__main__":
     from app.single_instance import SingleInstanceGuard, activate_window
     instance_guard = SingleInstanceGuard()
     if not instance_guard.acquire(sys.argv[1] if len(sys.argv) > 1 else ""):
+        if instance_guard.handoff_failed:
+            from app.i18n import tr
+            QMessageBox.warning(
+                None, tr("MLC Player Yanıt Vermiyor"),
+                tr("Çalışan MLC Player isteği alamadı. Açık pencereyi "
+                   "kapatıp tekrar deneyin."))
+            sys.exit(2)
         sys.exit(0)
 
     # Ortak gorsel kimlik: ana pencere veya herhangi bir dialog
@@ -156,7 +163,8 @@ if __name__ == "__main__":
             player._update_checker = start_startup_check(player)
         # Komut satırından dosya/URL argümanı: python main.py video.mp4
         if len(sys.argv) > 1:
-            QTimer.singleShot(0, lambda: player.open_path(sys.argv[1]))
+            QTimer.singleShot(
+                0, lambda: player.open_external_target(sys.argv[1]))
         ret = app.exec()
         # NOT: mpv DLL'leri bu yapıda interpreter kapanışında takılıyor
         # (thread-safe olmayan DLL yıkımı). Normal Python finalizasyonu

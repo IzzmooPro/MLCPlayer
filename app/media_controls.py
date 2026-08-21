@@ -487,6 +487,45 @@ def normalize_media_url(text):
     return candidate if host.strip() else ""
 
 
+def normalize_external_target(text):
+    """CLI/IPC hedefini güvenli bir ``(tür, değer)`` ikilisine dönüştürür.
+
+    Web için yalnız HTTP(S), dosya için Windows sürücü/UNC veya şemasız yol
+    kabul edilir. MPV'nin ``file:``, ``dvd://`` gibi sözde protokolleri dış
+    süreç girişinden doğrudan etkinleştirilemez.
+    """
+    if not isinstance(text, str) or "\x00" in text:
+        return ("", "")
+    candidate = text.strip()
+    if not candidate:
+        return ("", "")
+    url = normalize_media_url(candidate)
+    if url:
+        return ("url", url)
+    if re.match(r"^[A-Za-z]:[\\/]", candidate) or candidate.startswith("\\\\"):
+        return ("file", candidate)
+    try:
+        parts = urlsplit(candidate)
+    except ValueError:
+        return ("", "")
+    if parts.scheme or "://" in candidate:
+        return ("", "")
+    return ("file", candidate)
+
+
+def open_external_target(player, target):
+    """CLI ve IPC'den gelen dosya/URL hedefini ortak yaşam döngüsüne yollar."""
+    kind, value = normalize_external_target(target)
+    if kind == "url":
+        return open_media_url(player, value)
+    if kind == "file":
+        open_path(player, value)
+        return True
+    show_user_error(player, translate_marked(URL_INVALID_TITLE),
+                    translate_marked(URL_INVALID_MESSAGE))
+    return False
+
+
 def _placeholder(player):
     frame = getattr(player, "video_frame", None)
     return getattr(frame, "placeholder_label", None)
@@ -566,55 +605,58 @@ def update_url_loading(player):
     return False
 
 
+def open_media_url(player, raw):
+    """Doğrulanmış HTTP(S) hedefini URL'ye özel yaşam döngüsüyle açar."""
+    url = normalize_media_url(raw)
+    if not url:
+        # GEÇERSİZ: mevcut oynatma, playlist ve son açılanlar değişmez.
+        show_user_error(player, translate_marked(URL_INVALID_TITLE),
+                        translate_marked(URL_INVALID_MESSAGE))
+        return False
+    try:
+        clear_url_loading(player)
+        player.duration = 0
+        player.position = 0
+        player._core_idle = False
+        player._audio_menu_file = ""
+        player._chapter_menu_file = ""
+        player._pending_subs = []
+        player.playlist = []
+        player.current_playlist_index = -1
+        player.current_file = url
+        # URL yaşam döngüsü yerel dosyanınkinden AYRIDIR.
+        player._load_started_at = 0
+        begin_url_loading(player)
+        _clear_title_bar_raise(player)
+        _reset_subtitle_timing_for_new_media(player)
+        _hide_subtitles_for_new_media(player)
+        player._eof_rewound = False
+        _load_media_without_blocking_ui(player.mpv_player, url)
+        _mark_title_bar_raise(player)
+        player.play_button.setIcon(player.pause_icon)
+        player.is_paused = False
+        if player.video_frame.control_overlay is not None:
+            player.video_frame.update_overlay_play_state()
+        player.set_title()
+        player.add_recent_file(url)
+        # HAM URL LOGA YAZILMAZ: kullanıcı bilgisi/query/fragment çıkarılır.
+        safe_console(f"Opening link: {sanitize_media_url(url)}")
+        return True
+    except Exception as e:
+        clear_url_loading(player)
+        safe_console(f"Link open error: {type(e).__name__}")
+        show_user_error(player, translate_marked(URL_FAILED_TITLE),
+                        translate_marked(URL_FAILED_MESSAGE), exc=e)
+        return False
+
+
 def open_url(player):
     raw, ok = QInputDialog.getText(player, tr("URL'den Oynat"),
                                    tr("Video URL'si giriniz:"),
                                    QLineEdit.EchoMode.Normal, "https://")
-    if ok and raw:
-        url = normalize_media_url(raw)
-        if not url:
-            # GEÇERSİZ: mevcut oynatma, `current_file`, playlist ve son
-            # açılanlar HİÇ değişmez; MPV'ye hiçbir şey verilmez.
-            show_user_error(player, translate_marked(URL_INVALID_TITLE),
-                            translate_marked(URL_INVALID_MESSAGE))
-            return
-        try:
-            clear_url_loading(player)
-            player.duration = 0
-            player.position = 0
-            player._core_idle = False
-            player._audio_menu_file = ""
-            player._chapter_menu_file = ""
-            player._pending_subs = []
-            player.playlist = []
-            player.current_playlist_index = -1
-            player.current_file = url
-            # URL yaşam döngüsü yerel dosyanınkinden AYRIDIR: yerel
-            # 3 saniyelik hata yolu URL yüklenirken çalışmaz.
-            player._load_started_at = 0
-            begin_url_loading(player)
-            _clear_title_bar_raise(player)
-            _reset_subtitle_timing_for_new_media(player)
-            _hide_subtitles_for_new_media(player)
-            player._eof_rewound = False
-            _load_media_without_blocking_ui(player.mpv_player, url)
-            _mark_title_bar_raise(player)
-            player.play_button.setIcon(player.pause_icon)
-            player.is_paused = False
-            if player.video_frame.control_overlay is not None:
-                player.video_frame.update_overlay_play_state()
-            player.set_title()
-            # YALNIZ komut kabul edildikten SONRA listeye girer; hata
-            # yolunda `add_recent_file` hic cagrilmaz.
-            player.add_recent_file(url)
-            # HAM URL LOGA YAZILMAZ: yalnız `scheme://host` + son yol
-            # parçası. `userinfo`, `query` ve `fragment` hiç üretilmez.
-            safe_console(f"Opening link: {sanitize_media_url(url)}")
-        except Exception as e:
-            clear_url_loading(player)
-            safe_console(f"Link open error: {type(e).__name__}")
-            show_user_error(player, translate_marked(URL_FAILED_TITLE),
-                            translate_marked(URL_FAILED_MESSAGE), exc=e)
+    if not ok or not raw:
+        return False
+    return open_media_url(player, raw)
 
 def open_subtitle(player):
     if not player.current_file:

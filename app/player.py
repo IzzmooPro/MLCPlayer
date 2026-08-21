@@ -30,6 +30,7 @@ from app.subtitle_center_composition import (
     close_subtitle_center_before_exit, open_subtitle_center,
     shutdown_subtitle_center, subtitle_center_drained)
 from app.media_controls import (clear_url_loading, is_remote_media_url,
+    open_external_target,
     safe_media_host, update_url_loading,
     toggle_mute, open_file, open_folder, open_url, open_path, open_recent, open_subtitle, select_subtitle_language, toggle_subtitles,
     seek_position, seek_relative, seek_chapter, play_pause, stop, set_volume, change_volume, add_to_playlist, show_playlist,
@@ -1167,6 +1168,7 @@ class MPVPlayer(QMainWindow):
     def open_folder(self): open_folder(self)
     def open_url(self): open_url(self)
     def open_path(self, path): open_path(self, path)
+    def open_external_target(self, target): return open_external_target(self, target)
     def open_recent(self, path): open_recent(self, path)
     def open_subtitle(self): open_subtitle(self)
     def select_subtitle_language(self, sid): select_subtitle_language(self, sid)
