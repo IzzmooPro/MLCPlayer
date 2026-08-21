@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `add25330b0facc733f5cb7fa95392820d1a2b5e0`
+- Son push edilmiş taban: `37bb82f35e26fed3c595adb64e1f1fb43374fc80`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-007`
+- Son kanıt: `EV-20260821-008`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -25,26 +25,37 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    yapılmadı ve sonuç `EV-20260821-006` olarak kaydedildi. Düzeltme
    `add2533` ile push edildi; run `32468470119` ilk denemede **4720 passed /
    26 skipped / 0 failed** verdi (`EV-20260821-007`).
-4. libmpv karşılık gelen kaynak derlemesi henüz başarılı değildir. Run
+4. libmpv karşılık gelen kaynak derlemesi henüz başarılı değildir. İlk run
    `32414388160`, iki saat sonra build-time Git kimliği eksikliğiyle durdu;
    DLL ve kaynak paketi oluşmadı, yalnız log artifact'i oluştu.
-5. Aynı hatanın tekrarlanmaması için geçici CI Git kimliği `8c7506e` ile
-   eklendi ve hedef regresyon paketi **7 passed** verdi. Yeni libmpv kaynak
-   derlemesi henüz çalıştırılmadı; bu nedenle düzeltme gerçek derleme kanıtı
-   sayılmaz.
-6. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
+5. Git kimliği düzeltmesinden sonraki run `32469172739`, dış upstream imajın
+   sabit digest'i registry'den silindiği için `Initialize containers` adımında
+   13 saniyede durdu (`manifest unknown`). Kod, kaynak indirme ve derleme hiç
+   başlamadı; artifact yoktur (`EV-20260821-008`). Aynı çalışma otomatik
+   tekrarlanmadı.
+6. İmajın kaynak deposu `shinchiro/archlinux-docker`, GPL-3.0 lisanslıdır.
+   Güncel immutable digest doğrulandı. Kendi GHCR alanımıza yalnız bu digest'i
+   ve kaynak etiketini doğrulayarak taşıyan manuel mirror iş akışı yerelde
+   hazırlandı; kaynak repo commit'i ve GPL-3.0 lisansı da kayda bağlandı.
+   İlgili workflow/devam paketi **15 passed** verdi. Çözüm mevcut HEAD'de
+   commit edildi; henüz push veya mirror işlemi yapılmadı.
+7. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
    libmpv dışında cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve
    kurulu lisans/notice/Qt relinking paketi açık kalır.
-7. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+8. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-8. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+9. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-Kullanıcı ayrı açık build onayı verirse, `add2533` commit'inde GitHub Actions
-içindeki **libmpv source-captured build** iş akışını bir kez manuel başlat.
-Başlamadan run commit'ini geri oku. Sonuç:
+Hazır, commit edilmiş ve **15 passed** veren build-environment mirror iş akışı
+ile libmpv'nin owned immutable digest kullanımını ayrı onayla push et. Hosted
+CI başarılı olduktan sonra mirror çalıştırmak GHCR'a paket yazacağı için ayrıca
+açık onay ister.
+
+Mirror başarıyla doğrulandıktan sonra libmpv source-captured build için yeni
+ve ayrı açık build onayı al. Sonuç:
 
 - başarılıysa binary ve corresponding-source artifact adlarını, boyutlarını,
   SHA-256 değerlerini ve run bağlantısını yeni ledger kaydıyla kaydet;

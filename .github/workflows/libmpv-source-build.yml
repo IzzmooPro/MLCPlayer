@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 concurrency:
   group: libmpv-source-build-${{ github.ref }}
@@ -16,7 +17,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     container:
-      image: ghcr.io/shinchiro/archlinux@sha256:9bef1a43edf26ad4048d851e8fef712285200f82ba09e9575a6862c7ff3e293a
+      image: ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv@sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     defaults:
       run:
         shell: bash
@@ -96,7 +100,7 @@ jobs:
 
           {
             printf 'recipe_commit=%s\n' "$RECIPE_COMMIT"
-            printf 'container_image=%s\n' 'ghcr.io/shinchiro/archlinux@sha256:9bef1a43edf26ad4048d851e8fef712285200f82ba09e9575a6862c7ff3e293a'
+            printf 'container_image=%s\n' 'ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv@sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca'
             date -u '+built_at_utc=%Y-%m-%dT%H:%M:%SZ'
             uname -a
             git --version

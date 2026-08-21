@@ -1,0 +1,66 @@
+name: Mirror pinned libmpv build environment
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: mirror-libmpv-buildenv
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    name: Verify and mirror the pinned build environment
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SOURCE_IMAGE: ghcr.io/shinchiro/archlinux@sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca
+      TARGET_REPOSITORY: ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv
+      TARGET_TAG: sha256-8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca
+      EXPECTED_SOURCE_LABEL: https://github.com/shinchiro/archlinux-docker
+      SOURCE_REPOSITORY_COMMIT: f96024070ae07963155d624be5655695e7fe181c
+
+    steps:
+      - name: Authenticate only to the owned registry namespace
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io \
+            --username "$GITHUB_ACTOR" --password-stdin
+
+      - name: Pull and verify the exact upstream image
+        run: |
+          set -euo pipefail
+          docker pull "$SOURCE_IMAGE"
+          test "$(docker image inspect --format '{{.Os}}' "$SOURCE_IMAGE")" = linux
+          test "$(docker image inspect --format '{{.Architecture}}' "$SOURCE_IMAGE")" = amd64
+          test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.source"}}' "$SOURCE_IMAGE")" = "$EXPECTED_SOURCE_LABEL"
+          docker image inspect --format '{{json .RepoDigests}}' "$SOURCE_IMAGE" \
+            | grep -F 'sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca'
+
+      - name: Mirror without a mutable latest tag
+        run: |
+          set -euo pipefail
+          target="$TARGET_REPOSITORY:$TARGET_TAG"
+          docker tag "$SOURCE_IMAGE" "$target"
+          docker push "$target"
+          docker buildx imagetools inspect \
+            "$TARGET_REPOSITORY@sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca"
+          {
+            printf 'source=%s\n' "$SOURCE_IMAGE"
+            printf 'target=%s@sha256:%s\n' "$TARGET_REPOSITORY" \
+              '8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca'
+            printf 'source_code=%s\n' "$EXPECTED_SOURCE_LABEL"
+            printf 'source_repository_commit=%s\n' "$SOURCE_REPOSITORY_COMMIT"
+            printf 'source_license=GPL-3.0\n'
+            printf 'source_license_url=%s\n' \
+              'https://github.com/shinchiro/archlinux-docker/blob/f96024070ae07963155d624be5655695e7fe181c/LICENSE'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: End registry session
+        if: always()
+        run: docker logout ghcr.io

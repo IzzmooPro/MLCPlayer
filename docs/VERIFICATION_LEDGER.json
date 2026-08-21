@@ -125,6 +125,26 @@
         "Native and installed-artifact checks remain separate."
       ],
       "next_action": "After separate build approval, dispatch the manual libmpv source-captured build once at this commit."
+    },
+    {
+      "id": "EV-20260821-008",
+      "recorded_at_utc": "2026-08-21T09:42:49Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "37bb82f35e26fed3c595adb64e1f1fb43374fc80",
+      "subject": "Manual libmpv source-captured build after Git identity hardening",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32469172739",
+        "failed step: Initialize containers",
+        "registry error: manifest unknown"
+      ],
+      "summary": "The pinned upstream container manifest disappeared; the job stopped in 13 seconds before checkout, source download, or compilation.",
+      "limitations": [
+        "No product, DLL, or source build step ran.",
+        "No artifact was produced.",
+        "Secondary log-collection errors only reflected the missing container ID."
+      ],
+      "next_action": "Mirror the verified GPL-3.0 build environment by immutable digest into the owned GHCR namespace, then request separate approval for one new source build."
     }
   ]
 }

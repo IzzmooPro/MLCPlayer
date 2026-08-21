@@ -7,11 +7,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "libmpv-source-build.yml"
+MIRROR_WORKFLOW = ROOT / ".github" / "workflows" / "mirror-libmpv-buildenv.yml"
+BUILDENV_DIGEST = "8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca"
 
 
 def workflow_text():
     assert WORKFLOW.is_file(), "manual libmpv source build workflow is missing"
     return WORKFLOW.read_text(encoding="utf-8")
+
+
+def mirror_workflow_text():
+    assert MIRROR_WORKFLOW.is_file(), "manual build-environment mirror is missing"
+    return MIRROR_WORKFLOW.read_text(encoding="utf-8")
 
 
 def test_the_build_is_manual_read_only_and_bounded():
@@ -21,6 +28,7 @@ def test_the_build_is_manual_read_only_and_bounded():
     assert "push:" not in trigger
     assert "pull_request:" not in trigger
     assert "contents: read" in text
+    assert "packages: read" in text
     assert "timeout-minutes: 360" in text
     assert "cancel-in-progress: false" in text
 
@@ -29,10 +37,33 @@ def test_the_reviewed_recipe_and_container_are_immutable():
     text = workflow_text()
     assert "cd1edc11dc6887a50f705717619d879f5a93a488" in text
     assert (
-        "ghcr.io/shinchiro/archlinux@sha256:"
-        "9bef1a43edf26ad4048d851e8fef712285200f82ba09e9575a6862c7ff3e293a"
+        "ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv@sha256:"
+        + BUILDENV_DIGEST
     ) in text
+    assert "ghcr.io/shinchiro/archlinux" not in text
+    assert "credentials:" in text
+    assert "secrets.GITHUB_TOKEN" in text
     assert 'test "$(git -C recipe rev-parse HEAD)" = "$RECIPE_COMMIT"' in text
+
+
+def test_the_build_environment_mirror_is_manual_verified_and_immutable():
+    text = mirror_workflow_text()
+    trigger = text.split("permissions:", 1)[0]
+    assert "workflow_dispatch:" in trigger
+    assert "push:" not in trigger
+    assert "pull_request:" not in trigger
+    assert "contents: read" in text
+    assert "packages: write" in text
+    assert "timeout-minutes: 20" in text
+    assert "cancel-in-progress: false" in text
+    assert "ghcr.io/shinchiro/archlinux@sha256:" + BUILDENV_DIGEST in text
+    assert "ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv" in text
+    assert "org.opencontainers.image.source" in text
+    assert "https://github.com/shinchiro/archlinux-docker" in text
+    assert "f96024070ae07963155d624be5655695e7fe181c" in text
+    assert "source_license=GPL-3.0" in text
+    assert "docker build " not in text
+    assert "TARGET_TAG: latest" not in text
 
 
 def test_every_source_is_downloaded_without_a_fail_open_or_cache():
