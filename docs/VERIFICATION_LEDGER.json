@@ -949,6 +949,28 @@
         "No new build, installation, native smoke or updater acceptance was run during publication."
       ],
       "next_action": "Request separate approval to commit this final publication evidence, then request separate push approval; do not mutate the live v0.38 assets or repeat the libmpv build."
+    },
+    {
+      "id": "EV-20260821-045",
+      "recorded_at_utc": "2026-08-21T22:01:10Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "35e74c05123858416cab5455ebe0dd3ae8bcbcd7",
+      "subject": "Public v0.38 download guidance",
+      "evidence": [
+        "the live v0.38 release notes now begin with a direct MLCPlayer_Setup_v0.38.exe link for most users",
+        "the same download section provides a separate optional MLCPlayer_InternetVideo_v0.38.exe link and says it is needed only for website-video extraction through yt-dlp and Deno",
+        "the notes explicitly identify the remaining assets as signature and corresponding-source files that normal users do not need to download",
+        "authenticated readback confirmed both installer names, the normal-user notice, draft=false and exactly 87 assets after the notes edit",
+        "no release asset, tag, installer, signature or corresponding-source archive was added, removed or replaced"
+      ],
+      "summary": "The public v0.38 page now directs ordinary users to the main installer first and clearly separates the optional Internet Video add-on from legal and verification assets, reducing confusion without mutating released bytes.",
+      "limitations": [
+        "This changes only the GitHub release notes; the already released v0.38 installer UI was not rebuilt or modified.",
+        "An in-installer optional add-on link would be a future product change requiring a new build and release acceptance.",
+        "The flat GitHub asset list still contains all 87 files because the source-compliance contract was not changed."
+      ],
+      "next_action": "Request separate approval to commit this release-notes readback evidence and then separate push approval; evaluate an unchecked add-on download-page link only for a future release."
     }
   ]
 }

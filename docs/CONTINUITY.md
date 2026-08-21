@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 22 Ağustos 2026
-- Son push edilmiş taban: `64d6b83889c1ddde10065f5822da553b35bc2c1b`
+- Son push edilmiş taban: `35e74c05123858416cab5455ebe0dd3ae8bcbcd7`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-044`
+- Son kanıt: `EV-20260821-045`
 - Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest**
 
 ## Şu anda doğrulanmış durum
@@ -221,16 +221,23 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    kaynağı `557.940.716` bayt / SHA-256 `5ce4be...efc0` olarak public metadata'da
    doğrulandı (`EV-20260821-044`). Yeni build, kurulum veya native smoke
    çalıştırılmadı.
+39. Canlı v0.38 açıklamasının en üstüne ana installer ve isteğe bağlı İnternet
+   Video installer'ı için doğrudan indirme bağlantıları eklendi. Kalan
+   varlıkların imza ve açık kaynak karşılık-gelen-kaynak dosyaları olduğu,
+   normal kullanıcıların bunları indirmemesi gerektiği açıklandı. Geri okuma
+   iki bağlantıyı ve uyarıyı doğruladı; release canlı kaldı ve 87 varlığın
+   hiçbiri değiştirilmedi (`EV-20260821-045`).
 
 ## Sıradaki tek adım
 
-Kaldırma kabulü geçti ve v0.38 canlı yayımlandı. `EV-20260821-044` nihai yayın
-kanıtını commit etmek için kullanıcıdan ayrıca açık onay al. Push bu onayın
-kapsamında değildir.
+Kaldırma kabulü geçti ve v0.38 indirme açıklaması sadeleştirildi.
+`EV-20260821-045` kullanılabilirlik kanıtını commit etmek için kullanıcıdan
+ayrıca açık onay al. Push bu onayın kapsamında değildir.
 
 ## Sonraki sıra
 
-1. Nihai yayın kanıtı commit edildikten sonra push için ayrıca açık onay al.
+1. İndirme açıklaması kanıtı commit edildikten sonra push için ayrıca açık onay
+   al.
 2. Sonraki ürün değişikliğine kadar v0.38 release artifact'lerini değiştirme;
    libmpv build'ini tekrarlama.
 
