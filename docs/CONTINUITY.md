@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `ab6255e66af0a2decd4f0d27ef7c8d5670e844e9`
+- Son push edilmiş taban: `4b948676990dde217206b878fca388093a367b61`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-014`
+- Son kanıt: `EV-20260821-015`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -58,19 +58,24 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    zorunlu doğrulamaya bağlandı. Dar iş akışı testleri **9 passed**, devam
    testleri **7 passed** ve `git diff --check` temizdir (`EV-20260821-014`).
    Bu deterministic kanıttır; gerçek DLL üretildiğini göstermez.
-9. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
+9. Düzeltme `4b94867` ile push edildi. Hosted run `32488320851` ilk denemede
+   **4722 passed / 26 skipped / 0 failed** verdi (`EV-20260821-015`). Bu
+   hosted kanıttır; libmpv kaynak build'i veya DLL kanıtı değildir.
+10. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
    libmpv dışında cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve
    kurulu lisans/notice/Qt relinking paketi açık kalır.
-10. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+11. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-11. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+12. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-Test edilmiş `libmpv source-captured build` erken koruması için kullanıcıdan
-ayrı commit onayı al. Build'i otomatik başlatma; yeniden çalıştırmak için
-ayrı açık build onayı ister.
+Kullanıcının ayrı açık build onayıyla `4b94867` üzerinde
+`libmpv source-captured build` run `32488810460` bir kez başlatıldı. Sonucu
+salt okunur izle; otomatik tekrar yapma. Başarılıysa üç artifact'i bağımsız
+doğrula, başarısızsa ilk gerçek hatayı incele ve kaydet. Yeni bir build için
+yeniden ayrı açık build onayı gerekir.
 
 ## Sonraki sıra
 

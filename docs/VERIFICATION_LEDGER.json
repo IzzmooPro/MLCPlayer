@@ -262,6 +262,24 @@
         "No new source build, DLL, native smoke, or installed-artifact test ran."
       ],
       "next_action": "Request separate commit approval; after commit and push approvals, request separate approval before one new source-captured build."
+    },
+    {
+      "id": "EV-20260821-015",
+      "recorded_at_utc": "2026-08-21T13:48:04Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "4b948676990dde217206b878fca388093a367b61",
+      "subject": "Hosted CI after early Rust and LLVM ThinLTO mismatch prevention",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32488320851",
+        "attempt: 1"
+      ],
+      "summary": "4722 passed, 26 skipped, 0 failed in 122.41s.",
+      "limitations": [
+        "Hosted CI did not execute the manual libmpv source build.",
+        "No DLL, native smoke, or installed-artifact result was produced."
+      ],
+      "next_action": "Use the user's separate approval to dispatch the libmpv source-captured build once at this commit; do not retry automatically."
     }
   ]
 }
