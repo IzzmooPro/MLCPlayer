@@ -7,7 +7,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 - Güncelleme: 21 Ağustos 2026
 - Son push edilmiş taban: `8c7506e95740e7a40a9bd7845271771f566f5fcf`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-005`
+- Son kanıt: `EV-20260821-006`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -19,26 +19,36 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 2. GitHub CI, `8c7506e` üzerinde geçti: run `32465911298`, **4712 passed / 26
    skipped / 0 failed**. Bu hosted kanıttır; skip edilen native/kurulu paket
    yollarını yeşile çevirmez.
-3. libmpv karşılık gelen kaynak derlemesi henüz başarılı değildir. Run
+3. Devam sistemi commit'i `50641a4` için run `32467900184`, **4719 passed /
+   26 skipped / 1 failed** verdi. Eksik `sign_release.py` belge sözleşmesi
+   gerçek hatadır; ürün çalışma zamanı hatası değildir. Otomatik tekrar
+   yapılmadı ve sonuç `EV-20260821-006` olarak kaydedildi. Onaylı yerel
+   düzeltme hazırdır; ilgili imza, devam ve yayın-belgesi paketi **212 passed**
+   verdi. Düzeltme mevcut HEAD'de commit edildi; henüz push edilmedi.
+4. libmpv karşılık gelen kaynak derlemesi henüz başarılı değildir. Run
    `32414388160`, iki saat sonra build-time Git kimliği eksikliğiyle durdu;
    DLL ve kaynak paketi oluşmadı, yalnız log artifact'i oluştu.
-4. Aynı hatanın tekrarlanmaması için geçici CI Git kimliği `8c7506e` ile
+5. Aynı hatanın tekrarlanmaması için geçici CI Git kimliği `8c7506e` ile
    eklendi ve hedef regresyon paketi **7 passed** verdi. Yeni libmpv kaynak
    derlemesi henüz çalıştırılmadı; bu nedenle düzeltme gerçek derleme kanıtı
    sayılmaz.
-5. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
+6. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
    libmpv dışında cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve
    kurulu lisans/notice/Qt relinking paketi açık kalır.
-6. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+7. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-7. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+8. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-Kullanıcı ayrı açık build onayı verirse, `8c7506e` commit'inde GitHub
-Actions içindeki **libmpv source-captured build** iş akışını bir kez manuel
-başlat. Başlamadan run commit'ini geri oku. Sonuç:
+Hazır, commit edilmiş ve **212 passed** veren `sign_release.py` belge
+sözleşmesi düzeltmesini ayrı kullanıcı onayıyla push et. Yeni hosted CI
+başarıyla bitmeden libmpv derlemesine geçme.
+
+Ardından kullanıcı ayrı açık build onayı verirse, GitHub Actions içindeki
+**libmpv source-captured build** iş akışını bir kez manuel başlat. Başlamadan
+run commit'ini geri oku. Sonuç:
 
 - başarılıysa binary ve corresponding-source artifact adlarını, boyutlarını,
   SHA-256 değerlerini ve run bağlantısını yeni ledger kaydıyla kaydet;

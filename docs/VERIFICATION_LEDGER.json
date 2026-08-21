@@ -89,6 +89,24 @@
         "This is not installed-artifact evidence and does not validate a newly built DLL."
       ],
       "next_action": "Retain this as bounded IPC behavior evidence; do not transfer it to packaging or libmpv source-build claims."
+    },
+    {
+      "id": "EV-20260821-006",
+      "recorded_at_utc": "2026-08-21T09:31:27Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "50641a4ea1c36bfa0111eddedaf507894eee874a",
+      "subject": "Hosted Windows CI after continuity-system integration",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32467900184",
+        "tests/test_release_signature_regressions.py::test_the_signing_rules_are_written_where_they_are_read"
+      ],
+      "summary": "4719 passed, 26 skipped, 1 failed because CLAUDE.md no longer mentioned packaging/sign_release.py.",
+      "limitations": [
+        "This is a documentation contract regression, not a product runtime failure.",
+        "No automatic rerun was performed."
+      ],
+      "next_action": "Restore the signing-tool reference, run only the affected documentation and continuity tests, then request separate commit and push approvals."
     }
   ]
 }

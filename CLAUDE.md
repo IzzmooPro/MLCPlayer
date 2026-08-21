@@ -68,6 +68,8 @@ imzası olmayan release REDDEDİLİR. Bu yüzden:
   Dinamik listeyi `packaging/fetch_sources.py`, bütünlüğü
   `python packaging/prepublish.py --tag vX.Y` denetler. Kesin varlık ve komut
   sözleşmesi yalnız `docs/RELEASE_PROCESS.md` içindedir.
+- Installer imzaları `packaging/sign_release.py` ve `.sig` zinciriyle
+  üretilir; bu uygulama imzası Windows Authenticode yerine geçmez.
 - **Özel anahtar depoya GİRMEZ.** Konum: `%USERPROFILE%\.mlcplayer\release_ed25519.key`
   (veya `MLC_SIGNING_KEY`). `.gitignore` ve
   `tests/test_release_signature_regressions.py` bunu korur.
