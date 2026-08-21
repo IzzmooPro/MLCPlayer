@@ -812,6 +812,75 @@
         "The measured stale HKCU key still exists on the machine and was not manually deleted."
       ],
       "next_action": "Request separate commit approval for the tested registry fix and evidence; push, build and physical registration acceptance remain separately authorized steps."
+    },
+    {
+      "id": "EV-20260821-039",
+      "recorded_at_utc": "2026-08-21T21:28:07Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "50b230ef0962950f0d55dbd141bb289ded6f3b30",
+      "subject": "v0.38 Windows build with legacy per-user registration cleanup",
+      "evidence": [
+        "packaging/build_release.bat: DONE, exit 0 on clean and pushed 50b230e; dependency pins and pre-flight runtime hashes passed",
+        "PyInstaller 6.19.0 on Python 3.14.3 produced a complete 181.3 MB dist tree",
+        "MLCPlayer_Setup_v0.38.exe: 56308623 bytes, sha256:bfac5dd6b21a4df8b8a218858dc12ff395163f845770c46b03f19b1d123bc3a2",
+        "MLCPlayer_InternetVideo_v0.38.exe: 48896317 bytes, sha256:16416b7c098d4557ac53274413cae484f5de8b3d7ea8cca92667b64eb8369d28",
+        "both 88-byte detached Ed25519 signatures verified against the public key embedded in app/release_signature.py",
+        "the measured legacy HKCU Applications\\MLC Player.exe tree still exists while C:\\Program Files\\MLC Player is absent, preserving the exact physical retest precondition"
+      ],
+      "summary": "The pushed registry-cleanup commit produced a complete signed v0.38 main installer. The machine remains in the intended legacy-key/no-product state needed to prove that installation does not alter the key and uninstall removes it.",
+      "limitations": [
+        "No installer from this build was executed; this is not installed-artifact or registry-cleanup acceptance.",
+        "The optional add-on was built but will not be installed for the bounded main-package retest.",
+        "No tag or release was created."
+      ],
+      "next_action": "Request separate user approval to install the exact 56308623-byte main installer while proving that the pre-existing HKCU legacy key is unchanged during installation."
+    },
+    {
+      "id": "EV-20260821-040",
+      "recorded_at_utc": "2026-08-21T21:30:54Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "50b230ef0962950f0d55dbd141bb289ded6f3b30",
+      "subject": "Install-side preservation of the legacy per-user Open With tree",
+      "evidence": [
+        "the exact 56308623-byte main installer matched sha256:bfac5dd6b21a4df8b8a218858dc12ff395163f845770c46b03f19b1d123bc3a2 and its Ed25519 signature before execution",
+        "the pre-existing HKCU Applications\\MLC Player.exe tree had sha256:9cb3323d6509a8d8e26784812aac56eb1d960c947650827cd5293a9fee18ebcd over its reg.exe /s representation",
+        "elevated /VERYSILENT /SUPPRESSMSGBOXES /NORESTART installation exited 0; the log says Installation process succeeded and Need to restart Windows? No",
+        "the legacy HKCU tree remained byte-representation-identical with the same sha256:9cb3323d6509a8d8e26784812aac56eb1d960c947650827cd5293a9fee18ebcd after installation",
+        "installed MLC Player.exe: 3118308 bytes, sha256:870307cf3c25733f6f90c4c7ba967ae00bd6f9d60d8766be3853da072db2ca64; exactly one v0.38 uninstall key exists",
+        "all 68 AppData files retained identical path, length, modification time and SHA-256 values; yt-dlp.exe and deno.exe were absent"
+      ],
+      "summary": "The exact registry-cleanup build installed successfully without creating or modifying the legacy per-user Open With tree, preserved all user data and did not install the optional add-on.",
+      "limitations": [
+        "The uninstall-side removal of the legacy HKCU tree has not yet been physically exercised.",
+        "The installed application was not launched in this bounded registration test.",
+        "No tag or release was created."
+      ],
+      "next_action": "With separate user approval, uninstall this exact main artifact and require removal of the product directory, HKLM current registration, the legacy HKCU product tree, shortcuts and uninstall key while preserving all AppData files."
+    },
+    {
+      "id": "EV-20260821-041",
+      "recorded_at_utc": "2026-08-21T21:33:20Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "50b230ef0962950f0d55dbd141bb289ded6f3b30",
+      "subject": "Uninstall-side removal of the legacy per-user Open With tree",
+      "evidence": [
+        "the bounded preflight matched installed MLC Player.exe sha256:870307cf3c25733f6f90c4c7ba967ae00bd6f9d60d8766be3853da072db2ca64 and confirmed the exact legacy HKCU Applications\\MLC Player.exe tree existed before uninstall",
+        "the exact main uninstaller ran elevated with /VERYSILENT /SUPPRESSMSGBOXES /NORESTART and exited 0",
+        "the uninstall log says Uninstallation process succeeded, Removed all? Yes and Need to restart Windows? No",
+        "C:\\Program Files\\MLC Player, the uninstall key, HKLM and merged HKCR MLC Player application-registration keys, the Start Menu group and public desktop shortcut were absent after uninstall",
+        "the product-private legacy HKCU Applications\\MLC Player.exe tree was absent after uninstall while all 3 sibling Applications keys retained identical names",
+        "all 68 AppData files retained identical path, length, modification time and SHA-256 values; zero MLC Player process or module leaks remained"
+      ],
+      "summary": "The exact registry-cleanup artifact completely removed current machine-level product state and the legacy per-user Open With tree without changing sibling application registrations or any MLC Player user data. The bounded physical registration-cleanup acceptance passed.",
+      "limitations": [
+        "This acceptance covers only the exact v0.38 main artifact built from commit 50b230e and the measured registration/uninstall scenario.",
+        "The optional Internet Video add-on was not installed, removed or otherwise changed.",
+        "This is not a tag, release or post-release update acceptance."
+      ],
+      "next_action": "Request separate user approval to commit EV-20260821-039 through EV-20260821-041 and the matching continuity update; push remains separately authorized."
     }
   ]
 }

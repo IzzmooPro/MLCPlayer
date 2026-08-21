@@ -4,10 +4,10 @@ Bu dosya projenin **tek güncel devir noktasıdır**. Tarihsel ayrıntı burada
 büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsamlı
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
-- Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `bcd76a7935b23806d9ff2595b658ab930ca4fad4`
+- Güncelleme: 22 Ağustos 2026
+- Son push edilmiş taban: `50b230ef0962950f0d55dbd141bb289ded6f3b30`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-038`
+- Son kanıt: `EV-20260821-041`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -182,20 +182,37 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    Paylaşılan `Applications` üst ağacı testle yasaklandı. Regresyon önce
    kırmızıydı; düzeltmeden sonra ilgili **21 test geçti**
    (`EV-20260821-038`). Build veya fiziksel retest yapılmadı.
+33. Temiz ve push edilmiş `50b230e` üzerinde build ilk koşumda **DONE / exit
+   0** verdi. Yeni ana installer `56.308.623` bayt ve SHA-256
+   `bfac5d...bc3a2`; add-on kimliği değişmedi. İki Ed25519 imzası doğrulandı.
+   Eski HKCU anahtarı mevcut, ürün dizini yok; fiziksel retest başlangıç koşulu
+   korunuyor (`EV-20260821-039`). Installer henüz çalıştırılmadı.
+34. Exact yeni installer exit 0 ile kuruldu. Eski HKCU ağacının `reg.exe /s`
+   temsili kurulum öncesi/sonrası aynı SHA-256 değerini (`9cb332...ebcd`)
+   taşıdı; `dontcreatekey` fiziksel olarak doğrulandı. Kurulu EXE
+   `3.118.308` bayt ve SHA-256 `870307...ca64`; tek uninstall kaydı mevcut.
+   AppData altındaki 68 dosya aynı kaldı, add-on kurulmadı
+   (`EV-20260821-040`). Uninstall temizliği henüz ölçülmedi.
+35. Aynı exact ana artifact'ın kaldırıcısı exit 0 verdi; log
+   `Uninstallation process succeeded`, `Removed all? Yes` ve yeniden başlatma
+   gerekmediğini kaydetti. Ürün dizini, uninstall kaydı, HKLM/HKCR ürün
+   kayıtları ve kısayollar tamamen gitti. Önceden mevcut eski ürüne özel HKCU
+   ağacı silindi; komşu 3 `Applications` anahtarı aynı kaldı. AppData altındaki
+   68 dosya yol/boyut/zaman/SHA-256 olarak değişmedi, süreç sızıntısı olmadı ve
+   add-on'a dokunulmadı (`EV-20260821-041`). Fiziksel kayıt temizliği kabulü
+   geçti.
 
 ## Sıradaki tek adım
 
-Kaldırma kabulü kayıt düzeltmesini ve kanıtını commit etmek için kullanıcıdan
-ayrıca açık onay al. Push, build ve fiziksel kayıt kabulü bu onayın kapsamında
-değildir.
+Kaldırma kabulü geçti. `EV-20260821-039`–`041` build/kurulum/kaldırma kanıt
+kayıtlarını commit etmek için kullanıcıdan ayrıca açık onay al. Push bu onayın
+kapsamında değildir.
 
 ## Sonraki sıra
 
-1. Push ve build için ayrı onaylarla ilerlet; yeni artifact üzerinde yalnız
-   kayıt kabulünü yeniden ölç.
-2. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
+1. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
    ad/boyut/SHA-256 eşliğini doğrula; yeniden libmpv build etme.
-3. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
+2. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
 
 ## Kayıt düzeni
 
