@@ -903,6 +903,29 @@
         "No tag, draft release, upload or publication was created."
       ],
       "next_action": "Request separate approval to commit and then push this blocked readback record; afterwards follow docs/RELEASE_PROCESS.md from the separately authorized local annotated v0.38 tag step without rebuilding libmpv."
+    },
+    {
+      "id": "EV-20260821-043",
+      "recorded_at_utc": "2026-08-21T21:46:53Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "b1b6c4d487fd03a94349c3f2d0a41c970965b220",
+      "subject": "v0.38 tag, prepublish gate and draft release asset parity",
+      "evidence": [
+        "local annotated tag v0.38 and the pushed remote peeled tag both resolve to b1b6c4d487fd03a94349c3f2d0a41c970965b220",
+        "python packaging/prepublish.py --tag v0.38 exited 0: tag/version integrity, clean tree, both installer signatures and the source/licence mirror passed",
+        "prepublish enumerated exactly 87 ready publication assets: 4 installer/signature files and 83 corresponding-source archives",
+        "GitHub draft release id 374689765 was created for v0.38 and remained draft=true, prerelease=false",
+        "authenticated API readback found exactly 87 remote assets with zero name differences, zero byte-size mismatches, zero SHA-256 digest mismatches, zero non-uploaded states and zero missing digests",
+        "the canonical libmpv-corresponding-source-20260821-g49418246f.tar.zst remote asset matches its 557940716-byte local file and sha256:5ce4be96436566d9eca18727a1779a6534d6d5e9985178baf87ff3521753efc0"
+      ],
+      "summary": "The v0.38 annotated tag, release gate and complete draft upload are internally consistent. Every one of the 87 draft assets matches the verified local publication set by name, size and SHA-256, closing the previously blocked remote libmpv asset check without a rebuild.",
+      "limitations": [
+        "The release is still a private draft and has not been published or tested through public unauthenticated download URLs.",
+        "This evidence verifies release metadata and uploaded bytes, not a new native smoke or installed-artifact run.",
+        "No libmpv or product build was repeated during tag, draft or readback work."
+      ],
+      "next_action": "Request separate explicit publication approval; only then set v0.38 draft=false/latest and perform a read-only public release readback before recording the final result."
     }
   ]
 }

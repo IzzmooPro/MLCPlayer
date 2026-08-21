@@ -7,7 +7,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 - Güncelleme: 22 Ağustos 2026
 - Son push edilmiş taban: `50b230ef0962950f0d55dbd141bb289ded6f3b30`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-042`
+- Son kanıt: `EV-20260821-043`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -208,20 +208,25 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    uzak v0.38 tag'i de yok. Bu nedenle uzak asset eşliği **BLOCKED**;
    doğrulanacak uzak dosya henüz oluşturulmamış (`EV-20260821-042`). Uzun
    libmpv build'i tekrarlanmadı ve GitHub'da değişiklik yapılmadı.
+37. `v0.38` annotated tag'i `b1b6c4d` commit'ine oluşturulup push edildi;
+   uzak peeled commit yerel HEAD ile aynıydı. `prepublish.py --tag v0.38`
+   dört kapının tamamını geçti ve 87 varlığı hazır buldu. Draft release
+   `374689765` oluşturuldu; 87/87 uzak varlıkta ad, byte boyutu, SHA-256 digest
+   ve `uploaded` durumu yerel dosyalarla birebir eşleşti
+   (`EV-20260821-043`). Draft henüz yayınlanmadı; libmpv build'i tekrarlanmadı.
 
 ## Sıradaki tek adım
 
-Kaldırma kabulü geçti ve push edildi. `EV-20260821-042` uzak libmpv asset
-eksikliği kaydını commit etmek için kullanıcıdan ayrıca açık onay al. Push,
-tag ve draft release bu onayın kapsamında değildir.
+Kaldırma kabulü geçti. v0.38 draft release içindeki 87 varlık da doğrulandı.
+Draft'ı canlıya almak için kullanıcıdan ayrıca açık onay al; bu yayın onayı
+verilmeden `gh release edit v0.38 --draft=false --latest` çalıştırma.
 
 ## Sonraki sıra
 
-1. Kanıt commit'i ve push'u ayrı onaylarla tamamlandıktan sonra
-   `docs/RELEASE_PROCESS.md` içindeki yerel annotated tag adımından itibaren
-   sırayı ayrı onaylarla uygula.
-2. Draft hazır olduğunda bütün uzak asset'lerin ad/boyut/SHA-256 eşliğini
-   doğrula; libmpv build'ini tekrarlama.
+1. Yayın onayı verilirse draft'ı canlıya al ve görünür durumu salt okunur
+   geri okuyarak doğrula.
+2. Son yayın sonucunu kanıta ekle; commit ve push için ayrı onay al. Libmpv
+   build'ini tekrarlama.
 
 ## Kayıt düzeni
 
