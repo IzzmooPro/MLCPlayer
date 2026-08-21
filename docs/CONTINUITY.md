@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `fdaad7bfc73396e195b234c366f2edb114240f19`
+- Son push edilmiş taban: `786f388f05ee10833bbd14fa0c55fc5a487e9f86`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-021`
+- Son kanıt: `EV-20260821-023`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -90,31 +90,39 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    kaynak argümanı olmadan yeniden doğrulandı; kalıcı v0.38 URL'si sözleşmeye
    bağlandı ve ilgili **238 test geçti** (`EV-20260821-021`). URL ancak v0.38
    release yayımlandığında canlı olur; tag/release yapılmadı.
-16. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
-   cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve kurulu
-   lisans/notice/Qt relinking paketi açık kalır. libmpv kaynak build'ini tekrar
-   gerektiren açık kalmadı.
-17. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+16. Kaynak staging commit'i `786f388` push edildi; hosted run `32515193214`
+   ilk denemede **4728 passed / 26 skipped / 0 failed** verdi
+   (`EV-20260821-022`). Uzun libmpv build'i çalışmadı.
+17. Kilitli `cryptography 50.0.0` wheel'inin CycloneDX SBOM'ları OpenSSL
+   `4.0.1` ve 32 dış Rust crate'ini bildirdi. OpenSSL kaynak hash'i, sdist
+   `Cargo.lock` envanteri ve indirilen 32 `.crate` dosyası wheel SBOM'uyla
+   birebir eşleşti; 32 crate toplam `4.121.466` bayttır. Ağsız yeniden kontrol
+   ve ilgili **31 test geçti** (`EV-20260821-023`). Cryptography sürümü
+   değişmedikçe bu kaynaklar yeniden araştırılmaz veya indirilmez.
+18. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
+   Yalnız yt-dlp transitif kaynakları ve kurulu lisans/notice/Qt relinking
+   paketi açık kalır. libmpv ve cryptography kaynak build/envanter açıkları
+   kapandı.
+19. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-18. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+20. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-Cryptography wheel'inin OpenSSL ve Rust bağımlılık kaynaklarını kesin wheel
-envanteriyle eşleştir; yalnız doğrulanan kaynakları sözleşmeye ekle. libmpv
-build'ini tekrar çalıştırma.
+Kilitli resmi `yt-dlp 2026.08.19` executable'ının tam transitif kaynak
+envanterini dağıtılan üçüncü taraf bildirimi ve resmi build metadata'sıyla
+eşleştir; yalnız doğrulanan kaynakları sözleşmeye ekle.
 
 ## Sonraki sıra
 
-1. cryptography/OpenSSL/Rust kaynak açığını kapat.
-2. yt-dlp transitif kaynak açığını kapat.
-3. Kurulu lisans/notice ve Qt relinking paketini doğrula.
-4. `corresponding_sources.json` gerçekten `ready` ve blockers boş olmadan
+1. yt-dlp transitif kaynak açığını kapat.
+2. Kurulu lisans/notice ve Qt relinking paketini doğrula.
+3. `corresponding_sources.json` gerçekten `ready` ve blockers boş olmadan
    sürüm değerlendirmesine geçme.
-5. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
+4. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
    ad/boyut/SHA-256 eşliğini doğrula; yeniden libmpv build etme.
-6. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
+5. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
 
 ## Kayıt düzeni
 

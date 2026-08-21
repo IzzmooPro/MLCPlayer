@@ -50,13 +50,15 @@ def test_the_checked_in_contract_records_the_staged_libmpv_source_and_remaining_
         "qtbase-everywhere-src-6.10.2.tar.xz",
         "libmpv-corresponding-source-20260821-g49418246f.tar.zst",
         "openssl-4.0.1.tar.gz",
+        "rust-crate-openssl-sys-0.9.117.crate",
         "yt-dlp-2026.08.19.tar.gz",
     ):
         assert expected in names
-    assert len(names) == 22
+    assert len(names) == 54
     reasons = " ".join(fetch.blockers()).lower()
     assert "libmpv" not in reasons
-    assert "cryptography" in reasons and "yt-dlp" in reasons
+    assert "cryptography" not in reasons
+    assert "yt-dlp" in reasons
 
 
 def test_binary_and_developer_archives_are_not_called_source():
@@ -140,6 +142,11 @@ def test_the_plan_never_leaves_the_trusted_hosts(tmp_path):
 def test_the_reviewed_qt_mirror_is_explicitly_trusted():
     fetch = module()
     assert "ftp.fau.de" in fetch.TRUSTED_HOSTS
+
+
+def test_the_official_crates_io_source_hosts_are_explicitly_trusted():
+    fetch = module()
+    assert {"crates.io", "static.crates.io"} <= fetch.TRUSTED_HOSTS
 
 
 def test_a_wrong_digest_is_rejected_and_removed(tmp_path):

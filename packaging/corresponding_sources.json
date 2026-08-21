@@ -2,7 +2,6 @@
   "schema": 1,
   "status": "blocked",
   "blockers": [
-    "The cryptography wheel's OpenSSL and Rust dependency sources have not all been collected.",
     "The complete transitive source set used to build the official yt-dlp 2026.08.19 executable has not been collected.",
     "The installed license, notice and Qt relinking package has not been completed and verified."
   ],
@@ -54,6 +53,198 @@
       "url": "https://files.pythonhosted.org/packages/de/41/6cbdcf9142d00fe82836fbb51e503e58088575cf7a0fe1dbff6695bf0840/cryptography-50.0.0.tar.gz",
       "size": 880201,
       "sha256": "eeac2acb5a20ed25e0ad6d1df9891a520b78b404266b6d11778f25d5d691a6c9"
+    },
+    {
+      "name": "rust-crate-asn1-0.24.1.crate",
+      "url": "https://crates.io/api/v1/crates/asn1/0.24.1/download",
+      "size": 50502,
+      "sha256": "c9795210620c0cb3f9a7ce4f882808c38e1ef7b347c90591dceae0886e031fb1"
+    },
+    {
+      "name": "rust-crate-asn1_derive-0.24.1.crate",
+      "url": "https://crates.io/api/v1/crates/asn1_derive/0.24.1/download",
+      "size": 9534,
+      "sha256": "909e307f1cc32bb8bccbd98f446e6d1bf03fa30f7b53a4337da7181ad30fa11a"
+    },
+    {
+      "name": "rust-crate-base64-0.23.0.crate",
+      "url": "https://crates.io/api/v1/crates/base64/0.23.0/download",
+      "size": 93578,
+      "sha256": "b25655df2c3cdd83c5e5b293b88acd880332b2ddadd7c30ac43144fdc0033da9"
+    },
+    {
+      "name": "rust-crate-bitflags-2.13.1.crate",
+      "url": "https://crates.io/api/v1/crates/bitflags/2.13.1/download",
+      "size": 51395,
+      "sha256": "b588b76d00fde79687d7646a9b5bdf3cc0f655e0bbd080335a95d7e96f3587da"
+    },
+    {
+      "name": "rust-crate-cc-1.4.0.crate",
+      "url": "https://crates.io/api/v1/crates/cc/1.4.0/download",
+      "size": 97878,
+      "sha256": "5add81bb678e6cb321aff7fa0dc7689ad82b112dbc032cea19f91d6b8e3582b9"
+    },
+    {
+      "name": "rust-crate-cfg-if-1.0.4.crate",
+      "url": "https://crates.io/api/v1/crates/cfg-if/1.0.4/download",
+      "size": 9360,
+      "sha256": "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
+    },
+    {
+      "name": "rust-crate-find-msvc-tools-0.1.9.crate",
+      "url": "https://crates.io/api/v1/crates/find-msvc-tools/0.1.9/download",
+      "size": 31493,
+      "sha256": "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
+    },
+    {
+      "name": "rust-crate-foreign-types-0.3.2.crate",
+      "url": "https://crates.io/api/v1/crates/foreign-types/0.3.2/download",
+      "size": 7504,
+      "sha256": "f6f339eb8adc052cd2ca78910fda869aefa38d22d5cb648e6485e4d3fc06f3b1"
+    },
+    {
+      "name": "rust-crate-foreign-types-shared-0.1.1.crate",
+      "url": "https://crates.io/api/v1/crates/foreign-types-shared/0.1.1/download",
+      "size": 5672,
+      "sha256": "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
+    },
+    {
+      "name": "rust-crate-heck-0.5.0.crate",
+      "url": "https://crates.io/api/v1/crates/heck/0.5.0/download",
+      "size": 11517,
+      "sha256": "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
+    },
+    {
+      "name": "rust-crate-itoa-1.0.18.crate",
+      "url": "https://crates.io/api/v1/crates/itoa/1.0.18/download",
+      "size": 15935,
+      "sha256": "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
+    },
+    {
+      "name": "rust-crate-libc-0.2.189.crate",
+      "url": "https://crates.io/api/v1/crates/libc/0.2.189/download",
+      "size": 851502,
+      "sha256": "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
+    },
+    {
+      "name": "rust-crate-once_cell-1.21.4.crate",
+      "url": "https://crates.io/api/v1/crates/once_cell/1.21.4/download",
+      "size": 35010,
+      "sha256": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
+    },
+    {
+      "name": "rust-crate-openssl-0.10.81.crate",
+      "url": "https://crates.io/api/v1/crates/openssl/0.10.81/download",
+      "size": 311187,
+      "sha256": "77823a27f0babb03091cb9ed9ef80af3b39dbc82f97e8fa530374b7dafd87a45"
+    },
+    {
+      "name": "rust-crate-openssl-macros-0.1.1.crate",
+      "url": "https://crates.io/api/v1/crates/openssl-macros/0.1.1/download",
+      "size": 5601,
+      "sha256": "a948666b637a0f465e8564c73e89d4dde00d72d4d473cc972f390fc3dcee7d9c"
+    },
+    {
+      "name": "rust-crate-openssl-sys-0.9.117.crate",
+      "url": "https://crates.io/api/v1/crates/openssl-sys/0.9.117/download",
+      "size": 76045,
+      "sha256": "b47e7e6bb2c38cd930d25a23b40fa52e068c10e85f3e03a7f5ba5aaca5713695"
+    },
+    {
+      "name": "rust-crate-pem-4.0.0.crate",
+      "url": "https://crates.io/api/v1/crates/pem/4.0.0/download",
+      "size": 18770,
+      "sha256": "d354a98a3d1251555de99e8fdd8afda05573c31b82f59063a7b0a29b5527f120"
+    },
+    {
+      "name": "rust-crate-pkg-config-0.3.33.crate",
+      "url": "https://crates.io/api/v1/crates/pkg-config/0.3.33/download",
+      "size": 21590,
+      "sha256": "19f132c84eca552bf34cab8ec81f1c1dcc229b811638f9d283dceabe58c5569e"
+    },
+    {
+      "name": "rust-crate-portable-atomic-1.14.0.crate",
+      "url": "https://crates.io/api/v1/crates/portable-atomic/1.14.0/download",
+      "size": 200703,
+      "sha256": "3d20d5497ef88037a52ff98267d066e7f11fcc5e99bbfbd58a42336193aacec3"
+    },
+    {
+      "name": "rust-crate-proc-macro2-1.0.107.crate",
+      "url": "https://crates.io/api/v1/crates/proc-macro2/1.0.107/download",
+      "size": 59588,
+      "sha256": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
+    },
+    {
+      "name": "rust-crate-pyo3-0.29.0.crate",
+      "url": "https://crates.io/api/v1/crates/pyo3/0.29.0/download",
+      "size": 1241253,
+      "sha256": "cd274650b21d4bfc26a0a47587962c1edb425f69287324355cd040c3ea66071c"
+    },
+    {
+      "name": "rust-crate-pyo3-build-config-0.29.0.crate",
+      "url": "https://crates.io/api/v1/crates/pyo3-build-config/0.29.0/download",
+      "size": 39616,
+      "sha256": "c5e2a7d2f0d013342f295c048ad19237add5154a55b1c5a254c0ec93d4109078"
+    },
+    {
+      "name": "rust-crate-pyo3-ffi-0.29.0.crate",
+      "url": "https://crates.io/api/v1/crates/pyo3-ffi/0.29.0/download",
+      "size": 88184,
+      "sha256": "ca85c467da1bbc8d866eea5deff9cf29ea5f7785054a17da36e65bda9c05845b"
+    },
+    {
+      "name": "rust-crate-pyo3-macros-0.29.0.crate",
+      "url": "https://crates.io/api/v1/crates/pyo3-macros/0.29.0/download",
+      "size": 8915,
+      "sha256": "9ac53762fd065daa3194dd09337a38bd793a188100fd1a9304c4ab312d901771"
+    },
+    {
+      "name": "rust-crate-pyo3-macros-backend-0.29.0.crate",
+      "url": "https://crates.io/api/v1/crates/pyo3-macros-backend/0.29.0/download",
+      "size": 91943,
+      "sha256": "4ca3a1557399783172dc5bf39cfca835157732532cba56b71d2292161e53b362"
+    },
+    {
+      "name": "rust-crate-quote-1.0.47.crate",
+      "url": "https://crates.io/api/v1/crates/quote/1.0.47/download",
+      "size": 31622,
+      "sha256": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
+    },
+    {
+      "name": "rust-crate-self_cell-1.3.0.crate",
+      "url": "https://crates.io/api/v1/crates/self_cell/1.3.0/download",
+      "size": 23869,
+      "sha256": "2ab42ca02749e120097e328d91d415325bdf43b1c72c4c8badf37375fe40a813"
+    },
+    {
+      "name": "rust-crate-shlex-2.0.1.crate",
+      "url": "https://crates.io/api/v1/crates/shlex/2.0.1/download",
+      "size": 19332,
+      "sha256": "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
+    },
+    {
+      "name": "rust-crate-syn-2.0.119.crate",
+      "url": "https://crates.io/api/v1/crates/syn/2.0.119/download",
+      "size": 307407,
+      "sha256": "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297"
+    },
+    {
+      "name": "rust-crate-target-lexicon-0.13.5.crate",
+      "url": "https://crates.io/api/v1/crates/target-lexicon/0.13.5/download",
+      "size": 26928,
+      "sha256": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca"
+    },
+    {
+      "name": "rust-crate-unicode-ident-1.0.24.crate",
+      "url": "https://crates.io/api/v1/crates/unicode-ident/1.0.24/download",
+      "size": 49298,
+      "sha256": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
+    },
+    {
+      "name": "rust-crate-vcpkg-0.2.15.crate",
+      "url": "https://crates.io/api/v1/crates/vcpkg/0.2.15/download",
+      "size": 228735,
+      "sha256": "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
     },
     {
       "name": "cffi-2.1.1.tar.gz",

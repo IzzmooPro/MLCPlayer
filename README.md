@@ -272,8 +272,9 @@ The verified subset can be collected during remediation with
 release gate. The bundled 20260821 libmpv was built with its complete source
 inputs captured alongside the binary. The verified bundle is staged under its
 canonical v0.38 release-asset name and SHA-256; the release process uploads
-that exact file to the recorded permanent URL. The non-libmpv source and
-installed-notice blockers remain open.
+that exact file to the recorded permanent URL. The cryptography wheel's
+OpenSSL 4.0.1 and 32 Rust crate sources are also locked to its embedded SBOM.
+The yt-dlp transitive-source and installed-notice blockers remain open.
 
 ### Open items
 

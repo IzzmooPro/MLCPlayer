@@ -34,9 +34,11 @@ TRUSTED_HOSTS = frozenset({
     "objects.githubusercontent.com",
     "release-assets.githubusercontent.com",
     "codeload.github.com",
+    "crates.io",
     "download.qt.io",
     "ftp.fau.de",
     "files.pythonhosted.org",
+    "static.crates.io",
     "www.python.org",
 })
 

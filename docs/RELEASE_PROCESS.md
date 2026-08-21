@@ -154,6 +154,28 @@ varsa kaynak dosyası veya yeni build gerektirmeden başarıyla döner. Kalıcı
 v0.38 release yayımlandığında canlı olur; draft aşamasında aynı dosyanın uzak
 ad/boyut/SHA-256 eşliği doğrulanmadan yayın yapılmaz.
 
+### Cryptography/OpenSSL/Rust kaynak tekrar-kullanım kuralı
+
+Kilitli `cryptography 50.0.0` Windows wheel'i kendi CycloneDX SBOM'larında
+OpenSSL `4.0.1` kaynağını ve 32 dış Rust crate'ini ad/sürüm/SHA-256 ile taşır.
+`packaging/stage_cryptography_sources.py`, bu envanteri sdist içindeki
+`Cargo.lock` ile çapraz doğrular. Mevcut kaynakların ağsız kontrolü:
+
+```powershell
+python packaging/stage_cryptography_sources.py
+```
+
+Yalnız kaynaklar eksikse ve ağ indirmesi ayrıca amaçlanıyorsa:
+
+```powershell
+python packaging/stage_cryptography_sources.py --download
+```
+
+Araç yalnız resmi crates.io sürüm endpoint'ini ve yönlendirildiği
+`static.crates.io` alanını kabul eder; geçici dosyanın SBOM hash'i tutmadan
+mevcut hedefin üzerine yazmaz. Cryptography wheel sürümü değişmedikçe crate
+envanteri yeniden araştırılmaz; aynı 32 doğrulanmış kaynak tekrar kullanılır.
+
 ### Değişmez kurallar
 
 - **Tag ve push build'den ÖNCE yapılmaz.** Tag, test edilmiş ve build

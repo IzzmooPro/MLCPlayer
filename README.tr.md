@@ -190,8 +190,10 @@ kullanıcıya, gerekirse hukukçuya aittir:
   bunlar gerçek, yeniden derlenebilir kaynak değildir. Yeni 20260821 libmpv
   bütün kaynak girdileri binary ile birlikte yakalanarak derlendi. Doğrulanan
   paket sabit v0.38 release adı, boyutu ve SHA-256 değeriyle hazırlandı; yayın
-  akışı aynı dosyayı kayıtlı kalıcı adrese yükleyecek. Diğer kaynaklar ve
-  lisans/relink paketi tamamlanana kadar release kapısı kapalıdır.
+  akışı aynı dosyayı kayıtlı kalıcı adrese yükleyecek. Cryptography wheel'inin
+  OpenSSL 4.0.1 ve 32 Rust crate kaynağı da gömülü SBOM'a göre kilitlendi.
+  yt-dlp kaynakları ve lisans/relink paketi tamamlanana kadar release kapısı
+  kapalıdır.
 
 **Kapanan maddeler:**
 

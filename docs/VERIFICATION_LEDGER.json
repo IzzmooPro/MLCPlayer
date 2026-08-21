@@ -412,6 +412,51 @@
         "Cryptography/OpenSSL/Rust, yt-dlp transitive sources and the installed notice/Qt relinking package remain blockers."
       ],
       "next_action": "Close the cryptography wheel OpenSSL and Rust dependency-source gap without rebuilding libmpv."
+    },
+    {
+      "id": "EV-20260821-022",
+      "recorded_at_utc": "2026-08-21T18:56:53Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "786f388f05ee10833bbd14fa0c55fc5a487e9f86",
+      "subject": "Hosted CI for reusable libmpv source staging",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32515193214",
+        "attempt: 1"
+      ],
+      "summary": "4728 passed, 26 skipped, 0 failed in 115.74s; the hosted job completed successfully.",
+      "limitations": [
+        "Hosted CI did not contain the ignored 558 MB staged source asset.",
+        "No native, installed-artifact, upload, tag or release action ran."
+      ],
+      "next_action": "Use the wheel SBOM and sdist Cargo.lock to close the cryptography/OpenSSL/Rust source inventory."
+    },
+    {
+      "id": "EV-20260821-023",
+      "recorded_at_utc": "2026-08-21T18:56:53Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "786f388f05ee10833bbd14fa0c55fc5a487e9f86",
+      "subject": "Cryptography 50.0.0 wheel OpenSSL and Rust corresponding-source inventory",
+      "evidence": [
+        "installed wheel: cryptography 50.0.0, cp311-abi3-win_amd64, maturin 1.14.1",
+        "wheel runtime: OpenSSL 4.0.1 9 Jun 2026",
+        "wheel sbom.json: OpenSSL 4.0.1 source sha256:2db3f3a0d6ea4b59e1f094ace2c8cd536dffb87cdc39084c5afa1e6f7f37dd09",
+        "source_mirror/openssl-4.0.1.tar.gz: 55079428 bytes, same SHA-256",
+        "wheel cryptography-rust.cyclonedx.json: 32 external Rust crates plus 7 local cryptography crates",
+        "cryptography-50.0.0 sdist Cargo.lock registry set: exact same 32 crate names, versions and SHA-256 values",
+        "32 staged .crate files: 4121466 bytes total; every file matched its wheel SBOM SHA-256",
+        "python packaging/stage_cryptography_sources.py without --download: passed; no network or rebuild",
+        "python -m pytest -q tests/test_cryptography_source_staging_regressions.py tests/test_source_mirror_regressions.py tests/test_dependency_lock_regressions.py: 31 passed in 0.35s"
+      ],
+      "summary": "The sources actually declared by the locked cryptography Windows wheel are now represented in the release contract: its exact OpenSSL 4.0.1 archive and all 32 external Rust crate archives. Wheel SBOM, source Cargo.lock and downloaded crate hashes agree.",
+      "limitations": [
+        "This source inventory belongs only to cryptography 50.0.0; a wheel update must fail the regression contract until its new SBOM is reconciled.",
+        "The crate files are ignored release evidence in source_mirror and are not stored in Git.",
+        "No product build, installer, installed-artifact, tag or release was produced.",
+        "The yt-dlp transitive-source and installed license/notice/Qt relinking blockers remain open."
+      ],
+      "next_action": "Close the exact transitive-source set for the locked official yt-dlp 2026.08.19 executable."
     }
   ]
 }
