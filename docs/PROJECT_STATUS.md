@@ -1,8 +1,13 @@
-# MLC Player güncel durum
+# MLC Player tarihsel proje kaydı
+
+> **Güncel başlangıç noktası bu dosya değildir.** Bu uzun belge geçmiş
+> ölçümleri korur. Güncel durum ve sıradaki tek işlem için önce
+> `docs/CONTINUITY.md`, doğrulanmış sonuçlar için
+> `docs/VERIFICATION_LEDGER.json` okunmalıdır.
 
 Güncelleme: 20 Ağustos 2026
 
-## DEVİR NOTU — buradan başla
+## TARİHSEL DEVİR NOTU — güncel başlangıç için CONTINUITY.md kullan
 
 **Snapshot `57ad09e`; `master`, `origin/master ile eşit (0 ileri / 0 geri).**
 v0.37 tag/push/GitHub Release ile yayımlandı ve final

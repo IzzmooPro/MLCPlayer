@@ -1,7 +1,9 @@
 # MLC Player çalışma kuralları
 
 Bu dosya yalnız kalıcı kuralları içerir. Güncel durum ve sıradaki iş için
-`docs/PROJECT_STATUS.md` dosyasını oku.
+`docs/CONTINUITY.md`, doğrulanmış sonuç için
+`docs/VERIFICATION_LEDGER.json` dosyasını oku. Ortak agent başlangıç
+sözleşmesi kökteki `AGENTS.md` dosyasıdır.
 
 Aşağıdaki kuralların üçü `.claude/settings.json` içindeki hook'larla
 mekanik olarak da uygulanır: `git stash/reset/checkout/restore` engellenir,
@@ -11,7 +13,7 @@ unutulma ihtimalini kapatır.
 
 ## Başlangıç
 
-1. `CLAUDE.md` ve `docs/PROJECT_STATUS.md` dosyalarını oku.
+1. `AGENTS.md`, `CLAUDE.md`, `docs/CONTINUITY.md` ve ilgili ledger kaydını oku.
 2. `git status --short --branch` çalıştır (oturum hook'u bunu zaten sunar).
 3. Yalnız görevle ilgili kaynak, test ve diff bölümlerini incele. Tüm depoyu veya eski raporları baştan okuma.
 4. Kaynak ile rapor çelişirse kaynak ve yeniden üretilen davranış esas alınır.
@@ -32,8 +34,9 @@ unutulma ihtimalini kapatır.
 - Aynı başarısız komutu yeni hipotez olmadan tekrarlama.
 - Terminal çıktısının tamamını rapora kopyalama; komut, sonuç, önemli hata ve exit code yeterlidir.
 - Önceki raporları tekrar etme. Yalnız bu turdaki farkı ve devam eden riski yaz.
-- Yeni handoff dosyaları üretme. Güncel durumu yalnız
-  `docs/PROJECT_STATUS.md` içinde kısa tut.
+- Yeni geçici handoff dosyaları üretme. Güncel durumu yalnız
+  `docs/CONTINUITY.md`, kalıcı kanıtı yalnız
+  `docs/VERIFICATION_LEDGER.json` içinde tut; tarihsel belgeleri büyütme.
 
 ## Ürün değişmezleri
 
@@ -58,21 +61,13 @@ Güncelleme, kurulum dosyasının SHA-256 özetinin yayıncı anahtarıyla
 imzalanmasına dayanır (`app/release_signature.py`). Doğrulama fail-closed'dur:
 imzası olmayan release REDDEDİLİR. Bu yüzden:
 
-- **Her release'e SEKİZ dosya yüklenir** (ölçüldü; eski kural "iki dosya"
-  diyordu ve eksikti). Dördü kurulum/imza, dördü kaynak/lisans:
-
-  1. `MLCPlayer_Setup_vX.exe` + `.sig`
-  2. `MLCPlayer_InternetVideo_vX.exe` + `.sig`
-  3. `packaging/fetch_sources.py::FETCHABLE`ten türeyen dört kaynak/lisans
-     aynası (mpv `.7z`, `yt-dlp.exe`, deno `.zip`,
-     `yt-dlp-THIRD_PARTY_LICENSES.txt`) — GPLv3 §6 "karşılık gelen kaynak"
-     yükümlülüğü içindir, süs değildir.
-
-  İmzalar `packaging/build_release.bat` içinde otomatik üretilir (ADIM 7);
-  zincir dışında elle derleme yapıldıysa
-  `python packaging/sign_release.py <kurulum.exe>` çalıştırılır. Kaynak
-  aynası `python packaging/fetch_sources.py` ile alınır.
-  Sekizin tamamını `python packaging/prepublish.py --tag vX.Y` denetler.
+- **Release varlık sayısı sabit değildir.** Dört installer/imza varlığına,
+  `packaging/corresponding_sources.json` içindeki doğrulanmış gerçek kaynak
+  arşivleri eklenir. Eski binary paketler karşılık gelen kaynak sayılamaz.
+  Manifest `ready` değilse veya blocker listesi doluysa yayın kapısı kapalıdır.
+  Dinamik listeyi `packaging/fetch_sources.py`, bütünlüğü
+  `python packaging/prepublish.py --tag vX.Y` denetler. Kesin varlık ve komut
+  sözleşmesi yalnız `docs/RELEASE_PROCESS.md` içindedir.
 - **Özel anahtar depoya GİRMEZ.** Konum: `%USERPROFILE%\.mlcplayer\release_ed25519.key`
   (veya `MLC_SIGNING_KEY`). `.gitignore` ve
   `tests/test_release_signature_regressions.py` bunu korur.

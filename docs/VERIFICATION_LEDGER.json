@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "policy": "Append new evidence; never rewrite or delete an existing entry. Correct mistakes with a new superseding entry.",
+  "entries": [
+    {
+      "id": "EV-20260820-001",
+      "recorded_at_utc": "2026-08-20T22:38:32Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "cf179b8b390af148050f50d6452b645d117f6538",
+      "subject": "Windows x86_64 libmpv source-captured build",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32414388160",
+        "artifact: libmpv-build-logs, 13825703 bytes"
+      ],
+      "summary": "Source download and lock capture passed; the build stopped in spirv-cross-patch because Git could not auto-detect an email address.",
+      "limitations": [
+        "No libmpv binary artifact was produced.",
+        "No corresponding-source artifact was produced."
+      ],
+      "next_action": "Configure a deterministic ephemeral Git identity, test the workflow contract, then request separate approval for one new build."
+    },
+    {
+      "id": "EV-20260821-002",
+      "recorded_at_utc": "2026-08-21T08:17:15Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "15d2e24963c8f0752fa6edc7ca2769a2a4d8be19",
+      "subject": "Hosted Windows CI after single-instance IPC hardening",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32461786663",
+        "attempt: 2"
+      ],
+      "summary": "4711 passed, 26 skipped, 0 failed.",
+      "limitations": [
+        "Hosted CI does not prove real native Windows smoke or installed artifacts.",
+        "Attempt 1 hit an intermittent unchanged Qt test failure; it was investigated before the single approved rerun."
+      ],
+      "next_action": "Keep the hosted result separate from user-completed real application checks."
+    },
+    {
+      "id": "EV-20260821-003",
+      "recorded_at_utc": "2026-08-21T08:59:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "8c7506e95740e7a40a9bd7845271771f566f5fcf",
+      "subject": "libmpv workflow Git identity regression contract",
+      "evidence": [
+        "python -m pytest -q tests/test_libmpv_source_build_workflow_regressions.py"
+      ],
+      "summary": "7 passed in 0.06s; git diff --check passed.",
+      "limitations": [
+        "The real source-captured libmpv build was not rerun.",
+        "This result proves workflow text and ordering, not a DLL."
+      ],
+      "next_action": "After separate build approval, dispatch the manual workflow once at this commit."
+    },
+    {
+      "id": "EV-20260821-004",
+      "recorded_at_utc": "2026-08-21T09:04:53Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "8c7506e95740e7a40a9bd7845271771f566f5fcf",
+      "subject": "Hosted Windows CI with libmpv Git identity regression",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32465911298",
+        "attempt: 1"
+      ],
+      "summary": "4712 passed, 26 skipped, 0 failed in 116.23s.",
+      "limitations": [
+        "Hosted CI did not execute the manual libmpv source build.",
+        "Native and installed-artifact checks remain separate."
+      ],
+      "next_action": "Request separate approval for one manual libmpv source-captured build."
+    },
+    {
+      "id": "EV-20260821-005",
+      "recorded_at_utc": "2026-08-21T09:13:10Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "15d2e24963c8f0752fa6edc7ca2769a2a4d8be19",
+      "subject": "Real application single-instance IPC routing smoke",
+      "evidence": [
+        "User-confirmed interactive smoke: second launch, local file handoff, and YouTube URL handoff"
+      ],
+      "summary": "All three user-observed routing scenarios completed successfully in the real application.",
+      "limitations": [
+        "No machine-generated raw smoke artifact was retained.",
+        "This is not installed-artifact evidence and does not validate a newly built DLL."
+      ],
+      "next_action": "Retain this as bounded IPC behavior evidence; do not transfer it to packaging or libmpv source-build claims."
+    }
+  ]
+}
