@@ -204,6 +204,64 @@
         "No libmpv source build, DLL, native smoke, or installed-artifact test ran."
       ],
       "next_action": "Commit and push the separate source/target digest contract; no mirror rerun is needed before testing the owned image in the libmpv source build."
+    },
+    {
+      "id": "EV-20260821-012",
+      "recorded_at_utc": "2026-08-21T10:30:37Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "ab6255e66af0a2decd4f0d27ef7c8d5670e844e9",
+      "subject": "Hosted Windows CI for the owned build-environment digest contract",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32472613516",
+        "attempt: 1"
+      ],
+      "summary": "4721 passed, 26 skipped, 0 failed in 136.44s.",
+      "limitations": [
+        "Hosted CI did not run the manual libmpv source build.",
+        "The previous mirror workflow conclusion remains failed and is not rewritten."
+      ],
+      "next_action": "After separate build approval, run the libmpv source-captured build once using the verified owned manifest digest."
+    },
+    {
+      "id": "EV-20260821-013",
+      "recorded_at_utc": "2026-08-21T13:35:48Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "ab6255e66af0a2decd4f0d27ef7c8d5670e844e9",
+      "subject": "Owned-environment Windows x86_64 libmpv source-captured build",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32473206459",
+        "failed step: Build the Clang toolchain and package Windows libmpv",
+        "artifact: libmpv-build-logs, 19261880 bytes",
+        "ld.lld: error: Not an int attribute (Producer: 'LLVM23.1.0-rust-1.100.0-nightly' Reader: 'LLVM 22.1.8')"
+      ],
+      "summary": "The pinned recipe completed the toolchain and dependency builds, then failed while linking mpv.exe and libmpv-2.dll because Rust ThinLTO bitcode from LLVM 23 was read by LLVM 22.1.8.",
+      "limitations": [
+        "No Windows binary artifact was produced.",
+        "No corresponding-source artifact was produced.",
+        "Only the build-log artifact was uploaded; this is not a DLL or product acceptance result."
+      ],
+      "next_action": "Disable package ThinLTO, enforce the cached setting before source download, run the narrow workflow and continuity tests, then request separate commit approval."
+    },
+    {
+      "id": "EV-20260821-014",
+      "recorded_at_utc": "2026-08-21T13:37:26Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "ab6255e66af0a2decd4f0d27ef7c8d5670e844e9",
+      "subject": "Early Rust and LLVM ThinLTO mismatch prevention contract",
+      "evidence": [
+        "python -m pytest -q tests/test_libmpv_source_build_workflow_regressions.py: 9 passed in 0.07s",
+        "python -m pytest -q tests/test_continuity_regressions.py: 7 passed in 0.12s",
+        "git diff --check: passed"
+      ],
+      "summary": "The workflow explicitly disables package ThinLTO and verifies the cached CMake value before source download, preventing the observed Rust LLVM 23 bitcode from reaching the LLVM 22.1.8 linker.",
+      "limitations": [
+        "This is an uncommitted workflow and documentation contract on top of the recorded base commit.",
+        "No new source build, DLL, native smoke, or installed-artifact test ran."
+      ],
+      "next_action": "Request separate commit approval; after commit and push approvals, request separate approval before one new source-captured build."
     }
   ]
 }

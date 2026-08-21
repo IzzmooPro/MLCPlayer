@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `0035f7c37347a933544e2bfed9373a50f921de65`
+- Son push edilmiş taban: `ab6255e66af0a2decd4f0d27ef7c8d5670e844e9`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-011`
+- Son kanıt: `EV-20260821-014`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -45,31 +45,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    yanlış varsaydığı için final readback kırmızı oldu (`EV-20260821-010`).
    Otomatik tekrar yapılmadı. Bağımsız registry readback, kaynak ve hedefin
    aynı config ile aynı iki katman digest/boyutunu taşıdığını doğruladı
-   (`EV-20260821-011`). Mirror artifact'i sağlamdır; libmpv build başlamadı.
-7. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
+   (`EV-20260821-011`). Digest düzeltmesi `ab6255e` ile push edildi; hosted
+   run `32472613516` ilk denemede **4721 passed / 26 skipped / 0 failed**
+   verdi (`EV-20260821-012`). Mirror artifact'i sağlamdır; libmpv build
+   başlamadı.
+7. Owned imajla libmpv run `32473206459`, araç zinciri ve bağımlılıkları
+   tamamladıktan sonra `mpv.exe` ve `libmpv-2.dll` bağlama aşamasında durdu.
+   Rust nightly LLVM 23 ThinLTO bitcode üretirken sabit tarif LLVM 22.1.8
+   kullandı. Yalnız `libmpv-build-logs` artifact'i oluştu; DLL ve karşılık
+   gelen kaynak paketi oluşmadı (`EV-20260821-013`). Otomatik tekrar yapılmadı.
+8. Package ThinLTO kapatıldı ve CMake cache değeri kaynak indirmeden önce
+   zorunlu doğrulamaya bağlandı. Dar iş akışı testleri **9 passed**, devam
+   testleri **7 passed** ve `git diff --check` temizdir (`EV-20260821-014`).
+   Bu deterministic kanıttır; gerçek DLL üretildiğini göstermez.
+9. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
    libmpv dışında cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve
    kurulu lisans/notice/Qt relinking paketi açık kalır.
-8. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+10. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-9. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+11. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-Kaynak digest ile doğrulanmış owned hedef manifest digest'ini ayrı sabitleyen
-ve **15 passed** veren düzeltme bu kayıt commit'iyle commit edildi. Push için
-ayrı onay al. Mirror run sonucunu geriye dönük PASS sayma ve mirror'ı yeniden
-çalıştırma; sağlam artifact bağımsız kayıtla korunur.
-
-Mirror başarıyla doğrulandıktan sonra libmpv source-captured build için yeni
-ve ayrı açık build onayı al. Sonuç:
-
-- başarılıysa binary ve corresponding-source artifact adlarını, boyutlarını,
-  SHA-256 değerlerini ve run bağlantısını yeni ledger kaydıyla kaydet;
-- başarısızsa adımı, ilk gerçek hata satırını ve oluşan artifact'leri kaydet;
-  nedeni incelemeden tekrar çalıştırma.
-
-Bu adım ürün build'i, kurulum, tag veya release yetkisi vermez.
+Test edilmiş `libmpv source-captured build` erken koruması için kullanıcıdan
+ayrı commit onayı al. Build'i otomatik başlatma; yeniden çalıştırmak için
+ayrı açık build onayı ister.
 
 ## Sonraki sıra
 

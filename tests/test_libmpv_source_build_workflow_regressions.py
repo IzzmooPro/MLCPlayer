@@ -78,6 +78,25 @@ def test_every_source_is_downloaded_without_a_fail_open_or_cache():
     assert "ENABLE_CCACHE=OFF" in text
 
 
+def test_rust_llvm_bitcode_is_disabled_and_checked_before_download():
+    text = workflow_text()
+    configure_step = text.split(
+        "- name: Configure and download every declared source", 1
+    )[1].split("- name: Record the exact source revisions before building", 1)[0]
+    lto_setting = "-DCLANG_PACKAGES_LTO=OFF"
+    lto_check = (
+        "grep -Fx 'CLANG_PACKAGES_LTO:BOOL=OFF' "
+        "build_x86_64/CMakeCache.txt"
+    )
+    assert "-DCLANG_PACKAGES_LTO=ON" not in text
+    assert lto_setting in configure_step
+    assert lto_check in configure_step
+    assert configure_step.index(lto_setting) < configure_step.index(lto_check)
+    assert configure_step.index(lto_check) < configure_step.index(
+        "ninja -C build_x86_64 download"
+    )
+
+
 def test_build_time_patches_have_a_deterministic_git_identity():
     text = workflow_text()
     assert "GIT_AUTHOR_NAME: MLC Player CI" in text

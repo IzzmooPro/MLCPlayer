@@ -60,8 +60,9 @@ jobs:
             -DSINGLE_SOURCE_LOCATION="$PWD/src_packages" \
             -DRUSTUP_LOCATION="$PWD/clang_root/install_rustup" \
             -DENABLE_CCACHE=OFF \
-            -DCLANG_PACKAGES_LTO=ON \
+            -DCLANG_PACKAGES_LTO=OFF \
             -G Ninja --fresh -B build_x86_64 -S "$PWD"
+          grep -Fx 'CLANG_PACKAGES_LTO:BOOL=OFF' build_x86_64/CMakeCache.txt
           ninja -C build_x86_64 download
           ninja -C build_x86_64 update
 
@@ -110,7 +111,7 @@ jobs:
           } > "$evidence/metadata/BUILD_ENVIRONMENT.txt"
 
           cat > "$evidence/metadata/BUILD_COMMANDS.txt" <<'EOF'
-          cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_x86_64/x86_64-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=OFF -DCLANG_PACKAGES_LTO=ON -G Ninja --fresh -B build_x86_64 -S $PWD
+          cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_x86_64/x86_64-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=OFF -DCLANG_PACKAGES_LTO=OFF -G Ninja --fresh -B build_x86_64 -S $PWD
           ninja -C build_x86_64 download
           ninja -C build_x86_64 update
           ninja -C build_x86_64 llvm
