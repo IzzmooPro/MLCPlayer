@@ -99,8 +99,9 @@ def test_current_state_points_to_the_latest_evidence_and_a_known_commit():
     assert match, "CONTINUITY must carry one full pushed baseline SHA"
     assert any(entry["commit"] == match.group(1) for entry in payload["entries"])
     assert "## Sıradaki tek adım" in text
-    assert "lisans/notice" in text
-    assert "Qt" in text and "relinking" in text
+    assert "Kaldırma kabulü" in text
+    assert "açık onay" in text
+    assert "kaldırma" in text.lower()
 
 
 def test_proof_layers_are_kept_separate_in_agent_rules_and_current_state():
@@ -123,7 +124,8 @@ def test_session_start_injects_the_current_next_step_not_stale_history():
     payload = json.loads(completed.stdout)
     context = payload["hookSpecificOutput"]["additionalContext"]
     assert "docs/CONTINUITY.md -> ## Sıradaki tek adım" in context
-    assert "lisans/notice" in context
-    assert "Qt" in context and "relinking" in context
+    assert "Kaldırma kabulü" in context
+    assert "açık onay" in context
+    assert "kaldırma" in context.lower()
     assert "docs/PROJECT_STATUS.md ->" not in context
     assert "SIRADAKİ PLAN (17 Ağustos 2026" not in context

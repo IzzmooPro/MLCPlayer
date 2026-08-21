@@ -122,22 +122,38 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    doğrulandı; ana `dist` içindeki 12 lisans/notice dosyası kaynakla bayt bayt
    aynı ve installer sürümü `0.38.0.0` (`EV-20260821-027`). Kurulum, tag,
    push veya release yapılmadı; Kurulu v0.37 bu artifact için kanıt değildir.
+23. Exact ana installer kullanıcı onayıyla v0.37 üzerine kuruldu; exit 0,
+   restart yok. Kayıt ve EXE sürümü v0.38, kurulu 12 lisans/notice dosyası
+   kaynakla bayt bayt aynı, Qt DLL/plugin değiştirme yolu mevcut. Kullanıcı
+   ayarı ve log SHA-256 değerleri kurulum öncesi/sonrası aynı kaldı
+   (`EV-20260821-028`). `corresponding_sources.json` artık `ready` ve blocker
+   listesi boştur. Bu installed-artifact kanıtıdır; native oynatma veya
+   kaldırma kabulü değildir.
+24. Hazır sözleşme tam modda ağsız doğrulandı: **83/83** kaynak arşivi mevcut
+   boyut ve SHA-256 değerleriyle geçti; indirme veya build yapılmadı
+   (`EV-20260821-029`). Ready/blocked test sözleşmeleri ayrıldı ve ilgili
+   **24 test** geçti.
+25. İlk installed native smoke gözlemcisi GUI `safe_console` metnini dosya
+   logunda aradığı için geçersiz kaldı ve süreç zorla kapatıldı
+   (`EV-20260821-030`, PASS değildir). Neden incelendikten sonra ürünün gerçek
+   başlık sözleşmesiyle yapılan koşum geçti: kurulu v0.38 geçici WAV'ı açtı,
+   başlık dosya adına döndü, süreç 4 saniye canlı kaldı, normal `WM_CLOSE`
+   sonrası exit 0 verdi ve süreç sızmadı (`EV-20260821-031`). Kullanıcı INI
+   hash'i değişmedi; çalışma logu beklenen safe-band kaydıyla 66 bayt büyüdü.
 
 ## Sıradaki tek adım
 
-Kullanıcının ayrı kurulum onayıyla tam adı ve SHA-256 değeri yukarıda kayıtlı
-v0.38 installer'ı kur; kurulu lisans/notice ve Qt dinamik değiştirme
-(relinking) dosyalarının gerçek yerleşimini doğrula. Onay olmadan kurma veya
-kaldırma yapma.
+Kaldırma kabulü için kullanıcıdan ayrıca açık onay al. Onay verilirse exact
+v0.38 ana paketini kaldır; kullanıcı ayar/log ağacını koruduğunu, uninstall
+kaydını ve ürün dosyalarını doğru temizlediğini doğrula. Add-on'u veya başka
+dosyaları ayrıca onay olmadan kaldırma.
 
 ## Sonraki sıra
 
-1. v0.38 artifact'ını kurup lisans/notice ve Qt değiştirme paketini doğrula.
-2. `corresponding_sources.json` gerçekten `ready` ve blockers boş olmadan
-   sürüm değerlendirmesine geçme.
-3. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
+1. Kaldırma kabulü için ayrıca kullanıcı onayı al.
+2. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
    ad/boyut/SHA-256 eşliğini doğrula; yeniden libmpv build etme.
-4. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
+3. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
 
 ## Kayıt düzeni
 

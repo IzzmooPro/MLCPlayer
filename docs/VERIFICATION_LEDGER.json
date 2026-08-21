@@ -559,6 +559,97 @@
         "No installation, native smoke, push, tag or release occurred."
       ],
       "next_action": "With separate user approval, install the exact hashed v0.38 artifact and verify the installed licence/relinking paths before changing the source contract to ready."
+    },
+    {
+      "id": "EV-20260821-028",
+      "recorded_at_utc": "2026-08-21T19:50:03Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "f64188f4d7fb6544fc0b810688fc5eba6d503b68",
+      "subject": "v0.38 installed licence and Qt replacement acceptance",
+      "evidence": [
+        "installed exact MLCPlayer_Setup_v0.38.exe: 56293597 bytes, sha256:cb9d047bb8836a855a2c4329a3e72763d870b4bc50fcd74926366c06125d8b85",
+        "silent upgrade over installed v0.37: exit 0; Inno log says Installation process succeeded and Need to restart Windows? No",
+        "uninstall registry: DisplayName MLC Player v0.38, DisplayVersion v0.38, InstallLocation C:\\Program Files\\MLC Player\\",
+        "installed MLC Player.exe: 3117907 bytes, sha256:caf0e75cc4dbe01d33365fb3e5c68ba760574051fde21c7fa3fe1a1b3f8f924f, FileVersion/ProductVersion v0.38",
+        "12 files in installed _internal/licenses were byte-identical to the checked-in source files",
+        "THIRD_PARTY_NOTICES.txt: 1959 bytes, sha256:356605efdac4de45430544c9d41a25ca2def85dbe39624916c6e9115fd65e712",
+        "Qt-LGPL-3.0.txt: 7687 bytes, sha256:6c671e2912ec69c0832f32066c0313cee5fdc3bbcbce237822e89f3da58edd4e",
+        "Qt-RELINKING.txt: 1970 bytes, sha256:bca996477a177e33a2aba1fb401574e700652cf3a27cb4e847cc05f178e1ea86",
+        "installed Qt boundary contains Qt6Core.dll, Qt6Gui.dll, Qt6Widgets.dll and plugins/platforms/qwindows.dll",
+        "%APPDATA%/MLCPlayer/MLCPlayer.ini remained 674 bytes with sha256:66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c",
+        "%APPDATA%/MLCPlayer/logs/uygulama.log remained 264654 bytes with sha256:801b0f0db684f69cd3555ac07bd9046803b3a00616fa7b6fabae6143c81ecc0f"
+      ],
+      "summary": "The exact v0.38 installer upgraded the existing installation without changing user settings or logs. The installed package carries the complete licence/notice set and an actionable dynamic Qt replacement boundary, closing the final corresponding-source contract blocker.",
+      "limitations": [
+        "The application was not launched; this is not native playback or UI acceptance.",
+        "The Internet Video add-on was not reinstalled or exercised in this acceptance.",
+        "No uninstall, push, tag or release occurred."
+      ],
+      "next_action": "Verify all 83 source archives in ready mode, then handle installed native smoke and uninstall acceptance as separate evidence and authorization layers."
+    },
+    {
+      "id": "EV-20260821-029",
+      "recorded_at_utc": "2026-08-21T19:53:58Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "4de119c4681368e307dbd6841d3f9438569b1686",
+      "subject": "Ready corresponding-source contract full verification",
+      "evidence": [
+        "packaging/corresponding_sources.json: status ready, blockers empty, 83 unique source rows",
+        "python packaging/fetch_sources.py: 83 corresponding-source archives already verified by exact size and SHA-256; no download or build",
+        "python -m pytest -q tests/test_source_mirror_regressions.py tests/test_continuity_regressions.py: 24 passed in 0.31s",
+        "ruff check tests/test_source_mirror_regressions.py tests/test_continuity_regressions.py: passed"
+      ],
+      "summary": "The release source contract is now ready and every declared source archive is present under its exact immutable identity. Tests retain fail-closed coverage for blocked, empty, malformed, duplicate and hash-mismatched contracts while accepting the checked-in ready state.",
+      "limitations": [
+        "This deterministic source-mirror result is not native playback, uninstall, tag, upload or release evidence.",
+        "The source_mirror files are ignored release evidence and are not stored in Git."
+      ],
+      "next_action": "Run installed v0.38 native smoke as a separate proof layer, then request separate authorization before uninstall acceptance."
+    },
+    {
+      "id": "EV-20260821-030",
+      "recorded_at_utc": "2026-08-21T19:57:43Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "f64188f4d7fb6544fc0b810688fc5eba6d503b68",
+      "subject": "Installed v0.38 native smoke with invalid file-log observer",
+      "evidence": [
+        "generated WAV: C:\\Users\\Universe\\AppData\\Local\\Temp\\mlc-v038-installed-smoke.wav, 48044 bytes, 3 seconds",
+        "installed MLC Player.exe opened with PID 28624 and a nonzero main-window handle",
+        "observer did not find Playing file in uygulama.log within 20 seconds",
+        "the process was force-killed by the harness; this run is not PASS"
+      ],
+      "summary": "The first installed smoke used an invalid observer: safe_console output is intentionally console-only and is not written to the file log by the GUI executable. The missing marker therefore did not establish a product failure, but the forced shutdown makes the run failed/incomplete.",
+      "limitations": [
+        "No playback or canonical shutdown result can be claimed from this run.",
+        "The observer contract was corrected only after inspecting app/errors.py and the window-title implementation; there was no blind retry."
+      ],
+      "next_action": "Repeat once using the product window-title contract and require graceful exit plus no process leak."
+    },
+    {
+      "id": "EV-20260821-031",
+      "recorded_at_utc": "2026-08-21T19:57:43Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "f64188f4d7fb6544fc0b810688fc5eba6d503b68",
+      "subject": "Installed v0.38 local-media open and graceful shutdown smoke",
+      "evidence": [
+        "exact installed MLC Player.exe from EV-20260821-028 launched with the 48044-byte generated WAV",
+        "main window handle: 2818400; title: mlc-v038-installed-smoke.wav - MLC Player",
+        "process remained alive for the four-second observation window",
+        "CloseMainWindow returned true; process exit code 0; no MLC Player process leak",
+        "%APPDATA%/MLCPlayer/MLCPlayer.ini remained 674 bytes with sha256:66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c",
+        "uygulama.log grew from 264720 to 264786 bytes with the normal subtitle safe-band entry"
+      ],
+      "summary": "The installed v0.38 product accepted a real local WAV through its CLI path, exposed the loaded file in the product window title, stayed alive through the media interval and completed normal window shutdown with exit zero and no process leak.",
+      "limitations": [
+        "This smoke proves the installed local-media open path and lifecycle, not audible sound quality, video rendering, Internet Video or subtitle behavior.",
+        "The 48044-byte generated WAV remains under %TEMP% because the environment policy rejected its cleanup command.",
+        "No uninstall, push, tag or release occurred."
+      ],
+      "next_action": "Request separate user authorization for uninstall acceptance; do not remove the Internet Video add-on without separately scoped approval."
     }
   ]
 }

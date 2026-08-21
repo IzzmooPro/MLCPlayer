@@ -36,13 +36,13 @@ def source_row(name="mpv-source.tar.gz", payload=b"source"):
     }
 
 
-def test_the_checked_in_contract_blocks_release_without_real_sources():
+def test_the_checked_in_contract_is_ready_with_real_sources():
     fetch = module()
-    assert fetch.blockers(), "eksik kaynaklara ragmen release kapisi acik"
-    assert fetch.plan(), "dogrulanmis dogrudan kaynaklar kaydedilmemis"
+    assert fetch.blockers() == []
+    assert len(fetch.plan()) == 83
 
 
-def test_the_checked_in_contract_records_the_staged_libmpv_source_and_remaining_blockers():
+def test_the_checked_in_contract_records_every_closed_source_family():
     fetch = module()
     names = {item.name for item in fetch.plan()}
     for expected in (
@@ -55,11 +55,7 @@ def test_the_checked_in_contract_records_the_staged_libmpv_source_and_remaining_
     ):
         assert expected in names
     assert len(names) == 83
-    reasons = " ".join(fetch.blockers()).lower()
-    assert "libmpv" not in reasons
-    assert "cryptography" not in reasons
-    assert "yt-dlp" not in reasons
-    assert "license" in reasons
+    assert fetch.blockers() == []
 
 
 def test_binary_and_developer_archives_are_not_called_source():
@@ -193,10 +189,25 @@ def test_import_does_not_download_anything():
         .split("def ")[0]
 
 
-def test_default_cli_refuses_a_blocked_contract(capsys):
+def test_default_cli_accepts_a_ready_verified_contract(
+        tmp_path, capsys, monkeypatch):
     fetch = module()
-    assert fetch.main([]) == 1
-    assert "CLOSED" in capsys.readouterr().out
+    payload = b"source"
+    contract = tmp_path / "sources.json"
+    write_contract(contract, sources=[source_row(payload=payload)])
+    folder = tmp_path / fetch.OUTPUT_DIR_NAME
+    folder.mkdir()
+    (folder / "mpv-source.tar.gz").write_bytes(payload)
+    real_blockers = fetch.blockers
+    real_plan = fetch.plan
+    monkeypatch.setattr(fetch, "blockers", lambda: real_blockers(contract))
+    monkeypatch.setattr(fetch, "plan", lambda: real_plan(contract))
+    monkeypatch.setattr(fetch, "ROOT", str(tmp_path))
+
+    assert fetch.main([]) == 0
+    output = capsys.readouterr().out
+    assert "already verified" in output
+    assert "1 corresponding-source archives verified" in output
 
 
 def test_unknown_cli_argument_is_rejected(capsys):

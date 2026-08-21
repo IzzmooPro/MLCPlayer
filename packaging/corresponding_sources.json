@@ -1,9 +1,7 @@
 {
   "schema": 1,
-  "status": "blocked",
-  "blockers": [
-    "Installed-artifact acceptance has not yet proved the built license, notice and Qt dynamic-replacement bundle."
-  ],
+  "status": "ready",
+  "blockers": [],
   "sources": [
     {
       "name": "Python-3.14.3.tar.xz",

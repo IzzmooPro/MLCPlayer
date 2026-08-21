@@ -278,9 +278,10 @@ OpenSSL 4.0.1 and 32 Rust crate sources are also locked to its embedded SBOM.
 The official yt-dlp 2026.08.19 executable's Python, PyInstaller, package and
 native curl source chain is also captured and hash-locked. The checked-in
 installed-notice bundle now includes the exact Qt LGPLv3 text and measured
-dynamic replacement instructions. The v0.38 source build proved all 12 main
-licence/notice files in `dist`; the gate remains closed until separately
-authorized installed-artifact acceptance proves the actual installation.
+dynamic replacement instructions. The v0.38 source build and separately
+authorized installed-artifact acceptance proved all 12 main licence/notice
+files and the Qt replacement boundary. The corresponding-source contract is
+now ready; this does not replace native playback or uninstall acceptance.
 
 ### Open items
 
