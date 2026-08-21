@@ -176,6 +176,29 @@ Araç yalnız resmi crates.io sürüm endpoint'ini ve yönlendirildiği
 mevcut hedefin üzerine yazmaz. Cryptography wheel sürümü değişmedikçe crate
 envanteri yeniden araştırılmaz; aynı 32 doğrulanmış kaynak tekrar kullanılır.
 
+### yt-dlp kaynak tekrar-kullanım kuralı
+
+Kilitli resmî `yt-dlp.exe` yalnız `2026.08.19` sürümü, release commit'i
+`594bd50c2c78ac432f81600d309fdc4e0a92d82c` ve SHA-256 değeri
+`66674953...1dd3e7a` için doğrulandı. EXE'nin runtime raporu, resmî build
+kilitleri, CPython `3.10.11` Windows kaynak pinleri ve `curl_cffi 0.16.0`
+native CMake pinleri birlikte denetlenir. Mevcut 33 kaynağın ağsız kontrolü:
+
+```powershell
+python packaging/stage_ytdlp_sources.py
+```
+
+Yalnız kaynaklar eksikse ve ağ indirmesi ayrıca amaçlanıyorsa:
+
+```powershell
+python packaging/stage_ytdlp_sources.py --download
+```
+
+Araç build veya kurulum yapmaz; yalnız güvenilen resmî alanlardan geçici
+dosyaya indirir ve SHA-256 eşleşmeden hedefi değiştirmez. yt-dlp EXE'si,
+release commit'i veya kilitli paket sürümleri değişirse sözleşme yeniden
+eşleştirilmeden yayın kapısı açılamaz.
+
 ### Değişmez kurallar
 
 - **Tag ve push build'den ÖNCE yapılmaz.** Tag, test edilmiş ve build

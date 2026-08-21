@@ -274,7 +274,9 @@ inputs captured alongside the binary. The verified bundle is staged under its
 canonical v0.38 release-asset name and SHA-256; the release process uploads
 that exact file to the recorded permanent URL. The cryptography wheel's
 OpenSSL 4.0.1 and 32 Rust crate sources are also locked to its embedded SBOM.
-The yt-dlp transitive-source and installed-notice blockers remain open.
+The official yt-dlp 2026.08.19 executable's Python, PyInstaller, package and
+native curl source chain is also captured and hash-locked. Only the installed
+notice and Qt relinking-package blocker remains open.
 
 ### Open items
 

@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `786f388f05ee10833bbd14fa0c55fc5a487e9f86`
+- Son push edilmiş taban: `7deca7d8f35bef2c1401e66d92ae3c86a2facea1`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-023`
+- Son kanıt: `EV-20260821-024`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -99,30 +99,34 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    birebir eşleşti; 32 crate toplam `4.121.466` bayttır. Ağsız yeniden kontrol
    ve ilgili **31 test geçti** (`EV-20260821-023`). Cryptography sürümü
    değişmedikçe bu kaynaklar yeniden araştırılmaz veya indirilmez.
-18. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
-   Yalnız yt-dlp transitif kaynakları ve kurulu lisans/notice/Qt relinking
-   paketi açık kalır. libmpv ve cryptography kaynak build/envanter açıkları
-   kapandı.
-19. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+18. Resmî `yt-dlp.exe` (`2026.08.19`, commit `594bd50c...`) içindeki Python
+   `3.10.11`, 14 kilitli runtime paketi, PyInstaller `6.22.0`, CPython Windows
+   bağımlılıkları ve `curl_cffi` native zinciri toplam 33 kaynak arşiviyle
+   eşleştirildi. Ağsız doğrulama ve ilgili **243 test geçti**
+   (`EV-20260821-024`). yt-dlp sürümü değişmedikçe bu kaynaklar yeniden
+   araştırılmaz veya indirilmez.
+19. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
+   Yalnız kurulu lisans/notice ve Qt relinking paketi açık kalır. libmpv,
+   cryptography ve yt-dlp kaynak build/envanter açıkları kapandı.
+20. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-20. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+21. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-Kilitli resmi `yt-dlp 2026.08.19` executable'ının tam transitif kaynak
-envanterini dağıtılan üçüncü taraf bildirimi ve resmi build metadata'sıyla
-eşleştir; yalnız doğrulanan kaynakları sözleşmeye ekle.
+Kurulu pakette bulunması gereken lisans/notice dosyalarını ve LGPL kapsamındaki
+Qt için relinking paketini tamamla; ad, içerik ve installer yerleşimini dar
+testlerle doğrula.
 
 ## Sonraki sıra
 
-1. yt-dlp transitif kaynak açığını kapat.
-2. Kurulu lisans/notice ve Qt relinking paketini doğrula.
-3. `corresponding_sources.json` gerçekten `ready` ve blockers boş olmadan
+1. Kurulu lisans/notice ve Qt relinking paketini doğrula.
+2. `corresponding_sources.json` gerçekten `ready` ve blockers boş olmadan
    sürüm değerlendirmesine geçme.
-4. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
+3. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
    ad/boyut/SHA-256 eşliğini doğrula; yeniden libmpv build etme.
-5. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
+4. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
 
 ## Kayıt düzeni
 

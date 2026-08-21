@@ -457,6 +457,35 @@
         "The yt-dlp transitive-source and installed license/notice/Qt relinking blockers remain open."
       ],
       "next_action": "Close the exact transitive-source set for the locked official yt-dlp 2026.08.19 executable."
+    },
+    {
+      "id": "EV-20260821-024",
+      "recorded_at_utc": "2026-08-21T19:13:32Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "7deca7d8f35bef2c1401e66d92ae3c86a2facea1",
+      "subject": "Official yt-dlp 2026.08.19 Windows executable transitive-source inventory",
+      "evidence": [
+        "bin/yt-dlp.exe: 17840399 bytes, sha256:66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a",
+        "runtime report: stable 2026.08.19, release commit 594bd50c2c78ac432f81600d309fdc4e0a92d82c, Python 3.10.11, OpenSSL 1.1.1t",
+        "runtime report and official curl-cffi.txt lock agreed on 14 package names and versions",
+        "official win-x64-pyinstaller.txt pinned the yt-dlp PyInstaller-Builds 6.22.0 source release 2026.08.19.215425",
+        "CPython v3.10.11 PCbuild/get_externals.bat pinned six Windows source-dependency refs; all six immutable archives are represented",
+        "curl_cffi 0.16.0 sdist pinned curl-impersonate v2.0.0; its CMakeLists pinned curl plus seven native dependency archives and their SHA-256 values",
+        "python packaging/stage_ytdlp_sources.py without --download: passed; 33 source archives verified without network or build",
+        "packaging/corresponding_sources.json: 83 unique source rows; the yt-dlp blocker was removed and the installed notice/Qt relinking blocker remains",
+        "python packaging/fetch_sources.py --allow-incomplete: 83 corresponding-source archives verified locally; no download or build was needed",
+        "python -m pytest -q tests/test_ytdlp_source_staging_regressions.py tests/test_source_mirror_regressions.py tests/test_continuity_regressions.py tests/test_release_documentation_regressions.py tests/test_readme_user_guidance_regressions.py: 243 passed in 2.27s",
+        "ruff check packaging/stage_ytdlp_sources.py tests/test_ytdlp_source_staging_regressions.py: passed"
+      ],
+      "summary": "The exact official yt-dlp EXE is now tied to its published release source, build commit and lock files, CPython Windows sources, PyInstaller source, Python runtime package sdists and curl_cffi native dependency sources. Future yt-dlp upgrades fail closed until this inventory is reconciled again.",
+      "limitations": [
+        "This is deterministic source and metadata evidence; it is not a rebuild of the official executable and does not prove reproducible binary identity.",
+        "The source archives are ignored release evidence in source_mirror and are not stored in Git.",
+        "No product build, installer, installation, tag or release occurred.",
+        "The installed license/notice and Qt relinking package remains the only explicit corresponding-source contract blocker."
+      ],
+      "next_action": "Complete and verify the installed license, notice and Qt relinking package."
     }
   ]
 }

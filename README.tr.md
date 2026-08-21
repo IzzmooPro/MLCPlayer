@@ -192,8 +192,9 @@ kullanıcıya, gerekirse hukukçuya aittir:
   paket sabit v0.38 release adı, boyutu ve SHA-256 değeriyle hazırlandı; yayın
   akışı aynı dosyayı kayıtlı kalıcı adrese yükleyecek. Cryptography wheel'inin
   OpenSSL 4.0.1 ve 32 Rust crate kaynağı da gömülü SBOM'a göre kilitlendi.
-  yt-dlp kaynakları ve lisans/relink paketi tamamlanana kadar release kapısı
-  kapalıdır.
+  Resmî yt-dlp 2026.08.19 ikilisinin Python, PyInstaller, paket ve native curl
+  kaynak zinciri de hash ile sabitlendi. Yalnız kurulu lisans/notice ve Qt
+  relinking paketi tamamlanana kadar release kapısı kapalıdır.
 
 **Kapanan maddeler:**
 

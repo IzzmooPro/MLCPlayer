@@ -54,11 +54,12 @@ def test_the_checked_in_contract_records_the_staged_libmpv_source_and_remaining_
         "yt-dlp-2026.08.19.tar.gz",
     ):
         assert expected in names
-    assert len(names) == 54
+    assert len(names) == 83
     reasons = " ".join(fetch.blockers()).lower()
     assert "libmpv" not in reasons
     assert "cryptography" not in reasons
-    assert "yt-dlp" in reasons
+    assert "yt-dlp" not in reasons
+    assert "license" in reasons
 
 
 def test_binary_and_developer_archives_are_not_called_source():
