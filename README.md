@@ -270,9 +270,10 @@ only those source archives, verify their size and SHA-256, and place them in
 The verified subset can be collected during remediation with
 `python packaging/fetch_sources.py --allow-incomplete`; this does not open the
 release gate. The bundled 20260821 libmpv was built with its complete source
-inputs captured alongside the binary. That source bundle must still be moved
-from the time-limited Actions artifact to a durable public release address;
-the non-libmpv source and installed-notice blockers also remain open.
+inputs captured alongside the binary. The verified bundle is staged under its
+canonical v0.38 release-asset name and SHA-256; the release process uploads
+that exact file to the recorded permanent URL. The non-libmpv source and
+installed-notice blockers remain open.
 
 ### Open items
 

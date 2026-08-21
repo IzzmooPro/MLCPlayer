@@ -370,6 +370,48 @@
         "The source artifact is still time-limited and non-libmpv source and installed notice/relink blockers remain open."
       ],
       "next_action": "Prepare a durable public publication route and checksum contract for the verified libmpv corresponding-source bundle; any upload or release action requires separate approval."
+    },
+    {
+      "id": "EV-20260821-020",
+      "recorded_at_utc": "2026-08-21T18:45:24Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "fdaad7bfc73396e195b234c366f2edb114240f19",
+      "subject": "Hosted CI after adopting the verified libmpv runtime metadata",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32514249686",
+        "attempt: 1"
+      ],
+      "summary": "4722 passed, 26 skipped, 0 failed in 110.34s; the job completed in 2m34s.",
+      "limitations": [
+        "Hosted CI did not load the repository DLL or execute native or installed-artifact acceptance.",
+        "The source-captured libmpv build was not repeated."
+      ],
+      "next_action": "Reuse EV-20260821-016 and EV-20260821-019; stage the verified corresponding-source part without rebuilding libmpv."
+    },
+    {
+      "id": "EV-20260821-021",
+      "recorded_at_utc": "2026-08-21T18:45:24Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "fdaad7bfc73396e195b234c366f2edb114240f19",
+      "subject": "Reusable libmpv corresponding-source staging and permanent v0.38 asset contract",
+      "evidence": [
+        "input: libmpv-corresponding-source.tar.zst.part-00, 557940716 bytes, sha256:5ce4be96436566d9eca18727a1779a6534d6d5e9985178baf87ff3521753efc0",
+        "staged: source_mirror/libmpv-corresponding-source-20260821-g49418246f.tar.zst, same size and SHA-256",
+        "future URL: https://github.com/IzzmooPro/MLCPlayer/releases/download/v0.38/libmpv-corresponding-source-20260821-g49418246f.tar.zst",
+        "python packaging/stage_libmpv_source.py --source <verified-part>: passed",
+        "python packaging/stage_libmpv_source.py without --source: passed using the already verified stage; no build or download",
+        "python -m pytest -q tests/test_libmpv_source_staging_regressions.py tests/test_source_mirror_regressions.py tests/test_release_documentation_regressions.py tests/test_third_party_notice_regressions.py tests/test_readme_user_guidance_regressions.py: 238 passed in 0.75s"
+      ],
+      "summary": "The exact source bundle is staged under its canonical v0.38 release-asset name and bound to a fixed future release URL. Atomic hash-gated staging and the no-source reuse path prevent an unnecessary repeat of the two-hour libmpv build.",
+      "limitations": [
+        "The future URL becomes public only when the separately authorized v0.38 release is published.",
+        "The staged source_mirror file is ignored generated evidence and is not stored in Git.",
+        "No upload, tag, release, product build or installation occurred.",
+        "Cryptography/OpenSSL/Rust, yt-dlp transitive sources and the installed notice/Qt relinking package remain blockers."
+      ],
+      "next_action": "Close the cryptography wheel OpenSSL and Rust dependency-source gap without rebuilding libmpv."
     }
   ]
 }

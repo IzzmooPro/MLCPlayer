@@ -188,10 +188,10 @@ kullanıcıya, gerekirse hukukçuya aittir:
 - **Karşılık gelen kaynak paketleri.** Eski yayın akışı mpv geliştirme
   paketini ve çalıştırılabilir add-on dosyalarını kaynak olarak sayıyordu;
   bunlar gerçek, yeniden derlenebilir kaynak değildir. Yeni 20260821 libmpv
-  bütün kaynak girdileri binary ile birlikte yakalanarak derlendi. Bu kaynak
-  paketi süreli Actions artifact'inden kalıcı ve herkese açık bir yayın
-  adresine taşınana; diğer kaynaklar ve lisans/relink paketi tamamlanana kadar
-  release kapısı kapalıdır.
+  bütün kaynak girdileri binary ile birlikte yakalanarak derlendi. Doğrulanan
+  paket sabit v0.38 release adı, boyutu ve SHA-256 değeriyle hazırlandı; yayın
+  akışı aynı dosyayı kayıtlı kalıcı adrese yükleyecek. Diğer kaynaklar ve
+  lisans/relink paketi tamamlanana kadar release kapısı kapalıdır.
 
 **Kapanan maddeler:**
 

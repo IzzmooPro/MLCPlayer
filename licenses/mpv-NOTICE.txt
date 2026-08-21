@@ -41,13 +41,14 @@ manifest:
   https://github.com/IzzmooPro/MLCPlayer/actions/runs/32488810460/artifacts/9452521445
 
 The same run captured the exact source inputs, source lock and build
-environment in a separate corresponding-source artifact:
+environment. The verified bundle is staged for publication at the permanent
+v0.38 release address:
 
-  https://github.com/IzzmooPro/MLCPlayer/actions/runs/32488810460/artifacts/9452523974
+  https://github.com/IzzmooPro/MLCPlayer/releases/download/v0.38/libmpv-corresponding-source-20260821-g49418246f.tar.zst
 
-That Actions artifact is time-limited. A release remains blocked until the
-verified source bundle is published at a durable public address beside the
-installers.
+Build provenance remains available on run 32488810460. The release process
+uploads the exact staged file beside the installers and verifies its name,
+size and SHA-256 before publication.
 
 Upstream sources:
 

@@ -136,6 +136,24 @@ Kaynak adları `packaging/corresponding_sources.json` sözleşmesinden türer.
 `status` değeri `ready` değilse, engel varsa veya kaynak listesi boşsa yayın
 kapısı kapanır. `bin/RUNTIME_MANIFEST.txt` yalnız binary köken kaydıdır.
 
+### Uzun libmpv build'ini tekrarlamama kuralı
+
+`libmpv-corresponding-source-20260821-g49418246f.tar.zst` varlığı run
+`32488810460` içindeki doğrulanmış kaynak parçasıdır. Yeni libmpv girdisi veya
+build tarifi değişmedikçe iki saatlik kaynak build'i tekrarlanmaz. İndirilen
+parça bir kez şu komutla kalıcı v0.38 varlık adına hazırlanır:
+
+```powershell
+python packaging/stage_libmpv_source.py --source "<artifact-root>\source\parts\libmpv-corresponding-source.tar.zst.part-00"
+```
+
+Araç ağ, build, Git, tag veya release işlemi yapmaz. Kaynağı sözleşmedeki
+`557940716` bayt ve SHA-256 değeriyle doğrular, geçici dosyaya yazar ve yalnız
+tam eşleşmede `source_mirror/` hedefine atomik geçirir. Doğrulanmış hedef zaten
+varsa kaynak dosyası veya yeni build gerektirmeden başarıyla döner. Kalıcı URL
+v0.38 release yayımlandığında canlı olur; draft aşamasında aynı dosyanın uzak
+ad/boyut/SHA-256 eşliği doğrulanmadan yayın yapılmaz.
+
 ### Değişmez kurallar
 
 - **Tag ve push build'den ÖNCE yapılmaz.** Tag, test edilmiş ve build

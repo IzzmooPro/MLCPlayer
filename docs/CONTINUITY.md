@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `df7b0d91fd450e496c4eaae0adacc4fc7aacd46b`
+- Son push edilmiş taban: `fdaad7bfc73396e195b234c366f2edb114240f19`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-019`
+- Son kanıt: `EV-20260821-021`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -81,30 +81,40 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    `112.772.608` bayt ve SHA-256 değeri `de80329f...f684f4e` olarak manifest,
    checksum ve mpv notice dosyalarına işlendi. Bu görsel video, internet
    videosu, paket veya kurulu uygulama kabulü değildir.
-14. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
-   libmpv dışında cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve
-   kurulu lisans/notice/Qt relinking paketi açık kalır. Yeni libmpv kaynak
-   artifact'i doğrulandı ancak süreli Actions saklamasından kalıcı ve herkese
-   açık yayın adresine henüz taşınmadı.
-15. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+14. Runtime metadata commit'i `fdaad7b` push edildi; hosted run `32514249686`
+   ilk denemede **4722 passed / 26 skipped / 0 failed** verdi
+   (`EV-20260821-020`). İki saatlik libmpv build'i tekrar çalıştırılmadı.
+15. Doğrulanmış libmpv kaynak parçası yeniden build edilmeden
+   `source_mirror/libmpv-corresponding-source-20260821-g49418246f.tar.zst`
+   adına hazırlandı: `557.940.716` bayt, SHA-256 `5ce4be...efc0`. Aynı dosya
+   kaynak argümanı olmadan yeniden doğrulandı; kalıcı v0.38 URL'si sözleşmeye
+   bağlandı ve ilgili **238 test geçti** (`EV-20260821-021`). URL ancak v0.38
+   release yayımlandığında canlı olur; tag/release yapılmadı.
+16. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
+   cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve kurulu
+   lisans/notice/Qt relinking paketi açık kalır. libmpv kaynak build'ini tekrar
+   gerektiren açık kalmadı.
+17. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-16. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+18. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-Doğrulanmış libmpv corresponding-source paketini süreli Actions artifact'inden
-kalıcı, herkese açık ve SHA-256 ile kilitli bir yayın adresine taşıma planını
-hazırla. Upload veya release işlemi için yeniden ayrı açık onay al.
+Cryptography wheel'inin OpenSSL ve Rust bağımlılık kaynaklarını kesin wheel
+envanteriyle eşleştir; yalnız doğrulanan kaynakları sözleşmeye ekle. libmpv
+build'ini tekrar çalıştırma.
 
 ## Sonraki sıra
 
-1. Doğrulanmış libmpv kaynak paketini kalıcı ve herkese açık adrese taşı.
-2. cryptography/OpenSSL/Rust ve yt-dlp transitif kaynak açıklarını kapat.
+1. cryptography/OpenSSL/Rust kaynak açığını kapat.
+2. yt-dlp transitif kaynak açığını kapat.
 3. Kurulu lisans/notice ve Qt relinking paketini doğrula.
 4. `corresponding_sources.json` gerçekten `ready` ve blockers boş olmadan
    sürüm değerlendirmesine geçme.
-5. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
+5. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
+   ad/boyut/SHA-256 eşliğini doğrula; yeniden libmpv build etme.
+6. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
 
 ## Kayıt düzeni
 

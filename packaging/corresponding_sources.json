@@ -2,7 +2,6 @@
   "schema": 1,
   "status": "blocked",
   "blockers": [
-    "The verified 20260821 libmpv corresponding-source artifact is time-limited and has not yet been published at a durable public release URL.",
     "The cryptography wheel's OpenSSL and Rust dependency sources have not all been collected.",
     "The complete transitive source set used to build the official yt-dlp 2026.08.19 executable has not been collected.",
     "The installed license, notice and Qt relinking package has not been completed and verified."
@@ -73,6 +72,12 @@
       "url": "https://files.pythonhosted.org/packages/c7/fe/9278c29394bf69169febc21f96b4252c3ee7c8ec22c2fc545004bed47e71/pyinstaller_hooks_contrib-2026.4.tar.gz",
       "size": 173050,
       "sha256": "766c281acb1ecc32e21c8c667056d7ebf5da0aabd5e30c219f9c2a283620eeaa"
+    },
+    {
+      "name": "libmpv-corresponding-source-20260821-g49418246f.tar.zst",
+      "url": "https://github.com/IzzmooPro/MLCPlayer/releases/download/v0.38/libmpv-corresponding-source-20260821-g49418246f.tar.zst",
+      "size": 557940716,
+      "sha256": "5ce4be96436566d9eca18727a1779a6534d6d5e9985178baf87ff3521753efc0"
     },
     {
       "name": "yt-dlp-2026.08.19.tar.gz",
