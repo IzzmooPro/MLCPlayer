@@ -7,7 +7,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 - Güncelleme: 22 Ağustos 2026
 - Son push edilmiş taban: `50b230ef0962950f0d55dbd141bb289ded6f3b30`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-041`
+- Son kanıt: `EV-20260821-042`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -201,18 +201,27 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    68 dosya yol/boyut/zaman/SHA-256 olarak değişmedi, süreç sızıntısı olmadı ve
    add-on'a dokunulmadı (`EV-20260821-041`). Fiziksel kayıt temizliği kabulü
    geçti.
+36. Kalıcı libmpv kaynak dosyası yerelde yeniden build edilmeden doğrulandı:
+   `libmpv-corresponding-source-20260821-g49418246f.tar.zst`, `557.940.716`
+   bayt, SHA-256 `5ce4be...efc0`. GitHub API yalnız v0.33–v0.37 yayınlarını
+   döndürdü; `gh release view v0.38` `release not found` / exit 1 verdi ve
+   uzak v0.38 tag'i de yok. Bu nedenle uzak asset eşliği **BLOCKED**;
+   doğrulanacak uzak dosya henüz oluşturulmamış (`EV-20260821-042`). Uzun
+   libmpv build'i tekrarlanmadı ve GitHub'da değişiklik yapılmadı.
 
 ## Sıradaki tek adım
 
-Kaldırma kabulü geçti. `EV-20260821-039`–`041` build/kurulum/kaldırma kanıt
-kayıtlarını commit etmek için kullanıcıdan ayrıca açık onay al. Push bu onayın
-kapsamında değildir.
+Kaldırma kabulü geçti ve push edildi. `EV-20260821-042` uzak libmpv asset
+eksikliği kaydını commit etmek için kullanıcıdan ayrıca açık onay al. Push,
+tag ve draft release bu onayın kapsamında değildir.
 
 ## Sonraki sıra
 
-1. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
-   ad/boyut/SHA-256 eşliğini doğrula; yeniden libmpv build etme.
-2. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
+1. Kanıt commit'i ve push'u ayrı onaylarla tamamlandıktan sonra
+   `docs/RELEASE_PROCESS.md` içindeki yerel annotated tag adımından itibaren
+   sırayı ayrı onaylarla uygula.
+2. Draft hazır olduğunda bütün uzak asset'lerin ad/boyut/SHA-256 eşliğini
+   doğrula; libmpv build'ini tekrarlama.
 
 ## Kayıt düzeni
 

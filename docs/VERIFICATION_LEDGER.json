@@ -881,6 +881,28 @@
         "This is not a tag, release or post-release update acceptance."
       ],
       "next_action": "Request separate user approval to commit EV-20260821-039 through EV-20260821-041 and the matching continuity update; push remains separately authorized."
+    },
+    {
+      "id": "EV-20260821-042",
+      "recorded_at_utc": "2026-08-21T21:37:41Z",
+      "proof_layer": "deterministic",
+      "result": "blocked",
+      "commit": "0b400695b91cc3f14b77d720d23dd2757367bfa0",
+      "subject": "v0.38 remote libmpv corresponding-source asset readback",
+      "evidence": [
+        "the staged local libmpv-corresponding-source-20260821-g49418246f.tar.zst exists with 557940716 bytes and sha256:5ce4be96436566d9eca18727a1779a6534d6d5e9985178baf87ff3521753efc0, exactly matching packaging/corresponding_sources.json",
+        "authenticated GitHub Releases API readback listed only v0.33 through v0.37 and no v0.38 draft release",
+        "gh release view v0.38 --repo IzzmooPro/MLCPlayer returned release not found with exit code 1",
+        "git ls-remote --tags origin refs/tags/v0.38 returned no remote tag",
+        "run 32488810460 still exposes the unexpired libmpv-corresponding-source Actions artifact at 557941494 bytes; this outer artifact ZIP is not the canonical 557940716-byte release asset"
+      ],
+      "summary": "The canonical local libmpv corresponding-source file remains exact, but remote release-asset parity cannot be checked because neither the prerequisite v0.38 tag nor the draft release exists. No rebuild or GitHub mutation occurred.",
+      "limitations": [
+        "This is a blocked readback, not a remote release-asset PASS.",
+        "The Actions artifact's outer ZIP identity cannot substitute for the canonical release asset's name, size and SHA-256 contract.",
+        "No tag, draft release, upload or publication was created."
+      ],
+      "next_action": "Request separate approval to commit and then push this blocked readback record; afterwards follow docs/RELEASE_PROCESS.md from the separately authorized local annotated v0.38 tag step without rebuilding libmpv."
     }
   ]
 }
