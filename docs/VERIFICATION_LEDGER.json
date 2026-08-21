@@ -486,6 +486,53 @@
         "The installed license/notice and Qt relinking package remains the only explicit corresponding-source contract blocker."
       ],
       "next_action": "Complete and verify the installed license, notice and Qt relinking package."
+    },
+    {
+      "id": "EV-20260821-025",
+      "recorded_at_utc": "2026-08-21T19:26:42Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "5a7c09f9dedca9fd1b5623ee08bdb811df3b998f",
+      "subject": "Installed third-party licence bundle and Qt dynamic-replacement contract",
+      "evidence": [
+        "licenses/THIRD_PARTY_NOTICES.txt names Python 3.14.3, PyQt6/Qt 6.10.2, PyQt6_sip 13.11.1, cffi 2.1.1, cryptography 50.0.0, OpenSSL 3.0.18/4.0.1, pycparser 3.0, python-mpv 1.0.8 and mpv-2.dll",
+        "licenses/Qt-LGPL-3.0.txt: exact PyQt6-Qt6 6.10.2 wheel licence, sha256:6c671e2912ec69c0832f32066c0313cee5fdc3bbcbce237822e89f3da58edd4e",
+        "licenses/Qt-RELINKING.txt records the dynamic _internal\\PyQt6\\Qt6 boundary, replacement procedure and exact Qt/PyQt source assets",
+        "MLCPlayer.spec and packaging/verify_build.py bind all 11 new licence/replacement files to _internal/licenses and the post-build gate",
+        "python packaging/verify_build.py --pre: passed; all three runtime files matched size and SHA-256",
+        "python -m pytest -q tests/test_installed_licence_bundle_regressions.py tests/test_third_party_notice_regressions.py tests/test_runtime_binaries_regressions.py tests/test_verify_build_runtime_regressions.py tests/test_dist_completeness_regressions.py tests/test_source_mirror_regressions.py tests/test_prepublish_regressions.py: 132 passed in 8.40s",
+        "python -m pytest -q tests/test_continuity_regressions.py: 7 passed in 0.12s",
+        "ruff check tests/test_installed_licence_bundle_regressions.py packaging/verify_build.py: passed"
+      ],
+      "summary": "The source-side Windows package contract now carries the applicable third-party notices, exact Qt LGPLv3 terms and a measured dynamic Qt replacement path. Because Qt remains a replaceable DLL/plugin boundary, no separate application object-file archive is required for this package design.",
+      "limitations": [
+        "This is source and deterministic packaging evidence, not legal advice.",
+        "No fresh product build or installer was produced, so current dist output and any installed v0.37 copy do not prove these new files are present.",
+        "No installation, native smoke, commit, push, tag or release occurred.",
+        "The release source contract remains blocked until a fresh build and separately authorized installed-artifact acceptance verify the actual package."
+      ],
+      "next_action": "With separate user approval, build v0.38 and verify the new licence bundle in dist and the installer; request separate installation approval before installed-artifact acceptance."
+    },
+    {
+      "id": "EV-20260821-026",
+      "recorded_at_utc": "2026-08-21T19:31:51Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "5a7c09f9dedca9fd1b5623ee08bdb811df3b998f",
+      "subject": "v0.38 source and installer version gate",
+      "evidence": [
+        "app/config.py APP_VERSION: v0.38; derived WINDOWS_VERSION: 0.38.0.0",
+        "packaging/MLCPlayer.iss MyAppVersion: v0.38; VersionInfoVersion and VersionInfoProductVersion: 0.38.0.0",
+        "python -m pytest -q tests/test_version_consistency.py tests/test_installed_licence_bundle_regressions.py tests/test_continuity_regressions.py tests/test_release_documentation_regressions.py tests/test_prepublish_regressions.py: 254 passed in 8.22s",
+        "ruff check app/config.py tests/test_version_consistency.py tests/test_installed_licence_bundle_regressions.py packaging/verify_build.py: passed",
+        "python packaging/verify_build.py --pre: passed; all three runtime files matched size and SHA-256"
+      ],
+      "summary": "The product and installer now agree on v0.38 before the authorized build. The version-specific regression gate prevents a v0.37-labelled artifact from being produced from these sources.",
+      "limitations": [
+        "No product build, installer, installation, native smoke, push, tag or release occurred.",
+        "The actual v0.38 artifact version and installed licence layout remain unproved until the fresh build completes."
+      ],
+      "next_action": "Commit the tested v0.38 source state, then run the separately authorized build from the clean commit."
     }
   ]
 }

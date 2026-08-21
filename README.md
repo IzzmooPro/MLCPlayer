@@ -239,6 +239,7 @@ The distributed package includes components under their own licences:
 
 | Component | Licence | Where it ships | Notice |
 |---|---|---|---|
+| Python / PyQt6 / Qt and Python runtime dependencies | PSF / GPLv3 / LGPLv3 / component licences | main package | `licenses/THIRD_PARTY_NOTICES.txt` |
 | mpv / libmpv (with FFmpeg) | **GPLv3** (`--enable-gpl --enable-version3`, no `--enable-nonfree`) | main package | `licenses/mpv-NOTICE.txt` |
 | yt-dlp (source) | Unlicense | Internet Video add-on | `licenses/yt-dlp-LICENSE.txt` |
 | yt-dlp (official binary) | GPLv3+ | Internet Video add-on | `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` |
@@ -275,8 +276,10 @@ canonical v0.38 release-asset name and SHA-256; the release process uploads
 that exact file to the recorded permanent URL. The cryptography wheel's
 OpenSSL 4.0.1 and 32 Rust crate sources are also locked to its embedded SBOM.
 The official yt-dlp 2026.08.19 executable's Python, PyInstaller, package and
-native curl source chain is also captured and hash-locked. Only the installed
-notice and Qt relinking-package blocker remains open.
+native curl source chain is also captured and hash-locked. The checked-in
+installed-notice bundle now includes the exact Qt LGPLv3 text and measured
+dynamic replacement instructions. The gate remains closed until a fresh build
+and installed-artifact acceptance prove that those files reach the installer.
 
 ### Open items
 

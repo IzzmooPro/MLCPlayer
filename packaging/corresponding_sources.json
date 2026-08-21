@@ -2,7 +2,7 @@
   "schema": 1,
   "status": "blocked",
   "blockers": [
-    "The installed license, notice and Qt relinking package has not been completed and verified."
+    "A fresh build and installed-artifact acceptance have not yet proved the checked-in license, notice and Qt dynamic-replacement bundle."
   ],
   "sources": [
     {

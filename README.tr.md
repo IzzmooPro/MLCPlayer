@@ -152,6 +152,7 @@ gelirler:
 
 | Bileşen | Lisans | Geldiği paket | Metin |
 |---|---|---|---|
+| Python / PyQt6 / Qt ve Python çalışma zamanı bağımlılıkları | PSF / GPLv3 / LGPLv3 / bileşen lisansları | Ana paket | `licenses/THIRD_PARTY_NOTICES.txt` |
 | mpv / libmpv | **GPLv3** (FFmpeg `--enable-gpl --enable-version3`) | Ana paket | `licenses/mpv-NOTICE.txt` |
 | yt-dlp (kaynak) | Unlicense | İnternet Videosu ek paketi | `licenses/yt-dlp-LICENSE.txt` |
 | yt-dlp (resmî ikili) | GPLv3+ | İnternet Videosu ek paketi | `licenses/yt-dlp-THIRD_PARTY_LICENSES.txt` |
@@ -193,8 +194,10 @@ kullanıcıya, gerekirse hukukçuya aittir:
   akışı aynı dosyayı kayıtlı kalıcı adrese yükleyecek. Cryptography wheel'inin
   OpenSSL 4.0.1 ve 32 Rust crate kaynağı da gömülü SBOM'a göre kilitlendi.
   Resmî yt-dlp 2026.08.19 ikilisinin Python, PyInstaller, paket ve native curl
-  kaynak zinciri de hash ile sabitlendi. Yalnız kurulu lisans/notice ve Qt
-  relinking paketi tamamlanana kadar release kapısı kapalıdır.
+  kaynak zinciri de hash ile sabitlendi. Kurulu lisans/notice paketi, tam Qt
+  LGPLv3 metni ve dinamik Qt DLL değiştirme talimatı kaynakta tamamlandı.
+  Taze build ve kurulu-artifact kabulü bu dosyaların gerçekten installer'a
+  ulaştığını kanıtlayana kadar release kapısı kapalıdır.
 
 **Kapanan maddeler:**
 

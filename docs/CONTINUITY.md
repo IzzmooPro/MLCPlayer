@@ -105,23 +105,30 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    eşleştirildi. Ağsız doğrulama ve ilgili **243 test geçti**
    (`EV-20260821-024`). yt-dlp sürümü değişmedikçe bu kaynaklar yeniden
    araştırılmaz veya indirilmez.
-19. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
-   Yalnız kurulu lisans/notice ve Qt relinking paketi açık kalır. libmpv,
-   cryptography ve yt-dlp kaynak build/envanter açıkları kapandı.
-20. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+19. Kurulu lisans paketi kaynakta tamamlandı: Python/PyQt6/Qt ve paketlenen
+   Python runtime bağımlılıklarının bildirimleri, tam Qt LGPLv3 metni ve
+   `_internal\\PyQt6\\Qt6` dinamik değiştirme talimatı ana pakete bağlandı.
+   İlgili **132 test** ve release ön-kontrolü geçti (`EV-20260821-025`).
+   `corresponding_sources.json` yalnız taze build ve kurulu-artifact kabulü
+   bu yerleşimi henüz kanıtlamadığı için `blocked` kalır.
+20. Ürün ve installer sürüm kaynakları `v0.38` / `0.38.0.0` olarak birlikte
+   yükseltildi; sürüm, paketleme ve devamlılık kapsamındaki **254 test** ile
+   release ön-kontrolü geçti (`EV-20260821-026`). Build henüz yapılmadı.
+21. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-21. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+22. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-Kurulu pakette bulunması gereken lisans/notice dosyalarını ve LGPL kapsamındaki
-Qt için relinking paketini tamamla; ad, içerik ve installer yerleşimini dar
-testlerle doğrula.
+Commit sonrasında önceden verilmiş ayrı build onayıyla taze v0.38 build üret; yeni lisans/notice ve
+Qt dinamik değiştirme (relinking) dosyalarının dist ve installer içindeki gerçek
+yerleşimini doğrula. Kurulum için ayrıca onay almadan installed-artifact kabulü
+yapma.
 
 ## Sonraki sıra
 
-1. Kurulu lisans/notice ve Qt relinking paketini doğrula.
+1. Taze build içinde lisans/notice ve Qt dinamik değiştirme paketini doğrula.
 2. `corresponding_sources.json` gerçekten `ready` ve blockers boş olmadan
    sürüm değerlendirmesine geçme.
 3. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak

@@ -52,6 +52,20 @@ a = Analysis(
         # gosterilen tek yer depo olmamalidir; kurulu programin yaninda da
         # durur (tests/test_third_party_notice_regressions.py).
         ('licenses/mpv-NOTICE.txt', 'licenses'),
+        # Kurulu paketin ucuncu taraf bildirimleri ve Qt'nin LGPLv3
+        # degistirme yolu. Qt DLL'leri dinamik oldugu icin ayri uygulama
+        # object dosyalari yerine kesin DLL/plugin yolu ve kaynaklar verilir.
+        ('licenses/THIRD_PARTY_NOTICES.txt', 'licenses'),
+        ('licenses/Qt-LGPL-3.0.txt', 'licenses'),
+        ('licenses/Qt-RELINKING.txt', 'licenses'),
+        ('licenses/Python-LICENSE.txt', 'licenses'),
+        ('licenses/PyQt6_sip-LICENSE.txt', 'licenses'),
+        ('licenses/cffi-LICENSE.txt', 'licenses'),
+        ('licenses/cryptography-LICENSE.txt', 'licenses'),
+        ('licenses/OpenSSL-LICENSE.txt', 'licenses'),
+        ('licenses/pycparser-LICENSE.txt', 'licenses'),
+        ('licenses/python-mpv-LICENSE-GPL.txt', 'licenses'),
+        ('licenses/python-mpv-LICENSE-LGPL.txt', 'licenses'),
         ('bin/RUNTIME_MANIFEST.txt', 'bin'),
         # Qt calisma zamani ikonu `_internal\assets` altindan okunur.
         ('assets/mlc-player-icon.ico', 'assets'),

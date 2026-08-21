@@ -1,0 +1,41 @@
+MLC Player — Qt replacement and relinking information
+======================================================
+
+MLC Player v0.38 uses PyQt6 6.10.2 and the LGPL Qt 6.10.2 shared libraries.
+The Qt libraries and plugins are dynamically loaded from this install path:
+
+    _internal\PyQt6\Qt6
+
+MLC Player does not statically link Qt.  Therefore application object files are not required
+to use a modified Qt build: a compatible replacement is made
+at the shared-library boundary.  MLC Player does not enforce a signature or
+checksum on replacement Qt DLLs or plugins.
+
+Replacement procedure
+---------------------
+
+1. Exit MLC Player and confirm that no MLC Player process remains.
+2. Copy the complete _internal\PyQt6\Qt6 directory as a backup.
+3. Build a Windows x86-64 shared-library Qt that is ABI-compatible with the
+   PyQt6 6.10.2 extension modules.  Preserve the DLL and plugin names and the
+   relative bin\ and plugins\ paths used by the installed package.
+4. Replace the required Qt DLLs/plugins beneath _internal\PyQt6\Qt6.  Do not
+   replace the PyQt6 .pyd binding modules unless you also supply a compatible
+   PyQt6 build.
+5. Start MLC Player from the modified copy.  Reinstalling or upgrading MLC
+   Player may overwrite the replacement files, so retain your backup/build.
+
+The exact Qt corresponding sources used for this release are distributed as:
+
+    qtbase-everywhere-src-6.10.2.tar.xz
+    qtsvg-everywhere-src-6.10.2.tar.xz
+    qtimageformats-everywhere-src-6.10.2.tar.xz
+
+The exact PyQt binding source is distributed as pyqt6-6.10.2.tar.gz.  Source
+asset names, byte sizes and SHA-256 values are fixed by
+packaging/corresponding_sources.json in the MLC Player source tree and the
+assets are published beside the installer.
+
+Qt is provided without warranty under LGPL version 3.  The full licence is in
+Qt-LGPL-3.0.txt.  These instructions describe the package's measured dynamic
+layout; they are not legal advice and do not replace the licence terms.

@@ -33,8 +33,8 @@ def test_app_version_has_release_format():
 
 def test_current_release_target_is_v0_37():
     """Bu yayin turunun acikca onaylanan hedefi sessizce ayrismamali."""
-    assert APP_VERSION == "v0.37"
-    assert WINDOWS_VERSION == "0.37.0.0"
+    assert APP_VERSION == "v0.38"
+    assert WINDOWS_VERSION == "0.38.0.0"
 
 
 def test_windows_version_is_derived_from_app_version():

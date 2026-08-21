@@ -1,0 +1,36 @@
+MLC Player third-party notices
+================================
+
+This file describes the third-party runtime families included in the Windows
+package built from requirements-lock.txt.  The exact corresponding-source
+archives, sizes and SHA-256 values are declared in
+packaging/corresponding_sources.json and are published beside each MLC Player
+release.  The accompanying licence texts are installed in this directory.
+
+MLC Player itself is licensed under GPL-3.0-only.  The complete GPLv3 text is
+installed as LICENSE in the application root.
+
+* Python 3.14.3 — Python Software Foundation License.  Python-LICENSE.txt also
+  carries the notices for third-party code distributed with CPython.
+* PyQt6 6.10.2 — GPL-3.0-only.  The applicable text is the root LICENSE.
+* Qt 6.10.2 runtime supplied by PyQt6-Qt6 — LGPL-3.0-only.  See
+  Qt-LGPL-3.0.txt and Qt-RELINKING.txt.  The exact qtbase, qtsvg and
+  qtimageformats sources are release assets.
+* PyQt6_sip 13.11.1 — BSD-2-Clause.  See PyQt6_sip-LICENSE.txt.
+* cffi 2.1.1 — MIT-0.  See cffi-LICENSE.txt.
+* cryptography 50.0.0 — Apache-2.0 OR BSD-3-Clause.  See
+  cryptography-LICENSE.txt.
+* OpenSSL 3.0.18 and 4.0.1 — Apache-2.0.  See OpenSSL-LICENSE.txt; the two
+  exact source archives are release assets.
+* pycparser 3.0 — BSD-3-Clause.  See pycparser-LICENSE.txt.
+* python-mpv 1.0.8 — GPL-2.0-or-later OR LGPL-2.1-or-later.  See
+  python-mpv-LICENSE-GPL.txt and python-mpv-LICENSE-LGPL.txt.
+* mpv-2.dll (mpv with FFmpeg) — GPLv3.  See mpv-NOTICE.txt for the exact
+  build identity, upstream projects and corresponding-source archive.
+
+The Microsoft Visual C/C++ runtime files are Microsoft redistributables and
+remain subject to Microsoft's applicable redistributable terms.
+
+Project and source location: https://github.com/IzzmooPro/MLCPlayer
+Qt licensing information: https://doc.qt.io/qt-6/licensing.html
+PyQt licensing information: https://www.riverbankcomputing.com/software/pyqt/
