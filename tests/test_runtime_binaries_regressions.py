@@ -292,9 +292,9 @@ def test_the_youtube_403_runtime_repair_is_recorded_without_install_claims():
     status = read(os.path.join(PROJECT, "docs", "PROJECT_STATUS.md"))
     for evidence in (
         "yt-dlp `2026.08.19`",
-        "c=ANDROID_VR",
-        "HTTP 403 yok",
-        "exit `0`",
+        "player_client=web_safari",
+        "MARK_HTTP_403 present=False",
+        "NATIVE_PROBE_EXIT=0",
         "MARK_DONE",
         "kurulu v0.37",
         "DEGISTIRILMEDI",
@@ -351,6 +351,16 @@ def test_a_complete_bundle_enables_site_extraction(bundle):
     assert config["ytdl"] is True
     assert config["script_opts"] == (
         f"ytdl_hook-ytdl_path={os.path.join(bin_dir, 'yt-dlp.exe')}")
+
+
+def test_youtube_extraction_avoids_the_android_vr_403_path(bundle):
+    """YouTube VOD uses the token-free HLS-capable client measured live."""
+    bin_dir = bundle("yt-dlp.exe", "deno.exe")
+
+    config = mpv_config(bin_dir)
+
+    assert config["ytdl_raw_options"] == (
+        "extractor-args=youtube:player_client=web_safari")
 
 
 def test_a_missing_bundled_ytdlp_disables_site_extraction(bundle, tmp_path,

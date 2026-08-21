@@ -562,19 +562,23 @@ README dosyaları kapalı özelliği kullanılabilir gibi anlatmayacak.
   icindeki kontrol karakterleri temizlendi.
   `tests/test_runtime_binaries_regressions.py` **41/41** (son fail-closed
   senaryosu dahil: exact yol uretilemezse `ytdl` acilmaz).
-- YouTube 403 onarimi (21 Agustos 2026): kullanici kaydinda uygulama, ikon,
-  `mpv-2.dll` ve Internet Videosu runtime'i hazirdi; hata, yt-dlp'nin verdigi
-  `c=ANDROID_VR` googlevideo URL'sinin YouTube tarafindan 403 ile
-  reddedilmesiydi. Resmi yt-dlp `2026.08.19` release'i `android_vr`
-  istemcisini varsayilandan kaldirdigi icin paketli `yt-dlp.exe`, manifest,
-  kaynak arsivi ve iki lisans metni exact boyut/SHA-256 ile guncellendi;
-  Deno `v2.9.5` degismedi. Agsiz dar regresyon **78/78 PASS**. Gercek agda
-  yt-dlp+Deno format 18 test parcasi **PASS** (10 KiB); ayri cocuk surecte
-  urun zinciri `mpv-2.dll + ytdl_hook + yt-dlp + Deno` duration/time-pos
-  pozitif, HTTP 403 yok, exit `0`, son marker `MARK_DONE`, stderr bos ve yeni
-  ilgili surec sizintisi yok. Bu kaynak/runtime kanitidir; kurulu v0.37
-  DEGISTIRILMEDI ve installed-artifact kabulu yapilmadi. Resmi yt-dlp
-  executable'inin tam gecisli build kaynak seti halen acik yayin engelidir.
+- YouTube 403 onarimi ve yeniden acilan hata (21 Agustos 2026): paketli
+  yt-dlp `2026.08.19` ile ilk gercek ag/proje zinciri olcumu gecmisti; ancak
+  sonraki kullanici kaydinda ayni kaynak yine `c=ANDROID_VR` googlevideo
+  URL'si uretip HTTP 403 verdi. Bu yeni kanit, "yt-dlp surumu tek basina
+  istemciyi kaldirdi" iddiasini gecersiz kildi. Urun artik MPV'nin resmi
+  `ytdl-raw-options` yoluyla yalniz YouTube icin
+  `player_client=web_safari` secer; kullanici hesabi, cerez veya PO Token
+  almaz. Paketli yt-dlp+Deno ile gercek HLS test parcasi **1,43 MiB**
+  indirildi ve HTTP 403 gorulmedi. Ayri cocuk surecte gercek urun zinciri
+  `build_ytdl_config + mpv-2.dll + ytdl_hook + yt-dlp + Deno` icin
+  duration/time-pos pozitif, `MARK_HTTP_403 present=False`,
+  `MARK_OPEN_FAILED present=False`, son marker `MARK_DONE` ve
+  `NATIVE_PROBE_EXIT=0`. Bu kaynak/runtime kanitidir; kurulu v0.37
+  DEGISTIRILMEDI ve installed-artifact kabulu yapilmadi. YouTube'un PO Token
+  uygulamasi degisken oldugu icin tek video olcumu evrensel garanti degildir;
+  resmi yt-dlp executable'inin tam gecisli build kaynak seti de halen acik
+  yayin engelidir.
 - Uygulama ikonu (dar): kullanicinin sectigi logo `assets/mlc-player-icon.png`
   (1254x1254 RGBA, degistirilmeden) ve ondan LANCZOS ile uretilen
   `assets/mlc-player-icon.ico` (16-256 px, 9 boyut) projeye alindi; olcu ve

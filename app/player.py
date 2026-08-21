@@ -21,7 +21,8 @@ from app.subtitle_style import (BACKGROUND_BOX, BACKGROUND_BOX_SHADOW_OFFSET,
                                 migrate_settings as migrate_subtitle_style_settings)
 from app.local_subtitle import activate_local_subtitle, suppress_local_subtitle
 from app.app_icon import apply_window_icon
-from app.runtime_binaries import internet_video_ready, ytdl_script_opt
+from app.runtime_binaries import (YOUTUBE_YTDL_RAW_OPTIONS,
+                                  internet_video_ready, ytdl_script_opt)
 from main import get_bin_dir
 from app.subtitle_service import (SubtitleSession, TRACK_WAIT_ATTEMPTS,
                                   TRACK_WAIT_INTERVAL_S)
@@ -72,7 +73,11 @@ def build_ytdl_config(bin_dir):
         # FAIL-CLOSED: exact yol uretilemediyse `ytdl` ACILMAZ. Aksi halde
         # mpv varsayilan adlarla sistem PATH aramasina dusebilirdi.
         return {'ytdl': False}
-    return {'ytdl': True, 'script_opts': option}
+    return {
+        'ytdl': True,
+        'script_opts': option,
+        'ytdl_raw_options': YOUTUBE_YTDL_RAW_OPTIONS,
+    }
 
 
 class MPVPlayer(QMainWindow):

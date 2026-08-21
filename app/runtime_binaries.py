@@ -46,6 +46,12 @@ INTERNET_VIDEO_MISSING_TITLE = tr_mark(
 # mpv `ytdl_hook` betiginin yt-dlp yolunu ALAN resmi script-opt adi.
 YTDL_PATH_OPTION = "ytdl_hook-ytdl_path"
 
+# YouTube'un `android_vr` HTTPS URL'lerinde aralikli GVS PO Token zorlamasi
+# 403 uretiyor. `web_safari`, token olmadan HLS sunan dar istemcidir.
+# Deger `youtube:` kapsamlidir; yt-dlp'nin diger site cikaricilarina tasmaz.
+YOUTUBE_YTDL_RAW_OPTIONS = (
+    "extractor-args=youtube:player_client=web_safari")
+
 
 def runtime_paths(bin_dir):
     """Bilesen adi -> paketteki TAM yol.
