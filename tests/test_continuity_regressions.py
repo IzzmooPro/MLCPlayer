@@ -99,7 +99,7 @@ def test_current_state_points_to_the_latest_evidence_and_a_known_commit():
     assert match, "CONTINUITY must carry one full pushed baseline SHA"
     assert any(entry["commit"] == match.group(1) for entry in payload["entries"])
     assert "## Sıradaki tek adım" in text
-    assert "ayrı açık build onayı" in text
+    assert "Upload veya release işlemi için yeniden ayrı açık onay" in text
 
 
 def test_proof_layers_are_kept_separate_in_agent_rules_and_current_state():
@@ -122,6 +122,7 @@ def test_session_start_injects_the_current_next_step_not_stale_history():
     payload = json.loads(completed.stdout)
     context = payload["hookSpecificOutput"]["additionalContext"]
     assert "docs/CONTINUITY.md -> ## Sıradaki tek adım" in context
-    assert "libmpv source-captured build" in context
+    assert "libmpv corresponding-source" in context
+    assert "kalıcı, herkese açık" in context
     assert "docs/PROJECT_STATUS.md ->" not in context
     assert "SIRADAKİ PLAN (17 Ağustos 2026" not in context

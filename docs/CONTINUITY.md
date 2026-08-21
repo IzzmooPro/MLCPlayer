@@ -7,7 +7,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 - Güncelleme: 21 Ağustos 2026
 - Son push edilmiş taban: `df7b0d91fd450e496c4eaae0adacc4fc7aacd46b`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-018`
+- Son kanıt: `EV-20260821-019`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -74,24 +74,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    verdi: mpv `v0.41.0-930-g49418246f`, FFmpeg `N-126239-g88ae625e6`
    (`EV-20260821-018`). Bu yalnız player artifact native probudur; MLC Player
    henüz yeni `libmpv-2.dll` dosyasını yüklemedi ve medya oynatmadı.
-13. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
+13. Yeni `libmpv-2.dll` yerel proje runtime'ına alındı. Gerçek MLC Player
+   açılış/kapanış smoke'u **1 passed** verdi; geçici dizinde üretilen 3
+   saniyelik WAV açıldı, dış altyazı parçası uygulandı/seçildi, kanonik
+   kapanış ve `MARK_DONE` ile süreç exit 0 döndü (`EV-20260821-019`). DLL
+   `112.772.608` bayt ve SHA-256 değeri `de80329f...f684f4e` olarak manifest,
+   checksum ve mpv notice dosyalarına işlendi. Bu görsel video, internet
+   videosu, paket veya kurulu uygulama kabulü değildir.
+14. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
    libmpv dışında cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve
-   kurulu lisans/notice/Qt relinking paketi açık kalır.
-14. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+   kurulu lisans/notice/Qt relinking paketi açık kalır. Yeni libmpv kaynak
+   artifact'i doğrulandı ancak süreli Actions saklamasından kalıcı ve herkese
+   açık yayın adresine henüz taşınmadı.
+15. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-15. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+16. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-`libmpv source-captured build` ile doğrulanan yeni DLL için sınırlı değiştirme
-ve native smoke planını hazırla. DLL'i projeye alma veya ürün build'i için
-yeniden ayrı açık build onayı al. Kurulum, tag ve release de ayrı onaylardır.
+Doğrulanmış libmpv corresponding-source paketini süreli Actions artifact'inden
+kalıcı, herkese açık ve SHA-256 ile kilitli bir yayın adresine taşıma planını
+hazırla. Upload veya release işlemi için yeniden ayrı açık onay al.
 
 ## Sonraki sıra
 
-1. Başarılı libmpv kaynak build'ini bağımsız doğrula ve ancak sonra mevcut
-   DLL'i değiştirme planı hazırla. DLL değiştirme/build ayrıca onay ister.
+1. Doğrulanmış libmpv kaynak paketini kalıcı ve herkese açık adrese taşı.
 2. cryptography/OpenSSL/Rust ve yt-dlp transitif kaynak açıklarını kapat.
 3. Kurulu lisans/notice ve Qt relinking paketini doğrula.
 4. `corresponding_sources.json` gerçekten `ready` ve blockers boş olmadan

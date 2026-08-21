@@ -269,10 +269,10 @@ only those source archives, verify their size and SHA-256, and place them in
 
 The verified subset can be collected during remediation with
 `python packaging/fetch_sources.py --allow-incomplete`; this does not open the
-release gate. The currently bundled 20260814 libmpv build cannot be completed
-from mpv and FFmpeg alone: its workflow linked many transitive libraries, and
-the exact revisions were kept only in expired build logs. It must be replaced
-by a build whose complete source inputs are captured alongside the binary.
+release gate. The bundled 20260821 libmpv was built with its complete source
+inputs captured alongside the binary. That source bundle must still be moved
+from the time-limited Actions artifact to a durable public release address;
+the non-libmpv source and installed-notice blockers also remain open.
 
 ### Open items
 

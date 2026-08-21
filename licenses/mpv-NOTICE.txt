@@ -12,9 +12,9 @@ includes FFmpeg. The details below are copied from
 ----------------------------------------------------------------
 
 File     : mpv-2.dll  (libmpv)
-Version  : mpv v0.41.0-923-g7b8915bc1 (FFmpeg N-126125-g1d7b14f61)
+Version  : mpv v0.41.0-930-g49418246f (FFmpeg N-126239-g88ae625e6)
 Licence  : GPLv3
-SHA-256  : F709C7CA8B183BEC76B8158BF0C45C53018C63366750729352612F228FF7BDEA
+SHA-256  : DE80329F5C019BA2EE48184B5DC1E1D0C2EE9EEBA3F1FB7959F20B4B0F684F4E
 
 
 2. LICENCE
@@ -34,10 +34,20 @@ second copy is carried here.
 ----------------------------------------------------------------
 
 The GPLv3 requires whoever distributes this binary to provide access to
-the corresponding source. The bundled file comes from the prebuilt
-release below; its address, size and SHA-256 can be verified:
+the corresponding source. MLC Player built the bundled file in the run
+below; its binary artifact, size and SHA-256 are recorded in the runtime
+manifest:
 
-  https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20260814/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z
+  https://github.com/IzzmooPro/MLCPlayer/actions/runs/32488810460/artifacts/9452521445
+
+The same run captured the exact source inputs, source lock and build
+environment in a separate corresponding-source artifact:
+
+  https://github.com/IzzmooPro/MLCPlayer/actions/runs/32488810460/artifacts/9452523974
+
+That Actions artifact is time-limited. A release remains blocked until the
+verified source bundle is published at a durable public address beside the
+installers.
 
 Upstream sources:
 
@@ -46,7 +56,7 @@ Upstream sources:
                 https://git.ffmpeg.org/ffmpeg.git
   Build recipe  https://github.com/shinchiro/mpv-winbuild-cmake
 
-The version tags above (`v0.41.0-923-g7b8915bc1`, `N-126125-g1d7b14f61`)
+The version tags above (`v0.41.0-930-g49418246f`, `N-126239-g88ae625e6`)
 identify exact commits in those repositories, so the source corresponding
 to THIS binary can be obtained from them.
 
@@ -60,8 +70,8 @@ through the MLC Player repository:
 ----------------------------------------------------------------
 
 MLC Player does not modify the mpv or FFmpeg source. The bundled
-`mpv-2.dll` is redistributed exactly as extracted from the official
-archive above.
+`mpv-2.dll` was built from the captured upstream revisions by the project's
+source-captured build workflow.
 
 
 5. OTHER COMPONENTS

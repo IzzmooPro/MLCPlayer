@@ -42,21 +42,19 @@ def test_the_checked_in_contract_blocks_release_without_real_sources():
     assert fetch.plan(), "dogrulanmis dogrudan kaynaklar kaydedilmemis"
 
 
-def test_the_checked_in_contract_records_the_verified_subset_and_mpv_blocker():
+def test_the_checked_in_contract_records_the_verified_subset_and_libmpv_publication_blocker():
     fetch = module()
     names = {item.name for item in fetch.plan()}
     for expected in (
         "Python-3.14.3.tar.xz",
         "qtbase-everywhere-src-6.10.2.tar.xz",
-        "mpv-7b8915bc1d04c7e1b61184e00c7fbfaab1911e75.tar.gz",
-        "FFmpeg-1d7b14f61d66fdf18f15204c613df9d65396c319.tar.gz",
         "openssl-4.0.1.tar.gz",
         "yt-dlp-2026.08.19.tar.gz",
     ):
         assert expected in names
-    assert len(names) == 24
+    assert len(names) == 21
     reasons = " ".join(fetch.blockers()).lower()
-    assert "mpv" in reasons and "replaced" in reasons
+    assert "libmpv" in reasons and "durable public release url" in reasons
 
 
 def test_binary_and_developer_archives_are_not_called_source():

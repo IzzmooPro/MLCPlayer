@@ -2,7 +2,7 @@
   "schema": 1,
   "status": "blocked",
   "blockers": [
-    "The exact transitive source revisions selected by the 20260814 mpv Windows workflow are no longer available from its expired build logs; the current libmpv binary must be replaced by a build whose complete source set is captured.",
+    "The verified 20260821 libmpv corresponding-source artifact is time-limited and has not yet been published at a durable public release URL.",
     "The cryptography wheel's OpenSSL and Rust dependency sources have not all been collected.",
     "The complete transitive source set used to build the official yt-dlp 2026.08.19 executable has not been collected.",
     "The installed license, notice and Qt relinking package has not been completed and verified."
@@ -73,24 +73,6 @@
       "url": "https://files.pythonhosted.org/packages/c7/fe/9278c29394bf69169febc21f96b4252c3ee7c8ec22c2fc545004bed47e71/pyinstaller_hooks_contrib-2026.4.tar.gz",
       "size": 173050,
       "sha256": "766c281acb1ecc32e21c8c667056d7ebf5da0aabd5e30c219f9c2a283620eeaa"
-    },
-    {
-      "name": "mpv-7b8915bc1d04c7e1b61184e00c7fbfaab1911e75.tar.gz",
-      "url": "https://codeload.github.com/mpv-player/mpv/tar.gz/7b8915bc1d04c7e1b61184e00c7fbfaab1911e75",
-      "size": 7403553,
-      "sha256": "5665448fdd02a5b6a9de40b4c0a32bf546b7ab5b7e065207b66a68460666dbba"
-    },
-    {
-      "name": "FFmpeg-1d7b14f61d66fdf18f15204c613df9d65396c319.tar.gz",
-      "url": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/1d7b14f61d66fdf18f15204c613df9d65396c319",
-      "size": 17536500,
-      "sha256": "3d1da4d3e7529855563ceff72b7f2ca910ba4fddc2f381f13666e0f1bce6f031"
-    },
-    {
-      "name": "mpv-winbuild-cmake-cd1edc11dc6887a50f705717619d879f5a93a488.tar.gz",
-      "url": "https://codeload.github.com/shinchiro/mpv-winbuild-cmake/tar.gz/cd1edc11dc6887a50f705717619d879f5a93a488",
-      "size": 81655,
-      "sha256": "8b92a254771496b0dcc23017c2734bfa7545441d3e6a37958b063d6e7814a657"
     },
     {
       "name": "yt-dlp-2026.08.19.tar.gz",

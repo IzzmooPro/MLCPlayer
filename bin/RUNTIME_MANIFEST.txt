@@ -4,16 +4,13 @@
 # icinde `yt-dlp -U` / `deno upgrade` CALISTIRILMAZ.
 # Bicim: dosya | surum | kaynak_url | boyut_bayt | SHA-256
 
-# mpv/libmpv. ONCEKI yapi `--enable-nonfree` tasidigi ve FFmpeg'in kendi
-# lisans sabitinde "nonfree and unredistributable" yazdigi icin DAGITILAMAZDI;
-# 16 Agustos 2026'da degistirildi. Eski dosya `bin/_old/` altinda duruyor,
-# yerel kullanim icin gecerlidir ama ASLA dagitilmaz.
-# Kabul kriteri: bu yapida nonfree gerektiren bilesen (fdk-aac, libnpp,
-# cuda-nvcc) YOKTUR ve etiketin resmi tarifi yalniz --enable-gpl
-# --enable-version3 gecer. Lisans: GPLv3 (MLC Player ile uyumlu).
-mpv-2.dll | mpv v0.41.0-923-g7b8915bc1 (FFmpeg N-126125-g1d7b14f61) | https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20260814/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z | 119757824 | F709C7CA8B183BEC76B8158BF0C45C53018C63366750729352612F228FF7BDEA
-libmpv.dll.a | 20260814 | (ayni arsiv) | 53308 | BEF1B89F534BC86B33135E1F04FA2D5064B9D48B5DE8BC9866665BBF43DEF793
-mpv-dev-x86_64-20260814-git-7b8915bc1d.7z | 20260814 | https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20260814/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z | 31181976 | 0AF22B28E920620036D3AE08FD9283156DC9AF0420BF4DF84B0E02282094599C
+# mpv/libmpv. MLC Player'in sabitlenmis kaynak-build is akisi 21 Agustos
+# 2026'da binary, build logu ve tam kaynak girdilerini birlikte uretti.
+# Yapida nonfree gerektiren bilesen yoktur; FFmpeg yalniz --enable-gpl ve
+# --enable-version3 ile derlenir. Lisans: GPLv3 (MLC Player ile uyumlu).
+mpv-2.dll | mpv v0.41.0-930-g49418246f (FFmpeg N-126239-g88ae625e6) | https://github.com/IzzmooPro/MLCPlayer/actions/runs/32488810460/artifacts/9452521445 | 112772608 | DE80329F5C019BA2EE48184B5DC1E1D0C2EE9EEBA3F1FB7959F20B4B0F684F4E
+libmpv.dll.a | 20260821 | (ayni artifact) | 53308 | BEF1B89F534BC86B33135E1F04FA2D5064B9D48B5DE8BC9866665BBF43DEF793
+mpv-dev-x86_64-20260821-git-49418246f3.7z | 20260821 | https://github.com/IzzmooPro/MLCPlayer/actions/runs/32488810460/artifacts/9452521445 | 29427624 | 024F4E98884DB6074E956D4F5001040836BFA395CDC90E6BD5C20634B881297E
 
 # 21 Agustos 2026: YouTube, ANDROID_VR istemcisinin verdigi bazi googlevideo
 # URL'lerini 403 ile reddetti. yt-dlp 2026.08.19 guncel kalir; ancak surum
