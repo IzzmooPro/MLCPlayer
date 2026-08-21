@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     container:
-      image: ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv@sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca
+      image: ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv@sha256:b71001a48dac064d66b64559115be8fc55fcd73a25496394fe710948b052f86e
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -100,7 +100,7 @@ jobs:
 
           {
             printf 'recipe_commit=%s\n' "$RECIPE_COMMIT"
-            printf 'container_image=%s\n' 'ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv@sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca'
+            printf 'container_image=%s\n' 'ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv@sha256:b71001a48dac064d66b64559115be8fc55fcd73a25496394fe710948b052f86e'
             date -u '+built_at_utc=%Y-%m-%dT%H:%M:%SZ'
             uname -a
             git --version

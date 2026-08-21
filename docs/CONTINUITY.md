@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `37bb82f35e26fed3c595adb64e1f1fb43374fc80`
+- Son push edilmiş taban: `0035f7c37347a933544e2bfed9373a50f921de65`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-008`
+- Son kanıt: `EV-20260821-011`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -37,8 +37,15 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    Güncel immutable digest doğrulandı. Kendi GHCR alanımıza yalnız bu digest'i
    ve kaynak etiketini doğrulayarak taşıyan manuel mirror iş akışı yerelde
    hazırlandı; kaynak repo commit'i ve GPL-3.0 lisansı da kayda bağlandı.
-   İlgili workflow/devam paketi **15 passed** verdi. Çözüm mevcut HEAD'de
-   commit edildi; henüz push veya mirror işlemi yapılmadı.
+   İlgili workflow/devam paketi **15 passed** verdi. Çözüm `0035f7c` ile
+   push edildi; hosted run `32470025995` ilk denemede **4721 passed / 26
+   skipped / 0 failed** verdi (`EV-20260821-009`). Mirror run `32470615045`
+   kaynak doğrulamasını ve katman push'unu tamamladı; owned hedef digest
+   `b71001…` oldu. İş akışı kaynak OCI digest'inin hedefte aynen kalacağını
+   yanlış varsaydığı için final readback kırmızı oldu (`EV-20260821-010`).
+   Otomatik tekrar yapılmadı. Bağımsız registry readback, kaynak ve hedefin
+   aynı config ile aynı iki katman digest/boyutunu taşıdığını doğruladı
+   (`EV-20260821-011`). Mirror artifact'i sağlamdır; libmpv build başlamadı.
 7. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
    libmpv dışında cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve
    kurulu lisans/notice/Qt relinking paketi açık kalır.
@@ -49,10 +56,10 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 ## Sıradaki tek adım
 
-Hazır, commit edilmiş ve **15 passed** veren build-environment mirror iş akışı
-ile libmpv'nin owned immutable digest kullanımını ayrı onayla push et. Hosted
-CI başarılı olduktan sonra mirror çalıştırmak GHCR'a paket yazacağı için ayrıca
-açık onay ister.
+Kaynak digest ile doğrulanmış owned hedef manifest digest'ini ayrı sabitleyen
+ve **15 passed** veren düzeltme bu kayıt commit'iyle commit edildi. Push için
+ayrı onay al. Mirror run sonucunu geriye dönük PASS sayma ve mirror'ı yeniden
+çalıştırma; sağlam artifact bağımsız kayıtla korunur.
 
 Mirror başarıyla doğrulandıktan sonra libmpv source-captured build için yeni
 ve ayrı açık build onayı al. Sonuç:

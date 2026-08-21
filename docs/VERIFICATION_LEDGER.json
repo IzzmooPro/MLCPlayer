@@ -145,6 +145,65 @@
         "Secondary log-collection errors only reflected the missing container ID."
       ],
       "next_action": "Mirror the verified GPL-3.0 build environment by immutable digest into the owned GHCR namespace, then request separate approval for one new source build."
+    },
+    {
+      "id": "EV-20260821-009",
+      "recorded_at_utc": "2026-08-21T09:56:11Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "0035f7c37347a933544e2bfed9373a50f921de65",
+      "subject": "Hosted Windows CI for the pinned build-environment mirror contract",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32470025995",
+        "attempt: 1"
+      ],
+      "summary": "4721 passed, 26 skipped, 0 failed in 110.88s.",
+      "limitations": [
+        "The manual GHCR mirror workflow was not executed.",
+        "The libmpv source build was not executed."
+      ],
+      "next_action": "After separate GHCR write approval, run the manual mirror once and verify the owned immutable digest."
+    },
+    {
+      "id": "EV-20260821-010",
+      "recorded_at_utc": "2026-08-21T10:01:25Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "0035f7c37347a933544e2bfed9373a50f921de65",
+      "subject": "Manual immutable build-environment mirror",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32470615045",
+        "source verification: passed",
+        "docker push target digest: sha256:b71001a48dac064d66b64559115be8fc55fcd73a25496394fe710948b052f86e"
+      ],
+      "summary": "The verified source layers were copied to owned GHCR, but the workflow failed because it incorrectly expected the target manifest digest to equal the upstream OCI manifest digest.",
+      "limitations": [
+        "The final owned-digest readback step did not pass.",
+        "The libmpv source build was not executed.",
+        "The copy is partial evidence only until the owned target digest is independently pulled or inspected."
+      ],
+      "next_action": "Pin the observed owned target digest separately from the source digest, validate the workflow contract, and do not rerun the mirror without a new reason and approval."
+    },
+    {
+      "id": "EV-20260821-011",
+      "recorded_at_utc": "2026-08-21T10:04:00Z",
+      "proof_layer": "registry_artifact",
+      "result": "passed",
+      "commit": "0035f7c37347a933544e2bfed9373a50f921de65",
+      "subject": "Independent owned GHCR build-environment readback",
+      "evidence": [
+        "source manifest: sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca",
+        "owned manifest: sha256:b71001a48dac064d66b64559115be8fc55fcd73a25496394fe710948b052f86e",
+        "shared config: sha256:b5ff5222e7abf9263cb3373d153b34a0e7e4d63064c0686c56f0848c64369e3f",
+        "layer digest and size equality: true"
+      ],
+      "summary": "Anonymous registry readback confirmed the owned Docker v2 manifest is accessible and references exactly the same config and two layer digests and sizes as the upstream OCI manifest.",
+      "limitations": [
+        "This validates the mirrored build environment only.",
+        "The mirror workflow run remains failed because its final assertion was wrong.",
+        "No libmpv source build, DLL, native smoke, or installed-artifact test ran."
+      ],
+      "next_action": "Commit and push the separate source/target digest contract; no mirror rerun is needed before testing the owned image in the libmpv source build."
     }
   ]
 }

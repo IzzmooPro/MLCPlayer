@@ -8,7 +8,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "libmpv-source-build.yml"
 MIRROR_WORKFLOW = ROOT / ".github" / "workflows" / "mirror-libmpv-buildenv.yml"
-BUILDENV_DIGEST = "8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca"
+SOURCE_BUILDENV_DIGEST = "8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca"
+OWNED_BUILDENV_DIGEST = "b71001a48dac064d66b64559115be8fc55fcd73a25496394fe710948b052f86e"
 
 
 def workflow_text():
@@ -38,7 +39,7 @@ def test_the_reviewed_recipe_and_container_are_immutable():
     assert "cd1edc11dc6887a50f705717619d879f5a93a488" in text
     assert (
         "ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv@sha256:"
-        + BUILDENV_DIGEST
+        + OWNED_BUILDENV_DIGEST
     ) in text
     assert "ghcr.io/shinchiro/archlinux" not in text
     assert "credentials:" in text
@@ -56,8 +57,10 @@ def test_the_build_environment_mirror_is_manual_verified_and_immutable():
     assert "packages: write" in text
     assert "timeout-minutes: 20" in text
     assert "cancel-in-progress: false" in text
-    assert "ghcr.io/shinchiro/archlinux@sha256:" + BUILDENV_DIGEST in text
+    assert "ghcr.io/shinchiro/archlinux@sha256:" + SOURCE_BUILDENV_DIGEST in text
     assert "ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv" in text
+    assert "TARGET_DIGEST: sha256:" + OWNED_BUILDENV_DIGEST in text
+    assert 'grep -F "digest: $TARGET_DIGEST" push.log' in text
     assert "org.opencontainers.image.source" in text
     assert "https://github.com/shinchiro/archlinux-docker" in text
     assert "f96024070ae07963155d624be5655695e7fe181c" in text

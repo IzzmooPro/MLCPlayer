@@ -24,6 +24,8 @@ Bu dosya, projeyi devralan her agentın ilk giriş noktasıdır.
   smoke veya kurulu paket kanıtı değildir.
 - `source_build`: derleme ve karşılık gelen kaynak artifact'i kanıtıdır;
   ürün kabulü veya kurulum kanıtı değildir.
+- `registry_artifact`: sabit OCI/container manifesti ve blob eşliği kanıtıdır;
+  DLL derlemesi, native çalışma veya ürün kabulü değildir.
 - `native_smoke`: gerçek native çalışma kanıtıdır; yalnız aynı commit,
   binary ve senaryoya aittir.
 - `installed_artifact`: adı, boyutu ve SHA-256 değeri kaydedilmiş kurulum
@@ -58,4 +60,3 @@ commit için ayrıca onay alınır.
 - Build, kurulum/kaldırma, commit, push, tag ve release ayrı ayrı açık
   kullanıcı onayı ister.
 - Yayın sırasının tek resmî kaynağı `docs/RELEASE_PROCESS.md` dosyasıdır.
-

@@ -20,6 +20,7 @@ jobs:
       SOURCE_IMAGE: ghcr.io/shinchiro/archlinux@sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca
       TARGET_REPOSITORY: ghcr.io/izzmoopro/mlcplayer-libmpv-buildenv
       TARGET_TAG: sha256-8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca
+      TARGET_DIGEST: sha256:b71001a48dac064d66b64559115be8fc55fcd73a25496394fe710948b052f86e
       EXPECTED_SOURCE_LABEL: https://github.com/shinchiro/archlinux-docker
       SOURCE_REPOSITORY_COMMIT: f96024070ae07963155d624be5655695e7fe181c
 
@@ -47,13 +48,12 @@ jobs:
           set -euo pipefail
           target="$TARGET_REPOSITORY:$TARGET_TAG"
           docker tag "$SOURCE_IMAGE" "$target"
-          docker push "$target"
-          docker buildx imagetools inspect \
-            "$TARGET_REPOSITORY@sha256:8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca"
+          docker push "$target" | tee push.log
+          grep -F "digest: $TARGET_DIGEST" push.log
+          docker buildx imagetools inspect "$TARGET_REPOSITORY@$TARGET_DIGEST"
           {
             printf 'source=%s\n' "$SOURCE_IMAGE"
-            printf 'target=%s@sha256:%s\n' "$TARGET_REPOSITORY" \
-              '8a379b2f2689e1790ad3e504a6274ffde32b88068cfad0e5d94b13782d1c5fca'
+            printf 'target=%s@%s\n' "$TARGET_REPOSITORY" "$TARGET_DIGEST"
             printf 'source_code=%s\n' "$EXPECTED_SOURCE_LABEL"
             printf 'source_repository_commit=%s\n' "$SOURCE_REPOSITORY_COMMIT"
             printf 'source_license=GPL-3.0\n'

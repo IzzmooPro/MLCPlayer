@@ -22,6 +22,7 @@ PROOF_LAYERS = {
     "deterministic",
     "hosted_ci",
     "source_build",
+    "registry_artifact",
     "native_smoke",
     "installed_artifact",
 }
