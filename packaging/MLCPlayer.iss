@@ -146,6 +146,10 @@ Source: "..\README.tr.md"; DestDir: "{app}"; Flags: ignoreversion
 ; `uninsdeletekey`: kaldırmada bu anahtarlar da silinir — kaldırma
 ; kabulünde "artık kayıt kalmasın" ölçütü korunur.
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "{#MyAppName}"; Flags: uninsdeletekey
+; Eski yönetici-olmayan sürümler aynı ürüne ait kullanıcı düzeyi ağacı HKCU'da
+; bırakabiliyordu. Yalnız TAM ürün anahtarı varsa uninstall loguna al; kurulumda
+; anahtarı oluşturma/değiştirme ve paylaşılan `Applications` üst ağacına dokunma.
+Root: HKCU; Subkey: "Software\Classes\Applications\{#MyAppExeName}"; Flags: dontcreatekey uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
 ; Desteklenen türler: "Birlikte aç" listesinde program bu uzantılarda önerilir.
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".mkv"; ValueData: ""

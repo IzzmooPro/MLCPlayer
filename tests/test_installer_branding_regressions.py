@@ -94,6 +94,23 @@ def test_registry_entries_are_removed_on_uninstall():
             assert "uninsdeletekey" in line, line
 
 
+def test_legacy_per_user_open_with_tree_is_removed_but_never_created():
+    """Eski HKCU kaydı yalnız varsa temizlenir; kurulum onu üretmez."""
+    expected = (
+        'Root: HKCU; Subkey: "Software\\Classes\\Applications\\'
+        '{#MyAppExeName}"; Flags: dontcreatekey uninsdeletekey'
+    )
+    lines = [line.strip() for line in _iss().splitlines()
+             if line.strip() and not line.lstrip().startswith(";")]
+
+    assert expected in lines, (
+        "ürüne ait eski HKCU Birlikte Aç ağacı fail-closed temizlenmiyor")
+    assert not any(
+        line.startswith('Root: HKCU; Subkey: "Software\\Classes\\Applications"')
+        for line in lines
+    ), "Applications üst ağacı gibi paylaşılan bir kayıt hedeflenemez"
+
+
 def test_installer_points_at_the_repository():
     text = _iss()
     for key in ("AppPublisherURL", "AppSupportURL", "AppUpdatesURL"):

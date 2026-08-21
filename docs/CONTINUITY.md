@@ -7,7 +7,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 - Güncelleme: 21 Ağustos 2026
 - Son push edilmiş taban: `bcd76a7935b23806d9ff2595b658ab930ca4fad4`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-033`
+- Son kanıt: `EV-20260821-038`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -152,21 +152,50 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    değiştirilmedi. Regresyon önce kırmızıydı; düzeltme sonrası ilgili **29 test
    geçti** (`EV-20260821-033`). Bu deterministic kanıttır; yeni installer veya
    fiziksel kaldırma PASS'i değildir.
+28. Temiz ve push edilmiş `9f294c2` üzerinde v0.38 build ilk koşumda **DONE /
+   exit 0** verdi. Yeni ana installer `56.318.464` bayt ve SHA-256
+   `5eab7e...ec01`; add-on `48.896.317` bayt ve SHA-256 `16416b...9d28`.
+   İki Ed25519 imzası doğrulandı (`EV-20260821-034`). Bu source_build
+   kanıtıdır; installer çalıştırılmadı ve fiziksel kaldırma henüz kanıtlanmadı.
+29. Eski başarısız kaldırmadan kalan doğrulanmış 36 ürün dosyası / 183.272.347
+   bayt, sıfır süreç-modül kullanımı ölçüldükten sonra yalnız
+   `C:\Program Files\MLC Player` hedefinden temizlendi. Hedef artık yok; AppData
+   altındaki 68 kullanıcı dosyasının yol/boyut/zaman/SHA-256 değerleri aynı
+   kaldı (`EV-20260821-035`). Bu manuel kurtarmadır; uninstaller PASS'i değildir.
+30. Exact yeni ana installer temiz hedefe exit 0 ile kuruldu. Kurulu EXE
+   `3.118.308` bayt, SHA-256 `a851c2...6ee2` ve FileVersion `v0.38`; tek
+   uninstall kaydı mevcut. AppData altındaki 68 kullanıcı dosyası aynı kaldı,
+   add-on ikilileri kurulmadı (`EV-20260821-036`). Uygulama henüz açılmadı ve
+   yeni kaldırıcı davranışı fiziksel olarak ölçülmedi.
+31. Açık Player varken yeni mutex kapısı doğru çalıştı: kaldırıcı exit 1 ile
+   hiçbir dosya/kayıt/kısayol veya kullanıcı verisini değiştirmeden durdu.
+   Player normal kapatıldıktan sonra kaldırıcı exit 0 / `Removed all? Yes`
+   verdi; ürün dizini, uninstall kaydı, HKLM kaydı ve kısayollar gitti, 68
+   AppData dosyası aynı kaldı. Ancak eski sürümden kalmış kullanıcı düzeyi
+   `HKCU\Software\Classes\Applications\MLC Player.exe` ağacı silinmiş EXE'ye
+   işaret ederek kaldı (`EV-20260821-037`, **FAILED**). Otomatik tekrar veya
+   kayıt temizliği yapılmadı.
+32. Installer'a yalnız tam ürün anahtarını hedefleyen
+   `HKCU\Software\Classes\Applications\MLC Player.exe` kaldırma kuralı eklendi.
+   `dontcreatekey` kurulumda kullanıcı anahtarı oluşturmuyor/değiştirmiyor;
+   `uninsdeletekey` yalnız uninstall sırasında ürüne özel ağacı temizliyor.
+   Paylaşılan `Applications` üst ağacı testle yasaklandı. Regresyon önce
+   kırmızıydı; düzeltmeden sonra ilgili **21 test geçti**
+   (`EV-20260821-038`). Build veya fiziksel retest yapılmadı.
 
 ## Sıradaki tek adım
 
-Kaldırma kabulü düzeltmesi ve kanıt kaydını commit etmek için kullanıcıdan
-ayrıca açık onay al. Build, kurulum ve yeni fiziksel kaldırma kabulü bu onayın
-kapsamında değildir.
+Kaldırma kabulü kayıt düzeltmesini ve kanıtını commit etmek için kullanıcıdan
+ayrıca açık onay al. Push, build ve fiziksel kayıt kabulü bu onayın kapsamında
+değildir.
 
 ## Sonraki sıra
 
-1. Temiz commit sonrasında build için ayrıca açık onay al.
-2. Yeni exact artifact üzerinde açık-uygulama ret ve kapalı-uygulama kaldırma
-   kabulünü ayrı ayrı doğrula.
-3. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
+1. Push ve build için ayrı onaylarla ilerlet; yeni artifact üzerinde yalnız
+   kayıt kabulünü yeniden ölç.
+2. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
    ad/boyut/SHA-256 eşliğini doğrula; yeniden libmpv build etme.
-4. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
+3. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
 
 ## Kayıt düzeni
 

@@ -697,6 +697,121 @@
         "The existing 36-file residual installation was not manually deleted and the Internet Video add-on was not touched."
       ],
       "next_action": "Request separate commit approval for the tested fix and evidence; build and fresh installed-artifact acceptance remain separately authorized later steps."
+    },
+    {
+      "id": "EV-20260821-034",
+      "recorded_at_utc": "2026-08-21T20:24:21Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "9f294c2f31b691a128847a033892b5b2b5347eac",
+      "subject": "v0.38 Windows build with the fail-closed main-uninstaller gate",
+      "evidence": [
+        "packaging/build_release.bat: DONE, exit 0 on clean 9f294c2; dependency pins and pre-flight runtime hashes passed",
+        "PyInstaller 6.19.0 on Python 3.14.3 produced a complete 181.3 MB dist tree",
+        "MLCPlayer_Setup_v0.38.exe: 56318464 bytes, sha256:5eab7edaae554211fc3a5420ecec35444e4f872bfd8131f80e33e08ac870ec01",
+        "MLCPlayer_InternetVideo_v0.38.exe: 48896317 bytes, sha256:16416b7c098d4557ac53274413cae484f5de8b3d7ea8cca92667b64eb8369d28",
+        "both 88-byte detached Ed25519 signatures verified against the public key embedded in app/release_signature.py",
+        "the build completed on its first run; no libmpv source build was repeated"
+      ],
+      "summary": "The exact pushed uninstall-gate commit produced a complete signed v0.38 main installer and Internet Video add-on. This closes the source-build step for the fix but does not prove install or uninstall behavior.",
+      "limitations": [
+        "No installer was executed; this is not installed-artifact or physical uninstall acceptance.",
+        "The previous failed uninstall still leaves 36 known product files under C:\\Program Files\\MLC Player.",
+        "No tag or release was created."
+      ],
+      "next_action": "With separate user approval, remove only the known residual C:\\Program Files\\MLC Player product directory after rechecking that no process uses it; preserve all AppData user files."
+    },
+    {
+      "id": "EV-20260821-035",
+      "recorded_at_utc": "2026-08-21T20:41:06Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "9f294c2f31b691a128847a033892b5b2b5347eac",
+      "subject": "Bounded cleanup of the failed old-v0.38 uninstall residue",
+      "evidence": [
+        "the exact resolved target was C:\\Program Files\\MLC Player; it contained the 36 known residual product files totalling 183272347 bytes",
+        "all process module lists were inspected before cleanup and zero modules referenced the target directory",
+        "an elevated PowerShell child removed only the validated literal target and returned exit code 0",
+        "C:\\Program Files\\MLC Player no longer exists",
+        "68 files under %APPDATA%/MLCPlayer and %LOCALAPPDATA%/MLCPlayer retained identical path, length, modification time and SHA-256 values"
+      ],
+      "summary": "The incomplete previous uninstall was recovered by removing only its measured Program Files residue. All user settings, logs and local cache files were preserved byte-for-byte and metadata-for-metadata.",
+      "limitations": [
+        "This is a bounded manual recovery cleanup, not an uninstaller acceptance PASS.",
+        "The newly built 9f294c2 installer was not installed or executed.",
+        "The Internet Video add-on and AppData trees were not removed."
+      ],
+      "next_action": "Request separate user approval to install the exact 56318464-byte v0.38 main installer with sha256:5eab7edaae554211fc3a5420ecec35444e4f872bfd8131f80e33e08ac870ec01."
+    },
+    {
+      "id": "EV-20260821-036",
+      "recorded_at_utc": "2026-08-21T20:44:26Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "9f294c2f31b691a128847a033892b5b2b5347eac",
+      "subject": "Fresh installation of the exact uninstall-gate v0.38 main artifact",
+      "evidence": [
+        "the 56318464-byte MLCPlayer_Setup_v0.38.exe matched sha256:5eab7edaae554211fc3a5420ecec35444e4f872bfd8131f80e33e08ac870ec01 and its Ed25519 signature before execution",
+        "elevated /VERYSILENT /SUPPRESSMSGBOXES /NORESTART installation returned exit code 0; the Inno log says Installation process succeeded and Need to restart Windows? No",
+        "installed MLC Player.exe: 3118308 bytes, sha256:a851c2e2ce5895af7c6fae1d31583e69c0bdd9951ddb8d3fe2f0fa6f54446ee2, FileVersion v0.38",
+        "exactly one MLC Player v0.38 uninstall registry entry exists",
+        "68 files under %APPDATA%/MLCPlayer and %LOCALAPPDATA%/MLCPlayer retained identical path, length, modification time and SHA-256 values",
+        "the Internet Video add-on binaries yt-dlp.exe and deno.exe were absent"
+      ],
+      "summary": "The exact newly built main artifact installed cleanly from an empty Program Files target, registered v0.38 and preserved all existing user data without installing the optional Internet Video add-on.",
+      "limitations": [
+        "The installed application was not launched after this installation.",
+        "The running-application uninstall rejection and closed-application uninstall success paths were not exercised.",
+        "No tag or release was created."
+      ],
+      "next_action": "With separate user authorization, launch the installed player, prove that uninstall refuses without changing installed state while it is open, then close it normally and prove a complete uninstall while preserving AppData."
+    },
+    {
+      "id": "EV-20260821-037",
+      "recorded_at_utc": "2026-08-21T21:07:30Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "9f294c2f31b691a128847a033892b5b2b5347eac",
+      "subject": "Open-player rejection and closed-player uninstall acceptance",
+      "evidence": [
+        "the installed player opened with PID 38224, a nonzero main-window handle and title MLC Player",
+        "while the player was open, unins000.exe displayed the localized running-player error, InitializeUninstall returned False and the uninstaller exited 1",
+        "the rejected attempt left all 137 installed files byte/metadata-identical, kept the player alive, retained the uninstall key and shortcuts, and left all 68 AppData files unchanged",
+        "CloseMainWindow returned true and no process continued to load modules from C:\\Program Files\\MLC Player; the externally attached process object did not expose an exit code",
+        "with the player closed, unins000.exe exited 0; its log says Uninstallation process succeeded, Removed all? Yes and Need to restart Windows? No",
+        "the Program Files product directory, uninstall key, HKLM application-registration key, Start Menu group and public desktop shortcut were removed; all 68 AppData files remained byte/metadata-identical",
+        "a pre-existing HKCU\\Software\\Classes\\Applications\\MLC Player.exe\\shell\\open\\command key remained and points to the now absent C:\\Program Files\\MLC Player\\MLC Player.exe"
+      ],
+      "summary": "The new lifecycle gate correctly prevented partial removal while the player was open, and the closed-player uninstall removed all current machine-level product state. Acceptance still fails because a legacy per-user Open With registration remains as an orphan pointing to the deleted executable.",
+      "limitations": [
+        "The surviving HKCU association is a legacy per-user key; the fresh administrative installer wrote and removed its current registration under HKLM.",
+        "The normal close had a successful window-close acknowledgement and no process leak, but the attached process object did not provide its exit code.",
+        "No automatic retry, registry cleanup, rebuild, tag or release occurred."
+      ],
+      "next_action": "With separate user approval, add a regression-first uninstall rule that removes only the product-private legacy HKCU Applications\\MLC Player.exe tree, then rebuild and repeat the bounded registration acceptance."
+    },
+    {
+      "id": "EV-20260821-038",
+      "recorded_at_utc": "2026-08-21T21:15:04Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "9f294c2f31b691a128847a033892b5b2b5347eac",
+      "subject": "Legacy per-user Open With registration uninstall cleanup contract",
+      "evidence": [
+        "the regression-first test failed before the fix because packaging/MLCPlayer.iss did not record the legacy HKCU application tree for uninstall",
+        "the new exact rule targets only HKCU\\Software\\Classes\\Applications\\MLC Player.exe with dontcreatekey and uninsdeletekey",
+        "dontcreatekey prevents installation from creating or changing the per-user key; uninsdeletekey removes the product-private tree only during uninstall",
+        "the shared HKCU\\Software\\Classes\\Applications parent is explicitly rejected by regression coverage",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py tests/test_continuity_regressions.py: 21 passed in 0.37s",
+        "python -m ruff check tests/test_installer_branding_regressions.py: passed; git diff --check: passed"
+      ],
+      "summary": "The installer now records a narrow uninstall-only cleanup for the measured legacy per-user MLC Player Open With tree without creating that key during installation or touching the shared Applications registry parent.",
+      "limitations": [
+        "This is deterministic source and targeted-test evidence on an uncommitted working tree based on 9f294c2.",
+        "No installer was built, installed or uninstalled after the registry fix.",
+        "The measured stale HKCU key still exists on the machine and was not manually deleted."
+      ],
+      "next_action": "Request separate commit approval for the tested registry fix and evidence; push, build and physical registration acceptance remain separately authorized steps."
     }
   ]
 }
