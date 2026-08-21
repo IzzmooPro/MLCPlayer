@@ -5,10 +5,10 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 22 Ağustos 2026
-- Son push edilmiş taban: `50b230ef0962950f0d55dbd141bb289ded6f3b30`
+- Son push edilmiş taban: `64d6b83889c1ddde10065f5822da553b35bc2c1b`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-043`
-- Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
+- Son kanıt: `EV-20260821-044`
+- Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest**
 
 ## Şu anda doğrulanmış durum
 
@@ -214,19 +214,25 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    `374689765` oluşturuldu; 87/87 uzak varlıkta ad, byte boyutu, SHA-256 digest
    ve `uploaded` durumu yerel dosyalarla birebir eşleşti
    (`EV-20260821-043`). Draft henüz yayınlanmadı; libmpv build'i tekrarlanmadı.
+38. Ayrı açık yayın onayıyla draft canlıya alındı. Kimlik doğrulamalı ve anonim
+   GitHub API okumaları `v0.38`, `draft=false`, `prerelease=false`, 87 varlık
+   ve latest tag `v0.38` döndürdü; herkese açık release sayfası HTTP 200 verdi.
+   Ana installer `56.308.623` bayt / SHA-256 `bfac5d...bc3a2`, kalıcı libmpv
+   kaynağı `557.940.716` bayt / SHA-256 `5ce4be...efc0` olarak public metadata'da
+   doğrulandı (`EV-20260821-044`). Yeni build, kurulum veya native smoke
+   çalıştırılmadı.
 
 ## Sıradaki tek adım
 
-Kaldırma kabulü geçti. v0.38 draft release içindeki 87 varlık da doğrulandı.
-Draft'ı canlıya almak için kullanıcıdan ayrıca açık onay al; bu yayın onayı
-verilmeden `gh release edit v0.38 --draft=false --latest` çalıştırma.
+Kaldırma kabulü geçti ve v0.38 canlı yayımlandı. `EV-20260821-044` nihai yayın
+kanıtını commit etmek için kullanıcıdan ayrıca açık onay al. Push bu onayın
+kapsamında değildir.
 
 ## Sonraki sıra
 
-1. Yayın onayı verilirse draft'ı canlıya al ve görünür durumu salt okunur
-   geri okuyarak doğrula.
-2. Son yayın sonucunu kanıta ekle; commit ve push için ayrı onay al. Libmpv
-   build'ini tekrarlama.
+1. Nihai yayın kanıtı commit edildikten sonra push için ayrıca açık onay al.
+2. Sonraki ürün değişikliğine kadar v0.38 release artifact'lerini değiştirme;
+   libmpv build'ini tekrarlama.
 
 ## Kayıt düzeni
 
