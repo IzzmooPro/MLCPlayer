@@ -38,13 +38,15 @@ import re
 import tempfile
 from collections import namedtuple
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 from app.i18n import tr, tr_mark, translate_marked
 
 from PyQt6.QtCore import QThread, Qt, pyqtSignal
-from PyQt6.QtWidgets import (QDialog, QHBoxLayout, QLabel, QMessageBox,
-                             QProgressBar, QPushButton, QVBoxLayout)
+from PyQt6.QtWidgets import (QDialog, QFrame, QGraphicsDropShadowEffect,
+                             QHBoxLayout, QLabel, QMessageBox, QProgressBar,
+                             QPushButton, QSizePolicy, QVBoxLayout, QWidget)
 
+from app.app_icon import application_icon
 from app import release_signature as signing
 from app.config import APP_VERSION
 from app.errors import log
@@ -87,6 +89,94 @@ ASSET_VERIFY_FAILED_MESSAGE = tr_mark(
 CHECK_FAILED_MESSAGE = tr_mark("Güncelleme kontrol edilemedi.")
 BUSY_MESSAGE = tr_mark("Program şu anda kapanamıyor (süren bir işlem var). "
                        "İşlem bitince güncellemeyi yeniden başlatın.")
+
+UPDATE_DIALOG_SIZE = (520, 310)
+UPDATE_BRAND_WIDTH = 165
+
+UPDATE_DIALOG_STYLE = """
+QDialog#updateDialog { background: transparent; }
+QFrame#updateCard {
+    background: #15191E;
+    border: 1px solid #424950;
+    border-radius: 12px;
+}
+QFrame#updateBrandPanel {
+    background: qlineargradient(x1:0, y1:0, x2:0.9, y2:1,
+                                stop:0 #4A2115, stop:0.55 #291B19,
+                                stop:1 #17191D);
+    border: none;
+    border-right: 1px solid #34383D;
+    border-top-left-radius: 11px;
+    border-bottom-left-radius: 11px;
+}
+QWidget#updateContentPanel { background: transparent; border: none; }
+QLabel {
+    background: transparent; border: none; color: #E9EDF1;
+    font-family: "Segoe UI";
+}
+QLabel#updateHeading { font-size: 19px; font-weight: 700; }
+QLabel#updateDescription { font-size: 14px; color: #E9EDF1; }
+QLabel#updateSupportingText { font-size: 12px; color: #929AA3; }
+QLabel#updateVersion { font-size: 17px; font-weight: 600; }
+QLabel#updateStatus { font-size: 11px; color: #A8AFB7; }
+QPushButton {
+    min-height: 38px;
+    padding: 0 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: "Segoe UI";
+}
+QPushButton#updateClose {
+    min-width: 30px; max-width: 30px;
+    min-height: 30px; max-height: 30px;
+    padding: 0;
+    color: #AEB4BB;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 22px;
+    font-weight: 300;
+}
+QPushButton#updateClose:hover { color: #FFFFFF; background: #F26A3D; }
+QPushButton#updateReleaseNotes {
+    min-height: 28px;
+    padding: 0;
+    color: #F26A3D;
+    background: transparent;
+    border: none;
+    font-size: 13px;
+    text-align: left;
+}
+QPushButton#updateReleaseNotes:hover { color: #FF7A48; }
+QPushButton#updateLater {
+    min-width: 106px;
+    color: #DDE2E7;
+    background: transparent;
+    border: 1px solid #4A5159;
+}
+QPushButton#updateLater:hover { background: rgba(255,255,255,12); }
+QPushButton#updatePrimary {
+    min-width: 114px;
+    color: #FFFFFF;
+    background: #F26A3D;
+    border: none;
+    font-weight: 600;
+}
+QPushButton#updatePrimary:hover { background: #FF7A48; }
+QPushButton#updatePrimary:pressed { background: #DD5930; }
+QPushButton:disabled { color: #717982; background: #25292E; }
+QProgressBar#updateProgress {
+    min-height: 5px; max-height: 5px;
+    color: transparent;
+    background: #30353B;
+    border: none;
+    border-radius: 2px;
+}
+QProgressBar#updateProgress::chunk {
+    background: #F26A3D;
+    border-radius: 2px;
+}
+"""
 
 #: Doğrulanmış güncelleme asset'i. `signature_url`, yayıncı imzasının
 #: (`<kurulum>.sig`) adresidir; imza katmanı açıkken ZORUNLUDUR.
@@ -455,7 +545,7 @@ def apply_update(installer_path, player, frozen=None, start_installer=None,
 # ── Diyalog ──────────────────────────────────────────────────────────────
 
 class UpdateDialog(QDialog):
-    """"Yeni bir sürüm bulundu." — Güncelle / Daha sonra."""
+    """Marka diliyle uyumlu, kompakt güncelleme penceresi."""
 
     def __init__(self, version, download_url, parent=None, *,
                  expected_sha256="", expected_size=0, signature_url=""):
@@ -471,40 +561,185 @@ class UpdateDialog(QDialog):
         #: olmadan kullanıcı kapatmak istese bile kurulum başlardı.
         self._close_requested = False
         self._close_after_download_connected = False
+        self._drag_offset = None
 
         self.setWindowTitle(tr("Güncelleme Mevcut"))
-        self.setFixedWidth(400)
+        self.setObjectName("updateDialog")
+        self.setWindowFlags(
+            (self.windowFlags() | Qt.WindowType.FramelessWindowHint)
+            & ~Qt.WindowType.WindowContextHelpButtonHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setFixedSize(*UPDATE_DIALOG_SIZE)
+        self.setStyleSheet(UPDATE_DIALOG_STYLE)
         self._build_ui()
 
     def _build_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 20, 24, 20)
-        layout.setSpacing(14)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(14, 14, 14, 14)
 
-        message = QLabel(f"{tr('Yeni bir sürüm bulundu.')}\n\n"
-                         f"{tr('Mevcut sürüm')} : {APP_VERSION}\n"
-                         f"{tr('Yeni sürüm')}   : {self._version}")
-        message.setWordWrap(True)
-        layout.addWidget(message)
+        card = QFrame(self)
+        card.setObjectName("updateCard")
+        shadow = QGraphicsDropShadowEffect(card)
+        shadow.setBlurRadius(28)
+        shadow.setOffset(0, 8)
+        shadow.setColor(Qt.GlobalColor.black)
+        card.setGraphicsEffect(shadow)
+        outer.addWidget(card)
+
+        card_layout = QHBoxLayout(card)
+        card_layout.setContentsMargins(0, 0, 0, 0)
+        card_layout.setSpacing(0)
+
+        brand = QFrame(card)
+        brand.setObjectName("updateBrandPanel")
+        brand.setFixedWidth(UPDATE_BRAND_WIDTH)
+        brand_layout = QVBoxLayout(brand)
+        brand_layout.setContentsMargins(20, 20, 20, 20)
+        brand_layout.setSpacing(12)
+        brand_layout.addStretch(1)
+
+        icon_label = QLabel(brand)
+        icon_label.setObjectName("updateIcon")
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon_label.setFixedSize(96, 96)
+        icon = application_icon()
+        if not icon.isNull():
+            icon_label.setPixmap(icon.pixmap(88, 88))
+        brand_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignHCenter)
+
+        current = self._display_version(APP_VERSION)
+        latest = self._display_version(self._version)
+        version = QLabel(
+            f'<span style="color:#AEB4BB">{current}</span>'
+            f'<span style="color:#C7CCD2">  →  </span>'
+            f'<span style="color:#F26A3D">{latest}</span>', brand)
+        version.setObjectName("updateVersion")
+        version.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        brand_layout.addWidget(version, 0, Qt.AlignmentFlag.AlignHCenter)
+        brand_layout.addStretch(1)
+        card_layout.addWidget(brand)
+
+        content = QWidget(card)
+        content.setObjectName("updateContentPanel")
+        content_layout = QVBoxLayout(content)
+        content_layout.setContentsMargins(24, 16, 16, 16)
+        content_layout.setSpacing(0)
+
+        heading_row = QHBoxLayout()
+        heading_row.setContentsMargins(0, 0, 0, 0)
+        heading = QLabel(tr("Yeni sürüm kullanıma hazır"), content)
+        heading.setObjectName("updateHeading")
+        heading_row.addWidget(heading, 1)
+
+        self._close_button = QPushButton("×", content)
+        self._close_button.setObjectName("updateClose")
+        self._close_button.setAccessibleName(tr("Kapat"))
+        self._close_button.setAutoDefault(False)
+        self._close_button.setDefault(False)
+        self._close_button.clicked.connect(self.reject)
+        heading_row.addWidget(self._close_button, 0,
+                              Qt.AlignmentFlag.AlignTop)
+        content_layout.addLayout(heading_row)
+        content_layout.addSpacing(22)
+
+        description = QLabel(
+            tr("MLC Player {version} indirilmeye hazır.").format(
+                version=latest), content)
+        description.setObjectName("updateDescription")
+        content_layout.addWidget(description)
+        content_layout.addSpacing(12)
+
+        supporting = QLabel(
+            tr("Değişiklikleri sürüm notlarında inceleyebilirsiniz."),
+            content)
+        supporting.setObjectName("updateSupportingText")
+        supporting.setWordWrap(True)
+        content_layout.addWidget(supporting)
+        content_layout.addSpacing(8)
+
+        self._release_notes_button = QPushButton(
+            tr("Sürüm notları →"), content)
+        self._release_notes_button.setObjectName("updateReleaseNotes")
+        self._release_notes_button.setCursor(
+            Qt.CursorShape.PointingHandCursor)
+        self._release_notes_button.setAutoDefault(False)
+        self._release_notes_button.setDefault(False)
+        self._release_notes_button.clicked.connect(self.open_release_notes)
+        self._release_notes_button.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        content_layout.addWidget(self._release_notes_button, 0,
+                                 Qt.AlignmentFlag.AlignLeft)
+        content_layout.addStretch(1)
 
         self._progress = QProgressBar()
+        self._progress.setObjectName("updateProgress")
         self._progress.setRange(0, 100)
+        self._progress.setTextVisible(False)
         self._progress.setVisible(False)
-        layout.addWidget(self._progress)
+        content_layout.addWidget(self._progress)
 
         self._status = QLabel("")
+        self._status.setObjectName("updateStatus")
         self._status.setVisible(False)
-        layout.addWidget(self._status)
+        content_layout.addSpacing(7)
+        content_layout.addWidget(self._status)
+        content_layout.addSpacing(10)
 
         row = QHBoxLayout()
+        row.setSpacing(10)
+        row.addStretch(1)
         self._later_button = QPushButton(tr("Daha sonra"))
+        self._later_button.setObjectName("updateLater")
+        self._later_button.setAutoDefault(False)
+        self._later_button.setDefault(False)
         self._later_button.clicked.connect(self.reject)
         self._update_button = QPushButton(tr("Güncelle"))
+        self._update_button.setObjectName("updatePrimary")
+        self._update_button.setAutoDefault(False)
+        self._update_button.setDefault(True)
         self._update_button.clicked.connect(self.start_update)
         row.addWidget(self._later_button)
-        row.addStretch()
         row.addWidget(self._update_button)
-        layout.addLayout(row)
+        content_layout.addLayout(row)
+        card_layout.addWidget(content, 1)
+
+    @staticmethod
+    def _display_version(version):
+        value = str(version or "").strip()
+        return value[1:] if value[:1].lower() == "v" else value
+
+    def release_notes_url(self):
+        tag = quote(str(self._version or ""), safe="")
+        return f"{GITHUB_URL}/releases/tag/{tag}"
+
+    def open_release_notes(self):
+        import webbrowser
+        webbrowser.open(self.release_notes_url())
+
+    def mousePressEvent(self, event):
+        if (event.button() == Qt.MouseButton.LeftButton
+                and (event.position().x() <= UPDATE_BRAND_WIDTH + 14
+                     or event.position().y() <= 82)):
+            child = self.childAt(event.position().toPoint())
+            if not isinstance(child, QPushButton):
+                self._drag_offset = (
+                    event.globalPosition().toPoint()
+                    - self.frameGeometry().topLeft())
+                event.accept()
+                return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if (self._drag_offset is not None
+                and event.buttons() & Qt.MouseButton.LeftButton):
+            self.move(event.globalPosition().toPoint() - self._drag_offset)
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._drag_offset = None
+        super().mouseReleaseEvent(event)
 
     def start_update(self):
         if (not self._download_url or not self._expected_sha256
@@ -522,7 +757,6 @@ class UpdateDialog(QDialog):
         self._progress.setValue(0)
         self._status.setVisible(True)
         self._status.setText(tr("İndiriliyor…"))
-        self.adjustSize()
 
         folder = tempfile.mkdtemp(prefix="MLCPlayerUpdate_")
         destination = os.path.join(folder, expected_asset_name(self._version))
@@ -610,7 +844,6 @@ class UpdateDialog(QDialog):
                 self._status.setText(
                     tr("İndirme tamamlanıyor — pencere işlem bitince "
                        "kapanacak."))
-                self.adjustSize()
             event.ignore()
             return
         event.accept()

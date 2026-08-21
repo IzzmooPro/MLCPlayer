@@ -663,13 +663,18 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="500" />
+            <location filename="app/updater.py" line="691" />
             <source>Daha sonra</source>
             <translation type="unfinished" />
         </message>
         <message>
             <location filename="app/subtitle_appearance_dialog.py" line="971" />
             <source>Değişiklikleri iptal et</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <location filename="app/updater.py" line="653" />
+            <source>Değişiklikleri sürüm notlarında inceleyebilirsiniz.</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -833,7 +838,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="657" />
+            <location filename="app/updater.py" line="890" />
             <source>En güncel sürümü kullanıyorsunuz</source>
             <translation type="unfinished" />
         </message>
@@ -923,7 +928,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="590" />
+            <location filename="app/updater.py" line="824" />
             <source>GitHub sayfasını aç</source>
             <translation type="unfinished" />
         </message>
@@ -949,44 +954,44 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="502" />
+            <location filename="app/updater.py" line="696" />
             <source>Güncelle</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="585" />
-            <location filename="app/updater.py" line="656" />
-            <location filename="app/updater.py" line="660" />
+            <location filename="app/updater.py" line="819" />
+            <location filename="app/updater.py" line="889" />
+            <location filename="app/updater.py" line="893" />
             <source>Güncelleme</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="475" />
+            <location filename="app/updater.py" line="566" />
             <source>Güncelleme Mevcut</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="85" />
+            <location filename="app/updater.py" line="87" />
             <source>Güncelleme bilgisi doğrulanamadı. Otomatik güncelleme başlatılmadı.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="82" />
+            <location filename="app/updater.py" line="84" />
             <source>Güncelleme dosyası doğrulanamadı. Kurulum başlatılmadı.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="84" />
+            <location filename="app/updater.py" line="86" />
             <source>Güncelleme indirilemedi.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="87" />
+            <location filename="app/updater.py" line="89" />
             <source>Güncelleme kontrol edilemedi.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="544" />
+            <location filename="app/updater.py" line="778" />
             <source>Güncelleme uygulanıyor…</source>
             <translation type="unfinished" />
         </message>
@@ -1108,7 +1113,8 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <location filename="app/menu_actions.py" line="507" />
             <location filename="app/subtitle_center.py" line="559" />
             <location filename="app/title_bar.py" line="188" />
-            <location filename="app/updater.py" line="592" />
+            <location filename="app/updater.py" line="636" />
+            <location filename="app/updater.py" line="826" />
             <source>Kapat</source>
             <translation type="unfinished" />
         </message>
@@ -1158,7 +1164,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="554" />
+            <location filename="app/updater.py" line="788" />
             <source>Kaynak koddan çalışan kopya kurulumla güncellenmez.</source>
             <translation type="unfinished" />
         </message>
@@ -1309,6 +1315,11 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/updater.py" line="646" />
+            <source>MLC Player {version} indirilmeye hazır.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="main.py" line="170" />
             <source>MPV Bileşeni Bulunamadı</source>
             <translation type="unfinished" />
@@ -1355,11 +1366,6 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
         <message>
             <location filename="app/log_management_dialog.py" line="35" />
             <source>Mevcut günlük boyutu:</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <location filename="app/updater.py" line="485" />
-            <source>Mevcut sürüm</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -1641,7 +1647,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="88" />
+            <location filename="app/updater.py" line="90" />
             <source>Program şu anda kapanamıyor (süren bir işlem var). İşlem bitince güncellemeyi yeniden başlatın.</source>
             <translation type="unfinished" />
         </message>
@@ -1940,6 +1946,11 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/updater.py" line="661" />
+            <source>Sürüm notları →</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/menu_actions.py" line="505" />
             <source>Sıfırla</source>
             <translation type="unfinished" />
@@ -2167,13 +2178,8 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="484" />
-            <source>Yeni bir sürüm bulundu.</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <location filename="app/updater.py" line="486" />
-            <source>Yeni sürüm</source>
+            <location filename="app/updater.py" line="630" />
+            <source>Yeni sürüm kullanıma hazır</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -2382,12 +2388,12 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="524" />
+            <location filename="app/updater.py" line="759" />
             <source>İndiriliyor…</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="611" />
+            <location filename="app/updater.py" line="845" />
             <source>İndirme tamamlanıyor — pencere işlem bitince kapanacak.</source>
             <translation type="unfinished" />
         </message>
@@ -2421,7 +2427,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="588" />
+            <location filename="app/updater.py" line="822" />
             <source>İsterseniz güncellemeyi GitHub sayfasından elle indirebilirsiniz.</source>
             <translation type="unfinished" />
         </message>
