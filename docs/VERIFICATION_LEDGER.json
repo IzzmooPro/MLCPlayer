@@ -107,6 +107,24 @@
         "No automatic rerun was performed."
       ],
       "next_action": "Restore the signing-tool reference, run only the affected documentation and continuity tests, then request separate commit and push approvals."
+    },
+    {
+      "id": "EV-20260821-007",
+      "recorded_at_utc": "2026-08-21T09:36:36Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "add25330b0facc733f5cb7fa95392820d1a2b5e0",
+      "subject": "Hosted Windows CI after restoring the release-signing continuity rule",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32468470119",
+        "attempt: 1"
+      ],
+      "summary": "4720 passed, 26 skipped, 0 failed in 113.02s.",
+      "limitations": [
+        "Hosted CI did not execute the manual libmpv source build.",
+        "Native and installed-artifact checks remain separate."
+      ],
+      "next_action": "After separate build approval, dispatch the manual libmpv source-captured build once at this commit."
     }
   ]
 }
