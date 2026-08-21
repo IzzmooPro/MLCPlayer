@@ -24,6 +24,11 @@ from app.errors import log
 
 
 SERVER_NAME = "MLCPlayer-SingleInstance"
+# Inno ana kaldırıcısı bu sabit, oturum kapsamlı mutex'i denetler. Handle
+# bilerek süreç bitene kadar kapatılmaz: pencere kapanışı ile Windows'un EXE/DLL
+# image kilitlerini tamamen bırakması arasındaki kısa aralık korunmalıdır.
+INSTALLER_APP_MUTEX = "MLCPlayer-Running"
+_INSTALLER_APP_MUTEX_HANDLE = None
 CONNECT_TIMEOUT_MS = 300
 TRANSFER_TIMEOUT_MS = 1000
 HANDOFF_ATTEMPTS = 3
@@ -38,6 +43,25 @@ PROTOCOL_VERSION = 1
 FRAME_HEADER = struct.Struct(">4sBI")
 MAX_PAYLOAD_BYTES = 32 * 1024
 MAX_PENDING_CONNECTIONS = 8
+
+
+def _ensure_installer_lifecycle_mutex():
+    """Kaldırıcının açık/henüz kapanan ürünü fail-closed görmesini sağla."""
+    global _INSTALLER_APP_MUTEX_HANDLE
+    if os.name != "nt" or _INSTALLER_APP_MUTEX_HANDLE is not None:
+        return
+
+    kernel32 = ctypes.windll.kernel32
+    kernel32.CreateMutexW.argtypes = [ctypes.c_void_p, ctypes.c_bool,
+                                      ctypes.c_wchar_p]
+    kernel32.CreateMutexW.restype = ctypes.c_void_p
+    handle = kernel32.CreateMutexW(None, False, INSTALLER_APP_MUTEX)
+    if not handle:
+        log("Installer lifecycle mutex could not be created.", "WARNING")
+        return
+    # CloseHandle YOK: resmî AppMutex sözleşmesi mutex'in gerçek süreç
+    # sonlanmasına kadar yaşamasını ister. Windows süreç çıkışında kapatır.
+    _INSTALLER_APP_MUTEX_HANDLE = handle
 
 
 def is_worker_invocation(argv):
@@ -146,6 +170,7 @@ class SingleInstanceGuard(QObject):
     def acquire(self, payload=""):
         """`True`: birincil. `False`: ikincil veya teslimat başarısız."""
         self.handoff_failed = False
+        _ensure_installer_lifecycle_mutex()
         # Windows'ta QLocalServer.listen aynı ad için iki kez başarılı
         # olabilir; birincil seçim bu yüzden önce mutex ile yapılır.
         if not self._mutex.acquire():

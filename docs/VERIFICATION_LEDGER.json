@@ -650,6 +650,53 @@
         "No uninstall, push, tag or release occurred."
       ],
       "next_action": "Request separate user authorization for uninstall acceptance; do not remove the Internet Video add-on without separately scoped approval."
+    },
+    {
+      "id": "EV-20260821-032",
+      "recorded_at_utc": "2026-08-21T20:05:09Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "bcd76a7935b23806d9ff2595b658ab930ca4fad4",
+      "subject": "Installed v0.38 main-package uninstall while the application was open",
+      "evidence": [
+        "the tested installer is the exact f64188f artifact from EV-20260821-028; the user confirmed that MLC Player was open when its main-package uninstaller was started",
+        "unins000.exe ran elevated with /VERYSILENT /SUPPRESSMSGBOXES /NORESTART and returned exit code 0",
+        "the uninstall registry entry, file-association key, Start Menu group and public desktop shortcut were removed",
+        "the application directory remained with 36 files totalling 183272347 bytes, including MLC Player.exe, mpv-2.dll, Qt, Python and cryptography runtime files",
+        "the Inno log repeatedly reported delete error 5 and ended with 'Removed all? No' despite 'Uninstallation process succeeded'",
+        "68 files under %APPDATA%/MLCPlayer and %LOCALAPPDATA%/MLCPlayer retained identical path, length, modification time and SHA-256 values",
+        "no process or loaded module still referenced C:\\Program Files\\MLC Player after the uninstaller exited",
+        "Inno Setup's official CloseApplications documentation describes Setup-time Restart Manager handling; it does not provide an uninstaller close guarantee"
+      ],
+      "summary": "The v0.38 main uninstaller did not safely complete removal when the application was open. User data was preserved and registration was removed, but product binaries remained, so exit code zero is not an acceptance PASS.",
+      "limitations": [
+        "This is one physical silent-uninstall run; no automatic retry was made.",
+        "The remaining product files were not manually deleted, and the Internet Video add-on was not touched.",
+        "A permanent fix still needs a regression-first uninstaller close/wait/fail-closed design, a new build and a fresh exact-artifact acceptance run."
+      ],
+      "next_action": "With separate user approval, implement a narrow regression-first main-uninstaller lifecycle fix that closes or blocks on the running installed application, waits for file release and never reports success while installed product files remain."
+    },
+    {
+      "id": "EV-20260821-033",
+      "recorded_at_utc": "2026-08-21T20:14:48Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "bcd76a7935b23806d9ff2595b658ab930ca4fad4",
+      "subject": "Main-uninstaller running-player fail-closed lifecycle gate",
+      "evidence": [
+        "regression-first test failed before the fix because packaging/MLCPlayer.iss had no running-application uninstall gate",
+        "app/single_instance.py now creates the stable session mutex MLCPlayer-Running and intentionally keeps its handle until real process exit",
+        "packaging/MLCPlayer.iss InitializeUninstall checks the same mutex and refuses to begin while MLC Player is still running",
+        "the Setup-time Restart Manager path remains unchanged; no AppMutex directive was added, so upgrades retain their existing scoped close behavior",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py tests/test_single_instance_regressions.py tests/test_continuity_regressions.py: 29 passed in 0.89s"
+      ],
+      "summary": "The main uninstaller now fails closed before deleting registry entries, shortcuts or files when the installed player process is still alive. The marker survives window teardown until Windows terminates the process, covering the measured image-lock interval without force-killing by process name.",
+      "limitations": [
+        "This is deterministic source and targeted-test evidence on an uncommitted working tree based on bcd76a7.",
+        "No installer was built, installed or physically uninstalled after the fix.",
+        "The existing 36-file residual installation was not manually deleted and the Internet Video add-on was not touched."
+      ],
+      "next_action": "Request separate commit approval for the tested fix and evidence; build and fresh installed-artifact acceptance remain separately authorized later steps."
     }
   ]
 }

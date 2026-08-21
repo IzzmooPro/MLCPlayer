@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `7deca7d8f35bef2c1401e66d92ae3c86a2facea1`
+- Son push edilmiş taban: `bcd76a7935b23806d9ff2595b658ab930ca4fad4`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-024`
+- Son kanıt: `EV-20260821-033`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -140,20 +140,33 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    başlık dosya adına döndü, süreç 4 saniye canlı kaldı, normal `WM_CLOSE`
    sonrası exit 0 verdi ve süreç sızmadı (`EV-20260821-031`). Kullanıcı INI
    hash'i değişmedi; çalışma logu beklenen safe-band kaydıyla 66 bayt büyüdü.
+26. Kullanıcının açık bıraktığını doğruladığı kurulu v0.38 üzerinde ana paket
+   kaldırıcı exit 0 verdi ve kayıt/kısayolları sildi; buna rağmen **36 ürün
+   dosyası / 183.272.347 bayt** kurulum dizininde kaldı. Log, çok sayıda
+   silme hatası 5 ve `Removed all? No` kaydetti. Ayar, log ve yerel önbellekteki
+   68 dosyanın yol/boyut/zaman/SHA-256 değerleri değişmedi; add-on'a
+   dokunulmadı (`EV-20260821-032`, **FAILED**). Otomatik tekrar yapılmadı.
+27. Ana ürün süreç ömrü boyunca `MLCPlayer-Running` mutex'ini artık açık
+   tutuyor; ana kaldırıcı aynı mutex mevcutsa hiçbir kayıt, kısayol veya dosya
+   silmeden fail-closed duruyor. Kurulumun Restart Manager davranışı ve add-on
+   değiştirilmedi. Regresyon önce kırmızıydı; düzeltme sonrası ilgili **29 test
+   geçti** (`EV-20260821-033`). Bu deterministic kanıttır; yeni installer veya
+   fiziksel kaldırma PASS'i değildir.
 
 ## Sıradaki tek adım
 
-Kaldırma kabulü için kullanıcıdan ayrıca açık onay al. Onay verilirse exact
-v0.38 ana paketini kaldır; kullanıcı ayar/log ağacını koruduğunu, uninstall
-kaydını ve ürün dosyalarını doğru temizlediğini doğrula. Add-on'u veya başka
-dosyaları ayrıca onay olmadan kaldırma.
+Kaldırma kabulü düzeltmesi ve kanıt kaydını commit etmek için kullanıcıdan
+ayrıca açık onay al. Build, kurulum ve yeni fiziksel kaldırma kabulü bu onayın
+kapsamında değildir.
 
 ## Sonraki sıra
 
-1. Kaldırma kabulü için ayrıca kullanıcı onayı al.
-2. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
+1. Temiz commit sonrasında build için ayrıca açık onay al.
+2. Yeni exact artifact üzerinde açık-uygulama ret ve kapalı-uygulama kaldırma
+   kabulünü ayrı ayrı doğrula.
+3. v0.38 draft aşamasında hazırlanmış libmpv kaynağının uzak
    ad/boyut/SHA-256 eşliğini doğrula; yeniden libmpv build etme.
-3. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
+4. Yalnız bundan sonra `docs/RELEASE_PROCESS.md` sırasını ayrı onaylarla uygula.
 
 ## Kayıt düzeni
 

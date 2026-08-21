@@ -7,6 +7,7 @@
 #define MyAppPublisher "IzzmooPro"
 #define MyAppUrl "https://github.com/IzzmooPro/MLCPlayer"
 #define MyAppExeName "MLC Player.exe"
+#define PlayerLifecycleMutex "MLCPlayer-Running"
 
 [Setup]
 AppId={{EB0DD5CF-F20B-4B23-A1C9-2C23A83A8758}
@@ -117,6 +118,8 @@ russian.OpenRepository=Открыть страницу MLC Player на GitHub
 brazilianportuguese.DesktopIcon=Criar um atalho na área de trabalho
 brazilianportuguese.LaunchApp=Iniciar %1
 brazilianportuguese.OpenRepository=Abrir a página do MLC Player no GitHub
+ClosePlayerBeforeUninstall=MLC Player is still running. Close it completely, then start uninstall again.
+turkish.ClosePlayerBeforeUninstall=MLC Player hâlâ çalışıyor. Programı tamamen kapatıp kaldırmayı yeniden başlatın.
 
 [Tasks]
 ; Varsayılan İŞARETLİ; kullanıcı istemezse kaldırır.
@@ -173,5 +176,12 @@ Filename: "{#MyAppUrl}"; Description: "{cm:OpenRepository}"; Flags: shellexec no
 // iç hatası veriyor. Bu zararsız fonksiyon bölümün var olmasını garanti eder.
 function InitializeUninstall(): Boolean;
 begin
-  Result := True;
+  // CloseApplications yalnız Setup/upgrade Restart Manager yoludur. Uninstall
+  // açık ürünün image kilitlerini temizlemeyi garanti etmez. Ürünün sabit
+  // yaşam döngüsü mutex'i süreç gerçekten bitene kadar açık kaldığından burada
+  // fail-closed dururuz; kayıt/kısayolları silip binary bırakmayız.
+  Result := not CheckForMutexes('{#PlayerLifecycleMutex}');
+  if not Result then
+    MsgBox(ExpandConstant('{cm:ClosePlayerBeforeUninstall}'),
+      mbCriticalError, MB_OK);
 end;

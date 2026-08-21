@@ -14,6 +14,7 @@ import re
 ROOT = Path(__file__).resolve().parent.parent
 MAIN_ISS = ROOT / "packaging" / "MLCPlayer.iss"
 ADDON_ISS = ROOT / "packaging" / "MLCPlayer_InternetVideo.iss"
+SINGLE_INSTANCE = ROOT / "app" / "single_instance.py"
 
 
 def read(path):
@@ -40,6 +41,37 @@ def test_main_installer_never_force_kills_processes_by_image_name():
     assert "RestartApplications=no" in iss
     assert "taskkill" not in code.lower()
     assert '/F /IM "MLC Player.exe"' not in code
+
+
+def test_main_uninstaller_blocks_while_the_installed_player_is_running():
+    """AppMutex must live until process exit, not only window shutdown."""
+    iss = read(MAIN_ISS)
+    runtime = read(SINGLE_INSTANCE)
+
+    match = re.search(
+        r'^#define\s+PlayerLifecycleMutex\s+"([^\r\n"]+)"$',
+        iss,
+        re.MULTILINE,
+    )
+    assert match, "main uninstaller has no running-app mutex identity"
+    mutex_name = match.group(1)
+
+    assert f'INSTALLER_APP_MUTEX = "{mutex_name}"' in runtime
+    assert "_ensure_installer_lifecycle_mutex()" in runtime
+    assert re.search(
+        r"CreateMutexW\s*\(\s*None\s*,\s*False\s*,\s*"
+        r"INSTALLER_APP_MUTEX\s*\)",
+        runtime,
+    )
+    assert "_INSTALLER_APP_MUTEX_HANDLE = handle" in runtime
+    assert re.search(
+        r"function\s+InitializeUninstall\s*\(\s*\)\s*:\s*Boolean;"
+        r"[\s\S]*?CheckForMutexes\s*\(\s*"
+        r"'\{#PlayerLifecycleMutex\}'\s*\)",
+        iss,
+        re.IGNORECASE,
+    )
+    assert "AppMutex=" not in executable_lines(iss)
 
 
 def test_addon_registers_the_actual_player_and_runtime_resources():
