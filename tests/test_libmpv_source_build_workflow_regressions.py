@@ -44,6 +44,14 @@ def test_every_source_is_downloaded_without_a_fail_open_or_cache():
     assert "ENABLE_CCACHE=OFF" in text
 
 
+def test_build_time_patches_have_a_deterministic_git_identity():
+    text = workflow_text()
+    assert "GIT_AUTHOR_NAME: MLC Player CI" in text
+    assert "GIT_AUTHOR_EMAIL: ci@mlcplayer.invalid" in text
+    assert "GIT_COMMITTER_NAME: MLC Player CI" in text
+    assert "GIT_COMMITTER_EMAIL: ci@mlcplayer.invalid" in text
+
+
 def test_the_exact_sources_and_build_recipe_are_recorded():
     text = workflow_text()
     assert "SOURCE_LOCK.tsv" in text
