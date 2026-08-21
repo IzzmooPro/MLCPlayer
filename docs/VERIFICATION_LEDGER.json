@@ -280,6 +280,71 @@
         "No DLL, native smoke, or installed-artifact result was produced."
       ],
       "next_action": "Use the user's separate approval to dispatch the libmpv source-captured build once at this commit; do not retry automatically."
+    },
+    {
+      "id": "EV-20260821-016",
+      "recorded_at_utc": "2026-08-21T18:23:46Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "4b948676990dde217206b878fca388093a367b61",
+      "subject": "Owned-environment Windows x86_64 libmpv source build and independent artifact verification",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32488810460",
+        "libmpv-windows-x86_64: 61266762 bytes, sha256:3c82ce7201208d63b970f5207ce6f8677495d9fcf96d360f7e3106758b7ee75b",
+        "libmpv-corresponding-source: 557941494 bytes, sha256:d9cd9cadc5f257cf121e89c59aa1d67714fe5d15addd038b6c5060087957808c",
+        "libmpv-build-logs: 19267601 bytes, sha256:e8aa29aa2374b56a7071bb40fc9f23ccc287e356edea99f8d3cbc0ffdf36614f",
+        "mpv-dev-x86_64-20260821-git-49418246f3.7z: sha256:024f4e98884db6074e956d4f5001040836bfa395cdc90e6bd5c20634b881297e",
+        "mpv-x86_64-20260821-git-49418246f3.7z: sha256:c1df7621e79bd59d260296308bc6cbbe526b0afdf121f0a15f2f94984cddd772",
+        "libmpv-2.dll: 112772608 bytes, sha256:de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4",
+        "libmpv-corresponding-source.tar.zst.part-00: sha256:5ce4be96436566d9eca18727a1779a6534d6d5e9985178baf87ff3521753efc0",
+        "independent source archive listing: 98736 entries; 113 source directories; 89491 source-file checksum lines",
+        "independent log tree: 1126 files, 19007013 bytes, sha256:68267a78f9ace1538d1e8a3ee8f43c2dce71726adb61b8fb8ceff29ec70a438e"
+      ],
+      "summary": "The pinned owned environment built mpv and libmpv successfully. Independent download verified all published artifact digests, every embedded checksum, full binary extraction, the required corresponding-source metadata and source tree, and a clean 302/302 mpv link with an empty mpv error log.",
+      "limitations": [
+        "This proves the source build and its captured artifacts only.",
+        "The new DLL has not replaced the repository or installed DLL and has not run a native smoke test.",
+        "Non-libmpv corresponding-source, installed notice, and Qt relinking blockers remain open."
+      ],
+      "next_action": "Prepare a bounded DLL replacement and native-smoke plan; changing the repository DLL, building the product, installing, tagging, or releasing still requires separate approval."
+    },
+    {
+      "id": "EV-20260821-017",
+      "recorded_at_utc": "2026-08-21T18:24:51Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "df7b0d91fd450e496c4eaae0adacc4fc7aacd46b",
+      "subject": "Hosted CI for the libmpv build-dispatch continuity record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32488993182",
+        "attempt: 1"
+      ],
+      "summary": "4722 passed, 26 skipped, 0 failed in 119.23s.",
+      "limitations": [
+        "This hosted run validated the documentation-only dispatch record after the source build had already started at 4b94867.",
+        "It does not change the source-build commit or prove native or installed behavior."
+      ],
+      "next_action": "Keep this hosted result separate from EV-20260821-016 and prepare the bounded DLL replacement and native-smoke plan."
+    },
+    {
+      "id": "EV-20260821-018",
+      "recorded_at_utc": "2026-08-21T18:26:50Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "4b948676990dde217206b878fca388093a367b61",
+      "subject": "Extracted Windows mpv artifact version probe",
+      "evidence": [
+        "artifact: libmpv-windows-x86_64, sha256:3c82ce7201208d63b970f5207ce6f8677495d9fcf96d360f7e3106758b7ee75b",
+        "mpv.com --version: exit 0",
+        "mpv v0.41.0-930-g49418246f",
+        "FFmpeg N-126239-g88ae625e6"
+      ],
+      "summary": "The extracted Windows player artifact started natively and reported the expected mpv and FFmpeg revisions with exit code zero.",
+      "limitations": [
+        "This probe exercised mpv.com and mpv.exe from the player archive, not MLC Player loading libmpv-2.dll.",
+        "No media decode, product lifecycle, installed artifact, or user-visible behavior was tested."
+      ],
+      "next_action": "Prepare the bounded repository-DLL replacement and MLC Player native-smoke plan; do not replace the DLL without separate approval."
     }
   ]
 }

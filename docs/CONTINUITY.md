@@ -5,9 +5,9 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 21 Ağustos 2026
-- Son push edilmiş taban: `4b948676990dde217206b878fca388093a367b61`
+- Son push edilmiş taban: `df7b0d91fd450e496c4eaae0adacc4fc7aacd46b`
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-015`
+- Son kanıt: `EV-20260821-018`
 - Yayın kararı: **ENGELLİ — yeni sürüm çıkarılmaz**
 
 ## Şu anda doğrulanmış durum
@@ -61,21 +61,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 9. Düzeltme `4b94867` ile push edildi. Hosted run `32488320851` ilk denemede
    **4722 passed / 26 skipped / 0 failed** verdi (`EV-20260821-015`). Bu
    hosted kanıttır; libmpv kaynak build'i veya DLL kanıtı değildir.
-10. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
+10. `libmpv source-captured build` run `32488810460` başarıyla tamamlandı.
+   Üç artifact'in GitHub boyut/SHA-256 değerleri, iç checksum listeleri, iki
+   7z arşivi, 112.772.608 baytlık `libmpv-2.dll`, 98.736 girdilik kaynak
+   arşivi, 113 kaynak dizini ve 1.126 log dosyası bağımsız doğrulandı
+   (`EV-20260821-016`). Bu source_build kanıtıdır; DLL henüz projeye veya
+   kurulu uygulamaya alınmadı ve MLC Player native smoke yapılmadı.
+11. Kayıt commit'i `df7b0d9` için hosted run `32488993182` ilk denemede
+   **4722 passed / 26 skipped / 0 failed** verdi (`EV-20260821-017`). Bu
+   sonuç kaynak build'i veya native davranış kanıtına dönüştürülmez.
+12. Player artifact'inden çıkarılan `mpv.com --version` Windows'ta exit 0
+   verdi: mpv `v0.41.0-930-g49418246f`, FFmpeg `N-126239-g88ae625e6`
+   (`EV-20260821-018`). Bu yalnız player artifact native probudur; MLC Player
+   henüz yeni `libmpv-2.dll` dosyasını yüklemedi ve medya oynatmadı.
+13. `packaging/corresponding_sources.json` hâlâ `blocked` durumundadır.
    libmpv dışında cryptography/OpenSSL/Rust, yt-dlp transitif kaynakları ve
    kurulu lisans/notice/Qt relinking paketi açık kalır.
-11. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
+14. `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. Yerel altyazı etkilenmez;
    OpenSubtitles masaüstü dağıtım şartı doğrulanmadan çevrimiçi arama açılmaz.
-12. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
+15. v0.38 build, kurulum, tag veya release yapılmadı. Kurulu v0.37 güncel
    kaynak ya da yeni DLL için kabul kanıtı değildir.
 
 ## Sıradaki tek adım
 
-Kullanıcının ayrı açık build onayıyla `4b94867` üzerinde
-`libmpv source-captured build` run `32488810460` bir kez başlatıldı. Sonucu
-salt okunur izle; otomatik tekrar yapma. Başarılıysa üç artifact'i bağımsız
-doğrula, başarısızsa ilk gerçek hatayı incele ve kaydet. Yeni bir build için
-yeniden ayrı açık build onayı gerekir.
+`libmpv source-captured build` ile doğrulanan yeni DLL için sınırlı değiştirme
+ve native smoke planını hazırla. DLL'i projeye alma veya ürün build'i için
+yeniden ayrı açık build onayı al. Kurulum, tag ve release de ayrı onaylardır.
 
 ## Sonraki sıra
 
