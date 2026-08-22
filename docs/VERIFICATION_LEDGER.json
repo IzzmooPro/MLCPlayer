@@ -1708,6 +1708,28 @@
         "The 87-asset full name, byte-size and SHA-256 parity was proven while the release was draft in EV-20260822-029 and publication did not replace those assets."
       ],
       "next_action": "Validate and commit the EV-030 through EV-032 evidence with separate approval, push it separately, then let the user download and install the public v0.39 main installer for final public-download acceptance."
+    },
+    {
+      "id": "EV-20260822-033",
+      "recorded_at_utc": "2026-08-22T19:59:55Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "551a685a68ffc171e0340780a371d0b99edda540",
+      "subject": "v0.39 public-download user acceptance",
+      "evidence": [
+        "the public main artifact is MLCPlayer_Setup_v0.39.exe, 56329783 bytes, SHA-256 00ed3ef67da44adf1f4d997426636ba7642413098c66bf08fade54dd44584915, as independently established in EV-20260822-032",
+        "after being directed to the public v0.39 GitHub release page, the user reported that they downloaded and installed the release",
+        "the user reported that the installed application opened successfully",
+        "the user reported real media playback and observed no problem during the acceptance session",
+        "the public release remained live, non-prerelease and contained 87 assets when the acceptance was recorded"
+      ],
+      "summary": "The public v0.39 main release completed the final user acceptance path: download, installation, application launch and real media playback all succeeded without an observed issue.",
+      "limitations": [
+        "The download, UAC, installation and playback actions were performed and reported by the user, not automated or visually observed by the agent.",
+        "The user's downloaded EXE was not rehashed after download; artifact identity relies on the exact public URL metadata, signature and prior draft parity established in EV-20260822-029 and EV-20260822-032.",
+        "The specific media file, codec paths, playback duration and optional Internet Video add-on were not separately identified or accepted in this session."
+      ],
+      "next_action": "Validate and commit this final public-download acceptance record with separate approval, push it separately, then close the v0.39 release workflow and return to the deferred engineering backlog."
     }
   ]
 }

@@ -10,9 +10,9 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-032`
-- Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, herkese açık updater
-  metadata/URL/imza kapısı geçti, public-download kurulumu henüz yapılmadı**
+- Son kanıt: `EV-20260822-033`
+- Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
+  açılış/gerçek medya oynatma kullanıcı kabulü geçti**
 
 ## Şu anda doğrulanmış durum
 
@@ -442,20 +442,25 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    metadata boyut+SHA-256 değerleri exact kabul artifact'larıyla aynı, iki
    signature GET ve Ed25519 doğrulaması PASS, iki installer HEAD/redirect/izinli
    host/Content-Length kontrolü PASS (`EV-20260822-032`).
+76. Kullanıcı, yönlendirildiği public v0.39 GitHub release sayfasından ana
+   sürümü indirip kurduğunu, uygulamanın açıldığını ve gerçek medya oynattığını;
+   kabul sırasında hiçbir sorun görmediğini bildirdi (`EV-20260822-033`). Exact
+   public ana artifact kimliği **MLCPlayer_Setup_v0.39.exe / 56.329.783 bayt /
+   SHA-256 00ed3ef67da44adf1f4d997426636ba7642413098c66bf08fade54dd44584915**;
+   kullanıcının indirdiği dosya ayrıca yeniden hash'lenmedi.
 
 ## Sıradaki tek adım
 
-v0.39 canlı-yayın ve public updater PASS sonucunu kullanıcıya sun. Biriken
-EV-030..032 kanıt belgelerini ayrı onayla commit et; push ve public installer
-kurulumunu ayrıca onayla/elle doğrula.
+v0.39 public-download kullanıcı kabulü PASS sonucunu kullanıcıya sun. EV-033
+kanıt belgelerini ayrı onayla commit et; push için ayrıca açık onay bekle.
 
 ## Sonraki sıra
 
-1. EV-030..032 kanıt kaydını ayrı onayla commit et.
-2. Belge commit'ini ayrı onayla origin/master'a push et.
-3. Kullanıcı public v0.39 ana installer'ını GitHub release sayfasından indirip
-   kurar; açılış/sürüm/güncelleme ekranını doğrular. Bu installed-artifact
-   kabulü ayrıca kaydedilir.
+1. EV-033 kanıt kaydını ayrı onayla commit et.
+2. Belge commit'ini ayrı onayla origin/master'a push et ve kısa belge CI'ını
+   doğrula.
+3. v0.39 yayın zincirini kapat; sonraki ürün işi için ertelenmiş mühendislik
+   listesinden tek, dar ve uygulanabilir madde seç.
 4. Engelleyici olmayan CI `sitecustomize` başlangıç mesajını ayrı dar workflow
    düzeltmesiyle temizle; başarılı release-candidate testini başarısız sayma.
 
