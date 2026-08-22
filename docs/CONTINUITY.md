@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-040`
+- Son kanıt: `EV-20260822-042`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -483,23 +483,35 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    sözleşme testi eklendi. İlk hedef koşum satır sonuna duyarlı yeni assertion
    yüzünden **1 failed / 217 passed** verdi (`EV-20260822-039`); neden
    incelendikten sonra assertion whitespace-normalized yapıldı. Aynı grup
-   **218 passed / 0 failed**, diff-check temiz verdi (`EV-20260822-040`). Katı
-   GitHub PR ayarı henüz etkin değildir.
+   **218 passed / 0 failed**, diff-check temiz verdi (`EV-20260822-040`).
+83. Dal commit'i `98ae1a9` push edildi ve PR #1 açıldı. Aynı commit için dal
+   push run `32599545727` **4780 passed / 30 skipped / 0 failed**, bağımsız PR
+   run `32599574281` **4780 passed / 30 skipped / 0 failed** verdi. İki run
+   tekrar değildir; farklı `push` ve `pull_request` olaylarıdır.
+84. İlk katı protection isteği kişisel repoda organizasyona özel boş actor
+   restriction alanları taşıdığı için HTTP 422 ile değişiklik yapmadan
+   reddedildi (`EV-20260822-041`). Neden incelendikten sonra yalnız bu alanlar
+   çıkarıldı. Canlı read-back artık PR zorunluluğu, approval `0`, GitHub Actions
+   `test` (`app_id=15368`) ve `strict=true` gösteriyor; admin zorlaması açık,
+   force-push ve silme kapalıdır.
+85. PR #1 yeni kural altında `CLEAN` / `MERGEABLE` kaldı ve ayrı merge onayıyla
+   merge-commit yöntemiyle birleştirildi. Uzak ve yerel `master` temiz/eşit
+   `4d71f8132fb46d9f5f969f8efe292da898111894` commit'indedir; koruma geri
+   okumada etkin kalmıştır (`EV-20260822-042`).
 
 ## Sıradaki tek adım
 
-PR-workflow hazırlığı ve 218 PASS sonucunu kullanıcıya sun. Yerel
-`codex/pr-gate-workflow` dalındaki sekiz dosyalı değişiklik için ayrı commit
-onayı iste; dal push'u, PR oluşturma ve GitHub ayarı için ayrıca onay bekle.
+Yeni PR kapısının canlı kabul kaydını `codex/pr-gate-acceptance` dalında
+doğrula. Yalnız kullanıcı ayrı onay verirse commit et; ardından dal push'u,
+PR oluşturma ve merge için yine ayrı onaylar iste.
 
 ## Sonraki sıra
 
-1. Sekiz dosyalı PR-workflow hazırlığını ayrı onayla görev dalında commit et.
-2. Görev dalını ayrı onayla origin'e push et ve ayrıca onayla PR oluştur.
-3. PR hazırken ayrı GitHub-ayar onayıyla `master` için PR gerekli, approval 0,
-   GitHub Actions `test` required/strict ve bypass yok ayarını etkinleştir.
-4. İlk PR `test` PASS sonrası ayrı merge onayıyla merge commit kullan; canlı
-   protection ve merge davranışını kaydet.
+1. `EV-20260822-041` ve `EV-20260822-042` kayıtlarını dar devamlılık testiyle
+   doğrula.
+2. Ayrı onaylarla kabul kaydını commit et, görev dalını push et ve PR oluştur.
+3. Zorunlu `test` PASS verdikten sonra ayrı onayla merge commit kullan.
+4. Sonraki tüm değişikliklerde `docs/CHANGE_WORKFLOW.md` sözleşmesini uygula.
 
 ## Kayıt düzeni
 

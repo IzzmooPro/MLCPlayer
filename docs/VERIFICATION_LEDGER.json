@@ -1888,6 +1888,53 @@
         "GitHub protection must not be tightened until the prepared branch and PR are available, otherwise the current uncommitted work could be stranded."
       ],
       "next_action": "Validate the evidence documents, request separate commit approval on codex/pr-gate-workflow, then separately authorize branch push and PR creation before changing GitHub enforcement."
+    },
+    {
+      "id": "EV-20260822-041",
+      "recorded_at_utc": "2026-08-22T21:30:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "98ae1a931a3ba3d50f8f5bef0bae882b2ad73f04",
+      "subject": "first strict master-protection update payload",
+      "evidence": [
+        "the first separately authorized protection request included empty dismissal and bypass actor lists intended to prove that no bypass actor existed",
+        "GitHub rejected the request with HTTP 422 Validation Failed and Only organization repositories can have users and team restrictions",
+        "the repository belongs to a personal account, so the organization-only nested restriction fields were incompatible even when their lists were empty",
+        "live protection read-back after the rejection still showed only the previous basic history protection; no pull-request or required-check rule had been added",
+        "the failure was inspected before another request and no pull request, commit, workflow run, tag, release asset or branch was changed by the rejected call"
+      ],
+      "summary": "The first strict-protection payload was rejected without changing repository state because it included organization-only actor restriction fields on a personal repository.",
+      "limitations": [
+        "This failed request is not evidence that the PR gate was active.",
+        "The rejection concerns GitHub API payload compatibility, not product code, tests or release artifacts."
+      ],
+      "next_action": "Remove only the organization-only nested actor restriction fields, retain approval count zero and all existing safety settings, then submit the corrected payload once and verify it by live read-back."
+    },
+    {
+      "id": "EV-20260822-042",
+      "recorded_at_utc": "2026-08-22T21:31:59Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "4d71f8132fb46d9f5f969f8efe292da898111894",
+      "subject": "live PR-plus-required-test gate and first protected merge",
+      "evidence": [
+        "branch codex/pr-gate-workflow was pushed at exact commit 98ae1a931a3ba3d50f8f5bef0bae882b2ad73f04 and pull request https://github.com/IzzmooPro/MLCPlayer/pull/1 targeted master",
+        "push run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32599545727 completed successfully for the exact branch commit with 4780 passed, 30 skipped and 0 failed in 122.35 seconds",
+        "pull-request run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32599574281 independently completed successfully for the same commit with 4780 passed, 30 skipped and 0 failed in 127.66 seconds",
+        "the corrected live protection read-back requires pull requests with zero approving reviews and requires GitHub Actions check test from app_id 15368 with strict=true",
+        "the same read-back preserves enforce_admins=true, allow_force_pushes=false and allow_deletions=false, with no actor bypass fields on the personal repository",
+        "pull request 1 remained CLEAN and MERGEABLE under the new rule and was merged only after separate user approval using merge commit 4d71f8132fb46d9f5f969f8efe292da898111894",
+        "the merge commit has exactly two parents: previous master 14d76544eb8e76ea6d2b96a90df7d925a2cd8527 and accepted PR head 98ae1a931a3ba3d50f8f5bef0bae882b2ad73f04",
+        "remote master advanced to the merge commit, protection remained active, and local master was fast-forwarded to the same commit with a clean zero-zero divergence"
+      ],
+      "summary": "Master now enforces the documented PR-plus-GitHub-Actions-test workflow, and the first PR proved the green-check merge-commit path end to end without bypass.",
+      "limitations": [
+        "Zero approving reviews means the gate enforces process and CI but does not require a second human reviewer.",
+        "The 30 skipped paths remain non-PASS; the hosted result is not native-smoke or installed-artifact evidence.",
+        "No prohibited direct push was attempted merely to demonstrate rejection, because the successful protected PR merge already proves the intended safe path.",
+        "Push and pull_request triggers currently produce two full CI runs for the same branch head; they are separate events, not retries."
+      ],
+      "next_action": "Validate this acceptance record locally, then use the newly active workflow: separately approve its commit, branch push, pull-request creation and merge."
     }
   ]
 }
