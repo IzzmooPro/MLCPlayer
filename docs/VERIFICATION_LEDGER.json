@@ -1730,6 +1730,29 @@
         "The specific media file, codec paths, playback duration and optional Internet Video add-on were not separately identified or accepted in this session."
       ],
       "next_action": "Validate and commit this final public-download acceptance record with separate approval, push it separately, then close the v0.39 release workflow and return to the deferred engineering backlog."
+    },
+    {
+      "id": "EV-20260822-034",
+      "recorded_at_utc": "2026-08-22T20:03:24Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "06112fc66150ce3ded5fb8b918314ab846dc336e",
+      "subject": "CI mpv bootstrap scope isolation",
+      "evidence": [
+        "source inspection confirmed the non-fatal python-mpv startup message was caused by job-wide MLC_CI=1 and PYTHONPATH=scripts loading scripts/sitecustomize.py during the locked pip-install step before python-mpv was installed",
+        "the workflow now removes MLC_CI and the scripts PYTHONPATH from job-wide environment and applies both only to the Run CI-safe test suite step",
+        "the locked dependency installation, dependency verification, compile and translation steps therefore no longer load the mpv test stub, while pytest and its child processes retain the identical explicit hosted-CI boundary",
+        "the workflow regression now asserts that the test step owns both variables and that neither the locked-install step nor job prefix contains them",
+        "python -m pytest -q tests/test_ci_workflow_regressions.py tests/test_ci_mpv_stub_regressions.py completed with 15 passed and 0 failed in 0.18 seconds",
+        "git diff --check completed without an error"
+      ],
+      "summary": "The hosted mpv stub is now least-privilege scoped to the product test step, eliminating the known pre-install bootstrap path without changing product or test behavior.",
+      "limitations": [
+        "This deterministic PASS proves workflow structure and local stub behavior; disappearance of the message from a real GitHub runner requires the post-push full CI log.",
+        "No product code, build, installation, release asset, tag or public release was changed.",
+        "The full local suite was not repeated because the impact is confined to the workflow environment contract and its dedicated tests."
+      ],
+      "next_action": "Validate and commit this narrow workflow cleanup with separate approval, push it separately, then inspect the first full hosted CI run to confirm both a green suite and absence of the early python-mpv message."
     }
   ]
 }

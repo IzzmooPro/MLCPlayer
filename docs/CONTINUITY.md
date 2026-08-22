@@ -10,9 +10,10 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-033`
+- Son kanıt: `EV-20260822-034`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
-  açılış/gerçek medya oynatma kullanıcı kabulü geçti**
+  açılış/gerçek medya oynatma kullanıcı kabulü geçti; sonraki CI temizlik
+  değişikliği henüz commit edilmedi**
 
 ## Şu anda doğrulanmış durum
 
@@ -448,21 +449,28 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    public ana artifact kimliği **MLCPlayer_Setup_v0.39.exe / 56.329.783 bayt /
    SHA-256 00ed3ef67da44adf1f4d997426636ba7642413098c66bf08fade54dd44584915**;
    kullanıcının indirdiği dosya ayrıca yeniden hash'lenmedi.
+77. Engelleyici olmayan erken `python-mpv is missing` CI mesajının nedeni,
+   `MLC_CI=1` ve `PYTHONPATH=scripts` değişkenlerinin kilitli bağımlılık
+   kurulumundan önce job genelinde etkin olmasıydı. İki değişken yalnız
+   `Run CI-safe test suite` adımına taşındı; pip/verify/compile/çeviri mpv test
+   kancasını görmüyor, pytest ve çocukları aynı stub sözleşmesini koruyor.
+   Workflow + stub dar grubu **15 passed / 0 failed** verdi
+   (`EV-20260822-034`). Gerçek GitHub log kabulü push sonrasını bekliyor.
 
 ## Sıradaki tek adım
 
-v0.39 public-download kullanıcı kabulü PASS sonucunu kullanıcıya sun. EV-033
-kanıt belgelerini ayrı onayla commit et; push için ayrıca açık onay bekle.
+Dar CI bootstrap-scope düzeltmesini kullanıcıya sun. Dört dosyalı değişiklik
+(`ci.yml`, workflow testi ve iki kanıt belgesi) için commit onayı iste; push
+için ayrıca açık onay bekle.
 
 ## Sonraki sıra
 
-1. EV-033 kanıt kaydını ayrı onayla commit et.
-2. Belge commit'ini ayrı onayla origin/master'a push et ve kısa belge CI'ını
-   doğrula.
-3. v0.39 yayın zincirini kapat; sonraki ürün işi için ertelenmiş mühendislik
-   listesinden tek, dar ve uygulanabilir madde seç.
-4. Engelleyici olmayan CI `sitecustomize` başlangıç mesajını ayrı dar workflow
-   düzeltmesiyle temizle; başarılı release-candidate testini başarısız sayma.
+1. EV-034 workflow/test/kanıt değişikliğini ayrı onayla commit et.
+2. Commit'i ayrı onayla origin/master'a push et; bu ürün-dışı workflow/test
+   değişikliği tam hosted CI yolunu tetikler.
+3. Hosted run PASS ve kurulum öncesi `python-mpv is missing` mesajı yoksa nihai
+   kabulü kaydet; ardından ertelenmiş mühendislik listesinden sıradaki tek dar
+   maddeyi seç.
 
 ## Kayıt düzeni
 

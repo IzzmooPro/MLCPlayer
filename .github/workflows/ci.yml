@@ -16,8 +16,6 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 20
     env:
-      MLC_CI: '1'
-      PYTHONPATH: ${{ github.workspace }}/scripts
       PYTHONUTF8: '1'
       QT_QPA_PLATFORM: offscreen
 
@@ -127,4 +125,7 @@ jobs:
       - name: Run CI-safe test suite
         if: steps.classify.outputs.docs_only != 'true'
         shell: pwsh
+        env:
+          MLC_CI: '1'
+          PYTHONPATH: ${{ github.workspace }}/scripts
         run: python -m pytest -q tests

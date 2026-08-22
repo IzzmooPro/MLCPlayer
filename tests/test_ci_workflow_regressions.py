@@ -15,6 +15,13 @@ def workflow_text():
     return WORKFLOW.read_text(encoding="utf-8")
 
 
+def workflow_step(text, name):
+    marker = f"      - name: {name}\n"
+    start = text.index(marker)
+    end = text.find("\n      - name: ", start + len(marker))
+    return text[start:] if end == -1 else text[start:end]
+
+
 def test_ci_runs_for_pushes_and_pull_requests_on_windows():
     text = workflow_text()
     assert "push:" in text
@@ -94,8 +101,15 @@ def test_documentation_ci_requirements_are_pinned_and_match_the_full_lock():
 
 def test_ci_does_not_opt_into_native_physical_or_release_actions():
     text = workflow_text()
-    assert "MLC_CI: '1'" in text
-    assert "PYTHONPATH: ${{ github.workspace }}/scripts" in text
+    test_step = workflow_step(text, "Run CI-safe test suite")
+    install_step = workflow_step(text, "Install locked dependencies")
+    assert "MLC_CI: '1'" in test_step
+    assert "PYTHONPATH: ${{ github.workspace }}/scripts" in test_step
+    assert "MLC_CI:" not in install_step
+    assert "PYTHONPATH:" not in install_step
+    job_prefix = text[:text.index("    steps:")]
+    assert "MLC_CI:" not in job_prefix
+    assert "PYTHONPATH:" not in job_prefix
     forbidden = (
         "MLC_NATIVE_SMOKE: '1'",
         "MLC_PHYSICAL_ACCEPTANCE: '1'",
