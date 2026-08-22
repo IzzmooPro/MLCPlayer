@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
+DOCS_REQUIREMENTS = ROOT / "requirements-ci-docs.txt"
 
 
 def workflow_text():
@@ -38,6 +39,44 @@ def test_ci_runs_static_translation_and_default_pytest_gates():
     assert "python packaging/extract_translations.py --check" in text
     assert "git diff --check" in text
     assert "python -m pytest -q tests" in text
+
+
+def test_ci_classifies_documentation_only_changes_before_running_jobs():
+    text = workflow_text()
+    assert "fetch-depth: 0" in text
+    assert "id: classify" in text
+    assert "github.event.pull_request.base.sha" in text
+    assert "github.event.before" in text
+    assert "steps.classify.outputs.docs_only == 'true'" in text
+    assert "steps.classify.outputs.docs_only != 'true'" in text
+
+
+def test_documentation_only_ci_uses_the_small_deterministic_gate():
+    text = workflow_text()
+    assert "python -m pip install -r requirements-ci-docs.txt" in text
+    assert "python -m pytest -q tests/test_continuity_regressions.py" in text
+    assert "python -m json.tool docs/VERIFICATION_LEDGER.json" in text
+    assert "git diff --check" in text
+
+
+def test_documentation_ci_requirements_are_pinned_and_match_the_full_lock():
+    assert DOCS_REQUIREMENTS.is_file()
+    docs = {
+        line.strip().lower()
+        for line in DOCS_REQUIREMENTS.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+    locked = {
+        line.strip().lower()
+        for line in (ROOT / "requirements-lock.txt")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if "==" in line
+    }
+    assert docs
+    assert all("==" in requirement for requirement in docs)
+    assert docs <= locked
+    assert "pytest==9.0.3" in docs
 
 
 def test_ci_does_not_opt_into_native_physical_or_release_actions():

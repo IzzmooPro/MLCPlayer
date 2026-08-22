@@ -1,0 +1,8 @@
+# Minimal deterministic environment for documentation-only hosted CI.
+# Every pin must remain an exact subset of requirements-lock.txt.
+colorama==0.4.6
+iniconfig==2.3.0
+packaging==26.0
+pluggy==1.6.0
+Pygments==2.20.0
+pytest==9.0.3

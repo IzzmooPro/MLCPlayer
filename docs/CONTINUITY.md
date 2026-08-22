@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-010`
+- Son kanıt: `EV-20260822-012`
 - Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest; yeni build gerekmez**
 
 ## Şu anda doğrulanmış durum
@@ -289,22 +289,33 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    compile, çeviri ve whitespace adımlarının tamamı geçti
    (`EV-20260822-010`). Bu hosted kanıttır; native oynatma, build veya kurulu
    artifact kanıtı değildir.
-51. Hosted CI başarı kaydının belge paketi kullanıcı onayıyla commit'e alındı.
-   Commit kimliği her oturumda canlı Git komutuyla doğrulanır; bu kayıt
-   commit'i henüz push edilmedi.
+51. Hosted CI başarı kaydının belge paketi `e4f9114` olarak commit ve push
+   edildi. Yalnız iki belge değişmesine rağmen run `32575563284` yine tüm
+   bağımlılıkları kurup **4768 passed / 30 skipped / 0 failed** verdi
+   (`EV-20260822-011`). Sonuç yeşildir ancak belge-only değişiklik için tam
+   test maliyetinin gereksiz olduğunu somut olarak gösterir.
+52. Mevcut `test` kontrol adı korunarak değişen dosya sınıflandırması eklendi.
+   Yalnız `docs/` veya Markdown değişiklikleri altı tam sabitlenmiş küçük
+   bağımlılıkla devamlılık, ledger JSON ve whitespace kapılarını çalıştırır;
+   karışık, boş veya belirsiz aralıklar fail-safe tam CI'a gider. Regresyon
+   önce **3 failed / 7 passed**, düzeltme sonrası birleşik dar kapı
+   **17 passed / 0 failed** verdi (`EV-20260822-012`). GitHub workflow kabulü
+   henüz yapılmadı.
 
 ## Sıradaki tek adım
 
-Boş-ekran/playback-overlay test sözleşmesi, 32 px başlık beklentisi ve dar
-Frame güvenliği düzeltmesi hem yerel dar kapılarda hem hosted CI'da geçti.
-Hosted sonuç kaydı yerel commit'tedir; kullanıcıdan ayrı push onayı iste.
-Push, build veya release işlemini kendiliğinden başlatma.
+Belge-only kısa CI yolu yerelde ve geçmiş gerçek commit aralıklarıyla
+doğrulandı; workflow değişikliği henüz çalışma ağacındadır. Kullanıcıdan ayrı
+commit onayı iste. Push, build veya release işlemini kendiliğinden başlatma.
 
 ## Sonraki sıra
 
-1. Kayıt commit'i için push onayı al.
-2. Push sonrasında yerel/uzak eşitliğini salt okunur doğrula.
-3. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
+1. Kısa CI workflow paketi için ayrı commit onayı al.
+2. Commit sonrasında push için ayrıca açık onay al; ilk push tam CI yolunu
+   çalıştırmalıdır çünkü workflow/test dosyaları değişmiştir.
+3. Sonraki belge-only kayıt push'ında kısa yolun gerçekten seçildiğini
+   doğrula; başarısızsa otomatik tekrar yapma.
+4. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
 
 ## Kayıt düzeni
 

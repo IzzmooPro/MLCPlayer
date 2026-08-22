@@ -1193,6 +1193,51 @@
         "No v0.38 release asset, tag, installer or libmpv build was changed or rerun."
       ],
       "next_action": "Record this hosted result in continuity, run the continuity regression and request separate commit approval for the documentation-only update."
+    },
+    {
+      "id": "EV-20260822-011",
+      "recorded_at_utc": "2026-08-22T13:31:48Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "e4f9114fd2693e3213e1428d5582cbb9c450f19d",
+      "subject": "Documentation-only record commit hosted verification",
+      "evidence": [
+        "GitHub Actions run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32575563284 completed successfully for documentation-only commit e4f9114fd2693e3213e1428d5582cbb9c450f19d",
+        "the unchanged complete CI-safe suite ran with 4768 passed, 30 skipped and 0 failed in 129.06 seconds",
+        "locked dependency installation, environment verification, compilation, translation and whitespace steps all ran and passed despite only docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json changing",
+        "local and origin/master were equal at e4f9114fd2693e3213e1428d5582cbb9c450f19d after the push"
+      ],
+      "summary": "The documentation record was valid, but the run proved that a two-file documentation-only push still paid the full dependency and 4768-test cost.",
+      "limitations": [
+        "This hosted result does not prove native playback, a build, installation or released artifact.",
+        "The successful full suite does not justify repeating the same suite for future documentation-only changes.",
+        "No code, tag, release asset or libmpv build changed in this run."
+      ],
+      "next_action": "Add a conservative changed-file classifier that keeps mixed or uncertain changes on full CI and sends only docs paths or Markdown files to a small continuity gate."
+    },
+    {
+      "id": "EV-20260822-012",
+      "recorded_at_utc": "2026-08-22T13:31:49Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "e4f9114fd2693e3213e1428d5582cbb9c450f19d",
+      "subject": "Documentation-only short CI path",
+      "evidence": [
+        "three regression-first assertions failed before implementation because changed-file classification, the small documentation gate and its pinned dependency file did not exist; the remaining seven CI contract tests passed",
+        "the existing required test job name is preserved while step conditions select either documentation-only or full CI behavior",
+        "only paths under docs/ or Markdown files qualify for the short path; empty, malformed, zero or mixed change ranges fail safe to the full suite",
+        "the short path installs six exact pins that are enforced as a subset of requirements-lock.txt and runs continuity pytest, ledger JSON parsing and range whitespace checks",
+        "historical commit range 05ee170..e4f9114 classified documentation-only while 6fb5e5d..05ee170 classified full CI because it included product, test and translation files",
+        "python -m pytest -q tests/test_ci_workflow_regressions.py tests/test_continuity_regressions.py completed with 17 passed in 0.16 seconds",
+        "VERIFICATION_LEDGER.json parsed successfully, git diff --check passed and the staged area remained empty"
+      ],
+      "summary": "Future evidence-only documentation commits can receive a small deterministic hosted check without reinstalling the complete product toolchain or rerunning thousands of unrelated tests, while any uncertainty keeps the safe full path.",
+      "limitations": [
+        "The workflow change is still uncommitted and has not yet been parsed or executed by GitHub Actions.",
+        "Neither a local YAML parser nor actionlint was available; hosted workflow acceptance remains required after an approved push.",
+        "No dependency was installed, and no build, native smoke, installation, tag or release action occurred."
+      ],
+      "next_action": "Run the mandatory continuity regression after recording this evidence, then request separate commit approval for the workflow, its regression tests, the small lock subset and the two evidence documents."
     }
   ]
 }
