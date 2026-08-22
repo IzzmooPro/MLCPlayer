@@ -1642,6 +1642,72 @@
         "The draft is not latest and the updater must continue to see v0.38 until a separate publication decision."
       ],
       "next_action": "Validate and commit the accumulated EV-027 through EV-029 evidence with separate approval, push that documentation commit separately, then request explicit authorization before publishing the verified draft as latest."
+    },
+    {
+      "id": "EV-20260822-030",
+      "recorded_at_utc": "2026-08-22T19:44:19Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "750e770950504e0457e1aac233b4a62fdc2fc3df",
+      "subject": "v0.39 draft-evidence documentation CI",
+      "evidence": [
+        "GitHub Actions run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32594538584 completed successfully for exact commit 750e770950504e0457e1aac233b4a62fdc2fc3df",
+        "the documentation and continuity step completed with 7 passed and 0 failed in 0.20 seconds",
+        "change classification selected the documentation-only path and intentionally skipped locked dependency installation, compilation, translations and the full CI-safe product suite",
+        "local master and origin/master were equal at 750e770 after push",
+        "the remote v0.39 draft remained isDraft=true, isPrerelease=false and contained 87 assets; no publication occurred"
+      ],
+      "summary": "The committed v0.39 tag, prepublish and draft-asset evidence passed the dedicated hosted documentation gate.",
+      "limitations": [
+        "This hosted-CI PASS validates documentation contracts only and is not a new product, native-smoke or installed-artifact test.",
+        "The full product suite was intentionally skipped because commit 750e770 changed only documentation evidence.",
+        "v0.39 remains a private draft and v0.38 remains the public latest release."
+      ],
+      "next_action": "Request separate explicit authorization to publish the already verified v0.39 draft as latest, then verify public release state, public installer URLs and updater metadata before recording final acceptance."
+    },
+    {
+      "id": "EV-20260822-031",
+      "recorded_at_utc": "2026-08-22T19:46:57Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "750e770950504e0457e1aac233b4a62fdc2fc3df",
+      "subject": "first public-release verification harness invocation",
+      "evidence": [
+        "the public latest-release request already returned v0.39 with 87 assets and the committed updater selected MLCPlayer_Setup_v0.39.exe",
+        "the verification harness then raised AttributeError because it called a nonexistent app.updater.is_allowed_final_download_url helper",
+        "no product, release, tag or asset mutation occurred during the failed read-only check",
+        "the failure was inspected before another run; source search showed the committed final-host helper is app.updater.is_allowed_download_host"
+      ],
+      "summary": "The first public verification command failed because the ad-hoc harness used the wrong committed helper name; it was not a product or release failure.",
+      "limitations": [
+        "This failed invocation did not complete final-host validation for both installers.",
+        "The partial output cannot by itself prove complete public updater acceptance."
+      ],
+      "next_action": "Run the corrected read-only public verification using is_allowed_download_host and retain both this failure and the corrected result."
+    },
+    {
+      "id": "EV-20260822-032",
+      "recorded_at_utc": "2026-08-22T19:46:57Z",
+      "proof_layer": "registry_artifact",
+      "result": "passed",
+      "commit": "750e770950504e0457e1aac233b4a62fdc2fc3df",
+      "subject": "v0.39 public latest release and updater metadata acceptance",
+      "evidence": [
+        "after a preflight proving draft=true, prerelease=false, 87 assets and remote v0.39 peel 551a685a68ffc171e0340780a371d0b99edda540, the separately authorized command gh release edit v0.39 --draft=false --latest published the verified draft",
+        "GitHub reported the public release https://github.com/IzzmooPro/MLCPlayer/releases/tag/v0.39 with draft=false, prerelease=false, 87 assets and publication time 2026-08-22T19:45:29Z",
+        "the same unauthenticated app.updater.fetch_latest_release path used by the product returned tag_name v0.39 and exactly 87 public assets",
+        "the committed select_update_asset function accepted MLCPlayer_Setup_v0.39.exe as the unique updater asset and found its required signature URL",
+        "the public main installer metadata was 56329783 bytes and SHA-256 00ed3ef67da44adf1f4d997426636ba7642413098c66bf08fade54dd44584915; its signature download returned HTTP 200 and verified with the embedded Ed25519 public key",
+        "the public optional installer metadata was 48896196 bytes and SHA-256 07f69153e498e0537f7c9446b69db1dc36a43256142c03b91faa0efc16c5a491; its signature download returned HTTP 200 and verified with the embedded Ed25519 public key",
+        "both public installer URLs followed redirects to an allowed exact host, returned HTTP 200 to HEAD and exposed Content-Length exactly matching the accepted local artifacts"
+      ],
+      "summary": "v0.39 is now the public latest release and its updater-visible main installer plus optional installer have exact accepted metadata, accessible public URLs and valid publisher signatures.",
+      "limitations": [
+        "This public registry PASS used HEAD for the large EXE bodies and downloaded the two small signature files; it did not re-download and rehash the complete public installers.",
+        "Installed-artifact acceptance remains the earlier exact local v0.39 evidence; a fresh install from the public URL is a separate user acceptance layer.",
+        "The 87-asset full name, byte-size and SHA-256 parity was proven while the release was draft in EV-20260822-029 and publication did not replace those assets."
+      ],
+      "next_action": "Validate and commit the EV-030 through EV-032 evidence with separate approval, push it separately, then let the user download and install the public v0.39 main installer for final public-download acceptance."
     }
   ]
 }

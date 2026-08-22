@@ -10,9 +10,9 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-029`
-- Yayın kararı: **v0.38 canlı ve latest; v0.39 özel taslağındaki 87 varlık
-  ad/boyut/SHA-256 eşliğinde, canlı yayın henüz yapılmadı**
+- Son kanıt: `EV-20260822-032`
+- Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, herkese açık updater
+  metadata/URL/imza kapısı geçti, public-download kurulumu henüz yapılmadı**
 
 ## Şu anda doğrulanmış durum
 
@@ -427,20 +427,35 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    `isPrerelease=false`, **87** uploaded varlık ve aynı toplam bayt değerini
    verdi; her uzak varlık yerel dosyayla ad/boyut/SHA-256 olarak karşılaştırıldı,
    `MISMATCH_COUNT=0` (`EV-20260822-029`). Canlı yayın yapılmadı.
+74. EV-027..029 kanıt commit'i `750e770` origin/master'a push edildi. GitHub
+   run `32594538584` belge-only yolu seçerek **7 passed / 0 failed** verdi;
+   tam ürün paketi doğru biçimde atlandı (`EV-20260822-030`). Uzak v0.39
+   release hâlâ `isDraft=true`, `isPrerelease=false` ve 87 varlıklıdır.
+75. Ayrı canlı-yayın onayıyla doğrulanmış v0.39 taslağı `--draft=false
+   --latest` ile yayımlandı. İlk salt-okunur public kontrol betiği kaynakta
+   olmayan `is_allowed_final_download_url` adını çağırdığı için hata verdi;
+   ürün/release değişmedi, kaynak incelenmeden tekrar yapılmadı
+   (`EV-20260822-031`, **failed harness**). Doğru
+   `is_allowed_download_host` ile çalıştırılan kontrol ürünün gerçek
+   `fetch_latest_release` ve `select_update_asset` yolunda `latest=v0.39`, 87
+   varlık ve doğru ana installer seçimini verdi. Ana/isteğe bağlı installer
+   metadata boyut+SHA-256 değerleri exact kabul artifact'larıyla aynı, iki
+   signature GET ve Ed25519 doğrulaması PASS, iki installer HEAD/redirect/izinli
+   host/Content-Length kontrolü PASS (`EV-20260822-032`).
 
 ## Sıradaki tek adım
 
-v0.39 taslak varlık eşliği PASS sonucunu kullanıcıya sun. Biriken EV-027,
-EV-028 ve EV-029 kanıt belgelerini ayrı onayla commit et; push ve canlı yayın
-için ayrıca ayrı açık onay bekle.
+v0.39 canlı-yayın ve public updater PASS sonucunu kullanıcıya sun. Biriken
+EV-030..032 kanıt belgelerini ayrı onayla commit et; push ve public installer
+kurulumunu ayrıca onayla/elle doğrula.
 
 ## Sonraki sıra
 
-1. EV-027..029 kanıt kaydını ayrı onayla commit et.
-2. Belge commit'ini ayrı onayla origin/master'a push et ve kısa belge CI'ını
-   doğrula.
-3. CI PASS sonrası ayrı canlı-yayın onayıyla doğrulanmış taslağı latest olarak
-   yayımla; ardından public URL ve updater/download eşliğini doğrula.
+1. EV-030..032 kanıt kaydını ayrı onayla commit et.
+2. Belge commit'ini ayrı onayla origin/master'a push et.
+3. Kullanıcı public v0.39 ana installer'ını GitHub release sayfasından indirip
+   kurar; açılış/sürüm/güncelleme ekranını doğrular. Bu installed-artifact
+   kabulü ayrıca kaydedilir.
 4. Engelleyici olmayan CI `sitecustomize` başlangıç mesajını ayrı dar workflow
    düzeltmesiyle temizle; başarılı release-candidate testini başarısız sayma.
 
