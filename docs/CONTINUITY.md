@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-045`
+- Son kanıt: `EV-20260822-046`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -516,20 +516,30 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    commitinde ikinci push run'ı oluşmadı. Yerel/uzak master temiz/eşit ve canlı
    PR koruması etkin kaldı (`EV-20260822-045`). Tek otomatik CI hedefi hosted
    ortamda geçti.
+89. Tek-CI kabul kaydı PR #4 ile merge commit `bb6da34` üzerinden master'a
+   alındı. Ardından bağımlılık denetiminde 24 exact Python kilidi GitHub
+   reviewed advisory veritabanında **0 eşleşme** verdi; mevcut bağımlılık
+   regresyonu **9 passed / 0 failed** tamamlandı. Canlı GitHub'da Dependabot
+   alerts kapalıydı. Ayrı ayar onayıyla vulnerability-alerts etkinleştirildi;
+   PUT ve GET **HTTP 204**, dependency graph SBOM **30 paket**, açık alert
+   listesi **0** verdi. Otomatik security-update PR'ları kapalı, secret scanning
+   ve push protection açık kaldı (`EV-20260822-046`).
 
 ## Sıradaki tek adım
 
-Tek otomatik CI hosted kabul kaydını `codex/ci-single-run-acceptance` dalında
-doğrula. Yalnız kullanıcı ayrı onay verirse commit et; ardından dal push'u,
-PR oluşturma ve merge için yine ayrı onaylar iste.
+Dependabot/dependency-graph canlı kabul kaydını
+`codex/dependabot-alerts-acceptance` dalında doğrula. Yalnız kullanıcı ayrı
+onay verirse commit et; ardından dal push'u, PR oluşturma ve merge için yine
+ayrı onaylar iste.
 
 ## Sonraki sıra
 
-1. `EV-20260822-045` kaydını dar devamlılık testiyle doğrula.
-2. Ayrı onaylarla kabul kaydını commit et, görev dalını push et ve PR oluştur.
+1. `EV-20260822-046` kaydını dar devamlılık testiyle doğrula.
+2. Ayrı onaylarla güvenlik ayarı kabul kaydını commit et, görev dalını push et
+   ve PR oluştur.
 3. Zorunlu tek PR `test` PASS verdikten sonra ayrı onayla merge commit kullan.
-4. Sonraki işte yalnız seçilen dar mühendislik maddesine geç; sürüm adayı veya
-   ortak CI teşhisi yoksa elle `workflow_dispatch` çalıştırma.
+4. Sonraki dar mühendislik maddesini seç; yeni Dependabot alert'i oluşursa
+   sürüm yükseltmeden önce ürün/build/test etkisini ayrı değerlendir.
 
 ## Kayıt düzeni
 
