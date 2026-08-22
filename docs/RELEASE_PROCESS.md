@@ -40,6 +40,11 @@ değiştirmedikleridir**.
 
 ## Kesin yayın sırası
 
+`master` PR kapısı aktifse sürüm alanı commit'i önce
+`docs/CHANGE_WORKFLOW.md` sırasıyla PR üzerinden **merge commit** olarak
+origin/master'a ulaşır. Hosted `test` yeşil olmadan build başlamaz. Yerel
+`master`, build öncesinde bu exact merge commit'e fast-forward edilir.
+
     a) Sürüm alanlarını güncelle -> commit
          app/config.py            APP_VERSION
          packaging/MLCPlayer.iss  MyAppVersion
@@ -87,11 +92,17 @@ değiştirmedikleridir**.
        GİRİŞ  : yerel tag mevcut
        ÇIKIŞ  : exit 0 — installer ve dinamik kaynak listesi doğrulanmış
 
-    f) Commit ve tag AÇIKÇA push edilir:
-           git push origin master
+    f) Commit eşliği doğrulanır ve tag AÇIKÇA push edilir:
+           git rev-parse HEAD
+           git rev-parse origin/master
            git push origin vX.Y
        GİRİŞ  : kapı exit 0 verdi
-       ÇIKIŞ  : uzakta hem commit hem annotated tag var
+       ÇIKIŞ  : iki commit AYNI ve uzakta annotated tag var
+
+       PR kapısı etkin değilse eski direct-push akışında `git push origin
+       master` ayrı açık push onayıyla bu adımdan önce yapılır. PR kapısı
+       etkinse master commit'i zaten onaylı PR merge'iyle uzaktadır; burada
+       master'a ikinci kez push yapılmaz.
 
     g) Uzak annotated tag'in PEELED commit'i yerel HEAD ile aynı mı:
            git ls-remote origin "refs/tags/vX.Y^{}"

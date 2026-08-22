@@ -162,6 +162,12 @@ Resmî `yt-dlp.exe` üçüncü taraf GPLv3+ kod içerir; bu nedenle **birleşik
 executable GPLv3+ kapsamındadır**. Kaynak lisansı ile dağıtılan ikilinin
 lisansı aynı şey değildir.
 
+### Değişiklik katkısı
+
+Bakımcı dal/PR sırası, zorunlu CI kontrolü ve kanıt commit'lerini koruyan
+birleştirme yöntemi [`docs/CHANGE_WORKFLOW.md`](docs/CHANGE_WORKFLOW.md)
+dosyasındadır.
+
 ### Yayın öncesi açık maddeler
 
 **Açık kalan iki madde.** İkisi de kod değişikliğiyle kapanmaz; karar
