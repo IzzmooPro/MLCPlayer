@@ -1518,6 +1518,36 @@
         "The system is intentionally left with v0.39 uninstalled; user AppData remains. No tag or release was created."
       ],
       "next_action": "Validate and commit this bounded BLOCKED result, then obtain explicit authorization for controlled registry and process fault injection before attempting the missing pre-tag cases; do not create a tag or release while the gate is incomplete."
+    },
+    {
+      "id": "EV-20260822-025",
+      "recorded_at_utc": "2026-08-22T19:23:46Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "2fc1c149413fe1eb26a113f9a84ff527cbf292fe",
+      "subject": "v0.39 final-artifact fault acceptance completion",
+      "evidence": [
+        "the exact v0.39 main and add-on artifact identities remained those recorded in EV-20260822-023 and EV-20260822-024; no rebuild occurred",
+        "a 344064-byte copy of Windows cmd.exe named MLC Player.exe was run from a temporary directory while the exact main installer performed a silent same-version upgrade; the installer returned 0 and the external process survived with its exact temporary path, proving path-scoped rather than name-scoped shutdown",
+        "six elevated add-on fault cases temporarily set the main uninstall record to empty, relative, drive-root, UNC, stale-directory and wrong-product values under a finally-protected helper",
+        "all six InstallLocation fault logs lacked Installation process succeeded; no yt-dlp, add-on uninstaller, C:/_internal spill or stale-directory spill was created, the main EXE hash stayed unchanged and DisplayName plus InstallLocation were restored to MLC Player v0.39 and C:/Program Files/MLC Player/",
+        "the installed Player was suspended to emulate a close-refusing process; the visible main installer returned exit 7, the complete 137-file 194656960-byte installed-tree digest remained 76b24ee01d50ed13e0f4f7372f6751a23a0c9c9787cec160990aee1e84982bfe and the Player remained alive",
+        "the suspended Player was resumed with status 0, accepted normal window close and exited 0 without process leakage",
+        "a suspended-at-creation yt-dlp image lock caused the add-on installer to return exit 5 without changing the pinned yt-dlp hash; the process was resumed and exited during recovery",
+        "a normally running yt-dlp process waited on standard-input batch mode without any URL or network request; Restart Manager detected yt-dlp twice, attempted shutdown for about 31 seconds, could not close it, defaulted the suppressed Abort/Retry/Ignore prompt to Abort, rolled back and returned exit 5",
+        "the active yt-dlp rollback left SHA-256 66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a unchanged; the helper closed only its exact yt-dlp PID and no target process leaked",
+        "after the blocking yt-dlp process was closed, the same exact add-on upgrade returned exit 0, retained the pinned binary hash and left no process, proving the recoverable manual-close path",
+        "cleanup add-on and main uninstallers both returned exit 0; final state had no C:/Program Files/MLC Player directory, uninstall record, HKLM/HKCU/HKCR Applications product key or target process",
+        "MLCPlayer.ini remained 674 bytes with original timestamp and SHA-256 66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c; the application log remained present and grew only from the explicitly launched Player fault sessions"
+      ],
+      "summary": "The missing process and registry fault cases now complete the exact v0.39 pre-tag physical gate: unsafe locations fail before writes, unrelated same-named processes survive, close-refusing Player and yt-dlp cases abort without byte changes, and upgrades succeed after the blocking process is gone.",
+      "limitations": [
+        "This installed-artifact PASS does not stage or verify the 83 corresponding-source release assets and does not authorize a tag or release.",
+        "The yt-dlp active case proves safe abort plus successful retry after manual closure; it does not claim that an input-waiting console process can be closed gracefully by Restart Manager.",
+        "The test-created 344064-byte temporary external-process copy remains under C:/Users/Universe/AppData/Local/Temp/mlc-v039-acceptance/external-same-name because the exact deletion command was rejected by the execution safety policy; it is outside the repo, installed product and user AppData and is not release content.",
+        "The system is intentionally left with v0.39 uninstalled so a future public-download test begins from a clean product state; user AppData remains."
+      ],
+      "next_action": "Validate and commit this PASS correction, push it with separate approval, then stage and verify all corresponding-source assets before any annotated v0.39 tag is requested."
     }
   ]
 }

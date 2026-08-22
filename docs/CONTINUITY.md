@@ -5,14 +5,14 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 22 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `3f067417552a97debdd6e842059ab761e2c9d993`
+- Kayıt hazırlanırken doğrulanan HEAD: `2fc1c149413fe1eb26a113f9a84ff527cbf292fe`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-024`
-- Yayın kararı: **v0.38 canlı ve latest; v0.39 ana fiziksel installer matrisi
-  geçti ancak zorunlu fault senaryoları eksik, tag/release BLOKLU**
+- Son kanıt: `EV-20260822-025`
+- Yayın kararı: **v0.38 canlı ve latest; v0.39 exact fiziksel installer/fault
+  kabulü geçti, karşılık-gelen-kaynak staging ve tag/release henüz yapılmadı**
 
 ## Şu anda doğrulanmış durum
 
@@ -390,21 +390,34 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    klasörde aynı adlı süreç, asılı Player ve bozuk InstallLocation fault
    senaryoları çalıştırılmadı. Sonuç `EV-20260822-024` olarak **BLOCKED**;
    sistemde v0.39 kurulu değildir ve AppData korunur.
+69. Ayrı fault-injection onayıyla eksik kapılar exact artifact'larda
+   tamamlandı. Geçici klasördeki aynı adlı dış süreç ana yükseltmeden sağ
+   çıktı. Boş/relative/root/UNC/stale/wrong-product InstallLocation durumları
+   dosya yazmadan reddedildi ve kayıtlar `finally` ile geri yüklendi. Asılı
+   Player'da ana installer `exit 7`, 137 dosya / 194.656.960 baytlık ağaç
+   özeti değişmeden kaldı; Player uyandırılıp normal `exit 0` ile kapandı.
+   Normal çalışan, ağsız stdin bekleyen yt-dlp'de add-on installer güvenli
+   rollback/`exit 5` yaptı ve hash değişmedi; süreç kapatılınca aynı yükseltme
+   `exit 0` verdi. Cleanup iki kaldırıcıda exit 0; final klasör/kayıt/süreç 0,
+   INI hash/zamanı aynı (`EV-20260822-025`, **PASS**). Yalnız testte kullanılan
+   344.064 baytlık dış-süreç kopyası `%TEMP%` altında kaldı; silme komutu
+   politika tarafından reddedildi, repo/ürün/AppData veya release içeriği
+   değildir.
 
 ## Sıradaki tek adım
 
-Sınırlandırılmış v0.39 fiziksel kabul sonucunu kullanıcıya sun. Bu iki belgeli
-BLOCKED kayıt için commit ayrı açık onay bekler. Eksik registry/process fault
-senaryoları için ayrıca açık yetki almadan test, tag veya release başlatma.
+Tamamlanan v0.39 fiziksel fault kabulünü kullanıcıya sun. Bu iki belgeli PASS
+kaydı için commit ayrı açık onay bekler. Kayıt push edilmeden ve 83
+karşılık-gelen-kaynak varlığı hazırlanıp doğrulanmadan tag veya release
+başlatma.
 
 ## Sonraki sıra
 
-1. BLOCKED fiziksel kabul kaydını ayrı onayla commit et ve push iznini ayrıca
+1. PASS fiziksel kabul kaydını ayrı onayla commit et ve push iznini ayrıca
    bekle.
-2. Kullanıcı kontrollü registry/process fault injection kapsamını açıkça
-   onaylarsa aynı adlı dış süreç, asılı Player, aktif yt-dlp ve bozuk
-   InstallLocation senaryolarını exact v0.39 artifact'larıyla tamamla.
-3. Tam fiziksel kabul doğrulanmadan tag veya GitHub release oluşturma. Yayın
+2. Ayrı onayla 83 karşılık-gelen-kaynak varlığını source_mirror içine hazırla
+   ve boyut/SHA-256 eşliğini doğrula; libmpv build'ini tekrarlama.
+3. Kaynak varlıkları doğrulanmadan tag veya GitHub release oluşturma. Yayın
    öncesinde 83
    karşılık-gelen-kaynak varlığını resmî release sürecine göre yeniden hazırla.
 4. Engelleyici olmayan CI `sitecustomize` başlangıç mesajını ayrı dar workflow
