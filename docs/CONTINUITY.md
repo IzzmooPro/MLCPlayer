@@ -10,10 +10,10 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-034`
+- Son kanıt: `EV-20260822-035`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
-  açılış/gerçek medya oynatma kullanıcı kabulü geçti; sonraki CI temizlik
-  değişikliği henüz commit edilmedi**
+  açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
+  gerçek hosted run ile temizlendi**
 
 ## Şu anda doğrulanmış durum
 
@@ -456,21 +456,24 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    kancasını görmüyor, pytest ve çocukları aynı stub sözleşmesini koruyor.
    Workflow + stub dar grubu **15 passed / 0 failed** verdi
    (`EV-20260822-034`). Gerçek GitHub log kabulü push sonrasını bekliyor.
+78. Düzeltme `ae02819` ile push edildi. Tam hosted run `32595637824`; kilitli
+   kurulum, ortam doğrulama, compile, çeviri ve whitespace adımlarını geçti,
+   **4772 passed / 30 skipped / 0 failed** verdi ve 2 dakika 57 saniyede bitti.
+   Tam logda eski `python-mpv is missing from the locked CI environment` metni
+   **0 kez** bulundu (`EV-20260822-035`).
 
 ## Sıradaki tek adım
 
-Dar CI bootstrap-scope düzeltmesini kullanıcıya sun. Dört dosyalı değişiklik
-(`ci.yml`, workflow testi ve iki kanıt belgesi) için commit onayı iste; push
-için ayrıca açık onay bekle.
+Hosted CI bootstrap temizliği PASS sonucunu kullanıcıya sun. EV-035 kanıt
+belgelerini ayrı onayla commit et; push için ayrıca açık onay bekle.
 
 ## Sonraki sıra
 
-1. EV-034 workflow/test/kanıt değişikliğini ayrı onayla commit et.
-2. Commit'i ayrı onayla origin/master'a push et; bu ürün-dışı workflow/test
-   değişikliği tam hosted CI yolunu tetikler.
-3. Hosted run PASS ve kurulum öncesi `python-mpv is missing` mesajı yoksa nihai
-   kabulü kaydet; ardından ertelenmiş mühendislik listesinden sıradaki tek dar
-   maddeyi seç.
+1. EV-035 kanıt kaydını ayrı onayla commit et.
+2. Belge commit'ini ayrı onayla origin/master'a push et ve kısa belge CI'ını
+   doğrula.
+3. Ertelenmiş mühendislik listesinden sıradaki tek dar ve uygulanabilir maddeyi
+   seçip kullanıcıya kazanımıyla sun.
 
 ## Kayıt düzeni
 

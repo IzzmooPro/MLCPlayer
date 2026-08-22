@@ -1753,6 +1753,28 @@
         "The full local suite was not repeated because the impact is confined to the workflow environment contract and its dedicated tests."
       ],
       "next_action": "Validate and commit this narrow workflow cleanup with separate approval, push it separately, then inspect the first full hosted CI run to confirm both a green suite and absence of the early python-mpv message."
+    },
+    {
+      "id": "EV-20260822-035",
+      "recorded_at_utc": "2026-08-22T20:08:42Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "ae02819c70d8a512a687fb0496028527e5ade7c0",
+      "subject": "CI mpv bootstrap-noise removal acceptance",
+      "evidence": [
+        "GitHub Actions run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32595637824 selected the full product path for exact commit ae02819c70d8a512a687fb0496028527e5ade7c0",
+        "locked dependency installation, locked-environment verification, Python compilation, translation extraction and whitespace verification all completed successfully",
+        "the CI-safe suite completed with 4772 passed, 30 skipped and 0 failed in 124.47 seconds",
+        "the complete job completed successfully in 2 minutes 57 seconds without a restart",
+        "a full job-log search returned OLD_NOISE_MATCHES=0 for python-mpv is missing from the locked CI environment",
+        "local master and origin/master were clean and equal after the run"
+      ],
+      "summary": "The real hosted runner confirms the least-privilege workflow change removed the early python-mpv bootstrap message while preserving the complete green CI result.",
+      "limitations": [
+        "The 30 skipped paths remain non-PASS and this hosted run does not replace native or installed-artifact evidence.",
+        "This change affects CI environment scoping only; no product build, installation, tag, release asset or public release changed."
+      ],
+      "next_action": "Validate and commit this hosted acceptance record with separate approval, push it separately, then select the next single narrow item from the deferred engineering backlog."
     }
   ]
 }
