@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-037`
+- Son kanıt: `EV-20260822-038`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -472,21 +472,23 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    PR review ve actor restriction yok; linear history, branch lock ve creation
    block kapalıdır (`EV-20260822-037`). Böylece admin dahil geçmişi bozma/silme
    engellendi; normal doğrudan push sözleşmesi kural tarafından kapatılmadı.
+81. Koruma açıkken ordinary `git push origin master`, `583605c` belge
+   commit'ini force/bypass olmadan kabul etti; fetch sonrası yerel/uzak eşit,
+   koruma ayarları aynı kaldı. Kısa hosted run `32598954194` **7 passed / 0
+   failed** verdi (`EV-20260822-038`). Böylece doğrudan normal push yolunun
+   bozulmadığı davranışsal olarak kanıtlandı.
 
 ## Sıradaki tek adım
 
-Temel master koruması PASS sonucunu kullanıcıya sun. EV-036 ve EV-037 kanıt
-belgelerini ayrı onayla commit et; normal push'un çalıştığını kanıtlayacak push
-için ayrıca açık onay bekle.
+Korumalı-master normal-push PASS sonucunu kullanıcıya sun. EV-038 kanıt
+belgelerini ayrı onayla commit et; push için ayrıca açık onay bekle.
 
 ## Sonraki sıra
 
-1. EV-036..037 kanıt kaydını ayrı onayla commit et.
-2. Belge commit'ini ayrı onayla origin/master'a normal push et; kabul edilmesi
-   mevcut direct-push yolunun korunmasını davranışsal olarak kanıtlar.
-3. Kısa belge CI PASS sonrası PR + GitHub Actions `test` zorunluluğunun
-   workflow/devir belgelerine etkisini ayrı planla; kullanıcı onayı olmadan
-   doğrudan-push düzenini kırma.
+1. EV-038 kanıt kaydını ayrı onayla commit et.
+2. Belge commit'ini ayrı onayla origin/master'a push et ve kısa CI'ı doğrula.
+3. PR + GitHub Actions `test` zorunluluğunun workflow/devir belgelerine etkisini
+   ayrı planla; kullanıcı onayı olmadan doğrudan-push düzenini kırma.
 
 ## Kayıt düzeni
 

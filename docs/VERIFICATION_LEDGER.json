@@ -1820,6 +1820,29 @@
         "A future PR-plus-test gate is a separate workflow change and requires separate authorization."
       ],
       "next_action": "Validate and commit EV-036 and EV-037 with separate approval, push the documentation commit separately to prove normal push continuity, then decide whether to adopt a documented PR workflow requiring the GitHub Actions test check."
+    },
+    {
+      "id": "EV-20260822-038",
+      "recorded_at_utc": "2026-08-22T21:13:58Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "583605ce39ee68ebc8072582ae43c56250a01fd4",
+      "subject": "protected-master normal-push continuity",
+      "evidence": [
+        "with enforce_admins=true, allow_force_pushes=false and allow_deletions=false already active, an ordinary git push origin master advanced origin from 234336a to 583605c without bypass or force",
+        "post-push fetch showed local master and origin/master equal at 583605ce39ee68ebc8072582ae43c56250a01fd4",
+        "live protection read-back after the push still returned enforce_admins=true, allow_force_pushes=false and allow_deletions=false",
+        "GitHub Actions run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32598954194 completed successfully for exact commit 583605ce39ee68ebc8072582ae43c56250a01fd4",
+        "the documentation and continuity gate completed with 7 passed and 0 failed in 0.27 seconds while the full product path was intentionally skipped",
+        "the working tree remained clean and equal to origin/master"
+      ],
+      "summary": "The first protected-master push proves the basic history protection preserves the established ordinary direct-push workflow and its documentation CI gate.",
+      "limitations": [
+        "This protection does not require CI before a direct push reaches master; CI still runs after the push.",
+        "The hosted run validates documentation contracts only and is not a new product, native-smoke or installed-artifact test.",
+        "A PR-plus-test gate remains a separate process decision."
+      ],
+      "next_action": "Validate and commit this final protection acceptance record with separate approval, push it separately, then present the PR-plus-test workflow tradeoff before changing repository enforcement."
     }
   ]
 }
