@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-009`
+- Son kanıt: `EV-20260822-010`
 - Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest; yeni build gerekmez**
 
 ## Şu anda doğrulanmış durum
@@ -284,20 +284,26 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    çeviri güncelliği ve boş staged alan doğrulandı (`EV-20260822-009`).
 49. Bu CI düzeltme paketi kullanıcı onayıyla tek commit'e alındı. Commit
    kimliği her oturumda canlı Git komutuyla doğrulanır; push henüz yapılmadı.
+50. Düzeltme commit'i `05ee170` push edildi. Hosted CI run `32574293662` ilk
+   denemede **4768 passed / 30 skipped / 0 failed** verdi; bağımlılık,
+   compile, çeviri ve whitespace adımlarının tamamı geçti
+   (`EV-20260822-010`). Bu hosted kanıttır; native oynatma, build veya kurulu
+   artifact kanıtı değildir.
+51. Hosted CI başarı kaydının belge paketi kullanıcı onayıyla commit'e alındı.
+   Commit kimliği her oturumda canlı Git komutuyla doğrulanır; bu kayıt
+   commit'i henüz push edilmedi.
 
 ## Sıradaki tek adım
 
-Hosted CI'da açığa çıkan boş-ekran/playback-overlay test sözleşmesi, 32 px
-başlık beklentisi ve dar Frame güvenliği yerelde düzeltildi. Etkilenen ve son
-dar kapılar temizdir ve paket yerel commit'tedir. Kullanıcıdan ayrı push onayı
-iste; push, build veya release işlemini kendiliğinden başlatma.
+Boş-ekran/playback-overlay test sözleşmesi, 32 px başlık beklentisi ve dar
+Frame güvenliği düzeltmesi hem yerel dar kapılarda hem hosted CI'da geçti.
+Hosted sonuç kaydı yerel commit'tedir; kullanıcıdan ayrı push onayı iste.
+Push, build veya release işlemini kendiliğinden başlatma.
 
 ## Sonraki sıra
 
-1. Push için ayrıca açık onay al; hosted CI ancak push ile
-   düzeltmeyi doğrulayabilir.
-2. Push sonrasında hosted CI sonucunu salt okunur doğrula; başarısızsa nedenini
-   incelemeden otomatik tekrar yapma.
+1. Kayıt commit'i için push onayı al.
+2. Push sonrasında yerel/uzak eşitliğini salt okunur doğrula.
 3. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
 
 ## Kayıt düzeni

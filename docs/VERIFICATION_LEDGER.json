@@ -1171,6 +1171,28 @@
         "No native playback, build, installation, push, tag or release action occurred."
       ],
       "next_action": "Request separate commit approval; after committing, request separate push approval before obtaining new hosted CI evidence."
+    },
+    {
+      "id": "EV-20260822-010",
+      "recorded_at_utc": "2026-08-22T13:18:37Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "05ee1706caaba15a7b38ccf5b2790f53a535c22b",
+      "subject": "Hosted verification of empty-state UI regression correction",
+      "evidence": [
+        "GitHub Actions run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32574293662 completed successfully for commit 05ee1706caaba15a7b38ccf5b2790f53a535c22b",
+        "the CI-safe suite completed with 4768 passed, 30 skipped and 0 failed in 133.34 seconds",
+        "locked dependency installation and environment verification passed",
+        "Python source compilation, translation verification and whitespace verification passed",
+        "the run was the first attempt for this commit and was not restarted"
+      ],
+      "summary": "The correction for the prior 40 hosted failures now passes on the clean GitHub Windows runner together with the complete CI-safe suite.",
+      "limitations": [
+        "This is hosted CI evidence; it does not prove real interactive Windows playback, native smoke, a new build or an installed artifact.",
+        "The 30 explicit skips remain non-PASS paths and were not converted into successful native or release evidence.",
+        "No v0.38 release asset, tag, installer or libmpv build was changed or rerun."
+      ],
+      "next_action": "Record this hosted result in continuity, run the continuity regression and request separate commit approval for the documentation-only update."
     }
   ]
 }
