@@ -48,6 +48,22 @@ kanıt defterine kaydedilir.
    origin eşliği yeniden ölçülür. Görev dalı ancak sonuç kaydı tamamlandıktan
    sonra silinebilir.
 
+## CI tetikleme bütçesi
+
+Normal değişiklikte otomatik CI yalnız `pull_request` olayıyla bir kez çalışır.
+Görev dalı push'u, `master` merge push'u ve tag push'u otomatik CI başlatmaz.
+Böylece aynı değişiklik dal push'u, PR ve merge için üç kez test edilmez;
+zorunlu **`test`** kontrolü PR üzerinde korunur.
+
+`workflow_dispatch` yalnız şu durumlarda elle kullanılır:
+
+- sürüm adayı için `master` üzerindeki exact merge commit'i tam hosted testle
+  doğrulamak;
+- ortak CI/test altyapısı değişikliğini ayrıca teşhis etmek.
+
+Bu manuel yol rutin değişikliklerin ikinci testi değildir. Başarısız bir koşum
+otomatik tekrarlanmaz; önce gerçek hata incelenir.
+
 ## Neden sıfır inceleme onayı
 
 Proje tek yöneticiyle yürütülüyor. İlk PR kapısı kod inceleme sayısını değil,

@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-042`
+- Son kanıt: `EV-20260822-044`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -498,20 +498,33 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    merge-commit yöntemiyle birleştirildi. Uzak ve yerel `master` temiz/eşit
    `4d71f8132fb46d9f5f969f8efe292da898111894` commit'indedir; koruma geri
    okumada etkin kalmıştır (`EV-20260822-042`).
+86. Kabul kaydı `ed9bd90` commit'iyle görev dalına push edildi; PR #2'nin dal
+   push ve PR testleri geçti. Ayrı onayla merge commit `b547b9f` üzerinden
+   `master`a alındı; yerel/uzak master temiz ve eşit, canlı PR + `test`
+   koruması etkin kaldı.
+87. Canlı run geçmişi ilk iki korumalı değişikliğin her birinde dal push'u, PR
+   ve master merge'i için üç CI çalıştırdığını gösterdi. Yeni sözleşme testi
+   eski tetikleyicide **2 failed / 9 passed** verdi (`EV-20260822-043`). Neden
+   incelendikten sonra otomatik `push` kaldırıldı; otomatik yalnız
+   `pull_request`, sürüm adayı/ortak CI teşhisi için elle `workflow_dispatch`
+   bırakıldı. CI, PR ve release belge sözleşmeleri **223 passed / 0 failed**
+   verdi (`EV-20260822-044`). Bu henüz hosted kabul değildir.
 
 ## Sıradaki tek adım
 
-Yeni PR kapısının canlı kabul kaydını `codex/pr-gate-acceptance` dalında
-doğrula. Yalnız kullanıcı ayrı onay verirse commit et; ardından dal push'u,
-PR oluşturma ve merge için yine ayrı onaylar iste.
+Tek otomatik CI hazırlığını `codex/ci-single-run` dalında doğrula. Yalnız
+kullanıcı ayrı onay verirse commit et; ardından dal push'u, PR oluşturma ve
+merge için yine ayrı onaylar iste. Hosted kabulte tek PR run'ı ve merge sonrası
+yeni push run oluşmadığını ayrı doğrula.
 
 ## Sonraki sıra
 
-1. `EV-20260822-041` ve `EV-20260822-042` kayıtlarını dar devamlılık testiyle
+1. `EV-20260822-043` ve `EV-20260822-044` kayıtlarını dar devamlılık testiyle
    doğrula.
-2. Ayrı onaylarla kabul kaydını commit et, görev dalını push et ve PR oluştur.
-3. Zorunlu `test` PASS verdikten sonra ayrı onayla merge commit kullan.
-4. Sonraki tüm değişikliklerde `docs/CHANGE_WORKFLOW.md` sözleşmesini uygula.
+2. Ayrı onaylarla değişikliği commit et, görev dalını push et ve PR oluştur.
+3. Zorunlu tek PR `test` PASS verdikten sonra ayrı onayla merge commit kullan.
+4. Merge sonrasında otomatik master push run oluşmadığını doğrula; yalnız sürüm
+   adayı veya ortak CI teşhisinde elle `workflow_dispatch` kullan.
 
 ## Kayıt düzeni
 

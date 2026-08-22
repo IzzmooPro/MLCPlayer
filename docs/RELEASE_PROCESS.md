@@ -42,8 +42,11 @@ değiştirmedikleridir**.
 
 `master` PR kapısı aktifse sürüm alanı commit'i önce
 `docs/CHANGE_WORKFLOW.md` sırasıyla PR üzerinden **merge commit** olarak
-origin/master'a ulaşır. Hosted `test` yeşil olmadan build başlamaz. Yerel
-`master`, build öncesinde bu exact merge commit'e fast-forward edilir.
+origin/master'a ulaşır. PR üzerindeki hosted `test` yeşil olmadan merge
+yapılmaz. Rutin merge push'u otomatik CI başlatmadığı için sürüm adayında
+ayrıca `workflow_dispatch` ile `master` üzerindeki exact merge commit tam
+hosted testten geçirilir; bu koşum yeşil olmadan build başlamaz. Yerel
+`master`, build öncesinde aynı exact merge commit'e fast-forward edilir.
 
     a) Sürüm alanlarını güncelle -> commit
          app/config.py            APP_VERSION
