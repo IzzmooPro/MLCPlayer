@@ -1238,6 +1238,28 @@
         "No dependency was installed, and no build, native smoke, installation, tag or release action occurred."
       ],
       "next_action": "Run the mandatory continuity regression after recording this evidence, then request separate commit approval for the workflow, its regression tests, the small lock subset and the two evidence documents."
+    },
+    {
+      "id": "EV-20260822-013",
+      "recorded_at_utc": "2026-08-22T13:44:00Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "86f2a656b74d385986f8cec059ba5a0fadc009dd",
+      "subject": "Conditional CI workflow full-path hosted acceptance",
+      "evidence": [
+        "GitHub Actions run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32576426906 completed successfully for commit 86f2a656b74d385986f8cec059ba5a0fadc009dd",
+        "the changed-file classifier completed successfully and selected the full path because workflow, test, requirement and documentation files changed together",
+        "documentation-only setup, dependency and verification steps were explicitly skipped while full Python setup, locked dependency verification, compilation, translation and whitespace steps passed",
+        "the full CI-safe suite completed with 4771 passed, 30 skipped and 0 failed in 118.03 seconds",
+        "the workflow was accepted and executed by GitHub Actions on its first run without a restart"
+      ],
+      "summary": "The conditional workflow is syntactically valid on GitHub and preserves the complete Windows CI path for mixed or code-bearing changes.",
+      "limitations": [
+        "This run proves only the full branch of the conditional workflow; the documentation-only branch still requires a documentation-only push.",
+        "Hosted CI does not prove interactive native playback, a build, installation or released artifact.",
+        "The 30 skipped paths remain non-PASS and no v0.38 release asset or libmpv build changed."
+      ],
+      "next_action": "Commit and push this documentation-only evidence update with separate approvals, then verify that the same workflow selects only the small documentation gate without recording another recursive evidence commit."
     }
   ]
 }

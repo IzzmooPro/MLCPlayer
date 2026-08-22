@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-012`
+- Son kanıt: `EV-20260822-013`
 - Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest; yeni build gerekmez**
 
 ## Şu anda doğrulanmış durum
@@ -300,22 +300,31 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    karışık, boş veya belirsiz aralıklar fail-safe tam CI'a gider. Regresyon
    önce **3 failed / 7 passed**, düzeltme sonrası birleşik dar kapı
    **17 passed / 0 failed** verdi (`EV-20260822-012`). GitHub workflow kabulü
-   henüz yapılmadı.
+   bu aşamada henüz yapılmamıştı.
+53. Kısa CI workflow paketi `86f2a65` olarak commit ve push edildi. Run
+   `32576426906` sınıflandırmayı başarıyla tamamladı; workflow/test dosyaları
+   değiştiği için beklenen tam yolu seçti. Belge-only adımlar atlandı, tam
+   bağımlılık ve test yolu **4771 passed / 30 skipped / 0 failed** verdi
+   (`EV-20260822-013`). Workflow sözdizimi ve güvenli tam yol hosted olarak
+   kabul edildi; kısa yol henüz gerçek belge-only push ile ölçülmedi.
+54. Tam-yol hosted kabul kaydının iki belgeli paketi kullanıcı onayıyla yerel
+   commit'e alındı. Commit kimliği her oturumda canlı Git komutuyla
+   doğrulanır; bu belge-only commit henüz push edilmedi.
 
 ## Sıradaki tek adım
 
-Belge-only kısa CI yolu yerelde ve geçmiş gerçek commit aralıklarıyla
-doğrulandı; workflow değişikliği henüz çalışma ağacındadır. Kullanıcıdan ayrı
-commit onayı iste. Push, build veya release işlemini kendiliğinden başlatma.
+Koşullu workflow GitHub'da tam yolu başarıyla geçti. Bu hosted sonuç kaydı
+yalnız iki belgeyi değiştirir, yerel commit'tedir ve kısa yolun gerçek kabul
+girdisidir. Kullanıcıdan ayrı push onayı iste; push, build veya release
+işlemini kendiliğinden başlatma.
 
 ## Sonraki sıra
 
-1. Kısa CI workflow paketi için ayrı commit onayı al.
-2. Commit sonrasında push için ayrıca açık onay al; ilk push tam CI yolunu
-   çalıştırmalıdır çünkü workflow/test dosyaları değişmiştir.
-3. Sonraki belge-only kayıt push'ında kısa yolun gerçekten seçildiğini
-   doğrula; başarısızsa otomatik tekrar yapma.
-4. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
+1. İki belgeli kayıt commit'i için ayrıca açık push onayı al.
+2. Belge-only push'ta yalnız kısa yolun seçildiğini, yedi devamlılık testini
+   ve tam bağımlılık/test adımlarının atlandığını doğrula; başarısızsa
+   otomatik tekrar yapma.
+3. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
 
 ## Kayıt düzeni
 
