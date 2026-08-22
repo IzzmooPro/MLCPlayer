@@ -2030,6 +2030,33 @@
         "No dependency was upgraded or installed, and no product code, build, native smoke, tag or release was changed."
       ],
       "next_action": "Validate and commit this GitHub security-setting acceptance record with separate approval, then pass it through the one-run PR workflow before selecting the next deferred engineering item."
+    },
+    {
+      "id": "EV-20260823-001",
+      "recorded_at_utc": "2026-08-22T22:40:32Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "6f0e8f44235e7d32ef68ed0e7db49c6df2604e45",
+      "subject": "SignPath Foundation policy and eligibility readiness",
+      "evidence": [
+        "work began in a separate clean codex/signpath-readiness worktree exactly equal to origin/master at 6f0e8f44235e7d32ef68ed0e7db49c6df2604e45; the older dirty codex/source-compliance-gate worktree and all user files were left unchanged",
+        "SignPath Foundation's published OSS conditions were checked at https://signpath.org/terms.html: GPL-compatible licensing, active maintenance, an existing release, documentation, MFA, explicit roles, a code-signing policy, privacy disclosure, verifiable builds and manual signing approval are required",
+        "SignPath's GitHub connector documentation at https://docs.signpath.io/trusted-build-systems/github requires OSS jobs leading to signing to run on GitHub-hosted agents and requires the unsigned artifact to be stored as a GitHub Actions artifact before submission",
+        "CODE_SIGNING_POLICY.md truthfully states that v0.39 is not Authenticode-signed, no SignPath application or acceptance exists, identifies the single-maintainer roles and keeps upstream OSS binaries outside the project's signing identity",
+        "PRIVACY.md records the automatic public GitHub release check, user-requested URL playback, disabled OpenSubtitles UI, absence of telemetry/analytics and local %APPDATA%\\MLCPlayer settings/log storage",
+        "docs/SIGNPATH_READINESS.md records the unresolved MFA and GitHub-hosted unsigned-build gates and preserves the required future order: hosted unsigned build, SignPath Authenticode, then detached Ed25519 over the final installer bytes",
+        "the regression contract first failed 4 tests while policies were absent, then passed 4 tests after implementation",
+        "with MLC_CI=1 and PYTHONPATH=scripts, the impacted README, release, licence, continuity, SPDX, about and change-workflow group completed with 540 passed and 0 failed in 1.29 seconds"
+      ],
+      "summary": "MLC Player now has a truthful, test-protected public code-signing policy, privacy policy and SignPath readiness checklist without changing runtime behavior or pretending that current installers are Authenticode-signed. The project appears plausible for the free OSS program but is not application-ready until MFA is confirmed and a verifiable GitHub-hosted unsigned-installer build boundary is designed and accepted.",
+      "limitations": [
+        "This is deterministic source and documentation evidence only; no SignPath account, application, token, certificate or signature was created.",
+        "MFA status is private account state and was not inspected or changed.",
+        "No GitHub-hosted installer workflow was added because required native runtime acquisition and the local Ed25519 boundary must first be designed without weakening the established release chain.",
+        "No product build, installation, native smoke, commit, push, pull request, tag, release or live release-page change was performed.",
+        "Only SignPath Foundation can accept or reject the project."
+      ],
+      "next_action": "Request separate user approval to commit this tested readiness package on codex/signpath-readiness; push, pull-request creation and merge remain separately authorized."
     }
   ]
 }
