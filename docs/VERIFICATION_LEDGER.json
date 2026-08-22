@@ -1439,6 +1439,29 @@
         "No build, installation, tag or release occurred."
       ],
       "next_action": "Validate the documentation handoff, then present the hosted result and request separate approval for the v0.39 candidate build; keep the CI bootstrap-log cleanup as non-blocking follow-up work."
+    },
+    {
+      "id": "EV-20260822-022",
+      "recorded_at_utc": "2026-08-22T14:40:12Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "7a5f70dff07b8ddd424c8a0a9e3c10bb0232bcbb",
+      "subject": "v0.39 candidate build dependency gate",
+      "evidence": [
+        "packaging/build_release.bat was started on clean and origin-equal commit 7a5f70dff07b8ddd424c8a0a9e3c10bb0232bcbb after separate build approval",
+        "the deterministic dependency gate reported Pillow 12.2.0 instead of 12.3.0, pytest 9.0.2 instead of 9.0.3 and setuptools 82.0.1 instead of 83.0.0",
+        "the active interpreter was C:/Users/Universe/AppData/Local/Python/pythoncore-3.14-64/python.exe and no project virtual environment or alternate installed Python was available",
+        "the build script checks dependencies before removing or producing output and ended with FAILED - No output was produced",
+        "installer_output retained only the pre-existing v0.37 artifacts; no v0.39 installer or signature was created",
+        "the failed build was not retried and no package was installed"
+      ],
+      "summary": "The v0.39 candidate build correctly failed closed before touching output because the local developer environment had three packages older than the committed lock file.",
+      "limitations": [
+        "This is a failed source-build attempt and never reached translation compilation, PyInstaller, Inno Setup, signing or artifact verification.",
+        "The earlier hosted CI PASS does not override this local build failure because hosted and source-build proof layers are separate.",
+        "No installer, installation, tag or release evidence was produced."
+      ],
+      "next_action": "Validate this failure record and request separate approvals for its documentation commit and for installing the committed locked environment; only after both are resolved may the build be attempted again."
     }
   ]
 }

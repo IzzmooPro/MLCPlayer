@@ -10,9 +10,9 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-021`
-- Yayın kararı: **v0.38 canlı ve latest; v0.39 yerel aday hazırlığı başladı,
-  henüz build/tag/release yapılmadı**
+- Son kanıt: `EV-20260822-022`
+- Yayın kararı: **v0.38 canlı ve latest; v0.39 aday build'i bağımlılık
+  kapısında durdu, installer/tag/release oluşmadı**
 
 ## Şu anda doğrulanmış durum
 
@@ -365,20 +365,26 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    etti, sonraki kilitli-ortam kapısı ve bütün testler geçti. Bu nedenle sonuç
    yeşildir; mesaj ayrıca temizlenmesi gereken, engelleyici olmayan CI log
    gürültüsüdür.
+66. Temiz ve origin ile eşit `7a5f70d` üzerinde ayrı onayla v0.39 aday build'i
+   başlatıldı. Bağımlılık kapısı yerel Pillow `12.2.0`, pytest `9.0.2` ve
+   setuptools `82.0.1` sürümlerini kilitli `12.3.0`, `9.0.3`, `83.0.0`
+   değerlerinden eski bulduğu için zincir çıktı silmeden/üretmeden durdu
+   (`EV-20260822-022`, **FAILED**). Otomatik tekrar veya paket kurulumu
+   yapılmadı; `installer_output` içindeki eski v0.37 dosyaları korundu.
 
 ## Sıradaki tek adım
 
-Hosted v0.39 kaynak sonucunu kullanıcıya sun. Bu iki belgeli kanıt kaydının
-commit işlemi ve ardından v0.39 aday build'i ayrı açık onayları bekler; push,
-tag veya release işlemini kendiliğinden başlatma. CI bootstrap log temizliği
-engelleyici olmayan sonraki iş olarak korunur.
+Başarısız v0.39 build sonucunu kullanıcıya sun. Bu iki belgeli kayıt için
+commit, ardından kilitli geliştirici ortamının kurulumu ayrı açık onayları
+bekler. Neden giderilmeden build'i tekrarlama; push, tag veya release işlemini
+kendiliğinden başlatma.
 
 ## Sonraki sıra
 
-1. Hosted CI kanıt belgelerini ayrı onayla commit et ve push iznini ayrıca
-   bekle.
-2. Yalnız ayrı build onayıyla v0.39 aday installer'larını üret; mevcut v0.38
-   release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
+1. Başarısız build kaydını ayrı onayla commit et ve push iznini ayrıca bekle.
+2. Ayrı kurulum onayıyla `requirements-lock.txt` ortamını yükle; ardından
+   build tekrarını ayrıca kararlaştır. Mevcut v0.38 release artifact'lerini
+   değiştirme ve libmpv build'ini tekrarlama.
 3. Build doğrulanmadan tag veya GitHub release oluşturma. Yayın öncesinde 83
    karşılık-gelen-kaynak varlığını resmî release sürecine göre yeniden hazırla.
 4. Engelleyici olmayan CI `sitecustomize` başlangıç mesajını ayrı dar workflow
