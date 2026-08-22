@@ -15,32 +15,56 @@ application has been submitted and SignPath has not accepted the project.
   represented as MLC Player-owned binaries.
 - `CODE_SIGNING_POLICY.md` and `PRIVACY.md` document the intended signing
   roles, current unsigned status, network behavior and local-data behavior.
+- The maintainer confirmed on 23 August 2026 that multi-factor authentication
+  is enabled. This is a user attestation; it is not independently proven by
+  repository evidence.
 
 These facts make an application plausible; only SignPath Foundation can make
 the eligibility decision.
 
 ## Open gates before an application
 
-1. Confirm that every maintainer account used for GitHub and SignPath has
-   multi-factor authentication enabled. This cannot be proven from source.
-2. Add a manual, GitHub-hosted unsigned-installer build whose inputs come from
+1. Mirror the exact verified libmpv runtime to project-owned OCI storage before
+   its temporary GitHub Actions source artifact expires.
+2. Record and review the immutable OCI digest produced by readback verification.
+3. Add a manual, GitHub-hosted unsigned-installer build whose inputs come from
    the repository or immutable, hash-verified artifacts.
-3. Ensure the unsigned installer is uploaded as a GitHub Actions artifact
+4. Ensure the unsigned installer is uploaded as a GitHub Actions artifact
    before it is submitted through SignPath's GitHub connector.
-4. Keep every signing request under manual approval and bind it to one exact
+5. Keep every signing request under manual approval and bind it to one exact
    commit and version.
-5. Obtain SignPath acceptance before adding its action, token or certificate
+6. Obtain SignPath acceptance before adding its action, token or certificate
    claims to the active release workflow.
-6. Add the required code-signing-policy link to the release/download page only
+7. Add the required code-signing-policy link to the release/download page only
    when the first accepted signed release is being prepared.
+
+## Prepared libmpv runtime mirror
+
+`.github/workflows/publish-libmpv-runtime.yml` is a manual, one-time migration
+workflow. It does not build libmpv, build MLC Player, invoke SignPath, create a
+tag or change a release. It is prepared to:
+
+- download Actions artifact `9452521445` from source-build run `32488810460`
+  at commit `4b948676990dde217206b878fca388093a367b61`;
+- require that artifact to remain unexpired and retain its exact recorded
+  expiry, archive size/hash and DLL size/hash;
+- publish the verified `mpv-2.dll` and provenance files once to project-owned
+  GHCR storage, refusing to overwrite an existing tag;
+- resolve the resulting OCI digest, pull it back by digest and compare every
+  byte before emitting `runtime-lock.json`.
+
+Dispatching this workflow changes GHCR state and therefore needs separate
+explicit approval. It has not been run and no permanent OCI digest exists yet.
 
 ## Why the hosted build is not added yet
 
 The current product build needs native runtime files that are intentionally
 not committed to Git. The established release flow also creates detached
-Ed25519 signatures with a private key kept outside the repository. Moving the
-whole chain into CI without first defining immutable runtime acquisition and
-the signing boundary would weaken the existing release evidence.
+Ed25519 signatures with a private key kept outside the repository. The
+runtime-mirror boundary is now designed and regression-tested, but the manual
+workflow has not been authorized or run. Until its OCI digest is read back and
+committed in a separately reviewed change, a hosted installer build cannot
+consume a permanent immutable native input.
 
 The safe future sequence is:
 

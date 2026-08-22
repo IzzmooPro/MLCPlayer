@@ -1,0 +1,187 @@
+name: Publish verified libmpv runtime bundle
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  packages: write
+
+concurrency:
+  group: publish-libmpv-runtime
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    name: Mirror exact libmpv runtime to immutable OCI storage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_ARTIFACT_ID: '9452521445'
+      SOURCE_RUN_ID: '32488810460'
+      SOURCE_HEAD_SHA: 4b948676990dde217206b878fca388093a367b61
+      SOURCE_EXPIRES_AT: '2026-09-20T15:35:47Z'
+      DEV_ARCHIVE_SIZE: '29427624'
+      DEV_ARCHIVE_SHA256: 024f4e98884db6074e956d4f5001040836bfa395cdc90e6bd5c20634b881297e
+      RUNTIME_SIZE: '112772608'
+      RUNTIME_SHA256: de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e
+      RUNTIME_REPOSITORY: ghcr.io/izzmoopro/mlcplayer-libmpv-runtime
+      RUNTIME_TAG: ghcr.io/izzmoopro/mlcplayer-libmpv-runtime:20260821-g49418246f
+      ARTIFACT_TYPE: application/vnd.mlcplayer.libmpv.runtime.v1
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out the exact workflow source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Install pinned ORAS CLI
+        uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d # v2.0.1
+        with:
+          version: 1.3.3
+
+      - name: Download and verify the source-build artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          metadata=source-artifact.json
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/artifacts/${SOURCE_ARTIFACT_ID}" \
+            > "$metadata"
+
+          python - <<'PY'
+          import datetime
+          import json
+          import os
+
+          with open("source-artifact.json", encoding="utf-8") as handle:
+              artifact = json.load(handle)
+          expected_expiry = os.environ["SOURCE_EXPIRES_AT"]
+          assert artifact["id"] == int(os.environ["SOURCE_ARTIFACT_ID"])
+          assert artifact['expired'] is False
+          assert artifact["expires_at"] == expected_expiry
+          assert artifact["workflow_run"]["id"] == int(os.environ["SOURCE_RUN_ID"])
+          assert artifact["workflow_run"]["head_sha"] == os.environ["SOURCE_HEAD_SHA"]
+          expiry = datetime.datetime.fromisoformat(expected_expiry.replace("Z", "+00:00"))
+          assert datetime.datetime.now(datetime.timezone.utc) < expiry
+          PY
+
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/artifacts/${SOURCE_ARTIFACT_ID}/zip" \
+            > source-artifact.zip
+          mkdir source-artifact
+          unzip -q source-artifact.zip -d source-artifact
+
+          mapfile -t archives < <(
+            find source-artifact -type f -name 'mpv-dev-x86_64-*.7z' | sort
+          )
+          test "${#archives[@]}" -eq 1
+          archive="${archives[0]}"
+          test "$(stat -c '%s' "$archive")" = "$DEV_ARCHIVE_SIZE"
+          test "$(sha256sum "$archive" | awk '{print $1}')" = "$DEV_ARCHIVE_SHA256"
+
+          mkdir -p extracted payload
+          7z e -y -oextracted "$archive" '*libmpv-2.dll' >/dev/null
+          mapfile -t dlls < <(find extracted -type f -name 'libmpv-2.dll' | sort)
+          test "${#dlls[@]}" -eq 1
+          mv "${dlls[0]}" payload/mpv-2.dll
+          test "$(stat -c '%s' payload/mpv-2.dll)" = "$RUNTIME_SIZE"
+          test "$(sha256sum payload/mpv-2.dll | awk '{print $1}')" = "$RUNTIME_SHA256"
+
+          cp bin/RUNTIME_MANIFEST.txt payload/RUNTIME_MANIFEST.txt
+          printf '%s *mpv-2.dll\n' "$RUNTIME_SHA256" > payload/SHA256SUMS.txt
+          (cd payload && sha256sum -c SHA256SUMS.txt)
+          python - <<'PY'
+          import json
+          import os
+
+          data = {
+              "schema_version": 1,
+              "source_artifact_id": int(os.environ["SOURCE_ARTIFACT_ID"]),
+              "source_run_id": int(os.environ["SOURCE_RUN_ID"]),
+              "source_head_sha": os.environ["SOURCE_HEAD_SHA"],
+              "source_expires_at": os.environ["SOURCE_EXPIRES_AT"],
+              "dev_archive_size": int(os.environ["DEV_ARCHIVE_SIZE"]),
+              "dev_archive_sha256": os.environ["DEV_ARCHIVE_SHA256"],
+              "runtime_name": "mpv-2.dll",
+              "runtime_size": int(os.environ["RUNTIME_SIZE"]),
+              "runtime_sha256": os.environ["RUNTIME_SHA256"],
+          }
+          with open("payload/SOURCE_ARTIFACT.json", "w", encoding="utf-8", newline="\n") as handle:
+              json.dump(data, handle, indent=2, sort_keys=True)
+              handle.write("\n")
+          PY
+
+      - name: Push once and verify immutable OCI readback
+        id: publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "$GH_TOKEN" | oras login ghcr.io \
+            --username "$GITHUB_ACTOR" --password-stdin
+
+          if oras resolve "$RUNTIME_TAG" >/dev/null 2>&1; then
+            echo "ERROR: runtime tag already exists; refusing to overwrite it"
+            exit 1
+          fi
+
+          (
+            cd payload
+            oras push "$RUNTIME_TAG" \
+              --artifact-type "$ARTIFACT_TYPE" \
+              --annotation "org.opencontainers.image.source=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
+              mpv-2.dll:application/vnd.microsoft.portable-executable \
+              RUNTIME_MANIFEST.txt:text/plain \
+              SHA256SUMS.txt:text/plain \
+              SOURCE_ARTIFACT.json:application/json
+          )
+          digest="$(oras resolve "$RUNTIME_TAG")"
+          if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "ERROR: invalid OCI digest: $digest"
+            exit 1
+          fi
+
+          mkdir readback
+          oras pull "${RUNTIME_REPOSITORY}@${digest}" -o readback
+          for name in mpv-2.dll RUNTIME_MANIFEST.txt SHA256SUMS.txt SOURCE_ARTIFACT.json; do
+            cmp --silent "payload/$name" "readback/$name"
+          done
+          test "$(stat -c '%s' readback/mpv-2.dll)" = "$RUNTIME_SIZE"
+          test "$(sha256sum readback/mpv-2.dll | awk '{print $1}')" = "$RUNTIME_SHA256"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Write the digest lock for the next reviewed change
+        shell: bash
+        env:
+          RUNTIME_DIGEST: ${{ steps.publish.outputs.digest }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+
+          lock = {
+              "schema_version": 1,
+              "repository": os.environ["RUNTIME_REPOSITORY"],
+              "tag": os.environ["RUNTIME_TAG"],
+              "digest": os.environ["RUNTIME_DIGEST"],
+              "runtime_name": "mpv-2.dll",
+              "runtime_size": int(os.environ["RUNTIME_SIZE"]),
+              "runtime_sha256": os.environ["RUNTIME_SHA256"],
+              "source_artifact_id": int(os.environ["SOURCE_ARTIFACT_ID"]),
+              "source_run_id": int(os.environ["SOURCE_RUN_ID"]),
+              "source_head_sha": os.environ["SOURCE_HEAD_SHA"],
+              "source_expires_at": os.environ["SOURCE_EXPIRES_AT"],
+              "artifact_type": os.environ["ARTIFACT_TYPE"],
+          }
+          with open("runtime-lock.json", "w", encoding="utf-8", newline="\n") as handle:
+              json.dump(lock, handle, indent=2, sort_keys=True)
+              handle.write("\n")
+          PY
+
+      - name: Upload runtime digest lock
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: libmpv-runtime-oci-lock
+          path: runtime-lock.json
+          if-no-files-found: error
+          retention-days: 90

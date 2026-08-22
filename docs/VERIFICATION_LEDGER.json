@@ -2057,6 +2057,34 @@
         "Only SignPath Foundation can accept or reject the project."
       ],
       "next_action": "Request separate user approval to commit this tested readiness package on codex/signpath-readiness; push, pull-request creation and merge remain separately authorized."
+    },
+    {
+      "id": "EV-20260823-002",
+      "recorded_at_utc": "2026-08-23T00:00:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "a0696f38f691460635d72ee934bdd8d68bed8e41",
+      "subject": "immutable libmpv runtime mirror preparation",
+      "evidence": [
+        "work began in a separate clean codex/signpath-hosted-build worktree exactly equal to origin/master at a0696f38f691460635d72ee934bdd8d68bed8e41; the older dirty worktree and user files were left unchanged",
+        "the maintainer confirmed that GitHub multi-factor authentication is enabled; this is user attestation only and is not independently proven by repository evidence",
+        "live artifact metadata identified Actions artifact 9452521445 from source-build run 32488810460 at head 4b948676990dde217206b878fca388093a367b61, unexpired with expiry 2026-09-20T15:35:47Z",
+        "the exact source dev archive is pinned to 29427624 bytes and SHA-256 024f4e98884db6074e956d4f5001040836bfa395cdc90e6bd5c20634b881297e; the extracted mpv-2.dll is pinned to 112772608 bytes and SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        ".github/workflows/publish-libmpv-runtime.yml is manual-only, uses pinned actions and narrow permissions, refuses to overwrite the OCI tag, verifies source identity and expiry, and performs digest-based pull/readback byte comparisons",
+        "the new regression contract first completed with 4 failed tests while the workflow was absent; after implementation and correction of a test-only case-normalization error it completed with 4 passed",
+        "the combined runtime-mirror, CI and libmpv source-build workflow regression group completed with 24 passed and 0 failed",
+        "the final impacted SignPath, runtime-mirror, CI, libmpv source-build and release-documentation group completed with 232 passed and 0 failed",
+        "the required continuity regression group completed with 7 passed and 0 failed, and VERIFICATION_LEDGER.json passed json.tool validation",
+        "git diff --check completed cleanly"
+      ],
+      "summary": "A fail-closed manual migration is prepared to preserve the already verified libmpv runtime in project-owned immutable OCI storage before its temporary Actions artifact expires, without rebuilding libmpv or changing the active release chain.",
+      "limitations": [
+        "The workflow has not been committed, pushed, dispatched or hosted-tested; GHCR state and release assets are unchanged and no OCI digest exists yet.",
+        "No libmpv build, MLC Player build, installation, native smoke, SignPath submission, signing, tag or release was performed.",
+        "Local YAML parsing could not be run because no YAML parser is installed in the worktree environment; no package was installed. Source contracts passed, while GitHub workflow parsing remains a later hosted PR gate.",
+        "The source Actions artifact is temporary and expires at the recorded time; dispatch after expiry must fail rather than use unverified replacement bytes."
+      ],
+      "next_action": "Validate the continuity record and impacted tests, then request separate commit approval. Push, pull request, merge and the state-changing manual workflow dispatch each remain separately authorized."
     }
   ]
 }
