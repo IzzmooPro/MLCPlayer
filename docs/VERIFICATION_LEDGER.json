@@ -1462,6 +1462,32 @@
         "No installer, installation, tag or release evidence was produced."
       ],
       "next_action": "Validate this failure record and request separate approvals for its documentation commit and for installing the committed locked environment; only after both are resolved may the build be attempted again."
+    },
+    {
+      "id": "EV-20260822-023",
+      "recorded_at_utc": "2026-08-22T14:46:36Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "b796040d8eb704a9d945a9237d46ea67be95c831",
+      "subject": "v0.39 candidate source build",
+      "evidence": [
+        "after separate installation approval, only Pillow 12.3.0, pytest 9.0.3 and setuptools 83.0.0 were installed; packaging/verify_dependencies.py requirements-lock.txt then passed the complete committed lock",
+        "the separately approved retry ran packaging/build_release.bat once on clean and origin-equal commit b796040d8eb704a9d945a9237d46ea67be95c831 and completed through all eight steps with DONE",
+        "runtime preflight matched mpv-2.dll at 112772608 bytes, yt-dlp.exe at 17840399 bytes and deno.exe at 97408288 bytes; the publishability gate confirmed v0.39 is newer than public v0.38",
+        "the dist package verified at 181.3 MB and both installer version resources reported FileVersion and ProductVersion 0.39.0.0",
+        "installer_output/MLCPlayer_Setup_v0.39.exe is 56329783 bytes with SHA-256 00ed3ef67da44adf1f4d997426636ba7642413098c66bf08fade54dd44584915",
+        "installer_output/MLCPlayer_InternetVideo_v0.39.exe is 48896196 bytes with SHA-256 07f69153e498e0537f7c9446b69db1dc36a43256142c03b91faa0efc16c5a491",
+        "the main and add-on signature files are each 88 bytes; independent app.release_signature verification returned True for both exact installer hashes",
+        "packaging/verify_build.py --post and --final installer_output/MLCPlayer_Setup_v0.39.exe both returned exit 0 after the build",
+        "the Git working tree remained clean after generated and ignored build outputs were produced"
+      ],
+      "summary": "The exact v0.39 source commit produced two internally verified and Ed25519-signed candidate installers after the local locked environment was corrected.",
+      "limitations": [
+        "This source-build PASS is not installation, upgrade, uninstall, interactive native playback or installed-artifact acceptance.",
+        "No tag, release, public upload or existing v0.38 release asset changed.",
+        "The required final-artifact physical acceptance and corresponding-source staging remain pending before any tag may be created."
+      ],
+      "next_action": "Validate the documentation handoff and request separate approval for its commit; after the record is clean and pushed, request separate install/uninstall authorization for the exact v0.39 final-artifact acceptance sequence."
     }
   ]
 }
