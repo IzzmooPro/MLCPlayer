@@ -1935,6 +1935,51 @@
         "Push and pull_request triggers currently produce two full CI runs for the same branch head; they are separate events, not retries."
       ],
       "next_action": "Validate this acceptance record locally, then use the newly active workflow: separately approve its commit, branch push, pull-request creation and merge."
+    },
+    {
+      "id": "EV-20260822-043",
+      "recorded_at_utc": "2026-08-22T21:56:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "b547b9f41ad3491c937aa2e9497b99f459ed86f7",
+      "subject": "first single-run CI trigger contract",
+      "evidence": [
+        "the repository started clean and equal to origin/master at merge commit b547b9f41ad3491c937aa2e9497b99f459ed86f7 before local branch codex/ci-single-run was created",
+        "live GitHub history showed each of the first two protected PR changes produced three CI events: task-branch push, pull_request and post-merge master push",
+        "the new regression contract required automatic pull_request, retained manual workflow_dispatch and prohibited automatic push triggers",
+        "python -m pytest -q tests/test_ci_workflow_regressions.py completed with 2 failed and 9 passed",
+        "the two failures identified the exact old behaviors: workflow_dispatch was absent while push and github.event.before/PUSH_BASE_SHA were still present",
+        "the failure was inspected before changing the workflow and no GitHub run, repository setting, remote branch, PR, commit, tag or release was changed"
+      ],
+      "summary": "The first contract run correctly proved the existing workflow still launched redundant push CI and had no explicit manual exact-master test path.",
+      "limitations": [
+        "This failed local contract is not hosted evidence that the replacement trigger works on GitHub.",
+        "No product, native-smoke, installed-artifact or release behavior was exercised."
+      ],
+      "next_action": "Remove the automatic push trigger and push-base classifier input, add workflow_dispatch with a full-CI fallback, document the release-only manual exact-master run, then rerun the targeted CI and documentation contracts once."
+    },
+    {
+      "id": "EV-20260822-044",
+      "recorded_at_utc": "2026-08-22T21:56:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "b547b9f41ad3491c937aa2e9497b99f459ed86f7",
+      "subject": "single automatic CI run preparation",
+      "evidence": [
+        ".github/workflows/ci.yml now has automatic pull_request and manual workflow_dispatch triggers but no push trigger",
+        "the classifier now uses only github.event.pull_request.base.sha; manual dispatch has no base SHA and therefore deliberately follows the full-CI path",
+        "docs/CHANGE_WORKFLOW.md states that task-branch push, master merge push and tag push do not start automatic CI and that the required test remains on the PR",
+        "docs/RELEASE_PROCESS.md requires a manual workflow_dispatch full test on the exact master merge commit before a release build, preserving exact-commit hosted evidence without taxing routine changes",
+        "python -m pytest -q tests/test_ci_workflow_regressions.py tests/test_change_workflow_regressions.py tests/test_release_documentation_regressions.py completed with 223 passed and 0 failed in 0.72 seconds"
+      ],
+      "summary": "The prepared workflow reduces routine protected changes from three automatic CI runs to one PR run while preserving an explicit manual full test for release candidates and shared CI diagnostics.",
+      "limitations": [
+        "This is deterministic source and contract evidence; the one-run behavior still requires a real pushed branch and pull request for hosted acceptance.",
+        "The first branch push after this uncommitted change may still use GitHub's previous default-branch workflow semantics; the decisive acceptance is one PR run and no post-merge push run after the change reaches master.",
+        "Manual workflow_dispatch is not an automatic retry and must not be used to hide a failed PR check.",
+        "No build, installation, native smoke, tag or release was performed."
+      ],
+      "next_action": "Validate the continuity record and diff, then request separate commit approval on codex/ci-single-run; separately authorize branch push, PR creation and merge before measuring hosted one-run behavior."
     }
   ]
 }

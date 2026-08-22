@@ -54,6 +54,15 @@ def test_change_workflow_defines_the_planned_solo_maintainer_gate():
     assert "bypass actor yok" in text
 
 
+def test_change_workflow_uses_one_automatic_ci_run_per_change():
+    text = workflow_text()
+    assert "yalnız `pull_request`" in text
+    assert "Görev dalı push'u, `master` merge push'u ve tag push'u" in text
+    assert "otomatik CI başlatmaz" in text
+    assert "`workflow_dispatch`" in text
+    assert "sürüm adayı" in text
+
+
 def test_agent_entrypoint_links_to_the_change_workflow():
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     assert "docs/CHANGE_WORKFLOW.md" in agents
@@ -68,6 +77,8 @@ def test_release_process_uses_the_pr_merge_commit_as_build_identity():
     assert "**merge commit**" in release
     assert "git rev-parse origin/master" in release
     assert "master'a ikinci kez push yapılmaz" in release
+    assert "workflow_dispatch" in release
+    assert "exact merge commit" in release
 
 
 def test_public_readmes_link_to_the_change_workflow():

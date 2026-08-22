@@ -22,10 +22,12 @@ def workflow_step(text, name):
     return text[start:] if end == -1 else text[start:end]
 
 
-def test_ci_runs_for_pushes_and_pull_requests_on_windows():
+def test_ci_runs_once_for_pull_requests_and_keeps_manual_dispatch():
     text = workflow_text()
-    assert "push:" in text
-    assert "pull_request:" in text
+    trigger = text[:text.index("\npermissions:")]
+    assert "pull_request:" in trigger
+    assert "workflow_dispatch:" in trigger
+    assert "push:" not in trigger
     assert "runs-on: windows-latest" in text
     assert "timeout-minutes:" in text
     assert "contents: read" in text
@@ -53,7 +55,8 @@ def test_ci_classifies_documentation_only_changes_before_running_jobs():
     assert "fetch-depth: 0" in text
     assert "id: classify" in text
     assert "github.event.pull_request.base.sha" in text
-    assert "github.event.before" in text
+    assert "github.event.before" not in text
+    assert "PUSH_BASE_SHA" not in text
     assert "steps.classify.outputs.docs_only == 'true'" in text
     assert "steps.classify.outputs.docs_only != 'true'" in text
 
