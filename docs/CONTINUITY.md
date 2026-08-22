@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-015`
+- Son kanıt: `EV-20260822-016`
 - Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest; yeni build gerekmez**
 
 ## Şu anda doğrulanmış durum
@@ -324,19 +324,26 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 57. Kısa-yol izolasyon ve regresyon paketi kullanıcı onayıyla yerel commit'e
    alındı. Commit kimliği her oturumda canlı Git komutuyla doğrulanır; commit
    henüz push edilmedi.
+58. İzolasyon paketi `f16cbbd` olarak commit ve push edildi. Run `32577216957`
+   workflow/test değişiklikleri nedeniyle beklenen tam yolu seçti ve
+   **4772 passed / 30 skipped / 0 failed** verdi (`EV-20260822-016`). Düzeltme
+   GitHub'da kabul edildi; yalnız düzeltilmiş kısa yolun bir belge-only push
+   ile son kabulü kaldı.
+59. Tam-yol hosted kabul kaydının iki belgeli paketi kullanıcı onayıyla yerel
+   commit'e alındı. Commit kimliği her oturumda canlı Git komutuyla
+   doğrulanır; bu son belge-only tetik henüz push edilmedi.
 
 ## Sıradaki tek adım
 
-İlk kısa-yol hosted denemesi ürün conftest bağı nedeniyle başarısız oldu;
-neden incelendi ve tekrarını engelleyen izolasyon/regresyon düzeltmesi yerelde
-geçip yerel commit'e alındı. Kullanıcıdan ayrı push onayı iste; push, build
-veya release işlemini kendiliğinden başlatma.
+Kısa-yol izolasyon düzeltmesi tam hosted CI'da geçti. Bu iki belgeli sonuç
+kaydı yerel commit'tedir ve düzeltilmiş kısa yolun son gerçek kabul girdisidir.
+Kullanıcıdan ayrı push onayı iste; push, build veya release işlemini
+kendiliğinden başlatma.
 
 ## Sonraki sıra
 
-1. Kısa-yol izolasyon commit'i için ayrıca açık push onayı al; workflow/test değiştiği
-   için bu push güvenli tam yolu çalıştırır.
-2. Sonraki belge-only tetikte kısa yolun 7 testi geçtiğini ve tam yolun
+1. Son belge-only tetik commit'i için ayrıca açık push onayı al.
+2. Belge-only tetikte kısa yolun 7 testi geçtiğini ve tam yolun
    atlandığını doğrula; final meta-test sonucunu yeni bir commit'e yazarak
    döngü oluşturma.
 3. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.

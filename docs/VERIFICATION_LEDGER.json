@@ -1307,6 +1307,28 @@
         "No full suite, native playback, build, installation, tag or release action occurred."
       ],
       "next_action": "Run the mandatory continuity regression after recording this evidence, then request separate commit approval; hosted acceptance still requires a separately approved push and a later documentation-only trigger."
+    },
+    {
+      "id": "EV-20260822-016",
+      "recorded_at_utc": "2026-08-22T14:06:19Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "f16cbbd814802e3d4fdbced97a6135837dfb77e9",
+      "subject": "Documentation CI isolation full-path hosted acceptance",
+      "evidence": [
+        "GitHub Actions run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32577216957 completed successfully for commit f16cbbd814802e3d4fdbced97a6135837dfb77e9",
+        "the classifier selected the expected full path because workflow, regression and evidence files changed together",
+        "documentation-only steps were skipped while full locked dependency verification, compilation, translation and whitespace checks passed",
+        "the complete CI-safe suite finished with 4772 passed, 30 skipped and 0 failed in 126.16 seconds",
+        "the conftest-isolation regression and workflow correction were accepted by GitHub on the first run without a restart"
+      ],
+      "summary": "The isolation correction preserves the complete CI path and is accepted on GitHub; only the corrected documentation-only branch remains to be exercised once.",
+      "limitations": [
+        "This full-path run does not itself execute the corrected --noconftest documentation command.",
+        "Hosted CI is not native playback, build, installation or released-artifact evidence.",
+        "The 30 skipped paths remain non-PASS and no v0.38 release asset or libmpv build changed."
+      ],
+      "next_action": "Commit and push this two-document record with separate approvals, verify the short branch passes seven continuity tests while full steps are skipped, and do not create a recursive evidence commit for that final meta-test."
     }
   ]
 }
