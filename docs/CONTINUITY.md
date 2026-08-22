@@ -5,14 +5,14 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 22 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `a2d87a6a2b60f5301163195ab8802e6f0662f4a4`
+- Kayıt hazırlanırken doğrulanan HEAD: `3f067417552a97debdd6e842059ab761e2c9d993`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-023`
-- Yayın kararı: **v0.38 canlı ve latest; v0.39 aday build'i geçti, fiziksel
-  installer kabulü/tag/release henüz yapılmadı**
+- Son kanıt: `EV-20260822-024`
+- Yayın kararı: **v0.38 canlı ve latest; v0.39 ana fiziksel installer matrisi
+  geçti ancak zorunlu fault senaryoları eksik, tag/release BLOKLU**
 
 ## Şu anda doğrulanmış durum
 
@@ -379,21 +379,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    İkisi de `0.39.0.0`; iki 88 baytlık Ed25519 imzası bağımsız doğrulandı ve
    post/final kapıları exit 0 verdi (`EV-20260822-023`). Bu source-build
    kanıtıdır; kurulum, tag veya release kanıtı değildir.
+68. Exact v0.39 ana/add-on installer'ları görünür ve sessiz yollarda; gerçek
+   v0.38 yükseltmesi, açık Player'da fail-closed kaldırma, Player/Deno Restart
+   Manager yükseltmesi ve iki kaldırma sırasında sınandı. Ana açık-Player
+   kaldırması `exit 1` verdi ve 144 dosya / 314.635.287 baytlık ağaç özeti
+   değişmedi. İki kaldırma sırası da exit 0 / klasör-kayıt-süreç artığı 0 ile
+   bitti; `MLCPlayer.ini` hash/zamanı değişmedi. Kullanıcı görünür yükseltme
+   sonrası uygulamanın sorunsuz açıldığını doğruladı. Ancak aktif yt-dlp
+   hazırlığı güvenlik politikası tarafından başlamadan engellendi; başka
+   klasörde aynı adlı süreç, asılı Player ve bozuk InstallLocation fault
+   senaryoları çalıştırılmadı. Sonuç `EV-20260822-024` olarak **BLOCKED**;
+   sistemde v0.39 kurulu değildir ve AppData korunur.
 
 ## Sıradaki tek adım
 
-Başarılı v0.39 source-build sonucunu kullanıcıya sun. Bu iki belgeli kayıt için
-commit ayrı açık onay bekler. Kayıt temiz ve push edilmiş hâle geldikten sonra
-exact installer'ların fiziksel install/upgrade/uninstall kabulü için ayrıca
-onay iste; tag veya release işlemini kendiliğinden başlatma.
+Sınırlandırılmış v0.39 fiziksel kabul sonucunu kullanıcıya sun. Bu iki belgeli
+BLOCKED kayıt için commit ayrı açık onay bekler. Eksik registry/process fault
+senaryoları için ayrıca açık yetki almadan test, tag veya release başlatma.
 
 ## Sonraki sıra
 
-1. Başarılı build kaydını ayrı onayla commit et ve push iznini ayrıca bekle.
-2. Ayrı install/uninstall onayıyla exact v0.39 ana ve add-on installer'ları
-   resmî b2 fiziksel kabul zincirinden geçir. Mevcut v0.38 release
-   artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
-3. Fiziksel kabul doğrulanmadan tag veya GitHub release oluşturma. Yayın
+1. BLOCKED fiziksel kabul kaydını ayrı onayla commit et ve push iznini ayrıca
+   bekle.
+2. Kullanıcı kontrollü registry/process fault injection kapsamını açıkça
+   onaylarsa aynı adlı dış süreç, asılı Player, aktif yt-dlp ve bozuk
+   InstallLocation senaryolarını exact v0.39 artifact'larıyla tamamla.
+3. Tam fiziksel kabul doğrulanmadan tag veya GitHub release oluşturma. Yayın
    öncesinde 83
    karşılık-gelen-kaynak varlığını resmî release sürecine göre yeniden hazırla.
 4. Engelleyici olmayan CI `sitecustomize` başlangıç mesajını ayrı dar workflow

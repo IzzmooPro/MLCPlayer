@@ -1488,6 +1488,36 @@
         "The required final-artifact physical acceptance and corresponding-source staging remain pending before any tag may be created."
       ],
       "next_action": "Validate the documentation handoff and request separate approval for its commit; after the record is clean and pushed, request separate install/uninstall authorization for the exact v0.39 final-artifact acceptance sequence."
+    },
+    {
+      "id": "EV-20260822-024",
+      "recorded_at_utc": "2026-08-22T15:03:23Z",
+      "proof_layer": "installed_artifact",
+      "result": "blocked",
+      "commit": "3f067417552a97debdd6e842059ab761e2c9d993",
+      "subject": "v0.39 final-artifact physical acceptance matrix",
+      "evidence": [
+        "the exact main installer was 56329783 bytes with SHA-256 00ed3ef67da44adf1f4d997426636ba7642413098c66bf08fade54dd44584915 and the exact add-on installer was 48896196 bytes with SHA-256 07f69153e498e0537f7c9446b69db1dc36a43256142c03b91faa0efc16c5a491",
+        "the user completed the visible v0.38 to v0.39 main upgrade and confirmed that the installed application opened successfully; installed MLC Player.exe reported v0.39, 3133132 bytes and SHA-256 5a8eac01a9f702c7b07a961d51ff78d6dc9247c2765ca3c798a558dcced58ca1",
+        "the visible add-on installer returned exit 0 with restart not required; installed yt-dlp.exe and deno.exe matched 17840399-byte SHA-256 66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a and 97408288-byte SHA-256 98f8c2a2d470e4ccb04c935c86ff8050817d877762aec5eaeeb9e409ccb3b9fd",
+        "a silent same-version main upgrade closed the running installed Player through the installer; the original Player exited 0 and no installed-tree process leaked",
+        "a silent add-on upgrade with the installed Player and Deno running returned exit 0; Player exited 0, Deno was closed by Restart Manager with Windows status -1073741510 and no Player, Deno or yt-dlp target process leaked",
+        "the exact v0.39 main uninstaller was run while Player was open; the user observed its fail-closed message, the uninstaller returned exit 1, Player remained running and the complete 144-file 314635287-byte installed-tree digest stayed 41f093e6cd21a1bdb79e85606812e82612da38acd58be1649b7d89604910df50 before and after",
+        "after the blocked uninstall attempt the Player accepted normal window close, exited 0 and left no process",
+        "removal order A passed: visible main uninstall returned 0 and preserved seven add-on files plus its uninstall record; silent add-on uninstall returned 0 and removed the shared installation directory",
+        "removal order B passed after silent installation of both packages: visible add-on uninstall returned 0 and preserved the v0.39 main EXE, libmpv and main uninstall record; silent main uninstall returned 0 and removed the shared installation directory",
+        "the final system state had no installation directory, MLC uninstall record, HKLM/HKCU/HKCR Applications product key, MLC .lnk shortcut or target process",
+        "the user MLCPlayer.ini remained 674 bytes with unchanged timestamp and SHA-256 66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c; the existing application log grew only through the explicitly launched Player sessions and remained present",
+        "two attempts to create a controlled long-lived localhost yt-dlp probe were rejected by the execution safety policy before the yt-dlp process or installer started; the helper session was then closed normally and this scenario was not counted as PASS"
+      ],
+      "summary": "The exact v0.39 installers passed visible and silent installation, real v0.38 upgrade, running-Player fail-closed removal, Restart Manager Player/Deno handling and both uninstall orders, but the complete pre-tag physical gate remains blocked because several required fault scenarios were not executed.",
+      "limitations": [
+        "Active yt-dlp upgrade handling is not PASS because the safe long-lived process setup was blocked before execution.",
+        "A same-named process outside the installed directory, a suspended or close-refusing installed Player and the empty/relative/root/UNC/stale/wrong-product InstallLocation cases were not physically executed for these exact artifacts.",
+        "The installed application was opened successfully by the user, but this matrix did not perform a deterministic media-playback child acceptance.",
+        "The system is intentionally left with v0.39 uninstalled; user AppData remains. No tag or release was created."
+      ],
+      "next_action": "Validate and commit this bounded BLOCKED result, then obtain explicit authorization for controlled registry and process fault injection before attempting the missing pre-tag cases; do not create a tag or release while the gate is incomplete."
     }
   ]
 }
