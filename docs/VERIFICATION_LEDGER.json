@@ -1548,6 +1548,30 @@
         "The system is intentionally left with v0.39 uninstalled so a future public-download test begins from a clean product state; user AppData remains."
       ],
       "next_action": "Validate and commit this PASS correction, push it with separate approval, then stage and verify all corresponding-source assets before any annotated v0.39 tag is requested."
+    },
+    {
+      "id": "EV-20260822-026",
+      "recorded_at_utc": "2026-08-22T19:29:42Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "e9da1fb93733c1f7da9c193a81ed22a3d9df5865",
+      "subject": "v0.39 corresponding-source staging",
+      "evidence": [
+        "the documentation-only CI run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32593675222 completed successfully with 7 continuity tests while the full product path was skipped",
+        "the repository was clean and equal to origin/master at e9da1fb93733c1f7da9c193a81ed22a3d9df5865 before source collection",
+        "packaging/fetch_sources.py mirrored and verified all 83 declared source archives into source_mirror, totaling 914482463 bytes",
+        "every downloaded item printed an OK result and the command finished with 83 corresponding-source archives verified",
+        "a separate network-free loop called the committed verify function for every planned path and returned PLAN_COUNT=83, PLAN_BYTES=914482463 and BAD_COUNT=0",
+        "the targeted source-mirror, libmpv, cryptography, yt-dlp, prepublish and release-artifact-selection regression group completed with 94 passed and 0 failed in 13.72 seconds",
+        "no libmpv build, product build, installation, tag or release action occurred"
+      ],
+      "summary": "All corresponding-source files required by the v0.39 release contract are now locally present and independently match their declared names, byte sizes and SHA-256 values.",
+      "limitations": [
+        "This deterministic source-staging PASS does not upload the 83 archives or prove future GitHub release asset parity.",
+        "The source_mirror files are ignored release inputs and are not added to the Git commit.",
+        "No annotated v0.39 tag, draft release or public release exists."
+      ],
+      "next_action": "Validate and commit this source-staging record, push it with separate approval, then request separate authorization for the local annotated v0.39 tag and run the prepublish gate before any tag push."
     }
   ]
 }

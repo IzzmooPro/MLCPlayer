@@ -5,14 +5,14 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 22 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `2fc1c149413fe1eb26a113f9a84ff527cbf292fe`
+- Kayıt hazırlanırken doğrulanan HEAD: `e9da1fb93733c1f7da9c193a81ed22a3d9df5865`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-025`
-- Yayın kararı: **v0.38 canlı ve latest; v0.39 exact fiziksel installer/fault
-  kabulü geçti, karşılık-gelen-kaynak staging ve tag/release henüz yapılmadı**
+- Son kanıt: `EV-20260822-026`
+- Yayın kararı: **v0.38 canlı ve latest; v0.39 build/fiziksel kabul ve 83
+  kaynak staging geçti, annotated tag ve release henüz yapılmadı**
 
 ## Şu anda doğrulanmış durum
 
@@ -403,21 +403,27 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    344.064 baytlık dış-süreç kopyası `%TEMP%` altında kaldı; silme komutu
    politika tarafından reddedildi, repo/ürün/AppData veya release içeriği
    değildir.
+70. `e9da1fb` temiz ve origin ile eşit durumdayken ayrı indirme onayıyla
+   `packaging/fetch_sources.py` çalıştı. Sözleşmedeki **83/83** kaynak arşivi
+   toplam **914.482.463 bayt** olarak indirildi ve yerleşik boyut/SHA-256
+   doğrulamasından geçti. Ayrı ağsız döngü `BAD_COUNT=0`; kaynak aynası,
+   libmpv/cryptography/yt-dlp staging, prepublish ve artifact seçim grubu
+   **94 passed / 0 failed** verdi (`EV-20260822-026`). Libmpv veya ürün build'i
+   tekrarlanmadı; tag/release oluşturulmadı.
 
 ## Sıradaki tek adım
 
-Tamamlanan v0.39 fiziksel fault kabulünü kullanıcıya sun. Bu iki belgeli PASS
-kaydı için commit ayrı açık onay bekler. Kayıt push edilmeden ve 83
-karşılık-gelen-kaynak varlığı hazırlanıp doğrulanmadan tag veya release
-başlatma.
+Tamamlanan v0.39 kaynak staging sonucunu kullanıcıya sun. Bu iki belgeli PASS
+kaydı için commit ayrı açık onay bekler. Kayıt push edilmeden annotated tag,
+tag push'u veya release başlatma.
 
 ## Sonraki sıra
 
-1. PASS fiziksel kabul kaydını ayrı onayla commit et ve push iznini ayrıca
+1. PASS kaynak staging kaydını ayrı onayla commit et ve push iznini ayrıca
    bekle.
-2. Ayrı onayla 83 karşılık-gelen-kaynak varlığını source_mirror içine hazırla
-   ve boyut/SHA-256 eşliğini doğrula; libmpv build'ini tekrarlama.
-3. Kaynak varlıkları doğrulanmadan tag veya GitHub release oluşturma. Yayın
+2. Ayrı tag onayıyla yerel annotated `v0.39` tag'ini oluştur; ardından ağsız
+   `prepublish.py --tag v0.39` kapısını çalıştır.
+3. Prepublish doğrulanmadan tag push'u veya GitHub release oluşturma. Yayın
    öncesinde 83
    karşılık-gelen-kaynak varlığını resmî release sürecine göre yeniden hazırla.
 4. Engelleyici olmayan CI `sitecustomize` başlangıç mesajını ayrı dar workflow
