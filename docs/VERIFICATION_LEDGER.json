@@ -2004,6 +2004,32 @@
         "No build, installation, tag, release or product-runtime action was performed."
       ],
       "next_action": "Validate and commit this final hosted acceptance record with separate approval, then pass it through the same one-run PR workflow before selecting the next engineering item."
+    },
+    {
+      "id": "EV-20260822-046",
+      "recorded_at_utc": "2026-08-22T22:17:47Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "bb6da3478c98ac6357a708462ab56caa8514bdab",
+      "subject": "Dependabot alerts and dependency graph activation",
+      "evidence": [
+        "the repository started clean and equal to origin/master at merge commit bb6da3478c98ac6357a708462ab56caa8514bdab",
+        "the previously completed advisory remediation remains in source: Pillow 12.3.0, pytest 9.0.3 and setuptools 83.0.0 are pinned at fixed versions and excluded from the player runtime",
+        "all 24 exact Python package versions in requirements-lock.txt were queried together against GitHub's reviewed pip advisory database and matched zero advisories",
+        "python -m pytest -q tests/test_dependency_lock_regressions.py completed with 9 passed and 0 failed in 0.20 seconds",
+        "before the authorized setting change, repository Dependabot alerts were disabled, the vulnerability-alert flag returned disabled and the dependency-graph SBOM endpoint returned 404",
+        "the separately authorized PUT /repos/IzzmooPro/MLCPlayer/vulnerability-alerts returned HTTP 204 and its immediate GET read-back also returned HTTP 204",
+        "Dependabot security updates remained disabled, so GitHub will not automatically create remediation pull requests",
+        "after activation the open Dependabot alert list was empty and the dependency-graph SBOM endpoint succeeded with 30 packages at 2026-08-22T22:17:47Z",
+        "secret scanning and secret-scanning push protection remained enabled"
+      ],
+      "summary": "The public repository now has continuous read-only dependency visibility and Dependabot alerts, with no current open alert and no automatic update PRs; the committed Python lock also has no GitHub-reviewed advisory match at this snapshot.",
+      "limitations": [
+        "An empty alert list and zero current advisory matches are time-bound snapshots, not a permanent claim that future vulnerabilities cannot appear.",
+        "Dependabot and the dependency graph cover supported manifests; bundled native binaries and manually staged source archives retain their separate release and source-verification contracts.",
+        "No dependency was upgraded or installed, and no product code, build, native smoke, tag or release was changed."
+      ],
+      "next_action": "Validate and commit this GitHub security-setting acceptance record with separate approval, then pass it through the one-run PR workflow before selecting the next deferred engineering item."
     }
   ]
 }
