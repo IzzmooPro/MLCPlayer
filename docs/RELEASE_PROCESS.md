@@ -33,6 +33,18 @@ Bu ayrım kasıtlıdır: araçlar Git'i **çağırır**, ama yalnız okumak içi
 "Git kullanmaz" demek yanlış olurdu; doğru olan, **durumu
 değiştirmedikleridir**.
 
+## Kod imzalama katmanları
+
+SignPath is not currently part of the active release chain. Mevcut kurulumlar
+Windows Authenticode imzası taşımaz; `CODE_SIGNING_POLICY.md` yalnız ücretsiz
+SignPath başvurusu için hazırlık durumunu açıklar.
+
+SignPath kabulü alınır ve ayrıca süreç değişikliği onaylanırsa Authenticode must happen before the existing detached Ed25519 signature is created.
+Ed25519 `.sig`, Authenticode uygulanmış **son EXE baytlarının** SHA-256 değerini
+imzalamalıdır. İki katman birbirinin yerine geçmez. SignPath kabulü, hosted
+unsigned-build kapısı ve son installer kabul testleri tamamlanmadan aşağıdaki
+kesin yayın sırası değiştirilmez.
+
 **`git ls-remote` bu listede DEĞİLDİR.** Yalnız uzak doğrulama adımı
 **(g)**'de çalışır ve **ağ kullanır**. `prepublish.py`,
 `verify_release_ref.py` ve `verify_build.py --pre` tarafından

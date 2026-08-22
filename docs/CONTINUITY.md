@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-046`
+- Son kanıt: `EV-20260823-001`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -524,22 +524,31 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    PUT ve GET **HTTP 204**, dependency graph SBOM **30 paket**, açık alert
    listesi **0** verdi. Otomatik security-update PR'ları kapalı, secret scanning
    ve push protection açık kaldı (`EV-20260822-046`).
+90. Ücretsiz SignPath Foundation yolu güncel `origin/master` tabanından ayrı
+   temiz worktree'de incelendi. GPL-3.0, canlı sürüm, dokümantasyon ve açık
+   kaynak bağımlılıklar başvuruyu makul kılıyor; fakat MFA durumu kaynakta
+   kanıtlanamaz ve SignPath'in istediği GitHub-hosted doğrulanabilir unsigned
+   installer build'i henüz yoktur. Gerçeği abartmayan `CODE_SIGNING_POLICY.md`,
+   `PRIVACY.md` ve `docs/SIGNPATH_READINESS.md` hazırlandı. Sözleşme önce
+   **4 failed**, uygulama sonrasında **4 passed**; ilgili belge paketi CI
+   ortamında **540 passed / 0 failed** verdi (`EV-20260823-001`). Başvuru,
+   hesap, sertifika, build veya yayın yapılmadı.
 
 ## Sıradaki tek adım
 
-Dependabot/dependency-graph canlı kabul kaydını
-`codex/dependabot-alerts-acceptance` dalında doğrula. Yalnız kullanıcı ayrı
-onay verirse commit et; ardından dal push'u, PR oluşturma ve merge için yine
-ayrı onaylar iste.
+Sonraki teknik kapı, SignPath başvurusu öncesinde GitHub hesabında MFA'nın açık
+olduğunu kullanıcıyla doğrulamaktır; bu özel hesap durumu kaynak koddan
+ölçülemez. Hazırlık paketi ayrı commit, push, PR ve merge onayları olmadan
+ilerletilmez.
 
 ## Sonraki sıra
 
-1. `EV-20260822-046` kaydını dar devamlılık testiyle doğrula.
-2. Ayrı onaylarla güvenlik ayarı kabul kaydını commit et, görev dalını push et
-   ve PR oluştur.
+1. `EV-20260823-001` kaydını dar devamlılık testiyle doğrula.
+2. Ayrı onaylarla hazırlık paketini commit et, görev dalını push et ve PR aç.
 3. Zorunlu tek PR `test` PASS verdikten sonra ayrı onayla merge commit kullan.
-4. Sonraki dar mühendislik maddesini seç; yeni Dependabot alert'i oluşursa
-   sürüm yükseltmeden önce ürün/build/test etkisini ayrı değerlendir.
+4. SignPath başvurusu yapmadan önce GitHub MFA durumunu kullanıcıyla doğrula;
+   ardından native girdileri sabit hash'lerle sağlayan hosted unsigned-build
+   tasarımını ayrı değişiklik olarak hazırla.
 
 ## Kayıt düzeni
 

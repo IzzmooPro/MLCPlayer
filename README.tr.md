@@ -80,6 +80,11 @@ silinir. `.sig` dosyasını kendiniz çalıştırmazsınız.
 Kurulum henüz kod imzalı değildir; Windows SmartScreen ilk çalıştırmada
 “bilinmeyen yayıncı” uyarısı gösterebilir.
 
+Projenin [Kod imzalama politikası](CODE_SIGNING_POLICY.md) ve
+[Gizlilik politikası](PRIVACY.md) herkese açıktır. Ücretsiz SignPath Foundation
+yolu gelecek bir sürüm için hazırlanmaktadır; henüz kabul edilmemiş ve mevcut
+kuruluma uygulanmamıştır.
+
 Kurulu sürüm `Yardım → Güncellemeleri Denetle` ile güvenli biçimde
 yükseltilebilir. Yerleşik güncelleyici yalnız ana oynatıcıyı günceller;
 İnternet Videosu ek paketini kullanıyorsanız aynı yeni sürümü Releases

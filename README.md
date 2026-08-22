@@ -100,6 +100,11 @@ does not match is deleted. You do not run the `.sig` file yourself.
 The installer is not yet code-signed, so Windows SmartScreen will warn about
 an unknown publisher on first run.
 
+See the project's [Code signing policy](CODE_SIGNING_POLICY.md) and
+[Privacy policy](PRIVACY.md). The SignPath Foundation route is being prepared
+for a future release; it has not been accepted or applied to the current
+installer.
+
 Already installed? `Help → Check for updates` verifies and updates the main
 player. The built-in updater updates only the main player; if you use the
 Internet Video add-on, download and run its matching new version from the same
