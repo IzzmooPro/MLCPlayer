@@ -54,9 +54,22 @@ def test_ci_classifies_documentation_only_changes_before_running_jobs():
 def test_documentation_only_ci_uses_the_small_deterministic_gate():
     text = workflow_text()
     assert "python -m pip install -r requirements-ci-docs.txt" in text
-    assert "python -m pytest -q tests/test_continuity_regressions.py" in text
+    assert "python -m pytest -q --noconftest " \
+           "tests/test_continuity_regressions.py" in text
     assert "python -m json.tool docs/VERIFICATION_LEDGER.json" in text
     assert "git diff --check" in text
+
+
+def test_documentation_ci_is_isolated_from_the_product_test_bootstrap():
+    text = workflow_text()
+    assert "python -m pytest -q --noconftest " \
+           "tests/test_continuity_regressions.py" in text
+    assert text.count("MLC_CI: '0'") >= 2
+    assert text.count("PYTHONPATH: ''") >= 2
+
+    requirements = DOCS_REQUIREMENTS.read_text(encoding="utf-8").lower()
+    for forbidden in ("python-mpv", "pyqt", "pyside", "shiboken"):
+        assert forbidden not in requirements
 
 
 def test_documentation_ci_requirements_are_pinned_and_match_the_full_lock():

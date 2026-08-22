@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-013`
+- Son kanıt: `EV-20260822-015`
 - Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest; yeni build gerekmez**
 
 ## Şu anda doğrulanmış durum
@@ -310,20 +310,35 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 54. Tam-yol hosted kabul kaydının iki belgeli paketi kullanıcı onayıyla yerel
    commit'e alındı. Commit kimliği her oturumda canlı Git komutuyla
    doğrulanır; bu belge-only commit henüz push edilmedi.
+55. Belge-only commit `a58e73f` olarak push edildi. Run `32576705122`
+   sınıflandırmayı doğru yaptı, tam bağımlılık ve 4771-test yolunu atladı,
+   küçük bağımlılıkları yaklaşık sekiz saniyede kurdu; ancak belge pytest'i
+   ürün `tests/conftest.py` dosyasını yüklediği için test toplamadan
+   `python-mpv is missing` ile durdu (`EV-20260822-014`, **FAILED**).
+   Otomatik tekrar yapılmadı; bu ürün çalışma zamanı hatası değildir.
+56. Belge adımları `MLC_CI=0`, boş `PYTHONPATH` ve pytest `--noconftest` ile
+   ürün/native başlangıcından ayrıldı. Koruma testi küçük kilide python-mpv,
+   PyQt, PySide veya shiboken eklenmesini yasaklıyor. Workflow sözleşmesi
+   **11 passed**, gerçek izole devamlılık komutu **7 passed** verdi
+   (`EV-20260822-015`). Düzeltme henüz hosted olarak kabul edilmedi.
+57. Kısa-yol izolasyon ve regresyon paketi kullanıcı onayıyla yerel commit'e
+   alındı. Commit kimliği her oturumda canlı Git komutuyla doğrulanır; commit
+   henüz push edilmedi.
 
 ## Sıradaki tek adım
 
-Koşullu workflow GitHub'da tam yolu başarıyla geçti. Bu hosted sonuç kaydı
-yalnız iki belgeyi değiştirir, yerel commit'tedir ve kısa yolun gerçek kabul
-girdisidir. Kullanıcıdan ayrı push onayı iste; push, build veya release
-işlemini kendiliğinden başlatma.
+İlk kısa-yol hosted denemesi ürün conftest bağı nedeniyle başarısız oldu;
+neden incelendi ve tekrarını engelleyen izolasyon/regresyon düzeltmesi yerelde
+geçip yerel commit'e alındı. Kullanıcıdan ayrı push onayı iste; push, build
+veya release işlemini kendiliğinden başlatma.
 
 ## Sonraki sıra
 
-1. İki belgeli kayıt commit'i için ayrıca açık push onayı al.
-2. Belge-only push'ta yalnız kısa yolun seçildiğini, yedi devamlılık testini
-   ve tam bağımlılık/test adımlarının atlandığını doğrula; başarısızsa
-   otomatik tekrar yapma.
+1. Kısa-yol izolasyon commit'i için ayrıca açık push onayı al; workflow/test değiştiği
+   için bu push güvenli tam yolu çalıştırır.
+2. Sonraki belge-only tetikte kısa yolun 7 testi geçtiğini ve tam yolun
+   atlandığını doğrula; final meta-test sonucunu yeni bir commit'e yazarak
+   döngü oluşturma.
 3. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
 
 ## Kayıt düzeni
