@@ -10,9 +10,9 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-026`
-- Yayın kararı: **v0.38 canlı ve latest; v0.39 build/fiziksel kabul ve 83
-  kaynak staging geçti, annotated tag ve release henüz yapılmadı**
+- Son kanıt: `EV-20260822-029`
+- Yayın kararı: **v0.38 canlı ve latest; v0.39 özel taslağındaki 87 varlık
+  ad/boyut/SHA-256 eşliğinde, canlı yayın henüz yapılmadı**
 
 ## Şu anda doğrulanmış durum
 
@@ -410,22 +410,37 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    libmpv/cryptography/yt-dlp staging, prepublish ve artifact seçim grubu
    **94 passed / 0 failed** verdi (`EV-20260822-026`). Libmpv veya ürün build'i
    tekrarlanmadı; tag/release oluşturulmadı.
+71. `551a685` için GitHub belge CI run `32593979351` **7 passed / 0 failed**
+   verdi; tam ürün yolu belge-only değişiklik nedeniyle bilinçli atlandı. Ayrı
+   tag onayıyla yerel annotated `v0.39` tag nesnesi oluşturuldu; peel sonucu
+   `551a685` HEAD ile aynıydı. Ağsız `prepublish.py --tag v0.39` exit 0 verdi:
+   sürüm/tag eşliği, temiz ağaç, iki kriptografik installer imzası ve **87/87**
+   yayın varlığı geçti (`EV-20260822-027`). Uzak tag/release hâlâ yoktur.
+72. Ayrı tag-push onayıyla yalnız `v0.39` tag'i origin'e gönderildi. Uzak tag
+   nesnesi `36ba120c`; zorunlu `refs/tags/v0.39^{}` sorgusu tam
+   `551a685a68ffc171e0340780a371d0b99edda540` döndürdü ve yerel HEAD/kabul
+   edilmiş build commit'iyle birebir eşleşti (`EV-20260822-028`). Dal commit'i,
+   draft veya canlı release gönderilmedi.
+73. Ayrı taslak-release onayıyla `--verify-tag --draft` kullanılarak v0.39
+   taslağı oluşturuldu. Yerel **87** benzersiz varlık toplam
+   **1.019.708.618 bayt** idi. GitHub taslağı `isDraft=true`,
+   `isPrerelease=false`, **87** uploaded varlık ve aynı toplam bayt değerini
+   verdi; her uzak varlık yerel dosyayla ad/boyut/SHA-256 olarak karşılaştırıldı,
+   `MISMATCH_COUNT=0` (`EV-20260822-029`). Canlı yayın yapılmadı.
 
 ## Sıradaki tek adım
 
-Tamamlanan v0.39 kaynak staging sonucunu kullanıcıya sun. Bu iki belgeli PASS
-kaydı için commit ayrı açık onay bekler. Kayıt push edilmeden annotated tag,
-tag push'u veya release başlatma.
+v0.39 taslak varlık eşliği PASS sonucunu kullanıcıya sun. Biriken EV-027,
+EV-028 ve EV-029 kanıt belgelerini ayrı onayla commit et; push ve canlı yayın
+için ayrıca ayrı açık onay bekle.
 
 ## Sonraki sıra
 
-1. PASS kaynak staging kaydını ayrı onayla commit et ve push iznini ayrıca
-   bekle.
-2. Ayrı tag onayıyla yerel annotated `v0.39` tag'ini oluştur; ardından ağsız
-   `prepublish.py --tag v0.39` kapısını çalıştır.
-3. Prepublish doğrulanmadan tag push'u veya GitHub release oluşturma. Yayın
-   öncesinde 83
-   karşılık-gelen-kaynak varlığını resmî release sürecine göre yeniden hazırla.
+1. EV-027..029 kanıt kaydını ayrı onayla commit et.
+2. Belge commit'ini ayrı onayla origin/master'a push et ve kısa belge CI'ını
+   doğrula.
+3. CI PASS sonrası ayrı canlı-yayın onayıyla doğrulanmış taslağı latest olarak
+   yayımla; ardından public URL ve updater/download eşliğini doğrula.
 4. Engelleyici olmayan CI `sitecustomize` başlangıç mesajını ayrı dar workflow
    düzeltmesiyle temizle; başarılı release-candidate testini başarısız sayma.
 

@@ -1572,6 +1572,76 @@
         "No annotated v0.39 tag, draft release or public release exists."
       ],
       "next_action": "Validate and commit this source-staging record, push it with separate approval, then request separate authorization for the local annotated v0.39 tag and run the prepublish gate before any tag push."
+    },
+    {
+      "id": "EV-20260822-027",
+      "recorded_at_utc": "2026-08-22T19:33:52Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "551a685a68ffc171e0340780a371d0b99edda540",
+      "subject": "v0.39 local annotated tag and prepublish gate",
+      "evidence": [
+        "the documentation-only CI run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32593979351 completed successfully for 551a685 with 7 continuity tests while the full product path was intentionally skipped",
+        "the repository was clean and equal to origin/master at 551a685 before tag creation",
+        "the separately authorized command git tag -a v0.39 -m MLC Player v0.39 created local tag object 36ba120cae9ac568d8b468981a97a4cd97942592",
+        "the annotated tag peeled to 551a685a68ffc171e0340780a371d0b99edda540, exactly matching HEAD",
+        "python packaging/prepublish.py --tag v0.39 completed with exit 0: tag/source/installer versions matched, the tree was clean, both installer signatures were cryptographically valid and all 87 release assets were present",
+        "the 87 assets consist of 2 installers, 2 detached signatures and 83 corresponding-source archives",
+        "git ls-remote returned no origin v0.39 tag; no tag push, draft release or public release occurred"
+      ],
+      "summary": "The local annotated v0.39 tag identifies the exact accepted build commit and the complete offline prepublish gate passed for all 87 required release assets.",
+      "limitations": [
+        "This deterministic PASS proves only the local tag and local release inputs; the tag is not yet present on origin.",
+        "No remote peeled-tag equality or uploaded-asset name, size and SHA-256 parity has been proven.",
+        "No draft or public v0.39 GitHub release exists."
+      ],
+      "next_action": "Validate this evidence update without moving the already accepted tag, then request separate authorization to push only v0.39 and verify the remote peeled commit before any draft release is created."
+    },
+    {
+      "id": "EV-20260822-028",
+      "recorded_at_utc": "2026-08-22T19:35:27Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "551a685a68ffc171e0340780a371d0b99edda540",
+      "subject": "v0.39 remote annotated-tag equality",
+      "evidence": [
+        "before push, local v0.39 was an annotated tag object and peeled to 551a685a68ffc171e0340780a371d0b99edda540, exactly matching HEAD",
+        "git ls-remote showed that origin had no pre-existing refs/tags/v0.39 or peeled v0.39 reference",
+        "the separately authorized command git push origin v0.39 created the remote tag without pushing any branch commit",
+        "the remote tag object is 36ba120cae9ac568d8b468981a97a4cd97942592",
+        "the required refs/tags/v0.39^{} query returned 551a685a68ffc171e0340780a371d0b99edda540, exactly matching local HEAD and the accepted build commit",
+        "no draft or public GitHub release was created"
+      ],
+      "summary": "The remote annotated v0.39 tag exists and its peeled commit exactly matches the locally accepted v0.39 build commit.",
+      "limitations": [
+        "This tag-equality PASS does not prove that any of the 87 release assets have been uploaded.",
+        "No draft or public v0.39 GitHub release exists and v0.38 remains the live latest release.",
+        "The pending evidence-document changes remain uncommitted so local HEAD continues to equal the immutable v0.39 tag during the release gate."
+      ],
+      "next_action": "Request separate release authorization, create only a draft v0.39 release with all 87 verified local assets, then verify remote asset name, byte size and SHA-256 parity before any publication decision."
+    },
+    {
+      "id": "EV-20260822-029",
+      "recorded_at_utc": "2026-08-22T19:41:44Z",
+      "proof_layer": "registry_artifact",
+      "result": "passed",
+      "commit": "551a685a68ffc171e0340780a371d0b99edda540",
+      "subject": "v0.39 draft release asset parity",
+      "evidence": [
+        "the separately authorized gh release create command used --verify-tag and --draft for the already verified remote v0.39 annotated tag",
+        "the local upload set contained exactly 87 unique existing files totaling 1019708618 bytes: 2 installers, 2 detached signatures and 83 corresponding-source archives",
+        "GitHub created draft release https://github.com/IzzmooPro/MLCPlayer/releases/tag/untagged-b4b812db35da313418d2 named MLC Player v0.39",
+        "a fresh gh release view reported isDraft=true, isPrerelease=false and exactly 87 uploaded assets totaling 1019708618 bytes",
+        "every remote asset was compared with its exact local file by name, byte size and locally computed SHA-256 against GitHub's sha256 digest; MISMATCH_COUNT=0",
+        "no live publication occurred and v0.38 remains the public latest release"
+      ],
+      "summary": "The private v0.39 draft contains exactly the complete verified 87-file release set, with byte size and SHA-256 parity for every uploaded asset.",
+      "limitations": [
+        "This registry-artifact PASS proves the GitHub draft contents but does not make v0.39 public or exercise public download URLs.",
+        "The installed-artifact acceptance remains tied to the exact local installer hashes recorded earlier; publication has not yet been tested from a public download.",
+        "The draft is not latest and the updater must continue to see v0.38 until a separate publication decision."
+      ],
+      "next_action": "Validate and commit the accumulated EV-027 through EV-029 evidence with separate approval, push that documentation commit separately, then request explicit authorization before publishing the verified draft as latest."
     }
   ]
 }
