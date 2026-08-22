@@ -1775,6 +1775,51 @@
         "This change affects CI environment scoping only; no product build, installation, tag, release asset or public release changed."
       ],
       "next_action": "Validate and commit this hosted acceptance record with separate approval, push it separately, then select the next single narrow item from the deferred engineering backlog."
+    },
+    {
+      "id": "EV-20260822-036",
+      "recorded_at_utc": "2026-08-22T20:40:20Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "234336a76a9dd78055512de25d310ba0b8815340",
+      "subject": "master protection and required-check read-only audit",
+      "evidence": [
+        "the repository was clean and equal to origin/master at 234336a76a9dd78055512de25d310ba0b8815340 before the audit",
+        "GitHub reports IzzmooPro/MLCPlayer as a public repository whose default branch is master and whose authenticated account has admin permission",
+        "GET /repos/IzzmooPro/MLCPlayer/branches/master/protection returned HTTP 404 Branch not protected",
+        "GET /repos/IzzmooPro/MLCPlayer/rulesets returned an empty list, proving no repository ruleset currently applies",
+        "the successful full run for ae02819 exposed one GitHub Actions check run named test from the github-actions app; the legacy combined-status list was empty",
+        "no repository setting, branch, ruleset, commit, tag, workflow run or release was changed during this audit"
+      ],
+      "summary": "The public master branch currently has no protection or ruleset; the exact hosted check suitable for a future required-check gate is GitHub Actions check run test.",
+      "limitations": [
+        "This is a live read-only GitHub configuration snapshot and can become stale if repository settings change later.",
+        "Requiring test before merge would change the current direct-master-push workflow and therefore needs a separately designed and authorized pull-request process.",
+        "A first-stage rule that only blocks force pushes and deletion protects history but does not prevent an ordinary red-CI commit from reaching master."
+      ],
+      "next_action": "With separate authorization, apply a non-disruptive first-stage master protection that enforces administrators, blocks force pushes and deletion, but retains ordinary direct pushes; verify it by read-back before separately deciding on a PR-plus-test gate."
+    },
+    {
+      "id": "EV-20260822-037",
+      "recorded_at_utc": "2026-08-22T20:50:54Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "234336a76a9dd78055512de25d310ba0b8815340",
+      "subject": "non-disruptive master history protection",
+      "evidence": [
+        "the separately authorized branch-protection update targeted only IzzmooPro/MLCPlayer master after a fresh preflight again returned Branch not protected",
+        "the applied protection enforces administrators, sets allow_force_pushes=false and allow_deletions=false",
+        "live API read-back returned master protected=true, enforce_admins=true, allow_force_pushes=false and allow_deletions=false",
+        "required status checks, required pull-request reviews and actor restrictions are absent; required linear history, branch lock and creation blocking are disabled",
+        "repository rulesets remain empty and no workflow, commit, tag, release asset or public release was changed"
+      ],
+      "summary": "Master history now resists force-push and branch deletion even for administrators while the existing ordinary direct-push workflow remains unblocked by PR, status-check or actor restrictions.",
+      "limitations": [
+        "The absence of PR and required-check rules means an ordinary direct push whose later CI fails can still reach master.",
+        "The first normal evidence-document push after this setting will provide behavioral proof that ordinary direct pushes remain accepted.",
+        "A future PR-plus-test gate is a separate workflow change and requires separate authorization."
+      ],
+      "next_action": "Validate and commit EV-036 and EV-037 with separate approval, push the documentation commit separately to prove normal push continuity, then decide whether to adopt a documented PR workflow requiring the GitHub Actions test check."
     }
   ]
 }
