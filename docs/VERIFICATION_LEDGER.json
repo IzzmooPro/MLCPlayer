@@ -1415,6 +1415,30 @@
         "No commit, push, build, installation, tag or release occurred."
       ],
       "next_action": "Present the verified local v0.39 source and runtime state to the user; the source-and-evidence commit remains pending separate explicit approval."
+    },
+    {
+      "id": "EV-20260822-021",
+      "recorded_at_utc": "2026-08-22T14:34:52Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "a2d87a6a2b60f5301163195ab8802e6f0662f4a4",
+      "subject": "v0.39 release-candidate source hosted verification",
+      "evidence": [
+        "GitHub Actions run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32578719607 completed successfully for commit a2d87a6a2b60f5301163195ab8802e6f0662f4a4",
+        "the full path was selected because product version, installer, test and documentation files changed together",
+        "locked dependency installation, locked-environment verification, Python compilation, translation and whitespace verification all completed successfully",
+        "the CI-safe suite completed with 4772 passed, 30 skipped and 0 failed in 125.28 seconds",
+        "the job completed successfully in about three minutes without a restart",
+        "pip startup emitted RuntimeError: python-mpv is missing from the locked CI environment before dependency collection because repository sitecustomize loaded while python-mpv was not installed yet; dependency installation continued, the later locked-environment check passed and all 4772 collected tests passed"
+      ],
+      "summary": "The committed v0.39 source and installer version package is green on the complete hosted CI path; the early sitecustomize message is a non-fatal bootstrap-order log defect, not a failed dependency or product test.",
+      "limitations": [
+        "The 30 skipped paths remain non-PASS.",
+        "Hosted CI does not prove the ignored local runtime binaries, native playback, an installer build, installation or release artifact.",
+        "The non-fatal python-mpv bootstrap message remains confusing CI log noise and should be removed in a later narrow workflow cleanup, but it did not invalidate this run.",
+        "No build, installation, tag or release occurred."
+      ],
+      "next_action": "Validate the documentation handoff, then present the hosted result and request separate approval for the v0.39 candidate build; keep the CI bootstrap-log cleanup as non-blocking follow-up work."
     }
   ]
 }

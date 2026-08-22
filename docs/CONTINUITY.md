@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 22 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `770101fa5bf2ae58e7641befbb0e0c029c36ab17`
+- Kayıt hazırlanırken doğrulanan HEAD: `a2d87a6a2b60f5301163195ab8802e6f0662f4a4`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-020`
+- Son kanıt: `EV-20260822-021`
 - Yayın kararı: **v0.38 canlı ve latest; v0.39 yerel aday hazırlığı başladı,
   henüz build/tag/release yapılmadı**
 
@@ -357,21 +357,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 64. İfade nedeni düzeltildikten sonra zorunlu devamlılık testi **7 passed / 0
    failed** verdi (`EV-20260822-020`). Güncel devir noktası hiçbir commit,
    build, push, tag veya release işlemini otomatik başlatmıyor.
+65. v0.39 hazırlık commit'i `a2d87a6` push edildi. Hosted run `32578719607`
+   tam yolu seçti; kilitli bağımlılıklar, ortam doğrulaması, compile, çeviri
+   ve whitespace adımları geçti. Test sonucu **4772 passed / 30 skipped / 0
+   failed** oldu (`EV-20260822-021`). Bağımlılık kurulumu başlamadan önce
+   `sitecustomize` kaynaklı `python-mpv is missing` mesajı çıktı; pip devam
+   etti, sonraki kilitli-ortam kapısı ve bütün testler geçti. Bu nedenle sonuç
+   yeşildir; mesaj ayrıca temizlenmesi gereken, engelleyici olmayan CI log
+   gürültüsüdür.
 
 ## Sıradaki tek adım
 
-Doğrulanmış yerel v0.39 kaynak ve runtime durumunu kullanıcıya sun. Kaynak ve
-kanıt paketinin commit işlemi ayrı açık onayı bekler; build, push, tag veya
-release işlemini kendiliğinden başlatma.
+Hosted v0.39 kaynak sonucunu kullanıcıya sun. Bu iki belgeli kanıt kaydının
+commit işlemi ve ardından v0.39 aday build'i ayrı açık onayları bekler; push,
+tag veya release işlemini kendiliğinden başlatma. CI bootstrap log temizliği
+engelleyici olmayan sonraki iş olarak korunur.
 
 ## Sonraki sıra
 
-1. Yerel v0.39 kaynak ve kanıt paketini ayrı onayla commit et.
-2. Ayrı push onayından sonra hosted CI sonucunu doğrula.
-3. Yalnız ayrı build onayıyla v0.39 aday installer'larını üret; mevcut v0.38
+1. Hosted CI kanıt belgelerini ayrı onayla commit et ve push iznini ayrıca
+   bekle.
+2. Yalnız ayrı build onayıyla v0.39 aday installer'larını üret; mevcut v0.38
    release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
-4. Build doğrulanmadan tag veya GitHub release oluşturma. Yayın öncesinde 83
+3. Build doğrulanmadan tag veya GitHub release oluşturma. Yayın öncesinde 83
    karşılık-gelen-kaynak varlığını resmî release sürecine göre yeniden hazırla.
+4. Engelleyici olmayan CI `sitecustomize` başlangıç mesajını ayrı dar workflow
+   düzeltmesiyle temizle; başarılı release-candidate testini başarısız sayma.
 
 ## Kayıt düzeni
 
