@@ -51,6 +51,7 @@ def main():
 
     frame = player.video_frame
     overlay = frame.control_overlay
+    empty_state = frame.empty_state_overlay
     bar = getattr(player, "title_bar", None)
 
     report = {
@@ -64,6 +65,8 @@ def main():
         "menu_bar_visible": player.menuBar().isVisible(),
         "overlay_created": overlay is not None,
         "overlay_visible": bool(overlay and overlay.isVisible()),
+        "empty_state_visible": bool(
+            empty_state and empty_state.isVisible()),
         # Gizli uyumluluk nesneleri yaşamaya devam etmeli
         "has_control_container": hasattr(player, "control_container"),
         "has_position_slider": hasattr(player, "position_slider"),
@@ -75,6 +78,16 @@ def main():
         report["control_container_height"] = player.control_container.height()
 
     if overlay is not None:
+        # Varsayılan açılış boş ekranı gösterir. Oynatma kontrolleri ancak
+        # medya seçildiğinde aynı child içinde ayrı durum olarak ölçülür.
+        player.current_file = "<test-video>"
+        frame.sync_empty_state()
+        frame.update_overlay_geometry()
+        frame.show_overlay_for_interaction()
+        app.processEvents()
+        report["overlay_visible_with_media"] = overlay.isVisible()
+        report["empty_state_visible_with_media"] = bool(
+            empty_state and empty_state.isVisible())
         report["timeline_hit_height"] = frame.overlay_timeline.height()
         report["overlay_height"] = overlay.height()
         report["has_auto_hide_timer"] = frame.overlay_hide_timer is not None
@@ -85,7 +98,6 @@ def main():
 
         # Gerçek seek: timeline tıklaması slider ve mpv time_pos değiştirmeli
         player.duration = 600.0
-        player.current_file = "<test-video>"
         timeline = frame.overlay_timeline
         timeline.setValue(0)
         player.mpv_player.time_pos = 0.0

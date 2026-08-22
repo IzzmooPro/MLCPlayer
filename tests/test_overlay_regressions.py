@@ -21,6 +21,7 @@ def make_video_window(monkeypatch, enabled):
     window.central_widget = QWidget(window)
     window.setCentralWidget(window.central_widget)
     window.main_layout = QVBoxLayout(window.central_widget)
+    window.current_file = "<test-video>"
     frame = VideoFrame(window)
     window.video_frame = frame
     window.main_layout.addWidget(frame)

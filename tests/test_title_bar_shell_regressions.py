@@ -58,7 +58,7 @@ def test_preview_hides_the_classic_menu_bar(preview_on):
 
 def test_preview_creates_the_custom_title_bar(preview_on):
     assert preview_on["has_title_bar"] is True
-    assert preview_on["title_bar_height"] == 48
+    assert preview_on["title_bar_height"] == 32
     assert preview_on["title_bar_visible"] is True
 
 

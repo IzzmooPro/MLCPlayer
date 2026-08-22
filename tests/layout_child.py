@@ -50,6 +50,9 @@ def main():
                       os.environ["MLC_LAYOUT_SETTINGS"])
 
     player = MPVPlayer()
+    # Bu child oynatma overlay geometrisini ölçer. Yeni boş ekranın doğru
+    # davranışı ayrı testtedir; burada gerçek oynatma durumu açık kurulmalıdır.
+    player.current_file = "<test-video>"
     player.show()
     app.processEvents()
 

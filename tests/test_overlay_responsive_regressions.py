@@ -48,6 +48,7 @@ def video_window(monkeypatch, tmp_path):
         window.is_muted = False
         window.duration = 3661.0
         window.position = 65.0
+        window.current_file = "<test-video>"
         window.volume_slider = QSlider(Qt.Orientation.Horizontal)
         window.volume_slider.setRange(0, MAX_VOLUME)
         window.volume_slider.setValue(70)

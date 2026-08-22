@@ -52,6 +52,7 @@ def video_window(monkeypatch, tmp_path):
         window.duration = 0
         window.position = 0
         window.is_muted = False
+        window.current_file = "<test-video>"
         window.calls = []
         # Klasik ses çubuğu ürünle aynı aralıkta; valueChanged ürünün
         # set_volume akışını temsil eder.

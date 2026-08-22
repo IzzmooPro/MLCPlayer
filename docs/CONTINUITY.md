@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 22 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `fa785293d2ebf2f2575c04e109cee50163eb602e`
+- Kayıt hazırlanırken doğrulanan HEAD: `6fb5e5d779edc1e74dad15cce7a3609f37bd5545`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-006`
+- Son kanıt: `EV-20260822-009`
 - Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest; yeni build gerekmez**
 
 ## Şu anda doğrulanmış durum
@@ -266,18 +266,36 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    `git diff --check` temiz, staged alan boştu. Bu deterministic kanıttır;
    hosted CI, native smoke, build veya kurulu artifact kanıtı değildir
    (`EV-20260822-006`).
+46. `6fb5e5d` için hosted CI run `32570125468`, **4728 passed / 30 skipped /
+   40 failed** verdi. Kurulum, bağımlılık doğrulama, compile, çeviri ve
+   whitespace adımları geçti; yalnız pytest kırmızıydı. Hataların 38'i yeni
+   boş ekran davranışına rağmen medya yokken playback overlay bekleyen eski
+   fixture'lardan, biri eski 48 px başlık beklentisinden, biri de dar Frame
+   double'ında opsiyonel boş-ekran widget'ına doğrudan erişimden kaynaklandı.
+   Otomatik tekrar yapılmadı (`EV-20260822-007`).
+47. Playback-overlay testleri medya-var durumuna, varsayılan açılış testleri
+   ise önce boş ekran sonra medya geçişine ayrıldı. Başlık sözleşmesi 32 px'e
+   getirildi ve dar Frame double'ı için opsiyonel widget erişimi güvenli
+   yapıldı. Etkilenen dokuz modül **214 passed / 0 failed** verdi; extractor
+   **453** çevrilebilir metni ve yedi kataloğu güncel buldu
+   (`EV-20260822-008`). Bu henüz yalnız uncommitted deterministic kanıttır.
+48. Son dar kapıda devamlılık, boş-ekran bilgi penceresi ve başlık yaşam
+   döngüsü **35 passed / 0 failed** verdi. Ledger JSON, `git diff --check`,
+   çeviri güncelliği ve boş staged alan doğrulandı (`EV-20260822-009`).
+49. Bu CI düzeltme paketi kullanıcı onayıyla tek commit'e alındı. Commit
+   kimliği her oturumda canlı Git komutuyla doğrulanır; push henüz yapılmadı.
 
 ## Sıradaki tek adım
 
-Onaylı arayüz ile CI, güncelleyici, geliştirici bağımlılığı ve erişilebilirlik
-düzeltmeleri yerel commit'te kayıtlı ve dar test kapıları temiz. Güncel HEAD ve
-origin farkını canlı Git komutlarıyla doğrula; yalnız kullanıcı ayrıca açık
-onay verirse push et. Build veya release başlatma.
+Hosted CI'da açığa çıkan boş-ekran/playback-overlay test sözleşmesi, 32 px
+başlık beklentisi ve dar Frame güvenliği yerelde düzeltildi. Etkilenen ve son
+dar kapılar temizdir ve paket yerel commit'tedir. Kullanıcıdan ayrı push onayı
+iste; push, build veya release işlemini kendiliğinden başlatma.
 
 ## Sonraki sıra
 
-1. Push için ayrı açık onay al; hosted CI ancak push ile yeni bağımlılık
-   ortamını doğrulayabilir.
+1. Push için ayrıca açık onay al; hosted CI ancak push ile
+   düzeltmeyi doğrulayabilir.
 2. Push sonrasında hosted CI sonucunu salt okunur doğrula; başarısızsa nedenini
    incelemeden otomatik tekrar yapma.
 3. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.

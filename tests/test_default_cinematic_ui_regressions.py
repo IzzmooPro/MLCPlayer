@@ -115,7 +115,10 @@ def test_default_launch_hides_classic_menu_bar(clean_env):
 
 def test_default_launch_creates_cinematic_overlay(clean_env):
     assert clean_env["overlay_created"] is True
-    assert clean_env["overlay_visible"] is True
+    assert clean_env["overlay_visible"] is False
+    assert clean_env["empty_state_visible"] is True
+    assert clean_env["overlay_visible_with_media"] is True
+    assert clean_env["empty_state_visible_with_media"] is False
     assert clean_env["overlay_height"] == 110
 
 

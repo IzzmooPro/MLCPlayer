@@ -178,12 +178,13 @@ def test_helpers_are_safe_with_legacy_classic_env(video_window):
 
 # --- 3. Video yok ---
 
-def test_timeout_does_not_hide_overlay_without_media(video_window):
+def test_without_media_empty_state_owns_the_surface(video_window):
     app, window, frame = video_window(playing=False)
     window.current_file = ""
     frame.hide_overlay_for_inactivity()
     app.processEvents()
-    assert frame.control_overlay.isVisible()
+    assert not frame.control_overlay.isVisible()
+    assert frame.empty_state_overlay.isVisible()
 
 
 def test_timer_is_not_scheduled_without_media(video_window):

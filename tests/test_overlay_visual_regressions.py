@@ -52,6 +52,7 @@ def video_window(monkeypatch):
         window.is_paused = True
         window.duration = 0
         window.position = 0
+        window.current_file = "<test-video>"
         frame = VideoFrame(window)
         window.video_frame = frame
         window.main_layout.addWidget(frame)

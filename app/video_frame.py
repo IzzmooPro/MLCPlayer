@@ -1244,8 +1244,9 @@ class VideoFrame(QWidget):
         self._overlay_suppressed = suppressed
         if suppressed:
             self.hide_overlay_immediately()
-            if self.empty_state_overlay is not None:
-                self.empty_state_overlay.hide()
+            empty_state = getattr(self, "empty_state_overlay", None)
+            if empty_state is not None:
+                empty_state.hide()
             return
         self._restore_overlay_after_activation()
 

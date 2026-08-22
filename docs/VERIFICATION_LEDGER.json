@@ -1102,6 +1102,75 @@
         "No commit or push has occurred; all results belong to the current working tree based on fa785293d2ebf2f2575c04e109cee50163eb602e."
       ],
       "next_action": "Present the complete pre-commit report and request separate commit approval; push remains separately authorized and no v0.38 release asset should change."
+    },
+    {
+      "id": "EV-20260822-007",
+      "recorded_at_utc": "2026-08-22T12:35:55Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "6fb5e5d779edc1e74dad15cce7a3609f37bd5545",
+      "subject": "Hosted CI after UI and workflow hardening",
+      "evidence": [
+        "GitHub Actions run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32570125468 completed with 4728 passed, 30 skipped and 40 failed",
+        "dependency installation, dependency verification, source compilation, translation checks and whitespace checks passed; the pytest step was the only failed step",
+        "38 failures came from legacy playback-overlay tests that still constructed a no-media window even though the approved empty state now owns that surface and intentionally hides playback controls",
+        "one title-bar test retained the obsolete 48 pixel expectation instead of the approved 32 pixel contract",
+        "one subtitle safe-band test used a minimal Frame double without empty_state_overlay while set_overlay_suppressed accessed that optional widget directly",
+        "the failed run was not restarted and no build, installation, tag or release action occurred"
+      ],
+      "summary": "The hosted failure exposed stale test setup and one overly strict optional-widget access after the approved empty-state and compact-title-bar changes; it is not evidence of 40 independent product runtime defects.",
+      "limitations": [
+        "Hosted CI does not prove real Windows desktop, native playback or installed-artifact behavior.",
+        "The failed run cannot prove the local correction until that correction is committed, pushed and measured in a new hosted run.",
+        "The live v0.38 release assets were not changed or revalidated."
+      ],
+      "next_action": "Separate no-media empty-state expectations from media-present playback-overlay fixtures, update the 32 pixel title contract, tolerate the optional empty-state widget in minimal doubles and run only the nine affected test modules."
+    },
+    {
+      "id": "EV-20260822-008",
+      "recorded_at_utc": "2026-08-22T12:35:56Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "6fb5e5d779edc1e74dad15cce7a3609f37bd5545",
+      "subject": "Hosted UI regression contract alignment",
+      "evidence": [
+        "playback-overlay fixtures now declare a media-present state before measuring control visibility and geometry",
+        "the default UI child records the initial no-media empty state and then explicitly transitions to media before testing timeline interaction and playback controls",
+        "the no-media autohide contract now asserts that the empty state is visible while the playback overlay is hidden",
+        "the title-bar shell regression now enforces the approved 32 pixel height",
+        "set_overlay_suppressed uses an optional lookup for empty_state_overlay so narrow Frame doubles and partial initialization remain safe",
+        "python -m pytest -q tests/test_default_cinematic_ui_regressions.py tests/test_overlay_autohide_regressions.py tests/test_overlay_regressions.py tests/test_overlay_responsive_regressions.py tests/test_overlay_right_controls_regressions.py tests/test_overlay_shell_regressions.py tests/test_overlay_visual_regressions.py tests/test_subtitle_safe_band_regressions.py tests/test_title_bar_shell_regressions.py completed with 214 passed in 4.39 seconds",
+        "packaging/extract_translations.py --check found 453 translatable strings and all seven TS catalogs up to date"
+      ],
+      "summary": "The affected tests now distinguish the approved empty screen from media playback, while the small product guard prevents partial Frame implementations from failing on an optional visual widget.",
+      "limitations": [
+        "These results belong to the current uncommitted working tree based on 6fb5e5d779edc1e74dad15cce7a3609f37bd5545.",
+        "A new hosted CI result requires separately approved commit and push actions.",
+        "No native playback, build, installation, tag or release action occurred."
+      ],
+      "next_action": "Run continuity, adjacent empty-state and title lifecycle checks plus translation, JSON and whitespace gates; if clean, request separate commit approval."
+    },
+    {
+      "id": "EV-20260822-009",
+      "recorded_at_utc": "2026-08-22T12:37:58Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "6fb5e5d779edc1e74dad15cce7a3609f37bd5545",
+      "subject": "CI regression fix final pre-commit gates",
+      "evidence": [
+        "the affected nine-module regression selection completed with 214 passed and 0 failed in 4.39 seconds",
+        "the continuity, empty-state information dialog and title-bar lifecycle selection completed with 35 passed and 0 failed in 0.51 seconds",
+        "packaging/extract_translations.py --check found 453 translatable strings and all seven TS catalogs up to date",
+        "VERIFICATION_LEDGER.json parsed successfully, git diff --check passed and the staged area was empty",
+        "HEAD and origin/master remained equal at 6fb5e5d779edc1e74dad15cce7a3609f37bd5545 before any new commit"
+      ],
+      "summary": "The hosted CI failure has a narrow locally verified correction, its failed and passed evidence are permanently recorded, and the working tree is ready for a separately approved commit.",
+      "limitations": [
+        "The correction remains uncommitted and therefore has no hosted CI result yet.",
+        "No full-suite retry was run because the failure was isolated to the affected UI contract groups.",
+        "No native playback, build, installation, push, tag or release action occurred."
+      ],
+      "next_action": "Request separate commit approval; after committing, request separate push approval before obtaining new hosted CI evidence."
     }
   ]
 }
