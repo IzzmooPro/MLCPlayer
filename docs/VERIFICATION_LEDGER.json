@@ -1329,6 +1329,92 @@
         "The 30 skipped paths remain non-PASS and no v0.38 release asset or libmpv build changed."
       ],
       "next_action": "Commit and push this two-document record with separate approvals, verify the short branch passes seven continuity tests while full steps are skipped, and do not create a recursive evidence commit for that final meta-test."
+    },
+    {
+      "id": "EV-20260822-017",
+      "recorded_at_utc": "2026-08-22T14:20:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "770101fa5bf2ae58e7641befbb0e0c029c36ab17",
+      "subject": "v0.39 release preflight runtime mismatch",
+      "evidence": [
+        "the v0.39 version and release target group completed with 383 passed before the release preflight",
+        "python packaging/verify_build.py --pre then failed because bin/mpv-2.dll was 119757824 bytes with SHA-256 f709c7ca8b183bec76b8158bf0c45c53018c63366750729352612f228ff7bdea instead of the manifest-pinned 112772608-byte de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e binary",
+        "the same preflight found bin/yt-dlp.exe version 2026.07.04 at 18226085 bytes with SHA-256 52fe3c26dcf71fbdc85b528589020bb0b8e383155cfa81b64dd447bbe35e24b8 instead of the pinned 2026.08.19 binary",
+        "bin/deno.exe matched its manifest entry",
+        "the failed preflight was not automatically retried; local alternate copies were inspected before any replacement"
+      ],
+      "summary": "The source version bump was internally consistent, but the local release runtime directory had drifted from the already approved source-captured libmpv and official yt-dlp manifest entries, so build readiness was correctly blocked.",
+      "limitations": [
+        "This failure is local deterministic preflight evidence, not a hosted CI, native playback, build, installation or release result.",
+        "The 383 passing tests do not override the failed runtime integrity gate.",
+        "No runtime manifest was weakened and no build, installation, commit, push, tag or release occurred."
+      ],
+      "next_action": "Restore only the two exact manifest-pinned runtime binaries from verified sources, retain recoverable backups, verify their hashes and rerun the failed preflight once after the cause is removed."
+    },
+    {
+      "id": "EV-20260822-018",
+      "recorded_at_utc": "2026-08-22T14:21:04Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "770101fa5bf2ae58e7641befbb0e0c029c36ab17",
+      "subject": "v0.39 local runtime integrity restoration",
+      "evidence": [
+        "GitHub Actions run 32488810460 artifact libmpv-windows-x86_64 supplied libmpv-2.dll at 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "the official yt-dlp 2026.08.19 release supplied yt-dlp.exe at 17840399 bytes with SHA-256 66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a",
+        "both existing runtime files were unlocked and backed up under C:/Users/Universe/AppData/Local/Temp/mlc-v039-runtime-7facb199cda44367b608f96e632c1b70/backup before exact target replacement",
+        "bin/yt-dlp.exe --version returned 2026.08.19 with exit 0",
+        "python packaging/verify_build.py --pre passed all three runtime hash and size checks after the mismatch cause was removed",
+        "the targeted version, runtime manifest, yt-dlp source, third-party notice and release-documentation group completed with 285 passed, 4 staged-source skips and 0 failed in 1.43 seconds"
+      ],
+      "summary": "The local v0.39 candidate inputs now use the exact already pinned libmpv and yt-dlp binaries, and the release preflight is green without changing the integrity manifest.",
+      "limitations": [
+        "The binary files are ignored local release inputs and are not represented by the future source commit; their hashes are the durable evidence.",
+        "The four skipped staged-source tests remain non-PASS and do not prove that the 83 release source assets are currently present locally.",
+        "No native playback, build, installation, hosted CI, commit, push, tag or release occurred."
+      ],
+      "next_action": "Run the mandatory continuity regression, then request separate user approval to commit the three v0.39 source/test changes and these two evidence documents; build approval remains a later separate decision."
+    },
+    {
+      "id": "EV-20260822-019",
+      "recorded_at_utc": "2026-08-22T14:22:37Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "770101fa5bf2ae58e7641befbb0e0c029c36ab17",
+      "subject": "v0.39 continuity record first validation",
+      "evidence": [
+        "python -m pytest -q tests/test_continuity_regressions.py completed with 6 passed and 1 failed in 0.20 seconds",
+        "the single failure was test_current_state_points_to_the_latest_evidence_and_a_known_commit",
+        "the current next-step text used the exact phrase that the continuity contract forbids because it can be mistaken for stale session-injected commit direction",
+        "the failed test was not automatically retried; its assertion and current-next-step parser contract were inspected first"
+      ],
+      "summary": "The evidence payload was valid, but the handoff wording violated the continuity guard against stale automatic commit instructions.",
+      "limitations": [
+        "This is a documentation contract failure, not a product, runtime binary, native playback, build or release failure.",
+        "The six passing assertions do not override the one failed continuity assertion.",
+        "No commit, push, build, installation, tag or release occurred."
+      ],
+      "next_action": "Rewrite the next step as a result handoff whose commit action remains explicitly pending separate user approval, then rerun the mandatory continuity regression once."
+    },
+    {
+      "id": "EV-20260822-020",
+      "recorded_at_utc": "2026-08-22T14:23:07Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "770101fa5bf2ae58e7641befbb0e0c029c36ab17",
+      "subject": "v0.39 candidate continuity handoff validation",
+      "evidence": [
+        "the current next step was rewritten as a result handoff that leaves commit, build, push, tag and release actions pending their own approvals",
+        "python -m pytest -q tests/test_continuity_regressions.py completed with 7 passed and 0 failed in 0.15 seconds after the documented wording cause was removed",
+        "the latest evidence identifier, measured baseline commit and proof-layer separation remained valid"
+      ],
+      "summary": "The v0.39 local candidate state is now recorded in the durable handoff format without carrying an automatic commit instruction into a future session.",
+      "limitations": [
+        "This is deterministic documentation validation, not hosted CI, native playback, a build, installation or release evidence.",
+        "The local runtime binaries remain hash-recorded ignored inputs rather than Git-tracked files.",
+        "No commit, push, build, installation, tag or release occurred."
+      ],
+      "next_action": "Present the verified local v0.39 source and runtime state to the user; the source-and-evidence commit remains pending separate explicit approval."
     }
   ]
 }

@@ -5,13 +5,14 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 22 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `6fb5e5d779edc1e74dad15cce7a3609f37bd5545`
+- Kayıt hazırlanırken doğrulanan HEAD: `770101fa5bf2ae58e7641befbb0e0c029c36ab17`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-016`
-- Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest; yeni build gerekmez**
+- Son kanıt: `EV-20260822-020`
+- Yayın kararı: **v0.38 canlı ve latest; v0.39 yerel aday hazırlığı başladı,
+  henüz build/tag/release yapılmadı**
 
 ## Şu anda doğrulanmış durum
 
@@ -332,21 +333,45 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 59. Tam-yol hosted kabul kaydının iki belgeli paketi kullanıcı onayıyla yerel
    commit'e alındı. Commit kimliği her oturumda canlı Git komutuyla
    doğrulanır; bu son belge-only tetik henüz push edilmedi.
+60. Belge-only commit `770101f` olarak push edildi. Run `32577815302` kısa
+   yolu seçti; yedi devamlılık testi `0.19` saniyede geçti ve tam bağımlılık /
+   ürün-test yolu atlandı. İş akışı toplamda yaklaşık 25 saniyede başarıyla
+   bitti; bu final meta-test için döngü oluşturan yeni kayıt commit'i
+   yapılmadı.
+61. v0.39 sürüm kaynakları yerelde birlikte yükseltildi ve hedef sürüm grubu
+   **383 passed** verdi; ancak ilk release ön-kontrolü yerel `mpv-2.dll` ile
+   `yt-dlp.exe` manifestten farklı olduğu için doğru biçimde durdu. Sonuç
+   `EV-20260822-017` olarak FAILED kaydedildi ve neden incelenmeden tekrar
+   yapılmadı.
+62. Kullanıcı onayıyla yalnız iki runtime girdisi doğrulanmış kaynaklardan
+   yedekli olarak geri alındı. `mpv-2.dll` `112.772.608` bayt / `de80329f...`,
+   `yt-dlp.exe` `17.840.399` bayt / `66674953...`; yt-dlp `2026.08.19`
+   döndürdü ve release ön-kontrolü geçti. Dar son grup **285 passed / 4 staged
+   source skip / 0 failed** verdi (`EV-20260822-018`). Bu yerel deterministic
+   kanıttır; build veya yayın değildir.
+63. İlk zorunlu devamlılık koşumu **6 passed / 1 failed** verdi. Tek hata,
+   sıradaki adım metninin eski oturumlardan otomatik commit talimatı taşınmasını
+   önleyen ifade sözleşmesine aykırı olmasıydı. Ürün veya runtime hatası
+   değildir; sonuç `EV-20260822-019` olarak kaydedildi ve assertion
+   incelenmeden tekrar yapılmadı.
+64. İfade nedeni düzeltildikten sonra zorunlu devamlılık testi **7 passed / 0
+   failed** verdi (`EV-20260822-020`). Güncel devir noktası hiçbir commit,
+   build, push, tag veya release işlemini otomatik başlatmıyor.
 
 ## Sıradaki tek adım
 
-Kısa-yol izolasyon düzeltmesi tam hosted CI'da geçti. Bu iki belgeli sonuç
-kaydı yerel commit'tedir ve düzeltilmiş kısa yolun son gerçek kabul girdisidir.
-Kullanıcıdan ayrı push onayı iste; push, build veya release işlemini
-kendiliğinden başlatma.
+Doğrulanmış yerel v0.39 kaynak ve runtime durumunu kullanıcıya sun. Kaynak ve
+kanıt paketinin commit işlemi ayrı açık onayı bekler; build, push, tag veya
+release işlemini kendiliğinden başlatma.
 
 ## Sonraki sıra
 
-1. Son belge-only tetik commit'i için ayrıca açık push onayı al.
-2. Belge-only tetikte kısa yolun 7 testi geçtiğini ve tam yolun
-   atlandığını doğrula; final meta-test sonucunu yeni bir commit'e yazarak
-   döngü oluşturma.
-3. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
+1. Yerel v0.39 kaynak ve kanıt paketini ayrı onayla commit et.
+2. Ayrı push onayından sonra hosted CI sonucunu doğrula.
+3. Yalnız ayrı build onayıyla v0.39 aday installer'larını üret; mevcut v0.38
+   release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
+4. Build doğrulanmadan tag veya GitHub release oluşturma. Yayın öncesinde 83
+   karşılık-gelen-kaynak varlığını resmî release sürecine göre yeniden hazırla.
 
 ## Kayıt düzeni
 
