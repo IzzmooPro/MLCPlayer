@@ -161,6 +161,8 @@ reasoning behind the packaging decisions is in `docs/PACKAGING_PLAN.md`.
 
 Issues and pull requests are welcome at
 [github.com/IzzmooPro/MLCPlayer](https://github.com/IzzmooPro/MLCPlayer).
+The maintainer workflow, required CI check and evidence-preserving merge policy
+are documented in [`docs/CHANGE_WORKFLOW.md`](docs/CHANGE_WORKFLOW.md).
 
 Two things are worth knowing before you send a change:
 

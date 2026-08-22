@@ -15,6 +15,9 @@ Bu dosya, projeyi devralan her agentın ilk giriş noktasıdır.
    `docs/ENGINEERING_AUDIT.md` dosyasına git. Tarihçeden güncel durum çıkarma.
 5. Kaynak, güncel durum ve eski rapor çelişirse yeniden ölçülen kaynak
    davranışı esas alınır; çelişki kayda geçirilir.
+6. `docs/CHANGE_WORKFLOW.md` içindeki etkinlik kapısını kontrol et. PR kapısı
+   aktifse doğrudan `master` değişikliği/push'u yapma; `codex/<kısa-konu>` dalı,
+   zorunlu `test` check'i ve merge-commit sırasını kullan.
 
 ## Kanıt sınırları
 
@@ -57,6 +60,7 @@ commit için ayrıca onay alınır.
 - Etki alanına uygun dar test kullan; aynı tam paketi gereksiz tekrarlama.
 - Ürün kodu, hosted/deterministik kanıt, native smoke ve kurulu artifact
   kanıtını ayrı raporla.
-- Build, kurulum/kaldırma, commit, push, tag ve release ayrı ayrı açık
-  kullanıcı onayı ister.
+- Build, kurulum/kaldırma, commit, push, PR oluşturma, PR birleştirme, tag ve
+  release ayrı ayrı açık kullanıcı onayı ister.
+- Force-push ve GitHub protection bypass yapılmaz.
 - Yayın sırasının tek resmî kaynağı `docs/RELEASE_PROCESS.md` dosyasıdır.

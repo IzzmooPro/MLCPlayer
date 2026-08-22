@@ -4,13 +4,13 @@ Bu dosya projenin **tek güncel devir noktasıdır**. Tarihsel ayrıntı burada
 büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsamlı
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
-- Güncelleme: 22 Ağustos 2026
+- Güncelleme: 23 Ağustos 2026
 - Kayıt hazırlanırken doğrulanan HEAD: `e9da1fb93733c1f7da9c193a81ed22a3d9df5865`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260822-038`
+- Son kanıt: `EV-20260822-040`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -477,18 +477,29 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    koruma ayarları aynı kaldı. Kısa hosted run `32598954194` **7 passed / 0
    failed** verdi (`EV-20260822-038`). Böylece doğrudan normal push yolunun
    bozulmadığı davranışsal olarak kanıtlandı.
+82. PR + zorunlu `test` hazırlığı yerel `codex/pr-gate-workflow` dalına alındı.
+   Yeni tek kaynak `docs/CHANGE_WORKFLOW.md`; agent onay sınırları, merge-commit
+   kimliği, release merge-commit eşliği, iki README bağlantısı ve yedi dar
+   sözleşme testi eklendi. İlk hedef koşum satır sonuna duyarlı yeni assertion
+   yüzünden **1 failed / 217 passed** verdi (`EV-20260822-039`); neden
+   incelendikten sonra assertion whitespace-normalized yapıldı. Aynı grup
+   **218 passed / 0 failed**, diff-check temiz verdi (`EV-20260822-040`). Katı
+   GitHub PR ayarı henüz etkin değildir.
 
 ## Sıradaki tek adım
 
-Korumalı-master normal-push PASS sonucunu kullanıcıya sun. EV-038 kanıt
-belgelerini ayrı onayla commit et; push için ayrıca açık onay bekle.
+PR-workflow hazırlığı ve 218 PASS sonucunu kullanıcıya sun. Yerel
+`codex/pr-gate-workflow` dalındaki sekiz dosyalı değişiklik için ayrı commit
+onayı iste; dal push'u, PR oluşturma ve GitHub ayarı için ayrıca onay bekle.
 
 ## Sonraki sıra
 
-1. EV-038 kanıt kaydını ayrı onayla commit et.
-2. Belge commit'ini ayrı onayla origin/master'a push et ve kısa CI'ı doğrula.
-3. PR + GitHub Actions `test` zorunluluğunun workflow/devir belgelerine etkisini
-   ayrı planla; kullanıcı onayı olmadan doğrudan-push düzenini kırma.
+1. Sekiz dosyalı PR-workflow hazırlığını ayrı onayla görev dalında commit et.
+2. Görev dalını ayrı onayla origin'e push et ve ayrıca onayla PR oluştur.
+3. PR hazırken ayrı GitHub-ayar onayıyla `master` için PR gerekli, approval 0,
+   GitHub Actions `test` required/strict ve bypass yok ayarını etkinleştir.
+4. İlk PR `test` PASS sonrası ayrı merge onayıyla merge commit kullan; canlı
+   protection ve merge davranışını kaydet.
 
 ## Kayıt düzeni
 

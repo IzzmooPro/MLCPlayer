@@ -1843,6 +1843,51 @@
         "A PR-plus-test gate remains a separate process decision."
       ],
       "next_action": "Validate and commit this final protection acceptance record with separate approval, push it separately, then present the PR-plus-test workflow tradeoff before changing repository enforcement."
+    },
+    {
+      "id": "EV-20260822-039",
+      "recorded_at_utc": "2026-08-22T21:23:44Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "14d76544eb8e76ea6d2b96a90df7d925a2cd8527",
+      "subject": "first PR-workflow documentation contract run",
+      "evidence": [
+        "the uncommitted PR-workflow preparation was moved from clean master to local branch codex/pr-gate-workflow without losing any working-tree change",
+        "python -m pytest -q tests/test_change_workflow_regressions.py tests/test_release_documentation_regressions.py tests/test_continuity_regressions.py completed with 1 failed and 217 passed",
+        "the single failure expected the phrase canlı GitHub ayarı çelişirse değişiklik yapılmaz to be contiguous, while the document wrapped a newline between canlı and GitHub",
+        "the failure was inspected before another run and no GitHub setting, remote branch, PR, commit, tag or release was changed"
+      ],
+      "summary": "The first new documentation test was overly sensitive to Markdown line wrapping; the documented PR behavior itself was present and release contracts otherwise passed.",
+      "limitations": [
+        "This failed run is not evidence that the PR workflow contract passed.",
+        "No hosted CI or GitHub enforcement behavior was exercised."
+      ],
+      "next_action": "Normalize whitespace in the one wrapping-sensitive assertion, rerun the exact same targeted group once and retain both results."
+    },
+    {
+      "id": "EV-20260822-040",
+      "recorded_at_utc": "2026-08-22T21:23:44Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "14d76544eb8e76ea6d2b96a90df7d925a2cd8527",
+      "subject": "PR-plus-test workflow preparation",
+      "evidence": [
+        "docs/CHANGE_WORKFLOW.md defines the live activation gate, codex task branch, separate approval boundaries, no automatic retry, required GitHub Actions test check and evidence-preserving merge-commit policy",
+        "AGENTS.md now routes active PR enforcement to the change workflow and separately authorizes branch push, PR creation and PR merge while forbidding force-push and protection bypass",
+        "docs/RELEASE_PROCESS.md now binds a version bump to the accepted PR merge commit and treats origin/master as equality evidence rather than a second master push when the PR gate is active",
+        "both public readmes link to the maintainer workflow",
+        "the wrapping-sensitive assertion now normalizes whitespace before checking the full behavior phrase",
+        "the exact targeted PR-workflow, release-documentation and continuity group completed with 218 passed and 0 failed in 0.78 seconds",
+        "git diff --check completed without an error",
+        "the strict PR setting remains inactive; only the existing force-push and deletion protection is live"
+      ],
+      "summary": "The repository now has a tested, single-source PR workflow ready for activation without yet changing GitHub enforcement or the current direct-push path.",
+      "limitations": [
+        "This deterministic PASS validates documentation and contracts only; no remote task branch, pull request, required check or merge behavior exists yet.",
+        "The full hosted suite will run only after the preparation branch is pushed and a PR is opened.",
+        "GitHub protection must not be tightened until the prepared branch and PR are available, otherwise the current uncommitted work could be stranded."
+      ],
+      "next_action": "Validate the evidence documents, request separate commit approval on codex/pr-gate-workflow, then separately authorize branch push and PR creation before changing GitHub enforcement."
     }
   ]
 }
