@@ -410,14 +410,44 @@ def test_real_mouse_drag_reorders_without_starting_playback(playlist_window):
     QTest.mouseMove(view.viewport(), end, delay=180)
     app.processEvents()
     assert panel.row_widget(2).property("dragTarget") is True
+    assert view._drag_preview_pixmap is not None
+    assert view._drag_preview_pixmap.isNull() is False
+    assert view.cursor().shape() != Qt.CursorShape.SizeHorCursor
     QTest.mouseRelease(view.viewport(), Qt.MouseButton.LeftButton, pos=end)
     app.processEvents()
 
     assert window.playlist != original
     assert sorted(window.playlist) == sorted(original)
     assert window.played == []
+    assert view._drag_preview_pixmap is None
     assert all(panel.row_widget(row).property("dragTarget") is False
                for row in range(panel.playlist_view.count()))
+
+
+def test_last_row_has_a_real_after_drop_zone(playlist_window):
+    app, window, frame = playlist_window
+    panel = _open(app, window, frame)
+    view = panel.playlist_view
+    original = list(window.playlist)
+    start = view.visualItemRect(view.item(0)).center()
+    last_row = view.count() - 1
+    last_rect = view.visualItemRect(view.item(last_row))
+    end = QPoint(last_rect.center().x(), last_rect.bottom() + 12)
+    assert end.y() < view.viewport().height(), "son satır altında test alanı yok"
+
+    QTest.mousePress(view.viewport(), Qt.MouseButton.LeftButton, pos=start)
+    QTest.mouseMove(view.viewport(), end, delay=180)
+    app.processEvents()
+
+    last_widget = panel.row_widget(last_row)
+    assert last_widget.property("dragTarget") is True
+    assert last_widget.property("dragAfter") is True
+
+    QTest.mouseRelease(view.viewport(), Qt.MouseButton.LeftButton, pos=end)
+    app.processEvents()
+
+    assert window.playlist == original[1:] + original[:1]
+    assert window.played == []
 
 
 def test_reorder_around_current_item_updates_index_without_playing(playlist_window):

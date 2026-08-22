@@ -5,10 +5,13 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 22 Ağustos 2026
-- Son push edilmiş taban: `35e74c05123858416cab5455ebe0dd3ae8bcbcd7`
+- Kayıt hazırlanırken doğrulanan HEAD: `fa785293d2ebf2f2575c04e109cee50163eb602e`
+- Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
+  HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
+  önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260821-045`
-- Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest**
+- Son kanıt: `EV-20260822-006`
+- Yayın kararı: **YAYINLANDI — v0.38 canlı ve latest; yeni build gerekmez**
 
 ## Şu anda doğrulanmış durum
 
@@ -227,19 +230,57 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    normal kullanıcıların bunları indirmemesi gerektiği açıklandı. Geri okuma
    iki bağlantıyı ve uyarıyı doğruladı; release canlı kaldı ve 87 varlığın
    hiçbiri değiştirilmedi (`EV-20260821-045`).
+40. `fa78529` için hosted CI run `32531352457`, **4752 passed / 26 skipped /
+   5 failed** verdi. Bir hata Windows checkout'taki lisans CRLF dönüşümü,
+   dört hata ise normal CI checkout'unda bulunmayan ignored `source_mirror`
+   arşivlerinin koşulsuz açılmasıydı. Ürün, native smoke veya v0.38 yayın
+   artifact'i yeniden ölçülmedi; otomatik tekrar yapılmadı
+   (`EV-20260822-001`).
+41. Lisans metinleri bütün checkout'larda LF'e sabitlendi. Dört derin arşiv
+   testi yalnız staged corresponding-source artifact'i mevcutsa çalışıyor;
+   staging komutu aynı dört doğrulamayı zorunlu tutmaya devam ediyor. Önce
+   kırmızı yerel koşum **5 failed / 9 passed**, düzeltme sonrası dar koşum
+   **18 passed / 4 artifact-skip** verdi. Kaynak indirilmedi, build veya release
+   yapılmadı (`EV-20260822-002`).
+42. Güncelleme installer'ı indirme sonrasında ve ürün kapanmadan hemen önce
+   boyut/SHA-256 ile yeniden doğrulanıyor; normal dosya ve reparse kontrolleri
+   yapılıyor. Windows'ta launcher çağrısı dönene kadar dosya yazma ve silmeye
+   kapalı tutuluyor. Regresyon önce **2 failed**, düzeltme sonrasında güncelleyici
+   hedef grubu **69 passed** verdi. Bu deterministic/Windows kilit kanıtıdır;
+   gerçek UAC veya kurulu artifact testi değildir (`EV-20260822-003`).
+43. GHSA düzeltme sınırlarına göre yalnız geliştirici/test/build kilitleri
+   Pillow `12.3.0`, pytest `9.0.3` ve setuptools `83.0.0` sürümlerine taşındı.
+   Resmî PyPI metadata'sı Python 3.13/3.14 uyumunu doğruladı; ürün runtime
+   gereksinimleri değişmedi ve bu paketler PyInstaller dışlama sözleşmesine
+   bağlandı. Bağımlılık hedef grubu **17 passed** verdi. Paket kurulmadı ve
+   build yapılmadı (`EV-20260822-004`).
+44. Eski placeholder QLabel'ı URL yükleme için metin ve mantıksal durum
+   taşımaya devam ediyor ancak fiziksel olarak daima gizli; yalnız onaylı
+   `EmptyStateOverlay` görünür ve erişilebilir ağaçta kalıyor. Regresyon önce
+   fiziksel görünürlüğü **1 failed** ile ölçtü; boş ekran, URL yükleme ve başlık
+   yaşam döngüsü grubu düzeltme sonrasında **66 passed** verdi
+   (`EV-20260822-005`).
+45. Değişiklik etkisine göre birleştirilmiş son paket **306 passed / 4 staged
+   source artifact skip / 0 failed** verdi. Extractor **453** çevrilebilir metni
+   güncel buldu; çeviri/devamlılık ek grubu **35 passed**, ledger JSON ve
+   `git diff --check` temiz, staged alan boştu. Bu deterministic kanıttır;
+   hosted CI, native smoke, build veya kurulu artifact kanıtı değildir
+   (`EV-20260822-006`).
 
 ## Sıradaki tek adım
 
-Kaldırma kabulü geçti ve v0.38 indirme açıklaması sadeleştirildi.
-`EV-20260821-045` kullanılabilirlik kanıtını commit etmek için kullanıcıdan
-ayrıca açık onay al. Push bu onayın kapsamında değildir.
+Onaylı arayüz ile CI, güncelleyici, geliştirici bağımlılığı ve erişilebilirlik
+düzeltmeleri yerel commit'te kayıtlı ve dar test kapıları temiz. Güncel HEAD ve
+origin farkını canlı Git komutlarıyla doğrula; yalnız kullanıcı ayrıca açık
+onay verirse push et. Build veya release başlatma.
 
 ## Sonraki sıra
 
-1. İndirme açıklaması kanıtı commit edildikten sonra push için ayrıca açık onay
-   al.
-2. Sonraki ürün değişikliğine kadar v0.38 release artifact'lerini değiştirme;
-   libmpv build'ini tekrarlama.
+1. Push için ayrı açık onay al; hosted CI ancak push ile yeni bağımlılık
+   ortamını doğrulayabilir.
+2. Push sonrasında hosted CI sonucunu salt okunur doğrula; başarısızsa nedenini
+   incelemeden otomatik tekrar yapma.
+3. v0.38 release artifact'lerini değiştirme ve libmpv build'ini tekrarlama.
 
 ## Kayıt düzeni
 

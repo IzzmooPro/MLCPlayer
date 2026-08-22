@@ -17,6 +17,7 @@ from app.media_info import sanitize_media_url
 from app.runtime_binaries import (INTERNET_VIDEO_MISSING_MESSAGE,
                                   INTERNET_VIDEO_MISSING_TITLE)
 from app.i18n import tr, tr_mark, translate_marked
+from app.modern_info_dialog import show_information
 
 def toggle_mute(player):
     try:
@@ -393,7 +394,7 @@ def open_path(player, path):
         player.is_paused = False
         if player.video_frame.control_overlay is not None:
             player.video_frame.update_overlay_play_state()
-        player.video_frame.placeholder_label.hide()
+        _set_placeholder_text(player, PLACEHOLDER_DEFAULT_TEXT, False)
         player.set_title()
         player.add_recent_file(path)
         _refresh_playlist_panel(player)
@@ -405,7 +406,7 @@ def open_path(player, path):
         player.position = 0
         player._load_started_at = 0
         player._pending_subs = []
-        player.video_frame.placeholder_label.show()
+        _set_placeholder_text(player, PLACEHOLDER_DEFAULT_TEXT, True)
         player.set_title()
         show_user_error(player, tr("Dosya Açılamadı"),
                         tr("Dosya açılamadı. Dosya silinmiş, taşınmış veya "
@@ -536,9 +537,22 @@ def _set_placeholder_text(player, text, visible):
     if label is None:
         return
     try:
-        if label.text() != text:
-            label.setText(text)
-        label.setVisible(bool(visible))
+        read_text = getattr(label, "text", None)
+        write_text = getattr(label, "setText", None)
+        if (callable(write_text)
+                and (not callable(read_text) or read_text() != text)):
+            write_text(text)
+        set_visible = getattr(label, "setVisible", None)
+        if callable(set_visible):
+            set_visible(bool(visible))
+        else:
+            fallback = getattr(label, "show" if visible else "hide", None)
+            if callable(fallback):
+                fallback()
+        sync = getattr(getattr(player, "video_frame", None),
+                       "sync_empty_state", None)
+        if callable(sync):
+            sync()
     except RuntimeError:
         pass
 
@@ -840,7 +854,7 @@ def stop(player):
         player.current_time_label.setText("00:00")
     if hasattr(player, 'total_time_label'):
         player.total_time_label.setText("00:00")
-    player.video_frame.placeholder_label.show()
+    _set_placeholder_text(player, PLACEHOLDER_DEFAULT_TEXT, True)
 
 
 def _load_media_without_blocking_ui(mpv_player, path):
@@ -1041,7 +1055,7 @@ def play_from_playlist(player, index):
             player.is_paused = False
             if player.video_frame.control_overlay is not None:
                 player.video_frame.update_overlay_play_state()
-            player.video_frame.placeholder_label.hide()
+            _set_placeholder_text(player, PLACEHOLDER_DEFAULT_TEXT, False)
             player.set_title()
             player.add_recent_file(file_path)
             _refresh_playlist_panel(player)
@@ -1191,11 +1205,11 @@ def play_next(player):
             player.current_playlist_index = 0
             play_from_playlist(player, 0)
         else:
-            QMessageBox.information(player, tr("Oynatma Listesi"),
-                                    tr("Listenin sonuna ulaştınız."))
+            show_information(player, tr("Oynatma listesi"),
+                             tr("Listenin sonuna ulaştınız."))
     else:
-        QMessageBox.information(player, tr("Oynatma Listesi"),
-                                tr("Oynatma listesi boş."))
+        show_information(player, tr("Oynatma listesi"),
+                         tr("Oynatma listesi boş."))
 
 def play_previous(player):
     if player.playlist and player.current_playlist_index > 0:
@@ -1212,8 +1226,8 @@ def play_previous(player):
         player.current_playlist_index = len(player.playlist) - 1
         play_from_playlist(player, player.current_playlist_index)
     else:
-        QMessageBox.information(player, tr("Oynatma Listesi"),
-                                tr("Listenin başındasınız."))
+        show_information(player, tr("Oynatma listesi"),
+                         tr("Listenin başındasınız."))
 
 def toggle_fullscreen(player):
     video_frame = player.video_frame

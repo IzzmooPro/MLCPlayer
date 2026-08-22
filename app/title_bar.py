@@ -15,19 +15,18 @@ from app.app_icon import application_icon
 from app.ui_icons import make_media_icon
 from app.i18n import tr
 
-TITLE_BAR_HEIGHT = 48
+TITLE_BAR_HEIGHT = 32
 # Baslik cubugu yuksekligini BUYUTMEYEN logo olcusu.
 # Kullanici istegi (17 Agustos 2026): 20 px kucuk kaliyordu, buyutuldu.
-# Tavan iki olcuden turer ve ikisi de testle korunur: logo dugme
-# yuksekligini (34) ASMAZ ve cubukta (48) ustte/altta en az 6'sar px
-# nefes payi kalir -> en fazla 36. 28 ikisini de saglar.
-TITLE_LOGO_SIZE = 28
+# Onaylanan kompakt olcu: 22 px logo, 32 px cubukta ustte/altta 5 px
+# nefes payi birakir ve 26 px dugme alanini asmaz.
+TITLE_LOGO_SIZE = 22
 #: Baslik cubugu dugme olculeri ve yan pay -- URUNUN TEK kaynagi.
 #: Playlist penceresi de bunlari kullanir; ayri pencere olmasi kendi
 #: olcusunu uydurmasi anlamina GELMEZ (kullanici bildirdi, 17 Agustos
 #: 2026: kapatma dugmesi yanlis konumlanmisti).
-TITLE_BUTTON_SIZE = 34
-TITLE_BUTTON_ICON_SIZE = 20
+TITLE_BUTTON_SIZE = 26
+TITLE_BUTTON_ICON_SIZE = 18
 TITLE_BAR_SIDE_MARGIN = 16
 RESIZE_MARGIN = 12
 TITLE_BAR_BACKGROUND = "#11151A"
@@ -69,7 +68,7 @@ def cursor_for_edges(edges):
 
 
 class TitleBar(QWidget):
-    """48 px modern başlık çubuğu: sol komutlar, sağ pencere düğmeleri."""
+    """32 px modern başlık çubuğu: sol komutlar, sağ pencere düğmeleri."""
 
     def __init__(self, player):
         super().__init__(player)
@@ -126,7 +125,7 @@ class TitleBar(QWidget):
         self.title_label = QLabel("MLC Player", self)
         self.title_label.setObjectName("titleText")
         self.title_label.setStyleSheet(
-            "color: #E6EAF0; background: transparent; font-size: 16px;")
+            "color: #E6EAF0; background: transparent; font-size: 14px;")
         # Dar pencerede başlık metni daralabilir; düğmeler kırpılmaz.
         # Ignored yerine Preferred: geniş pencerede metin görünür kalır.
         self.title_label.setMinimumWidth(0)

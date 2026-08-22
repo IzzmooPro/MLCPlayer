@@ -39,6 +39,12 @@ def ledger():
     return json.loads(read(LEDGER))
 
 
+def current_next_step():
+    text = read(CONTINUITY)
+    section = text.split("## Sıradaki tek adım", 1)[1]
+    return section.split("\n## ", 1)[0].strip()
+
+
 def test_every_agent_has_one_current_starting_point():
     assert AGENTS.is_file()
     assert CONTINUITY.is_file()
@@ -95,13 +101,18 @@ def test_current_state_points_to_the_latest_evidence_and_a_known_commit():
     latest = payload["entries"][-1]
     assert f"`{latest['id']}`" in text
 
-    match = re.search(r"Son push edilmiş taban: `([0-9a-f]{40})`", text)
-    assert match, "CONTINUITY must carry one full pushed baseline SHA"
+    match = re.search(
+        r"Kayıt hazırlanırken doğrulanan HEAD: `([0-9a-f]{40})`", text)
+    assert match, "CONTINUITY must carry one measured baseline SHA"
     assert any(entry["commit"] == match.group(1) for entry in payload["entries"])
+    assert "Son push edilmiş taban:" not in text
+    assert "git rev-list --left-right --count" in text
+    assert "bu belge kendi commit hash'ini" in text
     assert "## Sıradaki tek adım" in text
-    assert "Kaldırma kabulü" in text
-    assert "açık onay" in text
-    assert "kaldırma" in text.lower()
+    next_step = current_next_step()
+    assert next_step
+    assert "EV-20260821-045" not in next_step
+    assert "commit etmek için kullanıcıdan" not in next_step
 
 
 def test_proof_layers_are_kept_separate_in_agent_rules_and_current_state():
@@ -124,8 +135,6 @@ def test_session_start_injects_the_current_next_step_not_stale_history():
     payload = json.loads(completed.stdout)
     context = payload["hookSpecificOutput"]["additionalContext"]
     assert "docs/CONTINUITY.md -> ## Sıradaki tek adım" in context
-    assert "Kaldırma kabulü" in context
-    assert "açık onay" in context
-    assert "kaldırma" in context.lower()
+    assert current_next_step() in context
     assert "docs/PROJECT_STATUS.md ->" not in context
     assert "SIRADAKİ PLAN (17 Ağustos 2026" not in context

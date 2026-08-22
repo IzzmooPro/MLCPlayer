@@ -80,6 +80,11 @@ def _top_level_labels(window):
             if action.menu()]
 
 
+def _menu(window, label):
+    return next(action.menu() for action in window.menuBar().actions()
+                if action.text() == label)
+
+
 def test_the_turkish_menu_order_is_unchanged(qt_app):
     """Kaynak dilde davranış AYNEN korunmalıdır."""
     from app.menu_actions import setup_menu
@@ -88,6 +93,25 @@ def test_the_turkish_menu_order_is_unchanged(qt_app):
     try:
         setup_menu(window)
         assert _top_level_labels(window) == EXPECTED_TURKISH
+    finally:
+        window.close()
+        window.deleteLater()
+
+
+def test_picture_in_picture_is_available_from_video_menu(qt_app):
+    """Üst çubuk düğmesi yanında taşma menüsünden de PiP açılabilmelidir."""
+    from app.menu_actions import setup_menu
+
+    window = MenuPlayer()
+    try:
+        setup_menu(window)
+        video_menu = _menu(window, "Görüntü")
+        action = next(action for action in video_menu.actions()
+                      if action.text() == "Resim İçinde Resim")
+
+        action.trigger()
+
+        assert window.calls[-1] == "toggle_picture_in_picture"
     finally:
         window.close()
         window.deleteLater()

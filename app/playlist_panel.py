@@ -4,6 +4,7 @@ import os
 
 from PyQt6.QtCore import (QEasingCurve, QEvent, QPoint, QRect, QSize, Qt,
                           QVariantAnimation)
+from PyQt6.QtGui import QPainter
 from PyQt6.QtWidgets import (QAbstractItemView, QHBoxLayout,
                              QLabel, QLayout, QLineEdit, QListWidget, QListWidgetItem,
                              QApplication, QPushButton, QSizePolicy, QVBoxLayout,
@@ -23,6 +24,7 @@ PLAYING_ROLE = PATH_ROLE + 1
 ROW_HEIGHT = 74
 PANEL_ANIMATION_MS = 190
 PANEL_RESIZE_HANDLE_WIDTH = 14
+DRAG_PREVIEW_OPACITY = 0.68
 
 
 class PlaylistResizeHandle(QWidget):
@@ -89,32 +91,63 @@ class PlaylistListWidget(QListWidget):
         self.setSpacing(2)
         self._drag_source = -1
         self._drag_target = -1
+        self._drag_after_last = False
         self._drag_start = None
         self._drag_moved = False
+        self._drag_preview_pixmap = None
+        self._drag_preview_point = QPoint()
 
-    def _style_drag_target(self, row, active):
+    def _capture_drag_preview(self, row):
+        item = self.item(row) if 0 <= row < self.count() else None
+        widget = self.itemWidget(item) if item is not None else None
+        self._drag_preview_pixmap = widget.grab() if widget is not None else None
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        pixmap = self._drag_preview_pixmap
+        if (not self._drag_moved or pixmap is None or pixmap.isNull()):
+            return
+        viewport = self.viewport()
+        x = max(6, (viewport.width() - pixmap.width()) // 2)
+        y = max(0, min(self._drag_preview_point.y() - pixmap.height() // 2,
+                       viewport.height() - pixmap.height()))
+        painter = QPainter(viewport)
+        painter.setOpacity(DRAG_PREVIEW_OPACITY)
+        painter.drawPixmap(x, y, pixmap)
+        painter.end()
+
+    def _style_drag_target(self, row, active, after_last=False):
         item = self.item(row) if 0 <= row < self.count() else None
         widget = self.itemWidget(item) if item is not None else None
         if widget is None:
             return
         widget.setProperty("dragTarget", bool(active))
+        widget.setProperty("dragAfter", bool(active and after_last))
         widget.style().unpolish(widget)
         widget.style().polish(widget)
         widget.update()
 
-    def _set_drag_target(self, row):
-        if row == self._drag_target:
+    def _set_drag_target(self, row, after_last=False):
+        if (row == self._drag_target
+                and bool(after_last) == self._drag_after_last):
             return
-        self._style_drag_target(self._drag_target, False)
+        self._style_drag_target(self._drag_target, False,
+                                self._drag_after_last)
         self._drag_target = row
-        self._style_drag_target(self._drag_target, True)
+        self._drag_after_last = bool(after_last)
+        self._style_drag_target(self._drag_target, True,
+                                self._drag_after_last)
 
     def _clear_drag_state(self):
-        self._style_drag_target(self._drag_target, False)
+        self._style_drag_target(self._drag_target, False,
+                                self._drag_after_last)
         self._drag_source = -1
         self._drag_target = -1
+        self._drag_after_last = False
         self._drag_start = None
         self._drag_moved = False
+        self._drag_preview_pixmap = None
+        self.viewport().update()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -132,13 +165,28 @@ class PlaylistListWidget(QListWidget):
             if (self._drag_start is not None
                     and (point - self._drag_start).manhattanLength()
                     >= QApplication.startDragDistance()):
-                self._drag_moved = True
+                if not self._drag_moved:
+                    self._drag_moved = True
+                    self._capture_drag_preview(self._drag_source)
             if self._drag_moved:
+                self._drag_preview_point = point
+                self.viewport().update()
                 item = self.itemAt(point)
                 target = self.row(item) if item is not None else -1
+                after_last = False
+                if self.count():
+                    last_row = self.count() - 1
+                    last_rect = self.visualItemRect(self.item(last_row))
+                    if (target == last_row
+                            and point.y() >= last_rect.center().y()):
+                        after_last = True
+                    elif target < 0 and point.y() > last_rect.bottom():
+                        target = last_row
+                        after_last = True
                 if target >= 0:
-                    self._set_drag_target(target)
-                    self.scrollToItem(item)
+                    self._set_drag_target(target, after_last)
+                    if item is not None:
+                        self.scrollToItem(item)
                 event.accept()
                 return
         super().mouseMoveEvent(event)
@@ -197,9 +245,13 @@ class PlaylistRow(QWidget):
             "background: rgba(242, 106, 61, 28); "
             f"border-left: 3px solid {PLAYLIST_ACCENT}; }} "
             "QWidget#playlistRow[dragTarget=\"true\"] { "
-            f"border-top: 2px solid {PLAYLIST_ACCENT}; }}"
+            f"border-top: 2px solid {PLAYLIST_ACCENT}; }} "
+            "QWidget#playlistRow[dragAfter=\"true\"] { "
+            "border-top: 0px solid transparent; "
+            f"border-bottom: 2px solid {PLAYLIST_ACCENT}; }}"
         )
         self.setProperty("dragTarget", False)
+        self.setProperty("dragAfter", False)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(10, 8, 10, 8)

@@ -104,22 +104,22 @@ def press_event(widget, point, button_type=Qt.MouseButton.LeftButton):
 
 def test_title_bar_has_fixed_reference_height(title_bar):
     app, window, bar = title_bar()
-    assert TITLE_BAR_HEIGHT == 48
-    assert bar.height() == 48
-    assert bar.minimumHeight() == 48
-    assert bar.maximumHeight() == 48
+    assert TITLE_BAR_HEIGHT == 32
+    assert bar.height() == 32
+    assert bar.minimumHeight() == 32
+    assert bar.maximumHeight() == 32
 
 
 def test_title_bar_uses_the_approved_reference_scale(title_bar):
     app, window, bar = title_bar()
-    assert TITLE_BAR_HEIGHT == 48
-    assert "font-size: 16px" in bar.title_label.styleSheet()
+    assert TITLE_BAR_HEIGHT == 32
+    assert "font-size: 14px" in bar.title_label.styleSheet()
     for name in LEFT_ORDER + RIGHT_ORDER:
         widget = button(bar, name)
-        assert widget.width() == 34
-        assert widget.height() == 34
-        assert widget.iconSize().width() == 20
-        assert widget.iconSize().height() == 20
+        assert widget.width() == 26
+        assert widget.height() == 26
+        assert widget.iconSize().width() == 18
+        assert widget.iconSize().height() == 18
 
 
 def test_title_bar_shows_product_name(title_bar):

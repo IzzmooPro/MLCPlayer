@@ -33,8 +33,8 @@ def player_stub(monkeypatch):
     monkeypatch.setattr(media_controls, "play_from_playlist",
                         lambda player, index: played.append(index))
     monkeypatch.setattr(
-        media_controls.QMessageBox, "information",
-        staticmethod(lambda *args, **kwargs: boxes.append(args[1:3])))
+        media_controls, "show_information",
+        lambda *args, **kwargs: boxes.append(args[1:3]))
 
     def factory(index=0, loop_playlist=False, playlist=None):
         player = SimpleNamespace(

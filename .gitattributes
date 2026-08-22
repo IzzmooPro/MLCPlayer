@@ -1,4 +1,4 @@
 # Exact-byte fixtures must be byte-stable on every checkout platform.
 LICENSE text eol=lf
-licenses/yt-dlp-THIRD_PARTY_LICENSES.txt text eol=lf
+licenses/*.txt text eol=lf
 translations/*.ts text eol=lf

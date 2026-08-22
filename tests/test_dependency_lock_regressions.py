@@ -13,6 +13,12 @@ RUNTIME = ROOT / "requirements.txt"
 DEV = ROOT / "requirements-dev.txt"
 LOCK = ROOT / "requirements-lock.txt"
 
+ADVISORY_FIXED_MINIMUMS = {
+    "pillow": (12, 3, 0),
+    "pytest": (9, 0, 3),
+    "setuptools": (83, 0, 0),
+}
+
 
 def exact_pins(path):
     pins = {}
@@ -54,6 +60,22 @@ def test_lock_contains_the_known_build_and_qt_transitive_packages():
         "pyside6-addons", "shiboken6", "pyinstaller-hooks-contrib",
         "altgraph", "pefile", "pywin32-ctypes", "cffi", "pycparser",
     } <= lock.keys()
+
+
+def test_advisory_affected_developer_tools_stay_at_fixed_versions():
+    lock = exact_pins(LOCK)
+    for name, minimum in ADVISORY_FIXED_MINIMUMS.items():
+        measured = tuple(int(part) for part in lock[name].split("."))
+        assert measured >= minimum, f"{name} regressed below advisory fix"
+
+
+def test_advisory_affected_tools_are_not_shipped_as_player_runtime():
+    runtime = exact_pins(RUNTIME)
+    assert not ({"pillow", "pytest", "setuptools"} & runtime.keys())
+    spec = (ROOT / "MLCPlayer.spec").read_text(encoding="utf-8")
+    excludes = spec.split("excludes=", 1)[1].split("]", 1)[0].lower()
+    for name in ("pil", "pillow", "pytest", "setuptools"):
+        assert repr(name) in excludes
 
 
 def test_bootstrap_checks_versions_instead_of_only_import_presence():

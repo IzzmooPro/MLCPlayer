@@ -24,7 +24,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QLabel, QMainWindow,
 #: Logonun üstünde ve altında bırakılması gereken EN AZ boşluk (px).
 #: Taşma sınırı buradan ve `TITLE_BAR_HEIGHT`ten türetilir; sabit bir
 #: logo ölçüsü şart koşulmaz.
-MIN_LOGO_BREATHING = 6
+MIN_LOGO_BREATHING = 5
 
 import app.app_icon as app_icon
 
@@ -353,20 +353,13 @@ def test_the_custom_title_bar_shows_exactly_one_logo(title_bar):
     assert logo.width() > 0
 
 
-def test_the_logo_is_large_enough_to_read(title_bar):
-    """Kullanıcı isteği (17 Ağustos 2026): logo BÜYÜTÜLSÜN.
-
-    Eski sözleşme `logo.width() <= 24` diyordu. Bu ÖLÇÜLMÜŞ bir tavan
-    değildi; logo 20 px'ken konmuş keyfi bir sınırdı ve kullanıcının
-    "biraz daha büyütelim" isteğini engelliyordu. Gevşetilmedi, GERÇEK
-    kısıta dönüştürüldü: taşma sınırı aşağıdaki testte çubuğun ve en
-    yüksek kontrolün ölçüsünden TÜRETİLİR.
-    """
+def test_the_logo_matches_the_approved_compact_scale(title_bar):
+    """32 px çubukta logo okunur kalır ve düğmelerin dışına taşmaz."""
     from app.title_bar import TITLE_LOGO_SIZE
 
     logo = title_bar.findChild(QLabel, "titleLogo")
 
-    assert TITLE_LOGO_SIZE >= 26, "logo buyutulmedi"
+    assert TITLE_LOGO_SIZE == 22
     assert logo.width() == TITLE_LOGO_SIZE
 
 
@@ -411,7 +404,7 @@ def test_the_logo_never_blocks_dragging_or_the_buttons(title_bar):
 def test_the_title_bar_height_did_not_grow(title_bar):
     from app.title_bar import TITLE_BAR_HEIGHT
 
-    assert TITLE_BAR_HEIGHT == 48
+    assert TITLE_BAR_HEIGHT == 32
     assert title_bar.height() == TITLE_BAR_HEIGHT
 
 
@@ -422,7 +415,7 @@ def test_the_window_buttons_are_not_clipped_in_a_narrow_window(title_bar,
 
     for name in ("minimize_button", "maximize_button", "close_button"):
         button = getattr(title_bar, name)
-        assert button.width() == 34, f"{name} kırpıldı"
+        assert button.width() == 26, f"{name} kırpıldı"
         assert button.x() + button.width() <= title_bar.width()
 
 

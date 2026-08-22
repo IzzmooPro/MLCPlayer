@@ -59,10 +59,7 @@ def test_ci_does_not_opt_into_native_physical_or_release_actions():
 def test_exact_byte_licences_are_pinned_to_lf_in_every_checkout():
     attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
     assert "LICENSE text eol=lf" in attributes.splitlines()
-    assert (
-        "licenses/yt-dlp-THIRD_PARTY_LICENSES.txt text eol=lf"
-        in attributes.splitlines()
-    )
+    assert "licenses/*.txt text eol=lf" in attributes.splitlines()
 
 
 def test_hosted_ci_explicitly_excludes_the_two_native_libmpv_acceptances():

@@ -95,7 +95,7 @@ a = Analysis(
     # `PySide6` YALNIZ gelistirici aracidir (ceviri derleyicisi ve
     # Linguist). Urun PyQt6 ile calisir; ikinci bir Qt baglamasi
     # pakete GIRMEZ (tests/test_developer_dependency_regressions.py).
-    excludes=['pytest', 'tkinter', 'numpy', 'PIL', 'Pillow',
+    excludes=['pytest', 'setuptools', 'tkinter', 'numpy', 'PIL', 'Pillow',
               'scipy', 'matplotlib', 'PySide6', 'shiboken6'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,

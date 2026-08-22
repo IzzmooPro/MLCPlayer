@@ -9,6 +9,7 @@ seçimi ve URL doğrulaması zaten saf fonksiyonlardır.
 import base64
 import hashlib
 import io
+import os
 import re
 from pathlib import Path
 
@@ -230,11 +231,19 @@ class FakePlayer:
         return self._closes
 
 
+def launch_candidate(tmp_path, payload=PAYLOAD):
+    path = tmp_path / "setup.exe"
+    path.write_bytes(payload)
+    return path, hashlib.sha256(payload).hexdigest(), len(payload)
+
+
 def test_installer_starts_only_after_the_product_closed(tmp_path):
     started, quit_calls = [], []
     player = FakePlayer(closes=True)
+    path, digest, size = launch_candidate(tmp_path)
     outcome, message = updater.apply_update(
-        str(tmp_path / "setup.exe"), player, frozen=True,
+        str(path), player, frozen=True, expected_sha256=digest,
+        expected_size=size,
         start_installer=started.append,
         quit_application=lambda: quit_calls.append(1))
 
@@ -248,8 +257,10 @@ def test_busy_product_blocks_the_installer(tmp_path):
     """Altyazı Merkezi'nde iş varken kapanış ertelenir; kurulum BAŞLAMAZ."""
     started, quit_calls = [], []
     player = FakePlayer(closes=False)
+    path, digest, size = launch_candidate(tmp_path)
     outcome, message = updater.apply_update(
-        str(tmp_path / "setup.exe"), player, frozen=True,
+        str(path), player, frozen=True, expected_sha256=digest,
+        expected_size=size,
         start_installer=started.append,
         quit_application=lambda: quit_calls.append(1))
 
@@ -257,6 +268,44 @@ def test_busy_product_blocks_the_installer(tmp_path):
     assert message == updater.BUSY_MESSAGE
     assert not started, "program kapanmadan kurulum başlatılmamalı"
     assert not quit_calls
+
+
+def test_replaced_installer_is_rejected_before_the_product_closes(tmp_path):
+    original = b"verified installer"
+    path, digest, size = launch_candidate(tmp_path, original)
+    path.write_bytes(b"attacker replacement")
+    started = []
+    player = FakePlayer(closes=True)
+
+    outcome, message = updater.apply_update(
+        str(path), player, frozen=True, expected_sha256=digest,
+        expected_size=size, start_installer=started.append,
+        quit_application=lambda: None)
+
+    assert outcome == "verification"
+    assert message == updater.VERIFY_FAILED_MESSAGE
+    assert player.close_calls == 0
+    assert not started
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows file-share lock contract")
+def test_verified_installer_is_write_locked_through_the_launch_call(tmp_path):
+    path, digest, size = launch_candidate(tmp_path)
+    write_was_blocked = []
+
+    def launcher(installer):
+        try:
+            Path(installer).write_bytes(b"replacement")
+        except PermissionError:
+            write_was_blocked.append(True)
+
+    outcome, _ = updater.apply_update(
+        str(path), FakePlayer(), frozen=True, expected_sha256=digest,
+        expected_size=size, start_installer=launcher,
+        quit_application=lambda: None)
+
+    assert outcome == "started"
+    assert write_was_blocked == [True]
 
 
 def test_source_checkout_never_runs_an_installer(tmp_path):

@@ -480,6 +480,7 @@ class MPVPlayer(QMainWindow):
                 self.update_time_label()
                 if self.video_frame.control_overlay is not None:
                     self.video_frame.update_overlay_state()
+                self.video_frame.sync_empty_state()
 
             # Oynatma gerçekten başladığında başlık çubuğunu bir kez öne al.
             # Bayrak hemen temizlendiği için her 100 ms'de raise_ çağrılmaz.

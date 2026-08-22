@@ -8,6 +8,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "packaging" / "stage_ytdlp_sources.py"
@@ -19,6 +21,14 @@ def module():
     sys.modules[spec.name] = loaded
     spec.loader.exec_module(loaded)
     return loaded
+
+
+def source_archive(name):
+    """Return a staged release artifact or mark the deep check unavailable."""
+    path = ROOT / "source_mirror" / name
+    if not path.is_file():
+        pytest.skip(f"requires staged corresponding-source artifact: {name}")
+    return path
 
 
 def test_locked_executable_and_official_build_identity_are_explicit():
@@ -35,10 +45,9 @@ def test_locked_executable_and_official_build_identity_are_explicit():
 
 def test_official_build_metadata_matches_every_locked_runtime_package():
     stage = module()
-    build_archive = ROOT / "source_mirror" / (
+    build_archive = source_archive(
         "yt-dlp-build-594bd50c2c78ac432f81600d309fdc4e0a92d82c.tar.gz")
-    release_archive = (
-        ROOT / "source_mirror" / "yt-dlp-2026.08.19.tar.gz")
+    release_archive = source_archive("yt-dlp-2026.08.19.tar.gz")
 
     stage.validate_build_metadata(build_archive, release_archive)
 
@@ -49,7 +58,7 @@ def test_official_build_metadata_matches_every_locked_runtime_package():
 
 def test_curl_cffi_native_source_archive_carries_every_exact_pin():
     stage = module()
-    archive = ROOT / "source_mirror" / (
+    archive = source_archive(
         "curl_cffi-native-curl-impersonate-v2.0.0.tar.gz")
 
     stage.validate_native_metadata(archive)
@@ -58,15 +67,24 @@ def test_curl_cffi_native_source_archive_carries_every_exact_pin():
 def test_curl_cffi_sdist_selects_the_verified_native_source_release():
     stage = module()
 
-    stage.validate_curl_cffi_metadata(
-        ROOT / "source_mirror" / "curl_cffi-0.16.0.tar.gz")
+    stage.validate_curl_cffi_metadata(source_archive("curl_cffi-0.16.0.tar.gz"))
 
 
 def test_cpython_source_carries_the_six_windows_dependency_pins():
     stage = module()
 
-    stage.validate_cpython_metadata(
-        ROOT / "source_mirror" / "Python-3.10.11.tar.xz")
+    stage.validate_cpython_metadata(source_archive("Python-3.10.11.tar.xz"))
+
+
+def test_staging_command_keeps_every_deep_archive_validation_gate():
+    script = SCRIPT.read_text(encoding="utf-8")
+    for validator in (
+        "validate_build_metadata(build, release)",
+        "validate_native_metadata(native)",
+        "validate_curl_cffi_metadata(",
+        "validate_cpython_metadata(",
+    ):
+        assert validator in script
 
 
 def test_contract_contains_the_complete_ytdlp_inventory():

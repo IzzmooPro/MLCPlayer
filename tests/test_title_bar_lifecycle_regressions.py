@@ -127,6 +127,16 @@ def product_window(monkeypatch, tmp_path):
 
 # --- 1. Fullscreen çıkışında çağrı sırası ---
 
+def test_legacy_placeholder_cannot_visually_replace_the_empty_state(
+        product_window):
+    app, window, frame = product_window()
+
+    assert "color: transparent" in frame.placeholder_label.styleSheet()
+    assert frame.placeholder_label.isVisible() is False
+    assert frame.placeholder_label.placeholderRequested() is True
+    assert frame.empty_state_overlay.isVisible()
+
+
 def test_exit_fullscreen_calls_helper_after_clearing_the_flag(product_window):
     app, window, frame = product_window()
     seen = []
@@ -171,7 +181,8 @@ def test_exit_fullscreen_still_restores_window_state(product_window):
     assert frame.is_video_fullscreen is False
     assert window.isFullScreen() is False
     assert window.geometry() == before
-    assert frame.control_overlay.isVisible()
+    assert frame.empty_state_overlay.isVisible()
+    assert frame.control_overlay.isVisible() is False
 
 
 def test_preview_disabled_exit_fullscreen_is_unchanged(product_window):

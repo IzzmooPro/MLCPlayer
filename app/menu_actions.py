@@ -98,6 +98,11 @@ def setup_menu(player):
     fullscreen_action.triggered.connect(player.toggle_fullscreen)
     video_menu.addAction(fullscreen_action)
 
+    picture_in_picture_action = QAction(tr("Resim İçinde Resim"), player)
+    picture_in_picture_action.triggered.connect(
+        lambda _checked=False: player.toggle_picture_in_picture())
+    video_menu.addAction(picture_in_picture_action)
+
     video_settings_action = QAction(tr("Video Ayarları"), player)
     video_settings_action.triggered.connect(player.setup_video_adjustments)
     video_menu.addAction(video_settings_action)

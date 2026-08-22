@@ -971,6 +971,137 @@
         "The flat GitHub asset list still contains all 87 files because the source-compliance contract was not changed."
       ],
       "next_action": "Request separate approval to commit this release-notes readback evidence and then separate push approval; evaluate an unchecked add-on download-page link only for a future release."
+    },
+    {
+      "id": "EV-20260822-001",
+      "recorded_at_utc": "2026-08-22T10:58:00Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "fa785293d2ebf2f2575c04e109cee50163eb602e",
+      "subject": "Hosted CI after public download guidance",
+      "evidence": [
+        "GitHub Actions run 32531352457 completed failure at the Run CI-safe test suite step with 4752 passed, 26 skipped and 5 failed",
+        "Qt-LGPL-3.0.txt failed its locked hash because Windows checkout converted its LF repository blob to CRLF",
+        "four yt-dlp source-staging tests unconditionally opened ignored source_mirror archives absent from a normal GitHub checkout",
+        "the dependency, compile, translation and whitespace steps all passed before pytest",
+        "no workflow retry, product build, release mutation or asset replacement was performed"
+      ],
+      "summary": "Hosted CI was genuinely red because platform line-ending conversion and four artifact-bound tests were incorrectly included in the ordinary CI-safe assumptions. This is not evidence of changed v0.38 release bytes or a product runtime failure.",
+      "limitations": [
+        "The released installer, native smoke and installed-artifact acceptance were not rerun.",
+        "This failure record does not itself prove the local fix on a fresh hosted checkout.",
+        "The ignored source archives were not downloaded merely to satisfy ordinary CI."
+      ],
+      "next_action": "Pin all installed licence texts to LF, make deep source-archive tests conditional on staged artifacts while retaining the staging command gates, and run only the impacted local tests."
+    },
+    {
+      "id": "EV-20260822-002",
+      "recorded_at_utc": "2026-08-22T10:58:01Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "fa785293d2ebf2f2575c04e109cee50163eb602e",
+      "subject": "CI-safe licence and corresponding-source test contract",
+      "evidence": [
+        "the pre-fix local reproduction matched hosted CI with 5 failed and 9 passed across the two affected test modules",
+        ".gitattributes now pins licenses/*.txt to LF so exact official-text hashes are checkout-stable",
+        "the four deep yt-dlp archive tests report an explicit artifact skip only when their ignored staged source archive is absent",
+        "packaging/stage_ytdlp_sources.py still calls validate_build_metadata, validate_native_metadata, validate_curl_cffi_metadata and validate_cpython_metadata as mandatory staging gates",
+        "the impacted CI, licence and source-staging test set passed with 18 passed and 4 artifact-specific skips in 0.16 seconds"
+      ],
+      "summary": "Ordinary CI can now validate repository contracts without pretending that ignored release-source artifacts are checked in, while real source staging retains every deep archive-content gate and exact licence bytes remain stable across platforms.",
+      "limitations": [
+        "The four deep archive-content checks require the corresponding source artifacts and were skipped in this local checkout.",
+        "A fresh hosted CI run requires a separately approved push before this deterministic fix can become hosted evidence.",
+        "No source download, product build, native smoke, installation or release action occurred."
+      ],
+      "next_action": "Run the continuity regression after recording this evidence, then continue with the separately planned updater temporary-file hardening without building or committing."
+    },
+    {
+      "id": "EV-20260822-003",
+      "recorded_at_utc": "2026-08-22T11:03:43Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "fa785293d2ebf2f2575c04e109cee50163eb602e",
+      "subject": "Updater verification-to-elevation boundary hardening",
+      "evidence": [
+        "two regression-first tests failed before implementation because apply_update did not accept or recheck the expected installer digest and size",
+        "the launch path now rejects missing, replaced, non-regular, symbolic-link and Windows reparse-point candidates before closing the player",
+        "the installer size and SHA-256 are recomputed from one stable file handle immediately before launch and compared with the publisher-signed digest accepted during download",
+        "on Windows the verified handle permits read sharing but denies concurrent write and delete access through the launcher call; a real replacement attempt raised PermissionError in the regression",
+        "python -m pytest -q tests/test_updater_regressions.py tests/test_updater_dialog_regressions.py tests/test_release_signature_regressions.py completed with 69 passed in 0.35 seconds"
+      ],
+      "summary": "The updater no longer trusts only the earlier download-time result: it revalidates the same installer immediately before cooperative shutdown and holds a Windows write/delete denial until ShellExecute has accepted the launch request.",
+      "limitations": [
+        "This is source, targeted-test and local Windows file-share evidence, not a real UAC elevation or installed-artifact update acceptance.",
+        "A malicious process running as the same user cannot edit or replace the file while the launch lock is held, but endpoint compromise outside this bounded path remains out of scope.",
+        "No installer was downloaded, launched, built or installed and no live v0.38 asset changed."
+      ],
+      "next_action": "Update only the advisory-affected developer dependency locks and prove that those packages remain excluded from the shipped runtime before addressing the empty-state accessibility duplicate."
+    },
+    {
+      "id": "EV-20260822-004",
+      "recorded_at_utc": "2026-08-22T11:06:56Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "fa785293d2ebf2f2575c04e109cee50163eb602e",
+      "subject": "Advisory-affected developer dependency locks",
+      "evidence": [
+        "GitHub Advisory records identify Pillow versions below 12.3.0, pytest versions below 9.0.3 and setuptools versions below 83.0.0 as affected ranges",
+        "official PyPI metadata reports Pillow 12.3.0, pytest 9.0.3 and setuptools 83.0.0 as Python >=3.10 releases; Pillow publishes CPython 3.13 and 3.14 Windows x86-64 wheels",
+        "requirements-dev.txt and requirements-lock.txt now agree on Pillow 12.3.0 and pytest 9.0.3; the complete lock pins setuptools 83.0.0",
+        "requirements.txt remains unchanged and MLCPlayer.spec explicitly excludes PIL, Pillow, pytest and setuptools from the player package",
+        "python -m pytest -q tests/test_dependency_lock_regressions.py tests/test_developer_dependency_regressions.py completed with 17 passed in 0.24 seconds"
+      ],
+      "summary": "The advisory-affected test and build tools are pinned at their first fixed releases without adding them to the player runtime, and regression gates prevent both vulnerable-version rollback and accidental package inclusion.",
+      "limitations": [
+        "The new packages were not installed because installation requires separate approval; compatibility is based on official metadata and static lock tests.",
+        "No release build was run, so actual packaged-file absence remains a future source-build check rather than installed-artifact evidence.",
+        "This does not audit native libmpv, yt-dlp, Deno or unrelated transitive components."
+      ],
+      "next_action": "Remove the obsolete hidden empty-state announcement without changing the approved visual design, then run only the affected UI and continuity tests before presenting the complete diff for commit approval."
+    },
+    {
+      "id": "EV-20260822-005",
+      "recorded_at_utc": "2026-08-22T11:10:05Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "fa785293d2ebf2f2575c04e109cee50163eb602e",
+      "subject": "Empty-state accessibility announcement ownership",
+      "evidence": [
+        "the regression-first product-window test failed because the transparent legacy placeholder QLabel remained physically visible beneath the approved empty-state overlay",
+        "the legacy placeholder now retains text and logical visibility solely as URL-loading state while QLabel visibility remains false at all times",
+        "the approved EmptyStateOverlay remains the only rendered empty-state surface and continues to own its title, hint and open actions",
+        "python -m pytest -q tests/test_empty_state_info_dialog_regressions.py tests/test_url_loading_regressions.py tests/test_title_bar_lifecycle_regressions.py completed with 66 passed in 0.58 seconds"
+      ],
+      "summary": "Screen readers and Qt accessibility no longer encounter the obsolete brand placeholder as a second visible widget, while URL-loading state and the approved empty-state design keep their existing behavior.",
+      "limitations": [
+        "This is source and offscreen Qt behavior evidence, not a manual screen-reader acceptance with Narrator or NVDA.",
+        "No native playback, installed package or visual pixel comparison was run in this step.",
+        "The change is part of the still-uncommitted approved UI work and has not been hosted-CI verified."
+      ],
+      "next_action": "Run the final impact-targeted UI, CI, updater, dependency, continuity, translation and whitespace gates, then present the complete working-tree diff for separate commit approval."
+    },
+    {
+      "id": "EV-20260822-006",
+      "recorded_at_utc": "2026-08-22T11:12:38Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "fa785293d2ebf2f2575c04e109cee50163eb602e",
+      "subject": "Combined impact-targeted pre-commit verification",
+      "evidence": [
+        "the combined UI, CI-contract, updater, dependency, continuity, licence and source-staging test selection completed with 306 passed, 4 explicit staged-source artifact skips and 0 failed in 2.35 seconds",
+        "the four skips are limited to deep archive-content checks whose ignored corresponding-source files are absent; packaging/stage_ytdlp_sources.py retains all four mandatory release staging validators",
+        "packaging/extract_translations.py --check found 453 translatable strings and all seven TS catalogs up to date after location regeneration",
+        "the translation pipeline, menu-order translation and continuity group completed with 35 passed in 1.62 seconds",
+        "VERIFICATION_LEDGER.json parsed successfully, git diff --check passed and git diff --cached --name-only was empty"
+      ],
+      "summary": "Every locally affected deterministic gate is clean without rerunning the full suite or long native/source builds, and the approved UI work remains preserved together with the CI, updater, dependency and accessibility fixes.",
+      "limitations": [
+        "The newly pinned developer packages were not installed locally; their real environment will be measured by hosted CI only after a separately approved push.",
+        "No native media playback, real UAC update, release build, installation or installed-artifact acceptance was performed.",
+        "No commit or push has occurred; all results belong to the current working tree based on fa785293d2ebf2f2575c04e109cee50163eb602e."
+      ],
+      "next_action": "Present the complete pre-commit report and request separate commit approval; push remains separately authorized and no v0.38 release asset should change."
     }
   ]
 }

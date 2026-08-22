@@ -35,8 +35,10 @@ import hashlib
 import json
 import os
 import re
+import stat
 import tempfile
 from collections import namedtuple
+from contextlib import contextmanager
 from pathlib import Path
 from urllib.parse import quote, urlsplit
 from app.i18n import tr, tr_mark, translate_marked
@@ -499,10 +501,112 @@ def remove_downloaded_installer(path):
         pass
 
 
+def create_update_directory():
+    """Create a private per-download directory in the user's local profile.
+
+    ``tempfile.mkdtemp`` creates the leaf with mode ``0o700``. Supported
+    Windows Python versions translate that mode to an ACL limited to the
+    current user and administrators. The leaf must remain a real directory;
+    a reparse-point substitution is rejected before any installer is written.
+    """
+    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    folder = Path(tempfile.mkdtemp(prefix="MLCPlayerUpdate_", dir=base))
+    attributes = getattr(folder.lstat(), "st_file_attributes", 0)
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    if folder.is_symlink() or attributes & reparse_flag:
+        try:
+            folder.rmdir()
+        except OSError:
+            pass
+        raise VerificationError("güncelleme klasörü reparse noktası")
+    return str(folder)
+
+
+def _open_installer_read_locked(path):
+    """Open for reading while denying replacement on Windows.
+
+    ``FILE_SHARE_READ`` lets ShellExecute/CreateProcess read the image but
+    denies concurrent write and delete access until the launcher call returns.
+    """
+    if os.name != "nt":
+        return open(path, "rb")
+
+    import ctypes
+    import msvcrt
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    create_file = kernel32.CreateFileW
+    create_file.argtypes = (
+        wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID,
+        wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE,
+    )
+    create_file.restype = wintypes.HANDLE
+    handle = create_file(
+        str(path), 0x80000000, 0x00000001, None, 3, 0x00000080, None)
+    invalid = ctypes.c_void_p(-1).value
+    if handle == invalid:
+        raise ctypes.WinError(ctypes.get_last_error())
+    try:
+        descriptor = msvcrt.open_osfhandle(handle, os.O_RDONLY)
+    except Exception:
+        kernel32.CloseHandle(handle)
+        raise
+    return os.fdopen(descriptor, "rb")
+
+
+@contextmanager
+def verified_installer_for_launch(path, expected_sha256, expected_size):
+    """Reverify one stable regular file and keep it locked through launch."""
+    expected = _positive_size(expected_size)
+    digest_text = (expected_sha256 or "").lower()
+    if expected is None or not _DIGEST_RE.match(f"sha256:{digest_text}"):
+        raise VerificationError("çalıştırma doğrulama verisi eksik veya bozuk")
+
+    target = Path(path)
+    try:
+        target_lstat = target.lstat()
+        parent_lstat = target.parent.lstat()
+    except OSError as exc:
+        raise VerificationError("kurulum dosyası okunamıyor") from exc
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    for measured in (target_lstat, parent_lstat):
+        if getattr(measured, "st_file_attributes", 0) & reparse_flag:
+            raise VerificationError("kurulum yolu reparse noktası")
+    if target.is_symlink() or target.parent.is_symlink():
+        raise VerificationError("kurulum yolu sembolik bağlantı")
+
+    with _open_installer_read_locked(target) as handle:
+        before = os.fstat(handle.fileno())
+        if not stat.S_ISREG(before.st_mode):
+            raise VerificationError("kurulum adayı normal dosya değil")
+        digest = hashlib.sha256()
+        measured_size = 0
+        while True:
+            chunk = handle.read(1024 * 1024)
+            if not chunk:
+                break
+            measured_size += len(chunk)
+            if measured_size > expected:
+                raise VerificationError("kurulum adayı beklenenden büyük")
+            digest.update(chunk)
+        after = os.fstat(handle.fileno())
+        try:
+            path_state = os.stat(target, follow_symlinks=False)
+        except OSError as exc:
+            raise VerificationError("kurulum yolu doğrulama sırasında değişti") from exc
+        if (not os.path.samestat(before, after)
+                or not os.path.samestat(after, path_state)):
+            raise VerificationError("kurulum dosyası doğrulama sırasında değişti")
+        if measured_size != expected or digest.hexdigest() != digest_text:
+            raise VerificationError("kurulum dosyası yeniden doğrulanamadı")
+        yield
+
+
 # ── Kurulumun uygulanması (kooperatif kapanış) ───────────────────────────
 
 def apply_update(installer_path, player, frozen=None, start_installer=None,
-                 quit_application=None):
+                 quit_application=None, expected_sha256="", expected_size=0):
     """Kurulumu başlatır; ÖNCE ürünün kendi kapanış sırası çalışır.
 
     Referans proje burada `os._exit(0)` çağırıyor. MLC Player'da bu YASAK:
@@ -525,14 +629,24 @@ def apply_update(installer_path, player, frozen=None, start_installer=None,
     if not is_frozen:
         return "source", ""
 
-    if not player.close():
-        # Ürün kapanışı erteledi (süren indirme/arama/apply var).
-        log("Update: the program could not close, the installer was not started.",
-            level="WARNING")
-        return "busy", BUSY_MESSAGE
+    launching = False
+    try:
+        with verified_installer_for_launch(
+                installer_path, expected_sha256, expected_size):
+            if not player.close():
+                # Ürün kapanışı erteledi (süren indirme/arama/apply var).
+                log("Update: the program could not close, the installer was not started.",
+                    level="WARNING")
+                return "busy", BUSY_MESSAGE
 
-    launcher = start_installer or os.startfile
-    launcher(installer_path)
+            launcher = start_installer or os.startfile
+            launching = True
+            launcher(installer_path)
+    except (OSError, VerificationError) as exc:
+        if launching:
+            raise
+        log(f"Update launch verification failed: {exc}", level="WARNING")
+        return "verification", VERIFY_FAILED_MESSAGE
     log("Update installer started; the program is closing.")
     quit_app = quit_application
     if quit_app is None:
@@ -758,7 +872,13 @@ class UpdateDialog(QDialog):
         self._status.setVisible(True)
         self._status.setText(tr("İndiriliyor…"))
 
-        folder = tempfile.mkdtemp(prefix="MLCPlayerUpdate_")
+        try:
+            folder = create_update_directory()
+        except (OSError, VerificationError) as exc:
+            log(f"Update directory creation failed: {exc}", level="WARNING")
+            self._restore_buttons()
+            self.show_error(DOWNLOAD_FAILED_MESSAGE)
+            return
         destination = os.path.join(folder, expected_asset_name(self._version))
         self._downloader = UpdateDownloader(self._download_url, destination,
                                             self._expected_sha256,
@@ -776,7 +896,10 @@ class UpdateDialog(QDialog):
             remove_downloaded_installer(installer_path)
             return
         self._status.setText(tr("Güncelleme uygulanıyor…"))
-        outcome, message = apply_update(installer_path, self._update_target())
+        outcome, message = apply_update(
+            installer_path, self._update_target(),
+            expected_sha256=self._expected_sha256,
+            expected_size=self._expected_size)
         if outcome == "busy":
             self._restore_buttons()
             self.show_error(message)
@@ -787,6 +910,11 @@ class UpdateDialog(QDialog):
             self._restore_buttons()
             self.show_error(tr_mark(
                 "Kaynak koddan çalışan kopya kurulumla güncellenmez."))
+            remove_downloaded_installer(installer_path)
+            return
+        if outcome == "verification":
+            self._restore_buttons()
+            self.show_error(message)
             remove_downloaded_installer(installer_path)
             return
         self.accept()

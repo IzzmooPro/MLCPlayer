@@ -20,6 +20,7 @@ from app import track_labels
 from app.errors import safe_console
 from app.menu_actions import populate_audio_device_menu, populate_recent_menu
 from app.i18n import tr, tr_mark, translate_marked
+from app.empty_state import EmptyStateOverlay
 
 # Ana menüyle AYNI hız seçenekleri.
 PLAYBACK_SPEEDS = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0)
@@ -334,12 +335,43 @@ class SubtitleTrackWatcher(QObject):
                          f"{type(exc).__name__}")
 
 
+class _PlaceholderStateLabel(QLabel):
+    """Legacy placeholder state that never enters the visible/accessibility tree.
+
+    URL loading still uses ``text`` and logical visibility as its state
+    contract. The approved ``EmptyStateOverlay`` is the only rendered and
+    announced UI, so the old QLabel remains physically hidden at all times.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._placeholder_requested = True
+        QLabel.setVisible(self, False)
+
+    def setVisible(self, visible):
+        self._placeholder_requested = bool(visible)
+        QLabel.setVisible(self, False)
+
+    def show(self):
+        self.setVisible(True)
+
+    def hide(self):
+        self.setVisible(False)
+
+    def isHidden(self):
+        return not self._placeholder_requested
+
+    def placeholderRequested(self):
+        return self._placeholder_requested
+
+
 class VideoFrame(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.main_window = parent
         self.is_video_fullscreen = False
         self.control_overlay = None
+        self.empty_state_overlay = None
         self.playlist_panel = None
         self._overlay_updating_position = False
         self._overlay_updating_volume = False
@@ -379,13 +411,15 @@ class VideoFrame(QWidget):
         self.cursor_timer.setInterval(3000)  # 3 saniye
         self.cursor_timer.timeout.connect(self.hide_cursor)
 
-        # Video oynatılmadığında gösterilecek logo/yer tutucu
-        self.placeholder_label = QLabel(self)
+        # Placeholder yaşam döngüsü (URL yükleme dahil) mevcut kod ve testler
+        # için state taşıyıcısı olarak korunur. Görsel başlangıç ekranı artık
+        # native child `EmptyStateOverlay`dir; bu eski metin hiçbir z-order
+        # geçişinde kullanıcıya geri sızmamalıdır.
+        self.placeholder_label = _PlaceholderStateLabel(self)
         self.placeholder_label.setText("MLC Player\nMedia Launch Codec Player")
         self.placeholder_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.placeholder_label.setStyleSheet(
-            "color: #9AA7B3; font-size: 22px; font-weight: 600;"
-            "background-color: #151A1F;"
+            "color: transparent; background-color: #11161B;"
         )
         self.placeholder_label.setGeometry(0, 0, self.width(), self.height())
 
@@ -415,8 +449,49 @@ class VideoFrame(QWidget):
         if enabled is None:
             enabled = cinematic_ui_enabled()
         if enabled:
+            self.empty_state_overlay = EmptyStateOverlay(self)
             self._create_control_overlay()
             self._create_playlist_panel()
+
+    def _empty_state_requested(self):
+        label = getattr(self, "placeholder_label", None)
+        if label is None or label.isHidden():
+            return False
+        # Bazı ürün/test yolları medya durumunu doğrudan current_file ile
+        # kurar. Medya varsa eski placeholder görünür kalsa bile başlangıç
+        # yüzeyi kontrol katmanını örtemez. Tek istisna, kullanıcıya özellikle
+        # gösterilen URL yükleme durumudur.
+        return (not bool(getattr(self.main_window, "current_file", ""))
+                or bool(self.main_window.__dict__.get("_url_loading_active")))
+
+    def update_empty_state_geometry(self):
+        surface = self.empty_state_overlay
+        if surface is None:
+            return
+        surface.setGeometry(0, 0, max(1, self.width()),
+                            max(1, self.height()))
+
+    def sync_empty_state(self):
+        """Başlangıç yüzeyini placeholder yaşam döngüsüyle aynı tut."""
+        surface = self.empty_state_overlay
+        if surface is None:
+            return False
+        requested = self._empty_state_requested()
+        owner_ready = (self.main_window.isVisible()
+                       and not self.main_window.isMinimized())
+        if not requested or self._overlay_suppressed or not owner_ready:
+            surface.hide()
+            return False
+        self.hide_overlay_immediately()
+        # Geç import döngüyü önler: media_controls VideoFrame'i kullanır.
+        from app.media_controls import PLACEHOLDER_DEFAULT_TEXT
+        surface.set_placeholder_text(self.placeholder_label.text(),
+                                     PLACEHOLDER_DEFAULT_TEXT)
+        self.update_empty_state_geometry()
+        if not surface.isVisible():
+            surface.show()
+        surface.raise_()
+        return True
 
     def _create_control_overlay(self):
         if self.control_overlay is not None:
@@ -1169,6 +1244,8 @@ class VideoFrame(QWidget):
         self._overlay_suppressed = suppressed
         if suppressed:
             self.hide_overlay_immediately()
+            if self.empty_state_overlay is not None:
+                self.empty_state_overlay.hide()
             return
         self._restore_overlay_after_activation()
 
@@ -1275,6 +1352,9 @@ class VideoFrame(QWidget):
         """Kullanıcı etkileşiminde overlay'i gösterir ve sayacı tazeler."""
         if self.control_overlay is None or self._overlay_suppressed:
             return
+        if self._empty_state_requested():
+            self.sync_empty_state()
+            return
         self._overlay_auto_hidden = False
         if self.main_window.isVisible() and not self.main_window.isMinimized():
             self.update_overlay_geometry()
@@ -1360,6 +1440,11 @@ class VideoFrame(QWidget):
             return
         if not self.main_window.isVisible() or self.main_window.isMinimized():
             self.hide_overlay_immediately()
+            if self.empty_state_overlay is not None:
+                self.empty_state_overlay.hide()
+            return
+        if self.sync_empty_state():
+            self.update_playlist_panel_geometry()
             return
         # Dar pencerede sağ kontrol grubu sığsın diye yan iç boşluk daralır;
         # böylece hiçbir ikon kırpılmaz ve katman video genişliğini aşmaz.
@@ -1801,6 +1886,10 @@ class VideoFrame(QWidget):
         # yüzeyleri diriltmemelidir.
         if not self._player_owns_foreground():
             self.hide_overlay_immediately()
+            if self.empty_state_overlay is not None:
+                self.empty_state_overlay.hide()
+            return
+        if self.sync_empty_state():
             return
         if self._overlay_auto_hidden:
             return
@@ -1957,6 +2046,8 @@ class VideoFrame(QWidget):
         if self._is_player_surface_active():
             return
         self.hide_overlay_immediately()
+        if self.empty_state_overlay is not None:
+            self.empty_state_overlay.hide()
         if self.osd_label is None:
             return
         self.osd_timer.stop()
@@ -1972,9 +2063,13 @@ class VideoFrame(QWidget):
                 self.overlay_fade.stop()
             self.control_overlay.hide()
             self.control_overlay.close()
+        if self.empty_state_overlay is not None:
+            self.empty_state_overlay.hide()
+            self.empty_state_overlay.close()
 
     def resizeEvent(self, event):
         self.placeholder_label.setGeometry(0, 0, self.width(), self.height())
+        self.update_empty_state_geometry()
         # ÖNCE katman geometrisi: OSD konumu katmanın gerçek bandına göre
         # hesaplanır, bu yüzden eski geometriyle yerleştirilmemelidir.
         self.update_overlay_geometry()
