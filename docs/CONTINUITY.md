@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `73f4b6920592af1e5f0617048e49a6ff72cb734c`
+- Kayıt hazırlanırken doğrulanan HEAD: `7e93ed8c3d6d0ad180aeaa72fc493010d6d3bbb3`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-017`
+- Son kanıt: `EV-20260823-018`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -673,24 +673,30 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    tamamlandıktan sonra **6 passed / 0 failed** verdi
    (`EV-20260823-017`). Sekiz satır da `NOT_RUN`; ürün kodu ve gerçek native
    davranış değişmedi.
+107. Kalite programı PR #18'in exact head'i `c9e2458` üzerinde zorunlu hosted
+   test **4811 passed / 30 skipped / 0 failed** verdi; koşum 2 dakika 59
+   saniyede ilk denemede tamamlandı. PR merge öncesi `MERGEABLE/CLEAN` ve
+   zorunlu `test` check'i `COMPLETED/SUCCESS` olarak geri okundu. Ayrı onayla
+   iki ebeveynli `7e93ed8` merge commit'i origin/master'a alındı
+   (`EV-20260823-018`). Bu hosted kanıt P0 satırlarını PASS yapmaz; sekiz
+   satır da `NOT_RUN` kalır.
 
 ## Sıradaki tek adım
 
-Kullanıcıdan ayrı açık native-koşum onayı alındıktan sonra exact gerçek medya
-ve runtime kimliğini fingerprint et; yalnız kısa
-`native_shutdown_acceptance.py` + tek videolu overlay çekirdeğini çalıştır.
-Başarısızlık olursa otomatik tekrar yapma.
+PR #18 hosted kabul kaydını commit etmek için ayrı onay al; ardından push ve
+korumalı PR adımlarını yine ayrı onaylarla tamamla. Native koşum başlatma.
 
 ## Sonraki sıra
 
-1. Exact commit/runtime/medya girdilerini belirle; kısa otomatik P0 çekirdeği
+1. `EV-20260823-018` kabul kaydını korumalı PR yoluyla master'a al.
+2. Exact commit/runtime/medya girdilerini belirle; kısa otomatik P0 çekirdeği
    için ayrı onay al ve sonucu fail-closed kaydet.
-2. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
+3. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
    ayrıca onaylat; aynı girdilerle bir kez çalıştır.
-3. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
-4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+4. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
+5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-5. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+6. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni

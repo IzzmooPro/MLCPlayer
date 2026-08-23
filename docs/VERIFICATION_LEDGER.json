@@ -2453,6 +2453,28 @@
         "The four incomplete areas require either a narrow fail-closed runner or a recorded manual acceptance before their rows can become PASSED."
       ],
       "next_action": "With separate approval, identify and fingerprint the exact real media/runtime inputs, then run only the short shutdown plus one-video overlay core; inspect any failure before deciding on the physical interaction package."
+    },
+    {
+      "id": "EV-20260823-018",
+      "recorded_at_utc": "2026-08-23T20:59:05Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "7e93ed8c3d6d0ad180aeaa72fc493010d6d3bbb3",
+      "subject": "Architecture and Windows quality plan protected PR acceptance",
+      "evidence": [
+        "task branch exact head c9e2458ec2caaefc28a9b133b41ae9f9e771591b was pushed and used by pull request https://github.com/IzzmooPro/MLCPlayer/pull/18",
+        "required GitHub Actions test run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32665861329 completed successfully in 2 minutes 59 seconds with 4811 passed, 30 skipped and 0 failed",
+        "PR #18 was MERGEABLE and CLEAN with the required test check COMPLETED/SUCCESS before the separately approved merge",
+        "origin/master advanced to two-parent merge commit 7e93ed8c3d6d0ad180aeaa72fc493010d6d3bbb3 whose parents are 78518dd67e882e35da69ea7bb6bfc74e3cafc1c7 and c9e2458ec2caaefc28a9b133b41ae9f9e771591b",
+        "the local clean master was fast-forwarded to the exact remote merge commit, then this acceptance record was prepared on codex/quality-evolution-acceptance"
+      ],
+      "summary": "The architecture inventory, freshness gate and honest P0 Windows execution mapping passed protected hosted CI and reached master through a genuine merge commit.",
+      "limitations": [
+        "The 30 skipped paths remain non-PASS; this hosted_ci evidence is not a native smoke, installed artifact, build, signing, tag or release result.",
+        "All eight P0 Windows scenarios remain NOT_RUN despite the green hosted suite.",
+        "No product source changed in PR #18 and no real media or Windows interaction was exercised by this acceptance record."
+      ],
+      "next_action": "Commit and pass this acceptance record through the protected PR workflow, then request separate approval for the short source-native shutdown plus one-video overlay baseline."
     }
   ]
 }
