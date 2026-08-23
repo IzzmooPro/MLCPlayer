@@ -102,6 +102,9 @@ düzeltildi; gerçek retry yapılmadan P0-02 durumu yükseltilmez.
 Exact `98f4440` retry'sı geç UI hatalarını temizledi fakat child normal
 Python/libmpv finalizasyonunda `MARK_DONE` sonrasında yine başarısız oldu
 (`EV-20260823-022`). Finalizasyon sözleşmesi düzeltilmeden P0-02 yükseltilmez.
+Test-only finalizasyon yolu `EV-20260823-023` ile flush + `os._exit`
+sözleşmesine alındı; deterministik etki grubu **103 passed / 2 skipped**
+verdi. Native retry yapılmadığı için P0-02 hâlâ **FAILED** durumundadır.
 
 Çıkış kapısı: P0 satırlarının her biri PASSED, FAILED veya gerekçeli BLOCKED;
 çocuk süreç exit kodu, final marker, stderr ve süreç sızıntısı sınırları açık;

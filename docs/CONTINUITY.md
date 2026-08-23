@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-022`
+- Son kanıt: `EV-20260823-023`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -713,27 +713,31 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    sonra yalnız child'ın `raise SystemExit` yolunda; `main.py` ve güvenli
    native child'lar bu bilinen Windows/libmpv sınırında flush + `os._exit`
    kullanıyor.
+112. Overlay child finalizasyon sözleşmesi regresyon-first düzeltildi. Yeni
+   hedef test önce `os._exit(exit_code)` bulunmadığı için **1 failed**, sonra
+   child focus sürecini temizleyip stdout/stderr akışlarını boşalttıktan sonra
+   normal Python/libmpv finalizasyonuna girmeden sert çıkış kullanınca **1
+   passed** verdi. İlgili deterministik etki grubu **103 passed / 2 skipped /
+   0 failed** tamamlandı (`EV-20260823-023`). Ürün kodu ve native durum
+   değişmedi; `WIN-P0-02` hâlâ **FAILED** ve otomatik retry yapılmadı.
 
 ## Sıradaki tek adım
 
-Native retry başarısızlığını commit/push/PR ile kaydetmek için ayrı onaylarla
-ilerle. Ardından finalizasyon düzeltmesi için ayrıca açık onay al; otomatik
-native retry yapma.
+Test-only finalizasyon düzeltmesini commit etmek için ayrı açık onay al.
+Native retry yapma.
 
 ## Sonraki sıra
 
-1. `EV-20260823-022` başarısız retry kaydını commit/push/PR için ayrı
+1. `EV-20260823-023` test-only düzeltmesini commit, push ve PR için ayrı
    onaylarla master'a al.
-2. Overlay child için flush + `os._exit` finalizasyon sözleşmesini
-   regresyon-first düzelt; ürün koduna dokunma.
-3. Düzeltme master'a alındıktan sonra tek native retry için yeniden ayrıca
+2. Düzeltme master'a alındıktan sonra tek native retry için yeniden ayrıca
    açık onay al; başarısızsa otomatik tekrar yapma.
-4. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
+3. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
    ayrıca onaylat; aynı girdilerle bir kez çalıştır.
-5. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
-6. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+4. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
+5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-7. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+6. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni

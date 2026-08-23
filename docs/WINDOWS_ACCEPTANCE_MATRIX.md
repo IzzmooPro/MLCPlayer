@@ -201,6 +201,10 @@ koşum öncesi/sonrası değer aynıdır.
   child `MARK_DONE` sonrasında normal Python/libmpv finalizasyonunda yine
   `0xC0000005` döndürdü. Kalan test-only boşluk flush + `os._exit`
   sözleşmesidir; ek retry yapılmadı ve satır **FAILED** kalır.
+- Bu test-only boşluk `EV-20260823-023` ile regresyon-first kapatıldı: hedef
+  test önce **1 failed**, sonra **1 passed**; ilgili deterministik grup **103
+  passed / 2 skipped / 0 failed** verdi. Ürün kodu değişmedi ve native retry
+  yapılmadı; bu nedenle satır hâlâ **FAILED** durumundadır.
 
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 

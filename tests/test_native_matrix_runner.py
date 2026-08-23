@@ -269,6 +269,24 @@ def test_native_smoke_child_uses_the_canonical_product_shutdown_path():
         'mark("MARK_CLOSE")')
 
 
+def test_native_smoke_child_flushes_and_uses_hard_exit_after_app_exec():
+    """Windows libmpv child normal Python finalizasyonuna girmemeli."""
+    with open(SMOKE_CHILD_PATH, encoding="utf-8") as handle:
+        source = handle.read()
+
+    app_exec_at = source.rindex("app.exec()")
+    finalization = source[app_exec_at:]
+
+    assert "raise SystemExit(exit_code)" not in finalization
+    assert "os._exit(exit_code)" in finalization
+    hard_exit_at = source.rindex("os._exit(exit_code)")
+    assert "sys.stdout.flush()" in finalization
+    assert "sys.stderr.flush()" in finalization
+    assert finalization.index("kill_focus_child()") < (
+        hard_exit_at - app_exec_at)
+    assert hard_exit_at > app_exec_at
+
+
 def test_results_line_is_parsed_into_typed_fields():
     stdout = (
         "MARK_BUTTONS t=1.0\n"
