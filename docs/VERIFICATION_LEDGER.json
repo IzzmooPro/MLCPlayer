@@ -2329,6 +2329,29 @@
         "No GitHub App was installed, no SignPath organization/project/policy was created, and no build, installation, tag or release was performed."
       ],
       "next_action": "Request separate commit approval; push, PR merge and actual SignPath submission remain separately authorized."
+    },
+    {
+      "id": "EV-20260823-013",
+      "recorded_at_utc": "2026-08-23T11:25:34Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "59292672d6dca57368c8808dc02217a941997fe1",
+      "subject": "SignPath application package protected PR acceptance",
+      "evidence": [
+        "task branch commit f25a6878274225fb357655407ba4caec3ca21c9e was pushed and its remote head matched the local commit exactly",
+        "pull request https://github.com/IzzmooPro/MLCPlayer/pull/15 created exact-head pull_request run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32636105104",
+        "the required test job completed successfully with 4804 passed, 30 skipped and 0 failed in 141.78 seconds",
+        "PR #15 was MERGEABLE and its required test check was COMPLETED/SUCCESS before the separately approved merge",
+        "origin/master advanced through two-parent merge commit 59292672d6dca57368c8808dc02217a941997fe1 whose parents are a420fe1ae99df2057791412a8f0af35c843a9150 and f25a6878274225fb357655407ba4caec3ca21c9e",
+        "an exact merge-commit run query returned no post-merge workflow run, preserving the single automatic PR CI contract"
+      ],
+      "summary": "The truthful SignPath Foundation application package passed the protected full hosted CI gate and is now on master through a genuine merge commit.",
+      "limitations": [
+        "The 30 skipped paths remain non-PASS; this hosted_ci result is not source-build, native-smoke, installed-artifact or signing evidence.",
+        "No SignPath application was submitted, no GitHub App or token was configured, and no certificate, signing request, Authenticode signature, build, tag or release was created.",
+        "Maintainer contact name and email remain submission-time placeholders."
+      ],
+      "next_action": "Validate and commit this acceptance record with separate approval, then collect the maintainer contact fields; actual application submission remains separately authorized."
     }
   ]
 }

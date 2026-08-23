@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `a420fe1ae99df2057791412a8f0af35c843a9150`
+- Kayıt hazırlanırken doğrulanan HEAD: `59292672d6dca57368c8808dc02217a941997fe1`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-012`
+- Son kanıt: `EV-20260823-013`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -624,16 +624,22 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    failed** verdi. Son etki grubu **222 passed / 0 failed** ve ledger JSON
    kontrolü geçti (`EV-20260823-012`). Paket **gönderilmedi**; hesap,
    sertifika, imza, build, tag veya release oluşturulmadı.
+102. Başvuru paketi commit'i `f25a687` exact head olarak PR #15 run
+   `32636105104` üzerinde **4804 passed / 30 skipped / 0 failed** verdi. PR
+   yeşil ve mergeable iken ayrı onayla iki ebeveynli merge commit `5929267`
+   üzerinden master'a alındı; merge commitinde ikinci push run'ı oluşmadı
+   (`EV-20260823-013`). Bu hosted CI kabulüdür; gerçek başvuru, hesap,
+   GitHub App, sertifika, imza, build, tag veya release değildir.
 
 ## Sıradaki tek adım
 
-`EV-20260823-012` başvuru paketini dar belge/devamlılık testleriyle doğrula ve
-commit için ayrı onay iste.
+`EV-20260823-013` PR kabul kaydını dar devamlılık testiyle doğrula ve commit
+için ayrı onay iste.
 
 ## Sonraki sıra
 
-1. `EV-20260823-012` kaydını dar belge/devamlılık testleriyle doğrula.
-2. Ayrı onaylarla başvuru paketini commit et, görev dalını push et ve PR
+1. `EV-20260823-013` kaydını dar devamlılık testiyle doğrula.
+2. Ayrı onaylarla kabul kaydını commit et, görev dalını push et ve PR
    kapısından master'a al.
 3. Başvuru iletişim bilgilerini kullanıcıyla doldur; gerçek başvuru gönderimi,
    GitHub App kurulumu, imzalama ve yayın yine ayrı kararlardır.
