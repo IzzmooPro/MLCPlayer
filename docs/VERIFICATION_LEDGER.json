@@ -2135,6 +2135,36 @@
         "No SignPath submission, Authenticode signature, local Ed25519 signature, tag or release was created."
       ],
       "next_action": "Validate and commit the OCI digest lock and acceptance record with separate approval, pass them through the protected PR gate, then design the hosted unsigned-installer build to pull this exact digest."
+    },
+    {
+      "id": "EV-20260823-005",
+      "recorded_at_utc": "2026-08-23T06:05:49Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "a0f3a930083d1403098cebcde7885e1aed34ca7f",
+      "subject": "GitHub-hosted unsigned main-installer build preparation",
+      "evidence": [
+        "work began on clean codex/signpath-hosted-unsigned-build exactly equal to origin/master merge commit a0f3a930083d1403098cebcde7885e1aed34ca7f",
+        "the current official actions/runner-images Windows 2025 manifest reported image 20260818.232.1 with cached Python 3.13.15 and Inno Setup 6.7.1; the prepared workflow pins windows-2025 and fails closed unless those exact tool versions are present",
+        "actions/checkout v6, actions/setup-python v6, oras-project/setup-oras v2.0.1 and actions/upload-artifact v7 tag objects were resolved through the official GitHub API to immutable commits and embedded by full SHA",
+        "24 exact Windows x86-64 wheels for CPython 3.13 were selected from requirements-lock.txt, hashed, and independently resolved again with pip --require-hashes --only-binary=:all: --no-deps; all 24 passed",
+        ".github/workflows/build-unsigned-main.yml is manual-only with contents read and packages read permissions, uses the immutable libmpv OCI digest lock, verifies DLL size/hash/provenance/manifest and uploads the exact unsigned installer before any future signing request",
+        "packaging/build_unsigned_main.bat is guarded by MLC_HOSTED_UNSIGNED_BUILD=1, builds only the main PyInstaller and Inno package, omits the optional Internet Video add-on, checks the exact EXE and never invokes the private Ed25519 signing path",
+        "packaging/verify_build.py retains the existing full --pre contract while adding --pre-main, which accepts exact mpv without yt-dlp or deno and rejects a same-size corrupted mpv",
+        "the new regression contract first completed with 6 failed tests while the workflow, chain and hash lock were absent; after implementation 5 passed and one test-only permissions-scope assertion failed, then all 6 passed after narrowing that assertion to the YAML permissions block",
+        "the impacted build, runtime, artifact-selection, dependency and translation group initially completed with 86 passed, 1 skipped and 2 environmental failures because the clean worktree had no ignored mpv DLL; after verifying the external DLL as 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e and prepending only its directory to the test PATH, the same group completed with 88 passed and 1 skipped",
+        "the final hosted-build and runtime-pre group completed with 24 passed and 1 skipped; the guarded batch entry without its explicit environment flag stopped before build with exit 1",
+        "the final combined hosted-build, runtime mirror, SignPath, full release, add-on separation, dependency, translation, licence, CI, SPDX and continuity group completed with 647 passed, 1 skipped and 0 failed",
+        "the final hosted-build and continuity recheck completed with 13 passed and 0 failed; extraction found 453 current translatable strings, both JSON documents parsed, Python sources compiled and git diff --check was clean"
+      ],
+      "summary": "A manual GitHub-hosted boundary is prepared to build and store the exact unsigned main installer from hash-locked Python wheels and the immutable libmpv digest, while keeping the optional add-on, SignPath and the local Ed25519 key outside the job.",
+      "limitations": [
+        "This is deterministic source, dependency and contract evidence only; the workflow has not been committed, pushed, parsed by GitHub or dispatched.",
+        "No installer was built or uploaded, so Authenticode NotSigned status, installer SHA-256 and build provenance are not yet hosted evidence.",
+        "The optional Internet Video installer is deliberately outside this first SignPath build boundary and remains on the established local release path.",
+        "No package installation in the user environment, native smoke, SignPath application, signing, tag or release was performed."
+      ],
+      "next_action": "Run the final impacted and continuity checks, then request separate commit approval; push, pull request, merge and the real hosted build dispatch remain separately authorized."
     }
   ]
 }

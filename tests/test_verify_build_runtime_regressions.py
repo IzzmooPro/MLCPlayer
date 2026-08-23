@@ -257,6 +257,30 @@ def test_pre_returns_zero_when_every_runtime_matches(tmp_path, monkeypatch):
     assert verify_build.main() == 0
 
 
+def test_pre_main_accepts_exact_mpv_without_optional_addon_inputs(
+        tmp_path, monkeypatch):
+    """Hosted ana paket, yt-dlp/deno olmadan da kesin mpv'yi doğrular."""
+    root, manifest = build_fake_root(tmp_path)
+    for relative in verify_build.ADDON_SOURCE_FILES:
+        target = tmp_path / relative
+        if target.exists():
+            target.unlink()
+    monkeypatch.setattr(verify_build, "ROOT", root)
+    monkeypatch.setattr(verify_build, "MANIFEST", manifest)
+
+    assert verify_build.check_pre_main() is True
+    assert verify_build.check_pre() is False
+
+
+def test_pre_main_rejects_same_size_corrupt_mpv(tmp_path, monkeypatch):
+    root, manifest = build_fake_root(tmp_path)
+    corrupt_same_size(tmp_path / "bin" / "mpv-2.dll")
+    monkeypatch.setattr(verify_build, "ROOT", root)
+    monkeypatch.setattr(verify_build, "MANIFEST", manifest)
+
+    assert verify_build.check_pre_main() is False
+
+
 # --- 3b. Bozuk manifest: TRACEBACK degil, kontrollu hata --------------
 
 def test_a_missing_manifest_is_fail_closed(tmp_path, capsys):

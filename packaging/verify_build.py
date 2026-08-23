@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Release zincirinin dogrulama adimlari (build_release.bat tarafindan cagrilir).
 
-`--pre`  : PyInstaller calismadan ONCE kaynak dosyalar ve runtime hash'leri
+`--pre`  : Tam yerel release icin tum kaynaklar ve runtime hash'leri
+`--pre-main`: Hosted ana paket icin yalniz ana paket kaynak/runtime girdileri
 `--post` : dist agaci eksiksiz mi
 `--final`: kurulum dosyasi olustu mu + boyut raporu
 
@@ -27,14 +28,13 @@ MANIFEST = os.path.join(ROOT, "bin", "RUNTIME_MANIFEST.txt")
 #
 # Hem `SOURCE_FILES` hem hash dogrulamasi ARTIK buradan turer; ikinci bir
 # liste tutulmadigi icin bir runtime yeniden unutulamaz.
-RUNTIME_FILES = ("mpv-2.dll", "yt-dlp.exe", "deno.exe")
+MAIN_RUNTIME_FILES = ("mpv-2.dll",)
+ADDON_RUNTIME_FILES = ("yt-dlp.exe", "deno.exe")
+RUNTIME_FILES = MAIN_RUNTIME_FILES + ADDON_RUNTIME_FILES
 
-# Sources that must reach PyInstaller.
-SOURCE_FILES = tuple(
-    os.path.join("bin", name) for name in RUNTIME_FILES) + (
-    os.path.join("licenses", "yt-dlp-LICENSE.txt"),
-    os.path.join("licenses", "yt-dlp-THIRD_PARTY_LICENSES.txt"),
-    os.path.join("licenses", "deno-LICENSE.txt"),
+# Sources that must reach the main PyInstaller package.
+MAIN_SOURCE_FILES = tuple(
+    os.path.join("bin", name) for name in MAIN_RUNTIME_FILES) + (
     os.path.join("licenses", "mpv-NOTICE.txt"),
     os.path.join("licenses", "THIRD_PARTY_NOTICES.txt"),
     os.path.join("licenses", "Qt-LGPL-3.0.txt"),
@@ -49,16 +49,22 @@ SOURCE_FILES = tuple(
     os.path.join("licenses", "python-mpv-LICENSE-LGPL.txt"),
     os.path.join("assets", "mlc-player-icon.ico"),
     os.path.join("assets", "mlc-player-icon-transparent.ico"),
-    # GPLv3: the licence text and the README MUST ACCOMPANY the
-    # distribution. The spec places them in the `dist` tree, and setup also
-    # copies them to the install root and shows them on the wizard screen.
-    # If either is missing the build stops BEFORE it starts.
     "LICENSE",
     "README.md",
     "README.tr.md",
     "MLCPlayer.spec",
     "main.py",
 )
+
+# Optional add-on inputs. The established full release preflight remains the
+# union of both sets, while hosted unsigned main builds never need these bytes.
+ADDON_SOURCE_FILES = tuple(
+    os.path.join("bin", name) for name in ADDON_RUNTIME_FILES) + (
+    os.path.join("licenses", "yt-dlp-LICENSE.txt"),
+    os.path.join("licenses", "yt-dlp-THIRD_PARTY_LICENSES.txt"),
+    os.path.join("licenses", "deno-LICENSE.txt"),
+)
+SOURCE_FILES = MAIN_SOURCE_FILES + ADDON_SOURCE_FILES
 
 # Files that must be ABSENT from the package (deliberately excluded).
 FORBIDDEN_IN_DIST = (
@@ -135,8 +141,9 @@ def manifest_entries(manifest=None):
     return entries
 
 
-def verify_runtime_binaries(root=None, manifest=None, log=print):
-    """Paketlenen UC runtime'i manifest'e karsi dogrular.
+def verify_runtime_binaries(root=None, manifest=None, log=print,
+                            runtime_files=None):
+    """Secilen runtime'lari manifest'e karsi dogrular.
 
     Boyut ONCE denetlenir: yanlis boyut zaten yanlis dosyadir ve 119 MB'lik
     bir DLL'in ozetini bosuna hesaplamaya gerek yoktur.
@@ -145,6 +152,7 @@ def verify_runtime_binaries(root=None, manifest=None, log=print):
     DLL'i kopyalamadan kucuk fixture dosyalariyla ayni yolu kullanir.
     """
     root = root or ROOT
+    runtime_files = RUNTIME_FILES if runtime_files is None else runtime_files
     try:
         expected = manifest_entries(manifest)
     except OSError as exc:
@@ -157,7 +165,7 @@ def verify_runtime_binaries(root=None, manifest=None, log=print):
     except (ValueError, TypeError) as exc:
         return fail(f"manifest bozuk: {exc}", log)
     ok = True
-    for name in RUNTIME_FILES:
+    for name in runtime_files:
         path = os.path.join(root, "bin", name)
         want_size, want_hash = expected.get(name, (None, ""))
         if not want_hash or want_size is None:
@@ -197,6 +205,20 @@ def check_pre():
     return verify_runtime_binaries(ROOT, MANIFEST) and ok
 
 
+def check_pre_main():
+    """Hosted ana paket girdilerini add-on dosyalarina baglamadan dogrula."""
+    ok = True
+    print("[1/3] Main-package source files and runtime hashes")
+    for relative in MAIN_SOURCE_FILES:
+        path = os.path.join(ROOT, relative)
+        if not os.path.isfile(path):
+            ok = fail(f"missing file: {relative}") and ok
+    if not ok:
+        return False
+    return verify_runtime_binaries(
+        ROOT, MANIFEST, runtime_files=MAIN_RUNTIME_FILES) and ok
+
+
 def check_post():
     ok = True
     print("[2/3] dist tree")
@@ -234,12 +256,15 @@ def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
     if mode == "--pre":
         return 0 if check_pre() else 1
+    if mode == "--pre-main":
+        return 0 if check_pre_main() else 1
     if mode == "--post":
         return 0 if check_post() else 1
     if mode == "--final":
         target = sys.argv[2] if len(sys.argv) > 2 else ""
         return 0 if check_final(target) else 1
-    print("usage: verify_build.py --pre | --post | --final <installer.exe>")
+    print("usage: verify_build.py --pre | --pre-main | --post | "
+          "--final <installer.exe>")
     return 1
 
 

@@ -24,10 +24,10 @@ the eligibility decision.
 
 ## Open gates before an application
 
-1. Add a manual, GitHub-hosted unsigned-installer build whose inputs come from
-   the repository or immutable, hash-verified artifacts.
-2. Ensure the unsigned installer is uploaded as a GitHub Actions artifact
-   before it is submitted through SignPath's GitHub connector.
+1. Pass the protected PR gate for the prepared hosted unsigned-build workflow.
+2. With separate approval, run it once on exact master and verify that the
+   unsigned installer and provenance artifacts match the recorded commit and
+   inputs.
 3. Keep every signing request under manual approval and bind it to one exact
    commit and version.
 4. Obtain SignPath acceptance before adding its action, token or certificate
@@ -56,14 +56,36 @@ is recorded in `packaging/libmpv_runtime_lock.json`. Anonymous OCI readback
 returned HTTP 200 and the same manifest and DLL digests. The fixed tag must not
 be overwritten or dispatched again.
 
-## Why the hosted build is not added yet
+## Prepared hosted unsigned build
+
+`.github/workflows/build-unsigned-main.yml` is manual-only and runs on a
+GitHub-hosted Windows 2025 runner. It is intentionally limited to the main
+installer:
+
+- actions, Python `3.13.15` and ORAS are pinned; Inno Setup must report
+  `6.7.1` or the job stops;
+- all 24 Windows wheels are exact-version and SHA-256 locked in
+  `requirements-build-windows.txt`;
+- libmpv is pulled by the reviewed OCI digest, and its size, SHA-256,
+  provenance and tracked runtime manifest are rechecked;
+- `packaging/build_unsigned_main.bat` requires an explicit hosted-build guard,
+  uses the existing PyInstaller/Inno product path and omits the optional
+  Internet Video installer;
+- the resulting EXE must report `NotSigned`, no detached `.sig` may exist, and
+  the exact EXE plus build provenance are stored as separate Actions artifacts.
+
+The workflow does not call SignPath, access the local Ed25519 key, create a
+tag or change a release. It has not been run; source and regression tests are
+not installer-build evidence.
+
+## Why the hosted build is not accepted yet
 
 The current product build needs native runtime files that are intentionally
 not committed to Git. The established release flow also creates detached
 Ed25519 signatures with a private key kept outside the repository. Immutable
-runtime acquisition is now available, but the GitHub-hosted installer build
-and the boundary that keeps the local Ed25519 private key outside CI still need
-their own reviewed implementation.
+runtime acquisition and the hosted unsigned-build source boundary are now
+prepared. They still require protected PR acceptance and one separately
+approved real hosted build before they can support a SignPath application.
 
 The safe future sequence is:
 
