@@ -55,8 +55,37 @@ jobs:
           $iscc = $candidates | Where-Object { Test-Path -LiteralPath $_ } |
             Select-Object -First 1
           if (-not $iscc) { throw "ISCC.exe is missing" }
-          $inno = [Diagnostics.FileVersionInfo]::GetVersionInfo($iscc).ProductVersion
-          if ($inno -notmatch '^6\.7\.1(?:\.|$)') {
+
+          # ISCC.exe 6.7.1 on the hosted image reports unusable 0.0.0.0 file metadata.
+          # Exercise the compiler engine without producing an installer and
+          # parse the exact version that Inno itself prints.
+          $probePath = Join-Path $env:RUNNER_TEMP "mlc-inno-version-probe.iss"
+          @'
+          [Setup]
+          AppName=MLC Toolchain Probe
+          AppVersion=0
+          DefaultDirName={tmp}\MLC Toolchain Probe
+          Uninstallable=no
+          '@ | Set-Content -LiteralPath $probePath -Encoding utf8NoBOM
+          try {
+            $innoOutput = & $iscc /O- $probePath 2>&1 | ForEach-Object { "$_" }
+            $innoExit = $LASTEXITCODE
+          } finally {
+            Remove-Item -LiteralPath $probePath -Force -ErrorAction SilentlyContinue
+          }
+          if ($innoExit -ne 0) {
+            throw "Inno Setup compiler probe failed with exit code $innoExit"
+          }
+          $innoText = $innoOutput -join "`n"
+          $innoMatch = [regex]::Match(
+            $innoText,
+            '(?m)^Compiler engine version:\s+Inno Setup\s+(?<version>\d+\.\d+\.\d+)\s*$'
+          )
+          if (-not $innoMatch.Success) {
+            throw "Inno Setup compiler version was not reported by the engine"
+          }
+          $inno = $innoMatch.Groups['version'].Value
+          if ($inno -ne '6.7.1') {
             throw "Expected Inno Setup 6.7.1, got $inno"
           }
           "inno_version=$inno" >> $env:GITHUB_OUTPUT

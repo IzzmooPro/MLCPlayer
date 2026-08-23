@@ -2165,6 +2165,50 @@
         "No package installation in the user environment, native smoke, SignPath application, signing, tag or release was performed."
       ],
       "next_action": "Run the final impacted and continuity checks, then request separate commit approval; push, pull request, merge and the real hosted build dispatch remain separately authorized."
+    },
+    {
+      "id": "EV-20260823-006",
+      "recorded_at_utc": "2026-08-23T07:11:33Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "555b936b5d094dd680f9555f5348fe420622ccdc",
+      "subject": "first GitHub-hosted unsigned main-installer build attempt",
+      "evidence": [
+        "after separate explicit approval, build-unsigned-main.yml was dispatched exactly once on origin/master commit 555b936b5d094dd680f9555f5348fe420622ccdc as https://github.com/IzzmooPro/MLCPlayer/actions/runs/32624655897",
+        "checkout, exact Python 3.13.15 setup and the pinned ORAS setup action passed before the toolchain boundary step failed",
+        "ISCC.exe was found, but Diagnostics.FileVersionInfo ProductVersion returned 0.0.0.0 and the step raised Expected Inno Setup 6.7.1, got 0.0.0.0",
+        "the dependency installation, immutable runtime pull, unsigned build, byte/provenance verification and both artifact uploads were all skipped",
+        "the workflow was not automatically retried after the failure"
+      ],
+      "summary": "The first hosted unsigned-installer attempt failed closed before build because the workflow trusted unusable ISCC.exe file-version metadata; this is a toolchain probe defect, not evidence that Inno Setup was absent or that the product build failed.",
+      "limitations": [
+        "No Python dependency was installed by the workflow, no OCI runtime was pulled and no installer or provenance artifact was produced.",
+        "This failed hosted_ci result is not source-build, native-smoke, installed-artifact, SignPath, tag or release evidence.",
+        "The runner manifest's Inno Setup 6.7.1 listing does not by itself prove that a corrected compiler probe or a future installer build will pass."
+      ],
+      "next_action": "Replace only the file-metadata probe with a fail-closed check of the version reported by the Inno compiler engine, validate it locally, and request separate approvals for commit, push, PR merge and any new hosted build dispatch."
+    },
+    {
+      "id": "EV-20260823-007",
+      "recorded_at_utc": "2026-08-23T07:11:33Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "555b936b5d094dd680f9555f5348fe420622ccdc",
+      "subject": "hosted Inno compiler-engine version probe correction",
+      "evidence": [
+        "work began on clean codex/hosted-inno-version-probe-fix exactly equal to origin/master merge commit 555b936b5d094dd680f9555f5348fe420622ccdc",
+        "the official Inno Setup 6.7.1 source tag is-6_7_1 shows that ISCC prints Compiler engine version from ISDllGetVersion during a non-quiet compilation and supports /O- to disable output",
+        "the workflow now writes a minimal temporary .iss probe, invokes the exact discovered ISCC.exe with /O-, requires exit code zero, parses the exact engine-reported semantic version and removes the probe in finally",
+        "the gate still requires exact Inno Setup 6.7.1 and fails closed on a compile error, absent version line or version drift",
+        "the new regression first failed against the FileVersionInfo/ProductVersion implementation; after the narrow workflow correction and inspection of a test-only comment match, the hosted unsigned-build contract completed with 7 passed and 0 failed"
+      ],
+      "summary": "The hosted build gate now verifies the Inno compiler engine itself instead of unreliable Windows file metadata, without loosening the exact 6.7.1 pin or starting a product build.",
+      "limitations": [
+        "This is deterministic source and contract evidence only; the corrected PowerShell probe has not yet run on a GitHub-hosted Windows runner.",
+        "No package installation, OCI pull, installer build, artifact upload, SignPath submission, signature, tag or release was performed.",
+        "A new hosted run must not be dispatched until the correction passes the protected PR gate and receives separate explicit approval."
+      ],
+      "next_action": "Run the required continuity and narrow workflow checks, then request separate commit approval; push, PR merge and the next hosted build dispatch remain separately authorized."
     }
   ]
 }
