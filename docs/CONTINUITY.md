@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-005`
+- Son kanıt: `EV-20260823-007`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -571,18 +571,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    main-pre grubu **24 passed / 1 skipped** ve hash kilidi gerçek pip seçimiyle
    **24/24 wheel PASS** verdi (`EV-20260823-005`). Workflow/build/SignPath/tag/
    release çalıştırılmadı.
+95. Ayrı açık onayla exact master `555b936` üzerinde ilk hosted unsigned-main
+   koşumu `32624655897` başlatıldı. Python 3.13.15 ve ORAS adımları geçti;
+   `ISCC.exe` bulundu ancak Windows dosya metadata'sı `0.0.0.0` döndürdüğü
+   için araç zinciri kapısı 26 saniyede durdu. Bağımlılık kurulumu, OCI çekimi,
+   build ve artifact yükleme adımlarının tamamı atlandı; otomatik tekrar
+   yapılmadı (`EV-20260823-006`, **FAILED**).
+96. Resmî Inno Setup `is-6_7_1` kaynağındaki davranışa göre yalnız sürüm probu
+   düzeltildi. Workflow geçici ve çıktı üretmeyen minimal script ile gerçek
+   compiler engine'i çalıştırıyor, motorun bildirdiği tam `6.7.1` değerini
+   zorunlu tutuyor ve geçici dosyayı `finally` içinde siliyor. Regresyon eski
+   yöntemi önce kırmızı yakaladı; dar sözleşme düzeltme sonrası **7 passed / 0
+   failed** verdi (`EV-20260823-007`). Bu deterministic kanıttır; hosted
+   düzeltme kabulü veya installer build PASS'i değildir.
 
 ## Sıradaki tek adım
 
-Hosted unsigned-build hazırlığını ayrı commit ve PR kapısından master'a al.
+Inno compiler-engine probu düzeltmesini doğrula ve commit için ayrı onay iste.
 
 ## Sonraki sıra
 
-1. `EV-20260823-005` kaydını dar devamlılık ve hosted-build testleriyle doğrula.
-2. Ayrı onaylarla hosted-build hazırlığını commit et, görev dalını push et ve PR
-   kapısından master'a al.
-3. Ayrı açık onayla exact master üzerinde hosted unsigned-build'i bir kez
-   çalıştır; installer ve provenance artifact'lerini doğrula.
+1. `EV-20260823-006` ve `EV-20260823-007` kayıtlarını dar devamlılık ve
+   hosted-build testleriyle doğrula.
+2. Ayrı onaylarla düzeltmeyi commit et, görev dalını push et ve PR kapısından
+   master'a al.
+3. Ayrı açık onayla düzeltilmiş exact master üzerinde hosted unsigned-build'i
+   bir kez çalıştır; installer ve provenance artifact'lerini doğrula.
 4. Yalnız gerçek build PASS'inden sonra SignPath Foundation başvuru paketini
    hazırla; başvuru ve imzalama yine ayrı karardır.
 

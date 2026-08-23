@@ -46,6 +46,20 @@ def test_hosted_unsigned_build_pins_actions_python_inno_and_wheels():
     assert "verify_dependencies.py requirements-lock.txt" in text
 
 
+def test_hosted_unsigned_build_reads_inno_engine_version_from_the_compiler():
+    text = workflow_text()
+
+    assert "FileVersionInfo" not in text
+    assert "ProductVersion" not in text
+    assert "Compiler engine version:" in text
+    assert "mlc-inno-version-probe.iss" in text
+    assert "& $iscc /O- $probePath" in text
+    assert "if ($innoExit -ne 0)" in text
+    assert "if (-not $innoMatch.Success)" in text
+    assert "if ($inno -ne '6.7.1')" in text
+    assert "Remove-Item -LiteralPath $probePath" in text
+
+
 def test_hosted_unsigned_build_pulls_only_the_locked_runtime_digest():
     text = workflow_text().lower()
     lock = json.loads(RUNTIME_LOCK.read_text(encoding="utf-8"))
