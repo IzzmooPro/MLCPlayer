@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-002`
+- Son kanıt: `EV-20260823-003`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -541,22 +541,28 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    zorunlu tutuyor; mevcut etiketi ezmiyor ve digest ile geri indirip bayt
    karşılaştırıyor. İş akışı henüz çalıştırılmadı; GHCR, build, SignPath ve
    yayın durumu değişmedi (`EV-20260823-002`).
+92. Runtime mirror hazırlığı `32bda63` commit'iyle görev dalına push edildi;
+   dal push'unda test oluşmadı. PR #7 exact aynı head için yalnız
+   `pull_request` run `32604056103` oluşturdu ve **4791 passed / 30 skipped /
+   0 failed** verdi. PR `CLEAN / MERGEABLE` durumundayken ayrı onayla gerçek
+   iki ebeveynli merge commit `e9b5a96` üzerinden master'a alındı. Merge
+   commitinde ikinci push run'ı oluşmadı. Workflow GitHub tarafından başarıyla
+   ayrıştırıldı fakat manuel runtime mirror job'u henüz dispatch edilmedi;
+   GHCR durumu değişmedi (`EV-20260823-003`).
 
 ## Sıradaki tek adım
 
-Hazırlanan manuel runtime mirror paketi PR kapısından master'a alınmadan
-workflow çalıştırılamaz. Sonrasında exact `workflow_dispatch` için ayrı açık
-onay gerekir.
+Hosted kabul kaydını ayrı commit ve PR kapısından master'a al. Sonrasında exact
+manuel `workflow_dispatch` için ayrı açık onay gerekir.
 
 ## Sonraki sıra
 
-1. `EV-20260823-002` kaydını dar devamlılık testiyle doğrula.
-2. Ayrı onaylarla runtime mirror paketini commit et, görev dalını push et ve
-   PR aç.
-3. Zorunlu tek PR `test` PASS verdikten sonra ayrı onayla merge commit kullan.
-4. Ayrı açık onayla exact manuel workflow'u bir kez çalıştır; OCI digest ve
+1. `EV-20260823-003` kaydını dar devamlılık testiyle doğrula.
+2. Ayrı onaylarla hosted kabul kaydını commit et, görev dalını push et ve PR
+   kapısından master'a al.
+3. Ayrı açık onayla exact manuel workflow'u bir kez çalıştır; OCI digest ve
    readback sonucunu kaydet.
-5. Digest kilidini kullanan hosted unsigned-installer build'ini ayrı değişiklik
+4. Digest kilidini kullanan hosted unsigned-installer build'ini ayrı değişiklik
    olarak hazırla; SignPath başvurusu ve imzalama yine ayrı karardır.
 
 ## Kayıt düzeni
