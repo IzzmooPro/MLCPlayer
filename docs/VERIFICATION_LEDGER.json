@@ -2569,6 +2569,29 @@
         "No finalization fix, further retry, product change, build, installation, signing, tag or release was performed."
       ],
       "next_action": "With separate approval, regression-first require this libmpv child to flush output and leave through os._exit like main.py and the other safe native children; do not retry natively until that test-only fix is merged."
+    },
+    {
+      "id": "EV-20260823-023",
+      "recorded_at_utc": "2026-08-23T21:50:50Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "66ccd69215a98db207af64be249492799f273c37",
+      "subject": "Overlay native child hard-exit finalization contract",
+      "evidence": [
+        "work began on clean codex/overlay-child-finalization from master exactly equal to origin/master merge commit 66ccd69215a98db207af64be249492799f273c37",
+        "a focused regression requires the post-app.exec path to kill the focus child, flush stdout and stderr, avoid raise SystemExit(exit_code), and leave through os._exit(exit_code)",
+        "the new regression first completed with 1 failed because native_overlay_smoke_child.py had no os._exit(exit_code) call",
+        "the test-only child now preserves canonical player.close and focus-child cleanup, flushes both output streams, and follows the same Windows libmpv hard-exit contract as main.py",
+        "the focused regression then completed with 1 passed; the child-shutdown, native matrix, video evidence, classic-removal and foreground-null impact group completed with 103 passed, 2 skipped and 0 failed",
+        "no native opt-in environment was enabled, no GUI or native retry was run, and no app product source was changed"
+      ],
+      "summary": "The overlay child can no longer enter the normal Python/libmpv finalization path that produced the measured post-MARK_DONE access violation.",
+      "limitations": [
+        "This deterministic PASS proves only the test-child source and regression contract; WIN-P0-02 remains FAILED until one separately approved native retry passes on the exact merged commit.",
+        "The two skipped tests are not PASS and no product code, build, installation, signing, tag or release changed.",
+        "A future native result belongs only to its exact commit, runtime, media fingerprint and Windows environment."
+      ],
+      "next_action": "Commit, push and pass this test-only repair through the protected PR workflow with separate approvals; after merge request separate approval for exactly one native retry."
     }
   ]
 }
