@@ -18,6 +18,10 @@ Bu dosya, projeyi devralan her agentın ilk giriş noktasıdır.
 6. `docs/CHANGE_WORKFLOW.md` içindeki etkinlik kapısını kontrol et. PR kapısı
    aktifse doğrudan `master` değişikliği/push'u yapma; `codex/<kısa-konu>` dalı,
    zorunlu `test` check'i ve merge-commit sırasını kullan.
+7. Mimari veya gerçek Windows kalite işi `docs/QUALITY_EVOLUTION_PLAN.md`
+   üzerinden yürür. Güncel modül ölçümü `docs/ARCHITECTURE_INVENTORY.md`,
+   gerçek cihaz senaryosu `docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindedir;
+   eksik/eskimiş satır sessizce PASS yapılmaz.
 
 ## Kanıt sınırları
 

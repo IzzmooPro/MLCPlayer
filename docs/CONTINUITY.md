@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `e5390da7b8d4188df0e5b0825bcf7ff4cc2d0305`
+- Kayıt hazırlanırken doğrulanan HEAD: `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-014`
+- Son kanıt: `EV-20260823-015`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -642,19 +642,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    test satır-bölme beklentisiyle **2 failed / 10 passed**, düzeltme sonrası
    **12 passed / 0 failed** verdi; son etki grubu **222 passed / 0 failed**
    tamamlandı.
+104. Mimari karmaşıklık ve gerçek Windows davranış boşluğu için kalıcı kalite
+   programı oluşturuldu. `QUALITY_EVOLUTION_PLAN.md` fazları ve tek-kaynak
+   güncellik işlemini; `ARCHITECTURE_INVENTORY.md` altı büyük modülün ölçüm
+   tabanını; `WINDOWS_ACCEPTANCE_MATRIX.md` exact commit/runtime/artifact'a
+   bağlı P0/P1/P2 senaryolarını tanımlar. Sözleşme önce belgeler yokken **4
+   failed**, uygulama sonrasında yalnız testin büyük-küçük harf duyarlılığıyla
+   **1 passed / 3 failed**, beklenti düzeltildikten sonra **4 passed / 0
+   failed** verdi. Yeni plan sözleşmesi ile continuity grubu son kontrolde
+   **11 passed / 0 failed** tamamlandı (`EV-20260823-015`). Ürün kodu, build,
+   kurulum ve native koşum değişmedi.
 
 ## Sıradaki tek adım
 
-`EV-20260823-014` başvuru teslim kaydını dar SignPath/devamlılık testleriyle
-doğrula ve commit için ayrı onay iste.
+`docs/ARCHITECTURE_INVENTORY.md` içindeki altı büyük modülün sınıf, fonksiyon,
+import, state/yaşam-döngüsü sahipliği ve mevcut test eşlemesini salt okunur
+çıkar; ürün kodunu değiştirme ve henüz refactor uygulama.
 
 ## Sonraki sıra
 
-1. `EV-20260823-014` kaydını dar SignPath/devamlılık testleriyle doğrula.
-2. Ayrı onaylarla teslim kaydını commit et, görev dalını push et ve PR
-   kapısından master'a al.
-3. SignPath yanıtını bekle ve özel iletişim bilgisini yayımlamadan kaydet;
-   GitHub App kurulumu, imzalama ve yayın yine ayrı kararlardır.
+1. Salt okunur mimari envanteri tamamla ve ilk güvenli ayrıştırma adayını yalnız
+   ölçülen sahiplik/bağımlılık riskine göre öner.
+2. `docs/WINDOWS_ACCEPTANCE_MATRIX.md` P0 satırlarını mevcut runner'larla
+   eşleştir; eksik ölçümü açıkça yaz ve native koşum için ayrı onay iste.
+3. P0 başlangıç çizgisi kaydedilmeden ürün kodunda mimari ayrıştırma yapma.
+4. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+   GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni
 
@@ -665,3 +678,6 @@ doğrula ve commit için ayrı onay iste.
 - Tarihsel uzun kayıt: `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`,
   `docs/ENGINEERING_AUDIT.md`.
 - Agent kuralları: kökte `AGENTS.md`; Claude uyumluluğu için `CLAUDE.md`.
+- Mimari/gerçek Windows programı: `docs/QUALITY_EVOLUTION_PLAN.md`.
+- Güncel modül ölçümü: `docs/ARCHITECTURE_INVENTORY.md`.
+- Gerçek cihaz senaryoları: `docs/WINDOWS_ACCEPTANCE_MATRIX.md`.

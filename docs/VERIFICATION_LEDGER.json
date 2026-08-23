@@ -2378,6 +2378,31 @@
         "No product code, build, installation, Authenticode or Ed25519 signature, tag or release was changed."
       ],
       "next_action": "Validate and commit the truthful submitted/awaiting-decision status with separate approval, then wait for and record SignPath's response without publishing private contact data."
+    },
+    {
+      "id": "EV-20260823-015",
+      "recorded_at_utc": "2026-08-23T20:27:07Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "78518dd67e882e35da69ea7bb6bfc74e3cafc1c7",
+      "subject": "Architecture and real-Windows quality evolution plan contract",
+      "evidence": [
+        "work began on clean codex/quality-evolution-plan from origin/master merge commit 78518dd67e882e35da69ea7bb6bfc74e3cafc1c7; no product source, build, installer or runtime binary was changed",
+        "docs/QUALITY_EVOLUTION_PLAN.md defines measurement-first architecture work, exact-evidence Windows acceptance, phase gates and one update transaction for plan, inventory, matrix, ledger and continuity",
+        "docs/ARCHITECTURE_INVENTORY.md records the six measured large modules without treating line count as an automatic refactor decision or claiming that responsibility analysis has run",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md defines P0, P1 and hardware-dependent P2 scenarios with NOT_RUN, PASSED, FAILED and BLOCKED states and forbids carrying PASS between versions",
+        "AGENTS.md and docs/CONTINUITY.md point future agents to the three durable quality documents and the current single read-only architecture-inventory step",
+        "the new regression contract first completed with 4 failed because the three documents were absent; after implementation it completed with 1 passed and 3 failed only because three Turkish phrase checks were unnecessarily case-sensitive",
+        "after the test-only expectations were made case-insensitive without weakening the required content, tests/test_quality_evolution_plan_regressions.py completed with 4 passed and 0 failed",
+        "the final quality-plan plus continuity regression group completed with 11 passed and 0 failed; VERIFICATION_LEDGER.json parsed successfully and git diff --check was clean"
+      ],
+      "summary": "MLC Player now has a durable, regression-protected plan that requires a measured architecture inventory and exact-evidence real-Windows baseline before any behavior-preserving refactor begins.",
+      "limitations": [
+        "This deterministic PASS proves the planning, handoff and document contracts only; no module responsibility analysis, native scenario, installed artifact, build, signing or release was performed.",
+        "All Windows matrix scenarios remain NOT_RUN or hardware-dependent BLOCKED, and no state may be promoted without exact new evidence.",
+        "No first refactor candidate has been selected; video_frame.py is an inventory subject, not an automatic implementation target."
+      ],
+      "next_action": "Complete the six-module read-only responsibility, dependency, lifecycle and test mapping in docs/ARCHITECTURE_INVENTORY.md, then present the measured first extraction candidate without changing product code."
     }
   ]
 }
