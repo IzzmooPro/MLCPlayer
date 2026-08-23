@@ -2209,6 +2209,29 @@
         "A new hosted run must not be dispatched until the correction passes the protected PR gate and receives separate explicit approval."
       ],
       "next_action": "Run the required continuity and narrow workflow checks, then request separate commit approval; push, PR merge and the next hosted build dispatch remain separately authorized."
+    },
+    {
+      "id": "EV-20260823-008",
+      "recorded_at_utc": "2026-08-23T07:23:20Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "ffa84664849381c569dc42f569a8f6b3948570fc",
+      "subject": "hosted Inno compiler-engine probe protected PR acceptance",
+      "evidence": [
+        "task branch commit 6f62cebf232acb5812c1b911e8bb440c176bff7b was pushed without creating a branch-push workflow run",
+        "pull request https://github.com/IzzmooPro/MLCPlayer/pull/11 created exact-head pull_request run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32625238272",
+        "the required test job completed successfully with 4802 passed, 30 skipped and 0 failed in 123.43 seconds",
+        "PR #11 was CLEAN and MERGEABLE under the protected required test rule before the separately approved merge",
+        "origin/master advanced through two-parent merge commit ffa84664849381c569dc42f569a8f6b3948570fc whose parents are 555b936b5d094dd680f9555f5348fe420622ccdc and 6f62cebf232acb5812c1b911e8bb440c176bff7b",
+        "an exact merge-commit run query returned no post-merge push workflow run, preserving the single automatic PR CI contract"
+      ],
+      "summary": "The narrow Inno engine-version probe correction passed the protected full hosted CI gate and is now on master through a genuine merge commit, without redundant merge CI.",
+      "limitations": [
+        "The 30 skipped paths remain non-PASS; this hosted_ci result is not source-build, native-smoke or installed-artifact evidence.",
+        "The manual unsigned-installer workflow did not run, so the corrected Inno probe has not yet executed on its Windows 2025 build runner and no installer or provenance artifact exists.",
+        "No SignPath submission, Authenticode or Ed25519 signature, tag or release was created."
+      ],
+      "next_action": "Validate and commit this acceptance record with separate approval, pass it through the protected PR gate, then request separate explicit approval for one corrected hosted unsigned-installer build dispatch."
     }
   ]
 }
