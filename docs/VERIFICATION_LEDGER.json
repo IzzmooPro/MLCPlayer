@@ -2085,6 +2085,30 @@
         "The source Actions artifact is temporary and expires at the recorded time; dispatch after expiry must fail rather than use unverified replacement bytes."
       ],
       "next_action": "Validate the continuity record and impacted tests, then request separate commit approval. Push, pull request, merge and the state-changing manual workflow dispatch each remain separately authorized."
+    },
+    {
+      "id": "EV-20260823-003",
+      "recorded_at_utc": "2026-08-23T05:32:34Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "e9b5a96e7a45bddc08362a122e38b256e1d05ba6",
+      "subject": "immutable libmpv runtime mirror hosted acceptance",
+      "evidence": [
+        "task branch codex/signpath-hosted-build was pushed at exact commit 32bda63095da61cfa9f1327416ebc0821c8a91f1 and an exact-head run query returned no workflow run before the pull request existed",
+        "pull request https://github.com/IzzmooPro/MLCPlayer/pull/7 created exactly one pull_request workflow run for the branch head: https://github.com/IzzmooPro/MLCPlayer/actions/runs/32604056103",
+        "the required test job completed successfully with 4791 passed, 30 skipped and 0 failed in 139.38 seconds",
+        "the PR was CLEAN and MERGEABLE under the protected required test rule and was merged only after separate user approval",
+        "origin/master advanced through the two-parent merge commit e9b5a96e7a45bddc08362a122e38b256e1d05ba6 whose parents are a0696f38f691460635d72ee934bdd8d68bed8e41 and 32bda63095da61cfa9f1327416ebc0821c8a91f1",
+        "an exact merge-commit run query returned no post-merge push workflow run, preserving the single automatic PR CI contract",
+        "the successful hosted run parsed the new manual workflow file, while the manual publish job remained undispatched"
+      ],
+      "summary": "The immutable libmpv runtime mirror preparation passed the protected hosted PR gate and is now on master without triggering redundant push CI or changing GHCR state.",
+      "limitations": [
+        "The 30 skipped paths remain non-PASS and the hosted result is not native-smoke, source-build or installed-artifact evidence.",
+        "The manual publish-libmpv-runtime workflow was not dispatched, so no OCI package or permanent digest exists yet.",
+        "No build, installation, SignPath submission, signing, tag or release was performed."
+      ],
+      "next_action": "Validate and commit this hosted acceptance record with separate approval, pass it through the one-run PR workflow, then request separate approval for the state-changing manual runtime mirror dispatch."
     }
   ]
 }
