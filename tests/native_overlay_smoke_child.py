@@ -560,21 +560,13 @@ def step_results():
 
 
 def step_shutdown():
-    if player.mpv_player is not None:
-        player.mpv_player.stop()
-    mark("MARK_STOP")
-    try:
-        if player.mpv_player is not None:
-            player.mpv_player.terminate()
-            player.mpv_player = None
-        mark("MARK_TERMINATE")
-    except Exception as exc:
-        print(f"TERMINATE_ERROR {exc}", flush=True)
-    QTimer.singleShot(300, step_close)
-
-
-def step_close():
+    # MPV'yi burada elle stop/terminate etmek ürünün timer, observer ve yüzen
+    # yüzey temizliğini atlıyordu. Gerçek videolu Windows koşumunda timer 300
+    # ms daha `mpv_player=None` durumunu okuyup child kapanışını 0xC0000005 ile
+    # bitirdi. Tek kapanış sahibi ürünün senkron `closeEvent` yoludur.
     player.close()
+    mark("MARK_STOP")
+    mark("MARK_TERMINATE")
     mark("MARK_CLOSE")
     QTimer.singleShot(300, step_done)
 

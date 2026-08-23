@@ -251,6 +251,24 @@ def test_native_smoke_child_never_opens_the_classic_shell():
     assert 'os.environ["MLCPLAYER_CLASSIC_UI"] = "1"' not in source
 
 
+def test_native_smoke_child_uses_the_canonical_product_shutdown_path():
+    """MPV, ürün timer/observer temizliğinden önce elle sonlandırılmamalı."""
+    with open(SMOKE_CHILD_PATH, encoding="utf-8") as handle:
+        source = handle.read()
+
+    shutdown = source.split("def step_shutdown():", 1)[1].split(
+        "\ndef step_", 1)[0]
+    assert "player.close()" in shutdown
+    assert "player.mpv_player.stop()" not in shutdown
+    assert "player.mpv_player.terminate()" not in shutdown
+    assert "QTimer.singleShot(300, step_close)" not in shutdown
+    assert shutdown.index("player.close()") < shutdown.index('mark("MARK_STOP")')
+    assert shutdown.index('mark("MARK_STOP")') < shutdown.index(
+        'mark("MARK_TERMINATE")')
+    assert shutdown.index('mark("MARK_TERMINATE")') < shutdown.index(
+        'mark("MARK_CLOSE")')
+
+
 def test_results_line_is_parsed_into_typed_fields():
     stdout = (
         "MARK_BUTTONS t=1.0\n"

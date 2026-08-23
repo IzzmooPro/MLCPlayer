@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `69af424ff9b4cc5102a57c6e3b0e491f9901cfbb`
+- Kayıt hazırlanırken doğrulanan HEAD: `2d4e4c3c4db872cd761c0d7d6f2ab4de125d8922`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-020`
+- Son kanıt: `EV-20260823-021`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -694,26 +694,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    **FAILED** kaldı ve otomatik tekrar yapılmadı (`EV-20260823-020`). Kaynak
    incelemesi ürün oynatma yolundan değil harness teardown sırasından başlayan
    nedeni gösterdi; henüz düzeltme uygulanmadı.
+110. Native sonuç kaydı PR #20'de zorunlu hosted test **4811 passed / 30
+   skipped / 0 failed** verdikten sonra iki ebeveynli `2d4e4c3` merge
+   commit'iyle master'a alındı. Overlay child kapanış kusuru regresyon-first
+   ele alındı: yeni test önce **1 failed**, child'ın doğrudan MPV
+   stop/terminate çağrıları kaldırılıp kanonik `player.close()` yoluna
+   geçirildikten sonra **1 passed** verdi. İlgili deterministik etki grubu
+   **102 passed / 2 skipped / 0 failed** tamamlandı (`EV-20260823-021`). Ürün
+   kodu değişmedi ve native retry yapılmadı; `WIN-P0-02` hâlâ **FAILED**.
 
 ## Sıradaki tek adım
 
-Kullanıcıdan ayrı düzeltme onayı al; regresyon-first yalnız
-`tests/native_overlay_smoke_child.py` kapanışını ürünün kanonik
-`player.close()` yoluna geçir. Native testi otomatik tekrar çalıştırma.
+Test-only overlay kapanış düzeltmesini commit etmek için ayrı onay al; push,
+PR, merge ve tek native retry adımlarını yine ayrı onaylarla ilerlet.
 
 ## Sonraki sıra
 
-1. `EV-20260823-019/020` sonuçlarını ve P0 durumlarını commit/push/PR için
-   ayrı onaylarla kalıcılaştır.
-2. Overlay child kapanışını dar regresyonla düzelt; ürün koduna dokunma.
-3. Düzeltme commit'i ayrı onayla hazır olduktan sonra tek native retry için
+1. `EV-20260823-021` test-only düzeltmesini commit/push/PR için ayrı onaylarla
+   master'a al; ürün koduna dokunma.
+2. Exact merge commit hazır olduktan sonra tek native retry için
    ayrıca açık onay al; başarısızsa yine otomatik tekrar yapma.
-4. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
+3. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
    ayrıca onaylat; aynı girdilerle bir kez çalıştır.
-5. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
-6. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+4. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
+5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-7. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+6. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni

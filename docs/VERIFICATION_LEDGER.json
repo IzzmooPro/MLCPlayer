@@ -2521,6 +2521,29 @@
         "No runner fix, product change, retry, build, installation, signing, tag or release was performed."
       ],
       "next_action": "With separate user approval, regression-first change only the overlay child shutdown to invoke the canonical player.close path, preserve fail-closed exit and marker checks, then request separate approval before one native retry."
+    },
+    {
+      "id": "EV-20260823-021",
+      "recorded_at_utc": "2026-08-23T21:17:19Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "2d4e4c3c4db872cd761c0d7d6f2ab4de125d8922",
+      "subject": "Overlay native child canonical shutdown repair",
+      "evidence": [
+        "work began on clean codex/overlay-harness-shutdown from master exactly equal to origin/master merge commit 2d4e4c3c4db872cd761c0d7d6f2ab4de125d8922",
+        "a new source-level regression requires the overlay child shutdown stage to call player.close before the existing MARK_STOP, MARK_TERMINATE and MARK_CLOSE sequence and forbids direct player.mpv_player.stop or terminate calls",
+        "the regression first completed with 1 failed because the old child directly stopped and terminated libmpv before scheduling player.close 300 ms later",
+        "tests/native_overlay_smoke_child.py now gives teardown ownership to the product's synchronous player.close path, which stops the UI timer and detaches observers and surfaces before libmpv stop and terminate",
+        "the focused regression completed with 1 passed, then the matrix, video evidence, classic-removal, foreground-null and child-shutdown impact group completed with 102 passed, 2 skipped and 0 failed",
+        "git diff --check was clean and no app product source was changed"
+      ],
+      "summary": "The overlay native child no longer bypasses the product shutdown order that caused the measured post-playback 0xC0000005 access violation.",
+      "limitations": [
+        "This deterministic PASS proves the source and regression contract only; the native scenario has not been retried and WIN-P0-02 remains FAILED.",
+        "The two skipped tests remain non-PASS and no product source, build, installation, signing, tag or release changed.",
+        "A successful future retry belongs only to its exact merged commit, runtime, media fingerprint and Windows environment."
+      ],
+      "next_action": "Commit, push and pass this test-only repair through the protected PR workflow with separate approvals, then request separate explicit approval for exactly one native retry."
     }
   ]
 }
