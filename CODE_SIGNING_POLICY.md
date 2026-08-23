@@ -2,11 +2,10 @@
 
 ## Current status
 
-MLC Player has not yet applied for or been accepted into the SignPath
-Foundation program. The current v0.39 Windows installers are **not
-Authenticode-signed**. This document prepares a truthful policy for a future
-application. The current release is not Authenticode-signed and this policy
-does not claim that it carries a SignPath or Windows code-signing certificate.
+The MLC Player application was submitted on 23 August 2026 and is awaiting
+SignPath Foundation's decision. The project has not been accepted. The current
+v0.39 Windows installers are **not Authenticode-signed**. The current release
+does not carry a SignPath or Windows code-signing certificate.
 
 If the project is accepted, future eligible Windows installers will use:
 

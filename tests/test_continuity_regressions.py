@@ -25,6 +25,7 @@ PROOF_LAYERS = {
     "registry_artifact",
     "native_smoke",
     "installed_artifact",
+    "external_submission",
 }
 RESULTS = {"passed", "failed", "blocked"}
 SHA = re.compile(r"^[0-9a-f]{40}$")
