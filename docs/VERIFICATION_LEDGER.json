@@ -2475,6 +2475,52 @@
         "No product source changed in PR #18 and no real media or Windows interaction was exercised by this acceptance record."
       ],
       "next_action": "Commit and pass this acceptance record through the protected PR workflow, then request separate approval for the short source-native shutdown plus one-video overlay baseline."
+    },
+    {
+      "id": "EV-20260823-019",
+      "recorded_at_utc": "2026-08-23T21:06:25Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "69af424ff9b4cc5102a57c6e3b0e491f9901cfbb",
+      "subject": "P0 source-native application launch and canonical shutdown",
+      "evidence": [
+        "the run began on clean master exactly equal to origin/master merge commit 69af424ff9b4cc5102a57c6e3b0e491f9901cfbb",
+        "the source runtime mpv-2.dll was 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e, matching bin/RUNTIME_MANIFEST.txt and packaging/libmpv_runtime_lock.json",
+        "the private local MP4 input was 345752445 bytes with SHA-256 c3e53407690d6738a09b74655dd81296c8637015d835cf503ebc54787b6834a9 before and after the native runs; its path is intentionally not published",
+        "command: MLC_NATIVE_SHUTDOWN_ACCEPTANCE=1 and MLC_NATIVE_TEST_VIDEO=<private local MP4> followed by python -m pytest -q tests/test_native_shutdown_acceptance_regressions.py::test_the_product_shutdown_path_survives_a_real_run",
+        "the fail-closed product shutdown acceptance completed with 1 passed in 2.62 seconds and process exit 0",
+        "post-run process inventory found no MLC Player, python or pythonw process leak"
+      ],
+      "summary": "WIN-P0-01 passed on the exact source commit and runtime with real media through the canonical product shutdown contract.",
+      "limitations": [
+        "This native_smoke PASS belongs only to the stated source commit, runtime DLL, media fingerprint and Windows environment; it is not installed-artifact evidence.",
+        "It does not prove visual quality, audio output, track switching, drag-drop, playlist reorder or second-instance IPC.",
+        "The separate overlay playback runner result is recorded independently and must not inherit this PASS."
+      ],
+      "next_action": "Run the separately approved single real-video overlay scenario once; if it fails, do not retry before inspecting the first cause."
+    },
+    {
+      "id": "EV-20260823-020",
+      "recorded_at_utc": "2026-08-23T21:06:25Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "69af424ff9b4cc5102a57c6e3b0e491f9901cfbb",
+      "subject": "P0 source-native real-video overlay playback and teardown",
+      "evidence": [
+        "command: MLC_NATIVE_SMOKE=1 and MLC_NATIVE_TEST_VIDEO=<private local MP4> followed by python tests/run_native_overlay_matrix.py --only default_cinematic_video_nofocus --json-out <temporary report>",
+        "the real video opened and produced duration 5071.726 seconds and time_pos 4.6 seconds; RESULTS and MARK_DONE were present, behavior_failures was empty and leaked_children was empty",
+        "after MARK_STOP and MARK_TERMINATE, three UI update errors reported that player.mpv_player was None while track_list was still polled; the child then returned unsigned exit 3221225477 / 0xC0000005",
+        "the fail-closed matrix correctly classified exit_code as the only failure and returned exit 1; no automatic retry was performed",
+        "source inspection found that tests/native_overlay_smoke_child.py manually calls mpv.stop and mpv.terminate before player.close, leaving the product UI timer live for 300 ms; app/player.py instead stops the timer, detaches observers and surfaces, and only then performs stop and terminate in closeEvent",
+        "the Windows environment was Windows 11 Pro 10.0.26200 64 bit, 96 DPI, 2560x1440 at 180 Hz, NVIDIA RTX 4070 Ti driver 32.0.16.1088 plus AMD Radeon Graphics driver 32.0.21045.1000; media and runtime hashes remained unchanged and no process leak remained"
+      ],
+      "summary": "WIN-P0-02 remains failed because the old overlay child violates the product shutdown order and exits with a native access violation even though real playback evidence was produced.",
+      "limitations": [
+        "The evidence isolates a harness teardown defect; it does not prove that normal product playback or the canonical product close path crashes.",
+        "Playback duration and position evidence cannot override the nonzero native child exit code, so this row is not PASSED.",
+        "No runner fix, product change, retry, build, installation, signing, tag or release was performed."
+      ],
+      "next_action": "With separate user approval, regression-first change only the overlay child shutdown to invoke the canonical player.close path, preserve fail-closed exit and marker checks, then request separate approval before one native retry."
     }
   ]
 }

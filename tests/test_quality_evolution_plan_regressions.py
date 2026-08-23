@@ -96,7 +96,7 @@ def test_windows_acceptance_never_promotes_missing_or_inherited_evidence():
     assert "çoklu monitör" in matrix.casefold()
 
 
-def test_every_p0_row_has_an_honest_execution_mapping_without_a_pass_claim():
+def test_every_p0_row_has_an_honest_execution_mapping_and_exact_status():
     matrix = read(WINDOWS_ACCEPTANCE)
     for scenario_id in (
             "WIN-P0-01", "WIN-P0-02", "WIN-P0-03", "WIN-P0-04",
@@ -112,9 +112,14 @@ def test_every_p0_row_has_an_honest_execution_mapping_without_a_pass_claim():
             "tests/test_single_instance_regressions.py"):
         assert marker in matrix
 
-    p0_table = matrix.split("## P0", 1)[1].split("## P1", 1)[0]
-    assert p0_table.count("NOT_RUN") == 8
-    assert "| PASSED |" not in p0_table
+    p0_section = matrix.split("## P0", 1)[1].split("## P1", 1)[0]
+    p0_table = p0_section.split("Bu eşleme", 1)[0]
+    assert "| WIN-P0-01 |" in p0_table and "| PASSED |" in p0_table
+    assert "| WIN-P0-02 |" in p0_table and "| FAILED |" in p0_table
+    assert p0_table.count("NOT_RUN") == 6
+    assert "EV-20260823-019" in p0_section
+    assert "EV-20260823-020" in p0_section
+    assert "0xC0000005" in p0_section
 
 
 def test_every_completed_phase_has_one_update_transaction():

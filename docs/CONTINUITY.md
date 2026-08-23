@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `7e93ed8c3d6d0ad180aeaa72fc493010d6d3bbb3`
+- Kayıt hazırlanırken doğrulanan HEAD: `69af424ff9b4cc5102a57c6e3b0e491f9901cfbb`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-018`
+- Son kanıt: `EV-20260823-020`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -678,25 +678,42 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    saniyede ilk denemede tamamlandı. PR merge öncesi `MERGEABLE/CLEAN` ve
    zorunlu `test` check'i `COMPLETED/SUCCESS` olarak geri okundu. Ayrı onayla
    iki ebeveynli `7e93ed8` merge commit'i origin/master'a alındı
-   (`EV-20260823-018`). Bu hosted kanıt P0 satırlarını PASS yapmaz; sekiz
-   satır da `NOT_RUN` kalır.
+   (`EV-20260823-018`). Kabul kaydı PR #19'da belge kapısı **7 passed / 0
+   failed** verdikten sonra iki ebeveynli `69af424` merge commit'iyle
+   master'a alındı. Bu hosted kanıt tek başına P0 satırlarını PASS yapmadı.
+108. Exact `69af424` kaynak commit'i, manifestle eş `112772608` baytlık
+   `mpv-2.dll` ve gerçek MP4 ile özel kapanış kapısı ilk koşumda exit 0 /
+   **1 passed in 2.62s** verdi. Medya ve DLL SHA-256 değerleri koşum öncesi/
+   sonrası aynı, süreç sızıntısı sıfırdı; `WIN-P0-01` **PASSED** oldu
+   (`EV-20260823-019`). Bu kurulu v0.39 artifact kanıtı değildir.
+109. Aynı exact girdilerle tek videolu overlay senaryosu duration `5071.726`
+   ve position `4.6` üretti; `RESULTS`, `MARK_DONE`, boş behavior failure ve
+   sıfır child sızıntısı vardı. Ancak eski child, ürünün güvenli kapanışından
+   önce MPV'yi elle sonlandırdığı için üç geç UI timer hatasından sonra
+   `0xC0000005` döndürdü. Fail-closed runner exit 1 verdi; `WIN-P0-02`
+   **FAILED** kaldı ve otomatik tekrar yapılmadı (`EV-20260823-020`). Kaynak
+   incelemesi ürün oynatma yolundan değil harness teardown sırasından başlayan
+   nedeni gösterdi; henüz düzeltme uygulanmadı.
 
 ## Sıradaki tek adım
 
-PR #18 hosted kabul kaydını commit etmek için ayrı onay al; ardından push ve
-korumalı PR adımlarını yine ayrı onaylarla tamamla. Native koşum başlatma.
+Kullanıcıdan ayrı düzeltme onayı al; regresyon-first yalnız
+`tests/native_overlay_smoke_child.py` kapanışını ürünün kanonik
+`player.close()` yoluna geçir. Native testi otomatik tekrar çalıştırma.
 
 ## Sonraki sıra
 
-1. `EV-20260823-018` kabul kaydını korumalı PR yoluyla master'a al.
-2. Exact commit/runtime/medya girdilerini belirle; kısa otomatik P0 çekirdeği
-   için ayrı onay al ve sonucu fail-closed kaydet.
-3. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
+1. `EV-20260823-019/020` sonuçlarını ve P0 durumlarını commit/push/PR için
+   ayrı onaylarla kalıcılaştır.
+2. Overlay child kapanışını dar regresyonla düzelt; ürün koduna dokunma.
+3. Düzeltme commit'i ayrı onayla hazır olduktan sonra tek native retry için
+   ayrıca açık onay al; başarısızsa yine otomatik tekrar yapma.
+4. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
    ayrıca onaylat; aynı girdilerle bir kez çalıştır.
-4. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
-5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+5. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
+6. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-6. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+7. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni
