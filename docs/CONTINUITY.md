@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-008`
+- Son kanıt: `EV-20260823-010`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -591,17 +591,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    merge commitinde ikinci push run'ı oluşmadı (`EV-20260823-008`). Bu hosted
    CI kabulüdür; manuel unsigned-installer workflow'u henüz tekrar
    çalıştırılmadı ve artifact yoktur.
+98. Kabul kaydı PR #12 ile iki ebeveynli merge commit `dffb91c` üzerinden
+   master'a alındı. Ayrı açık onayla exact bu master üzerinde unsigned-main
+   run `32632912597` başlatıldı. Düzeltilmiş Inno `6.7.1` motor probu ve 24 exact
+   wheel kapısı geçti; immutable OCI manifesti ile doğru libmpv DLL'i indi.
+   Kaynak/provenance kimliği de geçtikten sonra yalnız checkout'taki
+   `RUNTIME_MANIFEST.txt` baytları OCI kopyasıyla uyuşmadı. Build ve artifact
+   adımları atlandı; otomatik tekrar yapılmadı (`EV-20260823-009`, **FAILED**).
+99. Anonim GHCR ve exact Git blob readback'i iki kanonik manifestin **2402
+   bayt / SHA-256 `f76e62...b578`** olarak aynı olduğunu; başarısız committe bu
+   dosyanın EOL kuralı olmadığını gösterdi. Regresyon eski durumda **1 failed /
+   7 passed** verdi. Yalnız `bin/RUNTIME_MANIFEST.txt text eol=lf` kuralı
+   eklendi; `git check-attr` LF'i doğruladı ve grup **8 passed / 0 failed**
+   verdi (`EV-20260823-010`). Bu deterministic kanıttır; hosted build PASS'i
+   veya installer artifact'i değildir.
 
 ## Sıradaki tek adım
 
-`EV-20260823-008` kabul kaydını doğrula ve commit için ayrı onay iste.
+Runtime manifest LF düzeltmesini doğrula ve commit için ayrı onay iste.
 
 ## Sonraki sıra
 
-1. `EV-20260823-008` kaydını dar devamlılık testiyle doğrula.
-2. Ayrı onaylarla kabul kaydını commit et, görev dalını push et ve PR
+1. `EV-20260823-009` ve `EV-20260823-010` kayıtlarını dar devamlılık ve
+   hosted-build testleriyle doğrula.
+2. Ayrı onaylarla LF düzeltmesini commit et, görev dalını push et ve PR
    kapısından master'a al.
-3. Ayrı açık onayla güncel exact master üzerinde hosted unsigned-build'i
+3. Ayrı açık onayla düzeltilmiş exact master üzerinde hosted unsigned-build'i
    bir kez çalıştır; installer ve provenance artifact'lerini doğrula.
 4. Yalnız gerçek build PASS'inden sonra SignPath Foundation başvuru paketini
    hazırla; başvuru ve imzalama yine ayrı karardır.

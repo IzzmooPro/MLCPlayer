@@ -1,4 +1,5 @@
 # Exact-byte fixtures must be byte-stable on every checkout platform.
 LICENSE text eol=lf
 licenses/*.txt text eol=lf
+bin/RUNTIME_MANIFEST.txt text eol=lf
 translations/*.ts text eol=lf

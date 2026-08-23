@@ -10,6 +10,7 @@ WORKFLOW = ROOT / ".github" / "workflows" / "build-unsigned-main.yml"
 CHAIN = ROOT / "packaging" / "build_unsigned_main.bat"
 HASH_LOCK = ROOT / "requirements-build-windows.txt"
 RUNTIME_LOCK = ROOT / "packaging" / "libmpv_runtime_lock.json"
+GIT_ATTRIBUTES = ROOT / ".gitattributes"
 
 
 def workflow_text():
@@ -58,6 +59,12 @@ def test_hosted_unsigned_build_reads_inno_engine_version_from_the_compiler():
     assert "if (-not $innoMatch.Success)" in text
     assert "if ($inno -ne '6.7.1')" in text
     assert "Remove-Item -LiteralPath $probePath" in text
+
+
+def test_runtime_manifest_is_lf_stable_for_exact_oci_byte_comparison():
+    attributes = GIT_ATTRIBUTES.read_text(encoding="utf-8").splitlines()
+
+    assert "bin/RUNTIME_MANIFEST.txt text eol=lf" in attributes
 
 
 def test_hosted_unsigned_build_pulls_only_the_locked_runtime_digest():
