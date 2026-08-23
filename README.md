@@ -102,8 +102,9 @@ an unknown publisher on first run.
 
 See the project's [Code signing policy](CODE_SIGNING_POLICY.md),
 [Privacy policy](PRIVACY.md), [SignPath readiness record](docs/SIGNPATH_READINESS.md)
-and [application draft](docs/SIGNPATH_FOUNDATION_APPLICATION.md). The draft
-has not been submitted, accepted or applied to the current installer.
+and [application record](docs/SIGNPATH_FOUNDATION_APPLICATION.md). An
+application was submitted on 23 August 2026 and is awaiting a decision; the
+project has not been accepted and the current installer remains unsigned.
 
 Already installed? `Help → Check for updates` verifies and updates the main
 player. The built-in updater updates only the main player; if you use the

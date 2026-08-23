@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `59292672d6dca57368c8808dc02217a941997fe1`
+- Kayıt hazırlanırken doğrulanan HEAD: `e5390da7b8d4188df0e5b0825bcf7ff4cc2d0305`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-013`
+- Son kanıt: `EV-20260823-014`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -630,18 +630,30 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    üzerinden master'a alındı; merge commitinde ikinci push run'ı oluşmadı
    (`EV-20260823-013`). Bu hosted CI kabulüdür; gerçek başvuru, hesap,
    GitHub App, sertifika, imza, build, tag veya release değildir.
+103. Kabul kaydı PR #16 belge CI'sında **7 passed / 0 failed** verdi ve iki
+   ebeveynli `e5390da` merge commit'iyle master'a alındı. Ayrı açık onaylarla
+   resmî SignPath formuna yalnız doğrulanmış kamu bilgileri ve özel iletişim
+   alanları girildi; pazarlama onayı kapalı kaldı. İlk CAPTCHA zaman aşımı
+   başarı üretmedi; neden incelendikten sonra tek kontrollü yeniden tetikleme
+   yapıldı ve sayfa **Form submitted / Thank you, we'll be in touch soon**
+   mesajını gösterdi (`EV-20260823-014`). Bu yalnız external_submission
+   kanıtıdır; kabul, hesap, GitHub App, sertifika veya imza değildir. Yeni
+   teslim-durumu sözleşmesi önce **4 failed / 8 passed**, uygulama sonrasında
+   test satır-bölme beklentisiyle **2 failed / 10 passed**, düzeltme sonrası
+   **12 passed / 0 failed** verdi; son etki grubu **222 passed / 0 failed**
+   tamamlandı.
 
 ## Sıradaki tek adım
 
-`EV-20260823-013` PR kabul kaydını dar devamlılık testiyle doğrula ve commit
-için ayrı onay iste.
+`EV-20260823-014` başvuru teslim kaydını dar SignPath/devamlılık testleriyle
+doğrula ve commit için ayrı onay iste.
 
 ## Sonraki sıra
 
-1. `EV-20260823-013` kaydını dar devamlılık testiyle doğrula.
-2. Ayrı onaylarla kabul kaydını commit et, görev dalını push et ve PR
+1. `EV-20260823-014` kaydını dar SignPath/devamlılık testleriyle doğrula.
+2. Ayrı onaylarla teslim kaydını commit et, görev dalını push et ve PR
    kapısından master'a al.
-3. Başvuru iletişim bilgilerini kullanıcıyla doldur; gerçek başvuru gönderimi,
+3. SignPath yanıtını bekle ve özel iletişim bilgisini yayımlamadan kaydet;
    GitHub App kurulumu, imzalama ve yayın yine ayrı kararlardır.
 
 ## Kayıt düzeni

@@ -33,6 +33,8 @@ Bu dosya, projeyi devralan her agentın ilk giriş noktasıdır.
   binary ve senaryoya aittir.
 - `installed_artifact`: adı, boyutu ve SHA-256 değeri kaydedilmiş kurulum
   artifact'ına aittir; başka build'e taşınamaz.
+- `external_submission`: üçüncü tarafın açık başarı/teslim ekranı kanıtıdır;
+  uygunluk kararı, hesap, sertifika, imza veya ürün kabulü değildir.
 
 Bir katmandaki PASS başka katmana aktarılmaz. `blocked`, `failed`, `skipped`
 veya eksik marker hiçbir zaman PASS olarak yazılmaz.

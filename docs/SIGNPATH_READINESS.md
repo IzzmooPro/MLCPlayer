@@ -1,9 +1,9 @@
 # SignPath Foundation readiness
 
 This is an engineering checklist, not proof of acceptance and not legal
-advice. The application package is prepared, but its **Submission status is
-NOT SUBMITTED**. SignPath Foundation has not accepted the project and is the
-only party that can decide eligibility.
+advice. **Submission status: SUBMITTED - AWAITING DECISION**. The application
+was submitted on 23 August 2026. SignPath Foundation has not accepted the
+project and is the only party that can decide eligibility.
 
 The reviewable submission draft is
 [`SIGNPATH_FOUNDATION_APPLICATION.md`](SIGNPATH_FOUNDATION_APPLICATION.md).
@@ -54,13 +54,27 @@ The workflow does not call SignPath, access the local Ed25519 key, create a
 tag or change a release. The optional Internet Video add-on was deliberately
 outside this build and remains outside the initial signing scope.
 
-## Submission-time user actions
+## Submitted application boundary
 
-1. Supply the maintainer contact name and email in the application draft.
-2. Review the public declarations and exact hosted-build evidence.
-3. Give separate approval before the application is submitted.
-4. Await SignPath Foundation's decision; do not add an action, token,
-   certificate or acceptance claim before approval.
+The official form at <https://signpath.org/apply> was submitted after separate
+user approval. It contained the public project, repository, privacy, hosted
+build and early-stage reputation facts recorded in
+`SIGNPATH_FOUNDATION_APPLICATION.md`. Contact name and email were supplied
+privately to SignPath and are not stored in the repository. The required Code
+of Conduct and personal-data processing consents were selected; optional
+marketing consent remained off. The page returned **Form submitted** and
+**Thank you, we'll be in touch soon.**
+
+This proves form delivery only. No application identifier, acceptance,
+SignPath account, GitHub App, token, organization, project, policy,
+certificate, signing request or signature was returned.
+
+## While awaiting the decision
+
+1. Monitor the submitted contact mailbox for SignPath's response.
+2. Do not add an action, token, certificate or acceptance claim before an
+   explicit acceptance and separate implementation approval.
+3. Record SignPath's response without publishing private contact details.
 
 ## Configuration only after SignPath acceptance
 

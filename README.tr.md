@@ -82,8 +82,9 @@ Kurulum henüz kod imzalı değildir; Windows SmartScreen ilk çalıştırmada
 
 Projenin [Kod imzalama politikası](CODE_SIGNING_POLICY.md),
 [Gizlilik politikası](PRIVACY.md), [SignPath hazırlık kaydı](docs/SIGNPATH_READINESS.md)
-ve [başvuru taslağı](docs/SIGNPATH_FOUNDATION_APPLICATION.md) herkese açıktır.
-Taslak henüz gönderilmemiş, kabul edilmemiş ve mevcut kuruluma uygulanmamıştır.
+ve [başvuru kaydı](docs/SIGNPATH_FOUNDATION_APPLICATION.md) herkese açıktır.
+Başvuru 23 Ağustos 2026 tarihinde gönderildi ve karar bekleniyor; proje henüz
+kabul edilmedi ve mevcut kurulum imzasızdır.
 
 Kurulu sürüm `Yardım → Güncellemeleri Denetle` ile güvenli biçimde
 yükseltilebilir. Yerleşik güncelleyici yalnız ana oynatıcıyı günceller;

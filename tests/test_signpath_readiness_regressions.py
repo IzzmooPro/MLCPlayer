@@ -18,16 +18,22 @@ def test_home_pages_link_the_code_signing_and_privacy_policies():
         assert "CODE_SIGNING_POLICY.md" in text
         assert "PRIVACY.md" in text
 
+    assert "submitted on 23 August 2026" in readme
+    assert "23 Ağustos 2026 tarihinde gönderildi" in readme_tr
+
 
 def test_code_signing_policy_is_truthful_about_current_status_and_roles():
     policy = _read("CODE_SIGNING_POLICY.md")
+    policy_flat = " ".join(policy.split())
 
     assert "Free code signing provided by SignPath.io" in policy
     assert "certificate by SignPath Foundation" in policy
     assert "IzzmooPro" in policy
     assert "manual approval" in policy.lower()
     assert "not Authenticode-signed" in policy
-    assert "has not yet applied" in policy
+    assert "application was submitted on 23 August 2026" in policy
+    assert "awaiting SignPath Foundation's decision" in policy_flat
+    assert "has not yet applied" not in policy
     assert "been accepted" in policy
     assert "PRIVACY.md" in policy
 
@@ -47,8 +53,8 @@ def test_readiness_record_keeps_signpath_out_of_the_active_release_chain():
     readiness = _read("docs/SIGNPATH_READINESS.md")
     release_process = _read("docs/RELEASE_PROCESS.md")
 
-    assert "application package is prepared" in readiness
-    assert "NOT SUBMITTED" in readiness
+    assert "Submission status: SUBMITTED - AWAITING DECISION" in readiness
+    assert "NOT SUBMITTED" not in readiness
     assert "not application-ready" not in readiness
     assert "It has not been run" not in readiness
     assert "Why the hosted build is not accepted yet" not in readiness
@@ -60,11 +66,12 @@ def test_readiness_record_keeps_signpath_out_of_the_active_release_chain():
     assert "Ed25519" in release_process
 
 
-def test_signpath_foundation_application_draft_is_complete_but_not_submitted():
+def test_signpath_foundation_application_is_submitted_but_not_accepted():
     application = _read("docs/SIGNPATH_FOUNDATION_APPLICATION.md")
+    application_flat = " ".join(application.split())
     workflow = _read(".github/workflows/build-unsigned-main.yml")
 
-    assert "Submission status: NOT SUBMITTED" in application
+    assert "Submission status: SUBMITTED - AWAITING DECISION" in application
     assert "https://github.com/IzzmooPro/MLCPlayer" in application
     assert "https://github.com/IzzmooPro/MLCPlayer/releases/latest" in application
     assert "https://signpath.org/terms.html" in application
@@ -81,8 +88,11 @@ def test_signpath_foundation_application_draft_is_complete_but_not_submitted():
     assert "mlcplayer-unsigned-main-provenance-1f01633bd7b008dba6faec8362ddff66e0d6d009" in application
     assert "user attestation" in application
     assert "optional Internet Video add-on is outside" in application
-    assert "[TO BE PROVIDED AT SUBMISSION]" in application
-    assert "Only SignPath Foundation can decide eligibility" in application
+    assert "provided privately in the submitted form" in application
+    assert "[TO BE PROVIDED AT SUBMISSION]" not in application
+    assert "gmail.com" not in application.lower()
+    assert "Murat" not in application
+    assert "Only SignPath Foundation can decide eligibility" in application_flat
 
     assert "signpath/" not in workflow.lower()
     assert "signpath_api_token" not in workflow.lower()

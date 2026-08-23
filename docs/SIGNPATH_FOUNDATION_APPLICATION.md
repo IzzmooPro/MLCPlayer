@@ -1,16 +1,19 @@
 # SignPath Foundation application draft
 
-**Submission status: NOT SUBMITTED**
+**Submission status: SUBMITTED - AWAITING DECISION**
 
-This is a public, reviewable draft for a future SignPath Foundation Open
-Source application. It does not claim acceptance, an account, a certificate,
-a signing request or a signature. Only SignPath Foundation can decide eligibility.
+This public record captures the SignPath Foundation Open Source application
+submitted on 23 August 2026. It does not claim acceptance, an account, a
+certificate, a signing request or a signature. Only SignPath Foundation can
+decide eligibility.
 
 ## Applicant details
 
 - Project: MLC Player
-- Maintainer/contact name: **[TO BE PROVIDED AT SUBMISSION]**
-- Contact email: **[TO BE PROVIDED AT SUBMISSION]**
+- Maintainer/contact name: provided privately in the submitted form; not
+  published in this repository
+- Contact email: provided privately in the submitted form; not published in
+  this repository
 - Source repository: <https://github.com/IzzmooPro/MLCPlayer>
 - Public releases: <https://github.com/IzzmooPro/MLCPlayer/releases/latest>
 - License: GPL-3.0-only ([LICENSE](../LICENSE))
@@ -20,6 +23,24 @@ MLC Player is an actively maintained Windows desktop media player for local
 audio and video playback. Website playback is delivered by a separately
 installed, optional Internet Video add-on. The main player does not contain
 advertising, telemetry or analytics.
+
+## Submitted form summary
+
+- Maintainer type: Individual maintainer(s)
+- Build system: GitHub Actions
+- Tagline: An open-source Windows media player focused on local playback,
+  subtitles and verified updates.
+- Description: MLC Player is a GPL-3.0-only desktop media player for Windows.
+  It provides local audio and video playback, subtitle management, playlists
+  and user-controlled update checks, without advertising, telemetry or
+  analytics.
+- Reputation statement: seven public GitHub releases, 63 recorded asset
+  downloads and PR #15 CI with 4,804 passed / 30 skipped / 0 failed; the
+  application explicitly described the project as early-stage and did not
+  claim media coverage, a Wikipedia page or broad adoption.
+- Discovery source: AI / LLM tools; OpenAI Codex
+- Download URL, Wikipedia URL and company name: left blank rather than making
+  an unsupported claim
 
 ## Project ownership and roles
 

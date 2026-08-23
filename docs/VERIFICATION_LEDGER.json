@@ -2352,6 +2352,32 @@
         "Maintainer contact name and email remain submission-time placeholders."
       ],
       "next_action": "Validate and commit this acceptance record with separate approval, then collect the maintainer contact fields; actual application submission remains separately authorized."
+    },
+    {
+      "id": "EV-20260823-014",
+      "recorded_at_utc": "2026-08-23T12:02:29Z",
+      "proof_layer": "external_submission",
+      "result": "passed",
+      "commit": "e5390da7b8d4188df0e5b0825bcf7ff4cc2d0305",
+      "subject": "SignPath Foundation Open Source application submission",
+      "evidence": [
+        "work began on clean codex/signpath-application-submitted exactly equal to origin/master merge commit e5390da7b8d4188df0e5b0825bcf7ff4cc2d0305; the separate dirty user worktree was not modified",
+        "the official form at https://signpath.org/apply received the public MLC Player project, repository, homepage, privacy, GPL-3.0-only description, early-stage reputation, individual-maintainer and GitHub Actions fields prepared from the public record",
+        "the submitted reputation statement truthfully reported seven public releases, 63 recorded asset downloads and PR #15 CI with 4804 passed, 30 skipped and 0 failed, while explicitly disclaiming media coverage, Wikipedia presence and broad adoption",
+        "maintainer contact name and email were entered only in the third-party form and were not written to repository files, logs or the verification ledger",
+        "the required Code of Conduct and personal-data processing consents were selected, optional marketing consent remained off, and submission occurred only after separate action-time user approval",
+        "the first submit attempt opened an image reCAPTCHA and did not reach a success state before the challenge expired; after the cause was inspected, the form was retriggered once, the authorized replacement challenge was completed and no blind repeated submission was made",
+        "the final official page replaced the form with the exact visible confirmation Form submitted and Thank you, we'll be in touch soon",
+        "the submitted-status and new external_submission regression contract first completed with 4 failed and 8 passed against the stale documents; after implementation two test-only line-wrap expectations failed with 10 passed, then the corrected target completed with 12 passed and 0 failed",
+        "the final SignPath, README guidance, release-documentation and continuity impact group completed with 222 passed and 0 failed; VERIFICATION_LEDGER.json parsed successfully and git diff --check was clean"
+      ],
+      "summary": "The SignPath Foundation Open Source application was delivered through the official form and is awaiting a decision, with private contact data kept out of the repository.",
+      "limitations": [
+        "This external_submission PASS proves only the visible third-party form receipt; it is not eligibility, acceptance, an account, a GitHub App connection, a token, a certificate, a signing request or a signature.",
+        "The form returned no application identifier or receipt number, and no confirmation email was inspected.",
+        "No product code, build, installation, Authenticode or Ed25519 signature, tag or release was changed."
+      ],
+      "next_action": "Validate and commit the truthful submitted/awaiting-decision status with separate approval, then wait for and record SignPath's response without publishing private contact data."
     }
   ]
 }
