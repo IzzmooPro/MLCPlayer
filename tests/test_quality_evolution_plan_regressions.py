@@ -96,6 +96,27 @@ def test_windows_acceptance_never_promotes_missing_or_inherited_evidence():
     assert "çoklu monitör" in matrix.casefold()
 
 
+def test_every_p0_row_has_an_honest_execution_mapping_without_a_pass_claim():
+    matrix = read(WINDOWS_ACCEPTANCE)
+    for scenario_id in (
+            "WIN-P0-01", "WIN-P0-02", "WIN-P0-03", "WIN-P0-04",
+            "WIN-P0-05", "WIN-P0-06", "WIN-P0-07", "WIN-P0-08"):
+        assert f"### {scenario_id}" in matrix
+
+    for marker in (
+            "Deterministik sınır", "Native ölçüm", "Exact girdiler",
+            "Açık boşluk", "Eşleme PASS değildir",
+            "tests/native_shutdown_acceptance.py",
+            "tests/run_native_overlay_matrix.py",
+            "tests/run_physical_acceptance.py",
+            "tests/test_single_instance_regressions.py"):
+        assert marker in matrix
+
+    p0_table = matrix.split("## P0", 1)[1].split("## P1", 1)[0]
+    assert p0_table.count("NOT_RUN") == 8
+    assert "| PASSED |" not in p0_table
+
+
 def test_every_completed_phase_has_one_update_transaction():
     plan = read(QUALITY_PLAN)
     for required in (

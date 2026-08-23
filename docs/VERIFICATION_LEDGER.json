@@ -2430,6 +2430,29 @@
         "All Windows acceptance rows remain NOT_RUN or hardware-dependent BLOCKED; no build, installation, native run, signing or release occurred."
       ],
       "next_action": "Map each WINDOWS_ACCEPTANCE_MATRIX P0 row to existing deterministic tests and native runners, document exact gaps and required inputs, and request separate approval before any real native run or installation."
+    },
+    {
+      "id": "EV-20260823-017",
+      "recorded_at_utc": "2026-08-23T20:49:24Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "73f4b6920592af1e5f0617048e49a6ff72cb734c",
+      "subject": "P0 real-Windows acceptance execution mapping",
+      "evidence": [
+        "mapping began on clean codex/quality-evolution-plan at 73f4b6920592af1e5f0617048e49a6ff72cb734c, three commits ahead of unchanged origin/master; the separate dirty codex/source-compliance-gate worktree was detected and left untouched",
+        "all eight P0 rows now record their deterministic boundary, existing native measurement, exact required inputs and explicit unmeasured gap without changing any NOT_RUN state",
+        "the existing shutdown runner is the strongest source-native close/lifecycle measurement and the single video overlay case measures real duration and position progress; selected physical groups cover pause/resume, timeline seek, native resize, fullscreen and playlist next/previous behavior",
+        "the audit found four incomplete native acceptance areas: actual audio and subtitle track switching, Explorer video/subtitle drag-drop, physical playlist reorder to the final boundary, and exact-commit second-instance file/URL IPC",
+        "tests/run_physical_acceptance.py dragdrop intentionally returns BLOCKED because reliable Explorer OLE automation is absent; direct product-method calls are not promoted to physical PASS",
+        "the new mapping regression first completed with 1 failed and 5 passed against the unmapped matrix, then completed with 6 passed and 0 failed after the exact boundaries and gaps were recorded"
+      ],
+      "summary": "Every P0 Windows scenario now has a concrete, fail-closed execution route or an explicit native evidence gap, so future agents cannot confuse existing tests with a real baseline PASS.",
+      "limitations": [
+        "This deterministic PASS proves only the accuracy and durability of the execution mapping; no application window, native child, real media, installed artifact, build, installation, signing, tag or release was run.",
+        "All eight P0 rows remain NOT_RUN; no historical user or release acceptance was inherited by the current exact commit.",
+        "The four incomplete areas require either a narrow fail-closed runner or a recorded manual acceptance before their rows can become PASSED."
+      ],
+      "next_action": "With separate approval, identify and fingerprint the exact real media/runtime inputs, then run only the short shutdown plus one-video overlay core; inspect any failure before deciding on the physical interaction package."
     }
   ]
 }

@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `adbf8ca5ec31b2804fab12467125980dd3f3d298`
+- Kayıt hazırlanırken doğrulanan HEAD: `73f4b6920592af1e5f0617048e49a6ff72cb734c`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-016`
+- Son kanıt: `EV-20260823-017`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -663,22 +663,34 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    sonrası **5 passed / 0 failed** verdi. Kalite ve continuity son grubu **12
    passed / 0 failed** tamamlandı (`EV-20260823-016`). Ürün kodu, native
    davranış, build ve kurulum değişmedi.
+106. Sekiz P0 Windows senaryosu mevcut deterministik sınır, native runner,
+   exact girdi ve açık kanıt boşluğuyla eşlendi. Kapanış, gerçek video
+   ilerlemesi, pause/seek, native resize ve tam ekran için yeniden
+   kullanılabilir yollar bulundu. Gerçek ses/altyazı parçası değiştirme,
+   Explorer video/altyazı bırakma, playlist son sınıra fiziksel taşıma ve
+   ikinci örnek dosya/URL IPC için tam fail-closed kabul bulunmadığı açıkça
+   kaydedildi. Eşleme regresyonu önce **1 failed / 5 passed**, belge
+   tamamlandıktan sonra **6 passed / 0 failed** verdi
+   (`EV-20260823-017`). Sekiz satır da `NOT_RUN`; ürün kodu ve gerçek native
+   davranış değişmedi.
 
 ## Sıradaki tek adım
 
-`docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindeki P0 satırlarını mevcut native
-runner ve deterministik test gruplarıyla salt okunur eşleştir; ölçülmeyen
-alanları açıkça yaz, hiçbir native koşum veya kurulum başlatma.
+Kullanıcıdan ayrı açık native-koşum onayı alındıktan sonra exact gerçek medya
+ve runtime kimliğini fingerprint et; yalnız kısa
+`native_shutdown_acceptance.py` + tek videolu overlay çekirdeğini çalıştır.
+Başarısızlık olursa otomatik tekrar yapma.
 
 ## Sonraki sıra
 
-1. `docs/WINDOWS_ACCEPTANCE_MATRIX.md` P0 satırlarını mevcut runner'larla
-   eşleştir; otomatik, native ve manuel boşlukları ayrı yaz.
-2. Gerekli exact commit/runtime/medya/artifact girdilerini belirle ve gerçek
-   P0 koşumu için kullanıcıdan ayrı onay iste.
-3. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+1. Exact commit/runtime/medya girdilerini belirle; kısa otomatik P0 çekirdeği
+   için ayrı onay al ve sonucu fail-closed kaydet.
+2. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
+   ayrıca onaylat; aynı girdilerle bir kez çalıştır.
+3. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
+4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-4. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+5. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni

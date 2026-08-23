@@ -81,12 +81,17 @@ göre seçilmiş ve kapsam kullanıcıya sunulmuş olmalıdır.
 
 ## Faz 2 — Gerçek Windows başlangıç kabulü
 
-**Durum:** SIRADAKİ
+**Durum:** AKTİF — P0 EŞLEMESİ TAMAM, GERÇEK KOŞUM YAPILMADI
 
 `docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindeki P0 senaryoları exact commit,
 runtime ve mümkünse artifact SHA-256 kimliğiyle çalıştırılır. Var olan native
 runner'lar yeniden kullanılır; aynı davranış için ikinci bir test sistemi
 yazılmaz. Donanım yoksa sonuç `BLOCKED` kalır, PASS yapılmaz.
+
+Sekiz P0 satırının deterministik sınırı, mevcut native ölçümü, exact girdisi
+ve açık boşluğu matriste kayıtlıdır. Bu eşleme hiçbir satırı PASS yapmaz.
+Gerçek koşumlar kısa otomatik çekirdek, fiziksel etkileşim ve eksik kabul
+paketleri olarak ayrı onaylarla ilerler.
 
 Çıkış kapısı: P0 satırlarının her biri PASSED, FAILED veya gerekçeli BLOCKED;
 çocuk süreç exit kodu, final marker, stderr ve süreç sızıntısı sınırları açık;

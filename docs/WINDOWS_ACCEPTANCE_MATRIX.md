@@ -44,6 +44,130 @@ yazılır.
 | WIN-P0-07 | Oynatma listesi ekleme, taşıma ve sınırlar | Sıra ve seçim korunur, son satır hedeflenebilir | NOT_RUN |
 | WIN-P0-08 | İkinci uygulama örneği/IPC | Dosya veya URL ilk örneğe geçer, artık süreç yok | NOT_RUN |
 
+Bu eşleme yalnız yürütme planıdır. **Eşleme PASS değildir**; aşağıdaki
+runner'ların varlığı ve deterministik testlerin geçmesi satır durumunu
+değiştirmez.
+
+### WIN-P0-01 — Açılış ve normal kapanış
+
+- **Deterministik sınır:** `tests/test_player_shutdown_regressions.py` ve
+  `tests/test_native_shutdown_acceptance_regressions.py` marker, çağrı sırası,
+  stderr ve süreç-sızıntısı sözleşmesini korur; gerçek pencereyi kanıtlamaz.
+- **Native ölçüm:** `tests/native_shutdown_acceptance.py`; yalnız
+  `MLC_NATIVE_SHUTDOWN_ACCEPTANCE=1` ile, gerçek videoda medya-ready sonrası
+  ürünün normal kapatma yolunu fail-closed ölçer.
+- **Exact girdiler:** commit, runtime manifesti ve DLL SHA-256; desteklenen
+  `.mkv`/`.mp4` yolu; Windows/runtime kimliği.
+- **Açık boşluk:** kaynak koşumu kurulu installer davranışı değildir.
+
+### WIN-P0-02 — Gerçek yerel video oynatma
+
+- **Deterministik sınır:** `tests/test_playback_lifecycle_regressions.py` ve
+  `tests/test_native_matrix_runner.py` yaşam döngüsü ile fail-closed runner
+  kararını korur; kare üretildiğini kanıtlamaz.
+- **Native ölçüm:** `tests/run_native_overlay_matrix.py` içindeki
+  `default_cinematic_video_nofocus` senaryosu duration, ilerleyen position,
+  video durumu, final marker, exit ve süreç temizliğini ölçer.
+- **Exact girdiler:** ortak kimliklere ek olarak güvenli fingerprint'i alınan
+  gerçek, yeterli süreli video ve koşuma özel JSON çıktı yolu.
+- **Açık boşluk:** bu otomasyon görüntü kalitesini insan gözüyle veya gerçek
+  hoparlörden ses çıkışını doğrulamaz.
+
+### WIN-P0-03 — Ses ve yerel altyazı parçası değiştirme
+
+- **Deterministik sınır:** `tests/test_track_label_regressions.py`,
+  `tests/test_subtitle_track_watch_regressions.py` ve yerel altyazı testleri
+  seçim/state sözleşmesini korur.
+- **Native ölçüm:** `tests/run_physical_acceptance.py buttons` ve `subtitles`
+  grupları altyazı görünürlüğü ile CC durumunu ölçer; mevcut
+  `tests/media_track_probe_child.py` track read-back sağlayabilir fakat tek
+  başına fail-closed ebeveyn kabul runner'ı değildir.
+- **Exact girdiler:** en az iki ses ve iki altyazı parçası içeren gerçek medya;
+  ayrıca `MLC_NO_SUB_VIDEO` için altyazısız gerçek medya ve runtime kimliği.
+- **Açık boşluk:** mevcut runner gerçek ses parçasını ve iki ayrı altyazı
+  parçasını kullanıcı eylemiyle değiştirip ikisini de libmpv read-back ile
+  kabul etmiyor. Bu satır yeni dar runner veya kayıtlı manuel adım olmadan
+  PASSED yapılamaz; `buttons` grubu hoparlörü korumak için `ao=null` kullanır.
+
+### WIN-P0-04 — Seek, duraklatma ve devam
+
+- **Deterministik sınır:** `tests/test_overlay_timeline_seek_race_regressions.py`,
+  `tests/test_resume_regressions.py` ve playback yaşam döngüsü testleri state
+  geçişlerini korur.
+- **Native ölçüm:** `tests/run_physical_acceptance.py buttons,timeline` gerçek
+  SendInput ile pause/resume ve farklı timeline noktalarına seek uygulayıp
+  libmpv state/position read-back alır.
+- **Exact girdiler:** seek aralıklarını taşıyacak yeterli sürede gerçek video;
+  `MLC_NATIVE_SMOKE=1`, `MLC_NATIVE_TEST_VIDEO` ve ortak runtime kimliği.
+- **Açık boşluk:** fiziksel runner gerçek ses çıkışını ölçmez; bu satırın
+  hedefi yalnız zaman ve oynatma state'idir.
+
+### WIN-P0-05 — Tam ekran, native resize ve geri dönüş
+
+- **Deterministik sınır:** `tests/test_window_modes_regressions.py`,
+  `tests/test_frameless_resize_edge_delivery_regressions.py` ve
+  `tests/test_native_resize_input_safety_regressions.py` geometri/girdi
+  sözleşmesini korur.
+- **Native ölçüm:** `tests/run_physical_acceptance.py window_resize,fullscreen`
+  gerçek kenar SendInput, tam ekran düğmesi ve Esc dönüşünü ölçer.
+- **Exact girdiler:** gerçek video, mevcut ekran/DPI/monitör bilgisi, runtime
+  kimliği ve fiziksel runner izolasyon dizini.
+- **Açık boşluk:** tek monitör/tek DPI sonucu P1 çoklu monitör ve farklı DPI
+  satırlarına taşınmaz.
+
+### WIN-P0-06 — Dosya ve altyazı sürükle-bırak
+
+- **Deterministik sınır:** `tests/test_subtitle_drop_activation_regressions.py`
+  ve playlist/drop sözleşmesi testleri doğru hedef ayrımını korur.
+- **Native ölçüm:** `tests/run_physical_acceptance.py dragdrop` mevcut haliyle
+  bilerek `BLOCKED` üretir; Explorer OLE sürükle-bırak otomasyonu yoktur ve
+  doğrudan `add_external_files()` çağrısını fiziksel PASS saymaz.
+- **Exact girdiler:** Explorer'dan sürüklenecek gerçek video ve ona ait yerel
+  altyazı; başlangıç playlist/track durumu; ekran ve runtime kimliği.
+- **Açık boşluk:** gerçek Explorer dosya bırakma ve ayrı altyazı bırakma için
+  kayıtlı manuel kabul veya güvenilir yeni native otomasyon gerekir.
+
+### WIN-P0-07 — Oynatma listesi ekleme, taşıma ve sınırlar
+
+- **Deterministik sınır:** `tests/test_playlist_panel_regressions.py` ve
+  `tests/test_playlist_wrap_regressions.py` sıra, bırakma hedefi ve sınır
+  davranışını korur.
+- **Native ölçüm:** `tests/run_physical_acceptance.py buttons,thumbnails`
+  çoklu playlistte önceki/sonraki yükleme ve satır-medya eşliğini ölçer;
+  `tests/native_acceptance_smoke_child.py` ekleme/aktif satır için yardımcı
+  native kanıttır, fakat fiziksel yeniden sıralama kabulü değildir.
+- **Exact girdiler:** birbirinden ayırt edilebilir en az üç gerçek video,
+  `MLC_PLAYLIST_VIDEOS` sırası, runtime ve ekran kimliği.
+- **Açık boşluk:** satırı fareyle taşıma, ilk satırı en sona bırakma ve son
+  satırın altındaki hedef çizgisi mevcut native runner'da ölçülmüyor. Bu
+  davranış ayrıca manuel veya dar native kabul gerektirir.
+
+### WIN-P0-08 — İkinci örnek ve IPC
+
+- **Deterministik sınır:** `tests/test_single_instance_regressions.py` mutex,
+  dosya/URL iletimi ve güvenli mesaj sözleşmesini korur.
+- **Native ölçüm:** exact commit için fail-closed ikinci-örnek/IPC runner'ı
+  yoktur. Eski kullanıcı kabulü yeni başlangıç çizgisine aktarılmaz.
+- **Exact girdiler:** temiz ilk kaynak örneği, gerçek yerel video, güvenli URL,
+  iki süreç PID'i, IPC port/mutex durumu, final process inventory ve runtime
+  kimliği.
+- **Açık boşluk:** dosya ve URL iki ayrı gerçek koşumda ilk örneğe geçmeden,
+  ikinci süreç çıkmadan ve artık süreç olmadığı kaydedilmeden PASSED yazılmaz.
+
+## Önerilen yürütme sırası
+
+1. Kısa otomatik çekirdek: `native_shutdown_acceptance.py` ve yalnız
+   `default_cinematic_video_nofocus` overlay senaryosu.
+2. Fiziksel etkileşim paketi: `buttons,timeline,window_resize,fullscreen`;
+   aynı medya/playlist girdileriyle tek kez.
+3. Eksik kabul paketi: parça değiştirme, Explorer video/altyazı bırakma,
+   playlist son-hedef taşıma ve iki IPC senaryosu. Mevcut runner bunları tam
+   ölçmediği için önce dar runner mı kayıtlı manuel adım mı kullanılacağı
+   kararlaştırılır.
+
+Her paket ayrı onayla başlar. Başarısız paket otomatik tekrarlanmaz; ilk gerçek
+neden incelenir. İlk iki paket üçüncü paketin boşluklarını PASS yapmaz.
+
 ## P1 — Ortam ve dayanıklılık
 
 | Kimlik | Senaryo | Beklenen kanıt | Durum |
