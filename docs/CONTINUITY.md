@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-007`
+- Son kanıt: `EV-20260823-008`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -584,18 +584,24 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    yöntemi önce kırmızı yakaladı; dar sözleşme düzeltme sonrası **7 passed / 0
    failed** verdi (`EV-20260823-007`). Bu deterministic kanıttır; hosted
    düzeltme kabulü veya installer build PASS'i değildir.
+97. Düzeltme `6f62ceb` olarak görev dalına push edildi; dal push'unda test
+   oluşmadı. PR #11 exact aynı head için yalnız `pull_request` run
+   `32625238272` oluşturdu ve **4802 passed / 30 skipped / 0 failed** verdi.
+   Ayrı onayla iki ebeveynli merge commit `ffa8466` üzerinden master'a alındı;
+   merge commitinde ikinci push run'ı oluşmadı (`EV-20260823-008`). Bu hosted
+   CI kabulüdür; manuel unsigned-installer workflow'u henüz tekrar
+   çalıştırılmadı ve artifact yoktur.
 
 ## Sıradaki tek adım
 
-Inno compiler-engine probu düzeltmesini doğrula ve commit için ayrı onay iste.
+`EV-20260823-008` kabul kaydını doğrula ve commit için ayrı onay iste.
 
 ## Sonraki sıra
 
-1. `EV-20260823-006` ve `EV-20260823-007` kayıtlarını dar devamlılık ve
-   hosted-build testleriyle doğrula.
-2. Ayrı onaylarla düzeltmeyi commit et, görev dalını push et ve PR kapısından
-   master'a al.
-3. Ayrı açık onayla düzeltilmiş exact master üzerinde hosted unsigned-build'i
+1. `EV-20260823-008` kaydını dar devamlılık testiyle doğrula.
+2. Ayrı onaylarla kabul kaydını commit et, görev dalını push et ve PR
+   kapısından master'a al.
+3. Ayrı açık onayla güncel exact master üzerinde hosted unsigned-build'i
    bir kez çalıştır; installer ve provenance artifact'lerini doğrula.
 4. Yalnız gerçek build PASS'inden sonra SignPath Foundation başvuru paketini
    hazırla; başvuru ve imzalama yine ayrı karardır.
