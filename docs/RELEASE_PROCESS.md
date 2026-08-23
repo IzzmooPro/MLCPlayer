@@ -45,6 +45,13 @@ imzalamalıdır. İki katman birbirinin yerine geçmez. SignPath kabulü, hosted
 unsigned-build kapısı ve son installer kabul testleri tamamlanmadan aşağıdaki
 kesin yayın sırası değiştirilmez.
 
+`.github/workflows/publish-libmpv-runtime.yml` aktif yayın zincirinin parçası
+değildir. Bu manuel iş akışını çalıştırmak proje GHCR alanını değiştirir ve
+ayrı açık kullanıcı onayı ister. Başarılı koşumun digest readback sonucu
+`VERIFICATION_LEDGER.json` ve devam kaydına işlenmeden hosted build girdisi
+olarak kullanılamaz. İş akışı libmpv veya installer build etmez ve SignPath'i
+çağırmaz.
+
 **`git ls-remote` bu listede DEĞİLDİR.** Yalnız uzak doğrulama adımı
 **(g)**'de çalışır ve **ağ kullanır**. `prepublish.py`,
 `verify_release_ref.py` ve `verify_build.py --pre` tarafından

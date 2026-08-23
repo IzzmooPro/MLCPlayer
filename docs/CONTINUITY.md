@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-001`
+- Son kanıt: `EV-20260823-002`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -533,22 +533,31 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    **4 failed**, uygulama sonrasında **4 passed**; ilgili belge paketi CI
    ortamında **540 passed / 0 failed** verdi (`EV-20260823-001`). Başvuru,
    hesap, sertifika, build veya yayın yapılmadı.
+91. Kullanıcı GitHub MFA'nın açık olduğunu doğruladı; bu yalnız kullanıcı
+   beyanıdır, kaynak kanıtı değildir. Geçici Actions artifact'indeki exact
+   doğrulanmış libmpv DLL'ini tekrar iki saatlik build yapmadan proje GHCR
+   alanına bir kez taşıyacak manuel workflow hazırlandı. Workflow kaynak run,
+   commit, artifact son kullanma zamanı, arşiv ve DLL boyut/hash değerlerini
+   zorunlu tutuyor; mevcut etiketi ezmiyor ve digest ile geri indirip bayt
+   karşılaştırıyor. İş akışı henüz çalıştırılmadı; GHCR, build, SignPath ve
+   yayın durumu değişmedi (`EV-20260823-002`).
 
 ## Sıradaki tek adım
 
-Sonraki teknik kapı, SignPath başvurusu öncesinde GitHub hesabında MFA'nın açık
-olduğunu kullanıcıyla doğrulamaktır; bu özel hesap durumu kaynak koddan
-ölçülemez. Hazırlık paketi ayrı commit, push, PR ve merge onayları olmadan
-ilerletilmez.
+Hazırlanan manuel runtime mirror paketi PR kapısından master'a alınmadan
+workflow çalıştırılamaz. Sonrasında exact `workflow_dispatch` için ayrı açık
+onay gerekir.
 
 ## Sonraki sıra
 
-1. `EV-20260823-001` kaydını dar devamlılık testiyle doğrula.
-2. Ayrı onaylarla hazırlık paketini commit et, görev dalını push et ve PR aç.
+1. `EV-20260823-002` kaydını dar devamlılık testiyle doğrula.
+2. Ayrı onaylarla runtime mirror paketini commit et, görev dalını push et ve
+   PR aç.
 3. Zorunlu tek PR `test` PASS verdikten sonra ayrı onayla merge commit kullan.
-4. SignPath başvurusu yapmadan önce GitHub MFA durumunu kullanıcıyla doğrula;
-   ardından native girdileri sabit hash'lerle sağlayan hosted unsigned-build
-   tasarımını ayrı değişiklik olarak hazırla.
+4. Ayrı açık onayla exact manuel workflow'u bir kez çalıştır; OCI digest ve
+   readback sonucunu kaydet.
+5. Digest kilidini kullanan hosted unsigned-installer build'ini ayrı değişiklik
+   olarak hazırla; SignPath başvurusu ve imzalama yine ayrı karardır.
 
 ## Kayıt düzeni
 
