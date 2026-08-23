@@ -2109,6 +2109,32 @@
         "No build, installation, SignPath submission, signing, tag or release was performed."
       ],
       "next_action": "Validate and commit this hosted acceptance record with separate approval, pass it through the one-run PR workflow, then request separate approval for the state-changing manual runtime mirror dispatch."
+    },
+    {
+      "id": "EV-20260823-004",
+      "recorded_at_utc": "2026-08-23T05:42:10Z",
+      "proof_layer": "registry_artifact",
+      "result": "passed",
+      "commit": "81f881fa2d04e2bb50227d35d0796dea48fb5293",
+      "subject": "immutable libmpv runtime OCI publication and readback",
+      "evidence": [
+        "after separate explicit approval, publish-libmpv-runtime.yml was dispatched exactly once on origin/master commit 81f881fa2d04e2bb50227d35d0796dea48fb5293 as run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32620779433",
+        "the job completed successfully in 18 seconds and all source identity, expiry, dev archive, DLL identity, OCI push, digest resolve, digest pull, four-file byte comparison and lock upload steps passed",
+        "the project-owned OCI reference is ghcr.io/izzmoopro/mlcplayer-libmpv-runtime:20260821-g49418246f with immutable manifest digest sha256:f33b793c23505fd2f752f65f03e0545c14c85915c9f6eef5abffab1443410518",
+        "the OCI runtime layer is mpv-2.dll with size 112772608 and digest sha256:de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "the run uploaded libmpv-runtime-oci-lock as Actions artifact 9488301733, 517 bytes, archive digest sha256:021ee146a290bf7d912d3d9e6769e76f91d2c0eb78f8529f5d02a7ca2f741033 and expiry 2026-11-21T05:36:40Z",
+        "the downloaded runtime-lock.json matched repository, tag, manifest digest, artifact type, source run/artifact/head/expiry and runtime name/size/hash exactly",
+        "an unauthenticated GHCR token and manifest request returned HTTP 200, the same manifest digest, artifact type application/vnd.mlcplayer.libmpv.runtime.v1, four named layers and the exact DLL layer identity",
+        "the local gh API package-version metadata query returned HTTP 403 because the current CLI token lacks read:packages scope; this did not affect the workflow or anonymous OCI readback",
+        "the impacted runtime-lock, SignPath, release-documentation and continuity regression group completed with 220 passed and 0 failed"
+      ],
+      "summary": "The already verified libmpv runtime is now preserved in project-owned, anonymously readable OCI storage under an immutable digest, so future hosted installer builds can consume the exact DLL without repeating the two-hour source build.",
+      "limitations": [
+        "This registry_artifact PASS proves the OCI manifest and blob identity only; it is not a DLL build, native smoke, installer build, installed-artifact or product acceptance result.",
+        "The tag is a convenience label and must never be trusted without the recorded digest or overwritten; future workflows must pull by digest.",
+        "No SignPath submission, Authenticode signature, local Ed25519 signature, tag or release was created."
+      ],
+      "next_action": "Validate and commit the OCI digest lock and acceptance record with separate approval, pass them through the protected PR gate, then design the hosted unsigned-installer build to pull this exact digest."
     }
   ]
 }

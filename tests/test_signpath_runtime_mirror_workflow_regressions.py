@@ -1,10 +1,12 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
 from pathlib import Path
+import json
 
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "publish-libmpv-runtime.yml"
+LOCK = ROOT / "packaging" / "libmpv_runtime_lock.json"
 
 
 def workflow_text():
@@ -78,3 +80,34 @@ def test_runtime_mirror_neither_rebuilds_nor_signs_nor_mutates_releases():
     assert "mpv-2.dll" in text
     assert "runtime_manifest.txt" in text
     assert "sha256sums.txt" in text
+
+
+def test_runtime_lock_records_the_hosted_digest_and_exact_source_identity():
+    lock = json.loads(LOCK.read_text(encoding="utf-8"))
+
+    assert lock == {
+        "artifact_type": "application/vnd.mlcplayer.libmpv.runtime.v1",
+        "digest": "sha256:f33b793c23505fd2f752f65f03e0545c14c85915c9f6eef5abffab1443410518",
+        "repository": "ghcr.io/izzmoopro/mlcplayer-libmpv-runtime",
+        "runtime_name": "mpv-2.dll",
+        "runtime_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "runtime_size": 112772608,
+        "schema_version": 1,
+        "source_artifact_id": 9452521445,
+        "source_expires_at": "2026-09-20T15:35:47Z",
+        "source_head_sha": "4b948676990dde217206b878fca388093a367b61",
+        "source_run_id": 32488810460,
+        "tag": "ghcr.io/izzmoopro/mlcplayer-libmpv-runtime:20260821-g49418246f",
+    }
+
+    workflow = workflow_text().lower()
+    for key in (
+        "digest",
+        "runtime_sha256",
+        "runtime_size",
+        "source_artifact_id",
+        "source_head_sha",
+        "source_run_id",
+        "tag",
+    ):
+        assert str(lock[key]).lower() in workflow or key == "digest"
