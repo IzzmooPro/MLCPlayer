@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-003`
+- Son kanıt: `EV-20260823-004`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -549,20 +549,28 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    commitinde ikinci push run'ı oluşmadı. Workflow GitHub tarafından başarıyla
    ayrıştırıldı fakat manuel runtime mirror job'u henüz dispatch edilmedi;
    GHCR durumu değişmedi (`EV-20260823-003`).
+93. Ayrı açık onayla exact master `81f881f` üzerindeki manuel runtime mirror
+   workflow'u bir kez çalıştırıldı. Run `32620779433` tüm adımları **PASS**
+   tamamladı; kaynak artifact/run/commit, arşiv ve DLL kimliği doğrulandı,
+   push sonrası digest ile geri indirilip dört dosya bayt bayt karşılaştırıldı.
+   Kalıcı OCI manifest digest'i `sha256:f33b793c...10518`; DLL katmanı
+   `112.772.608` bayt ve `sha256:de80329f...f684f4e`. Anonim GHCR readback
+   HTTP 200 ile aynı manifest, artifact type, dört katman ve DLL kimliğini
+   doğruladı. Exact kilit `packaging/libmpv_runtime_lock.json` içinde kayda
+   hazırlandı (`EV-20260823-004`). libmpv yeniden build edilmedi; SignPath,
+   installer, tag veya release çalıştırılmadı.
 
 ## Sıradaki tek adım
 
-Hosted kabul kaydını ayrı commit ve PR kapısından master'a al. Sonrasında exact
-manuel `workflow_dispatch` için ayrı açık onay gerekir.
+OCI digest kilidi ve registry kabul kaydını ayrı commit ve PR kapısından
+master'a al.
 
 ## Sonraki sıra
 
-1. `EV-20260823-003` kaydını dar devamlılık testiyle doğrula.
-2. Ayrı onaylarla hosted kabul kaydını commit et, görev dalını push et ve PR
+1. `EV-20260823-004` kaydını dar devamlılık ve runtime-lock testleriyle doğrula.
+2. Ayrı onaylarla OCI kabul kaydını commit et, görev dalını push et ve PR
    kapısından master'a al.
-3. Ayrı açık onayla exact manuel workflow'u bir kez çalıştır; OCI digest ve
-   readback sonucunu kaydet.
-4. Digest kilidini kullanan hosted unsigned-installer build'ini ayrı değişiklik
+3. Digest kilidini kullanan hosted unsigned-installer build'ini ayrı değişiklik
    olarak hazırla; SignPath başvurusu ve imzalama yine ayrı karardır.
 
 ## Kayıt düzeni

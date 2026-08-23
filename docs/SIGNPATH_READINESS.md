@@ -24,18 +24,15 @@ the eligibility decision.
 
 ## Open gates before an application
 
-1. Mirror the exact verified libmpv runtime to project-owned OCI storage before
-   its temporary GitHub Actions source artifact expires.
-2. Record and review the immutable OCI digest produced by readback verification.
-3. Add a manual, GitHub-hosted unsigned-installer build whose inputs come from
+1. Add a manual, GitHub-hosted unsigned-installer build whose inputs come from
    the repository or immutable, hash-verified artifacts.
-4. Ensure the unsigned installer is uploaded as a GitHub Actions artifact
+2. Ensure the unsigned installer is uploaded as a GitHub Actions artifact
    before it is submitted through SignPath's GitHub connector.
-5. Keep every signing request under manual approval and bind it to one exact
+3. Keep every signing request under manual approval and bind it to one exact
    commit and version.
-6. Obtain SignPath acceptance before adding its action, token or certificate
+4. Obtain SignPath acceptance before adding its action, token or certificate
    claims to the active release workflow.
-7. Add the required code-signing-policy link to the release/download page only
+5. Add the required code-signing-policy link to the release/download page only
    when the first accepted signed release is being prepared.
 
 ## Prepared libmpv runtime mirror
@@ -53,18 +50,20 @@ tag or change a release. It is prepared to:
 - resolve the resulting OCI digest, pull it back by digest and compare every
   byte before emitting `runtime-lock.json`.
 
-Dispatching this workflow changes GHCR state and therefore needs separate
-explicit approval. It has not been run and no permanent OCI digest exists yet.
+The workflow was dispatched once from exact master commit `81f881f` as run
+`32620779433`. Its push/readback job passed, and the permanent manifest digest
+is recorded in `packaging/libmpv_runtime_lock.json`. Anonymous OCI readback
+returned HTTP 200 and the same manifest and DLL digests. The fixed tag must not
+be overwritten or dispatched again.
 
 ## Why the hosted build is not added yet
 
 The current product build needs native runtime files that are intentionally
 not committed to Git. The established release flow also creates detached
-Ed25519 signatures with a private key kept outside the repository. The
-runtime-mirror boundary is now designed and regression-tested, but the manual
-workflow has not been authorized or run. Until its OCI digest is read back and
-committed in a separately reviewed change, a hosted installer build cannot
-consume a permanent immutable native input.
+Ed25519 signatures with a private key kept outside the repository. Immutable
+runtime acquisition is now available, but the GitHub-hosted installer build
+and the boundary that keeps the local Ed25519 private key outside CI still need
+their own reviewed implementation.
 
 The safe future sequence is:
 
