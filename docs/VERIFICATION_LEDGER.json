@@ -2277,6 +2277,32 @@
         "A new hosted build requires the normal commit, push and protected PR sequence followed by separate explicit dispatch approval."
       ],
       "next_action": "Run the required continuity and narrow hosted-build checks, then request separate commit approval; push, PR merge and any new hosted build dispatch remain separately authorized."
+    },
+    {
+      "id": "EV-20260823-011",
+      "recorded_at_utc": "2026-08-23T10:45:45Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "1f01633bd7b008dba6faec8362ddff66e0d6d009",
+      "subject": "GitHub-hosted exact unsigned main-installer build acceptance",
+      "evidence": [
+        "runtime-manifest correction commit a6b784686014021468641e47a1a32e81e8ccea2e passed protected PR #13 run https://github.com/IzzmooPro/MLCPlayer/actions/runs/32633527175 with 4803 passed, 30 skipped and 0 failed, then entered master through two-parent merge commit 1f01633bd7b008dba6faec8362ddff66e0d6d009",
+        "after separate explicit approval, build-unsigned-main.yml was dispatched exactly once on that master commit as https://github.com/IzzmooPro/MLCPlayer/actions/runs/32634062651 and every workflow step passed",
+        "the hosted boundary verified Python 3.13.15, the Inno Setup 6.7.1 compiler engine, 24 exact hash-locked Windows wheels, immutable runtime manifest sha256:f33b793c23505fd2f752f65f03e0545c14c85915c9f6eef5abffab1443410518 and libmpv SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "the extracted installer is MLCPlayer_Setup_v0.39.exe, 57255931 bytes, SHA-256 cab8c89ba614dcf3589410d345248b831439beacaecad3db6994af9a0f436066 and Authenticode status NotSigned with no signer certificate",
+        "build-provenance.json is 762 bytes with SHA-256 647d91aff5fc0baf375b3f2298f630cfd683d359661f316c24c8fa7dcccd56ca and records the exact commit, run, win25-vs2026 image 20260818.207.1, Python, Inno, wheel lock, runtime digest/hash and installer identity",
+        "the installer artifact mlcplayer-unsigned-main-1f01633bd7b008dba6faec8362ddff66e0d6d009 is 56766402 archive bytes with SHA-256 e4855c9baf62fa6ecc2b99716341e299de025832a6a832c53f7b03ea63049668",
+        "the provenance artifact mlcplayer-unsigned-main-provenance-1f01633bd7b008dba6faec8362ddff66e0d6d009 is 598 archive bytes with SHA-256 679d790b8b6f81b5084a50e96ecaa987b9ce6c5f120b659129a9a988b6a70268",
+        "both archives were downloaded independently with the required GitHub API headers and matched their API-reported byte size and digest exactly"
+      ],
+      "summary": "MLC Player now has a reproducible GitHub-hosted, exact-source unsigned main installer and machine-readable provenance artifact suitable as the verified input boundary for a future SignPath Foundation submission.",
+      "limitations": [
+        "This hosted_ci PASS proves the exact unsigned build and stored artifact identities only; it is not an Authenticode signature, installed-artifact, native-smoke or release acceptance result.",
+        "The optional Internet Video add-on was deliberately not built and remains outside this SignPath boundary.",
+        "No SignPath application, submission, certificate, signing request, detached Ed25519 signature, installation, tag or release was performed.",
+        "The independent verification copies remain under %TEMP%\\mlc-unsigned-audit-32634062651 because local cleanup commands were blocked before execution; this directory is outside the repository, product, AppData and GitHub artifacts."
+      ],
+      "next_action": "Validate and commit this acceptance record with separate approval, pass it through the protected PR gate, then prepare the SignPath Foundation application package; any application submission or signing remains separately authorized."
     }
   ]
 }

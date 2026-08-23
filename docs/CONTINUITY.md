@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-010`
+- Son kanıt: `EV-20260823-011`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -605,21 +605,28 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    eklendi; `git check-attr` LF'i doğruladı ve grup **8 passed / 0 failed**
    verdi (`EV-20260823-010`). Bu deterministic kanıttır; hosted build PASS'i
    veya installer artifact'i değildir.
+100. LF düzeltmesi PR #13 run `32633527175` üzerinde **4803 passed / 30
+   skipped / 0 failed** verdi ve iki ebeveynli merge commit `1f01633` ile
+   master'a alındı. Ayrı açık onayla exact bu committe unsigned-main run
+   `32634062651` çalıştı; bütün adımlar geçti. Installer
+   `MLCPlayer_Setup_v0.39.exe`, **57.255.931 bayt**, SHA-256
+   `cab8c89b...36066`, Authenticode `NotSigned`; provenance aynı commit/run,
+   Python `3.13.15`, Inno `6.7.1`, wheel/runtime ve installer kimliklerini
+   doğruluyor. İki Actions artifact arşivi bağımsız indirmede API boyut ve
+   digest değerleriyle birebir eşleşti (`EV-20260823-011`). Bu hosted unsigned
+   build kanıtıdır; kurulum, native smoke, imza veya yayın değildir.
 
 ## Sıradaki tek adım
 
-Runtime manifest LF düzeltmesini doğrula ve commit için ayrı onay iste.
+`EV-20260823-011` kabul kaydını doğrula ve commit için ayrı onay iste.
 
 ## Sonraki sıra
 
-1. `EV-20260823-009` ve `EV-20260823-010` kayıtlarını dar devamlılık ve
-   hosted-build testleriyle doğrula.
-2. Ayrı onaylarla LF düzeltmesini commit et, görev dalını push et ve PR
+1. `EV-20260823-011` kaydını dar devamlılık testiyle doğrula.
+2. Ayrı onaylarla kabul kaydını commit et, görev dalını push et ve PR
    kapısından master'a al.
-3. Ayrı açık onayla düzeltilmiş exact master üzerinde hosted unsigned-build'i
-   bir kez çalıştır; installer ve provenance artifact'lerini doğrula.
-4. Yalnız gerçek build PASS'inden sonra SignPath Foundation başvuru paketini
-   hazırla; başvuru ve imzalama yine ayrı karardır.
+3. SignPath Foundation başvuru paketini hazırla; gerçek başvuru gönderimi,
+   imzalama ve yayın yine ayrı kararlardır.
 
 ## Kayıt düzeni
 
