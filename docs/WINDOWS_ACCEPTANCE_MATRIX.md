@@ -192,6 +192,10 @@ koşum öncesi/sonrası değer aynıdır.
   `UI update error: 'NoneType' object has no attribute 'track_list'` satırı
   tam bu aralıkta oluştu. Bu, oynatma kanıtını silmez fakat runner exit kapısı
   düzeltilmeden satırı PASS yapmaya da yetmez.
+- `EV-20260823-021` ile test-only kapanış sırası regresyon-first kanonik
+  `player.close()` yoluna geçirildi; ilgili deterministik grup **102 passed /
+  2 skipped / 0 failed** verdi. Native retry henüz yapılmadığı için
+  `WIN-P0-02` **FAILED** kalır.
 
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 
