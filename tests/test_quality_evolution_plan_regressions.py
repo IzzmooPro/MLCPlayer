@@ -114,12 +114,18 @@ def test_every_p0_row_has_an_honest_execution_mapping_and_exact_status():
 
     p0_section = matrix.split("## P0", 1)[1].split("## P1", 1)[0]
     p0_table = p0_section.split("Bu eşleme", 1)[0]
-    assert "| WIN-P0-01 |" in p0_table and "| PASSED |" in p0_table
-    assert "| WIN-P0-02 |" in p0_table and "| FAILED |" in p0_table
+    rows = {}
+    for line in p0_table.splitlines():
+        cells = [cell.strip() for cell in line.split("|")[1:-1]]
+        if cells and cells[0].startswith("WIN-P0-"):
+            rows[cells[0]] = cells[-1]
+    assert rows["WIN-P0-01"] == "PASSED"
+    assert rows["WIN-P0-02"] == "PASSED"
     assert p0_table.count("NOT_RUN") == 6
     assert "EV-20260823-019" in p0_section
     assert "EV-20260823-020" in p0_section
     assert "EV-20260823-022" in p0_section
+    assert "EV-20260823-024" in p0_section
     assert "0xC0000005" in p0_section
     assert "os._exit" in p0_section
 

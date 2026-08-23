@@ -2592,6 +2592,30 @@
         "A future native result belongs only to its exact commit, runtime, media fingerprint and Windows environment."
       ],
       "next_action": "Commit, push and pass this test-only repair through the protected PR workflow with separate approvals; after merge request separate approval for exactly one native retry."
+    },
+    {
+      "id": "EV-20260823-024",
+      "recorded_at_utc": "2026-08-23T22:01:39Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "9ef493503cab8cc4b7bacbfb2d0d624d627e3ec8",
+      "subject": "P0 real-video overlay retry after hard-exit finalization repair",
+      "evidence": [
+        "the single separately approved retry began on clean master exactly equal to origin/master merge commit 9ef493503cab8cc4b7bacbfb2d0d624d627e3ec8 with no active MLC Player, python or pythonw process",
+        "the private local MP4 was 345752445 bytes with SHA-256 c3e53407690d6738a09b74655dd81296c8637015d835cf503ebc54787b6834a9 and mpv-2.dll was 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e before and after the run",
+        "command: MLC_NATIVE_SMOKE=1 and MLC_NATIVE_TEST_VIDEO=<same private local MP4> followed by python tests/run_native_overlay_matrix.py --only default_cinematic_video_nofocus --json-out <temporary report>",
+        "real playback produced duration 5071.726 and time_pos 4.633; RESULTS, MARK_STOP, MARK_TERMINATE, MARK_CLOSE and MARK_DONE were present",
+        "the child exited 0 / 0x00000000 in 11.18 seconds; behavior_failures and leaked_children were empty, no Python exception or timeout occurred, and the matrix exited 0",
+        "post-run process inventory was empty and the source tree remained clean and exactly equal to origin/master",
+        "the measured host was Microsoft Windows 11 Pro 10.0.26200 64 bit"
+      ],
+      "summary": "WIN-P0-02 passed on the exact merged hard-exit repair: real video playback, final markers, exit code and leak gates all completed successfully.",
+      "limitations": [
+        "This native_smoke PASS belongs only to the stated source commit, runtime DLL, media fingerprint, scenario and Windows environment; it is not installed-artifact evidence.",
+        "The no-focus scenario does not prove focus handoff, physical buttons, timeline interaction, window resize, fullscreen, audio/subtitle switching, drag-drop or playlist reorder.",
+        "No product source, build, installation, signing, tag or release changed during this run."
+      ],
+      "next_action": "Record this result through the protected PR workflow with separate approvals, then request separate approval for the physical buttons, timeline, window-resize and fullscreen package."
     }
   ]
 }
