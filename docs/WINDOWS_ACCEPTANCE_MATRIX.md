@@ -35,8 +35,8 @@ yazılır.
 
 | Kimlik | Senaryo | Beklenen kanıt | Durum |
 | --- | --- | --- | --- |
-| WIN-P0-01 | Uygulama açılışı ve normal kapanış | Exit 0, final marker, stderr sınıflaması, süreç sızıntısı yok | NOT_RUN |
-| WIN-P0-02 | Gerçek yerel video oynatma | Süre ilerler, kare/oynatma kanıtı vardır, medya değişmez | NOT_RUN |
+| WIN-P0-01 | Uygulama açılışı ve normal kapanış | Exit 0, final marker, stderr sınıflaması, süreç sızıntısı yok | PASSED |
+| WIN-P0-02 | Gerçek yerel video oynatma | Süre ilerler, kare/oynatma kanıtı vardır, medya değişmez | FAILED |
 | WIN-P0-03 | Ses ve yerel altyazı parçası değiştirme | Seçim libmpv read-back ile doğrulanır | NOT_RUN |
 | WIN-P0-04 | Seek, duraklatma ve devam | Zaman/state read-back beklenen aralıkta | NOT_RUN |
 | WIN-P0-05 | Tam ekran, native resize ve geri dönüş | Boyut/state doğru, donma ve kontrol kaybı yok | NOT_RUN |
@@ -167,6 +167,33 @@ değiştirmez.
 
 Her paket ayrı onayla başlar. Başarısız paket otomatik tekrarlanmaz; ilk gerçek
 neden incelenir. İlk iki paket üçüncü paketin boşluklarını PASS yapmaz.
+
+## P0 kaynak-native sonuçları — `69af424`
+
+Ortak kimlik: Windows 11 Pro `10.0.26200` 64 bit, 2560x1440/180 Hz,
+ölçülen DPI `96`, NVIDIA GeForce RTX 4070 Ti sürücü `32.0.16.1088` ve AMD
+Radeon Graphics sürücü `32.0.21045.1000`. Kaynak runtime `mpv-2.dll`
+`112772608` bayt, SHA-256
+`de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e`.
+Gerçek MP4 `345752445` bayt, SHA-256
+`c3e53407690d6738a09b74655dd81296c8637015d835cf503ebc54787b6834a9`;
+koşum öncesi/sonrası değer aynıdır.
+
+- `WIN-P0-01` **PASSED** (`EV-20260823-019`): özel opt-in kapanış kapısı
+  exit 0, `1 passed in 2.62s`, tam marker/stderr/süreç-sızıntısı sözleşmesiyle
+  tamamlandı.
+- `WIN-P0-02` **FAILED** (`EV-20260823-020`): duration `5071.726`, position
+  `4.6`, gerçek video ve `MARK_DONE` oluştu; davranış hatası ve child süreç
+  sızıntısı yoktu. Buna rağmen süreç kapanışta `0xC0000005` döndürdüğü için
+  fail-closed runner exit 1 verdi. Otomatik tekrar yapılmadı.
+- İlk neden kaynak incelemesi, eski `native_overlay_smoke_child.py` akışının
+  ürünün `player.close()` temizliğinden önce `mpv.stop()/terminate()` çağırıp
+  300 ms daha canlı UI timer'ı bıraktığını gösterdi. Üç
+  `UI update error: 'NoneType' object has no attribute 'track_list'` satırı
+  tam bu aralıkta oluştu. Bu, oynatma kanıtını silmez fakat runner exit kapısı
+  düzeltilmeden satırı PASS yapmaya da yetmez.
+
+Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 
 ## P1 — Ortam ve dayanıklılık
 
