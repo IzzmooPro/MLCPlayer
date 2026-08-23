@@ -2232,6 +2232,51 @@
         "No SignPath submission, Authenticode or Ed25519 signature, tag or release was created."
       ],
       "next_action": "Validate and commit this acceptance record with separate approval, pass it through the protected PR gate, then request separate explicit approval for one corrected hosted unsigned-installer build dispatch."
+    },
+    {
+      "id": "EV-20260823-009",
+      "recorded_at_utc": "2026-08-23T10:15:45Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "dffb91cb1c5ca79f31cd7ae8b675e8ee8c5299a5",
+      "subject": "second GitHub-hosted unsigned main-installer build attempt",
+      "evidence": [
+        "after separate explicit approval, build-unsigned-main.yml was dispatched exactly once on origin/master commit dffb91cb1c5ca79f31cd7ae8b675e8ee8c5299a5 as https://github.com/IzzmooPro/MLCPlayer/actions/runs/32632912597",
+        "checkout, exact Python 3.13.15 setup, pinned ORAS setup, the corrected exact Inno Setup 6.7.1 compiler-engine probe and all exact hash-locked Windows wheel installation steps passed",
+        "ORAS authenticated, pulled immutable manifest sha256:f33b793c23505fd2f752f65f03e0545c14c85915c9f6eef5abffab1443410518 and downloaded the exact mpv-2.dll layer sha256:de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "the runtime size, SHA-256 and SOURCE_ARTIFACT provenance checks passed before the step raised RUNTIME_MANIFEST.txt mismatch",
+        "independent anonymous GHCR and GitHub blob readback showed the OCI and exact Git blob RUNTIME_MANIFEST.txt are identical at 2402 bytes and SHA-256 f76e62a35826f347bb8053ace696f72d2a21da01d3407a4e6324286c6508b578; the file had no .gitattributes EOL rule at the failed commit",
+        "the product build, unsigned-byte verification, provenance generation and both artifact uploads were skipped, and the workflow was not automatically retried"
+      ],
+      "summary": "The second hosted attempt cleared the Inno and dependency gates and retrieved the correct immutable runtime, but failed closed before build because an exact-byte text manifest lacked a cross-platform LF checkout rule.",
+      "limitations": [
+        "No installer or provenance artifact was produced, so this failed hosted_ci result is not source-build, native-smoke, installed-artifact or signing evidence.",
+        "The independent blob comparison proves the registry and Git canonical bytes agree; the Windows checkout conversion diagnosis is based on the missing EOL attribute and the failure occurring only when hashing the checked-out copy.",
+        "No SignPath submission, signature, tag or release was created."
+      ],
+      "next_action": "Pin bin/RUNTIME_MANIFEST.txt to LF in .gitattributes, protect the rule with a regression test, validate the failure record and request separate commit approval; do not rerun the hosted build automatically."
+    },
+    {
+      "id": "EV-20260823-010",
+      "recorded_at_utc": "2026-08-23T10:15:45Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "dffb91cb1c5ca79f31cd7ae8b675e8ee8c5299a5",
+      "subject": "runtime manifest cross-platform exact-byte checkout correction",
+      "evidence": [
+        "work began on clean codex/runtime-manifest-eol-fix exactly equal to origin/master merge commit dffb91cb1c5ca79f31cd7ae8b675e8ee8c5299a5; the separate dirty user worktree was not modified",
+        "a new hosted-build regression first completed with 1 failed and 7 passed because bin/RUNTIME_MANIFEST.txt had no exact LF checkout rule",
+        ".gitattributes now contains the narrow rule bin/RUNTIME_MANIFEST.txt text eol=lf alongside the existing exact-byte fixture rules",
+        "git check-attr reports text set and eol lf for the manifest, so a fresh Windows checkout cannot silently rewrite the canonical Git and OCI LF bytes before the workflow hashes them",
+        "the hosted unsigned-build regression group completed with 8 passed and 0 failed after the one-line policy correction"
+      ],
+      "summary": "The exact runtime manifest is now byte-stable across checkout platforms, preserving the strict OCI-versus-source comparison without weakening or removing any runtime integrity gate.",
+      "limitations": [
+        "This is deterministic source and checkout-policy evidence only; the corrected rule has not yet passed protected hosted CI or a new manual unsigned-installer run.",
+        "No dependency installation, OCI publication, product build, installer artifact, SignPath submission, signature, tag or release was performed by this correction task.",
+        "A new hosted build requires the normal commit, push and protected PR sequence followed by separate explicit dispatch approval."
+      ],
+      "next_action": "Run the required continuity and narrow hosted-build checks, then request separate commit approval; push, PR merge and any new hosted build dispatch remain separately authorized."
     }
   ]
 }
