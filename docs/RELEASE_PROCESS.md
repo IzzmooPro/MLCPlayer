@@ -52,6 +52,14 @@ ayrı açık kullanıcı onayı ister. Başarılı koşumun digest readback sonu
 olarak kullanılamaz. İş akışı libmpv veya installer build etmez ve SignPath'i
 çağırmaz.
 
+`.github/workflows/build-unsigned-main.yml` da aktif yayın veya imzalama
+zinciri değildir. Yalnız ayrı açık onayla, exact master commit'i üzerinde ana
+installer'ın imzasız kopyasını üretir; isteğe bağlı İnternet Video paketini,
+SignPath'i ve yerel Ed25519 anahtarını kullanmaz. Çıktıdaki `NotSigned` durumu,
+EXE SHA-256 değeri, runtime digest'i ve build ortamı provenance artifact'inde
+kaydedilir. Bu artifact tek başına yayınlanamaz; SignPath kabulü, son baytların
+yerel Ed25519 imzası ve mevcut fiziksel installer kabul kapıları yine zorunludur.
+
 **`git ls-remote` bu listede DEĞİLDİR.** Yalnız uzak doğrulama adımı
 **(g)**'de çalışır ve **ağ kullanır**. `prepublish.py`,
 `verify_release_ref.py` ve `verify_build.py --pre` tarafından

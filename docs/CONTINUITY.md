@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-004`
+- Son kanıt: `EV-20260823-005`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -559,19 +559,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    doğruladı. Exact kilit `packaging/libmpv_runtime_lock.json` içinde kayda
    hazırlandı (`EV-20260823-004`). libmpv yeniden build edilmedi; SignPath,
    installer, tag veya release çalıştırılmadı.
+94. Güncel master `a0f3a93` tabanında hosted imzasız ana installer sınırı
+   hazırlandı. Manuel workflow yalnız GitHub-hosted Windows 2025 kullanıyor;
+   action/Python/ORAS sabit, Inno Setup `6.7.1` fail-closed ve 24 Windows wheel
+   exact SHA-256 kilitlidir. Runtime yalnız kalıcı OCI digest'iyle çekiliyor;
+   main-only `--pre-main` yolu add-on ikililerini istemeden exact mpv hash'ini
+   doğruluyor. Çıktı `NotSigned` olmak ve `.sig` taşımamak zorunda; installer
+   ile provenance ayrı artifact olarak saklanıyor. Sözleşme önce **6 failed**,
+   uygulama sonrası test-only kapsam hatası düzeltilince **6 passed** verdi.
+   Etki grubu doğrulanmış DLL test PATH'iyle **88 passed / 1 skipped**;
+   main-pre grubu **24 passed / 1 skipped** ve hash kilidi gerçek pip seçimiyle
+   **24/24 wheel PASS** verdi (`EV-20260823-005`). Workflow/build/SignPath/tag/
+   release çalıştırılmadı.
 
 ## Sıradaki tek adım
 
-OCI digest kilidi ve registry kabul kaydını ayrı commit ve PR kapısından
-master'a al.
+Hosted unsigned-build hazırlığını ayrı commit ve PR kapısından master'a al.
 
 ## Sonraki sıra
 
-1. `EV-20260823-004` kaydını dar devamlılık ve runtime-lock testleriyle doğrula.
-2. Ayrı onaylarla OCI kabul kaydını commit et, görev dalını push et ve PR
+1. `EV-20260823-005` kaydını dar devamlılık ve hosted-build testleriyle doğrula.
+2. Ayrı onaylarla hosted-build hazırlığını commit et, görev dalını push et ve PR
    kapısından master'a al.
-3. Digest kilidini kullanan hosted unsigned-installer build'ini ayrı değişiklik
-   olarak hazırla; SignPath başvurusu ve imzalama yine ayrı karardır.
+3. Ayrı açık onayla exact master üzerinde hosted unsigned-build'i bir kez
+   çalıştır; installer ve provenance artifact'lerini doğrula.
+4. Yalnız gerçek build PASS'inden sonra SignPath Foundation başvuru paketini
+   hazırla; başvuru ve imzalama yine ayrı karardır.
 
 ## Kayıt düzeni
 

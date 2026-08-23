@@ -1,0 +1,180 @@
+name: Build unsigned main installer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: build-unsigned-main
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build exact unsigned main installer for later signing
+    runs-on: windows-2025
+    timeout-minutes: 30
+    env:
+      PYTHONUTF8: '1'
+      MLC_HOSTED_UNSIGNED_BUILD: '1'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out the exact build source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up exact Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13.15'
+          cache: pip
+          cache-dependency-path: requirements-build-windows.txt
+
+      - name: Install pinned ORAS CLI
+        uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d # v2.0.1
+        with:
+          version: 1.3.3
+
+      - name: Verify hosted toolchain boundary
+        id: toolchain
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          if ((python --version) -ne "Python 3.13.15") {
+            throw "Unexpected Python version"
+          }
+          $candidates = @(
+            "$env:ProgramFiles\Inno Setup 7\ISCC.exe",
+            "$env:ProgramFiles\Inno Setup 6\ISCC.exe",
+            "${env:ProgramFiles(x86)}\Inno Setup 7\ISCC.exe",
+            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          )
+          $iscc = $candidates | Where-Object { Test-Path -LiteralPath $_ } |
+            Select-Object -First 1
+          if (-not $iscc) { throw "ISCC.exe is missing" }
+          $inno = [Diagnostics.FileVersionInfo]::GetVersionInfo($iscc).ProductVersion
+          if ($inno -notmatch '^6\.7\.1(?:\.|$)') {
+            throw "Expected Inno Setup 6.7.1, got $inno"
+          }
+          "inno_version=$inno" >> $env:GITHUB_OUTPUT
+
+      - name: Install exact hash-locked Windows wheels
+        shell: pwsh
+        run: |
+          python -m pip install --require-hashes --only-binary=:all: `
+            --no-deps -r requirements-build-windows.txt `
+            --disable-pip-version-check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python packaging/verify_dependencies.py requirements-lock.txt
+
+      - name: Pull and verify the immutable libmpv runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $lock = Get-Content packaging/libmpv_runtime_lock.json -Raw |
+            ConvertFrom-Json
+          if ($lock.schema_version -ne 1) { throw "Unknown runtime lock schema" }
+          if ($lock.runtime_name -ne "mpv-2.dll") { throw "Wrong runtime name" }
+          $reference = "$($lock.repository)@$($lock.digest)"
+          $env:GH_TOKEN | oras login ghcr.io --username $env:GITHUB_ACTOR `
+            --password-stdin
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          oras pull $reference -o runtime-bundle
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          $runtime = "runtime-bundle\mpv-2.dll"
+          if (-not (Test-Path -LiteralPath $runtime -PathType Leaf)) {
+            throw "Locked runtime is missing"
+          }
+          if ((Get-Item -LiteralPath $runtime).Length -ne $lock.runtime_size) {
+            throw "Locked runtime size mismatch"
+          }
+          $digest = (Get-FileHash -LiteralPath $runtime -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($digest -ne $lock.runtime_sha256) {
+            throw "Locked runtime SHA-256 mismatch"
+          }
+          $source = Get-Content runtime-bundle/SOURCE_ARTIFACT.json -Raw |
+            ConvertFrom-Json
+          foreach ($name in @("source_artifact_id", "source_run_id",
+                              "source_head_sha", "source_expires_at",
+                              "runtime_name", "runtime_size", "runtime_sha256")) {
+            if ($source.$name -ne $lock.$name) {
+              throw "Runtime provenance mismatch: $name"
+            }
+          }
+          $trackedManifest = (Get-FileHash bin/RUNTIME_MANIFEST.txt -Algorithm SHA256).Hash
+          $pulledManifest = (Get-FileHash runtime-bundle/RUNTIME_MANIFEST.txt -Algorithm SHA256).Hash
+          if ($trackedManifest -ne $pulledManifest) {
+            throw "RUNTIME_MANIFEST.txt mismatch"
+          }
+          Copy-Item -LiteralPath $runtime -Destination bin/mpv-2.dll
+
+      - name: Build the unsigned main installer
+        shell: pwsh
+        run: |
+          & cmd.exe /d /c packaging\build_unsigned_main.bat
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify unsigned bytes and write provenance
+        id: artifact
+        shell: pwsh
+        env:
+          INNO_VERSION: ${{ steps.toolchain.outputs.inno_version }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = python -c "from app.config import APP_VERSION; print(APP_VERSION)"
+          $path = "installer_output/MLCPlayer_Setup_$version.exe"
+          if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+            throw "Expected installer is missing: $path"
+          }
+          $signature = Get-AuthenticodeSignature -LiteralPath $path
+          if ($signature.Status -ne "NotSigned") {
+            throw "Installer must be unsigned, got $($signature.Status)"
+          }
+          if (Test-Path -LiteralPath "$path.sig") {
+            throw "Detached signature must not exist in hosted build"
+          }
+          $lock = Get-Content packaging/libmpv_runtime_lock.json -Raw |
+            ConvertFrom-Json
+          $installer = Get-Item -LiteralPath $path
+          $provenance = [ordered]@{
+            schema_version = 1
+            commit = $env:GITHUB_SHA
+            run_id = [long]$env:GITHUB_RUN_ID
+            runner_image = $env:ImageOS
+            runner_image_version = $env:ImageVersion
+            python_version = (python --version)
+            inno_setup_version = $env:INNO_VERSION
+            wheel_lock_sha256 = (Get-FileHash requirements-build-windows.txt -Algorithm SHA256).Hash.ToLowerInvariant()
+            runtime_manifest_digest = $lock.digest
+            runtime_sha256 = $lock.runtime_sha256
+            installer_name = $installer.Name
+            installer_size = $installer.Length
+            installer_sha256 = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+            authenticode_status = [string]$signature.Status
+          }
+          $provenance | ConvertTo-Json | Set-Content `
+            -LiteralPath installer_output/build-provenance.json -Encoding utf8
+          "path=$path" >> $env:GITHUB_OUTPUT
+          "name=$($installer.Name)" >> $env:GITHUB_OUTPUT
+
+      - name: Upload exact unsigned installer for later signing
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: mlcplayer-unsigned-main-${{ github.sha }}
+          path: ${{ steps.artifact.outputs.path }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload exact build provenance
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: mlcplayer-unsigned-main-provenance-${{ github.sha }}
+          path: installer_output/build-provenance.json
+          if-no-files-found: error
+          retention-days: 90
