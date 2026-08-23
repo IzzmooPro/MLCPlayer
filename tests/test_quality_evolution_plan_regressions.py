@@ -119,7 +119,9 @@ def test_every_p0_row_has_an_honest_execution_mapping_and_exact_status():
     assert p0_table.count("NOT_RUN") == 6
     assert "EV-20260823-019" in p0_section
     assert "EV-20260823-020" in p0_section
+    assert "EV-20260823-022" in p0_section
     assert "0xC0000005" in p0_section
+    assert "os._exit" in p0_section
 
 
 def test_every_completed_phase_has_one_update_transaction():

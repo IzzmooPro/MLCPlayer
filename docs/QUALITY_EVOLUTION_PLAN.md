@@ -99,6 +99,9 @@ teardown sırası nedeniyle `0xC0000005` ile başarısız oldu. Otomatik tekrar
 yapılmaz; `EV-20260823-019/020` ve Windows matrisi güncel karar kaynağıdır.
 Test-only harness kapanışı `EV-20260823-021` ile deterministik olarak
 düzeltildi; gerçek retry yapılmadan P0-02 durumu yükseltilmez.
+Exact `98f4440` retry'sı geç UI hatalarını temizledi fakat child normal
+Python/libmpv finalizasyonunda `MARK_DONE` sonrasında yine başarısız oldu
+(`EV-20260823-022`). Finalizasyon sözleşmesi düzeltilmeden P0-02 yükseltilmez.
 
 Çıkış kapısı: P0 satırlarının her biri PASSED, FAILED veya gerekçeli BLOCKED;
 çocuk süreç exit kodu, final marker, stderr ve süreç sızıntısı sınırları açık;

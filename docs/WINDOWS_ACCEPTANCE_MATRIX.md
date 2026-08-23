@@ -196,6 +196,11 @@ koşum öncesi/sonrası değer aynıdır.
   `player.close()` yoluna geçirildi; ilgili deterministik grup **102 passed /
   2 skipped / 0 failed** verdi. Native retry henüz yapılmadığı için
   `WIN-P0-02` **FAILED** kalır.
+- Exact `98f4440` üzerindeki tek onaylı retry (`EV-20260823-022`) önceki geç
+  UI hatalarını kaldırdı ve gerçek oynatma + bütün marker'ları üretti; ancak
+  child `MARK_DONE` sonrasında normal Python/libmpv finalizasyonunda yine
+  `0xC0000005` döndürdü. Kalan test-only boşluk flush + `os._exit`
+  sözleşmesidir; ek retry yapılmadı ve satır **FAILED** kalır.
 
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 

@@ -2544,6 +2544,31 @@
         "A successful future retry belongs only to its exact merged commit, runtime, media fingerprint and Windows environment."
       ],
       "next_action": "Commit, push and pass this test-only repair through the protected PR workflow with separate approvals, then request separate explicit approval for exactly one native retry."
+    },
+    {
+      "id": "EV-20260823-022",
+      "recorded_at_utc": "2026-08-23T21:36:47Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "98f44407c90f5ceddb85c9469db70ae3df291d6a",
+      "subject": "P0 real-video overlay retry after canonical product shutdown repair",
+      "evidence": [
+        "the single separately approved retry began on clean master exactly equal to origin/master merge commit 98f44407c90f5ceddb85c9469db70ae3df291d6a with no active MLC Player, python or pythonw process",
+        "the same private local MP4 remained 345752445 bytes with SHA-256 c3e53407690d6738a09b74655dd81296c8637015d835cf503ebc54787b6834a9 and mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "command: MLC_NATIVE_SMOKE=1 and MLC_NATIVE_TEST_VIDEO=<same private local MP4> followed by python tests/run_native_overlay_matrix.py --only default_cinematic_video_nofocus --json-out <temporary report>",
+        "real playback again produced duration 5071.726 and time_pos 4.633; RESULTS, MARK_STOP, MARK_TERMINATE, MARK_CLOSE and MARK_DONE were present, behavior_failures was empty and leaked_children was empty",
+        "the three prior late UI update errors disappeared, proving that canonical player.close ordering repaired the first measured teardown defect",
+        "the child still returned unsigned exit 3221225477 / 0xC0000005 after MARK_DONE, so the fail-closed matrix returned exit 1 and WIN-P0-02 remained FAILED; no additional retry was performed",
+        "source inspection found the remaining child-only difference: tests/native_overlay_smoke_child.py exits through raise SystemExit and normal Python finalization, while main.py and safe libmpv native children flush markers and use os._exit because Windows libmpv interpreter finalization is not thread-safe",
+        "media and runtime hashes remained unchanged after the run and final process inventory was empty"
+      ],
+      "summary": "The canonical product close fix removed the late UI timer errors, but the overlay child still fails after MARK_DONE in Python/libmpv interpreter finalization, so P0 playback acceptance remains failed.",
+      "limitations": [
+        "The measured remaining failure is after the canonical product close and final marker; it is evidence of a child finalization contract defect, not proof that normal MLC Player playback or close crashes.",
+        "The complete playback evidence cannot override the nonzero child exit code, and no PASS is claimed.",
+        "No finalization fix, further retry, product change, build, installation, signing, tag or release was performed."
+      ],
+      "next_action": "With separate approval, regression-first require this libmpv child to flush output and leave through os._exit like main.py and the other safe native children; do not retry natively until that test-only fix is merged."
     }
   ]
 }
