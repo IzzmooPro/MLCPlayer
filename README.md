@@ -100,10 +100,10 @@ does not match is deleted. You do not run the `.sig` file yourself.
 The installer is not yet code-signed, so Windows SmartScreen will warn about
 an unknown publisher on first run.
 
-See the project's [Code signing policy](CODE_SIGNING_POLICY.md) and
-[Privacy policy](PRIVACY.md). The SignPath Foundation route is being prepared
-for a future release; it has not been accepted or applied to the current
-installer.
+See the project's [Code signing policy](CODE_SIGNING_POLICY.md),
+[Privacy policy](PRIVACY.md), [SignPath readiness record](docs/SIGNPATH_READINESS.md)
+and [application draft](docs/SIGNPATH_FOUNDATION_APPLICATION.md). The draft
+has not been submitted, accepted or applied to the current installer.
 
 Already installed? `Help → Check for updates` verifies and updates the main
 player. The built-in updater updates only the main player; if you use the

@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `e9da1fb93733c1f7da9c193a81ed22a3d9df5865`
+- Kayıt hazırlanırken doğrulanan HEAD: `a420fe1ae99df2057791412a8f0af35c843a9150`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-011`
+- Son kanıt: `EV-20260823-012`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -615,18 +615,28 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    doğruluyor. İki Actions artifact arşivi bağımsız indirmede API boyut ve
    digest değerleriyle birebir eşleşti (`EV-20260823-011`). Bu hosted unsigned
    build kanıtıdır; kurulum, native smoke, imza veya yayın değildir.
+101. SignPath Foundation için halka açık başvuru taslağı exact hosted build,
+   proje, lisans, roller, politika ve ilk imza kapsamını doğru biçimde bir
+   araya getiriyor. Aktif workflow'a SignPath action/token eklenmedi; isteğe
+   bağlı İnternet Video eklentisi kapsam dışında kaldı. Sözleşme önce **2
+   failed / 3 passed**, belge uygulaması sonrasında test yolu hatası nedeniyle
+   **1 failed / 4 passed**, beklenti düzeltildikten sonra **5 passed / 0
+   failed** verdi. Son etki grubu **222 passed / 0 failed** ve ledger JSON
+   kontrolü geçti (`EV-20260823-012`). Paket **gönderilmedi**; hesap,
+   sertifika, imza, build, tag veya release oluşturulmadı.
 
 ## Sıradaki tek adım
 
-`EV-20260823-011` kabul kaydını doğrula ve commit için ayrı onay iste.
+`EV-20260823-012` başvuru paketini dar belge/devamlılık testleriyle doğrula ve
+commit için ayrı onay iste.
 
 ## Sonraki sıra
 
-1. `EV-20260823-011` kaydını dar devamlılık testiyle doğrula.
-2. Ayrı onaylarla kabul kaydını commit et, görev dalını push et ve PR
+1. `EV-20260823-012` kaydını dar belge/devamlılık testleriyle doğrula.
+2. Ayrı onaylarla başvuru paketini commit et, görev dalını push et ve PR
    kapısından master'a al.
-3. SignPath Foundation başvuru paketini hazırla; gerçek başvuru gönderimi,
-   imzalama ve yayın yine ayrı kararlardır.
+3. Başvuru iletişim bilgilerini kullanıcıyla doldur; gerçek başvuru gönderimi,
+   GitHub App kurulumu, imzalama ve yayın yine ayrı kararlardır.
 
 ## Kayıt düzeni
 
