@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `2d4e4c3c4db872cd761c0d7d6f2ab4de125d8922`
+- Kayıt hazırlanırken doğrulanan HEAD: `98f44407c90f5ceddb85c9469db70ae3df291d6a`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-021`
+- Son kanıt: `EV-20260823-022`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -702,24 +702,38 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    geçirildikten sonra **1 passed** verdi. İlgili deterministik etki grubu
    **102 passed / 2 skipped / 0 failed** tamamlandı (`EV-20260823-021`). Ürün
    kodu değişmedi ve native retry yapılmadı; `WIN-P0-02` hâlâ **FAILED**.
+111. Test-only kapanış düzeltmesi PR #21'de hosted **4812 passed / 30 skipped
+   / 0 failed** verdikten sonra iki ebeveynli `98f4440` merge commit'iyle
+   master'a alındı. Ayrı onaylı tek native retry aynı medya/runtime ile gerçek
+   duration `5071.726`, position `4.633`, tam `RESULTS` ve `MARK_DONE` üretti;
+   önceki üç geç UI timer hatası tamamen kayboldu. Buna rağmen child
+   `MARK_DONE` sonrasında normal Python/libmpv finalizasyonunda yine
+   `0xC0000005` döndürdü; fail-closed sonuç **FAILED** ve otomatik ek retry
+   yapılmadı (`EV-20260823-022`). Kalan neden ürünün kanonik kapanışından
+   sonra yalnız child'ın `raise SystemExit` yolunda; `main.py` ve güvenli
+   native child'lar bu bilinen Windows/libmpv sınırında flush + `os._exit`
+   kullanıyor.
 
 ## Sıradaki tek adım
 
-Test-only overlay kapanış düzeltmesini commit etmek için ayrı onay al; push,
-PR, merge ve tek native retry adımlarını yine ayrı onaylarla ilerlet.
+Native retry başarısızlığını commit/push/PR ile kaydetmek için ayrı onaylarla
+ilerle. Ardından finalizasyon düzeltmesi için ayrıca açık onay al; otomatik
+native retry yapma.
 
 ## Sonraki sıra
 
-1. `EV-20260823-021` test-only düzeltmesini commit/push/PR için ayrı onaylarla
-   master'a al; ürün koduna dokunma.
-2. Exact merge commit hazır olduktan sonra tek native retry için
-   ayrıca açık onay al; başarısızsa yine otomatik tekrar yapma.
-3. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
+1. `EV-20260823-022` başarısız retry kaydını commit/push/PR için ayrı
+   onaylarla master'a al.
+2. Overlay child için flush + `os._exit` finalizasyon sözleşmesini
+   regresyon-first düzelt; ürün koduna dokunma.
+3. Düzeltme master'a alındıktan sonra tek native retry için yeniden ayrıca
+   açık onay al; başarısızsa otomatik tekrar yapma.
+4. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
    ayrıca onaylat; aynı girdilerle bir kez çalıştır.
-4. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
-5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+5. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
+6. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-6. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+7. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni
