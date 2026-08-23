@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """The architecture and real-Windows quality plan stays durable and honest."""
 
+import hashlib
+import json
+import re
+
 from pathlib import Path
 
 
@@ -10,6 +14,7 @@ AGENTS = ROOT / "AGENTS.md"
 CONTINUITY = ROOT / "docs" / "CONTINUITY.md"
 QUALITY_PLAN = ROOT / "docs" / "QUALITY_EVOLUTION_PLAN.md"
 ARCHITECTURE = ROOT / "docs" / "ARCHITECTURE_INVENTORY.md"
+ARCHITECTURE_DATA = ROOT / "docs" / "ARCHITECTURE_INVENTORY.json"
 WINDOWS_ACCEPTANCE = ROOT / "docs" / "WINDOWS_ACCEPTANCE_MATRIX.md"
 
 
@@ -20,6 +25,7 @@ def read(path):
 def test_quality_documents_are_wired_into_the_current_handoff():
     assert QUALITY_PLAN.is_file()
     assert ARCHITECTURE.is_file()
+    assert ARCHITECTURE_DATA.is_file()
     assert WINDOWS_ACCEPTANCE.is_file()
 
     agents = read(AGENTS)
@@ -28,6 +34,7 @@ def test_quality_documents_are_wired_into_the_current_handoff():
     for path in (
             "docs/QUALITY_EVOLUTION_PLAN.md",
             "docs/ARCHITECTURE_INVENTORY.md",
+            "docs/ARCHITECTURE_INVENTORY.json",
             "docs/WINDOWS_ACCEPTANCE_MATRIX.md"):
         assert path in agents
         assert path in continuity
@@ -44,7 +51,35 @@ def test_architecture_work_is_measurement_first_and_not_a_line_count_refactor():
     assert "davranış değişikliği" in combined
     assert "video_frame.py" in inventory
     assert "2623" in inventory
-    assert "ÇALIŞTIRILMADI" in inventory
+    assert "SORUMLULUK ANALİZİ TAMAMLANDI" in inventory
+    for marker in (
+            "64", "61", "53", "41", "58", "19",
+            "İlk güvenli ayrıştırma adayı", "app/media_targets.py",
+            "normalize_external_target", "SubtitleTrackWatcher"):
+        assert marker in inventory
+    assert "ürün kodu değiştirilmedi" in inventory.casefold()
+
+
+def test_machine_inventory_matches_the_exact_six_sources():
+    payload = json.loads(read(ARCHITECTURE_DATA))
+    assert payload["schema_version"] == 1
+    assert payload["status"] == "analyzed"
+    modules = payload["modules"]
+    assert len(modules) == 6
+    assert len({row["path"] for row in modules}) == 6
+
+    for row in modules:
+        source = ROOT / row["path"]
+        raw = source.read_bytes()
+        text = raw.decode("utf-8")
+        normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+        assert hashlib.sha256(normalized.encode("utf-8")).hexdigest() == row["sha256"]
+        assert len(text.splitlines()) == row["lines"]
+        assert len(re.findall(r"(?m)^class\s+([A-Za-z_]\w*)", text)) == row["classes"]
+        assert len(re.findall(r"(?m)^def\s+([A-Za-z_]\w*)", text)) == row["top_functions"]
+        assert len(re.findall(r"(?m)^    def\s+([A-Za-z_]\w*)", text)) == row["indented_functions"]
+        state = set(re.findall(r"self\.([A-Za-z_]\w*)\s*=", text))
+        assert len(state) == row["self_state"]
 
 
 def test_windows_acceptance_never_promotes_missing_or_inherited_evidence():

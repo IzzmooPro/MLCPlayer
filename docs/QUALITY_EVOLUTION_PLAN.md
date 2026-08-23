@@ -34,6 +34,7 @@ yapmadan bulabilmesini sağlamaktır.
 | Makinece okunabilir sonuç | `docs/VERIFICATION_LEDGER.json` | Sonraki kararda kullanılacak her sonuçta |
 | Bu programın faz ve kapıları | `docs/QUALITY_EVOLUTION_PLAN.md` | Faz başlarken veya kapanırken |
 | Modül sahipliği ve ayrıştırma adayları | `docs/ARCHITECTURE_INVENTORY.md` | Ölçüm veya sahiplik değiştiğinde |
+| Altı büyük modülün hash/yapı güncellik kapısı | `docs/ARCHITECTURE_INVENTORY.json` | Bu altı kaynaktan biri değiştiğinde |
 | Gerçek Windows senaryoları | `docs/WINDOWS_ACCEPTANCE_MATRIX.md` | Senaryo/ortam/artifact sonucu değiştiğinde |
 | Yayın sırası | `docs/RELEASE_PROCESS.md` | Yalnız yayın sözleşmesi değiştiğinde |
 | Tarihsel anlatı | `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`, `docs/ENGINEERING_AUDIT.md` | Tarihsel checkpoint gerektiğinde |
@@ -61,7 +62,7 @@ adıma işaret ediyor ve ürün kodunda değişiklik yok.
 
 ## Faz 1 — Salt okunur mimari envanter
 
-**Durum:** PLANLANDI
+**Durum:** TAMAMLANDI
 
 Önce `docs/ARCHITECTURE_INVENTORY.md` tamamlanır. Her büyük modül için:
 
@@ -80,7 +81,7 @@ göre seçilmiş ve kapsam kullanıcıya sunulmuş olmalıdır.
 
 ## Faz 2 — Gerçek Windows başlangıç kabulü
 
-**Durum:** PLANLANDI
+**Durum:** SIRADAKİ
 
 `docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindeki P0 senaryoları exact commit,
 runtime ve mümkünse artifact SHA-256 kimliğiyle çalıştırılır. Var olan native

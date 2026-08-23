@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`
+- Kayıt hazırlanırken doğrulanan HEAD: `adbf8ca5ec31b2804fab12467125980dd3f3d298`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-015`
+- Son kanıt: `EV-20260823-016`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -652,20 +652,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    failed** verdi. Yeni plan sözleşmesi ile continuity grubu son kontrolde
    **11 passed / 0 failed** tamamlandı (`EV-20260823-015`). Ürün kodu, build,
    kurulum ve native koşum değişmedi.
+105. Altı büyük modülün satır/yapı/state, owner bağımlılığı, yaşam döngüsü,
+   test yüzeyi ve geçmiş kusur riski salt okunur ölçüldü. En yüksek risk
+   `video_frame.py` ve `player.py` olsa da ilk düşük-riskli aday, MPV/Qt state'i
+   taşımayan `app/media_targets.py` yaprağı olarak seçildi. Kaynağın sessizce
+   eskimesini önlemek için altı dosyanın normalize SHA-256 ve yapı sayıları
+   `ARCHITECTURE_INVENTORY.json` ile fail-closed sözleşmeye bağlandı. İnsan
+   envanteri öncesi test **1 failed / 3 passed**, uygulama sonrası **4 passed**;
+   makine envanteri kapısı önce dosya yokken **2 failed / 3 passed**, uygulama
+   sonrası **5 passed / 0 failed** verdi. Kalite ve continuity son grubu **12
+   passed / 0 failed** tamamlandı (`EV-20260823-016`). Ürün kodu, native
+   davranış, build ve kurulum değişmedi.
 
 ## Sıradaki tek adım
 
-`docs/ARCHITECTURE_INVENTORY.md` içindeki altı büyük modülün sınıf, fonksiyon,
-import, state/yaşam-döngüsü sahipliği ve mevcut test eşlemesini salt okunur
-çıkar; ürün kodunu değiştirme ve henüz refactor uygulama.
+`docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindeki P0 satırlarını mevcut native
+runner ve deterministik test gruplarıyla salt okunur eşleştir; ölçülmeyen
+alanları açıkça yaz, hiçbir native koşum veya kurulum başlatma.
 
 ## Sonraki sıra
 
-1. Salt okunur mimari envanteri tamamla ve ilk güvenli ayrıştırma adayını yalnız
-   ölçülen sahiplik/bağımlılık riskine göre öner.
-2. `docs/WINDOWS_ACCEPTANCE_MATRIX.md` P0 satırlarını mevcut runner'larla
-   eşleştir; eksik ölçümü açıkça yaz ve native koşum için ayrı onay iste.
-3. P0 başlangıç çizgisi kaydedilmeden ürün kodunda mimari ayrıştırma yapma.
+1. `docs/WINDOWS_ACCEPTANCE_MATRIX.md` P0 satırlarını mevcut runner'larla
+   eşleştir; otomatik, native ve manuel boşlukları ayrı yaz.
+2. Gerekli exact commit/runtime/medya/artifact girdilerini belirle ve gerçek
+   P0 koşumu için kullanıcıdan ayrı onay iste.
+3. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+   uygulama.
 4. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
@@ -680,4 +692,5 @@ import, state/yaşam-döngüsü sahipliği ve mevcut test eşlemesini salt okunu
 - Agent kuralları: kökte `AGENTS.md`; Claude uyumluluğu için `CLAUDE.md`.
 - Mimari/gerçek Windows programı: `docs/QUALITY_EVOLUTION_PLAN.md`.
 - Güncel modül ölçümü: `docs/ARCHITECTURE_INVENTORY.md`.
+- Makinece modül güncellik kapısı: `docs/ARCHITECTURE_INVENTORY.json`.
 - Gerçek cihaz senaryoları: `docs/WINDOWS_ACCEPTANCE_MATRIX.md`.

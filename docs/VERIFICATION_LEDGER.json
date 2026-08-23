@@ -2403,6 +2403,33 @@
         "No first refactor candidate has been selected; video_frame.py is an inventory subject, not an automatic implementation target."
       ],
       "next_action": "Complete the six-module read-only responsibility, dependency, lifecycle and test mapping in docs/ARCHITECTURE_INVENTORY.md, then present the measured first extraction candidate without changing product code."
+    },
+    {
+      "id": "EV-20260823-016",
+      "recorded_at_utc": "2026-08-23T20:40:45Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "adbf8ca5ec31b2804fab12467125980dd3f3d298",
+      "subject": "Six-module read-only architecture inventory and freshness gate",
+      "evidence": [
+        "analysis began on clean codex/quality-evolution-plan at adbf8ca5ec31b2804fab12467125980dd3f3d298, two documentation commits ahead of unchanged product source merge commit 78518dd67e882e35da69ea7bb6bfc74e3cafc1c7",
+        "app/video_frame.py, app/media_controls.py, app/player.py, app/playlist_panel.py, app/menu_actions.py and app/updater.py were measured for lines, classes/functions, unique self-state assignments, timer/thread/native markers, direct owner-field coupling and direct test-file references",
+        "the human inventory records each module's visible responsibilities, state and lifecycle ownership, dependency direction, relevant deterministic/native boundary, historical risk and reasons not to refactor high-risk modules first",
+        "the measured risk order is video_frame.py, player.py, updater.py, menu_actions.py and playlist_panel.py tied, then media_controls.py; the score is a caution signal and not an automatic refactor priority",
+        "the first low-risk candidate is an app/media_targets.py leaf containing eight state-free or player-state-independent path/URL functions; this removes menu_actions.py's presentation-only dependency on the whole media_controls.py without touching MPV or Qt playback lifecycle",
+        "the strengthened human-inventory regression first completed with 1 failed and 3 passed against the old not-analyzed status, then completed with 4 passed and 0 failed after the analysis was recorded",
+        "the first read-only hash collection command stopped on a PowerShell foreach pipeline parser error before producing evidence or changing files; the cause was inspected and the corrected collection form produced normalized hashes and exact metrics",
+        "docs/ARCHITECTURE_INVENTORY.json stores LF-normalized SHA-256 and structural metrics for the exact six sources; the new freshness gate first completed with 2 failed and 3 passed while the JSON file was absent, then completed with 5 passed and 0 failed",
+        "the final quality-plan plus continuity regression group completed with 12 passed and 0 failed; both JSON files parsed successfully, git diff --check was clean and git diff under app was empty"
+      ],
+      "summary": "The six largest modules now have a measured, machine-fresh architecture inventory, and the first proposed extraction is a low-risk path/URL leaf rather than a big-bang split of the highest-risk UI classes.",
+      "limitations": [
+        "This deterministic PASS proves source structure, documented ownership and freshness contracts only; it is not runtime coverage, native smoke, installed-artifact or refactor acceptance evidence.",
+        "No product source was changed and app/media_targets.py does not exist yet; the candidate remains a proposal gated on the real-Windows P0 baseline.",
+        "The related-test-file and risk scores are review aids, not coverage percentages or claims that every branch is tested.",
+        "All Windows acceptance rows remain NOT_RUN or hardware-dependent BLOCKED; no build, installation, native run, signing or release occurred."
+      ],
+      "next_action": "Map each WINDOWS_ACCEPTANCE_MATRIX P0 row to existing deterministic tests and native runners, document exact gaps and required inputs, and request separate approval before any real native run or installation."
     }
   ]
 }

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "status": "analyzed",
+  "measured_product_commit": "78518dd67e882e35da69ea7bb6bfc74e3cafc1c7",
+  "measured_at_utc": "2026-08-23T20:37:22Z",
+  "hash_contract": "sha256 of UTF-8 source normalized to LF",
+  "modules": [
+    {
+      "path": "app/video_frame.py",
+      "sha256": "12e26f6a15456afe960d324291dc6e57774ddcc48c5216b36256cfff5c90b51f",
+      "lines": 2623,
+      "classes": 3,
+      "top_functions": 3,
+      "indented_functions": 110,
+      "self_state": 64
+    },
+    {
+      "path": "app/media_controls.py",
+      "sha256": "c06701a0505602e2883a41f921c65126924e36a38240113d5fb9f12382a1b2d7",
+      "lines": 1288,
+      "classes": 0,
+      "top_functions": 61,
+      "indented_functions": 2,
+      "self_state": 0
+    },
+    {
+      "path": "app/player.py",
+      "sha256": "c14ceea19b6a3a5924f14ed8a0d195900b203735ae3e71d4f1aa50ea648ae12f",
+      "lines": 1209,
+      "classes": 1,
+      "top_functions": 1,
+      "indented_functions": 78,
+      "self_state": 53
+    },
+    {
+      "path": "app/playlist_panel.py",
+      "sha256": "c659bbf09377ea5aeac427902985787adac20d5a9c3ed5928395210d95fc9913",
+      "lines": 1102,
+      "classes": 5,
+      "top_functions": 0,
+      "indented_functions": 72,
+      "self_state": 41
+    },
+    {
+      "path": "app/menu_actions.py",
+      "sha256": "2efc6bd175778de5fad3113a8a115fef5cfd2ef0d4e17d48d84bc7c98a9603d8",
+      "lines": 1082,
+      "classes": 0,
+      "top_functions": 35,
+      "indented_functions": 5,
+      "self_state": 0
+    },
+    {
+      "path": "app/updater.py",
+      "sha256": "351e5a9019e92e31683fcec39e233e26ad5f04003ff16e19e308d938ae30be13",
+      "lines": 1028,
+      "classes": 4,
+      "top_functions": 19,
+      "indented_functions": 27,
+      "self_state": 19
+    }
+  ]
+}
