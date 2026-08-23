@@ -1,7 +1,9 @@
 # MLC Player gerçek Windows kabul matrisi
 
-**Durum:** SÖZLEŞME HAZIR, SENARYOLAR NOT_RUN  
-**Plan tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`  
+**Durum:** SÖZLEŞME HAZIR, SENARYOLAR NOT_RUN
+
+**Plan tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`
+
 **Hazırlanma tarihi:** 23 Ağustos 2026
 
 Bu matris gerçek Windows davranışını kaydeder. Deterministik veya hosted CI
@@ -78,4 +80,3 @@ boşluk belgelenirse eklenir.
 
 P0 satırlarını mevcut runner ve testlerle eşleştir. Eksik ölçümleri yaz; hiçbir
 native koşumu veya kurulum açık kullanıcı onayı olmadan başlatma.
-

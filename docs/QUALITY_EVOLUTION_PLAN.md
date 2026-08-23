@@ -1,7 +1,9 @@
 # MLC Player mimari ve gerçek Windows kalite planı
 
-**Durum:** AKTİF  
-**Başlangıç tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`  
+**Durum:** AKTİF
+
+**Başlangıç tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`
+
 **Başlangıç tarihi:** 23 Ağustos 2026
 
 Bu plan iki gerçek riski kontrollü biçimde azaltır:

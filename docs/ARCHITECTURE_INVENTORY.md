@@ -1,7 +1,9 @@
 # MLC Player mimari envanteri
 
-**Durum:** ÖN ÖLÇÜM TAMAM, SORUMLULUK ANALİZİ ÇALIŞTIRILMADI  
-**Ölçüm tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`  
+**Durum:** ÖN ÖLÇÜM TAMAM, SORUMLULUK ANALİZİ ÇALIŞTIRILMADI
+
+**Ölçüm tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`
+
 **Ölçüm tarihi:** 23 Ağustos 2026
 
 Bu dosya refactor kararı değil, ölçüm ve sahiplik kaydıdır. Satır sayısı tek
@@ -58,4 +60,3 @@ yasaktır.
 Altı modülün sınıf/fonksiyon/import/state ve mevcut test eşlemesini salt okunur
 çıkar. Sonuçları bu dosyaya ekle; ürün kodunu değiştirme ve henüz ayrıştırma
 önerisini uygulama.
-
