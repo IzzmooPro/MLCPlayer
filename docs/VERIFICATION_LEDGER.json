@@ -2303,6 +2303,32 @@
         "The independent verification copies remain under %TEMP%\\mlc-unsigned-audit-32634062651 because local cleanup commands were blocked before execution; this directory is outside the repository, product, AppData and GitHub artifacts."
       ],
       "next_action": "Validate and commit this acceptance record with separate approval, pass it through the protected PR gate, then prepare the SignPath Foundation application package; any application submission or signing remains separately authorized."
+    },
+    {
+      "id": "EV-20260823-012",
+      "recorded_at_utc": "2026-08-23T11:05:49Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "a420fe1ae99df2057791412a8f0af35c843a9150",
+      "subject": "SignPath Foundation application package preparation",
+      "evidence": [
+        "work began on clean codex/signpath-foundation-application exactly equal to origin/master merge commit a420fe1ae99df2057791412a8f0af35c843a9150; the separate dirty user worktree was not modified",
+        "current official SignPath Foundation conditions at https://signpath.org/terms.html were checked for Open Source licensing, release, documentation, privacy, uninstallation, MFA, explicit roles, manual signing approval and verifiable-build requirements",
+        "current official GitHub trusted-build documentation at https://docs.signpath.io/trusted-build-systems/github and project/user documentation were checked for GitHub App, trusted GitHub.com origin, project/policy and submitter/approver boundaries",
+        "docs/SIGNPATH_FOUNDATION_APPLICATION.md records public project, license, policy, role, scope and exact hosted-build evidence while marking maintainer contact fields for submission-time completion",
+        "docs/SIGNPATH_READINESS.md now records successful hosted run 32634062651 and removes the stale claims that the project is not application-ready, that the workflow has not run and that the hosted build is not accepted",
+        "the active unsigned-build workflow remains free of any SignPath action or API token; the optional Internet Video add-on remains outside the initial signing scope",
+        "the new regression contract first completed with 2 failed and 3 passed because the draft was absent and readiness was stale; after implementation one test-only relative-link expectation failed with 4 passed, and after correcting that expectation the group completed with 5 passed and 0 failed",
+        "the final SignPath, README guidance, release-documentation and continuity impact group completed with 222 passed and 0 failed; VERIFICATION_LEDGER.json parsed successfully",
+        "after recording the result, the continuity recheck completed with 7 passed and 0 failed and git diff --check was clean"
+      ],
+      "summary": "A truthful, public SignPath Foundation application package is prepared around the exact verified GitHub-hosted unsigned main-installer boundary, without changing the product or active signing workflow.",
+      "limitations": [
+        "This deterministic PASS proves document and regression contracts only; it is not an eligibility decision, application submission, account, certificate, signing request or Authenticode signature.",
+        "Maintainer contact name and email remain explicit submission-time placeholders and no secret, token or guessed identity was added.",
+        "No GitHub App was installed, no SignPath organization/project/policy was created, and no build, installation, tag or release was performed."
+      ],
+      "next_action": "Request separate commit approval; push, PR merge and actual SignPath submission remain separately authorized."
     }
   ]
 }
