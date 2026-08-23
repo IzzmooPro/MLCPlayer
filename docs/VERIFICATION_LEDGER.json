@@ -2378,6 +2378,81 @@
         "No product code, build, installation, Authenticode or Ed25519 signature, tag or release was changed."
       ],
       "next_action": "Validate and commit the truthful submitted/awaiting-decision status with separate approval, then wait for and record SignPath's response without publishing private contact data."
+    },
+    {
+      "id": "EV-20260823-015",
+      "recorded_at_utc": "2026-08-23T20:27:07Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "78518dd67e882e35da69ea7bb6bfc74e3cafc1c7",
+      "subject": "Architecture and real-Windows quality evolution plan contract",
+      "evidence": [
+        "work began on clean codex/quality-evolution-plan from origin/master merge commit 78518dd67e882e35da69ea7bb6bfc74e3cafc1c7; no product source, build, installer or runtime binary was changed",
+        "docs/QUALITY_EVOLUTION_PLAN.md defines measurement-first architecture work, exact-evidence Windows acceptance, phase gates and one update transaction for plan, inventory, matrix, ledger and continuity",
+        "docs/ARCHITECTURE_INVENTORY.md records the six measured large modules without treating line count as an automatic refactor decision or claiming that responsibility analysis has run",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md defines P0, P1 and hardware-dependent P2 scenarios with NOT_RUN, PASSED, FAILED and BLOCKED states and forbids carrying PASS between versions",
+        "AGENTS.md and docs/CONTINUITY.md point future agents to the three durable quality documents and the current single read-only architecture-inventory step",
+        "the new regression contract first completed with 4 failed because the three documents were absent; after implementation it completed with 1 passed and 3 failed only because three Turkish phrase checks were unnecessarily case-sensitive",
+        "after the test-only expectations were made case-insensitive without weakening the required content, tests/test_quality_evolution_plan_regressions.py completed with 4 passed and 0 failed",
+        "the final quality-plan plus continuity regression group completed with 11 passed and 0 failed; VERIFICATION_LEDGER.json parsed successfully and git diff --check was clean"
+      ],
+      "summary": "MLC Player now has a durable, regression-protected plan that requires a measured architecture inventory and exact-evidence real-Windows baseline before any behavior-preserving refactor begins.",
+      "limitations": [
+        "This deterministic PASS proves the planning, handoff and document contracts only; no module responsibility analysis, native scenario, installed artifact, build, signing or release was performed.",
+        "All Windows matrix scenarios remain NOT_RUN or hardware-dependent BLOCKED, and no state may be promoted without exact new evidence.",
+        "No first refactor candidate has been selected; video_frame.py is an inventory subject, not an automatic implementation target."
+      ],
+      "next_action": "Complete the six-module read-only responsibility, dependency, lifecycle and test mapping in docs/ARCHITECTURE_INVENTORY.md, then present the measured first extraction candidate without changing product code."
+    },
+    {
+      "id": "EV-20260823-016",
+      "recorded_at_utc": "2026-08-23T20:40:45Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "adbf8ca5ec31b2804fab12467125980dd3f3d298",
+      "subject": "Six-module read-only architecture inventory and freshness gate",
+      "evidence": [
+        "analysis began on clean codex/quality-evolution-plan at adbf8ca5ec31b2804fab12467125980dd3f3d298, two documentation commits ahead of unchanged product source merge commit 78518dd67e882e35da69ea7bb6bfc74e3cafc1c7",
+        "app/video_frame.py, app/media_controls.py, app/player.py, app/playlist_panel.py, app/menu_actions.py and app/updater.py were measured for lines, classes/functions, unique self-state assignments, timer/thread/native markers, direct owner-field coupling and direct test-file references",
+        "the human inventory records each module's visible responsibilities, state and lifecycle ownership, dependency direction, relevant deterministic/native boundary, historical risk and reasons not to refactor high-risk modules first",
+        "the measured risk order is video_frame.py, player.py, updater.py, menu_actions.py and playlist_panel.py tied, then media_controls.py; the score is a caution signal and not an automatic refactor priority",
+        "the first low-risk candidate is an app/media_targets.py leaf containing eight state-free or player-state-independent path/URL functions; this removes menu_actions.py's presentation-only dependency on the whole media_controls.py without touching MPV or Qt playback lifecycle",
+        "the strengthened human-inventory regression first completed with 1 failed and 3 passed against the old not-analyzed status, then completed with 4 passed and 0 failed after the analysis was recorded",
+        "the first read-only hash collection command stopped on a PowerShell foreach pipeline parser error before producing evidence or changing files; the cause was inspected and the corrected collection form produced normalized hashes and exact metrics",
+        "docs/ARCHITECTURE_INVENTORY.json stores LF-normalized SHA-256 and structural metrics for the exact six sources; the new freshness gate first completed with 2 failed and 3 passed while the JSON file was absent, then completed with 5 passed and 0 failed",
+        "the final quality-plan plus continuity regression group completed with 12 passed and 0 failed; both JSON files parsed successfully, git diff --check was clean and git diff under app was empty"
+      ],
+      "summary": "The six largest modules now have a measured, machine-fresh architecture inventory, and the first proposed extraction is a low-risk path/URL leaf rather than a big-bang split of the highest-risk UI classes.",
+      "limitations": [
+        "This deterministic PASS proves source structure, documented ownership and freshness contracts only; it is not runtime coverage, native smoke, installed-artifact or refactor acceptance evidence.",
+        "No product source was changed and app/media_targets.py does not exist yet; the candidate remains a proposal gated on the real-Windows P0 baseline.",
+        "The related-test-file and risk scores are review aids, not coverage percentages or claims that every branch is tested.",
+        "All Windows acceptance rows remain NOT_RUN or hardware-dependent BLOCKED; no build, installation, native run, signing or release occurred."
+      ],
+      "next_action": "Map each WINDOWS_ACCEPTANCE_MATRIX P0 row to existing deterministic tests and native runners, document exact gaps and required inputs, and request separate approval before any real native run or installation."
+    },
+    {
+      "id": "EV-20260823-017",
+      "recorded_at_utc": "2026-08-23T20:49:24Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "73f4b6920592af1e5f0617048e49a6ff72cb734c",
+      "subject": "P0 real-Windows acceptance execution mapping",
+      "evidence": [
+        "mapping began on clean codex/quality-evolution-plan at 73f4b6920592af1e5f0617048e49a6ff72cb734c, three commits ahead of unchanged origin/master; the separate dirty codex/source-compliance-gate worktree was detected and left untouched",
+        "all eight P0 rows now record their deterministic boundary, existing native measurement, exact required inputs and explicit unmeasured gap without changing any NOT_RUN state",
+        "the existing shutdown runner is the strongest source-native close/lifecycle measurement and the single video overlay case measures real duration and position progress; selected physical groups cover pause/resume, timeline seek, native resize, fullscreen and playlist next/previous behavior",
+        "the audit found four incomplete native acceptance areas: actual audio and subtitle track switching, Explorer video/subtitle drag-drop, physical playlist reorder to the final boundary, and exact-commit second-instance file/URL IPC",
+        "tests/run_physical_acceptance.py dragdrop intentionally returns BLOCKED because reliable Explorer OLE automation is absent; direct product-method calls are not promoted to physical PASS",
+        "the new mapping regression first completed with 1 failed and 5 passed against the unmapped matrix, then completed with 6 passed and 0 failed after the exact boundaries and gaps were recorded"
+      ],
+      "summary": "Every P0 Windows scenario now has a concrete, fail-closed execution route or an explicit native evidence gap, so future agents cannot confuse existing tests with a real baseline PASS.",
+      "limitations": [
+        "This deterministic PASS proves only the accuracy and durability of the execution mapping; no application window, native child, real media, installed artifact, build, installation, signing, tag or release was run.",
+        "All eight P0 rows remain NOT_RUN; no historical user or release acceptance was inherited by the current exact commit.",
+        "The four incomplete areas require either a narrow fail-closed runner or a recorded manual acceptance before their rows can become PASSED."
+      ],
+      "next_action": "With separate approval, identify and fingerprint the exact real media/runtime inputs, then run only the short shutdown plus one-video overlay core; inspect any failure before deciding on the physical interaction package."
     }
   ]
 }

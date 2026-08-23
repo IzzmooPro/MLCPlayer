@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `e5390da7b8d4188df0e5b0825bcf7ff4cc2d0305`
+- Kayıt hazırlanırken doğrulanan HEAD: `73f4b6920592af1e5f0617048e49a6ff72cb734c`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-014`
+- Son kanıt: `EV-20260823-017`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -642,19 +642,56 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    test satır-bölme beklentisiyle **2 failed / 10 passed**, düzeltme sonrası
    **12 passed / 0 failed** verdi; son etki grubu **222 passed / 0 failed**
    tamamlandı.
+104. Mimari karmaşıklık ve gerçek Windows davranış boşluğu için kalıcı kalite
+   programı oluşturuldu. `QUALITY_EVOLUTION_PLAN.md` fazları ve tek-kaynak
+   güncellik işlemini; `ARCHITECTURE_INVENTORY.md` altı büyük modülün ölçüm
+   tabanını; `WINDOWS_ACCEPTANCE_MATRIX.md` exact commit/runtime/artifact'a
+   bağlı P0/P1/P2 senaryolarını tanımlar. Sözleşme önce belgeler yokken **4
+   failed**, uygulama sonrasında yalnız testin büyük-küçük harf duyarlılığıyla
+   **1 passed / 3 failed**, beklenti düzeltildikten sonra **4 passed / 0
+   failed** verdi. Yeni plan sözleşmesi ile continuity grubu son kontrolde
+   **11 passed / 0 failed** tamamlandı (`EV-20260823-015`). Ürün kodu, build,
+   kurulum ve native koşum değişmedi.
+105. Altı büyük modülün satır/yapı/state, owner bağımlılığı, yaşam döngüsü,
+   test yüzeyi ve geçmiş kusur riski salt okunur ölçüldü. En yüksek risk
+   `video_frame.py` ve `player.py` olsa da ilk düşük-riskli aday, MPV/Qt state'i
+   taşımayan `app/media_targets.py` yaprağı olarak seçildi. Kaynağın sessizce
+   eskimesini önlemek için altı dosyanın normalize SHA-256 ve yapı sayıları
+   `ARCHITECTURE_INVENTORY.json` ile fail-closed sözleşmeye bağlandı. İnsan
+   envanteri öncesi test **1 failed / 3 passed**, uygulama sonrası **4 passed**;
+   makine envanteri kapısı önce dosya yokken **2 failed / 3 passed**, uygulama
+   sonrası **5 passed / 0 failed** verdi. Kalite ve continuity son grubu **12
+   passed / 0 failed** tamamlandı (`EV-20260823-016`). Ürün kodu, native
+   davranış, build ve kurulum değişmedi.
+106. Sekiz P0 Windows senaryosu mevcut deterministik sınır, native runner,
+   exact girdi ve açık kanıt boşluğuyla eşlendi. Kapanış, gerçek video
+   ilerlemesi, pause/seek, native resize ve tam ekran için yeniden
+   kullanılabilir yollar bulundu. Gerçek ses/altyazı parçası değiştirme,
+   Explorer video/altyazı bırakma, playlist son sınıra fiziksel taşıma ve
+   ikinci örnek dosya/URL IPC için tam fail-closed kabul bulunmadığı açıkça
+   kaydedildi. Eşleme regresyonu önce **1 failed / 5 passed**, belge
+   tamamlandıktan sonra **6 passed / 0 failed** verdi
+   (`EV-20260823-017`). Sekiz satır da `NOT_RUN`; ürün kodu ve gerçek native
+   davranış değişmedi.
 
 ## Sıradaki tek adım
 
-`EV-20260823-014` başvuru teslim kaydını dar SignPath/devamlılık testleriyle
-doğrula ve commit için ayrı onay iste.
+Kullanıcıdan ayrı açık native-koşum onayı alındıktan sonra exact gerçek medya
+ve runtime kimliğini fingerprint et; yalnız kısa
+`native_shutdown_acceptance.py` + tek videolu overlay çekirdeğini çalıştır.
+Başarısızlık olursa otomatik tekrar yapma.
 
 ## Sonraki sıra
 
-1. `EV-20260823-014` kaydını dar SignPath/devamlılık testleriyle doğrula.
-2. Ayrı onaylarla teslim kaydını commit et, görev dalını push et ve PR
-   kapısından master'a al.
-3. SignPath yanıtını bekle ve özel iletişim bilgisini yayımlamadan kaydet;
-   GitHub App kurulumu, imzalama ve yayın yine ayrı kararlardır.
+1. Exact commit/runtime/medya girdilerini belirle; kısa otomatik P0 çekirdeği
+   için ayrı onay al ve sonucu fail-closed kaydet.
+2. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
+   ayrıca onaylat; aynı girdilerle bir kez çalıştır.
+3. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
+4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+   uygulama.
+5. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+   GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni
 
@@ -665,3 +702,7 @@ doğrula ve commit için ayrı onay iste.
 - Tarihsel uzun kayıt: `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`,
   `docs/ENGINEERING_AUDIT.md`.
 - Agent kuralları: kökte `AGENTS.md`; Claude uyumluluğu için `CLAUDE.md`.
+- Mimari/gerçek Windows programı: `docs/QUALITY_EVOLUTION_PLAN.md`.
+- Güncel modül ölçümü: `docs/ARCHITECTURE_INVENTORY.md`.
+- Makinece modül güncellik kapısı: `docs/ARCHITECTURE_INVENTORY.json`.
+- Gerçek cihaz senaryoları: `docs/WINDOWS_ACCEPTANCE_MATRIX.md`.
