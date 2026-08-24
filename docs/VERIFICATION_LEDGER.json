@@ -3055,6 +3055,57 @@
         "No product source, build, installation, signing, tag or release changed."
       ],
       "next_action": "Commit this WIN-P0-04 evidence record with separate approval, then use separate push, PR and merge approvals; do not rerun the native test."
+    },
+    {
+      "id": "EV-20260824-019",
+      "recorded_at_utc": "2026-08-24T19:31:01Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "c401243131991881c23d088c325e3fc22214d867",
+      "subject": "Protected PR acceptance for the WIN-P0-04 native PASS record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/33",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32768204209",
+        "the pull_request run completed on exact head c401243131991881c23d088c325e3fc22214d867 with required test check success: 4827 passed, 30 skipped and 0 failed",
+        "PR #33 was merged only after the required test check reached COMPLETED/SUCCESS",
+        "the separately approved merge produced two-parent commit 3a691dd3a9d8340cbba15b532b176739e7447ab4 from parents 4cabdfc6acb898927f39e68fd2c5f807fc07de40 and c401243131991881c23d088c325e3fc22214d867",
+        "origin/master and local master were read back at the exact merge commit"
+      ],
+      "summary": "The WIN-P0-04 native PASS record passed the protected full CI gate and was merged through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS does not independently rerun or expand the physical Windows result.",
+        "The 30 skipped tests are not PASS and include opt-in native or installed-artifact paths.",
+        "No native run, product change, build, installation, signing, tag or release occurred as part of this hosted result."
+      ],
+      "next_action": "Research the P2 HDR gap and prepare a bounded test-only diagnostic harness without changing product configuration or running it natively."
+    },
+    {
+      "id": "EV-20260824-020",
+      "recorded_at_utc": "2026-08-24T19:43:23Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "3a691dd3a9d8340cbba15b532b176739e7447ab4",
+      "subject": "Fail-closed HDR capability research and bounded A/B diagnostic harness",
+      "evidence": [
+        "read-only command: Get-CimInstance Win32_VideoController showed NVIDIA GeForce RTX 4070 Ti driver 32.0.16.1088 driving 2560x1440 at 180 Hz; WmiMonitorID identified MSI product 8CC2",
+        "read-only command: dxdiag.exe /dontskip /whql:off /t <temporary report> showed HDR Support: Supported, BT2020RGB/BT2020YCC/Eotf2084Supported and AdvancedColorEnabled, but the active Display Color Space was DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 rather than HDR10 DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020",
+        "the MSI G274QPF E2 official specification identifies DisplayHDR 400, 400 nit peak luminance and 8-bit+FRC support: https://www.msi.com/Monitor/G274QPF-E2/Specification",
+        "Microsoft documents DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020 for HDR10 output: https://learn.microsoft.com/windows/win32/direct3darticles/high-dynamic-range",
+        "the exact bundled mpv commit documentation recommends gpu-next and limits target-colorspace-hint support to gpu-next, including D3D11: https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/options.rst",
+        "the exact bundled mpv property documentation exposes video-params and video-target-params for input/output target telemetry: https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/input.rst",
+        "tests/run_hdr_acceptance.py is opt-in, refuses to start unless the active Windows color space is exact HDR10 G2084/P2020, and compares the unchanged current gpu profile against a child-only gpu-next/D3D11/target-colorspace-hint profile with a 60-second limit per child",
+        "the fail-closed report requires verified HDR input, target telemetry, hwdec-current, exit 0, MARK_DONE, accepted canonical close, exact stop->terminate order, measured cursor restoration, unchanged media size/time identity, stable Windows color space and no new MLC Player/Python process",
+        "command: python -m py_compile tests/hdr_probe_contract.py tests/native_hdr_probe_child.py tests/run_hdr_acceptance.py -> exit 0",
+        "command: python -m pytest -q tests/test_hdr_acceptance_contract_regressions.py tests/test_continuity_regressions.py tests/test_quality_evolution_plan_regressions.py -> 20 passed"
+      ],
+      "summary": "The machine is HDR-capable but the active DXGI color space is still SDR P709; a bounded test-only A/B harness now fails closed before native playback and preserves product configuration.",
+      "limitations": [
+        "This is deterministic research and harness evidence only; no native HDR video was opened and WIN-P2-01 remains BLOCKED.",
+        "HDR-capable hardware, AdvancedColorEnabled, mpv target telemetry, screenshots and photographs do not independently prove HDR luminance or color accuracy.",
+        "The future native result will belong only to its exact commit, DLL, HDR media, Windows color-space state, GPU driver and display; a colorimeter or controlled manual visual check remains separate.",
+        "No product source, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Request separate approval to commit this test-only HDR diagnostic harness and evidence package; push, PR, merge and any later native HDR run each require their own approval."
     }
   ]
 }
