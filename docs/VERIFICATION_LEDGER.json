@@ -3372,6 +3372,57 @@
         "No native run, Windows setting, media acquisition, build, installation, signing, tag or release occurred as part of this hosted result."
       ],
       "next_action": "Request separate approval to commit this hosted merge record; after its protected workflow completes, prepare the minimum licensed or synthetic media identity manifest before any native format run."
+    },
+    {
+      "id": "EV-20260824-031",
+      "recorded_at_utc": "2026-08-24T21:26:16Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "74630cbf3e76c830aa1741a785986cd8f95229dd",
+      "subject": "Protected PR acceptance for the PR 38 merge record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/39",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32779011862",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32779011862/job/97596646107",
+        "the required test check completed SUCCESS on exact head 7c60ec4dcb72433ccdd20f8d7f98f3dba191ec4e",
+        "the separately approved merge produced two-parent commit 74630cbf3e76c830aa1741a785986cd8f95229dd from parents e11af6a3a6704d3f262c935f9e57abc242351f2d and 7c60ec4dcb72433ccdd20f8d7f98f3dba191ec4e",
+        "origin/master and local master were read back clean and equal at the exact merge commit; the task branch was preserved"
+      ],
+      "summary": "The PR 38 hosted result and merge record passed the protected PR gate and entered master through a verified two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci result validates only the documentation record and protected workflow; it does not rerun native media or prove HDR output.",
+        "No media acquisition, generation, product change, Windows setting, build, installation, signing, tag or release occurred."
+      ],
+      "next_action": "Prepare the minimum licensed or synthetic video-format media candidate and identity manifest without acquiring, generating or opening media."
+    },
+    {
+      "id": "EV-20260824-032",
+      "recorded_at_utc": "2026-08-24T21:33:13Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "74630cbf3e76c830aa1741a785986cd8f95229dd",
+      "subject": "Fail-closed video-format media candidate and identity manifest",
+      "evidence": [
+        "https://opencontent.netflix.com/ states that its open source content is CC BY 4.0 and lists Sol Levante HDR10/Dolby Vision plus Meridian UHD 4K 59.94 HDR assets",
+        "official FFmpeg, ITU BT.2111, x265 and primary dovi_tool project references are recorded for synthetic or structural candidates with explicit claim and redistribution boundaries",
+        "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json binds 14 candidate-only asset classes, including explicit SRT and ASS sidecars, to all 16 video-format cases without selecting, downloading or generating any exact media object",
+        "six official external alternatives are recorded as deferred where redistribution terms, stable delivery or exact HDR/profile claims remain insufficient; 10-bit and Main10 labels are explicitly not promoted to HDR evidence",
+        "candidate-only assets keep exact locator, local identity, size, SHA-256, ffprobe and generation identity absent rather than inventing evidence",
+        "fingerprinted_state_enabled is false until an executable validator can recalculate local bytes and exact ffprobe evidence; normalized probe artifacts and every multi-object member require independent identity",
+        "range and malformed-metadata sets have explicit four-member and two-member cardinality; HDR10+ and Dolby Vision require exact supplemental probe binary, argv and output hashes",
+        "dynamic HDR10+ requires frame or stream side-data and Dolby Vision requires profile, level, compatible base and RPU evidence; codec or catalog labels cannot earn PASS",
+        "command: python -m pytest -q tests/test_video_format_acceptance_plan_regressions.py -> 8 passed",
+        "the exact docs-only CI test list completed with 247 passed; ledger JSON, matrix JSON, media manifest JSON and git diff check were clean"
+      ],
+      "summary": "A source-backed candidate manifest now gives every blocked SDR, HDR, codec, range, display and metadata case a minimum media path while refusing to fabricate byte identity or broaden format support claims.",
+      "limitations": [
+        "This is planning, source research and deterministic contract evidence only; no media was downloaded, generated or opened and no native or competitor player ran.",
+        "All 16 format cases remain BLOCKED; candidate status is not fingerprinted media, native behavior, HDR output or product support.",
+        "No executable fingerprint validator exists yet, so the manifest explicitly disables fingerprinted state; the next acquisition turn must implement byte and ffprobe recalculation before any asset can become fingerprinted.",
+        "Synthetic dynamic HDR and Dolby Vision candidates are structural proposals and do not prove mastering quality, legal redistribution or native display output.",
+        "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge occurred in this package."
+      ],
+      "next_action": "Request separate approval to commit this manifest package; after its protected merge, request separate approval for the test-only executable fingerprint validator and SYN-SDR709-01 generation only."
     }
   ]
 }

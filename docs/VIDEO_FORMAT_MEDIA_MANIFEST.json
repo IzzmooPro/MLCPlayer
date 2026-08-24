@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "updated": "2026-08-25",
+  "status": "candidate_only",
+  "fingerprinted_state_enabled": false,
+  "acquisition_or_generation_performed": false,
+  "native_media_opened": false,
+  "privacy_policy": {
+    "publish_local_paths": false,
+    "publish_user_media_names": false,
+    "normalize_ffprobe_format_filename": true
+  },
+  "state_contract": {
+    "candidate_only": "Source and use basis are recorded, but no exact object or generated output has been fingerprinted.",
+    "fingerprinted": "Reserved until an executable local-byte and ffprobe recalculation validator exists; exact bytes, probe evidence and provenance must then pass it.",
+    "rejected": "The candidate failed a source, license, identity or technical suitability gate and cannot enter native testing."
+  },
+  "fingerprinted_requirements": [
+    "exact_object_locator",
+    "license_or_use_basis",
+    "file_size",
+    "sha256",
+    "ffprobe_binary_sha256",
+    "ffprobe_version",
+    "ffprobe_argv",
+    "normalized_ffprobe_json_sha256",
+    "normalized_ffprobe_json_artifact",
+    "selected_video_stream",
+    "verified_claims"
+  ],
+  "generated_requirements": [
+    "generator_binary_sha256",
+    "generator_version",
+    "generator_argv",
+    "canonical_recipe_sha256",
+    "input_and_sidecar_sha256"
+  ],
+  "artifact_set_requirements": [
+    "member_id",
+    "exact_object_locator",
+    "file_size",
+    "sha256",
+    "normalized_ffprobe_json_sha256",
+    "selected_video_stream"
+  ],
+  "sidecar_requirements": [
+    "member_id",
+    "encoding",
+    "file_size",
+    "sha256",
+    "cue_times",
+    "style_summary_when_ass"
+  ],
+  "format_specific_requirements": {
+    "hdr10plus": [
+      "supplemental_probe_binary_sha256",
+      "supplemental_probe_version",
+      "supplemental_probe_argv",
+      "supplemental_probe_output_sha256",
+      "distinct_dynamic_payload_hashes"
+    ],
+    "dolby_vision": [
+      "supplemental_probe_binary_sha256",
+      "supplemental_probe_version",
+      "supplemental_probe_argv",
+      "supplemental_probe_output_sha256",
+      "profile_level_rpu_and_base_layer_claims"
+    ]
+  },
+  "claim_policy": {
+    "catalog_text_is_probe_evidence": false,
+    "codec_name_is_dynamic_hdr_proof": false,
+    "ffprobe_filename_is_published": false,
+    "dynamic_hdr_requires_frame_or_stream_side_data": true,
+    "dolby_vision_requires_profile_level_and_rpu_evidence": true,
+    "synthetic_media_proves_mastering_quality": false
+  },
+  "sources": [
+    {
+      "id": "mlc_project_generated_fixture",
+      "source_url": "https://github.com/IzzmooPro/MLCPlayer",
+      "license_url": "https://github.com/IzzmooPro/MLCPlayer/blob/master/LICENSE",
+      "license_or_use_basis": "Original deterministic test fixture source, sidecar text and recipes will be created in this GPL-3.0-only project; external tools are identified separately and do not supply the fixture copyright basis.",
+      "primary_source": true,
+      "redistribution_candidate": true
+    },
+    {
+      "id": "netflix_open_content",
+      "source_url": "https://opencontent.netflix.com/",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "license_or_use_basis": "Netflix states that its open source content is available under CC BY 4.0; attribution and license-link duties apply.",
+      "primary_source": true,
+      "redistribution_candidate": true
+    },
+    {
+      "id": "ffmpeg_official_filters",
+      "source_url": "https://ffmpeg.org/ffmpeg-filters.html",
+      "license_url": "https://ffmpeg.org/legal.html",
+      "license_or_use_basis": "Official FFmpeg filter documentation is the recipe reference; generated outputs still require exact tool and recipe identity.",
+      "primary_source": true,
+      "redistribution_candidate": false
+    },
+    {
+      "id": "itu_bt2111_pattern",
+      "source_url": "https://www.itu.int/rec/R-REC-BT.2111",
+      "license_url": null,
+      "license_or_use_basis": "BT.2111 defines PQ and HLG test-pattern semantics; it is a specification reference, not permission to redistribute an ITU document or third-party asset.",
+      "primary_source": true,
+      "redistribution_candidate": false
+    },
+    {
+      "id": "x265_hdr10plus_recipe",
+      "source_url": "https://x265.readthedocs.io/en/master/cli.html",
+      "license_url": "https://bitbucket.org/multicoreware/x265_git/src/master/COPYING",
+      "license_or_use_basis": "Official x265 documentation defines static and dynamic HDR metadata inputs; any generated fixture remains structural test media until independently verified.",
+      "primary_source": true,
+      "redistribution_candidate": false
+    },
+    {
+      "id": "dovi_tool_structural_recipe",
+      "source_url": "https://github.com/quietvoid/dovi_tool",
+      "license_url": "https://github.com/quietvoid/dovi_tool/blob/main/LICENSE",
+      "license_or_use_basis": "MIT-licensed tooling can generate structural profile fixtures, but Dolby Vision output and redistribution claims require separate capability and legal review.",
+      "primary_source": true,
+      "redistribution_candidate": false
+    }
+  ],
+  "deferred_external_options": [
+    {
+      "id": "BLENDER-SDR-OPTION",
+      "source_url": "https://studio.blender.org/projects/big-buck-bunny/",
+      "license_or_use_basis": "The Blender open movie is CC BY 3.0, but the exact downloadable encode, access path and colour signalling still require selection and probe.",
+      "redistribution_allowed": true,
+      "deferred_reason": "Synthetic SDR is smaller and gives controlled ramp values; keep this as a natural-content comparison candidate."
+    },
+    {
+      "id": "EBU-HLG-OPTION",
+      "source_url": "https://tech.ebu.ch/publications/tech3373",
+      "license_or_use_basis": "Official EBU HLG colour bars are available for engineering tests; an explicit redistribution licence was not verified.",
+      "redistribution_allowed": false,
+      "deferred_reason": "Use only as an unchanged local reference after separate acquisition approval; do not commit or publish it."
+    },
+    {
+      "id": "FF-HDR10PLUS-OPTION",
+      "source_url": "https://ff.de/hdr10plus-metadata-test/",
+      "license_or_use_basis": "The content owner offers a free HDR10+ system test, but no explicit redistribution or derivative licence was verified and delivery may be transient.",
+      "redistribution_allowed": false,
+      "deferred_reason": "Prefer it as an unchanged local comparison only after URL and licence revalidation; it is not consortium certification media."
+    },
+    {
+      "id": "AOM-AV1-OPTION",
+      "source_url": "https://github.com/AOMediaCodec/av1-isobmff/tree/main/conformance",
+      "license_or_use_basis": "The conformance repository includes CC BY-NC-ND material; an exact asset must remain unchanged and non-commercial, with its own licence read-back.",
+      "redistribution_allowed": false,
+      "deferred_reason": "A 10-bit AV1 label does not prove HDR; exact transfer, primaries and metadata must be probed before case binding."
+    },
+    {
+      "id": "WEBM-VP9-OPTION",
+      "source_url": "https://github.com/webmproject/libvpx",
+      "license_or_use_basis": "The official test system publishes vector hashes, but an explicit media redistribution licence was not verified.",
+      "redistribution_allowed": false,
+      "deferred_reason": "A vector name does not prove Profile 2, bit depth or HDR; use only after exact probe and local-use review."
+    },
+    {
+      "id": "ITU-HEVC-MAIN10-OPTION",
+      "source_url": "https://www.itu.int/wftp3/av-arch/jvet-site/bitstream_exchange/HEVC3rdEd/CD/HEVC_v1/",
+      "license_or_use_basis": "ITU hosts public conformance bitstreams, but an explicit redistribution licence was not verified.",
+      "redistribution_allowed": false,
+      "deferred_reason": "HEVC Main10 conformance is not HDR10 evidence and elementary streams do not prove container, timeline or colour-output behavior."
+    }
+  ],
+  "candidates": [
+    {
+      "id": "SYN-SDR709-01",
+      "kind": "synthetic_recipe",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "intended_cases": ["VF-CORE-01", "VF-CORE-02", "VF-DISPLAY-01"],
+      "planned_identity": "Short H.264 8-bit BT.709 SDR ramp, reference-white patches and bounded motion.",
+      "recipe_reference_ids": ["ffmpeg_official_filters"],
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Generation has not been separately approved; exact command, FFmpeg identity, bytes and probe do not exist."
+    },
+    {
+      "id": "NFLX-SOL-HDR10-01",
+      "kind": "external_asset_set",
+      "state": "candidate_only",
+      "source_id": "netflix_open_content",
+      "intended_cases": ["VF-CORE-03", "VF-CORE-04", "VF-CORE-05"],
+      "official_catalog_claim": "Sol Levante: HDR10 2020 ST2084 UHD 24fps 1000nit.",
+      "planned_member_model": "artifacts[]; every selected catalog object is fingerprinted independently",
+      "exact_object_locator": null,
+      "local_identity": null,
+      "blocker": "The exact downloadable object and byte identity have not been selected or acquired."
+    },
+    {
+      "id": "SYN-HDR10-01",
+      "kind": "synthetic_recipe",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "intended_cases": ["VF-CORE-03", "VF-CORE-04", "VF-CORE-05", "VF-PERF-01", "VF-DISPLAY-01"],
+      "planned_identity": "Short HEVC Main10 PQ BT.2020 ramp with static mastering and content-light metadata, overlay-safe scene and 59.94/60 fps motion segment.",
+      "recipe_reference_ids": ["ffmpeg_official_filters", "itu_bt2111_pattern"],
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Generation has not been separately approved and visual mastering quality cannot be inferred from a synthetic output."
+    },
+    {
+      "id": "SYN-OVERLAY-SRT-01",
+      "kind": "synthetic_sidecar",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "intended_cases": ["VF-CORE-05"],
+      "planned_identity": "UTF-8 SRT with fixed cue times and neutral white/gray reference text.",
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Sidecar bytes, cue timing, size and SHA-256 have not been generated or fingerprinted."
+    },
+    {
+      "id": "SYN-OVERLAY-ASS-01",
+      "kind": "synthetic_sidecar",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "intended_cases": ["VF-CORE-05"],
+      "planned_identity": "UTF-8 ASS with fixed cue times, font family, size, white/gray colors, outline, opacity and position.",
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Sidecar bytes, style contract, size and SHA-256 have not been generated or fingerprinted."
+    },
+    {
+      "id": "SYN-AV1-HDR10-01",
+      "kind": "derived_synthetic",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "derived_from_candidate_id": "SYN-HDR10-01",
+      "intended_cases": ["VF-CODEC-01"],
+      "planned_identity": "AV1 Main10 encode preserving explicit PQ, BT.2020 and static HDR10 metadata.",
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Parent fixture and exact encoder recipe have not been generated or fingerprinted."
+    },
+    {
+      "id": "SYN-VP9P2-HDR-01",
+      "kind": "derived_synthetic",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "derived_from_candidate_id": "SYN-HDR10-01",
+      "intended_cases": ["VF-CODEC-02"],
+      "planned_identity": "VP9 Profile 2 10-bit encode preserving explicit PQ and BT.2020 signalling.",
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Parent fixture and exact encoder recipe have not been generated or fingerprinted."
+    },
+    {
+      "id": "SYN-HLG-01",
+      "kind": "synthetic_recipe",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "intended_cases": ["VF-HDR-01"],
+      "planned_identity": "Short 10-bit BT.2020 HLG ramp based on BT.2100/BT.2111 signalling semantics.",
+      "recipe_reference_ids": ["ffmpeg_official_filters", "itu_bt2111_pattern"],
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Generation and reference-value review have not been separately approved."
+    },
+    {
+      "id": "SYN-HDR10PLUS-01",
+      "kind": "synthetic_recipe",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "intended_cases": ["VF-HDR-02"],
+      "planned_identity": "Short HEVC Main10 PQ BT.2020 fixture with static HDR10 and deliberately changing ST 2094-40 scene metadata.",
+      "recipe_reference_ids": ["ffmpeg_official_filters", "x265_hdr10plus_recipe"],
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "No reviewed dynamic-metadata sidecar or generated bitstream exists; codec/profile text alone cannot earn the claim."
+    },
+    {
+      "id": "NFLX-SOL-DV-01",
+      "kind": "external_asset_set",
+      "state": "candidate_only",
+      "source_id": "netflix_open_content",
+      "intended_cases": ["VF-HDR-03", "VF-HDR-05"],
+      "official_catalog_claim": "Sol Levante: DolbyVision PQ/P3 D65 UHD 24fps IMF.",
+      "planned_member_model": "artifacts[]; every selected IMF component is fingerprinted independently",
+      "exact_object_locator": null,
+      "local_identity": null,
+      "blocker": "The catalog does not establish the required local profile/level/base-layer claim; exact object selection, probe and RPU inspection are pending."
+    },
+    {
+      "id": "SYN-DV84-01",
+      "kind": "synthetic_recipe",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "intended_cases": ["VF-HDR-04"],
+      "planned_identity": "Short Dolby Vision Profile 8.4 structural fixture with an HLG-compatible base.",
+      "recipe_reference_ids": ["ffmpeg_official_filters", "dovi_tool_structural_recipe"],
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Tooling recipe, profile/base validation and legal review are pending; no native Dolby Vision output claim is permitted."
+    },
+    {
+      "id": "NFLX-MERIDIAN-5994-01",
+      "kind": "external_asset",
+      "state": "candidate_only",
+      "source_id": "netflix_open_content",
+      "intended_cases": ["VF-PERF-01"],
+      "official_catalog_claim": "Meridian: UHD 4k 5994 HDR P3/PQ MP4.",
+      "exact_object_locator": null,
+      "local_identity": null,
+      "blocker": "Exact object, codec, bit depth, size and probe evidence are not yet selected or measured."
+    },
+    {
+      "id": "SYN-RANGE-PAIR-01",
+      "kind": "synthetic_recipe_set",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "intended_cases": ["VF-RANGE-01"],
+      "planned_identity": "Byte-distinct legal-range and full-range BT.709/BT.2020 ramps with known black, reference-white and super-white code values.",
+      "planned_member_count": 4,
+      "planned_members": ["bt709_limited", "bt709_full", "bt2020_limited", "bt2020_full"],
+      "planned_member_model": "artifacts[]; every member carries an independent identity and probe",
+      "recipe_reference_ids": ["ffmpeg_official_filters", "itu_bt2111_pattern"],
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Pair generation and known-code-value review have not been separately approved."
+    },
+    {
+      "id": "SYN-META-ANOMALY-01",
+      "kind": "synthetic_recipe_set",
+      "state": "candidate_only",
+      "source_id": "mlc_project_generated_fixture",
+      "intended_cases": ["VF-META-01"],
+      "planned_identity": "Byte-distinct fixtures with absent colour metadata and intentionally conflicting primaries/transfer/matrix signalling.",
+      "planned_member_count": 2,
+      "planned_members": ["metadata_missing", "metadata_conflicting"],
+      "planned_member_model": "artifacts[]; every member carries an independent identity and probe",
+      "recipe_reference_ids": ["ffmpeg_official_filters"],
+      "exact_object_locator": null,
+      "local_identity": null,
+      "generation_identity": null,
+      "blocker": "Malformed fixtures have not been generated; safe failure or unknown classification has not been measured."
+    }
+  ],
+  "case_bindings": {
+    "VF-CORE-01": ["SYN-SDR709-01"],
+    "VF-CORE-02": ["SYN-SDR709-01"],
+    "VF-CORE-03": ["NFLX-SOL-HDR10-01", "SYN-HDR10-01"],
+    "VF-CORE-04": ["NFLX-SOL-HDR10-01", "SYN-HDR10-01"],
+    "VF-CORE-05": ["NFLX-SOL-HDR10-01", "SYN-HDR10-01", "SYN-OVERLAY-SRT-01", "SYN-OVERLAY-ASS-01"],
+    "VF-CODEC-01": ["SYN-AV1-HDR10-01"],
+    "VF-CODEC-02": ["SYN-VP9P2-HDR-01"],
+    "VF-HDR-01": ["SYN-HLG-01"],
+    "VF-HDR-02": ["SYN-HDR10PLUS-01"],
+    "VF-HDR-03": ["NFLX-SOL-DV-01"],
+    "VF-HDR-04": ["SYN-DV84-01"],
+    "VF-HDR-05": ["NFLX-SOL-DV-01"],
+    "VF-PERF-01": ["SYN-HDR10-01", "NFLX-MERIDIAN-5994-01"],
+    "VF-RANGE-01": ["SYN-RANGE-PAIR-01"],
+    "VF-DISPLAY-01": ["SYN-SDR709-01", "SYN-HDR10-01"],
+    "VF-META-01": ["SYN-META-ANOMALY-01"]
+  },
+  "case_requirements": {
+    "VF-CORE-05": {
+      "video_any_of": ["NFLX-SOL-HDR10-01", "SYN-HDR10-01"],
+      "sidecars_all_of": ["SYN-OVERLAY-SRT-01", "SYN-OVERLAY-ASS-01"]
+    }
+  },
+  "next_action": "After this manifest package passes the protected merge workflow, request separate approval to implement the test-only executable fingerprint validator and generate only SYN-SDR709-01; do not start HDR or native playback in the same approval."
+}

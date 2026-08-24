@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PLAN = ROOT / "docs" / "VIDEO_FORMAT_ACCEPTANCE_PLAN.md"
 MATRIX = ROOT / "docs" / "VIDEO_FORMAT_ACCEPTANCE_MATRIX.json"
+MEDIA = ROOT / "docs" / "VIDEO_FORMAT_MEDIA_MANIFEST.json"
 INVENTORY = ROOT / "docs" / "VIDEO_FORMAT_CAPABILITY_INVENTORY.md"
 WINDOWS = ROOT / "docs" / "WINDOWS_ACCEPTANCE_MATRIX.md"
 LEDGER = ROOT / "docs" / "VERIFICATION_LEDGER.json"
@@ -34,6 +35,144 @@ def test_format_plan_and_machine_matrix_exist():
     assert PLAN.is_file()
     assert MATRIX.is_file()
     assert INVENTORY.is_file()
+    assert MEDIA.is_file()
+
+
+def media_payload():
+    return json.loads(read(MEDIA))
+
+
+def test_media_candidates_are_fail_closed_and_cover_every_case():
+    matrix = payload()
+    media = media_payload()
+    assert media["schema_version"] == 1
+    assert media["status"] == "candidate_only"
+    assert media["fingerprinted_state_enabled"] is False
+    assert media["acquisition_or_generation_performed"] is False
+    assert media["native_media_opened"] is False
+    assert matrix["media_policy"]["manifest_document"] == (
+        "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json")
+    assert matrix["media_policy"]["manifest_status"] == "candidate_only"
+    assert matrix["media_policy"]["manifest_evidence_id"] == (
+        "EV-20260824-032")
+    ledger_ids = {
+        entry["id"] for entry in json.loads(read(LEDGER))["entries"]}
+    assert matrix["media_policy"]["manifest_evidence_id"] in ledger_ids
+    assert matrix["media_policy"]["acquisition_or_generation_performed"] is False
+
+    source_ids = {item["id"] for item in media["sources"]}
+    candidates = {item["id"]: item for item in media["candidates"]}
+    assert len(candidates) == len(media["candidates"])
+    assert set(media["case_bindings"]) == REQUIRED_CASES
+    for case_id, candidate_ids in media["case_bindings"].items():
+        assert candidate_ids, case_id
+        assert set(candidate_ids) <= set(candidates)
+        assert all(case_id in candidates[item_id]["intended_cases"]
+                   for item_id in candidate_ids)
+
+    for candidate in candidates.values():
+        assert candidate["state"] == "candidate_only"
+        assert candidate["source_id"] in source_ids
+        assert candidate["intended_cases"]
+        assert candidate["exact_object_locator"] is None
+        assert candidate["local_identity"] is None
+        assert candidate["blocker"]
+        if candidate["kind"].startswith("synthetic") or (
+                candidate["kind"] == "derived_synthetic"):
+            assert candidate["generation_identity"] is None
+    reverse = {candidate_id: set() for candidate_id in candidates}
+    for case_id, candidate_ids in media["case_bindings"].items():
+        for candidate_id in candidate_ids:
+            reverse[candidate_id].add(case_id)
+    for candidate_id, candidate in candidates.items():
+        assert reverse[candidate_id] == set(candidate["intended_cases"])
+        for reference_id in candidate.get("recipe_reference_ids", []):
+            assert reference_id in source_ids
+        parent_id = candidate.get("derived_from_candidate_id")
+        if parent_id:
+            assert parent_id in candidates
+            assert parent_id != candidate_id
+
+
+def test_media_manifest_has_provenance_and_strict_identity_contract():
+    media = media_payload()
+    required = set(media["fingerprinted_requirements"])
+    assert {
+        "exact_object_locator", "license_or_use_basis", "file_size",
+        "sha256", "ffprobe_binary_sha256", "ffprobe_version",
+        "ffprobe_argv", "normalized_ffprobe_json_sha256",
+        "normalized_ffprobe_json_artifact",
+        "selected_video_stream", "verified_claims",
+    } <= required
+    assert {
+        "generator_binary_sha256", "generator_version", "generator_argv",
+        "canonical_recipe_sha256", "input_and_sidecar_sha256",
+    } <= set(media["generated_requirements"])
+    assert {
+        "member_id", "exact_object_locator", "file_size", "sha256",
+        "normalized_ffprobe_json_sha256", "selected_video_stream",
+    } <= set(media["artifact_set_requirements"])
+    assert {
+        "member_id", "encoding", "file_size", "sha256", "cue_times",
+        "style_summary_when_ass",
+    } <= set(media["sidecar_requirements"])
+    assert media["privacy_policy"]["publish_local_paths"] is False
+    assert media["privacy_policy"]["publish_user_media_names"] is False
+    assert media["privacy_policy"]["normalize_ffprobe_format_filename"] is True
+    assert media["claim_policy"]["catalog_text_is_probe_evidence"] is False
+    assert media["claim_policy"]["codec_name_is_dynamic_hdr_proof"] is False
+    assert media["claim_policy"][
+        "dynamic_hdr_requires_frame_or_stream_side_data"] is True
+    assert media["claim_policy"][
+        "dolby_vision_requires_profile_level_and_rpu_evidence"] is True
+    for format_name in ("hdr10plus", "dolby_vision"):
+        format_requirements = set(
+            media["format_specific_requirements"][format_name])
+        assert {
+            "supplemental_probe_binary_sha256",
+            "supplemental_probe_version",
+            "supplemental_probe_argv",
+            "supplemental_probe_output_sha256",
+        } <= format_requirements
+    candidates = {item["id"]: item for item in media["candidates"]}
+    assert {"SYN-OVERLAY-SRT-01", "SYN-OVERLAY-ASS-01"} <= set(
+        media["case_bindings"]["VF-CORE-05"])
+    core_overlay = media["case_requirements"]["VF-CORE-05"]
+    assert set(core_overlay["video_any_of"]) == {
+        "NFLX-SOL-HDR10-01", "SYN-HDR10-01"}
+    assert set(core_overlay["sidecars_all_of"]) == {
+        "SYN-OVERLAY-SRT-01", "SYN-OVERLAY-ASS-01"}
+    assert candidates["SYN-RANGE-PAIR-01"]["planned_member_count"] == 4
+    assert len(candidates["SYN-RANGE-PAIR-01"]["planned_members"]) == 4
+    assert candidates["SYN-META-ANOMALY-01"]["planned_member_count"] == 2
+    assert len(candidates["SYN-META-ANOMALY-01"]["planned_members"]) == 2
+    for candidate_id in (
+            "SYN-RANGE-PAIR-01", "SYN-META-ANOMALY-01",
+            "NFLX-SOL-DV-01"):
+        assert candidates[candidate_id]["planned_member_model"].startswith(
+            "artifacts[]")
+    assert candidates["NFLX-SOL-HDR10-01"][
+        "planned_member_model"].startswith("artifacts[]")
+    for candidate_id in (
+            "SYN-SDR709-01", "SYN-HDR10-01", "SYN-OVERLAY-SRT-01",
+            "SYN-OVERLAY-ASS-01", "SYN-AV1-HDR10-01",
+            "SYN-VP9P2-HDR-01", "SYN-HLG-01", "SYN-HDR10PLUS-01",
+            "SYN-DV84-01", "SYN-RANGE-PAIR-01",
+            "SYN-META-ANOMALY-01"):
+        assert candidates[candidate_id]["source_id"] == (
+            "mlc_project_generated_fixture")
+    for source in media["sources"]:
+        assert source["source_url"].startswith("https://")
+        assert source["license_or_use_basis"]
+        assert source["primary_source"] is True
+    deferred = media["deferred_external_options"]
+    assert len({item["id"] for item in deferred}) == len(deferred)
+    for item in deferred:
+        assert item["source_url"].startswith("https://")
+        assert item["license_or_use_basis"]
+        assert item["deferred_reason"]
+        assert item["redistribution_allowed"] is False or (
+            item["id"] == "BLENDER-SDR-OPTION")
 
 
 def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
@@ -116,6 +255,7 @@ def test_plan_carries_concrete_user_visible_paths_and_evidence_rules():
             "ekran goruntusu", "otomatik tekrar", "60 saniye"):
         assert token.lower() in text.lower()
     assert "VIDEO_FORMAT_ACCEPTANCE_MATRIX.json" in text
+    assert "VIDEO_FORMAT_MEDIA_MANIFEST.json" in text
     assert "VERIFICATION_LEDGER.json" in text
     assert "CONTINUITY.md" in text
 
