@@ -3178,6 +3178,71 @@
         "No product code, MPV_CONFIG, build, installation, signing, tag or release changed as part of this hosted result."
       ],
       "next_action": "Request separate approval to commit this hosted merge record; after its protected workflow completes, perform the GPU, EDID, Windows color-path and exact mpv/FFmpeg capability inventory read-only before any media acquisition or native run."
+    },
+    {
+      "id": "EV-20260824-024",
+      "recorded_at_utc": "2026-08-24T20:20:30Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "419d6c7cede0b6fad37425b28c375fc89e61b141",
+      "subject": "Protected PR acceptance for the PR #35 merge record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/36",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32773253249",
+        "the required test check completed SUCCESS on exact head 864760d65b26d70193d9d4c333dcea578dcd0811",
+        "the separately approved merge produced two-parent commit 419d6c7cede0b6fad37425b28c375fc89e61b141 from parents 88711e567811ebd55f98dc4933ec5daadc0b53d8 and 864760d65b26d70193d9d4c333dcea578dcd0811",
+        "origin/master and local master were read back at the exact merge commit; the task branch was preserved"
+      ],
+      "summary": "The PR #35 hosted merge record passed its protected check and was merged through a real two-parent commit.",
+      "limitations": [
+        "This hosted_ci result covers the documentation package only and does not add native video-format evidence.",
+        "No product code, media, build, installation, tag or release changed."
+      ],
+      "next_action": "Perform the separately approved GPU, EDID, active Windows color-path and exact mpv/FFmpeg capability inventory without opening media."
+    },
+    {
+      "id": "EV-20260824-025",
+      "recorded_at_utc": "2026-08-24T20:25:00Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "419d6c7cede0b6fad37425b28c375fc89e61b141",
+      "subject": "Failed media-free exact libmpv capability query",
+      "evidence": [
+        "the exact project bin/mpv-2.dll was added to the child PATH and loaded with vo=null, ao=null, idle=yes and config=no; no media path was supplied",
+        "the first loaded child used a property command spelling that returned ValueError -4 and exited without MARK_DONE; process inventory immediately afterward found no Python, MLC Player or mpv leak",
+        "the failure was inspected before any retry: python-mpv command() passes raw input commands while direct properties are read through _get_property",
+        "a second diagnostic command-spelling check reached MARK_DONE and clean terminate but every requested field returned Invalid value, so it produced no capability evidence and was not promoted to PASS"
+      ],
+      "summary": "The initial media-free libmpv inventory query was invalid and produced no usable capability data; its missing marker remains a failed native result.",
+      "limitations": [
+        "This was a diagnostic query implementation failure, not a codec, renderer, media playback or product failure.",
+        "No media was opened and no Windows or product setting changed."
+      ],
+      "next_action": "Use python-mpv's inspected direct property API once, preserve terminate, marker and process-leak evidence, and do not transfer this failure into a format case."
+    },
+    {
+      "id": "EV-20260824-026",
+      "recorded_at_utc": "2026-08-24T20:26:31Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "419d6c7cede0b6fad37425b28c375fc89e61b141",
+      "subject": "Media-free GPU, EDID, Windows color-path and exact libmpv capability inventory",
+      "evidence": [
+        "Get-CimInstance measured NVIDIA GeForce RTX 4070 Ti driver 32.0.16.1088 driving MSI G274QPF E2 at 2560x1440 180 Hz; nvidia-smi reported driver 610.88 and dxdiag reported WDDM 3.2 / feature level 12_2",
+        "the active 384-byte EDID had SHA-256 f325d9f7e693b0ee79049ba342bf01066419110658a56452d0e0a20e44f4456f, CTA HDR Static Metadata payload 060701625F00 and BT.2020 colorimetry payload 05C000",
+        "dxdiag reported HDR Support: Supported, AdvancedColorEnabled, 417.711792 nit maximum and 391.463287 nit full-frame luminance, but active DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 rather than HDR10 G2084/P2020",
+        "bin/mpv-2.dll was 112772608 bytes, mpv v0.41.0-930-g49418246f / FFmpeg N-126239-g88ae625e6, and matched SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "the corrected media-free child read gpu-next/gpu, D3D11/Vulkan, target/source/source-dynamic, PQ/HLG, BT.2390/BT.2446a/ST2094 tone mapping, full/limited range and HEVC/VP9/AV1 software plus CUVID/AMF/QSV compiled decoder entries",
+        "the corrected child printed exactly one MARK_DONE, reported no property or terminate errors, exited 0 and left no Python, MLC Player or mpv process",
+        "app/config.py remained vo=gpu and hwdec=auto-safe; no target colorspace or tone-mapping policy was added"
+      ],
+      "summary": "The exact runtime and active Windows display path are now inventoried: the machine and DLL expose strong HDR/modern-codec capabilities, but active output remains P709 and no media path earned PASS.",
+      "limitations": [
+        "This native_smoke PASS is only for a media-free capability query on this exact commit, DLL, GPU, driver, display and EDID.",
+        "Compiled decoder entries do not prove hardware decode; HDR-capable hardware and AdvancedColorEnabled do not prove active HDR10 output.",
+        "No video was opened, all 16 format cases remain BLOCKED, and no product configuration, build, installation, tag or release changed."
+      ],
+      "next_action": "Request separate approval to commit the inventory record; after its protected workflow completes, acquire or generate fingerprinted minimum media only with separate approval."
     }
   ]
 }
