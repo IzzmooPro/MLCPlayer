@@ -57,8 +57,12 @@ Bir sonuç sonraki kararda kanıt olarak kullanılacaksa görev kapanmadan önce
 5. Başarısız sonucu da kaydet; nedeni incelemeden otomatik tekrar yapma.
 
 Eski kayıt değiştirilmez veya silinmez; yanlışsa yeni bir düzeltme kaydı
-eklenir. Kayıt değişikliği de normal kod gibi kullanıcıya gösterilir ve
-commit için ayrıca onay alınır.
+eklenir. Alan düzeltmesi yeni kaydın `corrects` listesinde hedef kayıt kimliği,
+alan adı, yanlış değer ve doğrulanmış doğru değerle makinece belirtilir. CI,
+PR tabanındaki ledger girdilerinin mevcut dosyanın birebir başlangıç bölümü
+olduğunu doğrular; eski kayıt silme, yeniden sıralama veya yerinde yazma
+fail-closed durur. Kayıt değişikliği de normal kod gibi kullanıcıya gösterilir
+ve commit için ayrıca onay alınır.
 
 ## Kalıcı çalışma kuralları
 

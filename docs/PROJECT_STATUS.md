@@ -2077,7 +2077,7 @@ yazılacak.
 **Lisans notu:** VLC çevirileri GPLv2+; yalnız terminoloji doğrulaması
 için okundu, metin KOPYALANMADI.
 
-## Sıradaki tek adım
+## 20 Ağustos 2026 snapshot'ındaki sıradaki adım
 
 **SIRADAKİ PLAN (17 Ağustos 2026, kullanıcı isteği).** Sıra bağımlılığa ve
 riske göre kuruldu; ayrıntı ve gerekçeler aşağıda.

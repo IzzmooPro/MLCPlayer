@@ -3,6 +3,11 @@ name: CI
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact approved origin/master commit SHA
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -20,8 +25,21 @@ jobs:
       QT_QPA_PLATFORM: offscreen
 
     steps:
+      - name: Verify exact master dispatch
+        if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          if ("${{ github.ref }}" -ne "refs/heads/master") {
+            throw "Manual CI must run on refs/heads/master"
+          }
+          if ("${{ github.sha }}" -ne $env:EXPECTED_SHA) {
+            throw "Manual CI SHA does not match expected_sha"
+          }
+
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
 
@@ -64,13 +82,13 @@ jobs:
 
       - name: Set up Python for documentation checks
         if: steps.classify.outputs.docs_only == 'true'
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.13.15'
 
       - name: Set up Python for full CI
         if: steps.classify.outputs.docs_only != 'true'
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.13.15'
           cache: pip
@@ -88,6 +106,13 @@ jobs:
         if: steps.classify.outputs.docs_only != 'true'
         shell: pwsh
         run: python -m pip install -r requirements-lock.txt --disable-pip-version-check
+
+      - name: Verify ledger append-only history
+        if: github.event_name == 'pull_request'
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ steps.classify.outputs.base_sha }}
+        run: python scripts/verify_ledger_append_only.py --base-ref $env:BASE_SHA
 
       - name: Verify locked environment
         if: steps.classify.outputs.docs_only != 'true'
@@ -115,7 +140,14 @@ jobs:
           MLC_CI: '0'
           PYTHONPATH: ''
         run: |
-          python -m pytest -q --noconftest tests/test_continuity_regressions.py
+          python -m pytest -q --noconftest `
+            tests/test_continuity_regressions.py `
+            tests/test_change_workflow_regressions.py `
+            tests/test_quality_evolution_plan_regressions.py `
+            tests/test_readme_user_guidance_regressions.py `
+            tests/test_release_documentation_regressions.py `
+            tests/test_signpath_readiness_regressions.py `
+            tests/test_video_format_acceptance_plan_regressions.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m json.tool docs/VERIFICATION_LEDGER.json > $null
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

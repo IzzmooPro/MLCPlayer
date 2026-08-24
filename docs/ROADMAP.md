@@ -1,9 +1,12 @@
 # MLC Player yol haritası
 
+> **TARİHSEL SNAPSHOT:** Bu belge güncel yol haritası veya sıradaki iş kaynağı
+> değildir. Güncel durum ve tek sonraki adım yalnız `docs/CONTINUITY.md`,
+> doğrulanmış sonuçlar `docs/VERIFICATION_LEDGER.json` içindedir.
+
 **Snapshot: 20 Ağustos 2026 (`6db8534`)** — v0.37 yayını ve sonraki v0.38
-aday tabanı denetiminin ardından güncellendi. Bu belge her kabul edilen turun
-sonunda yenilenir; buradaki durumlar o tarihteki ölçümleri yansıtır, kalıcı
-gerçek değildir.
+aday tabanı denetiminin ardından güncellendi. Buradaki durumlar yalnız o
+tarihteki ölçümleri yansıtır, kalıcı gerçek değildir.
 
 Durum sözlüğü `docs/ENGINEERING_AUDIT.md` içindedir; aynı kelimeler
 burada da kullanılır. Yayın sırası burada tekrarlanmaz:
@@ -12,7 +15,7 @@ burada da kullanılır. Yayın sırası burada tekrarlanmaz:
 Her maddede dört alan vardır: **Durum**, **Bagimlilik**, **Olcut**
 (tamamlanma ölçütü) ve **kullanıcı onayı** gerekip gerekmediği.
 
-## Su anki asama
+## Snapshot anındaki aşama
 
 v0.37 tag, prepublish, dal/tag push ve GitHub Release adımları tamamlandı;
 final artifact fiziksel kabul matrisi başarılıdır. Bu tarihsel yayın kanıtı

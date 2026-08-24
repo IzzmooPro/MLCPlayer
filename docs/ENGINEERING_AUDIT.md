@@ -1,5 +1,9 @@
 # Mühendislik denetim kaydı
 
+> **TARİHSEL KAYIT:** Bu dosya geçmiş bulguları korur; güncel durum veya
+> sıradaki iş kaynağı değildir. Güncel devir için `docs/CONTINUITY.md`,
+> makinece kanıt için `docs/VERIFICATION_LEDGER.json` kullanılır.
+
 Bulguların kalıcı kaydı. Her kayıt aynı alanları taşır; "iyileşti"
 demek yerine **neyin ölçüldüğü** yazılır.
 
@@ -35,7 +39,9 @@ değişiklik henüz kalıcı değildir.
 - **Test sonucu, değişen dosyalar ve kalan risk zorunlu alanlardır**;
   boş bırakılmaz.
 - Kapatılan risk **silinmez**; kaydı, sonucu ve kapanış kanıtı korunur.
-- `docs/ROADMAP.md` her kabul edilen turun ardından güncellenir.
+- Bu tarihsel kayıt döneminde `docs/ROADMAP.md` kabul edilen turlarla
+  güncelleniyordu; güncel sözleşmede dinamik sıra yalnız
+  `docs/CONTINUITY.md` içindedir.
 - `git status`, dal adı, commit sayısı gibi **dinamik** bilgiler
   tarih/snapshot belirtilmeden kalıcı gerçek olarak yazılmaz.
 

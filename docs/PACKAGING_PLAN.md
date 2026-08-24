@@ -7,10 +7,10 @@
 > boyut ve işaretsiz kutular canlı kaynakla yeniden doğrulanmadan güncel engel
 > sayılmaz.
 
-Bu dosya, uygulamanın özellik ve hata düzeltmeleri tamamlandıktan sonra
-hazırlanacak Windows kurulum paketinin karar kaydıdır. Paketleme aşamasına
-gelindiğinde doğrudan bu belgeye göre çalışılmalı; o günkü kaynak, araç
-sürümleri ve Windows kabul sonuçları yeniden doğrulanmalıdır.
+Bu dosya, Windows kurulum paketinin tarihsel tasarım kararlarını açıklar.
+Paketleme aşamasında gerekçeler buradan okunabilir; yürütme sırası
+`docs/RELEASE_PROCESS.md` üzerinden alınır ve o günkü kaynak, araç sürümleri
+ile Windows kabul sonuçları yeniden doğrulanır.
 
 ## Kesin karar
 
@@ -247,7 +247,7 @@ Bu plan **paketlemeyi** anlatır: neyin nasıl derlendiği, hangi ikililerin
 girdiği, lisans ve boyut ölçümleri.
 
 **Yayın süreci bu belgenin konusu DEĞİLDİR.** Kesin sıra, her adımın
-giriş/çıkış şartı, sekiz varlık sözleşmesi ve hata hâlinde nerede
+giriş/çıkış şartı, dinamik varlık sözleşmesi ve hata hâlinde nerede
 durulacağı tek resmî kaynaktadır:
 
 > **`docs/RELEASE_PROCESS.md`**

@@ -108,6 +108,7 @@ def test_packaging_plan_is_explicitly_historical_not_current_state():
     assert "tarihsel karar" in text
     assert "continuity.md" in text
     assert "release_process.md" in text
+    assert "dogrudan bu belgeye gore calisilmali" not in text
 
 
 # --- 3. Kritik degismezler ozet olarak KORUNUR ------------------------
@@ -154,9 +155,15 @@ def test_final_artifact_process_safety_is_a_pre_tag_gate():
 
 def test_the_dynamic_asset_contract_is_recorded():
     text = fold(read(RELEASE_DOC)).lower()
+    current_agent_contract = fold(read(CLAUDE_DOC)).lower()
 
     assert "dinamik varlik" in text
     assert "corresponding_sources.json" in text
+    assert "dinamik varlik sozlesmesi" in current_agent_contract
+    assert "sekiz varlik sozlesmesi" not in current_agent_contract
+    packaging_contract = fold(read(PACKAGING_DOC)).lower()
+    assert "dinamik varlik sozlesmesi" in packaging_contract
+    assert "sekiz varlik sozlesmesi" not in packaging_contract
     for name in ("MLCPlayer_Setup", "MLCPlayer_InternetVideo",
                  ".sig", "source_mirror"):
         assert name.lower() in text, f"varlik sozlesmesinde eksik: {name}"
@@ -613,7 +620,7 @@ def test_the_roadmap_exists():
 
 
 @pytest.mark.parametrize("section", [
-    "Su anki asama", "Commit oncesi", "Uzak release", "mimari",
+    "Snapshot anindaki asama", "Commit oncesi", "Uzak release", "mimari",
     "Performans", "CI", "kabul matrisi", "rehearsal", "release-ready",
 ])
 def test_the_roadmap_covers_every_required_section(section):

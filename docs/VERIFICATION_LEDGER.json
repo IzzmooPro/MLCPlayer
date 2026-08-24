@@ -3291,6 +3291,61 @@
         "No product code, Windows setting, media acquisition or generation, native run, build, installation, signing, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit this documentation and regression realignment package; push, PR and merge remain separately approved actions."
+    },
+    {
+      "id": "EV-20260824-029",
+      "recorded_at_utc": "2026-08-24T20:57:02Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "4e9609985ce125a973d6073af37017f32203082c",
+      "subject": "Independent re-audit, ledger correction and repository guard hardening",
+      "corrects": [
+        {
+          "entry_id": "EV-20260822-017",
+          "field": "commit",
+          "incorrect": "770101fa5bf2ae58e7641befbb0e0c029c36ab17",
+          "corrected": "770101fbda976e7202871fe7499a83d6042fcd89"
+        },
+        {
+          "entry_id": "EV-20260822-018",
+          "field": "commit",
+          "incorrect": "770101fa5bf2ae58e7641befbb0e0c029c36ab17",
+          "corrected": "770101fbda976e7202871fe7499a83d6042fcd89"
+        },
+        {
+          "entry_id": "EV-20260822-019",
+          "field": "commit",
+          "incorrect": "770101fa5bf2ae58e7641befbb0e0c029c36ab17",
+          "corrected": "770101fbda976e7202871fe7499a83d6042fcd89"
+        },
+        {
+          "entry_id": "EV-20260822-020",
+          "field": "commit",
+          "incorrect": "770101fa5bf2ae58e7641befbb0e0c029c36ab17",
+          "corrected": "770101fbda976e7202871fe7499a83d6042fcd89"
+        }
+      ],
+      "evidence": [
+        "the separately approved first reorientation package was committed as 4e9609985ce125a973d6073af37017f32203082c on codex/docs-reorientation-audit; the branch remained unpushed and one commit ahead of origin/master",
+        "three independent read-only audits rechecked all Markdown roles, workflow and hook enforcement, ledger/continuity/Windows/video-format links and reported concrete file-and-line findings without editing shared files",
+        "git cat-file rejected 770101fa5bf2ae58e7641befbb0e0c029c36ab17 for EV-20260822-017/018/019/020; the actual commit 770101fbda976e7202871fe7499a83d6042fcd89 exists, is an ancestor of HEAD and has subject docs: record documentation CI isolation acceptance",
+        "the four old ledger entries were preserved byte-for-byte; this later record carries their machine-readable commit-field corrections",
+        "documentation regressions first produced 5 failed and 219 passed for historical-role, Windows-summary, packaging-guidance, dynamic-asset and video-evidence-link drift",
+        "agent, CI, correction and manual-workflow regressions first produced 21 failed and 16 passed before the missing protections were implemented",
+        "the new append-only verifier accepts a pure append and rejects deletion, rewrite, insertion and schema replacement; a live comparison against base b1ec84f returned LEDGER_APPEND_ONLY_OK",
+        "manual CI/build/registry workflows now require an explicit expected_sha and fail closed unless dispatch ref is refs/heads/master and github.sha matches; required CI checkout/setup actions are pinned to reviewed commit SHAs",
+        "the Git guard now recognizes git.exe, case variants, global -C/options, clean and destructive switch flags while leaving status, commit and safe branch creation available; the session hook reports repo root, status, HEAD, origin divergence, latest evidence and the single continuation step",
+        "the final implemented guard and cross-document target package completed with 285 passed; the exact docs-only CI command completed with 245 passed",
+        "command: python -m pytest -q tests -> 4885 passed, 19 skipped and 0 failed in 93.95 seconds; the skipped tests remain opt-in or environment-limited and are not PASS"
+      ],
+      "summary": "A second independent audit corrected four historical commit-field typos without rewriting evidence and added fail-closed protections for ledger history, documentation CI, destructive Git commands, manual workflow refs and stale documentation roles.",
+      "limitations": [
+        "This is repository-process, documentation and deterministic-test evidence; it does not run native media, prove HDR output or change product behavior.",
+        "Manual workflows were source-validated only and were not dispatched; build, registry publication and release behavior remain unexecuted in this turn.",
+        "PyYAML, Ruby YAML and actionlint were unavailable locally, so no independent local workflow parser result is claimed; actual GitHub Actions parsing and the required hosted check remain pending after separately approved push and PR.",
+        "No push, PR, merge, Windows setting, media acquisition, build, installation, signing, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this second audit and guard-hardening package; only after that commit may push, PR and merge be requested separately."
     }
   ]
 }

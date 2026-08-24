@@ -2,6 +2,11 @@ name: Build unsigned main installer
 
 on:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact approved origin/master commit SHA
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -21,6 +26,18 @@ jobs:
       MLC_HOSTED_UNSIGNED_BUILD: '1'
       GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Verify exact master dispatch
+        shell: pwsh
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          if ("${{ github.ref }}" -ne "refs/heads/master") {
+            throw "Build must run on refs/heads/master"
+          }
+          if ("${{ github.sha }}" -ne $env:EXPECTED_SHA) {
+            throw "Build SHA does not match expected_sha"
+          }
+
       - name: Check out the exact build source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:

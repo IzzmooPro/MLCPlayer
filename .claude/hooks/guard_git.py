@@ -15,11 +15,35 @@ import json
 import re
 import sys
 
-BLOCKED = ("stash", "reset", "checkout", "restore")
+BLOCKED = ("stash", "reset", "checkout", "restore", "clean")
+VALUE = r'(?:"[^"]*"|\'[^\']*\'|\S+)'
+GLOBAL_OPTION = (
+    r"(?:-c\s+" + VALUE +
+    r"|-C\s+" + VALUE +
+    r"|--(?:git-dir|work-tree|namespace|super-prefix|config-env)"
+    r"(?:=" + VALUE + r"|\s+" + VALUE + r")"
+    r"|--[A-Za-z][\w-]*(?:=" + VALUE + r")?"
+    r"|-[pP])"
+)
+COMMAND = re.compile(
+    r"\bgit(?:\.exe)?\b(?:\s+" + GLOBAL_OPTION + r")*\s+"
+    r"(?P<verb>" + "|".join(BLOCKED) + r"|switch)\b"
+    r"(?P<tail>[^;&|\r\n]*)",
+    re.IGNORECASE,
+)
 
-# `git`, sonra istege bagli `-c k=v` ciftleri, sonra ALT KOMUT.
-PATTERN = re.compile(
-    r"\bgit\b(?:\s+-c\s+\S+)*\s+(" + "|".join(BLOCKED) + r")\b")
+
+def blocked_action(command):
+    """Return the destructive Git action embedded in *command*, if any."""
+    for match in COMMAND.finditer(command):
+        verb = match.group("verb").lower()
+        if verb in BLOCKED:
+            return verb
+        tail = match.group("tail")
+        if re.search(r"(?:^|\s)(?:-f|--force|--discard-changes)(?:\s|$)",
+                     tail, re.IGNORECASE):
+            return "switch --discard-changes"
+    return None
 
 
 def main():
@@ -28,10 +52,9 @@ def main():
     except Exception:
         return 0
     command = (payload.get("tool_input") or {}).get("command") or ""
-    match = PATTERN.search(command)
-    if not match:
+    verb = blocked_action(command)
+    if not verb:
         return 0
-    verb = match.group(1)
     reason = (
         f"ENGELLENDI: `git {verb}` calisma agacindaki degisiklikleri geri "
         "alabilir.\n"
