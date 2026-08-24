@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `227550d3cbefe62756a8fd764a1b4bc2b03f5237`
+- Kayıt hazırlanırken doğrulanan HEAD: `b68a3c79dc59bd1d3d2fcb7c6db2097a522b6b19`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-006`
+- Son kanıt: `EV-20260824-008`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -771,17 +771,31 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    süreç temizliği doğrulandı (`EV-20260824-006`). İki playlist yolu aynı
    medya baytlarına aittir; timeline, native resize/fullscreen grupları ve
    P0-03/P0-07'nin daha geniş kabulü tamamlanmış sayılmaz. Ürün kodu değişmedi.
+120. Buttons kanıt paketi PR #27'nin exact `afde6fc` head'inde zorunlu belge
+   kontrolünden **7 passed / 0 failed** ile geçti. Ayrı onayla iki ebeveynli
+   `b68a3c7` merge commit'i üzerinden master'a alındı (`EV-20260824-007`).
+   Belge sınıflaması tam ürün paketini bilerek çalıştırmadı; bu hosted sonuç
+   native kanıtı genişletmez.
+121. Ayrı onaylı yalnız `timeline` koşumu exact `b68a3c7`, aynı doğrulanmış
+   MP4/DLL ile ilk denemede **148,6 saniye / exit 0 / 58 PASS / 0 FAIL / 0
+   BLOCKED / MARK_DONE** verdi. Kapalı playlist, açık playlist ve tam ekran
+   fazlarında 10/25/50/75/90 yüzde tıklamaları, üst/alt hit bantları, hızlı ve
+   yavaş sürükleme ile dışarı sürükleme temizliği geçti. Kapanış
+   `stop -> terminate`, imleç geri dönüşü ve sıfır süreç sızıntısı doğrulandı
+   (`EV-20260824-008`). Timeline fiziksel seek'i kanıtlar; aynı exact committe
+   pause/resume koşulunu tek başına ölçmediği için `WIN-P0-04` henüz
+   yükseltilmedi. Ürün kodu değişmedi.
 
 ## Sıradaki tek adım
 
-`EV-20260824-005` ve `EV-20260824-006` kayıt paketini commit etmek için ayrı
+`EV-20260824-007` ve `EV-20260824-008` kayıt paketini commit etmek için ayrı
 açık onay al. Native testi tekrar çalıştırma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Kayıt merge edildikten sonra yalnız `timeline` grubu için ayrı native onay
-   al; `window_resize` ve `fullscreen` aynı onaya dahil değildir.
+2. Kayıt merge edildikten sonra yalnız `window_resize` grubu için ayrı native
+   onay al; `fullscreen` aynı onaya dahil değildir.
 3. Kalan açık boşluklar için dar runner veya kayıtlı manuel kabul kararını ver.
 4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.

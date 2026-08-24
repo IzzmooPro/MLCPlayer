@@ -2763,6 +2763,55 @@
         "No product source, build, installation, signing, tag or release changed."
       ],
       "next_action": "Commit this evidence record with separate approval, then use separate push, PR and merge approvals; after merge request separate native approval for the timeline group only."
+    },
+    {
+      "id": "EV-20260824-007",
+      "recorded_at_utc": "2026-08-24T18:23:43Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "afde6fc156223526ab62024b0bb70b98d9dd6455",
+      "subject": "Protected PR acceptance for the bounded physical buttons PASS record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/27",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32761223037",
+        "the documentation-only pull_request run completed on exact head afde6fc156223526ab62024b0bb70b98d9dd6455 with required test check success: 7 passed and 0 failed",
+        "PR #27 was read back CLEAN and MERGEABLE before the separately approved merge",
+        "the separately approved merge produced two-parent commit b68a3c79dc59bd1d3d2fcb7c6db2097a522b6b19 from parents 227550d3cbefe62756a8fd764a1b4bc2b03f5237 and afde6fc156223526ab62024b0bb70b98d9dd6455",
+        "origin/master was read back at the exact merge commit and the remote task branch was preserved"
+      ],
+      "summary": "The EV-20260824-006 buttons PASS record passed the protected documentation PR check and was merged through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS does not independently rerun or expand the physical Windows result.",
+        "The documentation-only classification intentionally skipped the full product test suite; only the required documentation check ran.",
+        "No native run, product change, build, installation, signing, tag or release occurred as part of this hosted result."
+      ],
+      "next_action": "Request separate approval for the timeline native group only on the exact merged master commit."
+    },
+    {
+      "id": "EV-20260824-008",
+      "recorded_at_utc": "2026-08-24T18:23:44Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "b68a3c79dc59bd1d3d2fcb7c6db2097a522b6b19",
+      "subject": "Bounded physical timeline seek and drag acceptance",
+      "evidence": [
+        "the separately approved timeline-only run began on clean master exactly equal to origin/master two-parent merge commit b68a3c79dc59bd1d3d2fcb7c6db2097a522b6b19 with no active MLC Player, python or pythonw process",
+        "the private MP4 was 345752445 bytes with SHA-256 c3e53407690d6738a09b74655dd81296c8637015d835cf503ebc54787b6834a9 and mpv-2.dll was 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e before and after the run",
+        "command: isolated TEMP/settings, MLC_NATIVE_SMOKE=1 and MLC_NATIVE_TEST_VIDEO=<same private local MP4> followed by python tests/run_physical_acceptance.py timeline",
+        "the first and only native attempt completed in 148.6 seconds with exit 0, MARK_DONE, 58 PASS, 0 FAIL, 0 BLOCKED and no timeout",
+        "closed playlist, open playlist and fullscreen phases each passed physical SendInput clicks at 10, 25, 50, 75 and 90 percent on the slider and on its above/below hit bands; slider value error was 0 and measured time error was 0.40 to 0.46 seconds within the 5.07-second tolerance",
+        "fast and slow physical drags passed in all three phases with value error 0 and measured time error 1.43 to 1.49 seconds; drag-out cleanup left down=False and the follow-up click worked",
+        "each phase ended with a clean timeline state; the product shutdown path passed with exactly one stop and one terminate in stop->terminate order, accepted close, released mpv_player and restored cursor",
+        "two QThreadStorage teardown warnings appeared only after MARK_DONE; there was no Python exception, access violation, behavior failure or remaining MLC Player, python or pythonw process",
+        "post-run media/runtime hashes were unchanged and source status remained clean and exactly equal to origin/master"
+      ],
+      "summary": "The timeline group passed once with real SendInput click/drag seek across closed, open-playlist and fullscreen phases, bounded completion, canonical shutdown and no process leak.",
+      "limitations": [
+        "This native_smoke PASS belongs only to the exact commit, DLL, media fingerprint, one Windows display environment and timeline scenario; it is not installed-artifact evidence.",
+        "Timeline proves physical seek and cleanup but does not itself prove pause/resume; the prior buttons PASS belongs to the earlier exact commit 227550d, so WIN-P0-04 is not promoted by combining evidence across commits.",
+        "Window resize and dedicated fullscreen groups were not run, WIN-P0-05 remains NOT_RUN, and no product source, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Commit this evidence record with separate approval, then use separate push, PR and merge approvals; after merge request separate native approval for the window_resize group only."
     }
   ]
 }

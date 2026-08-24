@@ -242,6 +242,18 @@ timeline ile seek, native resize/fullscreen grup ölçümü, gerçek çoklu par�
 değişimi ve birbirinden ayırt edilebilir üç videolu yeniden sıralama hâlâ
 ayrıdır.
 
+Exact iki ebeveynli master `b68a3c7` üzerinde ayrı onaylı yalnız `timeline`
+grubu `EV-20260824-008` olarak ilk denemede **PASS** verdi: 148,6 saniye, exit
+`0`, `MARK_DONE`, **58 PASS / 0 FAIL / 0 BLOCKED**, kanonik
+`stop -> terminate` ve sıfır süreç sızıntısı. Kapalı playlist, açık playlist
+ve tam ekran fazlarında fiziksel 10/25/50/75/90 yüzde tıklamaları, üst/alt hit
+bantları, hızlı/yavaş sürükleme ve dışarı sürükleme temizliği geçti. Değer
+hatası sıfır; tıklama zaman hatası 0,40–0,46 saniye, sürükleme zaman hatası
+1,43–1,49 saniye ve 5,07 saniyelik kabul sınırı içindedir. Bu sonuç fiziksel
+seek'i kanıtlar; aynı exact committe pause/resume ölçümü olmadığı için
+`WIN-P0-04` durumu **NOT_RUN** olarak korunur. `window_resize` ve dedicated
+`fullscreen` grupları çalışmadığından `WIN-P0-05` de **NOT_RUN** kalır.
+
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 
 ## P1 — Ortam ve dayanıklılık
