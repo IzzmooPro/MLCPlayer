@@ -46,19 +46,20 @@ def test_media_candidates_are_fail_closed_and_cover_every_case():
     matrix = payload()
     media = media_payload()
     assert media["schema_version"] == 1
-    assert media["status"] == "candidate_only"
-    assert media["fingerprinted_state_enabled"] is False
-    assert media["acquisition_or_generation_performed"] is False
+    assert media["status"] == "partially_fingerprinted"
+    assert media["fingerprinted_state_enabled"] is True
+    assert media["acquisition_or_generation_performed"] is True
     assert media["native_media_opened"] is False
     assert matrix["media_policy"]["manifest_document"] == (
         "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json")
-    assert matrix["media_policy"]["manifest_status"] == "candidate_only"
+    assert matrix["media_policy"]["manifest_status"] == (
+        "partially_fingerprinted")
     assert matrix["media_policy"]["manifest_evidence_id"] == (
-        "EV-20260824-032")
+        "EV-20260824-041")
     ledger_ids = {
         entry["id"] for entry in json.loads(read(LEDGER))["entries"]}
     assert matrix["media_policy"]["manifest_evidence_id"] in ledger_ids
-    assert matrix["media_policy"]["acquisition_or_generation_performed"] is False
+    assert matrix["media_policy"]["acquisition_or_generation_performed"] is True
 
     source_ids = {item["id"] for item in media["sources"]}
     candidates = {item["id"]: item for item in media["candidates"]}
@@ -70,16 +71,24 @@ def test_media_candidates_are_fail_closed_and_cover_every_case():
         assert all(case_id in candidates[item_id]["intended_cases"]
                    for item_id in candidate_ids)
 
-    for candidate in candidates.values():
-        assert candidate["state"] == "candidate_only"
+    for candidate_id, candidate in candidates.items():
         assert candidate["source_id"] in source_ids
         assert candidate["intended_cases"]
-        assert candidate["exact_object_locator"] is None
-        assert candidate["local_identity"] is None
-        assert candidate["blocker"]
-        if candidate["kind"].startswith("synthetic") or (
-                candidate["kind"] == "derived_synthetic"):
-            assert candidate["generation_identity"] is None
+        if candidate_id == "SYN-SDR709-01":
+            assert candidate["state"] == "fingerprinted"
+            assert candidate["exact_object_locator"] == (
+                "private-local:SYN-SDR709-01")
+            assert candidate["local_identity"]
+            assert candidate["generation_identity"]
+            assert candidate["blocker"] is None
+        else:
+            assert candidate["state"] == "candidate_only"
+            assert candidate["exact_object_locator"] is None
+            assert candidate["local_identity"] is None
+            assert candidate["blocker"]
+            if candidate["kind"].startswith("synthetic") or (
+                    candidate["kind"] == "derived_synthetic"):
+                assert candidate["generation_identity"] is None
     reverse = {candidate_id: set() for candidate_id in candidates}
     for case_id, candidate_ids in media["case_bindings"].items():
         for candidate_id in candidate_ids:

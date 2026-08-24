@@ -1,9 +1,50 @@
 {
   "schema_version": 1,
   "updated": "2026-08-25",
-  "status": "candidate_only",
-  "fingerprinted_state_enabled": false,
-  "acquisition_or_generation_performed": false,
+  "status": "partially_fingerprinted",
+  "fingerprinted_state_enabled": true,
+  "fingerprint_validator": {
+    "implementation": "scripts/verify_video_format_media.py",
+    "supported_candidate_ids": ["SYN-SDR709-01"],
+    "canonical_cli_manifest_only": true,
+    "windows_inputs_locked_against_write_and_delete_during_validation": true,
+    "active_stdout_and_stderr_limit_bytes_per_stream": 8388608,
+    "tool_timeout_seconds": {
+      "version": 15,
+      "ffprobe": 30,
+      "generation": 90
+    },
+    "approved_distribution": {
+      "provider": "Gyan Doshi Windows builds linked by the official FFmpeg download page",
+      "ffmpeg_release": "9.0.1",
+      "package_name": "ffmpeg-release-essentials.zip",
+      "package_url": "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip",
+      "checksum_url": "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip.sha256",
+      "package_size": 111253802,
+      "package_sha256": "fec81ae03971d9dd4be3ebe02e263bd2ec1d789483f931bdba5f5715e65da2e9",
+      "source_commit_url": "https://github.com/FFmpeg/FFmpeg/commit/bf1b838f2a",
+      "archive_authenticode_applicable": false,
+      "executable_authenticode_status": "NotSigned",
+      "license": "GPLv3"
+    },
+    "approved_tools": {
+      "generator": {
+        "file_name": "ffmpeg.exe",
+        "file_size": 102856192,
+        "sha256": "72a489eccd008c2ec2c0a5856c5c75bc3d8bbfa90166c4566865c246445e6aa3",
+        "version": "ffmpeg version 9.0.1-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers"
+      },
+      "ffprobe": {
+        "file_name": "ffprobe.exe",
+        "file_size": 102652416,
+        "sha256": "19202b23c0043f15ad1b7bce2344f406fd52bd6efd8f995ce02e7392a1cec52f",
+        "version": "ffprobe version 9.0.1-essentials_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers"
+      }
+    },
+    "live_tool_validation_completed": true,
+    "activation_blocker": null
+  },
+  "acquisition_or_generation_performed": true,
   "native_media_opened": false,
   "privacy_policy": {
     "publish_local_paths": false,
@@ -12,7 +53,7 @@
   },
   "state_contract": {
     "candidate_only": "Source and use basis are recorded, but no exact object or generated output has been fingerprinted.",
-    "fingerprinted": "Reserved until an executable local-byte and ffprobe recalculation validator exists; exact bytes, probe evidence and provenance must then pass it.",
+    "fingerprinted": "An exact private identity record exists. It can enter an acceptance workflow only when global fingerprint activation, approved tool identities, canonical CLI regeneration and live ffprobe evidence all pass.",
     "rejected": "The candidate failed a source, license, identity or technical suitability gate and cannot enter native testing."
   },
   "fingerprinted_requirements": [
@@ -173,15 +214,120 @@
     {
       "id": "SYN-SDR709-01",
       "kind": "synthetic_recipe",
-      "state": "candidate_only",
+      "state": "fingerprinted",
       "source_id": "mlc_project_generated_fixture",
       "intended_cases": ["VF-CORE-01", "VF-CORE-02", "VF-DISPLAY-01"],
-      "planned_identity": "Short H.264 8-bit BT.709 SDR ramp, reference-white patches and bounded motion.",
+      "planned_identity": "Short H.264 8-bit BT.709 SDR structural test pattern with fixed black, gray and white patches plus bounded motion.",
       "recipe_reference_ids": ["ffmpeg_official_filters"],
-      "exact_object_locator": null,
-      "local_identity": null,
-      "generation_identity": null,
-      "blocker": "Generation has not been separately approved; exact command, FFmpeg identity, bytes and probe do not exist."
+      "validation_contract": {
+        "generator_argv": [
+          "-y",
+          "-f", "lavfi",
+          "-i", "testsrc2=size=640x360:rate=30:duration=3",
+          "-vf", "setparams=range=tv:color_primaries=bt709:color_trc=bt709:colorspace=bt709,drawbox=x=0:y=0:w=80:h=80:color=black:t=fill,drawbox=x=80:y=0:w=80:h=80:color=gray:t=fill,drawbox=x=160:y=0:w=80:h=80:color=white:t=fill",
+          "-an",
+          "-c:v", "libx264",
+          "-preset", "veryslow",
+          "-crf", "18",
+          "-pix_fmt", "yuv420p",
+          "-color_range", "tv",
+          "-colorspace", "bt709",
+          "-color_trc", "bt709",
+          "-color_primaries", "bt709",
+          "-r", "30",
+          "-threads", "1",
+          "-fflags", "+bitexact",
+          "-flags:v", "+bitexact",
+          "-map_metadata", "-1",
+          "-metadata", "creation_time=1970-01-01T00:00:00Z",
+          "-movflags", "+faststart",
+          "$OUTPUT"
+        ],
+        "expected_claims": {
+          "codec_name": "h264",
+          "profile": "High",
+          "codec_tag_string": "avc1",
+          "bit_depth": 8,
+          "pix_fmt": "yuv420p",
+          "color_range": "tv",
+          "color_space": "bt709",
+          "color_transfer": "bt709",
+          "color_primaries": "bt709",
+          "width": 640,
+          "height": 360,
+          "r_frame_rate": "30/1",
+          "avg_frame_rate": "30/1",
+          "duration": "3.000000",
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2"
+        }
+      },
+      "exact_object_locator": "private-local:SYN-SDR709-01",
+      "local_identity": {
+        "exact_object_locator": "private-local:SYN-SDR709-01",
+        "file_size": 374394,
+        "sha256": "af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b",
+        "ffprobe_binary_sha256": "19202b23c0043f15ad1b7bce2344f406fd52bd6efd8f995ce02e7392a1cec52f",
+        "ffprobe_version": "ffprobe version 9.0.1-essentials_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers",
+        "ffprobe_argv": [
+          "-v", "error",
+          "-show_format",
+          "-show_streams",
+          "-show_frames",
+          "-select_streams", "v:0",
+          "-of", "json",
+          "$MEDIA"
+        ],
+        "normalized_ffprobe_json_sha256": "ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "normalized_ffprobe_json_artifact": "private:SYN-SDR709-01.ffprobe.json",
+        "selected_video_stream": 0,
+        "verified_claims": {
+          "codec_name": "h264",
+          "profile": "High",
+          "codec_tag_string": "avc1",
+          "bit_depth": 8,
+          "pix_fmt": "yuv420p",
+          "color_range": "tv",
+          "color_space": "bt709",
+          "color_transfer": "bt709",
+          "color_primaries": "bt709",
+          "width": 640,
+          "height": 360,
+          "r_frame_rate": "30/1",
+          "avg_frame_rate": "30/1",
+          "duration": "3.000000",
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2"
+        }
+      },
+      "generation_identity": {
+        "generator_binary_sha256": "72a489eccd008c2ec2c0a5856c5c75bc3d8bbfa90166c4566865c246445e6aa3",
+        "generator_version": "ffmpeg version 9.0.1-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+        "generator_argv": [
+          "-y",
+          "-f", "lavfi",
+          "-i", "testsrc2=size=640x360:rate=30:duration=3",
+          "-vf", "setparams=range=tv:color_primaries=bt709:color_trc=bt709:colorspace=bt709,drawbox=x=0:y=0:w=80:h=80:color=black:t=fill,drawbox=x=80:y=0:w=80:h=80:color=gray:t=fill,drawbox=x=160:y=0:w=80:h=80:color=white:t=fill",
+          "-an",
+          "-c:v", "libx264",
+          "-preset", "veryslow",
+          "-crf", "18",
+          "-pix_fmt", "yuv420p",
+          "-color_range", "tv",
+          "-colorspace", "bt709",
+          "-color_trc", "bt709",
+          "-color_primaries", "bt709",
+          "-r", "30",
+          "-threads", "1",
+          "-fflags", "+bitexact",
+          "-flags:v", "+bitexact",
+          "-map_metadata", "-1",
+          "-metadata", "creation_time=1970-01-01T00:00:00Z",
+          "-movflags", "+faststart",
+          "$OUTPUT"
+        ],
+        "input_and_sidecar_sha256": [],
+        "canonical_recipe_sha256": "591843ace3e01260c699d06fa0d023f6b737c2ec2b58e36020932751e0266446"
+      },
+      "blocker": null
     },
     {
       "id": "NFLX-SOL-HDR10-01",
@@ -377,5 +523,5 @@
       "sidecars_all_of": ["SYN-OVERLAY-SRT-01", "SYN-OVERLAY-ASS-01"]
     }
   },
-  "next_action": "After this manifest package passes the protected merge workflow, request separate approval to implement the test-only executable fingerprint validator and generate only SYN-SDR709-01; do not start HDR or native playback in the same approval."
+  "next_action": "Request separate approval to push the committed codex/sdr-fixture-fingerprint task branch; do not add private artifacts or start native playback."
 }

@@ -3449,6 +3449,208 @@
         "No product code, Windows setting, build, installation, signing, tag or release changed."
       ],
       "next_action": "Request separate approval to commit this hosted merge record; after its protected merge, request separate approval for the test-only executable fingerprint validator and SYN-SDR709-01 generation only."
+    },
+    {
+      "id": "EV-20260824-034",
+      "recorded_at_utc": "2026-08-24T21:54:48Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "ade01505811ebb48c5e0fc4c219809817f4fb3fe",
+      "subject": "Protected PR acceptance for the PR 40 merge record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/41",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32781823560",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32781823560/job/97605345643",
+        "the required test check completed SUCCESS on exact head 79219ff6a2f671d2f063f74e49b5cace62af164f with 247 documentation tests passed",
+        "the hosted append-only step printed LEDGER_APPEND_ONLY_OK",
+        "the separately approved merge produced two-parent commit ade01505811ebb48c5e0fc4c219809817f4fb3fe from parents 93d49ac5b5e089dedff7f4a167952026e163f3f8 and 79219ff6a2f671d2f063f74e49b5cace62af164f"
+      ],
+      "summary": "The PR 40 hosted result and merge record passed the protected PR gate and entered master through a verified two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci result validates only the documentation record and protected workflow; it does not acquire, generate or open media and does not prove native or HDR output.",
+        "No product code, Windows setting, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Implement the separately approved test-only executable fingerprint validator and attempt only SYN-SDR709-01 generation after exact ffmpeg and ffprobe tool identities are approved."
+    },
+    {
+      "id": "EV-20260824-035",
+      "recorded_at_utc": "2026-08-24T22:11:47Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "ade01505811ebb48c5e0fc4c219809817f4fb3fe",
+      "subject": "Fail-closed executable fingerprint validator for SYN-SDR709-01",
+      "evidence": [
+        "scripts/verify_video_format_media.py requires the canonical manifest to enable fingerprinted state and live tool validation before it accepts any record",
+        "the manifest contract independently anchors candidate, source, use basis, exact generator argv, complete SDR claims and approved ffmpeg and ffprobe SHA-256 and version identities",
+        "the official CLI trusts only the canonical repository manifest; the validator resolves regular non-reparse inputs to absolute paths and on Windows holds them open without write/delete sharing throughout validation",
+        "subprocess time and per-stream output are actively bounded, timeout cleanup targets the Windows process tree, strict UTF-8 and an ffprobe field allowlist prevent raw tool stderr or local metadata paths from entering evidence",
+        "real Windows regressions confirmed write, delete and rename denial for media, ffprobe, generator and probe artifact locks and zero surviving spawned child after timeout tree cleanup",
+        "Windows handle readback requires a disk file, rejects reparse attributes and captures the volume plus file-index identity while the file remains locked",
+        "the validator compares stored and live ffprobe output, reruns the exact generation recipe in a private temporary directory and requires byte-identical output",
+        "media and tool SHA-256 identities are measured before use and again after probe and regeneration; opaque labels cannot contain local or UNC paths",
+        "regression-first coverage includes disabled activation, self-consistent recipe and tool forgery, private-path leakage, probe drift, media mutation, regeneration mismatch and exact codec/profile/container/size/rate/duration/colour claims",
+        "command: python -m pytest -q tests/test_video_format_media_fingerprint_regressions.py -> 43 passed",
+        "command: python -m py_compile scripts/verify_video_format_media.py -> exit 0",
+        "git diff --check -> clean"
+      ],
+      "summary": "A test-only executable validator now fails closed unless trusted manifest, tool, recipe, regenerated-byte and live-probe identities all agree for SYN-SDR709-01.",
+      "limitations": [
+        "This deterministic PASS validates code and synthetic regression doubles only; no real ffmpeg, ffprobe or media output was executed.",
+        "The committed manifest deliberately keeps fingerprinted_state_enabled and live_tool_validation_completed false and contains no approved tool hashes until exact binaries are acquired and reviewed.",
+        "Windows timeout cleanup uses bounded absolute taskkill tree termination rather than a Job Object; the exact approved tools must complete with explicit zero-process-leak readback before activation.",
+        "The validator does not prove native playback, visual quality, HDR output, installed-artifact behavior or any of the 16 format scenarios.",
+        "No product code, native run, Windows setting, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Request separate approval to acquire an exact trusted FFmpeg distribution containing ffmpeg and ffprobe; then record provenance, hashes and versions before generating only SYN-SDR709-01."
+    },
+    {
+      "id": "EV-20260824-036",
+      "recorded_at_utc": "2026-08-24T22:11:48Z",
+      "proof_layer": "deterministic",
+      "result": "blocked",
+      "commit": "ade01505811ebb48c5e0fc4c219809817f4fb3fe",
+      "subject": "SYN-SDR709-01 generation preflight",
+      "evidence": [
+        "PowerShell Get-Command ffmpeg returned NOT_FOUND",
+        "PowerShell Get-Command ffprobe returned NOT_FOUND",
+        "no tool was downloaded, installed or executed because acquisition requires separate explicit approval"
+      ],
+      "summary": "The approved SDR-only generation cannot start safely because this checkout has no approved local ffmpeg or ffprobe binaries.",
+      "limitations": [
+        "BLOCKED is not PASS: SYN-SDR709-01 was not generated, probed, fingerprinted, opened or visually assessed.",
+        "fingerprinted_state_enabled remains false, live_tool_validation_completed remains false and all 16 video-format scenarios remain BLOCKED.",
+        "No HDR media, native player, competitor player, product code or Windows setting was touched."
+      ],
+      "next_action": "Ask for separate explicit approval to acquire an exact trusted FFmpeg distribution and perform read-only provenance, version and SHA-256 verification before any SDR generation."
+    },
+    {
+      "id": "EV-20260824-037",
+      "recorded_at_utc": "2026-08-24T22:24:30Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "ade01505811ebb48c5e0fc4c219809817f4fb3fe",
+      "subject": "Approved portable FFmpeg 9.0.1 acquisition and executable identity",
+      "evidence": [
+        "https://ffmpeg.org/download.html links Gyan Doshi as a Windows executable build provider",
+        "https://www.gyan.dev/ffmpeg/builds/ identified release essentials 9.0.1, its source commit, GPLv3 license, package checksum and included ffmpeg plus ffprobe tools",
+        "ffmpeg-release-essentials.zip was 111253802 bytes and its calculated SHA-256 fec81ae03971d9dd4be3ebe02e263bd2ec1d789483f931bdba5f5715e65da2e9 exactly matched the separately downloaded provider checksum",
+        "the ZIP contained 49 entries under one ffmpeg-9.0.1-essentials_build root and zero absolute, parent-traversal or otherwise unsafe entry paths",
+        "ffmpeg.exe was 102856192 bytes with SHA-256 72a489eccd008c2ec2c0a5856c5c75bc3d8bbfa90166c4566865c246445e6aa3",
+        "ffprobe.exe was 102652416 bytes with SHA-256 19202b23c0043f15ad1b7bce2344f406fd52bd6efd8f995ce02e7392a1cec52f",
+        "first-line versions were ffmpeg and ffprobe 9.0.1-essentials_build-www.gyan.dev; libx264, testsrc2 and drawbox capability probes passed",
+        "the portable package was extracted only to a private tool cache; it was not installed and PATH or Windows settings were not changed"
+      ],
+      "summary": "A checksum-matched portable FFmpeg 9.0.1 release essentials package now supplies exact approved ffmpeg and ffprobe identities for the isolated SDR fixture workflow.",
+      "limitations": [
+        "FFmpeg.org supplies source and links this Windows build provider; the downloaded executables are third-party builds rather than binaries signed or distributed directly by FFmpeg.org.",
+        "The two executables report Authenticode NotSigned; trust is bounded to the independently published whole-package SHA-256, HTTPS provider path, exact extracted hashes and recorded source commit.",
+        "This deterministic acquisition PASS does not prove generated media, native MLC Player behavior, HDR output or installed-artifact behavior."
+      ],
+      "next_action": "Generate only SYN-SDR709-01 once with the exact manifest recipe, then require live ffprobe and regenerated-byte equality before activation."
+    },
+    {
+      "id": "EV-20260824-038",
+      "recorded_at_utc": "2026-08-24T22:25:32Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "ade01505811ebb48c5e0fc4c219809817f4fb3fe",
+      "subject": "First SYN-SDR709-01 generation and exact ffprobe contract",
+      "evidence": [
+        "the one approved generation used exact recipe SHA-256 f92f5c7ec502806fd994351708fb58477da68976469b4000835bf32dbd4459f4 with the approved ffmpeg.exe and no external inputs or sidecars",
+        "generation completed exit 0 with zero ffmpeg or ffprobe processes before and after and produced 382034 bytes with SHA-256 6d15c4c1cb0143b717be6596dae2a39f5f9256804cf82d46a9d966435a3324bd",
+        "the exact ffprobe argv completed exit 0 with zero process leakage, 90 video frames and format size 382034",
+        "normalized private ffprobe evidence was 3946 bytes with SHA-256 ef1f3b256ee70c0dad6f1ac49a18bc9af4213fddc2ff8c2773766034b454c781",
+        "H.264 High, avc1, 8-bit yuv420p, tv range, bt709 matrix, 640x360, 30/1 rates, 3.000000 seconds and MP4 container matched the contract",
+        "color_primaries and color_transfer were absent; the generation log independently showed yuv420p(tv, bt709/unknown/unknown) at the libx264 output",
+        "official FFmpeg setparams documentation and local FFmpeg 9.0.1 filter help identify color_primaries, color_trc, colorspace and range as frame properties that can be forced before encoding"
+      ],
+      "summary": "The first generated SDR object is rejected because its H.264 stream omitted BT.709 primaries and transfer signalling even though the other structural claims passed.",
+      "limitations": [
+        "FAILED is not PASS: the media remains private rejected evidence and must not be fingerprinted, opened in MLC Player, committed or reused for format acceptance.",
+        "No automatic retry occurred after the mismatch; only logs, exact probe output, tool help and official documentation were inspected.",
+        "The manifest remains candidate_only with fingerprinted_state_enabled and live_tool_validation_completed false; all 16 video-format scenarios remain BLOCKED.",
+        "No HDR media, native player, competitor player, product code or Windows setting was touched."
+      ],
+      "next_action": "Request separate approval for one retry using a corrected recipe that applies the official setparams frame metadata before libx264 encoding."
+    },
+    {
+      "id": "EV-20260824-039",
+      "recorded_at_utc": "2026-08-24T22:30:47Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "ade01505811ebb48c5e0fc4c219809817f4fb3fe",
+      "subject": "Corrected SYN-SDR709-01 generation, live probe and byte-identical regeneration",
+      "evidence": [
+        "the separately approved single retry used corrected exact recipe SHA-256 591843ace3e01260c699d06fa0d023f6b737c2ec2b58e36020932751e0266446 with the official setparams frame metadata filter and the approved ffmpeg.exe",
+        "the primary generation completed exit 0 with zero ffmpeg or ffprobe processes before and after and produced 374394 bytes with SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b",
+        "the exact ffprobe argv completed exit 0 with zero process leakage, 90 video frames, format size 374394 and normalized artifact SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "all exact claims matched: H.264 High, avc1, 8-bit yuv420p, tv range, bt709 matrix, bt709 transfer, bt709 primaries, 640x360, r_frame_rate and avg_frame_rate 30/1, duration 3.000000 and MP4 container",
+        "one validator-required temporary regeneration completed exit 0 and reproduced the exact 374394-byte af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b object with zero process leakage",
+        "the private fingerprint record was 2961 bytes with SHA-256 87aec0fea26aaed5ba00b1ea234c01fda7f59b8bb2295bda585a2bec4826e99c",
+        "a separately invoked composition check passed candidate/source/use basis, tool hash/version, held-file identity, live ffprobe and stored normalized probe comparisons while consuming the already measured regeneration size and hash; it returned the explicitly non-canonical MEDIA_FINGERPRINT_OK_COMPOSED marker and exit 0 with zero process leakage",
+        "only SYN-SDR709-01 is fingerprinted; its exact media and probe artifacts remain private and are represented publicly only by opaque labels, sizes and hashes"
+      ],
+      "summary": "The corrected SDR fixture now has exact approved tool, recipe, byte-identical regeneration and live ffprobe identity, including complete BT.709 signalling.",
+      "limitations": [
+        "This native_smoke PASS belongs only to exact base commit ade01505811ebb48c5e0fc4c219809817f4fb3fe, the recorded FFmpeg 9.0.1 binaries, corrected recipe and private SYN-SDR709-01 bytes.",
+        "The media was not opened in MLC Player or any competitor, so no playback, rendering, screenshot, visual-quality, installed-artifact or HDR claim is made.",
+        "Fingerprinting one candidate does not pass any acceptance case: all 16 video-format scenarios remain BLOCKED until their scenario-specific native and human evidence exists.",
+        "The rejected first object remains FAILED evidence and is not reused, committed or promoted.",
+        "This PASS does not include the canonical CLI MEDIA_FINGERPRINT_OK marker; global fingerprint activation remains disabled pending a separately approved canonical CLI run with its own regeneration.",
+        "No HDR media, product code, Windows setting, build, installation, signing, tag, release, push, PR or merge occurred."
+      ],
+      "next_action": "Keep global fingerprint activation fail-closed and request separate approval for one canonical CLI run with its own exact regeneration and MEDIA_FINGERPRINT_OK marker."
+    },
+    {
+      "id": "EV-20260824-040",
+      "recorded_at_utc": "2026-08-24T22:34:40Z",
+      "proof_layer": "deterministic",
+      "result": "blocked",
+      "commit": "ade01505811ebb48c5e0fc4c219809817f4fb3fe",
+      "subject": "Post-fingerprint activation evidence audit",
+      "evidence": [
+        "three independent read-only reviews agreed that exact tool, recipe, media, probe and byte-identical regeneration identities in EV-20260824-039 are internally consistent and disclose no private filesystem path",
+        "the documentation review confirmed exactly one of 14 candidates has a fingerprint record while all 16 acceptance cases remain BLOCKED and no playback, HDR, visual-quality or product-support claim was promoted",
+        "the Windows guard review accepted the four-file write/delete/rename locks, handle identity, reparse rejection, active output limits and zero child-process leak evidence for the trusted private-cache threat model",
+        "the reviews identified that MEDIA_FINGERPRINT_OK_COMPOSED was a direct verify_record composition check with an injected already measured regeneration identity, not the canonical CLI MEDIA_FINGERPRINT_OK marker",
+        "fingerprinted_state_enabled and live_tool_validation_completed were returned to false and activation_blocker now requires the canonical CLI marker, exit 0, its own regeneration and zero-process-leak readback",
+        "the two disabled-gate regressions now explicitly set fingerprinted_state_enabled=false rather than failing later on unrelated identity differences",
+        "regression-first command after the matrix was pointed to EV-20260824-040 produced 1 failed and 65 passed solely because this append-only record had not yet been added",
+        "after appending EV-20260824-040, the combined media-plan, fingerprint, continuity and append-only package completed with 66 passed; py_compile, three JSON parses and git diff check were clean"
+      ],
+      "summary": "The exact SDR fingerprint evidence is preserved, but global activation is deliberately BLOCKED until the canonical CLI itself completes its full native path.",
+      "limitations": [
+        "BLOCKED is not PASS: the manifest status is fingerprinted_pending_activation and the official CLI has not emitted MEDIA_FINGERPRINT_OK.",
+        "No additional media generation, ffprobe, MLC Player playback, HDR run, product change, Windows setting, build, installation, signing, tag, release, push, PR or merge occurred in this audit correction.",
+        "All 16 format scenarios remain BLOCKED."
+      ],
+      "next_action": "Request separate explicit approval for one canonical CLI validation run; if it fails, do not retry automatically."
+    },
+    {
+      "id": "EV-20260824-041",
+      "recorded_at_utc": "2026-08-24T22:37:16Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "ade01505811ebb48c5e0fc4c219809817f4fb3fe",
+      "subject": "Canonical CLI activation for the SYN-SDR709-01 fingerprint",
+      "evidence": [
+        "the separately approved one-time command invoked the repository-path working-tree scripts/verify_video_format_media.py main with the canonical repository manifest and exact private record, media, normalized probe artifact, ffprobe.exe and ffmpeg.exe",
+        "the canonical CLI independently checked enabled manifest state, unique candidate and source, exact use basis, manifest-bound local and generation identities, approved tool hashes and versions, held-file identities and opaque private labels",
+        "live ffprobe output matched the stored normalized artifact and complete expected SDR claims; the CLI then performed its own temporary exact recipe regeneration and required 374394 bytes with SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b",
+        "stdout contained exact marker MEDIA_FINGERPRINT_OK with candidate SYN-SDR709-01, media SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "canonical CLI exit code was 0; ffmpeg and ffprobe process counts were zero before and after",
+        "the private canonical CLI log SHA-256 was 94a609205e17d0dd4e8c821da724e416c9d9a9d98980504f6e12f2ba813b6b00",
+        "fingerprinted_state_enabled and live_tool_validation_completed are now true with activation_blocker null for the exact SYN-SDR709-01 contract",
+        "the post-activation media-plan, fingerprint, continuity and append-only package completed with 66 passed; py_compile, manifest/matrix/ledger JSON parse, git diff check and private-path scan were clean, and git status contained no private artifact"
+      ],
+      "summary": "The canonical working-tree validator completed its full native path and activated the exact SYN-SDR709-01 fingerprint with its own byte-identical regeneration.",
+      "limitations": [
+        "This native_smoke PASS is restricted to exact base commit ade01505811ebb48c5e0fc4c219809817f4fb3fe, approved FFmpeg 9.0.1 binaries, recipe, private bytes and probe evidence.",
+        "The fixture has not been opened in MLC Player or a competitor; playback, rendering, visual quality, HDR and installed-artifact behavior remain untested.",
+        "Only one candidate fingerprint is activated; all 16 video-format acceptance scenarios remain BLOCKED.",
+        "No private artifact is tracked by Git and no product code, Windows setting, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Request separate approval to push the committed codex/sdr-fixture-fingerprint task branch without private artifacts; request PR and merge separately afterward."
     }
   ]
 }
