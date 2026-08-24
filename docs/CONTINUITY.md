@@ -4,13 +4,13 @@ Bu dosya projenin **tek güncel devir noktasıdır**. Tarihsel ayrıntı burada
 büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsamlı
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
-- Güncelleme: 23 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `98f44407c90f5ceddb85c9469db70ae3df291d6a`
+- Güncelleme: 24 Ağustos 2026
+- Kayıt hazırlanırken doğrulanan HEAD: `36f418e27320ea924d380c27209b22d358e95321`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-024`
+- Son kanıt: `EV-20260824-002`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -728,17 +728,34 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    hash'ler aynı ve ağaç temiz kaldı (`EV-20260823-024`). `WIN-P0-02` artık
    **PASSED**; bu yalnız exact kaynak commit/runtime/medya/Windows senaryosuna
    ait native_smoke kanıtıdır.
+114. EV-20260823-024 kayıt paketi PR #24'ün exact `bd14c98` head'inde zorunlu
+   `test` kontrolünden **4813 passed / 30 skipped / 0 failed** ile geçti. PR
+   `CLEAN/MERGEABLE` durumundayken ayrı onayla iki ebeveynli `36f418e` merge
+   commit'i üzerinden master'a alındı (`EV-20260824-001`). Bu hosted kanıt
+   fiziksel Windows davranışını PASS yapmaz.
+115. Ayrı onaylı fiziksel `buttons,timeline,window_resize,fullscreen` paketi
+   exact `36f418e`, aynı özel MP4 ve aynı DLL ile başlatıldı. `buttons` child'ı
+   altı PASS satırı yanında `cc_on[closed]` için bir FAIL üretti; ardından
+   oynatma-listesi sonu modalı kendiliğinden kapanmadı ve grup 600 saniyelik
+   timeout içinde bekledi. Kullanıcı bu aşırı beklemeyi durdurdu; modal elle
+   onaylanmadı, exact runner/child süreçleri doğrulanıp sonlandırıldı ve artık
+   süreç kalmadı. `MARK_DONE`/özet oluşmadı; `timeline`, `window_resize` ve
+   `fullscreen` başlamadı. Medya/DLL hash'leri ve temiz kaynak durumu korundu
+   (`EV-20260824-002`, **FAILED**). Otomatik tekrar yapılmadı; `WIN-P0-04` ve
+   `WIN-P0-05` hâlâ `NOT_RUN`.
 
 ## Sıradaki tek adım
 
-`EV-20260823-024` native PASS sonucunu commit etmek için ayrı açık onay al.
+`EV-20260824-002` nedenini kaynakta incele: CC-toggle önkoşulunu ayır ve
+oynatma-listesi sonu modalı için kısa, bounded, regresyon-first harness
+sözleşmesi hazırla. Native testi tekrar çalıştırma.
 
 ## Sonraki sıra
 
-1. `EV-20260823-024` sonuç kaydını commit, push ve PR için ayrı onaylarla
-   master'a al.
-2. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
-   ayrıca onaylat; aynı girdilerle bir kez çalıştır.
+1. Fiziksel harness nedeni ve dar regresyonu hazırlandıktan sonra uygulama,
+   commit, push, PR ve merge işlemlerini ayrı ayrı onaylat.
+2. Düzeltme merge edilmeden ve yeni açık native onayı alınmadan fiziksel
+   paketi tekrar çalıştırma.
 3. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
 4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
