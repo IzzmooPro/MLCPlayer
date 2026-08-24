@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `346603b77ef12a2330c0e9c6e7e60762477da6d2`
+- Kayıt hazırlanırken doğrulanan HEAD: `460f0c5af609352c5f84a8e827a35c6e69ae6225`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-010`
+- Son kanıt: `EV-20260824-012`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -799,17 +799,31 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    sızıntısı doğrulandı (`EV-20260824-010`). Dedicated fullscreen aynı exact
    committe çalışmadığı için `WIN-P0-05` henüz yükseltilmedi. Ürün kodu
    değişmedi.
+124. Native resize kanıt paketi PR #29'un exact `3bb5cae` head'inde zorunlu
+   belge kontrolünden **7 passed / 0 failed** ile geçti. Ayrı onayla iki
+   ebeveynli `460f0c5` merge commit'i üzerinden master'a alındı
+   (`EV-20260824-011`). Belge sınıflaması tam ürün paketini bilerek
+   çalıştırmadı; bu hosted sonuç native kanıtı genişletmez.
+125. Ayrı onaylı yalnız `fullscreen` koşumu exact `460f0c5`, aynı doğrulanmış
+   MP4/DLL ile ilk denemede **7,3 saniye / exit 0 / 4 PASS / 0 FAIL / 0
+   BLOCKED / MARK_DONE** verdi. Gerçek düğme tıklaması pencereyi tam
+   2560x1440 ekran geometrisine taşıdı; gerçek Esc 960x600 varsayılan boyuta
+   ve tam ekran merkezine döndürdü, playlist kapalı ve overlay görünür kaldı.
+   Kapanış `stop -> terminate`, imleç geri dönüşü ve sıfır süreç sızıntısı
+   doğrulandı (`EV-20260824-012`). Resize kanıtı farklı exact committe olduğu
+   için `WIN-P0-05` henüz yükseltilmedi. Ürün kodu değişmedi.
 
 ## Sıradaki tek adım
 
-`EV-20260824-009` ve `EV-20260824-010` kayıt paketini commit etmek için ayrı
+`EV-20260824-011` ve `EV-20260824-012` kayıt paketini commit etmek için ayrı
 açık onay al. Native testi tekrar çalıştırma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Kayıt merge edildikten sonra yalnız `fullscreen` grubu için ayrı native
-   onay al.
+2. Kayıt merge edildikten sonra `WIN-P0-05` satırını tek exact committe
+   kapatmak için birleşik `window_resize,fullscreen` koşumuna ayrı native onay
+   istenip istenmeyeceğine karar ver.
 3. Kalan açık boşluklar için dar runner veya kayıtlı manuel kabul kararını ver.
 4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
