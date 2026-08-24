@@ -3155,6 +3155,29 @@
         "The plan does not itself choose gpu-next, change Media Information UX, modify product configuration, build or install anything."
       ],
       "next_action": "Request separate approval to commit the format plan, machine matrix, P2 routing, regression contract and EV-20260824-021/022 records; push, PR and merge remain separately approved actions."
+    },
+    {
+      "id": "EV-20260824-023",
+      "recorded_at_utc": "2026-08-24T20:16:11Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "88711e567811ebd55f98dc4933ec5daadc0b53d8",
+      "subject": "Protected PR acceptance for the video format and competitor acceptance program",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/35",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32772435092",
+        "the pull_request run completed on exact head 8a611bace4836cc96d7e8d7457679a80f1d30a33 with required test check success: 4844 passed, 30 skipped and 0 failed",
+        "PR #35 was read back CLEAN and MERGEABLE with the required test check COMPLETED/SUCCESS before the separately approved merge",
+        "the separately approved merge produced two-parent commit 88711e567811ebd55f98dc4933ec5daadc0b53d8 from parents 5cfced39c24608d2a574f82009b294088dae9eb7 and 8a611bace4836cc96d7e8d7457679a80f1d30a33",
+        "origin/master and local master were read back at the exact merge commit; the local and remote task branch were preserved"
+      ],
+      "summary": "The machine-validated video format and competitor acceptance program passed the protected full CI gate and was merged through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS validates source and deterministic contracts only; it does not run any format media, competitor application or native HDR output.",
+        "All 16 video-format matrix cases remain BLOCKED and the 30 skipped hosted tests are not PASS.",
+        "No product code, MPV_CONFIG, build, installation, signing, tag or release changed as part of this hosted result."
+      ],
+      "next_action": "Request separate approval to commit this hosted merge record; after its protected workflow completes, perform the GPU, EDID, Windows color-path and exact mpv/FFmpeg capability inventory read-only before any media acquisition or native run."
     }
   ]
 }
