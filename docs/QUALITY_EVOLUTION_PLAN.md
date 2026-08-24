@@ -81,7 +81,7 @@ göre seçilmiş ve kapsam kullanıcıya sunulmuş olmalıdır.
 
 ## Faz 2 — Gerçek Windows başlangıç kabulü
 
-**Durum:** AKTİF — P0 EŞLEMESİ TAMAM, ÇEKİRDEKTE 1 PASS / 1 FAIL
+**Durum:** AKTİF — P0 EŞLEMESİ TAMAM, ÇEKİRDEKTE 2 PASS / 0 FAIL
 
 `docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindeki P0 senaryoları exact commit,
 runtime ve mümkünse artifact SHA-256 kimliğiyle çalıştırılır. Var olan native
@@ -104,7 +104,10 @@ Python/libmpv finalizasyonunda `MARK_DONE` sonrasında yine başarısız oldu
 (`EV-20260823-022`). Finalizasyon sözleşmesi düzeltilmeden P0-02 yükseltilmez.
 Test-only finalizasyon yolu `EV-20260823-023` ile flush + `os._exit`
 sözleşmesine alındı; deterministik etki grubu **103 passed / 2 skipped**
-verdi. Native retry yapılmadığı için P0-02 hâlâ **FAILED** durumundadır.
+verdi. O aşamada native retry yapılmadığı için P0-02 **FAILED** kaldı.
+Exact `9ef4935` üzerindeki ayrı onaylı tek retry gerçek oynatma, tam marker,
+exit `0` ve sıfır süreç sızıntısıyla geçti (`EV-20260823-024`). P0-02 artık
+**PASSED**; bu sonuç diğer fiziksel P0 senaryolarına aktarılmaz.
 
 Çıkış kapısı: P0 satırlarının her biri PASSED, FAILED veya gerekçeli BLOCKED;
 çocuk süreç exit kodu, final marker, stderr ve süreç sızıntısı sınırları açık;

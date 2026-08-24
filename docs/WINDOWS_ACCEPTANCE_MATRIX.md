@@ -36,7 +36,7 @@ yazılır.
 | Kimlik | Senaryo | Beklenen kanıt | Durum |
 | --- | --- | --- | --- |
 | WIN-P0-01 | Uygulama açılışı ve normal kapanış | Exit 0, final marker, stderr sınıflaması, süreç sızıntısı yok | PASSED |
-| WIN-P0-02 | Gerçek yerel video oynatma | Süre ilerler, kare/oynatma kanıtı vardır, medya değişmez | FAILED |
+| WIN-P0-02 | Gerçek yerel video oynatma | Süre ilerler, kare/oynatma kanıtı vardır, medya değişmez | PASSED |
 | WIN-P0-03 | Ses ve yerel altyazı parçası değiştirme | Seçim libmpv read-back ile doğrulanır | NOT_RUN |
 | WIN-P0-04 | Seek, duraklatma ve devam | Zaman/state read-back beklenen aralıkta | NOT_RUN |
 | WIN-P0-05 | Tam ekran, native resize ve geri dönüş | Boyut/state doğru, donma ve kontrol kaybı yok | NOT_RUN |
@@ -205,6 +205,11 @@ koşum öncesi/sonrası değer aynıdır.
   test önce **1 failed**, sonra **1 passed**; ilgili deterministik grup **103
   passed / 2 skipped / 0 failed** verdi. Ürün kodu değişmedi ve native retry
   yapılmadı; bu nedenle satır hâlâ **FAILED** durumundadır.
+- Exact `9ef4935` üzerindeki ayrı onaylı tek native retry
+  (`EV-20260823-024`) aynı MP4 ve DLL parmak izleriyle duration `5071.726`,
+  position `4.633`, tam `RESULTS`/`MARK_DONE`, exit `0` ve sıfır süreç
+  sızıntısı verdi. Koşum sonrası medya/runtime hash'leri değişmedi;
+  `WIN-P0-02` artık **PASSED** durumundadır.
 
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 

@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260823-023`
+- Son kanıt: `EV-20260823-024`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -720,24 +720,29 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    passed** verdi. İlgili deterministik etki grubu **103 passed / 2 skipped /
    0 failed** tamamlandı (`EV-20260823-023`). Ürün kodu ve native durum
    değişmedi; `WIN-P0-02` hâlâ **FAILED** ve otomatik retry yapılmadı.
+113. PR #23 zorunlu `test` kontrolü başarıyla tamamlandı ve düzeltme iki
+   ebeveynli `9ef4935` merge commit'iyle master'a alındı. Ayrı onaylı tek
+   native retry aynı MP4 ve DLL parmak izleriyle gerçek duration `5071.726`,
+   position `4.633`, tam `RESULTS` ve `MARK_DONE` üretti; child exit `0`,
+   matrix exit `0`, davranış hatası/süreç sızıntısı yoktu. Koşum sonrası
+   hash'ler aynı ve ağaç temiz kaldı (`EV-20260823-024`). `WIN-P0-02` artık
+   **PASSED**; bu yalnız exact kaynak commit/runtime/medya/Windows senaryosuna
+   ait native_smoke kanıtıdır.
 
 ## Sıradaki tek adım
 
-Test-only finalizasyon düzeltmesini commit etmek için ayrı açık onay al.
-Native retry yapma.
+`EV-20260823-024` native PASS sonucunu commit etmek için ayrı açık onay al.
 
 ## Sonraki sıra
 
-1. `EV-20260823-023` test-only düzeltmesini commit, push ve PR için ayrı
-   onaylarla master'a al.
-2. Düzeltme master'a alındıktan sonra tek native retry için yeniden ayrıca
-   açık onay al; başarısızsa otomatik tekrar yapma.
-3. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
+1. `EV-20260823-024` sonuç kaydını commit, push ve PR için ayrı onaylarla
+   master'a al.
+2. Ardından fiziksel `buttons,timeline,window_resize,fullscreen` paketini
    ayrıca onaylat; aynı girdilerle bir kez çalıştır.
-4. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
-5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+3. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
+4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-6. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+5. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni
