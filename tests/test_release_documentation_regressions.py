@@ -103,6 +103,13 @@ def test_every_other_place_links_to_the_official_document(path):
         f"{os.path.basename(path)} resmi belgeye baglanmiyor")
 
 
+def test_packaging_plan_is_explicitly_historical_not_current_state():
+    text = fold(read(PACKAGING_DOC)).lower()
+    assert "tarihsel karar" in text
+    assert "continuity.md" in text
+    assert "release_process.md" in text
+
+
 # --- 3. Kritik degismezler ozet olarak KORUNUR ------------------------
 
 @pytest.mark.parametrize("path", [CLAUDE_DOC, PACKAGING_DOC, PREPUBLISH,

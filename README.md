@@ -175,10 +175,10 @@ Two things are worth knowing before you send a change:
 - The project works defect-first. A fix starts with a failing test that
   measures the real behaviour, then the smallest change that turns it green.
 - Some behaviour is deliberately fixed: the cinematic interface is the only
-  interface, the playlist stays embedded in the main window, mpv and the
-  subtitle workers are shut down cooperatively rather than terminated, and no
-  new always-on-top flags or timers are introduced. `CLAUDE.md` records these
-  invariants and the reasons behind them.
+  interface, the playlist stays in an owned window beside the main window,
+  mpv and the subtitle workers are shut down cooperatively rather than
+  terminated, and no new always-on-top flags or timers are introduced.
+  `CLAUDE.md` records these invariants and the reasons behind them.
 
 ### Developer setup
 

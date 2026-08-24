@@ -1,5 +1,12 @@
 # MLC Player Paketleme ve Kurulum Planı
 
+> **TARİHSEL KARAR KAYDI:** Bu belge paketleme tasarımının gerekçelerini ve
+> eski ölçüm/checklist snapshot'larını korur; güncel durum veya sıradaki iş
+> kaynağı değildir. Güncel devir için `docs/CONTINUITY.md`, kesin yayın sırası
+> için yalnız `docs/RELEASE_PROCESS.md` kullanılır. Aşağıdaki eski sürüm,
+> boyut ve işaretsiz kutular canlı kaynakla yeniden doğrulanmadan güncel engel
+> sayılmaz.
+
 Bu dosya, uygulamanın özellik ve hata düzeltmeleri tamamlandıktan sonra
 hazırlanacak Windows kurulum paketinin karar kaydıdır. Paketleme aşamasına
 gelindiğinde doğrudan bu belgeye göre çalışılmalı; o günkü kaynak, araç

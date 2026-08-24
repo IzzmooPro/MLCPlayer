@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `419d6c7cede0b6fad37425b28c375fc89e61b141`
+- Kayıt hazırlanırken doğrulanan HEAD: `b1ec84f7fbb919c753df048031ac3bc3b7d35163`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-026`
+- Son kanıt: `EV-20260824-028`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -895,11 +895,26 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    `DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709`; bu nedenle gerçek HDR10 çıkışı
    kanıtlanmadı. Ürün hâlâ `vo=gpu`/`hwdec=auto-safe` kullanıyor ve bütün 16
    format senaryosu `BLOCKED` kalıyor.
+139. Medya açmayan yetenek envanteri PR #37'nin exact `64d759b` head'inde
+   zorunlu hosted testten **4845 passed / 30 skipped / 0 failed** ile geçti.
+   Ayrı onayla iki ebeveynli `b1ec84f` merge commit'i üzerinden master'a
+   alındı (`EV-20260824-027`). Bu hosted sonuç native child'ı tekrar
+   çalıştırmaz; bütün 16 format senaryosu hâlâ `BLOCKED` ve ürün kodu
+   değişmedi.
+140. Derin yeniden yönelim denetiminde 21 Markdown yüzeyi, kök agent
+   sözleşmeleri, hook'lar, canlı branch protection ve güncel kalite/yayın
+   kaynakları yeniden okundu. İngilizce README'deki yanlış gömülü-playlist
+   ifadesi, PACKAGING_PLAN'ın tarihsel kayıt sınırı ve kalite planındaki eski
+   P0 sayacı regresyon-first düzeltildi. İlk iki kapı **2 failed / 209
+   passed**, düzeltme sonrası **211 passed**; P0 sayacı kapısı önce **1 failed
+   / 5 passed**, sonra **6 passed** verdi; birleşik son kapı **243 passed**
+   tamamlandı (`EV-20260824-028`). Ürün kodu, native/HDR davranışı ve işletim
+   sistemi ayarı değişmedi.
 
 ## Sıradaki tek adım
 
-PR #36 merge sonucu, başarısız envanter sorgusu ve başarılı salt-okunur
-yetenek ölçümünü içeren `EV-20260824-024/025/026` belge/test paketini commit
+PR #37 hosted sonucunu, derin yeniden yönelim denetimini ve üç belge
+düzeltmesinin regresyonlarını içeren `EV-20260824-027/028` paketini commit
 etmek için ayrı açık onay al. Native medya çalıştırma, indirme/üretme veya
 ürün değişikliği yapma.
 

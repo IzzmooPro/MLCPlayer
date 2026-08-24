@@ -98,6 +98,7 @@ def test_windows_acceptance_never_promotes_missing_or_inherited_evidence():
 
 def test_every_p0_row_has_an_honest_execution_mapping_and_exact_status():
     matrix = read(WINDOWS_ACCEPTANCE)
+    plan = read(QUALITY_PLAN)
     for scenario_id in (
             "WIN-P0-01", "WIN-P0-02", "WIN-P0-03", "WIN-P0-04",
             "WIN-P0-05", "WIN-P0-06", "WIN-P0-07", "WIN-P0-08"):
@@ -124,6 +125,7 @@ def test_every_p0_row_has_an_honest_execution_mapping_and_exact_status():
     assert rows["WIN-P0-04"] == "PASSED"
     assert rows["WIN-P0-05"] == "PASSED"
     assert p0_table.count("NOT_RUN") == 4
+    assert "4 PASS / 0 FAIL / 4 NOT_RUN" in plan
     assert "EV-20260823-019" in p0_section
     assert "EV-20260823-020" in p0_section
     assert "EV-20260823-022" in p0_section

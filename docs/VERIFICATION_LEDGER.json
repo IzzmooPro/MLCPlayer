@@ -3243,6 +3243,54 @@
         "No video was opened, all 16 format cases remain BLOCKED, and no product configuration, build, installation, tag or release changed."
       ],
       "next_action": "Request separate approval to commit the inventory record; after its protected workflow completes, acquire or generate fingerprinted minimum media only with separate approval."
+    },
+    {
+      "id": "EV-20260824-027",
+      "recorded_at_utc": "2026-08-24T20:34:56Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "b1ec84f7fbb919c753df048031ac3bc3b7d35163",
+      "subject": "Protected PR acceptance for the media-free video-format capability inventory",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/37",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32774282103",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32774282103/job/97581619643",
+        "the required test check completed SUCCESS on exact head 64d759b06f7db0a8ccc30218a45d7a8eb9bd1d4b with 4845 passed, 30 skipped and 0 failed in 106.22 seconds",
+        "the separately approved merge produced two-parent commit b1ec84f7fbb919c753df048031ac3bc3b7d35163 from parents 419d6c7cede0b6fad37425b28c375fc89e61b141 and 64d759b06f7db0a8ccc30218a45d7a8eb9bd1d4b",
+        "origin/master and local master were read back at the exact merge commit before the documentation reorientation branch was created"
+      ],
+      "summary": "The media-free GPU, EDID, Windows color-path and exact libmpv capability inventory passed the protected full CI gate and was merged through a real two-parent commit.",
+      "limitations": [
+        "This hosted_ci result validates the documentation and deterministic contracts; it does not rerun the native capability child or open media.",
+        "The 30 skipped tests are not PASS and all 16 video-format cases remain BLOCKED.",
+        "No product code, Windows HDR setting, media, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Re-read the repository contracts and current documentation deeply, repair any current-state documentation drift with regression coverage, and record the new single continuation step."
+    },
+    {
+      "id": "EV-20260824-028",
+      "recorded_at_utc": "2026-08-24T20:43:37Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "b1ec84f7fbb919c753df048031ac3bc3b7d35163",
+      "subject": "Deep repository contract and documentation reorientation audit",
+      "evidence": [
+        "the canonical checkout, clean b1ec84f baseline, worktree list and zero origin/master divergence were verified read-only before edits",
+        "all 21 repository Markdown files were classified; AGENTS.md, CLAUDE.md, .claude/settings.json, every repository hook, current workflow/continuity/quality/architecture/Windows/video-format/release document and relevant historical boundaries were re-read",
+        "no repository SKILL.md or project agent directory exists; the only project agent contracts are root AGENTS.md and CLAUDE.md, and no unrelated system skill was activated",
+        "live GitHub protection was read back as required pull request, strict required test check, admin enforcement, force-push disabled and deletion disabled",
+        "the pre-change documentation and contract audit package completed with 242 passed",
+        "new regression coverage first produced 2 failed and 209 passed for the contradictory English playlist-window statement and the missing historical-status boundary in PACKAGING_PLAN.md; the minimum documentation fixes then produced 211 passed",
+        "the P0 summary regression then produced 1 failed and 5 passed because QUALITY_EVOLUTION_PLAN.md still said 2 PASS; after aligning it with the Windows matrix at 4 PASS / 0 FAIL / 4 NOT_RUN, the target completed with 6 passed",
+        "the final combined contract package completed with 243 passed; python compileall exited 0, the ledger had 143 unique entries ending at EV-20260824-028, all 16 format cases remained BLOCKED and git diff --check was clean"
+      ],
+      "summary": "The repository's active contracts and all Markdown surfaces were re-oriented against current source and evidence; three concrete documentation drifts were corrected and locked with regression coverage.",
+      "limitations": [
+        "This deterministic audit changes documentation and documentation regression tests only; it does not prove native playback, HDR output, format behavior or installed-artifact behavior.",
+        "Historical status files were classified rather than treated as current truth, and the deferred v0.39 audit backlog was preserved without execution.",
+        "No product code, Windows setting, media acquisition or generation, native run, build, installation, signing, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this documentation and regression realignment package; push, PR and merge remain separately approved actions."
     }
   ]
 }
