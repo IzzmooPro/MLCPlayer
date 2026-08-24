@@ -35,8 +35,8 @@ def test_ci_runs_once_for_pull_requests_and_keeps_manual_dispatch():
 
 def test_ci_installs_and_verifies_the_locked_environment():
     text = workflow_text()
-    assert "actions/checkout@v6" in text
-    assert "actions/setup-python@v6" in text
+    assert "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803" in text
+    assert "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1" in text
     assert "python-version: '3.13.15'" in text
     assert "pip install -r requirements-lock.txt" in text
     assert "verify_dependencies.py requirements-lock.txt" in text
@@ -64,16 +64,24 @@ def test_ci_classifies_documentation_only_changes_before_running_jobs():
 def test_documentation_only_ci_uses_the_small_deterministic_gate():
     text = workflow_text()
     assert "python -m pip install -r requirements-ci-docs.txt" in text
-    assert "python -m pytest -q --noconftest " \
-           "tests/test_continuity_regressions.py" in text
+    for path in (
+            "tests/test_continuity_regressions.py",
+            "tests/test_change_workflow_regressions.py",
+            "tests/test_quality_evolution_plan_regressions.py",
+            "tests/test_readme_user_guidance_regressions.py",
+            "tests/test_release_documentation_regressions.py",
+            "tests/test_signpath_readiness_regressions.py",
+            "tests/test_video_format_acceptance_plan_regressions.py"):
+        assert path in text
+    assert "python -m pytest -q --noconftest" in text
     assert "python -m json.tool docs/VERIFICATION_LEDGER.json" in text
     assert "git diff --check" in text
+    assert "scripts/verify_ledger_append_only.py" in text
 
 
 def test_documentation_ci_is_isolated_from_the_product_test_bootstrap():
     text = workflow_text()
-    assert "python -m pytest -q --noconftest " \
-           "tests/test_continuity_regressions.py" in text
+    assert "python -m pytest -q --noconftest" in text
     assert text.count("MLC_CI: '0'") >= 2
     assert text.count("PYTHONPATH: ''") >= 2
 

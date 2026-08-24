@@ -2,6 +2,11 @@ name: Mirror pinned libmpv build environment
 
 on:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact approved origin/master commit SHA
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -25,6 +30,14 @@ jobs:
       SOURCE_REPOSITORY_COMMIT: f96024070ae07963155d624be5655695e7fe181c
 
     steps:
+      - name: Verify exact master dispatch
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          test "${{ github.ref }}" = "refs/heads/master"
+          test "${{ github.sha }}" = "$EXPECTED_SHA"
+
       - name: Authenticate only to the owned registry namespace
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}

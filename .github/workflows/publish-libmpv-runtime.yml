@@ -2,6 +2,11 @@ name: Publish verified libmpv runtime bundle
 
 on:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact approved origin/master commit SHA
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -31,6 +36,14 @@ jobs:
       ARTIFACT_TYPE: application/vnd.mlcplayer.libmpv.runtime.v1
       GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Verify exact master dispatch
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          test "${{ github.ref }}" = "refs/heads/master"
+          test "${{ github.sha }}" = "$EXPECTED_SHA"
+
       - name: Check out the exact workflow source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 

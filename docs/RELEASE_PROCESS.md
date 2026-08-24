@@ -72,7 +72,10 @@ yerel Ed25519 imzası ve mevcut fiziksel installer kabul kapıları yine zorunlu
 origin/master'a ulaşır. PR üzerindeki hosted `test` yeşil olmadan merge
 yapılmaz. Rutin merge push'u otomatik CI başlatmadığı için sürüm adayında
 ayrıca `workflow_dispatch` ile `master` üzerindeki exact merge commit tam
-hosted testten geçirilir; bu koşum yeşil olmadan build başlamaz. Yerel
+hosted testten geçirilir. Dispatch formundaki zorunlu `expected_sha` alanına
+önceden onaylanan 40 karakter merge commit'i yazılır; workflow
+`refs/heads/master` ve exact `github.sha` eşliğini ilk adımda fail-closed
+doğrular. Bu koşum yeşil olmadan build başlamaz. Yerel
 `master`, build öncesinde aynı exact merge commit'e fast-forward edilir.
 
     a) Sürüm alanlarını güncelle -> commit

@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `419d6c7cede0b6fad37425b28c375fc89e61b141`
+- Kayıt hazırlanırken doğrulanan HEAD: `4e9609985ce125a973d6073af37017f32203082c`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-026`
+- Son kanıt: `EV-20260824-029`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -895,13 +895,48 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    `DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709`; bu nedenle gerçek HDR10 çıkışı
    kanıtlanmadı. Ürün hâlâ `vo=gpu`/`hwdec=auto-safe` kullanıyor ve bütün 16
    format senaryosu `BLOCKED` kalıyor.
+139. Medya açmayan yetenek envanteri PR #37'nin exact `64d759b` head'inde
+   zorunlu hosted testten **4845 passed / 30 skipped / 0 failed** ile geçti.
+   Ayrı onayla iki ebeveynli `b1ec84f` merge commit'i üzerinden master'a
+   alındı (`EV-20260824-027`). Bu hosted sonuç native child'ı tekrar
+   çalıştırmaz; bütün 16 format senaryosu hâlâ `BLOCKED` ve ürün kodu
+   değişmedi.
+140. Derin yeniden yönelim denetiminde 21 Markdown yüzeyi, kök agent
+   sözleşmeleri, hook'lar, canlı branch protection ve güncel kalite/yayın
+   kaynakları yeniden okundu. İngilizce README'deki yanlış gömülü-playlist
+   ifadesi, PACKAGING_PLAN'ın tarihsel kayıt sınırı ve kalite planındaki eski
+   P0 sayacı regresyon-first düzeltildi. İlk iki kapı **2 failed / 209
+   passed**, düzeltme sonrası **211 passed**; P0 sayacı kapısı önce **1 failed
+   / 5 passed**, sonra **6 passed** verdi; birleşik son kapı **243 passed**
+   tamamlandı (`EV-20260824-028`). Ürün kodu, native/HDR davranışı ve işletim
+   sistemi ayarı değişmedi.
+141. İlk yeniden yönelim paketi ayrı onayla `4e96099` olarak commit edildi;
+   dal push edilmedi ve `origin/master`dan 1 commit ileride kaldı. Üç bağımsız
+   salt-okunur denetim, önceki turun dışında kalan belge rolü, ledger,
+   workflow ve hook boşluklarını yeniden ölçtü (`EV-20260824-029`).
+142. Dört eski ledger kaydının commit alanında aynı yazım hatası bulundu:
+   var olmayan `770101fa...` yerine gerçek ve HEAD atası
+   `770101fbda976e7202871fe7499a83d6042fcd89` olmalıydı. Eski girdiler
+   değiştirilmedi; `EV-20260824-029.corrects` dört eşlemeyi yapılandırılmış
+   biçimde kaydetti. Append-only CI kapısı artık silme, yeniden sıralama ve
+   yerinde değiştirmeyi reddeder.
+143. Windows matrisinin güncel özeti, tarihsel belge banner'ları, paketleme
+   yönlendirmesi, dinamik release varlık ifadesi ve video-format ledger
+   bağlantıları hizalandı. Docs-only CI bütün güvenli belge sözleşmelerini
+   çalıştıracak şekilde genişletildi; Git hook kaçışları kapatıldı, session
+   hook tam başlangıç ölçümünü sunuyor ve bütün manuel workflow'lar
+   `expected_sha` ile exact `master` dispatch'ine fail-closed bağlandı. Ürün
+   kodu, native test ve işletim sistemi ayarı değişmedi. Hedef koruma paketi
+   **285 passed**, gerçek docs-only komutu **245 passed**, tek tam
+   deterministik paket **4885 passed / 19 skipped / 0 failed** verdi. Yerel
+   bağımsız YAML parser bulunmadığından workflow parse kanıtı henüz hosted PR
+   check'ine aittir; gizli PASS yazılmadı.
 
 ## Sıradaki tek adım
 
-PR #36 merge sonucu, başarısız envanter sorgusu ve başarılı salt-okunur
-yetenek ölçümünü içeren `EV-20260824-024/025/026` belge/test paketini commit
-etmek için ayrı açık onay al. Native medya çalıştırma, indirme/üretme veya
-ürün değişikliği yapma.
+Bağımsız ikinci denetim, yapılandırılmış ledger düzeltmesi ve fail-closed
+korumaları içeren `EV-20260824-029` paketini commit etmek için ayrı açık onay
+al. Native medya çalıştırma, indirme/üretme veya ürün değişikliği yapma.
 
 ## Sonraki sıra
 

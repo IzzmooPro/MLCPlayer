@@ -2,6 +2,8 @@
   "schema_version": 1,
   "updated": "2026-08-24",
   "baseline_commit": "5cfced39c24608d2a574f82009b294088dae9eb7",
+  "plan_evidence_id": "EV-20260824-022",
+  "merge_evidence_id": "EV-20260824-023",
   "runtime": {
     "mpv_commit": "49418246f",
     "dll_size": 112772608,
@@ -9,6 +11,7 @@
   },
   "capability_inventory": {
     "measured_commit": "419d6c7cede0b6fad37425b28c375fc89e61b141",
+    "evidence_id": "EV-20260824-026",
     "document": "docs/VIDEO_FORMAT_CAPABILITY_INVENTORY.md",
     "active_gpu": "NVIDIA GeForce RTX 4070 Ti",
     "driver": "610.88",

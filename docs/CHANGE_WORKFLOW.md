@@ -61,8 +61,19 @@ zorunlu **`test`** kontrolü PR üzerinde korunur.
   doğrulamak;
 - ortak CI/test altyapısı değişikliğini ayrıca teşhis etmek.
 
+Manuel dispatch formunda `expected_sha`, önceden onaylanan 40 karakter exact
+`origin/master` commit'i olarak girilir. Workflow ilk adımda ref'in
+`refs/heads/master`, `github.sha` değerinin de `expected_sha` ile aynı olduğunu
+doğrular; yanlış ref veya SHA job'u skipped/success göstermeden kırmızı bitirir.
+Bu kapı fail-closed çalışır.
+
 Bu manuel yol rutin değişikliklerin ikinci testi değildir. Başarısız bir koşum
 otomatik tekrarlanmaz; önce gerçek hata incelenir.
+
+PR tabanındaki `VERIFICATION_LEDGER.json` girdileri mevcut ledger'ın birebir
+başlangıç bölümü olmalıdır. CI yeni kayıt eklenmesine izin verir; eski kayıt
+silme, araya ekleme, yeniden sıralama veya yerinde düzeltmeyi reddeder. Yanlış
+eski alan yeni bir kaydın yapılandırılmış `corrects` listesiyle düzeltilir.
 
 ## Neden sıfır inceleme onayı
 

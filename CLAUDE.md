@@ -6,10 +6,11 @@ Bu dosya yalnız kalıcı kuralları içerir. Güncel durum ve sıradaki iş iç
 sözleşmesi kökteki `AGENTS.md` dosyasıdır.
 
 Aşağıdaki kuralların üçü `.claude/settings.json` içindeki hook'larla
-mekanik olarak da uygulanır: `git stash/reset/checkout/restore` engellenir,
-her Python düzenlemesinden sonra `compileall` çalışır ve oturum başında
-git durumu ile sıradaki adım okunur. Hook'lar kuralın yerine geçmez;
-unutulma ihtimalini kapatır.
+mekanik olarak da uygulanır: `git stash/reset/checkout/restore/clean` ile
+zorlamalı `switch` engellenir, her Python düzenlemesinden sonra `compileall`
+çalışır ve oturum başında repo kökü, durum, HEAD, origin farkı, son kanıt ile
+sıradaki adım okunur. Hook'lar kuralın yerine geçmez; unutulma ihtimalini
+kapatır.
 
 ## Başlangıç
 
@@ -23,7 +24,8 @@ unutulma ihtimalini kapatır.
 - Kullanıcıyla Türkçe ve açık konuş.
 - Hata düzeltmesinde önce gerçek davranışı ölçen başarısız test yaz; sonra minimum ürün değişikliğini yap.
 - Tek turda tek bağımsız sorunu çöz. İlgisiz refaktör veya görsel değişiklik yapma.
-- Kirli çalışma ağacını koru; `stash`, `reset`, `checkout` veya kullanıcı değişikliklerini geri alan komutlar kullanma.
+- Kirli çalışma ağacını koru; `stash`, `reset`, `checkout`, `restore`, `clean`
+  veya zorlamalı `switch` ile kullanıcı değişikliklerini geri alma.
 - Kullanıcı açıkça istemedikçe commit, push, remote, tag, release, EXE/setup veya kalıcı Git config değişikliği yapma.
 - Ekran görüntüsü, cache, log, kullanıcı ayarı ve büyük binary dosyalarını Git'e ekleme.
 
@@ -84,7 +86,7 @@ imzası olmayan release REDDEDİLİR. Bu yüzden:
   adım için `v0.40`. `packaging/check_publishable.py` bunu zincirde durdurur.
 
 - **YAYIN SÜRECİNİN TEK RESMÎ KAYNAĞI `docs/RELEASE_PROCESS.md`'DİR.**
-  Kesin sıra, her adımın giriş/çıkış şartı, sekiz varlık sözleşmesi ve
+  Kesin sıra, her adımın giriş/çıkış şartı, dinamik varlık sözleşmesi ve
   hata hâlinde nerede durulacağı ORADADIR; burada tekrarlanmaz.
 
   Buradan çıkmayan değişmezler:

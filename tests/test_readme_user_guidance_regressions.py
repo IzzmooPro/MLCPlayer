@@ -60,6 +60,7 @@ def test_playlist_description_matches_the_owned_adjacent_window_model():
     assert "owned window beside the main window" in EN.lower()
     assert "does not overlap the video" in EN.lower()
     assert "docked inside the main window" not in EN.lower()
+    assert "playlist stays embedded in the main window" not in EN.lower()
 
     assert "ana pencerenin yanında" in TR.lower()
     assert "bağımsız pencere" in TR.lower()

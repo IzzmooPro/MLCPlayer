@@ -1,6 +1,6 @@
 # MLC Player gerçek Windows kabul matrisi
 
-**Durum:** SÖZLEŞME HAZIR, SENARYOLAR NOT_RUN
+**Durum:** P0 4 PASSED / 4 NOT_RUN; P1 6 NOT_RUN; P2 3 BLOCKED
 
 **Plan tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`
 
@@ -379,7 +379,9 @@ yükseltmez.
 Yeni runner ancak mevcut araç kesin olarak senaryoyu ölçemiyorsa ve önce bu
 boşluk belgelenirse eklenir.
 
-## İlk sıradaki çalışma
+## Kalan kabul boşlukları
 
-P0 satırlarını mevcut runner ve testlerle eşleştir. Eksik ölçümleri yaz; hiçbir
-native koşumu veya kurulum açık kullanıcı onayı olmadan başlatma.
+P0 eşlemesi tamamlandı. Açık `WIN-P0-03/06/07/08` satırları `NOT_RUN` kalır;
+P1 ve P2 satırları tabloda yazan sınırların dışına taşınmaz. Gerçek yürütme
+sırası yalnız `docs/CONTINUITY.md` içindeki sıradaki tek adımdır. Hiçbir native
+koşumu veya kurulum açık kullanıcı onayı olmadan başlatılmaz.

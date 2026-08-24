@@ -10,6 +10,7 @@ PLAN = ROOT / "docs" / "VIDEO_FORMAT_ACCEPTANCE_PLAN.md"
 MATRIX = ROOT / "docs" / "VIDEO_FORMAT_ACCEPTANCE_MATRIX.json"
 INVENTORY = ROOT / "docs" / "VIDEO_FORMAT_CAPABILITY_INVENTORY.md"
 WINDOWS = ROOT / "docs" / "WINDOWS_ACCEPTANCE_MATRIX.md"
+LEDGER = ROOT / "docs" / "VERIFICATION_LEDGER.json"
 
 REQUIRED_CASES = {
     "VF-CORE-01", "VF-CORE-02", "VF-CORE-03", "VF-CORE-04",
@@ -37,10 +38,20 @@ def test_format_plan_and_machine_matrix_exist():
 
 def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     data = payload()
+    ledger_ids = {
+        entry["id"] for entry in json.loads(read(LEDGER))["entries"]
+    }
     assert data["schema_version"] == 1
     assert data["baseline_commit"] == (
         "5cfced39c24608d2a574f82009b294088dae9eb7")
     assert data["runtime"]["mpv_commit"] == "49418246f"
+    assert data["plan_evidence_id"] == "EV-20260824-022"
+    assert data["merge_evidence_id"] == "EV-20260824-023"
+    assert data["capability_inventory"]["evidence_id"] == "EV-20260824-026"
+    assert {
+        data["plan_evidence_id"], data["merge_evidence_id"],
+        data["capability_inventory"]["evidence_id"],
+    } <= ledger_ids
     assert 0 < data["execution_policy"]["max_child_seconds"] <= 60
     assert data["execution_policy"]["automatic_retry"] is False
     assert data["execution_policy"]["native_requires_separate_approval"] is True
