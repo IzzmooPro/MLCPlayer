@@ -229,6 +229,19 @@ track'i veya lineer playlist hedefi yoksa fiziksel tıklama yapılmadan açık
 aynı tek MP4 eksik altyazı/playlist önkoşullarını kendiliğinden sağlamaz ve
 iki P0 satırı `NOT_RUN` kalır.
 
+Exact iki ebeveynli master `227550d` üzerinde ayrı onaylı yalnız `buttons`
+grubu `EV-20260824-006` olarak ilk denemede **PASS** verdi: 44,4 saniye, exit
+`0`, `MARK_DONE`, **21 PASS / 0 FAIL / 0 BLOCKED**, kanonik `stop -> terminate`
+ve sıfır süreç sızıntısı. Kapalı ve açık playlist panelinde CC on/off,
+oynat/duraklat, sessiz, ses kaydırıcısı, ayarlar, sonraki/önceki ve tam ekran
+düğmeleri gerçek SendInput/read-back ile geçti. Girdi, aynı doğrulanmış MP4'ün
+iki ayrı hardlink playlist yolu ve ürünün SRT otomatik-etkinleştirme yoluna
+girmeyen aynı-gövdeli gerçek ASS track'idir. Bu dar başarı tek başına
+`WIN-P0-03`, `WIN-P0-04`, `WIN-P0-05` veya `WIN-P0-07` satırını PASS yapmaz:
+timeline ile seek, native resize/fullscreen grup ölçümü, gerçek çoklu parça
+değişimi ve birbirinden ayırt edilebilir üç videolu yeniden sıralama hâlâ
+ayrıdır.
+
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 
 ## P1 — Ortam ve dayanıklılık
