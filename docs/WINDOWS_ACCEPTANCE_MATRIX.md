@@ -211,6 +211,15 @@ koşum öncesi/sonrası değer aynıdır.
   sızıntısı verdi. Koşum sonrası medya/runtime hash'leri değişmedi;
   `WIN-P0-02` artık **PASSED** durumundadır.
 
+Exact iki ebeveynli master `36f418e` üzerinde aynı MP4 ve DLL ile ayrı
+onaylanan fiziksel `buttons,timeline,window_resize,fullscreen` paketi
+`EV-20260824-002` olarak **FAILED** kaldı. `buttons` child'ı altı PASS yanında
+`cc_on[closed]` için bir FAIL üretti; ardından oynatma-listesi sonu modalı
+kapanmadan 600 saniyelik grup timeout'unu beklediği için kullanıcı koşumu
+durdurdu. `MARK_DONE` ve özet yoktur; diğer üç grup başlamadı. Bu nedenle
+`WIN-P0-04` ve `WIN-P0-05` tabloda `NOT_RUN` kalır. Otomatik tekrar yapılmaz;
+önce CC önkoşulu ile modal/timeout harness sözleşmesi regresyon-first ayrılır.
+
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 
 ## P1 — Ortam ve dayanıklılık

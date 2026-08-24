@@ -2616,6 +2616,55 @@
         "No product source, build, installation, signing, tag or release changed during this run."
       ],
       "next_action": "Record this result through the protected PR workflow with separate approvals, then request separate approval for the physical buttons, timeline, window-resize and fullscreen package."
+    },
+    {
+      "id": "EV-20260824-001",
+      "recorded_at_utc": "2026-08-24T17:28:12Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "bd14c9839c80907511e45675e1d51163ebf3d9f7",
+      "subject": "Protected PR acceptance for the P0 overlay native PASS record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/24",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32754431461",
+        "the pull_request run completed on exact head bd14c9839c80907511e45675e1d51163ebf3d9f7 with required test check success: 4813 passed, 30 skipped and 0 failed",
+        "the PR was read back as CLEAN and MERGEABLE before the separately approved merge",
+        "the separately approved merge produced two-parent commit 36f418e27320ea924d380c27209b22d358e95321 from parents 9ef493503cab8cc4b7bacbfb2d0d624d627e3ec8 and bd14c9839c80907511e45675e1d51163ebf3d9f7",
+        "origin/master was read back at the exact merge commit and the remote task branch was not deleted"
+      ],
+      "summary": "The EV-20260823-024 documentation package passed the protected PR check and was merged to master through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS does not prove native Windows behavior, physical controls, an installed artifact or a release.",
+        "The 30 skipped tests are not PASS.",
+        "No native retry, build, installation, signing, tag or release occurred as part of this hosted result."
+      ],
+      "next_action": "Request separate approval for one physical buttons, timeline, window-resize and fullscreen package on the exact merge commit and exact prior runtime and media inputs."
+    },
+    {
+      "id": "EV-20260824-002",
+      "recorded_at_utc": "2026-08-24T17:28:13Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "36f418e27320ea924d380c27209b22d358e95321",
+      "subject": "Interrupted P0 physical controls package after a buttons failure and blocking playlist-boundary modal",
+      "evidence": [
+        "the separately approved package began on clean master exactly equal to origin/master two-parent merge commit 36f418e27320ea924d380c27209b22d358e95321 with no active MLC Player, python or pythonw process",
+        "the private local MP4 was 345752445 bytes with SHA-256 c3e53407690d6738a09b74655dd81296c8637015d835cf503ebc54787b6834a9 and mpv-2.dll was 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e before and after the run",
+        "command: MLC_NATIVE_SMOKE=1 and MLC_NATIVE_TEST_VIDEO=<same private local MP4> followed by python tests/run_physical_acceptance.py buttons,timeline,window_resize,fullscreen with a unique temporary isolation root",
+        "the first detached-worktree preflight stopped before any native child because the ignored local runtime DLL was absent there; the real native run started only after clean local master was fast-forwarded to the exact merge commit in the canonical checkout carrying the verified DLL",
+        "the buttons child emitted six PASS rows and one FAIL row before blocking: cc_on[closed] expected subtitle visibility and icon state to change but measured visibility=False and icon_active False->False",
+        "after the settings row passed, the child opened the product modal 'Oynatma listesi - Listenin sonuna ulaştınız'; the modal did not self-dismiss and the group-level timeout was 600 seconds",
+        "at the user's request the wait was stopped without manual interaction with the modal; Ctrl+C ended the terminal session but left the exact owned runner/child process chain alive, so only the command-line-verified PIDs 31104, 40108 and 25532 were terminated child-first and final MLC/Python inventory was empty",
+        "the buttons group produced no MARK_DONE and no summary.json; timeline, window_resize and fullscreen did not start, so none of those groups is PASS and no automatic retry was performed",
+        "post-run source status was clean on master equal to origin/master and the media and runtime hashes were unchanged"
+      ],
+      "summary": "The physical package failed closed: buttons had a real CC-toggle failure and then blocked on a playlist-boundary modal until the excessive wait was stopped; the remaining three groups were not run.",
+      "limitations": [
+        "The interrupted buttons output is partial and cannot establish a complete group result beyond non-PASS; absence of MARK_DONE and summary.json is never PASS.",
+        "The CC failure has not yet been separated into media-precondition, harness or product behavior, and the blocking modal has not yet been repaired in the harness.",
+        "WIN-P0-04 and WIN-P0-05 remain NOT_RUN; no product code, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Before any native retry, inspect the CC-toggle precondition and add a regression-first bounded playlist-boundary modal dismissal and shorter interaction timeout contract; request separate approval for any fix, merge and future native run."
     }
   ]
 }
