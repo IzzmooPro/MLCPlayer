@@ -3106,6 +3106,55 @@
         "No product source, build, installation, signing, tag or release changed."
       ],
       "next_action": "Request separate approval to commit this test-only HDR diagnostic harness and evidence package; push, PR, merge and any later native HDR run each require their own approval."
+    },
+    {
+      "id": "EV-20260824-021",
+      "recorded_at_utc": "2026-08-24T19:55:56Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "be66c9ba07490fa24a21cfd808d6cb84f0d84fd2",
+      "subject": "Protected PR acceptance for the bounded HDR diagnostic harness",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/34",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32770487016",
+        "the pull_request run completed on exact head be66c9ba07490fa24a21cfd808d6cb84f0d84fd2 with required test check success: 4838 passed, 30 skipped and 0 failed",
+        "PR #34 was read back CLEAN and MERGEABLE with the required test check COMPLETED/SUCCESS before the separately approved merge",
+        "the separately approved merge produced two-parent commit 5cfced39c24608d2a574f82009b294088dae9eb7 from parents 3a691dd3a9d8340cbba15b532b176739e7447ab4 and be66c9ba07490fa24a21cfd808d6cb84f0d84fd2",
+        "origin/master and local master were read back at the exact merge commit; the local and remote task branch were preserved"
+      ],
+      "summary": "The bounded test-only HDR diagnostic harness passed the protected full CI gate and was merged through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS does not run or prove native HDR output, visual quality or installed-artifact behavior.",
+        "The 30 skipped tests are not PASS and include opt-in native or installed-artifact paths.",
+        "No native run, product configuration change, build, installation, signing, tag or release occurred as part of this hosted result."
+      ],
+      "next_action": "Prepare a source-backed, machine-validated video format acceptance plan covering SDR, HDR families, 10-bit codecs and concrete competitor behavior without running native media."
+    },
+    {
+      "id": "EV-20260824-022",
+      "recorded_at_utc": "2026-08-24T20:08:22Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "5cfced39c24608d2a574f82009b294088dae9eb7",
+      "subject": "Machine-validated video format and competitor acceptance program",
+      "evidence": [
+        "the new regression contract first produced 5 failed because the human format plan, machine JSON matrix and Windows P2 routing did not exist",
+        "VIDEO_FORMAT_ACCEPTANCE_MATRIX.json binds 16 unique non-PASS cases for SDR-on-SDR, SDR-on-HDR, HDR10, HDR-to-SDR, HDR overlay luminance, AV1 Main10, VP9 Profile 2, HLG, HDR10+, two Dolby Vision fallback profiles, native-DV capability gating, 4K60, color range, display-state restoration and contradictory metadata",
+        "the matrix fixes the baseline at two-parent master 5cfced39c24608d2a574f82009b294088dae9eb7 and exact mpv commit 49418246f / runtime DLL SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "the plan compares exact mpv, VLC, Kodi and MPC Video Renderer using primary project documentation and keeps shell-versus-renderer, development-versus-stable and dynamic-HDR-versus-full-passthrough claim boundaries explicit",
+        "the execution policy prohibits automatic retry, caps each child at 60 seconds, requires separate native and product-change approvals, disallows screenshot-based color PASS and requires media source/license/ffprobe/SHA-256 identity",
+        "the first implementation check reached 4 passed and 1 failed only because the test required an ASCII rendering of the Turkish screen-capture term; the document now carries both forms without changing the rule",
+        "command: python -m pytest -q tests/test_video_format_acceptance_plan_regressions.py tests/test_hdr_acceptance_contract_regressions.py tests/test_continuity_regressions.py tests/test_quality_evolution_plan_regressions.py -> 25 passed",
+        "command: python -c <load VIDEO_FORMAT_ACCEPTANCE_MATRIX.json; verify unique case IDs and no PASSED status> -> FORMAT_MATRIX_OK",
+        "command: git diff --check -> clean"
+      ],
+      "summary": "A durable human and machine video-format program now separates SDR, HDR formats, codec paths, renderer behavior, fallbacks and evidence boundaries while keeping every unrun case BLOCKED.",
+      "limitations": [
+        "This is deterministic planning and source research only; no format media was downloaded, generated or opened and no competitor application was run.",
+        "No matrix case is PASSED, WIN-P2-01 remains BLOCKED and competitor behavior is not transferred to MLC Player.",
+        "The plan does not itself choose gpu-next, change Media Information UX, modify product configuration, build or install anything."
+      ],
+      "next_action": "Request separate approval to commit the format plan, machine matrix, P2 routing, regression contract and EV-20260824-021/022 records; push, PR and merge remain separately approved actions."
     }
   ]
 }
