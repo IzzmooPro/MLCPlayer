@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `5cfced39c24608d2a574f82009b294088dae9eb7`
+- Kayıt hazırlanırken doğrulanan HEAD: `88711e567811ebd55f98dc4933ec5daadc0b53d8`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-022`
+- Son kanıt: `EV-20260824-023`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -875,17 +875,24 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    yalnız ASCII terim sözleşmesiyle **4 passed / 1 failed**, düzeltmeden sonra
    etki grubu **25 passed** verdi (`EV-20260824-022`). Bütün format satırları
    `BLOCKED`; medya indirilmedi/üretilmedi, native/ürün değişikliği yapılmadı.
+136. Video format ve rakip kabul programı PR #35'in exact `8a611ba` head'inde
+   zorunlu hosted testten **4844 passed / 30 skipped / 0 failed** ile geçti.
+   PR `CLEAN/MERGEABLE` iken ayrı onayla iki ebeveynli `88711e5` merge
+   commit'i üzerinden master'a alındı (`EV-20260824-023`). Yerel/uzak görev
+   dalı korundu. Bütün 16 format satırı hâlâ `BLOCKED`; native medya veya
+   rakip oynatıcı çalıştırılmadı ve ürün kodu değişmedi.
 
 ## Sıradaki tek adım
 
-Video format kabul planı, makine matrisi, P2 yönlendirmesi, regresyon kapısı ve
-`EV-20260824-021/022` devir kayıtlarını commit etmek için ayrı açık onay al.
-Native medya çalıştırma veya indirme/üretme yapma.
+PR #35 hosted CI/iki ebeveynli merge sonucunu içeren `EV-20260824-023` devir
+kaydını commit etmek için ayrı açık onay al. Native medya çalıştırma,
+indirme/üretme veya ürün değişikliği yapma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Merge sonrasında GPU, EDID, Windows renk yolu ve exact mpv/FFmpeg yetenek
+2. Kayıt paketi merge sonrasında GPU, EDID, Windows renk yolu ve exact
+   mpv/FFmpeg yetenek
    envanterini salt okunur çıkar; hiçbir format satırını PASS yapma.
 3. Lisanslı/sentetik test medya adaylarının kaynak, kullanım dayanağı,
    `ffprobe`, boyut ve SHA-256 manifestini hazırla; indirme/üretme için ayrıca
