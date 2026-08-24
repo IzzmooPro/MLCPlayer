@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-24",
+  "updated": "2026-08-25",
   "baseline_commit": "5cfced39c24608d2a574f82009b294088dae9eb7",
   "plan_evidence_id": "EV-20260824-022",
   "merge_evidence_id": "EV-20260824-023",
@@ -24,7 +24,8 @@
     "compiled_gpu_apis": ["d3d11", "vulkan", "opengl"],
     "target_colorspace_hint_modes": ["target", "source", "source-dynamic"],
     "compiled_codec_drivers_are_hardware_proof": false,
-    "media_opened": false,
+    "media_opened": true,
+    "latest_native_playback_evidence_id": "EV-20260824-044",
     "all_cases_remain_blocked": true
   },
   "execution_policy": {
@@ -33,7 +34,13 @@
     "native_requires_separate_approval": true,
     "product_change_requires_separate_approval": true,
     "one_scenario_per_approval": true,
-    "screenshot_proves_color_accuracy": false
+    "screenshot_proves_color_accuracy": false,
+    "next_diagnostic_profile": {
+      "id": "no_latency_hacks",
+      "product_config_changed": false,
+      "native_run_approved": false,
+      "purpose": "Test the source-backed hypothesis that video-latency-hacks=yes caused the three startup VO drops; this profile cannot itself pass product acceptance."
+    }
   },
   "media_policy": {
     "manifest_document": "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json",
@@ -117,7 +124,7 @@
       "expected_path": "SDR BT.709 input remains SDR BT.709 output without level or gamut shift",
       "required_evidence": ["input and target params", "black white ramp", "no frame drops", "shutdown gates"],
       "status": "BLOCKED",
-      "blocker": "Exact licensed or generated SDR reference clip is not fingerprinted."
+      "blocker": "Exact fingerprinted SDR clip opened with BT.709 input/target, duration/progress and clean shutdown, but the approved first native smoke measured 3 VO frame drops; drop-free and manual black/white ramp evidence are still missing (EV-20260824-044)."
     },
     {
       "id": "VF-CORE-02",
@@ -128,7 +135,7 @@
       "expected_path": "Source remains labeled SDR while renderer maps it to the HDR display target without washed blacks",
       "required_evidence": ["input SDR classification", "target params", "reference white", "manual ramp check"],
       "status": "BLOCKED",
-      "blocker": "Active Windows HDR10 color space and exact SDR reference clip are not both available."
+      "blocker": "The exact SDR reference clip is fingerprinted, but active Windows HDR10 output and the separately approved SDR-on-HDR native/manual evidence are missing."
     },
     {
       "id": "VF-CORE-03",

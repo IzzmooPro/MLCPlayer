@@ -10,6 +10,7 @@ from hdr_probe_contract import (
     classify_input,
     hdr_probe_config,
     output_problems,
+    parse_dxdiag_bytes,
     parse_dxdiag_colorspace,
     report_problems,
 )
@@ -77,6 +78,14 @@ def test_dxdiag_colorspace_parser_requires_explicit_active_value():
         "Display Color Space: DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709\n"
     ) == "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709"
     assert parse_dxdiag_colorspace("HDR Support: Supported\n") == ""
+
+
+def test_dxdiag_bytes_accepts_bomless_turkish_windows_ansi():
+    text = ("Aygit: goruntu ö\r\n"
+            " Display Color Space: "
+            "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709\r\n")
+    assert parse_dxdiag_bytes(text.encode("cp1254")) == (
+        "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709")
 
 
 def test_report_requires_exit_markers_shutdown_and_no_process_leak():

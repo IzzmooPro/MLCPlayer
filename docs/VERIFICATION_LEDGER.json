@@ -3677,6 +3677,82 @@
         "No private artifact, product code, Windows setting, build, installation, signing, tag or release changed in this hosted result."
       ],
       "next_action": "Request separate approval to push the committed codex/pr42-merge-record task branch; request PR and merge separately afterward."
+    },
+    {
+      "id": "EV-20260824-043",
+      "recorded_at_utc": "2026-08-24T22:56:00Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "b800a0e1e08a08ed7c8cbad1f30b3da574477fe1",
+      "subject": "Protected PR acceptance for the PR #42 merge record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/43",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32786620310",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32786620310/job/97619752619",
+        "the required docs-only test check completed SUCCESS on exact head 88c2afda58fd67cfaf43ea888429fda11e22e638 with 247 passed and 0 failed",
+        "the hosted append-only step printed LEDGER_APPEND_ONLY_OK",
+        "the separately approved merge produced two-parent commit b800a0e1e08a08ed7c8cbad1f30b3da574477fe1 from parents 1f7fd31c34131377dd6cdacc6664a0b707f39b83 and 88c2afda58fd67cfaf43ea888429fda11e22e638",
+        "local master, origin/master and HEAD were read back clean and equal at the exact merge commit before the SDR native task branch was created"
+      ],
+      "summary": "The append-only record for the protected SDR fingerprint merge passed its own required hosted gate and entered master through a verified two-parent merge.",
+      "limitations": [
+        "This hosted_ci PASS is documentation and repository evidence only; it does not rerun media generation, the fingerprint CLI or MLC Player playback.",
+        "No video-format scenario is promoted by this record and all 16 scenarios remained BLOCKED.",
+        "No private artifact, product code, Windows setting, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Prepare one separately approved exact SYN-SDR709-01 MLC Player native smoke with a maximum 60-second child and no automatic retry."
+    },
+    {
+      "id": "EV-20260824-044",
+      "recorded_at_utc": "2026-08-24T23:02:28Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "b800a0e1e08a08ed7c8cbad1f30b3da574477fe1",
+      "subject": "First exact SYN-SDR709-01 MLC Player native smoke",
+      "evidence": [
+        "the separately approved one-time runner first revalidated the canonical SYN-SDR709-01 fingerprint with MEDIA_FINGERPRINT_OK, 374394 bytes, SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "the exact media identity remained unchanged before and after; exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "real MLC Player/libmpv reported BT.709 limited input with BT.1886 transfer, BT.709/BT.1886 target, duration 3.000 seconds and advancing time_pos to 0.600 seconds",
+        "the child completed in 1.637 seconds with exit 0, MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "decoder-frame-drop-count was 0 but frame-drop-count was 3; the exact mpv 49418246f property documentation defines frame-drop-count as frames dropped by the video output",
+        "the first runner reported Windows colorspace UNKNOWN because DxDiag emitted BOM-less Windows ANSI; preserved before and after files both decode to DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 and the shared parser was corrected deterministically without another native run",
+        "the preserved stderr is exactly one complete CPython 0xe24c4a02 report and the existing shared Windows exception contract classifies it as the known LuaJIT first-chance diagnostic only when exit and lifecycle gates also pass",
+        "private child log SHA-256 is 1b50395fbb4ba482ab3d58d3fba488f5c64a4a9c51e0ca9ec71ac3d7a7efbe2e; private report SHA-256 is cc1f54cab6bd5d5dc9726adc4a9b70754e2f7e51309241dd8f22aa3e5a65edd6",
+        "no automatic retry occurred and no target process remained after the failure"
+      ],
+      "summary": "The exact SDR fixture opened, classified and shut down correctly, but the native acceptance remains FAILED because the video output dropped three frames.",
+      "limitations": [
+        "FAILED is not PASS: VF-CORE-01 remains BLOCKED and the successful input, target, progress and shutdown sub-gates do not override the nonzero VO drop count.",
+        "The run did not perform a controlled human black/gray/white ramp judgment, competitor comparison, HDR mode change or HDR playback.",
+        "The initial report's colorspace UNKNOWN and stderr problem entries are preserved as runner observations; later read-only classification identified two harness interpretation defects but does not erase the frame-drop failure.",
+        "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Investigate the three startup/video-output drops without another native run; stabilize the measurement contract and request separate approval before any single retry."
+    },
+    {
+      "id": "EV-20260824-045",
+      "recorded_at_utc": "2026-08-24T23:06:07Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "b800a0e1e08a08ed7c8cbad1f30b3da574477fe1",
+      "subject": "Post-failure SDR harness correction and source-backed drop hypothesis",
+      "evidence": [
+        "the preserved DxDiag before and after files were parsed without another native run; both contain DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 and expose that the first runner omitted BOM-less Windows ANSI decoding",
+        "the shared HDR/SDR DxDiag parser now accepts Unicode, UTF-8 and Windows ANSI output while still requiring the exact Display Color Space field",
+        "the preserved stderr passed the existing strict complete_luajit_faulthandler_reports grammar as one complete CPython 0xe24c4a02 LuaJIT first-chance diagnostic; truncated, different-code or additional stderr remains fail-closed",
+        "exact mpv 49418246f documentation defines frame-drop-count as frames dropped by the video output and states that video-latency-hacks disables waiting for the first fully rendered video frame, which can make the VO drop frames during lazy initialization",
+        "app/config.py sets video_latency_hacks=yes; this is a source-backed hypothesis for the observed three startup VO drops, not a proven root cause",
+        "a test-only no_latency_hacks profile now copies rather than mutates the product MPV configuration and changes only video_latency_hacks to no; it has not been run and cannot itself promote product acceptance",
+        "the combined SDR, HDR, shared Windows exception, video-format, fingerprint and continuity package completed with 374 passed and 1 environment-limited skip",
+        "ledger append-only, three JSON parses, py_compile, git diff check and private-path scan were clean"
+      ],
+      "summary": "The two harness interpretation defects are corrected and a single source-backed diagnostic profile is ready, while EV-20260824-044 remains FAILED because the three VO drops were real.",
+      "limitations": [
+        "This deterministic PASS does not rerun MLC Player, prove that video-latency-hacks caused the drops, or convert VF-CORE-01 to PASS.",
+        "The no_latency_hacks profile is test-only; even a future diagnostic PASS would require a separately approved product change and product-profile native acceptance.",
+        "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Request separate explicit approval for one maximum-60-second exact SDR native diagnostic using only the no_latency_hacks test profile; do not retry automatically on failure."
     }
   ]
 }

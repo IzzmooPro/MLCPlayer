@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `1f7fd31c34131377dd6cdacc6664a0b707f39b83`
+- Kayıt hazırlanırken doğrulanan HEAD: `b800a0e1e08a08ed7c8cbad1f30b3da574477fe1`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-042`
+- Son kanıt: `EV-20260824-045`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1029,18 +1029,43 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    (`EV-20260824-042`). Yerel ve uzak master eşittir; görev dalı korundu.
    Hosted sonuç private native üretimi veya oynatmayı tekrar çalıştırmadı;
    yalnız bir aday fingerprinted ve 16 format senaryosu `BLOCKED` kaldı.
+156. Kayıt paketi PR #43'ün exact `88c2afd` head'inde zorunlu hosted `test`
+   check'inden **247 passed / 0 failed** ve `LEDGER_APPEND_ONLY_OK` ile geçti.
+   Ayrı onaylı iki ebeveynli `b800a0e` merge commit'iyle master'a alındı;
+   yerel/uzak master temiz ve eşitti (`EV-20260824-043`).
+157. Ayrı onaylı tek `SYN-SDR709-01` MLC native koşumunda kanonik fingerprint
+   tekrar exit 0 verdi; exact medya ve `mpv-2.dll` hash'leri korundu. Gerçek
+   libmpv `BT.709/BT.1886` girdi ve hedef, `duration=3.000`, ilerleyen
+   `time_pos=0.600`, `decoder-frame-drop-count=0`, exit 0, `MARK_DONE`, tek
+   `stop -> terminate`, imleç geri dönüşü ve sıfır süreç sızıntısı verdi.
+   Ancak `frame-drop-count=3`, exact mpv belgesine göre VO tarafından düşürülen
+   üç karedir; sonuç bu nedenle **FAILED** ve `VF-CORE-01` **BLOCKED** kaldı
+   (`EV-20260824-044`). Otomatik tekrar yapılmadı. Ham DxDiag önce/sonra
+   `G22/P709` değerini korudu; ilk runner'ın `UNKNOWN` sonucu BOM'suz Windows
+   ANSI decode kusuruydu ve deterministik olarak düzeltildi. Tam biçimli
+   `0xe24c4a02` stderr'i mevcut ortak sözleşmeyle bilinen LuaJIT first-chance
+   tanı izi olarak doğrulandı; frame-drop başarısızlığını değiştirmez.
+158. Exact mpv `49418246f` belgesi ürünün `video_latency_hacks=yes` ayarının
+   ilk kare tamamen çizilmeden oynatmayı başlattığını ve VO başlangıcında kare
+   düşürme ihtimali yarattığını doğruladı. Bu, ölçülen üç VO drop'u için güçlü
+   fakat henüz kesin olmayan mekanizmadır. Ürün kodunu değiştirmeyen test-only
+   `no_latency_hacks` profili, ortak LuaJIT stderr kapısı ve BOM'suz Windows
+   ANSI DxDiag parser düzeltmesi hazırlandı; birleşik paket **374 passed / 1
+   skipped**, append-only/JSON/py_compile/diff/private-path kontrolleri temizdir
+   (`EV-20260824-045`). Yeni native koşum yapılmadı.
 
 ## Sıradaki tek adım
 
-Commit edilmiş `codex/pr42-merge-record` kayıt dalını push etmek için ayrı açık
-onay al.
+EV-20260824-043/044/045 kayıtlarını, test-only SDR koşucusunu ve parser
+düzeltmelerini içeren mevcut `codex/sdr-native-smoke` çalışma ağacını commit
+etmek için ayrı açık onay al. Native koşum yapma.
 
 ## Sonraki sıra
 
-1. Push sonrasında PR oluşturma ve merge işlemlerini ayrı ayrı onaylat; private
-   artifact hiçbir Git işlemine eklenmez.
-2. Kayıt paketi protected merge ile tamamlanmadan fingerprinted SDR ile MLC
-   Player native oynatma veya insan görüntü kabulü başlatma.
+1. Commit sonrasında `no_latency_hacks` tanısı onaylanırsa yalnız o profili bir kez çalıştır;
+   mevcut ürün profili otomatik tekrarlanmaz ve private artifact hiçbir Git
+   işlemine eklenmez.
+2. Push, PR ve merge işlemlerini ayrı ayrı onaylat.
 3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
    tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;

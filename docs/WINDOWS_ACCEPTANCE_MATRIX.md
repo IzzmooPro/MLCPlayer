@@ -367,6 +367,26 @@ ayrı açık onayla yapılır. Bu programın bütün satırları başlangıçta
 `BLOCKED`/`NOT_RUN` kalır; hiçbir plan veya rakip özelliği `WIN-P2-01` durumunu
 yükseltmez.
 
+25 Ağustos 2026'da ayrı onaylı tek `SYN-SDR709-01` MLC koşumu exact
+fingerprint ve runtime kimliğini korudu; BT.709 SDR girdi/hedef, `duration=3.0`,
+ilerleyen `time_pos=0.600`, exit 0, `MARK_DONE`, `stop -> terminate` ve sıfır
+süreç sızıntısı ölçüldü. Buna rağmen exact mpv'nin VO tarafından düşürülen kare
+sayacı `frame-drop-count=3` verdi; bu nedenle `VF-CORE-01` **BLOCKED** kaldı ve
+otomatik tekrar yapılmadı (`EV-20260824-044`). İlk runner DxDiag'ın BOM'suz
+Windows ANSI çıktısını `UNKNOWN` okudu; saklanan ham önce/sonra raporları
+aslında aynı `DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709` değerini taşıyordu.
+Parser bu kanıttan deterministik olarak düzeltildi. Tam biçimli
+`0xe24c4a02` izi de mevcut ortak CPython/LuaJIT sınıflandırıcısıyla tanısal
+first-chance raporu olarak doğrulandı; frame-drop başarısızlığını aklamaz.
+
+Exact mpv `49418246f` seçenek belgesi `video-latency-hacks=yes` ayarının ilk
+kare tamamen çizilene kadar beklemeyi kapattığını ve VO ilk kareyi hazırlarken
+kare düşürme ihtimali doğurduğunu açıkça belirtir. Ürün yapılandırması bu ayarı
+`yes` taşır; bu nedenle ölçülen üç başlangıç VO drop'u için kaynak destekli bir
+hipotezdir, kesin kök neden değildir. Test-only `no_latency_hacks` profili ürün
+sözlüğünü mutate etmeden hazırdır. Bu profil çalıştırılmadı, ürün kabulü sayılmaz
+ve tek native tanı koşumu için ayrıca açık onay gerekir (`EV-20260824-045`).
+
 ## Var olan araçların yeniden kullanımı
 
 - `tests/run_physical_acceptance.py`
@@ -375,6 +395,7 @@ yükseltmez.
 - `tests/native_feature_acceptance.py`
 - `tests/native_shutdown_acceptance.py`
 - `tests/run_hdr_acceptance.py`
+- `tests/run_sdr_acceptance.py`
 
 Yeni runner ancak mevcut araç kesin olarak senaryoyu ölçemiyorsa ve önce bu
 boşluk belgelenirse eklenir.

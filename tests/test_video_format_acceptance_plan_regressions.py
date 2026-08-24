@@ -49,7 +49,8 @@ def test_media_candidates_are_fail_closed_and_cover_every_case():
     assert media["status"] == "partially_fingerprinted"
     assert media["fingerprinted_state_enabled"] is True
     assert media["acquisition_or_generation_performed"] is True
-    assert media["native_media_opened"] is False
+    assert media["native_media_opened"] is True
+    assert media["latest_native_media_evidence_id"] == "EV-20260824-044"
     assert matrix["media_policy"]["manifest_document"] == (
         "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json")
     assert matrix["media_policy"]["manifest_status"] == (
@@ -59,6 +60,9 @@ def test_media_candidates_are_fail_closed_and_cover_every_case():
     ledger_ids = {
         entry["id"] for entry in json.loads(read(LEDGER))["entries"]}
     assert matrix["media_policy"]["manifest_evidence_id"] in ledger_ids
+    assert media["latest_native_media_evidence_id"] in ledger_ids
+    assert matrix["capability_inventory"][
+        "latest_native_playback_evidence_id"] in ledger_ids
     assert matrix["media_policy"]["acquisition_or_generation_performed"] is True
 
     source_ids = {item["id"] for item in media["sources"]}
@@ -203,6 +207,10 @@ def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     assert 0 < data["execution_policy"]["max_child_seconds"] <= 60
     assert data["execution_policy"]["automatic_retry"] is False
     assert data["execution_policy"]["native_requires_separate_approval"] is True
+    diagnostic = data["execution_policy"]["next_diagnostic_profile"]
+    assert diagnostic["id"] == "no_latency_hacks"
+    assert diagnostic["product_config_changed"] is False
+    assert diagnostic["native_run_approved"] is False
 
     cases = data["cases"]
     ids = [case["id"] for case in cases]
@@ -241,7 +249,9 @@ def test_capability_inventory_keeps_compiled_and_active_proof_separate():
         "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709")
     assert data["active_hdr10_output_proven"] is False
     assert data["compiled_codec_drivers_are_hardware_proof"] is False
-    assert data["media_opened"] is False
+    assert data["media_opened"] is True
+    assert data["latest_native_playback_evidence_id"] == (
+        "EV-20260824-044")
     assert data["all_cases_remain_blocked"] is True
     assert {"gpu", "gpu-next"} <= set(data["compiled_video_outputs"])
     assert "d3d11" in data["compiled_gpu_apis"]
