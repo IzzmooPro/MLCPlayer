@@ -3423,6 +3423,32 @@
         "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge occurred in this package."
       ],
       "next_action": "Request separate approval to commit this manifest package; after its protected merge, request separate approval for the test-only executable fingerprint validator and SYN-SDR709-01 generation only."
+    },
+    {
+      "id": "EV-20260824-033",
+      "recorded_at_utc": "2026-08-24T21:49:46Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "93d49ac5b5e089dedff7f4a167952026e163f3f8",
+      "subject": "Protected PR acceptance for the video-format media manifest",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/40",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32781081063",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32781081063/job/97603078532",
+        "the required test check completed SUCCESS on exact head e5aaa8369fc1880fb9b8953aa8dbf0edcc7df186 with 4879 passed, 30 skipped and 0 failed in 122.60 seconds",
+        "the hosted append-only step printed LEDGER_APPEND_ONLY_OK",
+        "PR #40 was read back OPEN and MERGEABLE with the required test check COMPLETED/SUCCESS before the separately approved merge",
+        "the separately approved merge produced two-parent commit 93d49ac5b5e089dedff7f4a167952026e163f3f8 from parents 74630cbf3e76c830aa1741a785986cd8f95229dd and e5aaa8369fc1880fb9b8953aa8dbf0edcc7df186",
+        "origin/master and local master were read back clean and equal at the exact merge commit; the task branch was preserved"
+      ],
+      "summary": "The fail-closed video-format media candidate and identity manifest passed the protected full CI gate and entered master through a verified two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci result validates repository and deterministic contracts only; it does not acquire, generate or open media and does not run native or competitor players.",
+        "The 30 skipped tests are not PASS and include opt-in native or environment-limited paths.",
+        "All 16 format cases remain BLOCKED and fingerprinted_state_enabled remains false until an executable byte and ffprobe validator exists.",
+        "No product code, Windows setting, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Request separate approval to commit this hosted merge record; after its protected merge, request separate approval for the test-only executable fingerprint validator and SYN-SDR709-01 generation only."
     }
   ]
 }
