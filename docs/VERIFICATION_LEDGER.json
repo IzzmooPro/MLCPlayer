@@ -3005,6 +3005,56 @@
         "No product source, native behavior, build, installation, signing, tag or release changed."
       ],
       "next_action": "Request separate approval to commit the test-only bounded playback_seek harness and evidence package; push, PR, merge and a later native run each require their own approval."
+    },
+    {
+      "id": "EV-20260824-017",
+      "recorded_at_utc": "2026-08-24T19:22:59Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "9122b56ca33fb00ac93629bdb76d2d4f9ec04d3f",
+      "subject": "Protected PR acceptance for the bounded playback_seek harness",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/32",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32767270248",
+        "the pull_request run completed on exact head 9122b56ca33fb00ac93629bdb76d2d4f9ec04d3f with required test check success: 4827 passed, 30 skipped and 0 failed",
+        "PR #32 was read back CLEAN and MERGEABLE with the required test check COMPLETED/SUCCESS before the separately approved merge",
+        "the separately approved merge produced two-parent commit 4cabdfc6acb898927f39e68fd2c5f807fc07de40 from parents 44acdbb8478c305a81016f5f8ecf0f5cfb3d75a1 and 9122b56ca33fb00ac93629bdb76d2d4f9ec04d3f",
+        "origin/master and local master were read back at the exact merge commit and the task branch was preserved"
+      ],
+      "summary": "The bounded playback_seek harness passed the protected full CI gate and was merged through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS does not independently run or prove physical Windows input behavior.",
+        "The 30 skipped tests are not PASS and include opt-in native or installed-artifact paths.",
+        "No native run, product change, build, installation, signing, tag or release occurred as part of this hosted result."
+      ],
+      "next_action": "Request separate approval for one playback_seek native run on exact merged master commit 4cabdfc6acb898927f39e68fd2c5f807fc07de40."
+    },
+    {
+      "id": "EV-20260824-018",
+      "recorded_at_utc": "2026-08-24T19:23:00Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "4cabdfc6acb898927f39e68fd2c5f807fc07de40",
+      "subject": "WIN-P0-04 bounded physical pause, resume and seek acceptance",
+      "evidence": [
+        "the separately approved first and only playback_seek attempt began on clean master exactly equal to origin/master two-parent merge commit 4cabdfc6acb898927f39e68fd2c5f807fc07de40 with no active MLC Player, python or pythonw process",
+        "the private MP4 was 345752445 bytes with SHA-256 c3e53407690d6738a09b74655dd81296c8637015d835cf503ebc54787b6834a9 and mpv-2.dll was 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e before and after the run",
+        "command: isolated TEMP/settings, MLC_NATIVE_SMOKE=1 and MLC_NATIVE_TEST_VIDEO=<same private local MP4> followed by python tests/run_physical_acceptance.py playback_seek",
+        "the single attempt completed in 16.3 seconds with runner and child exit 0, MARK_DONE, 7 PASS, 0 FAIL, 0 BLOCKED and no timeout",
+        "a real SendInput click changed mpv.pause and PLAYER.is_paused to true; the resume click returned both to false and time_pos progressed from 2.300 to 3.500",
+        "independent physical 10, 50 and 90 percent timeline clicks reached slider values 100, 500 and 900 with measured time positions 507.60, 2536.30 and 4564.97 seconds inside the 5.1-second tolerance",
+        "the physical worker-thread drag from 20 to 70 percent ended at slider value 699 and time_pos 3546.60 inside tolerance, with an empty input-problems list and slider down false",
+        "the product shutdown path passed with exactly one stop and one terminate in stop->terminate order, accepted close, released mpv_player and restored cursor",
+        "two QThreadStorage teardown warnings appeared only after MARK_DONE; there was no Python exception, access violation, behavior failure or remaining MLC Player, python or pythonw process",
+        "post-run media/runtime hashes were unchanged and source status remained clean and exactly equal to origin/master"
+      ],
+      "summary": "WIN-P0-04 passed on one exact commit: physical pause/resume, advancing playback time, three independent seeks, one drag, canonical shutdown and leak gates all completed successfully.",
+      "limitations": [
+        "This native_smoke PASS belongs only to the exact commit, DLL, media fingerprint and measured Windows scenario; it is not installed-artifact evidence.",
+        "The run intentionally excludes real audio output, subtitles, playlist actions, settings, fullscreen and other P0 rows.",
+        "No product source, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Commit this WIN-P0-04 evidence record with separate approval, then use separate push, PR and merge approvals; do not rerun the native test."
     }
   ]
 }

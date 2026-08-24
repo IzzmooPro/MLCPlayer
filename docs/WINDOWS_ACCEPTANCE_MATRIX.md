@@ -38,7 +38,7 @@ yazılır.
 | WIN-P0-01 | Uygulama açılışı ve normal kapanış | Exit 0, final marker, stderr sınıflaması, süreç sızıntısı yok | PASSED |
 | WIN-P0-02 | Gerçek yerel video oynatma | Süre ilerler, kare/oynatma kanıtı vardır, medya değişmez | PASSED |
 | WIN-P0-03 | Ses ve yerel altyazı parçası değiştirme | Seçim libmpv read-back ile doğrulanır | NOT_RUN |
-| WIN-P0-04 | Seek, duraklatma ve devam | Zaman/state read-back beklenen aralıkta | NOT_RUN |
+| WIN-P0-04 | Seek, duraklatma ve devam | Zaman/state read-back beklenen aralıkta | PASSED |
 | WIN-P0-05 | Tam ekran, native resize ve geri dönüş | Boyut/state doğru, donma ve kontrol kaybı yok | PASSED |
 | WIN-P0-06 | Dosya/altyazı sürükle-bırak | Doğru medya veya altyazı uygulanır | NOT_RUN |
 | WIN-P0-07 | Oynatma listesi ekleme, taşıma ve sınırlar | Sıra ve seçim korunur, son satır hedeflenebilir | NOT_RUN |
@@ -100,9 +100,15 @@ değiştirmez.
   alır. Bu dar grup ses, altyazı, playlist, ayarlar veya fullscreen ölçmez.
 - **Exact girdiler:** seek aralıklarını taşıyacak yeterli sürede gerçek video;
   `MLC_NATIVE_SMOKE=1`, `MLC_NATIVE_TEST_VIDEO` ve ortak runtime kimliği.
-- **Açık boşluk:** fiziksel runner gerçek ses çıkışını ölçmez; bu satırın
-  hedefi yalnız zaman ve oynatma state'idir. Dar grup henüz native
-  çalıştırılmadığı için durum **NOT_RUN** kalır.
+- **Sonuç:** exact iki ebeveynli master `4cabdfc` üzerinde aynı doğrulanmış
+  MP4/DLL ile ilk ve tek `playback_seek` koşumu **16,3 saniye / exit 0 / 7
+  PASS / 0 FAIL / 0 BLOCKED / MARK_DONE** verdi. Gerçek SendInput pause/resume,
+  ilerleyen `time_pos`, %10/%50/%90 tıklamaları ve %20→%70 sürükleme libmpv
+  read-back ile geçti; kapanış `stop -> terminate`, imleç dönüşü ve süreç
+  temizliği doğrulandı (`EV-20260824-018`). `WIN-P0-04` artık **PASSED**.
+- **Kanıt sınırı:** koşum gerçek ses çıkışını ölçmez; hedef yalnız zaman ve
+  oynatma state'idir. Sonuç yalnız exact commit/runtime/medya/Windows
+  senaryosuna aittir ve kurulu-artifact kanıtı değildir.
 
 ### WIN-P0-05 — Tam ekran, native resize ve geri dönüş
 

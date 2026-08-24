@@ -62,4 +62,4 @@ def test_win_p0_04_matrix_routes_to_the_narrow_group_only():
                      matrix.index("### WIN-P0-05")]
     assert "run_physical_acceptance.py playback_seek" in section
     assert "buttons,timeline" not in section
-    assert "NOT_RUN" in section
+    assert "`WIN-P0-04` artık **PASSED**" in section

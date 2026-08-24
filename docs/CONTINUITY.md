@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `44acdbb8478c305a81016f5f8ecf0f5cfb3d75a1`
+- Kayıt hazırlanırken doğrulanan HEAD: `4cabdfc6acb898927f39e68fd2c5f807fc07de40`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-016`
+- Son kanıt: `EV-20260824-018`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -838,21 +838,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    verdi. Grup üst sınırı **90 saniyedir**; ses, altyazı, playlist, ayarlar ve
    fullscreen kapsam dışıdır (`EV-20260824-016`). Native koşum yapılmadı,
    `WIN-P0-04` **NOT_RUN** kaldı ve ürün kodu değişmedi.
+130. Test-only harness PR #32'nin exact `9122b56` head'inde zorunlu hosted
+   testten **4827 passed / 30 skipped / 0 failed** ile geçti. Ayrı onayla iki
+   ebeveynli `4cabdfc` merge commit'i üzerinden master'a alındı
+   (`EV-20260824-017`). Hosted sonuç native davranışı tek başına kanıtlamaz.
+131. Ayrı onaylı ilk ve tek `playback_seek` koşumu exact `4cabdfc`, aynı
+   doğrulanmış MP4/DLL ile **16,3 saniye / exit 0 / 7 PASS / 0 FAIL / 0
+   BLOCKED / MARK_DONE** verdi. Gerçek pause/resume state read-back, ilerleyen
+   `time_pos`, %10/%50/%90 fiziksel seek ve %20→%70 sürükleme tolerans içinde
+   geçti. Kapanış `stop -> terminate`, imleç geri dönüşü, değişmeyen hash'ler
+   ve sıfır süreç sızıntısı doğrulandı (`EV-20260824-018`). `WIN-P0-04` artık
+   **PASSED**; ürün kodu değişmedi.
 
 ## Sıradaki tek adım
 
-`playback_seek` test-only harness ve `EV-20260824-015/016` kayıt paketini
-commit etmek için ayrı açık onay al. Native testi çalıştırma.
+PR #32 hosted kabulü ve `WIN-P0-04` native PASS sonucunu içeren
+`EV-20260824-017/018` kayıt paketini commit etmek için ayrı açık onay al.
+Native testi tekrar çalıştırma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Harness merge edildikten sonra `WIN-P0-04` satırını tek exact committe
-   kapatmak için yalnız `playback_seek` koşumuna ayrı native onay iste.
-3. Kalan açık boşluklar için dar runner veya kayıtlı manuel kabul kararını ver.
-4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+2. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
+   manuel kabul kararını ver.
+3. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-5. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+4. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni
