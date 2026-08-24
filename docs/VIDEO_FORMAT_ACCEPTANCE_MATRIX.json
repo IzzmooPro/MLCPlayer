@@ -36,6 +36,10 @@
     "screenshot_proves_color_accuracy": false
   },
   "media_policy": {
+    "manifest_document": "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json",
+    "manifest_evidence_id": "EV-20260824-032",
+    "manifest_status": "candidate_only",
+    "acquisition_or_generation_performed": false,
     "large_media_committed_to_git": false,
     "required_identity": [
       "source_url_or_origin",

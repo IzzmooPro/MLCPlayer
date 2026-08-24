@@ -136,6 +136,14 @@ fallback/dinamik HDR10 diye adlandırılır.
 
 ## Test medyası sözleşmesi
 
+Adayların makinece tek kaynağı `VIDEO_FORMAT_MEDIA_MANIFEST.json` dosyasıdır.
+Bu dosyada `candidate_only`, kaynak ve kullanım dayanağının bulunduğunu fakat
+exact nesnenin henüz seçilmediğini veya üretilmediğini söyler. Bu durumda
+boyut, SHA-256, `ffprobe` ve üretim kimliği `null` kalır; tahminî değerle
+doldurulmaz ve native koşuma izin vermez. Yalnız ayrı onaylı edinme/üretme
+sonrasında gerçek baytlardan ölçülen bütün kapılar tamamlanırsa durum
+`fingerprinted` olabilir.
+
 Her medya şu kayıt olmadan native koşuma giremez:
 
 - resmî kaynak URL'si veya kullanıcıya ait kaynak açıklaması;
@@ -143,12 +151,19 @@ Her medya şu kayıt olmadan native koşuma giremez:
 - dosya adı yayımlanmadan boyut ve SHA-256;
 - `ffprobe` JSON: container, codec, profil, piksel biçimi, bit derinliği,
   primaries, transfer, matrix, range, mastering metadata ve dynamic metadata;
+- exact `ffprobe` binary SHA-256/sürümü, argv listesi, seçilen video stream'i
+  ve yerel yolu içermeyen normalize probe JSON SHA-256 değeri;
 - koşum öncesi/sonrası tam kimlik eşliği.
 
 Büyük video dosyaları Git'e eklenmez. Sentetik ramp/metadata fixture'ı
 üretilirse üretim komutu, FFmpeg kimliği ve çıktı hash'i kaydedilir. Sentetik
 metadata görüntü kalitesi veya mastering kanıtı değildir; yapısal renk yolu
 testidir.
+
+HDR10+ adı veya codec/profile etiketi dinamik metadata kanıtı değildir;
+frame/stream side-data değişimi ölçülür. Dolby Vision için profil/level,
+uyumlu taban ve RPU birlikte doğrulanır. Genel `ffprobe format.filename` alanı
+ve kullanıcıya ait yerel yollar yayımlanmaz.
 
 ## Native yürütme ve rakip yan-yana ölçüm
 

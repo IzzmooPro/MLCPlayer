@@ -4,13 +4,13 @@ Bu dosya projenin **tek güncel devir noktasıdır**. Tarihsel ayrıntı burada
 büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsamlı
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
-- Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `e11af6a3a6704d3f262c935f9e57abc242351f2d`
+- Güncelleme: 25 Ağustos 2026
+- Kayıt hazırlanırken doğrulanan HEAD: `74630cbf3e76c830aa1741a785986cd8f95229dd`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-030`
+- Son kanıt: `EV-20260824-032`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -938,20 +938,30 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    MERGEABLE` iken ayrı onayla iki ebeveynli `e11af6a` merge commit'i
    üzerinden master'a alındı (`EV-20260824-030`). Yerel ve uzak master exact
    merge commit'inde eşittir; ürün/native/HDR davranışı değişmedi.
+145. PR #38 merge kaydı PR #39'un exact `7c60ec4` head'inde zorunlu `test`
+   check'inden geçti ve iki ebeveynli `74630cb` merge commit'iyle master'a
+   alındı. Ardından 16 format satırının tamamını kapsayan fail-closed medya
+   aday manifesti hazırlandı: Netflix Open Content CC BY 4.0 HDR adayları,
+   sentetik SDR/HDR10/HLG/range/metadata ve yapısal HDR10+/Dolby Vision
+   yolları birbirinden ayrıldı. Hiçbir exact nesne seçilmedi; bütün boyut,
+   SHA-256, probe ve recipe kimlikleri gerçek üretim/edinmeye kadar `null`,
+   bütün format satırları `BLOCKED` ve medya/native/ürün davranışı değişmedi
+   PR merge'i `EV-20260824-031`, manifest sözleşmesi
+   `EV-20260824-032` olarak katmanları karıştırmadan kaydedildi.
 
 ## Sıradaki tek adım
 
-PR #38 hosted sonucu ve iki ebeveynli merge kanıtını içeren
-`EV-20260824-030` kayıt paketini commit etmek için ayrı açık onay al. Native
-medya çalıştırma, indirme/üretme veya ürün değişikliği yapma.
+Fail-closed video-format medya aday manifesti ve `EV-20260824-032` kayıt
+paketini commit etmek için ayrı açık onay al. Medya çalıştırma,
+indirme/üretme veya ürün değişikliği yapma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Kayıt paketi merge sonrasında lisanslı/sentetik test medya adaylarının
-   kaynak, kullanım dayanağı,
-   `ffprobe`, boyut ve SHA-256 manifestini hazırla; indirme/üretme için ayrıca
-   açık onay al.
+2. Kayıt paketi merge sonrasında test-only executable fingerprint
+   doğrulayıcısı ile yalnız `SYN-SDR709-01` üretimi ve exact
+   FFmpeg/recipe/çıktı/`ffprobe` kimliği için ayrıca açık onay al; aynı onayda
+   HDR üretme veya native oynatma yapma.
 3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
    tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;
