@@ -26,20 +26,28 @@ CHILD = os.path.join(TESTS_DIR, "native_physical_acceptance_child.py")
 LOG_DIR = os.path.join(os.environ.get("TEMP", "."), "mlc_physical_logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 
+sys.path.insert(0, TESTS_DIR)
+from physical_buttons_contract import (  # noqa: E402
+    BUTTONS_GROUP_TIMEOUT_SECONDS,
+    FULLSCREEN_GROUP_TIMEOUT_SECONDS,
+    TIMELINE_GROUP_TIMEOUT_SECONDS,
+    WINDOW_RESIZE_GROUP_TIMEOUT_SECONDS,
+)
+
 user32 = ctypes.windll.user32
 user32.SetCursorPos.argtypes = [ctypes.c_int, ctypes.c_int]
 user32.GetCursorPos.argtypes = [ctypes.POINTER(wintypes.POINT)]
 
 GROUPS = [
-    ("1", "buttons", 600),
-    ("2", "timeline", 900),
+    ("1", "buttons", BUTTONS_GROUP_TIMEOUT_SECONDS),
+    ("2", "timeline", TIMELINE_GROUP_TIMEOUT_SECONDS),
     ("3", "separator", 420),
-    ("4", "window_resize", 480),
+    ("4", "window_resize", WINDOW_RESIZE_GROUP_TIMEOUT_SECONDS),
     ("5", "alttab", 480),
     ("6", "toggle", 600),
     ("7", "dragdrop", 180),
     ("8", "thumbnails", 300),
-    ("9", "fullscreen", 300),
+    ("9", "fullscreen", FULLSCREEN_GROUP_TIMEOUT_SECONDS),
     ("10", "subtitles", 480),
     ("11", "zorder", 480),
 ]

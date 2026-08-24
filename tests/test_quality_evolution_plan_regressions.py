@@ -127,6 +127,7 @@ def test_every_p0_row_has_an_honest_execution_mapping_and_exact_status():
     assert "EV-20260823-022" in p0_section
     assert "EV-20260823-024" in p0_section
     assert "EV-20260824-002" in p0_section
+    assert "EV-20260824-004" in p0_section
     assert "0xC0000005" in p0_section
     assert "os._exit" in p0_section
 

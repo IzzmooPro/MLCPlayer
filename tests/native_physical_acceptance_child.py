@@ -45,6 +45,10 @@ from physical_targets import (candidate_values, pick_far_target,  # noqa: E402
                               target_x_for_value, value_tolerance_for_width)
 from physical_audio import (audio_safety_problems,  # noqa: E402
                             native_mpv_config)
+from physical_buttons_contract import (MODAL_DISMISS_DELAY_MS,  # noqa: E402
+                                       arm_modal_dismissal,
+                                       has_subtitle_track,
+                                       playlist_step_available)
 from physical_layout import (resize_problems,  # noqa: E402
                              zorder_after_resize_problems)
 
@@ -637,12 +641,17 @@ def group_buttons():
 
         # --- CC ONCE olculur (medya degistirmeden, track listesi kararliyken) ---
         wait_for(lambda: (mpv.duration or 0) > 0, 8000)
-        wait_for(lambda: len([t for t in (mpv.track_list or [])
-                              if isinstance(t, dict) and t.get("type") == "sub"]) > 0,
-                 8000)
-        cc = overlay_button("overlaySubtitles")
-        ready = click_ready(cc, f"cc_on[{phase}]")
-        if ready:
+        subtitle_tracks_ready = wait_for(
+            lambda: has_subtitle_track(mpv.track_list), 8000)
+        if not subtitle_tracks_ready:
+            record(f"cc_on[{phase}]", "on kosul",
+                   "en az bir gercek altyazi track'i",
+                   f"track_list={mpv.track_list}", None,
+                   "BLOCKED: SUBTITLE_TRACK")
+        else:
+            cc = overlay_button("overlaySubtitles")
+            ready = click_ready(cc, f"cc_on[{phase}]")
+        if subtitle_tracks_ready and ready:
             before_icon = frame.overlay_subtitles_active
             physical_click(ready[0], ready[1], settle=300)
             turned_on = wait_for(lambda: bool(mpv.sub_visibility) is True, 5000)
@@ -869,36 +878,77 @@ def group_buttons():
                    and slider.value() == vol_before, ready[2])
 
         # --- Sonraki / Onceki (medya yuklemesi beklenir) ---
-        nxt = overlay_button("overlayNext")
-        ready = click_ready(nxt, f"next[{phase}]")
-        if ready:
-            before_i = PLAYER.current_playlist_index
+        before_i = PLAYER.current_playlist_index
+        next_available = playlist_step_available(
+            len(PLAYER.playlist), before_i, 1)
+        if not next_available:
+            record(f"next[{phase}]", "on kosul",
+                   "olculebilir sonraki playlist ogesi",
+                   f"index={before_i} size={len(PLAYER.playlist)} ", None,
+                   "BLOCKED: PLAYLIST_NEXT_ITEM")
+        else:
+            nxt = overlay_button("overlayNext")
+            ready = click_ready(nxt, f"next[{phase}]")
+        if next_available and ready:
             before_file = PLAYER.current_file
-            physical_click(ready[0], ready[1], settle=300)
-            advanced = wait_for(
-                lambda: PLAYER.current_playlist_index == before_i + 1, 8000)
-            loaded = wait_for(lambda: PLAYER.current_file != before_file
-                              and (mpv.duration or 0) > 0, 15000)
+            modal_seen = []
+
+            def dismiss_next_modal():
+                modal_seen.extend(close_modal_dialogs())
+
+            arm_modal_dismissal(QTimer.singleShot, dismiss_next_modal)
+            physical_click(ready[0], ready[1],
+                           settle=MODAL_DISMISS_DELAY_MS + 700)
+            if modal_seen:
+                advanced = loaded = False
+            else:
+                advanced = wait_for(
+                    lambda: PLAYER.current_playlist_index == before_i + 1,
+                    8000)
+                loaded = wait_for(lambda: PLAYER.current_file != before_file
+                                  and (mpv.duration or 0) > 0, 15000)
             record(f"next[{phase}]", "SendInput click",
                    "index +1 ve yeni medya yuklenir",
                    f"{before_i}->{PLAYER.current_playlist_index} "
-                   f"loaded={loaded} duration={mpv.duration}",
+                   f"loaded={loaded} duration={mpv.duration} "
+                   f"modal_seen={modal_seen}",
                    advanced and loaded, ready[2])
 
+        mid_i = PLAYER.current_playlist_index
+        previous_available = playlist_step_available(
+            len(PLAYER.playlist), mid_i, -1)
+        if not previous_available:
+            record(f"previous[{phase}]", "on kosul",
+                   "olculebilir onceki playlist ogesi",
+                   f"index={mid_i} size={len(PLAYER.playlist)}", None,
+                   "BLOCKED: PLAYLIST_PREVIOUS_ITEM")
+        else:
             prev = overlay_button("overlayPrevious")
             ready = click_ready(prev, f"previous[{phase}]")
-            if ready:
-                mid_i = PLAYER.current_playlist_index
-                mid_file = PLAYER.current_file
-                physical_click(ready[0], ready[1], settle=300)
+        if previous_available and ready:
+            mid_file = PLAYER.current_file
+            modal_seen = []
+
+            def dismiss_previous_modal():
+                modal_seen.extend(close_modal_dialogs())
+
+            arm_modal_dismissal(QTimer.singleShot,
+                                dismiss_previous_modal)
+            physical_click(ready[0], ready[1],
+                           settle=MODAL_DISMISS_DELAY_MS + 700)
+            if modal_seen:
+                back = loaded2 = False
+            else:
                 back = wait_for(
-                    lambda: PLAYER.current_playlist_index == mid_i - 1, 8000)
+                    lambda: PLAYER.current_playlist_index == mid_i - 1,
+                    8000)
                 loaded2 = wait_for(lambda: PLAYER.current_file != mid_file
                                    and (mpv.duration or 0) > 0, 15000)
-                record(f"previous[{phase}]", "SendInput click",
-                       "index -1 ve yeni medya yuklenir",
-                       f"{mid_i}->{PLAYER.current_playlist_index} "
-                       f"loaded={loaded2}", back and loaded2, ready[2])
+            record(f"previous[{phase}]", "SendInput click",
+                   "index -1 ve yeni medya yuklenir",
+                   f"{mid_i}->{PLAYER.current_playlist_index} "
+                   f"loaded={loaded2} modal_seen={modal_seen}",
+                   back and loaded2, ready[2])
 
         # --- Fullscreen (gercek tiklama + gercek Esc) ---
         fs = overlay_button("overlayFullscreen")
