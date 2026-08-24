@@ -264,6 +264,17 @@ listeleri boştu. Dedicated `fullscreen` grubu aynı exact committe çalışmad�
 için `WIN-P0-05` durumu **NOT_RUN** olarak korunur. Farklı DPI ve çoklu monitör
 kapsamı da bu dar koşumun dışındadır.
 
+Exact iki ebeveynli master `460f0c5` üzerinde ayrı onaylı yalnız `fullscreen`
+grubu `EV-20260824-012` olarak ilk denemede **PASS** verdi: 7,3 saniye, exit
+`0`, `MARK_DONE`, **4 PASS / 0 FAIL / 0 BLOCKED**, kanonik
+`stop -> terminate` ve sıfır süreç sızıntısı. Gerçek düğme tıklaması pencereyi
+tam 2560x1440 ekran geometrisine taşıdı; gerçek Esc 960x600 varsayılan boyuta
+ve ekran merkezine döndürdü, playlist kapalı ve overlay görünür kaldı. Resize
+PASS'i farklı exact commit `346603b` üzerindedir; bu nedenle iki ayrı native
+sonuç birleştirilerek `WIN-P0-05` yükseltilmez ve durum **NOT_RUN** kalır. Satırı
+kapatmak için tek exact committe birleşik `window_resize,fullscreen` koşumu
+veya eşdeğer kayıtlı manuel kabul gerekir.
+
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 
 ## P1 — Ortam ve dayanıklılık
