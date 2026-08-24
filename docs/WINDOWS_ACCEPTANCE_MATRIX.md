@@ -39,7 +39,7 @@ yazılır.
 | WIN-P0-02 | Gerçek yerel video oynatma | Süre ilerler, kare/oynatma kanıtı vardır, medya değişmez | PASSED |
 | WIN-P0-03 | Ses ve yerel altyazı parçası değiştirme | Seçim libmpv read-back ile doğrulanır | NOT_RUN |
 | WIN-P0-04 | Seek, duraklatma ve devam | Zaman/state read-back beklenen aralıkta | NOT_RUN |
-| WIN-P0-05 | Tam ekran, native resize ve geri dönüş | Boyut/state doğru, donma ve kontrol kaybı yok | NOT_RUN |
+| WIN-P0-05 | Tam ekran, native resize ve geri dönüş | Boyut/state doğru, donma ve kontrol kaybı yok | PASSED |
 | WIN-P0-06 | Dosya/altyazı sürükle-bırak | Doğru medya veya altyazı uygulanır | NOT_RUN |
 | WIN-P0-07 | Oynatma listesi ekleme, taşıma ve sınırlar | Sıra ve seçim korunur, son satır hedeflenebilir | NOT_RUN |
 | WIN-P0-08 | İkinci uygulama örneği/IPC | Dosya veya URL ilk örneğe geçer, artık süreç yok | NOT_RUN |
@@ -274,6 +274,16 @@ PASS'i farklı exact commit `346603b` üzerindedir; bu nedenle iki ayrı native
 sonuç birleştirilerek `WIN-P0-05` yükseltilmez ve durum **NOT_RUN** kalır. Satırı
 kapatmak için tek exact committe birleşik `window_resize,fullscreen` koşumu
 veya eşdeğer kayıtlı manuel kabul gerekir.
+
+Exact iki ebeveynli master `aa4dca8` üzerinde ayrı onaylı birleşik
+`window_resize,fullscreen` paketi `EV-20260824-014` olarak ilk denemede iki
+grubu da **PASS** tamamladı: resize 40,4 saniye ve **12 PASS**, fullscreen 7,3
+saniye ve **4 PASS**; iki child da exit `0`, `MARK_DONE`, 0 FAIL, 0 BLOCKED,
+kanonik `stop -> terminate` ve sıfır süreç sızıntısı verdi. Aynı exact committe
+dört kenar/dört köşe/playlist-açık resize, tam ekranın 2560x1440 ekran
+geometrisi ve gerçek Esc ile ortalanmış 960x600 dönüş doğrulandı.
+`WIN-P0-05` artık **PASSED** durumundadır. Bu tek ekran sonucu farklı DPI,
+çoklu monitör veya ekran topolojisi P1 kabulüne taşınmaz.
 
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 

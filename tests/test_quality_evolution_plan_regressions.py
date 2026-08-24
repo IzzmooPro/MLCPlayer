@@ -121,13 +121,15 @@ def test_every_p0_row_has_an_honest_execution_mapping_and_exact_status():
             rows[cells[0]] = cells[-1]
     assert rows["WIN-P0-01"] == "PASSED"
     assert rows["WIN-P0-02"] == "PASSED"
-    assert p0_table.count("NOT_RUN") == 6
+    assert rows["WIN-P0-05"] == "PASSED"
+    assert p0_table.count("NOT_RUN") == 5
     assert "EV-20260823-019" in p0_section
     assert "EV-20260823-020" in p0_section
     assert "EV-20260823-022" in p0_section
     assert "EV-20260823-024" in p0_section
     assert "EV-20260824-002" in p0_section
     assert "EV-20260824-004" in p0_section
+    assert "EV-20260824-014" in p0_section
     assert "0xC0000005" in p0_section
     assert "os._exit" in p0_section
 

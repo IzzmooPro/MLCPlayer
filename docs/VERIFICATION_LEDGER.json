@@ -2910,6 +2910,55 @@
         "Different DPI values and multiple monitors remain outside this run; no product source, build, installation, signing, tag or release changed."
       ],
       "next_action": "Commit this evidence record with separate approval, then use separate push, PR and merge approvals; after merge decide whether to request one combined window_resize,fullscreen run on one exact commit to close WIN-P0-05."
+    },
+    {
+      "id": "EV-20260824-013",
+      "recorded_at_utc": "2026-08-24T18:53:13Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "32b90d84586df66c4c5e16e08d7031f82f503724",
+      "subject": "Protected PR acceptance for the bounded fullscreen PASS record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/30",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32763932818",
+        "the documentation-only pull_request run completed on exact head 32b90d84586df66c4c5e16e08d7031f82f503724 with required test check success: 7 passed and 0 failed",
+        "PR #30 was read back CLEAN and MERGEABLE before the separately approved merge",
+        "the separately approved merge produced two-parent commit aa4dca8da5af69d353ac8977d1ee6c2cfdd2f232 from parents 460f0c5af609352c5f84a8e827a35c6e69ae6225 and 32b90d84586df66c4c5e16e08d7031f82f503724",
+        "origin/master was read back at the exact merge commit and the remote task branch was preserved"
+      ],
+      "summary": "The EV-20260824-012 fullscreen PASS record passed the protected documentation PR check and was merged through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS does not independently rerun or expand the physical Windows result.",
+        "The documentation-only classification intentionally skipped the full product test suite; only the required documentation check ran.",
+        "No native run, product change, build, installation, signing, tag or release occurred as part of this hosted result."
+      ],
+      "next_action": "Request separate approval for one combined window_resize,fullscreen native run on the exact merged master commit to close WIN-P0-05."
+    },
+    {
+      "id": "EV-20260824-014",
+      "recorded_at_utc": "2026-08-24T18:53:14Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "aa4dca8da5af69d353ac8977d1ee6c2cfdd2f232",
+      "subject": "WIN-P0-05 combined native resize and fullscreen acceptance",
+      "evidence": [
+        "the separately approved combined window_resize,fullscreen package began on clean master exactly equal to origin/master two-parent merge commit aa4dca8da5af69d353ac8977d1ee6c2cfdd2f232 with no active MLC Player, python or pythonw process",
+        "the private MP4 was 345752445 bytes with SHA-256 c3e53407690d6738a09b74655dd81296c8637015d835cf503ebc54787b6834a9 and mpv-2.dll was 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e before and after the package",
+        "command: isolated TEMP/settings, MLC_NATIVE_SMOKE=1 and MLC_NATIVE_TEST_VIDEO=<same private local MP4> followed by python tests/run_physical_acceptance.py window_resize,fullscreen",
+        "the first and only combined attempt completed both groups with runner exit 0: window_resize took 40.4 seconds with 12 PASS and fullscreen took 7.3 seconds with 4 PASS; both had 0 FAIL, 0 BLOCKED, no timeout and MARK_DONE",
+        "window_resize passed all four edges and four corners plus right, bottom and bottom-right resize with the playlist open; intended axes changed exactly 70 pixels, untouched axes stayed fixed, overlap was None and every problems list was empty",
+        "fullscreen passed real-button entry with geometry 0,0,2560,1440 exactly equal to the screen bounds, then real Esc restored a centered 960x600 window with playlist closed and overlay visible",
+        "both children passed the product shutdown path with exactly one stop and one terminate in stop->terminate order, accepted close, released mpv_player and restored cursor",
+        "each child emitted two QThreadStorage teardown warnings only after MARK_DONE; there was no Python exception, access violation, behavior failure or remaining MLC Player, python or pythonw process",
+        "post-run media/runtime hashes were unchanged and source status remained clean and exactly equal to origin/master"
+      ],
+      "summary": "WIN-P0-05 passed on one exact commit: native edge/corner resize, playlist-open resize, fullscreen screen geometry, real-Esc return, canonical shutdown and leak gates all completed successfully.",
+      "limitations": [
+        "This native_smoke PASS belongs only to the exact commit, DLL, media fingerprint, one 2560x1440 display and measured Windows environment; it is not installed-artifact evidence.",
+        "Different DPI values, multiple monitors, snapping and display-topology changes remain outside this run and belong to P1 coverage.",
+        "No product source, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Commit this WIN-P0-05 evidence record with separate approval, then use separate push, PR and merge approvals; after merge decide whether to request one combined buttons,timeline run on one exact commit to close WIN-P0-04."
     }
   ]
 }
