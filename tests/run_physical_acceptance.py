@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
-"""Fiziksel kabul runner'i: 11 grubu AYRI taze child process'lerde kosar.
+"""Fiziksel kabul runner'i: 12 grubu AYRI taze child process'lerde kosar.
 
 - Her grup icin sinirli timeout ve takip edilen PID.
 - Bir grubun kilitlenmesi digerlerini engellemez.
@@ -30,6 +30,7 @@ sys.path.insert(0, TESTS_DIR)
 from physical_buttons_contract import (  # noqa: E402
     BUTTONS_GROUP_TIMEOUT_SECONDS,
     FULLSCREEN_GROUP_TIMEOUT_SECONDS,
+    PLAYBACK_SEEK_GROUP_TIMEOUT_SECONDS,
     TIMELINE_GROUP_TIMEOUT_SECONDS,
     WINDOW_RESIZE_GROUP_TIMEOUT_SECONDS,
 )
@@ -50,6 +51,7 @@ GROUPS = [
     ("9", "fullscreen", FULLSCREEN_GROUP_TIMEOUT_SECONDS),
     ("10", "subtitles", 480),
     ("11", "zorder", 480),
+    ("12", "playback_seek", PLAYBACK_SEEK_GROUP_TIMEOUT_SECONDS),
 ]
 
 

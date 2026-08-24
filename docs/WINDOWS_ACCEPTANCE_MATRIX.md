@@ -94,13 +94,15 @@ değiştirmez.
 - **Deterministik sınır:** `tests/test_overlay_timeline_seek_race_regressions.py`,
   `tests/test_resume_regressions.py` ve playback yaşam döngüsü testleri state
   geçişlerini korur.
-- **Native ölçüm:** `tests/run_physical_acceptance.py buttons,timeline` gerçek
-  SendInput ile pause/resume ve farklı timeline noktalarına seek uygulayıp
-  libmpv state/position read-back alır.
+- **Native ölçüm:** `tests/run_physical_acceptance.py playback_seek` en fazla
+  90 saniyelik tek child içinde gerçek SendInput ile pause/resume, %10/%50/%90
+  timeline tıklaması ve bir sürükleme uygulayıp libmpv state/position read-back
+  alır. Bu dar grup ses, altyazı, playlist, ayarlar veya fullscreen ölçmez.
 - **Exact girdiler:** seek aralıklarını taşıyacak yeterli sürede gerçek video;
   `MLC_NATIVE_SMOKE=1`, `MLC_NATIVE_TEST_VIDEO` ve ortak runtime kimliği.
 - **Açık boşluk:** fiziksel runner gerçek ses çıkışını ölçmez; bu satırın
-  hedefi yalnız zaman ve oynatma state'idir.
+  hedefi yalnız zaman ve oynatma state'idir. Dar grup henüz native
+  çalıştırılmadığı için durum **NOT_RUN** kalır.
 
 ### WIN-P0-05 — Tam ekran, native resize ve geri dönüş
 

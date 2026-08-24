@@ -965,6 +965,125 @@ def group_buttons():
         shot(f"{phase}-end")
 
 
+# ================= DAR WIN-P0-04 - playback + seek =================
+
+def group_playback_seek():
+    """Pause/resume ve temel seek davranisini tek dar native grupta olcer."""
+    frame, mpv = PLAYER.video_frame, PLAYER.mpv_player
+    timeline = live_overlay_widget(frame, "overlay_timeline")
+    button = overlay_button("overlayPlayPause")
+    if (timeline is None or button is None
+            or click_ready(timeline, "playback_seek_timeline") is None):
+        record("playback_seek_precondition", "on kosul",
+               "timeline widget'i yasiyor ve tiklanabilir",
+               "timeline yok veya tiklanamaz", None,
+               "BLOCKED: PRECONDITION")
+        return
+    ready = click_ready(button, "playback_seek_play_pause")
+    duration = float(mpv.duration or 0)
+    if ready is None or duration <= 0:
+        record("playback_seek_precondition", "on kosul",
+               "play/pause tiklanabilir ve duration > 0",
+               f"button_ready={ready is not None} duration={duration}", None,
+               "BLOCKED: PRECONDITION")
+        return
+
+    initial_pause = bool(mpv.pause)
+    if initial_pause:
+        physical_click(ready[0], ready[1], settle=200, target=button,
+                       label="playback_seek_initial_resume")
+        if not wait_for(lambda: not bool(mpv.pause), 5000):
+            record("initial_resume", "SendInput click", "mpv.pause=False",
+                   f"mpv.pause={mpv.pause}", False)
+            return
+
+    ready = click_ready(button, "pause")
+    if ready is None:
+        return
+    physical_click(ready[0], ready[1], settle=200, target=button, label="pause")
+    paused = wait_for(lambda: bool(mpv.pause)
+                      and bool(getattr(PLAYER, "is_paused", False)), 5000)
+    record("pause", "SendInput click", "mpv.pause ve PLAYER.is_paused True",
+           f"mpv.pause={mpv.pause} PLAYER.is_paused={PLAYER.is_paused}", paused)
+
+    ready = click_ready(button, "resume")
+    if ready is None:
+        return
+    physical_click(ready[0], ready[1], settle=200, target=button, label="resume")
+    resumed = wait_for(lambda: not bool(mpv.pause)
+                       and not bool(getattr(PLAYER, "is_paused", True)), 5000)
+    before_progress = float(mpv.time_pos or 0)
+    pump(1200)
+    after_progress = float(mpv.time_pos or 0)
+    progressed = resumed and after_progress > before_progress + 0.20
+    record("resume", "SendInput click + state/time read-back",
+           "pause False ve time_pos ilerler",
+           f"mpv.pause={mpv.pause} PLAYER.is_paused={PLAYER.is_paused} "
+           f"time_pos={before_progress:.3f}->{after_progress:.3f}", progressed)
+
+    span = max(1, timeline.maximum() - timeline.minimum())
+    value_tolerance = slider_value_tolerance(span, timeline.width())
+    time_tolerance = seek_time_tolerance(duration)
+
+    def target(ratio):
+        rect = global_rect(timeline)
+        x = rect.left() + int(rect.width() * ratio)
+        y = rect.top() + rect.height() // 2
+        value = int(round(timeline.minimum() + span * ratio))
+        return x, y, value, (value * duration) / 1000.0
+
+    def seek_ratio(ratio, label):
+        wake_overlay()
+        x, y, wanted, wanted_time = target(ratio)
+        physical_click(x, y, settle=350, target=timeline, label=label)
+        reached = wait_for(
+            lambda: abs(timeline.value() - wanted) <= value_tolerance
+            and abs(float(mpv.time_pos or 0) - wanted_time) <= time_tolerance,
+            8000)
+        return reached, wanted, wanted_time
+
+    for ratio in (0.10, 0.50, 0.90):
+        start_ratio = 0.90 if ratio < 0.50 else 0.10
+        start_ok, _, _ = seek_ratio(start_ratio, f"seek_start_{ratio:.2f}")
+        before_value = timeline.value()
+        reached, wanted, wanted_time = seek_ratio(ratio, f"seek_{ratio:.2f}")
+        value_now = timeline.value()
+        pos_now = float(mpv.time_pos or 0)
+        record(f"seek_{int(ratio * 100)}", "SendInput click",
+               f"value={wanted}(+-{value_tolerance}) time={wanted_time:.1f}"
+               f"(+-{time_tolerance:.1f}) ve down=False",
+               f"start_ok={start_ok} start={before_value} value={value_now} "
+               f"time_pos={pos_now:.2f} down={timeline.isSliderDown()}",
+               start_ok and reached
+               and abs(value_now - before_value) > value_tolerance
+               and not timeline.isSliderDown())
+
+    start_ok, _, _ = seek_ratio(0.10, "drag_start")
+    wake_overlay()
+    x0, y0, _, _ = target(0.20)
+    x1, _, wanted, wanted_time = target(0.70)
+    report = threaded_drag(x0, y0, x1, y0, steps=12, hold=0.02)
+    problems = input_contract_problems(report)
+    reached = wait_for(
+        lambda: abs(timeline.value() - wanted) <= value_tolerance
+        and abs(float(mpv.time_pos or 0) - wanted_time) <= time_tolerance,
+        8000)
+    record("seek_drag", "SendInput worker-thread drag",
+           f"value={wanted}(+-{value_tolerance}) time={wanted_time:.1f}"
+           f"(+-{time_tolerance:.1f}) ve down=False",
+           f"start_ok={start_ok} problems={problems} value={timeline.value()} "
+           f"time_pos={float(mpv.time_pos or 0):.2f} "
+           f"down={timeline.isSliderDown()}",
+           start_ok and not problems and reached and not timeline.isSliderDown())
+
+    if initial_pause and not bool(mpv.pause):
+        ready = click_ready(button, "playback_seek_restore_pause")
+        if ready:
+            physical_click(ready[0], ready[1], settle=200, target=button,
+                           label="playback_seek_restore_pause")
+            wait_for(lambda: bool(mpv.pause), 5000)
+
+
 # ================= GRUP 2 - timeline =================
 
 def group_timeline():
@@ -2383,6 +2502,8 @@ def run_group_body(args, original_cursor, original_foreground):
 
         if GROUP == "buttons":
             group_buttons()
+        elif GROUP == "playback_seek":
+            group_playback_seek()
         elif GROUP == "timeline":
             group_timeline()
         elif GROUP == "separator":
