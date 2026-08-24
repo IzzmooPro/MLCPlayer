@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `88711e567811ebd55f98dc4933ec5daadc0b53d8`
+- Kayıt hazırlanırken doğrulanan HEAD: `419d6c7cede0b6fad37425b28c375fc89e61b141`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-023`
+- Son kanıt: `EV-20260824-026`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -881,31 +881,44 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    commit'i üzerinden master'a alındı (`EV-20260824-023`). Yerel/uzak görev
    dalı korundu. Bütün 16 format satırı hâlâ `BLOCKED`; native medya veya
    rakip oynatıcı çalıştırılmadı ve ürün kodu değişmedi.
+137. `EV-20260824-023` devir paketi PR #36 zorunlu `test` check'inden geçti
+   ve iki ebeveynli `419d6c7` merge commit'iyle master'a alındı
+   (`EV-20260824-024`). Sonraki medya açmayan libmpv envanterinin ilk sorgu
+   child'ı yanlış property komutuyla marker üretmeden başarısız oldu; neden ve
+   sıfır süreç sızıntısı incelendikten sonra ham komut biçimi de veri
+   üretmedi (`EV-20260824-025`). Doğrudan property API'si kullanan son
+   onaylı child exact DLL'den mpv/FFmpeg, VO, D3D11/Vulkan, renk hedefi,
+   tone-mapping ve codec sürücüsü envanterini `MARK_DONE`, temiz terminate ve
+   sıfır sızıntıyla çıkardı (`EV-20260824-026`). Medya açılmadı.
+138. RTX 4070 Ti/610.88, MSI G274QPF E2 ve aktif 384 bayt EDID ölçüldü.
+   Ekran HDR-capable olmasına rağmen aktif DXGI uzayı hâlâ
+   `DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709`; bu nedenle gerçek HDR10 çıkışı
+   kanıtlanmadı. Ürün hâlâ `vo=gpu`/`hwdec=auto-safe` kullanıyor ve bütün 16
+   format senaryosu `BLOCKED` kalıyor.
 
 ## Sıradaki tek adım
 
-PR #35 hosted CI/iki ebeveynli merge sonucunu içeren `EV-20260824-023` devir
-kaydını commit etmek için ayrı açık onay al. Native medya çalıştırma,
-indirme/üretme veya ürün değişikliği yapma.
+PR #36 merge sonucu, başarısız envanter sorgusu ve başarılı salt-okunur
+yetenek ölçümünü içeren `EV-20260824-024/025/026` belge/test paketini commit
+etmek için ayrı açık onay al. Native medya çalıştırma, indirme/üretme veya
+ürün değişikliği yapma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Kayıt paketi merge sonrasında GPU, EDID, Windows renk yolu ve exact
-   mpv/FFmpeg yetenek
-   envanterini salt okunur çıkar; hiçbir format satırını PASS yapma.
-3. Lisanslı/sentetik test medya adaylarının kaynak, kullanım dayanağı,
+2. Kayıt paketi merge sonrasında lisanslı/sentetik test medya adaylarının
+   kaynak, kullanım dayanağı,
    `ffprobe`, boyut ve SHA-256 manifestini hazırla; indirme/üretme için ayrıca
    açık onay al.
-4. Windows'un etkin HDR10 renk uzayı
+3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
    tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;
    başarısızlıkta otomatik tekrar yapma.
-5. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
+4. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
-6. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-7. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+6. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni

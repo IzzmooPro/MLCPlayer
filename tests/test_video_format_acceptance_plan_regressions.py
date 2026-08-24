@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PLAN = ROOT / "docs" / "VIDEO_FORMAT_ACCEPTANCE_PLAN.md"
 MATRIX = ROOT / "docs" / "VIDEO_FORMAT_ACCEPTANCE_MATRIX.json"
+INVENTORY = ROOT / "docs" / "VIDEO_FORMAT_CAPABILITY_INVENTORY.md"
 WINDOWS = ROOT / "docs" / "WINDOWS_ACCEPTANCE_MATRIX.md"
 
 REQUIRED_CASES = {
@@ -31,6 +32,7 @@ def payload():
 def test_format_plan_and_machine_matrix_exist():
     assert PLAN.is_file()
     assert MATRIX.is_file()
+    assert INVENTORY.is_file()
 
 
 def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
@@ -68,6 +70,30 @@ def test_competitor_lessons_use_primary_sources_and_keep_claim_boundaries():
         assert benchmark["concrete_behavior"]
         assert benchmark["adoptable_lesson"]
         assert benchmark["claim_boundary"]
+
+
+def test_capability_inventory_keeps_compiled_and_active_proof_separate():
+    data = payload()["capability_inventory"]
+    assert data["measured_commit"] == (
+        "419d6c7cede0b6fad37425b28c375fc89e61b141")
+    assert data["active_edid_sha256"] == (
+        "f325d9f7e693b0ee79049ba342bf01066419110658a56452d0e0a20e44f4456f")
+    assert data["active_dxgi_color_space"] == (
+        "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709")
+    assert data["active_hdr10_output_proven"] is False
+    assert data["compiled_codec_drivers_are_hardware_proof"] is False
+    assert data["media_opened"] is False
+    assert data["all_cases_remain_blocked"] is True
+    assert {"gpu", "gpu-next"} <= set(data["compiled_video_outputs"])
+    assert "d3d11" in data["compiled_gpu_apis"]
+    assert set(data["target_colorspace_hint_modes"]) == {
+        "target", "source", "source-dynamic"}
+
+    text = read(INVENTORY)
+    for token in (
+            "RTX 4070 Ti", "G274QPF E2", "EDID", "P709", "G2084",
+            "gpu-next", "source-dynamic", "hwdec-current", "BLOCKED"):
+        assert token.lower() in text.lower()
 
 
 def test_plan_carries_concrete_user_visible_paths_and_evidence_rules():

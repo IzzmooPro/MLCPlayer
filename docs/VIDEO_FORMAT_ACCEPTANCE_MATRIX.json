@@ -7,6 +7,23 @@
     "dll_size": 112772608,
     "dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
   },
+  "capability_inventory": {
+    "measured_commit": "419d6c7cede0b6fad37425b28c375fc89e61b141",
+    "document": "docs/VIDEO_FORMAT_CAPABILITY_INVENTORY.md",
+    "active_gpu": "NVIDIA GeForce RTX 4070 Ti",
+    "driver": "610.88",
+    "active_display": "MSI G274QPF E2",
+    "active_edid_sha256": "f325d9f7e693b0ee79049ba342bf01066419110658a56452d0e0a20e44f4456f",
+    "hdr_capable": true,
+    "active_dxgi_color_space": "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709",
+    "active_hdr10_output_proven": false,
+    "compiled_video_outputs": ["gpu-next", "gpu", "direct3d", "libmpv"],
+    "compiled_gpu_apis": ["d3d11", "vulkan", "opengl"],
+    "target_colorspace_hint_modes": ["target", "source", "source-dynamic"],
+    "compiled_codec_drivers_are_hardware_proof": false,
+    "media_opened": false,
+    "all_cases_remain_blocked": true
+  },
   "execution_policy": {
     "max_child_seconds": 60,
     "automatic_retry": false,
