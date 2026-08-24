@@ -220,6 +220,15 @@ durdurdu. `MARK_DONE` ve özet yoktur; diğer üç grup başlamadı. Bu nedenle
 `WIN-P0-04` ve `WIN-P0-05` tabloda `NOT_RUN` kalır. Otomatik tekrar yapılmaz;
 önce CC önkoşulu ile modal/timeout harness sözleşmesi regresyon-first ayrılır.
 
+`EV-20260824-004` bu ayrımı deterministic olarak kapattı: gerçek altyazı
+track'i veya lineer playlist hedefi yoksa fiziksel tıklama yapılmadan açık
+`BLOCKED` yazılır; ölçülebilir önceki/sonraki tıklamasında beklenmedik modal
+900 ms sonra gerçek Esc ile bounded kapatılır. Seçili paket grup üst sınırları
+`buttons=180`, `timeline=300`, `window_resize=180`, `fullscreen=120` saniyedir.
+İlgili harness ailesi **131 passed / 0 failed** verdi. Bu native PASS değildir;
+aynı tek MP4 eksik altyazı/playlist önkoşullarını kendiliğinden sağlamaz ve
+iki P0 satırı `NOT_RUN` kalır.
+
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 
 ## P1 — Ortam ve dayanıklılık

@@ -2665,6 +2665,55 @@
         "WIN-P0-04 and WIN-P0-05 remain NOT_RUN; no product code, build, installation, signing, tag or release changed."
       ],
       "next_action": "Before any native retry, inspect the CC-toggle precondition and add a regression-first bounded playlist-boundary modal dismissal and shorter interaction timeout contract; request separate approval for any fix, merge and future native run."
+    },
+    {
+      "id": "EV-20260824-003",
+      "recorded_at_utc": "2026-08-24T17:48:12Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "12a55705532627f614bbbc311df97b98e1bcfe21",
+      "subject": "Protected PR acceptance for the failed P0 physical package record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/25",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32757667382",
+        "the pull_request run completed on exact head 12a55705532627f614bbbc311df97b98e1bcfe21 with required test check success: 4813 passed, 30 skipped and 0 failed",
+        "the PR was read back as CLEAN and MERGEABLE before the separately approved merge",
+        "the separately approved merge produced two-parent commit 947a4ce8ee386030777228631c7237ce24f8356e from parents 36f418e27320ea924d380c27209b22d358e95321 and 12a55705532627f614bbbc311df97b98e1bcfe21",
+        "origin/master was read back at the exact merge commit and the remote task branch was not deleted"
+      ],
+      "summary": "The EV-20260824-002 failure record passed the protected PR check and was merged to master through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS does not change the failed and incomplete physical native result.",
+        "The 30 skipped tests are not PASS and WIN-P0-04/WIN-P0-05 remain NOT_RUN.",
+        "No native retry, product change, build, installation, signing, tag or release occurred."
+      ],
+      "next_action": "Prepare the physical-buttons harness repair regression-first on the exact merge commit; do not run the native package again without separate approval."
+    },
+    {
+      "id": "EV-20260824-004",
+      "recorded_at_utc": "2026-08-24T17:48:13Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "947a4ce8ee386030777228631c7237ce24f8356e",
+      "subject": "Fail-closed physical buttons preconditions, bounded modal dismissal and shorter P0 package budgets",
+      "evidence": [
+        "work began on clean codex/physical-harness-bounded-modal from master exactly equal to origin/master two-parent merge commit 947a4ce8ee386030777228631c7237ce24f8356e",
+        "source inspection found that buttons ignored the result of its subtitle-track wait, clicked Next without a measurable next playlist item, did not arm the existing real-Esc modal closure for playlist navigation, and used coarse selected-group budgets of 600, 900, 480 and 300 seconds",
+        "the first new focused regression completed with one collection error because physical_buttons_contract.py did not exist",
+        "the minimum pure contract then made six focused tests pass: missing subtitle tracks and single-item playlist boundaries are explicit fail-closed preconditions, and unexpected nested dialogs are armed for real-Esc dismissal after 900 ms",
+        "a second regression completed with one collection error because the remaining selected-group timeout constants did not exist; after implementation the focused package completed with seven passed",
+        "buttons now records BLOCKED: SUBTITLE_TRACK without clicking CC when no real subtitle track exists, and records BLOCKED playlist next/previous preconditions without opening the known boundary modal when no linear target exists",
+        "when a measurable playlist step is clicked, a single 900 ms callback closes any unexpected QDialog with the existing real-Esc helper; an observed modal skips the longer index/file waits and leaves the row non-PASS",
+        "selected group upper bounds are buttons 180 seconds, timeline 300 seconds, window_resize 180 seconds and fullscreen 120 seconds",
+        "the complete physical harness regression family completed with 131 passed and 0 failed; py_compile for the three changed executable test modules and git diff --check were clean"
+      ],
+      "summary": "The physical harness now fails quickly and explicitly on missing CC/playlist inputs, cannot wait ten minutes on the known boundary modal, and has bounded selected-group budgets.",
+      "limitations": [
+        "This deterministic PASS proves only pure/source harness contracts; no native opt-in, GUI, MPV child or physical retry ran.",
+        "The same single MP4 may honestly produce BLOCKED subtitle and playlist rows; deterministic repair does not manufacture the missing media/playlist preconditions.",
+        "WIN-P0-04 and WIN-P0-05 remain NOT_RUN, and no product source, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Commit, push and merge this test-only repair through separate approvals; only afterward decide the exact subtitle/playlist inputs and request separate approval for any native run."
     }
   ]
 }
