@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `460f0c5af609352c5f84a8e827a35c6e69ae6225`
+- Kayıt hazırlanırken doğrulanan HEAD: `aa4dca8da5af69d353ac8977d1ee6c2cfdd2f232`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-012`
+- Son kanıt: `EV-20260824-014`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -812,18 +812,31 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    Kapanış `stop -> terminate`, imleç geri dönüşü ve sıfır süreç sızıntısı
    doğrulandı (`EV-20260824-012`). Resize kanıtı farklı exact committe olduğu
    için `WIN-P0-05` henüz yükseltilmedi. Ürün kodu değişmedi.
+126. Fullscreen kanıt paketi PR #30'un exact `32b90d8` head'inde zorunlu belge
+   kontrolünden **7 passed / 0 failed** ile geçti. Ayrı onayla iki ebeveynli
+   `aa4dca8` merge commit'i üzerinden master'a alındı (`EV-20260824-013`).
+   Belge sınıflaması tam ürün paketini bilerek çalıştırmadı; bu hosted sonuç
+   native kanıtı genişletmez.
+127. Ayrı onaylı birleşik `window_resize,fullscreen` paketi exact `aa4dca8`,
+   aynı doğrulanmış MP4/DLL ile ilk denemede iki grubu da tamamladı:
+   `window_resize` **40,4 saniye / 12 PASS**, `fullscreen` **7,3 saniye / 4
+   PASS**; iki child da exit 0, 0 FAIL, 0 BLOCKED, `MARK_DONE`, doğru
+   `stop -> terminate`, imleç geri dönüşü ve sıfır süreç sızıntısı verdi.
+   Kenar/köşe/playlist-açık resize ile tam ekran geometri ve gerçek Esc dönüşü
+   aynı exact committe geçti (`EV-20260824-014`). `WIN-P0-05` artık
+   **PASSED** durumundadır. Ürün kodu değişmedi.
 
 ## Sıradaki tek adım
 
-`EV-20260824-011` ve `EV-20260824-012` kayıt paketini commit etmek için ayrı
+`EV-20260824-013` ve `EV-20260824-014` kayıt paketini commit etmek için ayrı
 açık onay al. Native testi tekrar çalıştırma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Kayıt merge edildikten sonra `WIN-P0-05` satırını tek exact committe
-   kapatmak için birleşik `window_resize,fullscreen` koşumuna ayrı native onay
-   istenip istenmeyeceğine karar ver.
+2. Kayıt merge edildikten sonra `WIN-P0-04` satırını tek exact committe
+   kapatmak için birleşik `buttons,timeline` koşumuna ayrı native onay istenip
+   istenmeyeceğine karar ver.
 3. Kalan açık boşluklar için dar runner veya kayıtlı manuel kabul kararını ver.
 4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
