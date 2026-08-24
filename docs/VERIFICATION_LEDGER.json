@@ -2959,6 +2959,52 @@
         "No product source, build, installation, signing, tag or release changed."
       ],
       "next_action": "Commit this WIN-P0-05 evidence record with separate approval, then use separate push, PR and merge approvals; after merge decide whether to request one combined buttons,timeline run on one exact commit to close WIN-P0-04."
+    },
+    {
+      "id": "EV-20260824-015",
+      "recorded_at_utc": "2026-08-24T19:14:31Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "84729d196720f33b08daa002ee5feda28a94f697",
+      "subject": "Protected PR acceptance for the WIN-P0-05 combined native PASS record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/31",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32765892960",
+        "the pull_request run completed on exact head 84729d196720f33b08daa002ee5feda28a94f697 with required test check success: 4822 passed, 30 skipped and 0 failed",
+        "the separately approved merge produced two-parent commit 44acdbb8478c305a81016f5f8ecf0f5cfb3d75a1 from parents aa4dca8da5af69d353ac8977d1ee6c2cfdd2f232 and 84729d196720f33b08daa002ee5feda28a94f697",
+        "origin/master and local master were read back at the exact merge commit"
+      ],
+      "summary": "The WIN-P0-05 native PASS record passed the protected PR check and was merged through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS does not independently rerun or expand the physical Windows result.",
+        "The full hosted suite skips opt-in native and installed-artifact paths; those skips are not PASS.",
+        "No native run, product change, build, installation, signing, tag or release occurred as part of this hosted result."
+      ],
+      "next_action": "Prepare a bounded WIN-P0-04 playback_seek harness without running it natively, then request separate commit approval."
+    },
+    {
+      "id": "EV-20260824-016",
+      "recorded_at_utc": "2026-08-24T19:14:32Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "44acdbb8478c305a81016f5f8ecf0f5cfb3d75a1",
+      "subject": "Bounded WIN-P0-04 playback and seek physical harness contract",
+      "evidence": [
+        "the new regression first failed during collection because PLAYBACK_SEEK_GROUP_TIMEOUT_SECONDS did not exist",
+        "tests/run_physical_acceptance.py now exposes a playback_seek group with a hard 90-second child timeout instead of requiring the theoretical 480-second buttons,timeline package",
+        "the narrow child uses real SendInput for pause, resume, 10/50/90 percent timeline clicks and one drag, and validates PLAYER/libmpv pause and time-position read-back",
+        "the narrow group intentionally excludes subtitles, audio, playlist, settings and fullscreen coverage",
+        "command: python -m pytest -q tests/test_physical_playback_seek_regressions.py -> 4 passed",
+        "command: the physical harness regression family including the new contract -> 135 passed",
+        "command: python -m py_compile tests/run_physical_acceptance.py tests/native_physical_acceptance_child.py tests/physical_buttons_contract.py -> exit 0"
+      ],
+      "summary": "A deterministic test-only playback_seek group now bounds the intended WIN-P0-04 native measurement to 90 seconds while preserving real physical input and state/time read-back requirements.",
+      "limitations": [
+        "This is deterministic harness evidence only; playback_seek was not run natively and WIN-P0-04 remains NOT_RUN.",
+        "The 90-second value is a hard child timeout, not an observed runtime; expected completion has not yet been measured.",
+        "No product source, native behavior, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Request separate approval to commit the test-only bounded playback_seek harness and evidence package; push, PR, merge and a later native run each require their own approval."
     }
   ]
 }

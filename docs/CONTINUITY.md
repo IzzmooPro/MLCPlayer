@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `aa4dca8da5af69d353ac8977d1ee6c2cfdd2f232`
+- Kayıt hazırlanırken doğrulanan HEAD: `44acdbb8478c305a81016f5f8ecf0f5cfb3d75a1`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-014`
+- Son kanıt: `EV-20260824-016`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -825,18 +825,30 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    Kenar/köşe/playlist-açık resize ile tam ekran geometri ve gerçek Esc dönüşü
    aynı exact committe geçti (`EV-20260824-014`). `WIN-P0-05` artık
    **PASSED** durumundadır. Ürün kodu değişmedi.
+128. WIN-P0-05 kayıt paketi PR #31'in exact `84729d1` head'inde zorunlu hosted
+   testten **4822 passed / 30 skipped / 0 failed** ile geçti. Ayrı onayla iki
+   ebeveynli `44acdbb` merge commit'i üzerinden master'a alındı
+   (`EV-20260824-015`). Bu hosted kanıt fiziksel Windows davranışını
+   genişletmez.
+129. Teorik üst sınırı 480 saniye olan geniş `buttons,timeline` paketi yerine
+   yalnız WIN-P0-04'ün pause/resume ve seek davranışını ölçen test-only
+   `playback_seek` grubu regresyon-first hazırlandı. Yeni kapı önce eksik sabit
+   nedeniyle collection aşamasında kırmızı verdi; uygulamadan sonra **4
+   passed**, fiziksel harness ailesi **135 passed** ve `py_compile` exit 0
+   verdi. Grup üst sınırı **90 saniyedir**; ses, altyazı, playlist, ayarlar ve
+   fullscreen kapsam dışıdır (`EV-20260824-016`). Native koşum yapılmadı,
+   `WIN-P0-04` **NOT_RUN** kaldı ve ürün kodu değişmedi.
 
 ## Sıradaki tek adım
 
-`EV-20260824-013` ve `EV-20260824-014` kayıt paketini commit etmek için ayrı
-açık onay al. Native testi tekrar çalıştırma.
+`playback_seek` test-only harness ve `EV-20260824-015/016` kayıt paketini
+commit etmek için ayrı açık onay al. Native testi çalıştırma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Kayıt merge edildikten sonra `WIN-P0-04` satırını tek exact committe
-   kapatmak için birleşik `buttons,timeline` koşumuna ayrı native onay istenip
-   istenmeyeceğine karar ver.
+2. Harness merge edildikten sonra `WIN-P0-04` satırını tek exact committe
+   kapatmak için yalnız `playback_seek` koşumuna ayrı native onay iste.
 3. Kalan açık boşluklar için dar runner veya kayıtlı manuel kabul kararını ver.
 4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
