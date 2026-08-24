@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `74630cbf3e76c830aa1741a785986cd8f95229dd`
+- Kayıt hazırlanırken doğrulanan HEAD: `93d49ac5b5e089dedff7f4a167952026e163f3f8`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-032`
+- Son kanıt: `EV-20260824-033`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -948,12 +948,19 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    bütün format satırları `BLOCKED` ve medya/native/ürün davranışı değişmedi
    PR merge'i `EV-20260824-031`, manifest sözleşmesi
    `EV-20260824-032` olarak katmanları karıştırmadan kaydedildi.
+146. Video-format medya manifesti PR #40'ın exact `e5aaa83` head'inde
+   zorunlu hosted `test` check'inden **4879 passed / 30 skipped / 0 failed**
+   ve `LEDGER_APPEND_ONLY_OK` ile geçti. Ayrı onayla iki ebeveynli
+   `93d49ac` merge commit'i üzerinden master'a alındı
+   (`EV-20260824-033`). Yerel ve uzak master exact merge commit'inde eşittir;
+   bütün 16 format satırı `BLOCKED`, `fingerprinted` kapısı kapalı ve
+   ürün/native/HDR davranışı değişmedi.
 
 ## Sıradaki tek adım
 
-Fail-closed video-format medya aday manifesti ve `EV-20260824-032` kayıt
-paketini commit etmek için ayrı açık onay al. Medya çalıştırma,
-indirme/üretme veya ürün değişikliği yapma.
+PR #40 hosted sonucu ve iki ebeveynli merge kanıtını içeren
+`EV-20260824-033` kayıt paketini commit etmek için ayrı açık onay al. Medya
+çalıştırma, indirme/üretme veya ürün değişikliği yapma.
 
 ## Sonraki sıra
 
