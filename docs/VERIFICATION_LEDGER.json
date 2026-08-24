@@ -3346,6 +3346,32 @@
         "No push, PR, merge, Windows setting, media acquisition, build, installation, signing, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit this second audit and guard-hardening package; only after that commit may push, PR and merge be requested separately."
+    },
+    {
+      "id": "EV-20260824-030",
+      "recorded_at_utc": "2026-08-24T21:14:41Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "e11af6a3a6704d3f262c935f9e57abc242351f2d",
+      "subject": "Protected PR acceptance for repository evidence guard hardening",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/38",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32777923227",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32777923227/job/97593178432",
+        "the required test check completed SUCCESS on exact head ba2dd6fefb44bf7f820d379cfac6f38137057158 with 4877 passed, 30 skipped and 0 failed in 119.82 seconds",
+        "the hosted append-only step compared against base b1ec84f7fbb919c753df048031ac3bc3b7d35163 and printed LEDGER_APPEND_ONLY_OK",
+        "GitHub accepted and executed the changed workflow YAML, resolving the explicitly unclaimed local-parser gap from EV-20260824-029 for this exact PR head",
+        "PR #38 was read back CLEAN and MERGEABLE with the required test check COMPLETED/SUCCESS before the separately approved merge",
+        "the separately approved merge produced two-parent commit e11af6a3a6704d3f262c935f9e57abc242351f2d from parents b1ec84f7fbb919c753df048031ac3bc3b7d35163 and ba2dd6fefb44bf7f820d379cfac6f38137057158",
+        "origin/master and local master were read back at the exact merge commit; the original task branch was preserved"
+      ],
+      "summary": "The deep documentation reorientation and repository evidence guards passed the protected full CI gate, including the new append-only check, and were merged through a real two-parent commit.",
+      "limitations": [
+        "This hosted_ci PASS validates repository, workflow and deterministic contracts; it does not run native media, prove HDR output or change installed-artifact evidence.",
+        "The 30 skipped tests are not PASS and include opt-in native or environment-limited paths.",
+        "No native run, Windows setting, media acquisition, build, installation, signing, tag or release occurred as part of this hosted result."
+      ],
+      "next_action": "Request separate approval to commit this hosted merge record; after its protected workflow completes, prepare the minimum licensed or synthetic media identity manifest before any native format run."
     }
   ]
 }

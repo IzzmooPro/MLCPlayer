@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `4e9609985ce125a973d6073af37017f32203082c`
+- Kayıt hazırlanırken doğrulanan HEAD: `e11af6a3a6704d3f262c935f9e57abc242351f2d`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-029`
+- Son kanıt: `EV-20260824-030`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -931,12 +931,19 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    deterministik paket **4885 passed / 19 skipped / 0 failed** verdi. Yerel
    bağımsız YAML parser bulunmadığından workflow parse kanıtı henüz hosted PR
    check'ine aittir; gizli PASS yazılmadı.
+144. Yeniden yönelim ve guard paketi PR #38'in exact `ba2dd6f` head'inde
+   zorunlu hosted `test` check'inden **4877 passed / 30 skipped / 0 failed**
+   ile geçti; yeni ledger kapısı `LEDGER_APPEND_ONLY_OK` verdi ve GitHub
+   değişen workflow YAML'ını gerçekten kabul edip çalıştırdı. PR `CLEAN /
+   MERGEABLE` iken ayrı onayla iki ebeveynli `e11af6a` merge commit'i
+   üzerinden master'a alındı (`EV-20260824-030`). Yerel ve uzak master exact
+   merge commit'inde eşittir; ürün/native/HDR davranışı değişmedi.
 
 ## Sıradaki tek adım
 
-Bağımsız ikinci denetim, yapılandırılmış ledger düzeltmesi ve fail-closed
-korumaları içeren `EV-20260824-029` paketini commit etmek için ayrı açık onay
-al. Native medya çalıştırma, indirme/üretme veya ürün değişikliği yapma.
+PR #38 hosted sonucu ve iki ebeveynli merge kanıtını içeren
+`EV-20260824-030` kayıt paketini commit etmek için ayrı açık onay al. Native
+medya çalıştırma, indirme/üretme veya ürün değişikliği yapma.
 
 ## Sonraki sıra
 
