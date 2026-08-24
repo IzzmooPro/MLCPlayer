@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `93d49ac5b5e089dedff7f4a167952026e163f3f8`
+- Kayıt hazırlanırken doğrulanan HEAD: `ade01505811ebb48c5e0fc4c219809817f4fb3fe`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-033`
+- Son kanıt: `EV-20260824-041`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -955,20 +955,87 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    (`EV-20260824-033`). Yerel ve uzak master exact merge commit'inde eşittir;
    bütün 16 format satırı `BLOCKED`, `fingerprinted` kapısı kapalı ve
    ürün/native/HDR davranışı değişmedi.
+147. PR #40 merge kaydı PR #41'in exact `79219ff` head'inde zorunlu hosted
+   belge testinden **247 passed / 0 failed** ve `LEDGER_APPEND_ONLY_OK` ile
+   geçti. Ayrı onayla iki ebeveynli `ade0150` merge commit'i üzerinden
+   master'a alındı (`EV-20260824-034`). Bu hosted sonuç medya veya native
+   davranış kanıtı değildir.
+148. Yalnız `SYN-SDR709-01` için test-only executable fingerprint
+   doğrulayıcısı regresyon-first hazırlandı. Resmî CLI yalnız kanonik
+   manifeste bağlıdır; aday/source/kullanım dayanağı, manifestteki yerel ve
+   generation kimliği, onaylı araç hash/sürümleri, exact recipe, yeniden
+   üretilen byte kimliği ve canlı/kalıcı ffprobe eşliği birlikte zorunludur.
+   Windows girdileri doğrulama boyunca yazma/silmeye kapalı tutulur; subprocess
+   süre ve aktif çıktı sınırları fail-closed çalışır. Gerçek Windows
+   regresyonu dört girdi için write/delete/rename reddini ve timeout sonrası
+   alt süreç sızıntısının sıfır olduğunu ölçtü. Dar paket **43 passed**,
+   `py_compile` ve `git diff --check` temizdir (`EV-20260824-035`). Bu yalnız
+   deterministik kanıttır; gerçek araç veya medya çalıştırılmadı.
+149. Canlı preflight'ta `Get-Command ffmpeg` ve `Get-Command ffprobe` ikisi de
+   `NOT_FOUND` verdi. Ayrı araç edinme onayı olmadığı için indirme/kurulum
+   yapılmadı; `SYN-SDR709-01` üretimi **BLOCKED** kaldı
+   (`EV-20260824-036`). `fingerprinted_state_enabled=false`, bütün 16 format
+   satırı `BLOCKED`; HDR, native oynatma, ürün kodu ve Windows ayarı
+   değişmedi.
+150. FFmpeg'in resmî Windows indirme yönlendirmesindeki Gyan release
+   essentials 9.0.1 ZIP'i ayrı yayımlanan SHA-256 ile birebir eşleşti. ZIP
+   **111.253.802 bayt**, SHA-256 `fec81a...a2e9`; 49 girişte tehlikeli yol
+   yoktu. Exact `ffmpeg.exe` `102.856.192` bayt / `72a489...e6aa3`,
+   `ffprobe.exe` `102.652.416` bayt / `19202b...c52f`; sürüm ve gerekli
+   libx264/testsrc2/drawbox yetenekleri geçti (`EV-20260824-037`). Araçlar
+   Authenticode imzalı değildir; güven sağlayıcının ayrı paket hash'i ve exact
+   executable kimliğiyle sınırlıdır. Yalnız özel cache'e çıkarıldı, kurulmadı
+   ve PATH değişmedi.
+151. İlk ve tek `SYN-SDR709-01` üretimi exact recipe ile exit 0 verdi;
+   **382.034 bayt**, SHA-256 `6d15c4...24bd`, 90 frame ve sıfır süreç sızıntısı
+   ölçüldü. Ancak ffprobe `color_primaries` ve `color_transfer` alanlarını boş
+   döndürdü; log da `bt709/unknown/unknown` gösterdi. Sonuç
+   `EV-20260824-038` ile **FAILED** kaydedildi, medya reddedildi ve otomatik
+   tekrar yapılmadı. Resmî `setparams` filtresini kullanan düzeltme yalnız
+   recipe/test sözleşmesine işlendi; henüz çalıştırılmadı.
+152. Ayrı onaylı tek retry, düzeltilmiş `setparams` recipe SHA-256
+   `591843...6446` ile exit 0 verdi. Çıktı **374.394 bayt**, SHA-256
+   `af07f8...728b`; exact ffprobe 90 frame ile H.264 High/avc1/8-bit
+   yuv420p/tv ve BT.709 matrix-transfer-primaries alanlarının tamamını,
+   640x360, 30/1, 3 saniye ve MP4 sözleşmesini doğruladı. Zorunlu geçici
+   yeniden üretim aynı boyut/hash'i verdi; ayrıca ölçülmüş regeneration
+   kimliğini kullanan ayrı composition check exit 0 ve açıkça non-canonical
+   `MEDIA_FINGERPRINT_OK_COMPOSED` verdi (`EV-20260824-039`). Yalnız
+   `SYN-SDR709-01` fingerprint kaydına sahiptir; private medya/probe Git'e
+   alınmadı ve 16 format senaryosu `BLOCKED` kaldı.
+153. Üç bağımsız son denetim exact fingerprint zincirini ve private-path
+   sınırını temiz buldu; ancak resmî CLI'nın kendi regeneration yoluyla
+   `MEDIA_FINGERPRINT_OK` marker'ı üretmediğini belirledi. Global
+   `fingerprinted_state_enabled` ve `live_tool_validation_completed` tekrar
+   `false` yapıldı; durum `fingerprinted_pending_activation` ve sonuç
+   `EV-20260824-040` ile **BLOCKED** kaydedildi. İki disabled-gate testi
+   gerçek kapalı bayrağı doğrudan kuracak şekilde düzeltildi. Bu düzeltmede
+   birleşik paket **66 passed** verdi; native medya veya araç çalıştırılmadı.
+154. Ayrı onaylı kanonik CLI koşumu repository-path working-tree
+   `scripts/verify_video_format_media.py` `main()` yolunu exact kanonik
+   manifest, private record/media/probe ve onaylı FFmpeg araçlarıyla bir kez
+   çalıştırdı. Kendi geçici regeneration adımı aynı **374.394 bayt** ve
+   `af07f8...728b` SHA-256 çıktısını verdi; canlı probe `ce0c4a...f36e` ile
+   eşleşti. Exact `MEDIA_FINGERPRINT_OK`, exit 0 ve öncesi/sonrası sıfır süreç
+   sızıntısı alındı (`EV-20260824-041`). Global fingerprint aktivasyonu yalnız
+   `SYN-SDR709-01` için açıldı; MLC Player/competitor oynatma yapılmadı ve 16
+   format senaryosu `BLOCKED` kaldı. Aktivasyon sonrası birleşik paket **66
+   passed**; `py_compile`, üç JSON parse, diff/private-path ve Git private
+   artifact kontrolleri temizdir.
 
 ## Sıradaki tek adım
 
-PR #40 hosted sonucu ve iki ebeveynli merge kanıtını içeren
-`EV-20260824-033` kayıt paketini commit etmek için ayrı açık onay al. Medya
-çalıştırma, indirme/üretme veya ürün değişikliği yapma.
+Commit edilmiş `codex/sdr-fixture-fingerprint` görev dalını private
+medya/probe/log/fingerprint record dosyalarını eklemeden push etmek için ayrı
+açık onay al.
 
 ## Sonraki sıra
 
-1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Kayıt paketi merge sonrasında test-only executable fingerprint
-   doğrulayıcısı ile yalnız `SYN-SDR709-01` üretimi ve exact
-   FFmpeg/recipe/çıktı/`ffprobe` kimliği için ayrıca açık onay al; aynı onayda
-   HDR üretme veya native oynatma yapma.
+1. Push sonrasında PR oluşturma ve merge işlemlerini ayrı ayrı onaylat; private
+   medya, ham/normalize probe, log ve fingerprint record hiçbir Git işlemine
+   eklenmez.
+2. Protected merge kaydı tamamlanmadan fingerprinted SDR ile MLC Player native
+   oynatma veya insan görüntü kabulü başlatma.
 3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
    tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;
