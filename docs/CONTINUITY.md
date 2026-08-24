@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `ade01505811ebb48c5e0fc4c219809817f4fb3fe`
+- Kayıt hazırlanırken doğrulanan HEAD: `1f7fd31c34131377dd6cdacc6664a0b707f39b83`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-041`
+- Son kanıt: `EV-20260824-042`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1022,20 +1022,25 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    format senaryosu `BLOCKED` kaldı. Aktivasyon sonrası birleşik paket **66
    passed**; `py_compile`, üç JSON parse, diff/private-path ve Git private
    artifact kontrolleri temizdir.
+155. Fingerprint paketi PR #42'nin exact `9215528` head'inde zorunlu hosted
+   `test` check'inden **4924 passed / 30 skipped / 0 failed** ve
+   `LEDGER_APPEND_ONLY_OK` ile geçti. PR `CLEAN/MERGEABLE` iken ayrı onayla
+   iki ebeveynli `1f7fd31` merge commit'i üzerinden master'a alındı
+   (`EV-20260824-042`). Yerel ve uzak master eşittir; görev dalı korundu.
+   Hosted sonuç private native üretimi veya oynatmayı tekrar çalıştırmadı;
+   yalnız bir aday fingerprinted ve 16 format senaryosu `BLOCKED` kaldı.
 
 ## Sıradaki tek adım
 
-Commit edilmiş `codex/sdr-fixture-fingerprint` görev dalını private
-medya/probe/log/fingerprint record dosyalarını eklemeden push etmek için ayrı
-açık onay al.
+Commit edilmiş `codex/pr42-merge-record` kayıt dalını push etmek için ayrı açık
+onay al.
 
 ## Sonraki sıra
 
 1. Push sonrasında PR oluşturma ve merge işlemlerini ayrı ayrı onaylat; private
-   medya, ham/normalize probe, log ve fingerprint record hiçbir Git işlemine
-   eklenmez.
-2. Protected merge kaydı tamamlanmadan fingerprinted SDR ile MLC Player native
-   oynatma veya insan görüntü kabulü başlatma.
+   artifact hiçbir Git işlemine eklenmez.
+2. Kayıt paketi protected merge ile tamamlanmadan fingerprinted SDR ile MLC
+   Player native oynatma veya insan görüntü kabulü başlatma.
 3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
    tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;

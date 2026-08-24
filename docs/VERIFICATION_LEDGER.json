@@ -3651,6 +3651,32 @@
         "No private artifact is tracked by Git and no product code, Windows setting, installation, signing, tag, release, push, PR or merge changed."
       ],
       "next_action": "Request separate approval to push the committed codex/sdr-fixture-fingerprint task branch without private artifacts; request PR and merge separately afterward."
+    },
+    {
+      "id": "EV-20260824-042",
+      "recorded_at_utc": "2026-08-24T22:47:37Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "1f7fd31c34131377dd6cdacc6664a0b707f39b83",
+      "subject": "Protected PR acceptance for the executable SDR fingerprint gate",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/42",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32785983618",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32785983618/job/97617907353",
+        "the required test check completed SUCCESS on exact head 9215528a86da42df8beab1f421727f06caad105b with 4924 passed, 30 skipped and 0 failed in 120.40 seconds",
+        "the hosted append-only step printed LEDGER_APPEND_ONLY_OK",
+        "PR #42 was read back OPEN, CLEAN and MERGEABLE with the required test check COMPLETED/SUCCESS before the separately approved merge",
+        "the separately approved merge produced two-parent commit 1f7fd31c34131377dd6cdacc6664a0b707f39b83 from parents ade01505811ebb48c5e0fc4c219809817f4fb3fe and 9215528a86da42df8beab1f421727f06caad105b",
+        "origin/master and local master were read back clean and equal at the exact merge commit; the remote fingerprint task branch was preserved"
+      ],
+      "summary": "The executable SYN-SDR709-01 fingerprint validator and activated exact identity passed the protected full CI gate and entered master through a verified two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS validates repository and deterministic contracts; it does not rerun the private native FFmpeg generation, canonical CLI or MLC Player playback.",
+        "The 30 skipped tests are not PASS and include opt-in native or environment-limited paths.",
+        "Only SYN-SDR709-01 is fingerprinted; all 16 video-format acceptance scenarios remain BLOCKED and no HDR, rendering, visual-quality or product-support claim is promoted.",
+        "No private artifact, product code, Windows setting, build, installation, signing, tag or release changed in this hosted result."
+      ],
+      "next_action": "Request separate approval to push the committed codex/pr42-merge-record task branch; request PR and merge separately afterward."
     }
   ]
 }
