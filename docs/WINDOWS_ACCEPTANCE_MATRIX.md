@@ -316,6 +316,39 @@ Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 
 P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazılmaz.
 
+### WIN-P2-01 — HDR ekran, HDR medya ve gerçek çıkış yolu
+
+- **Donanım ön koşulu:** 24 Ağustos 2026 salt-okunur envanteri NVIDIA GeForce
+  RTX 4070 Ti, `2560x1440@180 Hz` MSI `8CC2` monitör ve DxDiag içinde
+  `HDR Supported (BT2020RGB BT2020YCC Eotf2084Supported)` gösterdi. Üreticinin
+  G274QPF E2 teknik sayfası DisplayHDR 400, 400 nit ve 8-bit+FRC bildirir.
+- **Aktif çıkış engeli:** aynı DxDiag raporunda `AdvancedColorEnabled` görünse
+  de etkin `Display Color Space` değeri
+  `DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709` idi. Microsoft'un HDR10 çıkış
+  sözleşmesindeki `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` canlı olarak
+  görülmeden koşum başlamaz; HDR-capable donanım tek başına HDR çıkış PASS'i
+  değildir.
+- **Test-only native ölçüm:** `tests/run_hdr_acceptance.py`, yalnız
+  `MLC_NATIVE_HDR_ACCEPTANCE=1` ve açık `MLC_HDR_TEST_VIDEO` ile çalışır.
+  Önce etkin Windows renk uzayını fail-closed doğrular; sonra mevcut `vo=gpu`
+  ile `vo=gpu-next`/D3D11/`target-colorspace-hint=auto` profillerini ayrı
+  child'larda karşılaştırır. `video-params`, `video-target-params`,
+  `hwdec-current`, exit/`MARK_DONE`, kanonik `stop -> terminate`, kabul edilen
+  kapanış, imleç geri dönüşü, medya kimliği ve süreç sızıntısı birlikte
+  kaydedilir. Her child üst sınırı 60 saniyedir.
+- **Kanıt sınırı:** exact mpv belgeleri `gpu-next` yolunu önerir ve
+  `target-colorspace-hint` seçeneğini yalnız bu VO ile destekler. Bu telemetri
+  renk uzayı/transfer hedefini ve güvenli çalışma davranışını ölçer; ekran
+  fotoğrafı, screenshot veya gözle bakış HDR parlaklık/renk doğruluğunu
+  kanıtlamaz. Görsel kalite için ayrıca kontrollü HDR test klibi ve tercihen
+  kolorimetre/manual kabul gerekir.
+- **Kaynaklar:** [Microsoft HDR ve Advanced Color](https://learn.microsoft.com/windows/win32/direct3darticles/high-dynamic-range),
+  [exact mpv options `49418246f`](https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/options.rst),
+  [exact mpv properties `49418246f`](https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/input.rst),
+  [MSI G274QPF E2 teknik özellikleri](https://www.msi.com/Monitor/G274QPF-E2/Specification).
+- **Durum:** `BLOCKED`. Test-only tanı koşumu hazırlanmıştır fakat native HDR
+  koşumu yapılmamıştır; aktif Windows HDR10 renk uzayı da henüz doğrulanmadı.
+
 ## Var olan araçların yeniden kullanımı
 
 - `tests/run_physical_acceptance.py`
@@ -323,6 +356,7 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
 - `tests/run_subtitle_visual_acceptance.py`
 - `tests/native_feature_acceptance.py`
 - `tests/native_shutdown_acceptance.py`
+- `tests/run_hdr_acceptance.py`
 
 Yeni runner ancak mevcut araç kesin olarak senaryoyu ölçemiyorsa ve önce bu
 boşluk belgelenirse eklenir.

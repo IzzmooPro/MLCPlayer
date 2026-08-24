@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `4cabdfc6acb898927f39e68fd2c5f807fc07de40`
+- Kayıt hazırlanırken doğrulanan HEAD: `3a691dd3a9d8340cbba15b532b176739e7447ab4`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-018`
+- Son kanıt: `EV-20260824-020`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -849,21 +849,35 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    geçti. Kapanış `stop -> terminate`, imleç geri dönüşü, değişmeyen hash'ler
    ve sıfır süreç sızıntısı doğrulandı (`EV-20260824-018`). `WIN-P0-04` artık
    **PASSED**; ürün kodu değişmedi.
+132. `WIN-P0-04` kayıt paketi PR #33'ün exact `c401243` head'inde zorunlu
+   hosted testten **4827 passed / 30 skipped / 0 failed** ile geçti. Ayrı
+   onayla iki ebeveynli `3a691dd` merge commit'i üzerinden master'a alındı
+   (`EV-20260824-019`). Bu hosted kanıt fiziksel Windows davranışını
+   genişletmez.
+133. HDR/önemli format araştırmasında RTX 4070 Ti ve MSI `8CC2` ekranın HDR
+   yeteneği doğrulandı; ancak etkin DxDiag renk uzayı HDR10 P2020/PQ yerine
+   `G22_NONE_P709` kaldı. Ürün ayarını değiştirmeyen, mevcut `gpu` ile
+   `gpu-next`/D3D11 HDR hedefini karşılaştıran, 60 saniye/child üst sınırına
+   ve kapanış/sızıntı kapılarına sahip test-only tanı koşumu hazırlandı.
+   Deterministik sözleşme testleri geçti (`EV-20260824-020`). Native HDR
+   koşumu yapılmadı; `WIN-P2-01` **BLOCKED** kalır ve ürün kodu değişmedi.
 
 ## Sıradaki tek adım
 
-PR #32 hosted kabulü ve `WIN-P0-04` native PASS sonucunu içeren
-`EV-20260824-017/018` kayıt paketini commit etmek için ayrı açık onay al.
-Native testi tekrar çalıştırma.
+Test-only HDR tanı koşumu, araştırma kaydı ve `EV-20260824-019/020` devir
+paketini commit etmek için ayrı açık onay al. Native HDR testini çalıştırma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
+2. Merge sonrasında Windows'un etkin HDR10 renk uzayı
+   `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
+   exact HDR medya ile tek A/B native koşum için ayrıca onay al.
+3. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
-3. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-4. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+5. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni
