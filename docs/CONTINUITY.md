@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `3a691dd3a9d8340cbba15b532b176739e7447ab4`
+- Kayıt hazırlanırken doğrulanan HEAD: `5cfced39c24608d2a574f82009b294088dae9eb7`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-020`
+- Son kanıt: `EV-20260824-022`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -861,23 +861,44 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    ve kapanış/sızıntı kapılarına sahip test-only tanı koşumu hazırlandı.
    Deterministik sözleşme testleri geçti (`EV-20260824-020`). Native HDR
    koşumu yapılmadı; `WIN-P2-01` **BLOCKED** kalır ve ürün kodu değişmedi.
+134. Test-only HDR tanı paketi PR #34'ün exact `be66c9b` head'inde zorunlu
+   hosted testten **4838 passed / 30 skipped / 0 failed** ile geçti. Ayrı
+   onayla iki ebeveynli `5cfced3` merge commit'i üzerinden master'a alındı
+   (`EV-20260824-021`). Görev dalı korundu; bu hosted sonuç native HDR veya
+   görüntü kalitesi kanıtı değildir.
+135. SDR-on-SDR, SDR-on-HDR, HDR10, HDR→SDR, HLG, HDR10+, Dolby Vision
+   profil fallback'leri, AV1/VP9/HEVC 10-bit, 4K60, renk aralığı, overlay
+   luminance, ekran durumu ve bozuk metadata için 16 satırlı makine matrisi
+   ile insan kabul planı hazırlandı. Exact mpv, VLC, Kodi ve MPC Video
+   Renderer'ın resmî kaynak davranışları somut ders ve iddia sınırıyla
+   kaydedildi. Regresyon önce eksik belgelerle **5 failed**, uygulama sonrası
+   yalnız ASCII terim sözleşmesiyle **4 passed / 1 failed**, düzeltmeden sonra
+   etki grubu **25 passed** verdi (`EV-20260824-022`). Bütün format satırları
+   `BLOCKED`; medya indirilmedi/üretilmedi, native/ürün değişikliği yapılmadı.
 
 ## Sıradaki tek adım
 
-Test-only HDR tanı koşumu, araştırma kaydı ve `EV-20260824-019/020` devir
-paketini commit etmek için ayrı açık onay al. Native HDR testini çalıştırma.
+Video format kabul planı, makine matrisi, P2 yönlendirmesi, regresyon kapısı ve
+`EV-20260824-021/022` devir kayıtlarını commit etmek için ayrı açık onay al.
+Native medya çalıştırma veya indirme/üretme yapma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Merge sonrasında Windows'un etkin HDR10 renk uzayı
+2. Merge sonrasında GPU, EDID, Windows renk yolu ve exact mpv/FFmpeg yetenek
+   envanterini salt okunur çıkar; hiçbir format satırını PASS yapma.
+3. Lisanslı/sentetik test medya adaylarının kaynak, kullanım dayanağı,
+   `ffprobe`, boyut ve SHA-256 manifestini hazırla; indirme/üretme için ayrıca
+   açık onay al.
+4. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
-   exact HDR medya ile tek A/B native koşum için ayrıca onay al.
-3. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
+   tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;
+   başarısızlıkta otomatik tekrar yapma.
+5. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
-4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+6. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-5. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+7. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni

@@ -349,6 +349,24 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
 - **Durum:** `BLOCKED`. Test-only tanı koşumu hazırlanmıştır fakat native HDR
   koşumu yapılmamıştır; aktif Windows HDR10 renk uzayı da henüz doğrulanmadı.
 
+#### Bağlı video-format programı
+
+`WIN-P2-01` tek bir HDR klibiyle kapanmaz. SDR-on-SDR, SDR-on-HDR, HDR10,
+HDR→SDR tone mapping, HLG, HDR10+ fallback/dinamik HDR10, Dolby Vision profil
+fallback'leri, AV1/VP9/HEVC 10-bit, 4K60 cadence, limited/full range,
+altyazı/OSD luminance ve ekran-durumu geri yükleme satırlarının insan
+sözleşmesi `VIDEO_FORMAT_ACCEPTANCE_PLAN.md`, makinece tek kaynağı
+`VIDEO_FORMAT_ACCEPTANCE_MATRIX.json` dosyasındadır.
+
+Rakip kıyaslaması VLC, Kodi, exact mpv ve MPC Video Renderer'ın resmî
+kaynaklardaki somut davranışlarını ölçüt olarak kullanır; başka oynatıcının
+PASS'i MLC PASS'i değildir. PotPlayer/MPC-BE içinde harici MPC Video Renderer
+kullanılırsa HDR davranışı player kabuğuna değil exact renderer'a bağlanır.
+Native yan-yana koşum yalnız aynı fingerprint medya/Windows/ekran durumunda ve
+ayrı açık onayla yapılır. Bu programın bütün satırları başlangıçta
+`BLOCKED`/`NOT_RUN` kalır; hiçbir plan veya rakip özelliği `WIN-P2-01` durumunu
+yükseltmez.
+
 ## Var olan araçların yeniden kullanımı
 
 - `tests/run_physical_acceptance.py`

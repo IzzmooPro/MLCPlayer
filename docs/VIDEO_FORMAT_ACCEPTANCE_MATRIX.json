@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "updated": "2026-08-24",
+  "baseline_commit": "5cfced39c24608d2a574f82009b294088dae9eb7",
+  "runtime": {
+    "mpv_commit": "49418246f",
+    "dll_size": 112772608,
+    "dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+  },
+  "execution_policy": {
+    "max_child_seconds": 60,
+    "automatic_retry": false,
+    "native_requires_separate_approval": true,
+    "product_change_requires_separate_approval": true,
+    "one_scenario_per_approval": true,
+    "screenshot_proves_color_accuracy": false
+  },
+  "media_policy": {
+    "large_media_committed_to_git": false,
+    "required_identity": [
+      "source_url_or_origin",
+      "license_or_use_basis",
+      "file_size",
+      "sha256",
+      "ffprobe_json"
+    ],
+    "required_preservation": [
+      "size_before_after",
+      "sha256_before_after"
+    ]
+  },
+  "measurement_fields": [
+    "video-params",
+    "video-target-params",
+    "track-list Dolby Vision profile and level",
+    "hwdec-current",
+    "vo-drop-frame-count",
+    "decoder-frame-drop-count",
+    "Windows DXGI color space before during after",
+    "display identity and driver",
+    "canonical stop terminate close",
+    "cursor restoration",
+    "process leak inventory"
+  ],
+  "benchmarks": [
+    {
+      "id": "mpv",
+      "source_urls": [
+        "https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/options.rst",
+        "https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/input.rst"
+      ],
+      "concrete_behavior": "gpu-next target-colorspace-hint supports target, source and source-dynamic policies; video-target-params exposes the VO target.",
+      "adoptable_lesson": "Separate input, processing policy and output target, and expose the measured path instead of claiming generic HDR support.",
+      "claim_boundary": "source-dynamic can use HDR10+ or Dolby Vision data to produce dynamic HDR10 but does not prove full HDR10+ or Dolby Vision metadata passthrough."
+    },
+    {
+      "id": "vlc",
+      "source_urls": [
+        "https://github.com/videolan/vlc-3.0/blob/master/NEWS",
+        "https://github.com/videolan/vlc/blob/master/modules/video_output/win32/direct3d11.cpp"
+      ],
+      "concrete_behavior": "The stable line records D3D11 HDR10 and HDR-to-SDR fixes; the development D3D11 renderer separates auto, never, always and generated-HDR output modes.",
+      "adoptable_lesson": "Treat SDR-on-HDR and HDR-on-SDR as independent regression cases and keep generated HDR opt-in.",
+      "claim_boundary": "Development-branch modes are not evidence that every installed stable VLC build exposes the same behavior."
+    },
+    {
+      "id": "kodi",
+      "source_urls": [
+        "https://kodi.wiki/view/Settings/Player/Videos"
+      ],
+      "concrete_behavior": "Kodi lets the application adjust display HDR mode or respect the current mode and tone-map as required; it also exposes high precision processing and DXVA controls.",
+      "adoptable_lesson": "Offer a small user-facing color policy rather than many renderer internals, while reporting the resulting path.",
+      "claim_boundary": "Kodi documentation is a design comparison, not native evidence for MLC Player or this machine."
+    },
+    {
+      "id": "mpc_video_renderer",
+      "source_urls": [
+        "https://github.com/Aleksoid1978/VideoRenderer",
+        "https://github.com/Aleksoid1978/VideoRenderer/blob/master/history.txt"
+      ],
+      "concrete_behavior": "The renderer documents HDR10, HLG, partial Dolby Vision, HDR metadata validation, SDR display nits, Windows HDR state policy, subtitle and OSD brightness, 10-bit formats and detailed statistics.",
+      "adoptable_lesson": "Validate metadata, preserve Windows state by default, measure monitor changes and normalize subtitle and OSD luminance in HDR.",
+      "claim_boundary": "When hosted by PotPlayer or MPC-BE these are renderer capabilities; they must not be attributed to the player shell without the exact renderer identity."
+    }
+  ],
+  "cases": [
+    {
+      "id": "VF-CORE-01",
+      "tier": "core",
+      "name": "SDR BT.709 while Windows output is SDR",
+      "input_class": "H.264 8-bit BT.709 SDR",
+      "display_state": "DXGI G22 P709",
+      "expected_path": "SDR BT.709 input remains SDR BT.709 output without level or gamut shift",
+      "required_evidence": ["input and target params", "black white ramp", "no frame drops", "shutdown gates"],
+      "status": "BLOCKED",
+      "blocker": "Exact licensed or generated SDR reference clip is not fingerprinted."
+    },
+    {
+      "id": "VF-CORE-02",
+      "tier": "core",
+      "name": "SDR BT.709 while Windows output is HDR",
+      "input_class": "H.264 8-bit BT.709 SDR",
+      "display_state": "DXGI G2084 P2020",
+      "expected_path": "Source remains labeled SDR while renderer maps it to the HDR display target without washed blacks",
+      "required_evidence": ["input SDR classification", "target params", "reference white", "manual ramp check"],
+      "status": "BLOCKED",
+      "blocker": "Active Windows HDR10 color space and exact SDR reference clip are not both available."
+    },
+    {
+      "id": "VF-CORE-03",
+      "tier": "core",
+      "name": "HDR10 HEVC Main10 output",
+      "input_class": "HEVC Main10 PQ BT.2020 HDR10",
+      "display_state": "DXGI G2084 P2020",
+      "expected_path": "Verified HDR10 input reaches a PQ BT.2020 10-bit target with metadata and stable playback",
+      "required_evidence": ["MaxCLL MaxFALL", "10-bit input target", "hwdec", "shutdown gates"],
+      "status": "BLOCKED",
+      "blocker": "Active HDR10 output and fingerprinted HDR10 clip are missing."
+    },
+    {
+      "id": "VF-CORE-04",
+      "tier": "core",
+      "name": "HDR10 to SDR tone mapping",
+      "input_class": "HEVC Main10 PQ BT.2020 HDR10",
+      "display_state": "DXGI G22 P709",
+      "expected_path": "HDR input is tone-mapped to SDR BT.709 without clipping or false HDR output claim",
+      "required_evidence": ["HDR input params", "SDR target params", "highlight ramp", "no leak"],
+      "status": "BLOCKED",
+      "blocker": "Exact HDR reference clip and approved SDR visual comparison are missing."
+    },
+    {
+      "id": "VF-CORE-05",
+      "tier": "core",
+      "name": "Subtitle and OSD luminance in HDR",
+      "input_class": "HDR10 plus ASS and SRT overlays",
+      "display_state": "DXGI G2084 P2020",
+      "expected_path": "Subtitle and OSD remain readable without excessive HDR brightness or dimming",
+      "required_evidence": ["same frame overlay comparison", "subtitle state", "fullscreen and windowed", "manual acceptance"],
+      "status": "BLOCKED",
+      "blocker": "Active HDR10 output and controlled overlay reference scene are missing."
+    },
+    {
+      "id": "VF-CODEC-01",
+      "tier": "codec",
+      "name": "AV1 Main10 HDR10",
+      "input_class": "AV1 Main10 PQ BT.2020",
+      "display_state": "HDR and SDR paths",
+      "expected_path": "AV1 10-bit decode and both HDR target or SDR tone-map paths are explicit",
+      "required_evidence": ["decoder identity", "hwdec or explicit software fallback", "target params", "frame drops"],
+      "status": "BLOCKED",
+      "blocker": "Fingerprint AV1 Main10 HDR media is missing."
+    },
+    {
+      "id": "VF-CODEC-02",
+      "tier": "codec",
+      "name": "VP9 Profile 2 HDR",
+      "input_class": "VP9 Profile 2 10-bit HDR",
+      "display_state": "HDR and SDR paths",
+      "expected_path": "VP9 10-bit decode and output conversion are measured without codec-name inference",
+      "required_evidence": ["profile and bit depth", "decoder identity", "target params", "frame drops"],
+      "status": "BLOCKED",
+      "blocker": "Fingerprint VP9 Profile 2 reference media is missing."
+    },
+    {
+      "id": "VF-HDR-01",
+      "tier": "hdr",
+      "name": "BT.2100 HLG",
+      "input_class": "10-bit BT.2020 HLG",
+      "display_state": "HDR target and SDR fallback",
+      "expected_path": "HLG input is identified independently from PQ and its actual target conversion is recorded",
+      "required_evidence": ["HLG gamma", "BT.2020 primaries", "target transfer", "manual reference check"],
+      "status": "BLOCKED",
+      "blocker": "Fingerprint HLG reference media is missing."
+    },
+    {
+      "id": "VF-HDR-02",
+      "tier": "hdr",
+      "name": "HDR10+ to HDR10 fallback or dynamic HDR10",
+      "input_class": "HDR10+ PQ BT.2020 dynamic metadata",
+      "display_state": "HDR10 display unless dynamic capability is independently proven",
+      "expected_path": "Scene metadata presence is measured and output is labeled HDR10 fallback or dynamic HDR10, never unproven HDR10+ passthrough",
+      "required_evidence": ["scene-max RGB changes", "static metadata", "target params", "capability boundary"],
+      "status": "BLOCKED",
+      "blocker": "Fingerprint HDR10+ media and display dynamic-metadata capability evidence are missing."
+    },
+    {
+      "id": "VF-HDR-03",
+      "tier": "hdr",
+      "name": "Dolby Vision Profile 8.1 fallback",
+      "input_class": "Dolby Vision Profile 8.1 with HDR10-compatible base",
+      "display_state": "HDR10 target",
+      "expected_path": "Profile is reported and output is labeled HDR10 fallback unless Dolby Vision output is independently proven",
+      "required_evidence": ["DV profile and level", "base-layer params", "target params", "no DV passthrough claim"],
+      "status": "BLOCKED",
+      "blocker": "Fingerprint Dolby Vision Profile 8.1 media is missing."
+    },
+    {
+      "id": "VF-HDR-04",
+      "tier": "hdr",
+      "name": "Dolby Vision Profile 8.4 HLG fallback",
+      "input_class": "Dolby Vision Profile 8.4 with HLG base",
+      "display_state": "HDR target or SDR fallback",
+      "expected_path": "Profile and HLG base behavior are reported separately from Dolby Vision output",
+      "required_evidence": ["DV profile and level", "HLG base params", "target params", "fallback label"],
+      "status": "BLOCKED",
+      "blocker": "Fingerprint Dolby Vision Profile 8.4 media is missing."
+    },
+    {
+      "id": "VF-HDR-05",
+      "tier": "hdr",
+      "name": "Native Dolby Vision output capability gate",
+      "input_class": "Profile-specific Dolby Vision",
+      "display_state": "DV-capable display path must be independently proven",
+      "expected_path": "Native Dolby Vision is claimed only when EDID, OS, renderer and display signal agree",
+      "required_evidence": ["EDID or platform capability", "renderer output proof", "display signal", "profile support"],
+      "status": "BLOCKED",
+      "blocker": "Current display path has no independent Dolby Vision output capability proof."
+    },
+    {
+      "id": "VF-PERF-01",
+      "tier": "performance",
+      "name": "4K60 10-bit cadence",
+      "input_class": "3840x2160 59.94 or 60 fps 10-bit",
+      "display_state": "Measured 180 Hz display path",
+      "expected_path": "Playback progresses with explicit decoder and bounded frame-drop counts",
+      "required_evidence": ["display fps", "container fps", "VO drops", "decoder drops", "hwdec"],
+      "status": "BLOCKED",
+      "blocker": "Fingerprint 4K60 10-bit reference clip and drop thresholds are missing."
+    },
+    {
+      "id": "VF-RANGE-01",
+      "tier": "color",
+      "name": "Limited and full range level handling",
+      "input_class": "BT.709 and BT.2020 legal-range and full-range ramps",
+      "display_state": "SDR and HDR targets",
+      "expected_path": "Black and white levels follow metadata without crush, lift or double expansion",
+      "required_evidence": ["colorlevels input target", "known ramp values", "manual or instrument check"],
+      "status": "BLOCKED",
+      "blocker": "Controlled legal/full-range ramp assets are not generated and fingerprinted."
+    },
+    {
+      "id": "VF-DISPLAY-01",
+      "tier": "display",
+      "name": "Display move and Windows HDR state restoration",
+      "input_class": "SDR and HDR clips",
+      "display_state": "Single display baseline then future mixed SDR HDR displays",
+      "expected_path": "Renderer re-evaluates the target and never leaves a display state changed without explicit policy and restoration",
+      "required_evidence": ["display identity before after", "DXGI color space before during after", "window target", "shutdown"],
+      "status": "BLOCKED",
+      "blocker": "Current machine has only one active display path and product does not change Windows HDR state."
+    },
+    {
+      "id": "VF-META-01",
+      "tier": "safety",
+      "name": "Missing or contradictory color metadata",
+      "input_class": "10-bit media with absent or conflicting transfer primaries metadata",
+      "display_state": "SDR and HDR targets",
+      "expected_path": "Ambiguous input is reported as unknown or invalid and cannot produce an earned HDR PASS",
+      "required_evidence": ["raw params", "classification problems", "safe playback or clean failure", "no inferred PASS"],
+      "status": "BLOCKED",
+      "blocker": "Controlled malformed metadata fixtures are not generated and fingerprinted."
+    }
+  ]
+}
