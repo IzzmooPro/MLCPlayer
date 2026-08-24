@@ -254,6 +254,16 @@ seek'i kanıtlar; aynı exact committe pause/resume ölçümü olmadığı için
 `WIN-P0-04` durumu **NOT_RUN** olarak korunur. `window_resize` ve dedicated
 `fullscreen` grupları çalışmadığından `WIN-P0-05` de **NOT_RUN** kalır.
 
+Exact iki ebeveynli master `346603b` üzerinde ayrı onaylı yalnız
+`window_resize` grubu `EV-20260824-010` olarak ilk denemede **PASS** verdi:
+40,4 saniye, exit `0`, `MARK_DONE`, **12 PASS / 0 FAIL / 0 BLOCKED**, kanonik
+`stop -> terminate` ve sıfır süreç sızıntısı. Dört kenar, dört köşe ve
+playlist açıkken sağ/alt/sağ-alt fiziksel resize hareketlerinde hedef eksenler
+tam 70 piksel değişti, diğer eksenler sabit kaldı; örtüşme yok ve tüm sorun
+listeleri boştu. Dedicated `fullscreen` grubu aynı exact committe çalışmadığı
+için `WIN-P0-05` durumu **NOT_RUN** olarak korunur. Farklı DPI ve çoklu monitör
+kapsamı da bu dar koşumun dışındadır.
+
 Bu sonuç kaynak-native kanıttır; kurulu v0.39 artifact kabulü değildir.
 
 ## P1 — Ortam ve dayanıklılık
