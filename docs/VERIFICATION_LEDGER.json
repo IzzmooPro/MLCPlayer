@@ -2714,6 +2714,55 @@
         "WIN-P0-04 and WIN-P0-05 remain NOT_RUN, and no product source, build, installation, signing, tag or release changed."
       ],
       "next_action": "Commit, push and merge this test-only repair through separate approvals; only afterward decide the exact subtitle/playlist inputs and request separate approval for any native run."
+    },
+    {
+      "id": "EV-20260824-005",
+      "recorded_at_utc": "2026-08-24T18:07:08Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "5742563b83382117507f844e7e1e99384bc6c1ac",
+      "subject": "Protected PR acceptance for the bounded physical-controls harness repair",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/26",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32759187790",
+        "the pull_request run completed on exact head 5742563b83382117507f844e7e1e99384bc6c1ac with required test check success: 4822 passed, 30 skipped and 0 failed",
+        "the separately approved merge produced two-parent commit 227550d3cbefe62756a8fd764a1b4bc2b03f5237 from parents 947a4ce8ee386030777228631c7237ce24f8356e and 5742563b83382117507f844e7e1e99384bc6c1ac",
+        "PR #26 was read back as MERGED, origin/master was read back at the exact merge commit and the remote task branch was preserved"
+      ],
+      "summary": "The bounded physical-controls harness repair passed the protected PR check and was merged to master through a real two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS proves neither physical Windows behavior nor an installed artifact.",
+        "The 30 skipped tests are not PASS.",
+        "No native run, product change, build, installation, signing, tag or release occurred as part of this hosted result."
+      ],
+      "next_action": "Determine exact subtitle and multi-item playlist inputs, then request separate approval for one bounded buttons native run."
+    },
+    {
+      "id": "EV-20260824-006",
+      "recorded_at_utc": "2026-08-24T18:07:09Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "227550d3cbefe62756a8fd764a1b4bc2b03f5237",
+      "subject": "Bounded physical buttons acceptance with exact subtitle and playlist preconditions",
+      "evidence": [
+        "the separately approved buttons-only run began on clean master exactly equal to origin/master two-parent merge commit 227550d3cbefe62756a8fd764a1b4bc2b03f5237 with no active MLC Player, python or pythonw process",
+        "the private source MP4 was 345752445 bytes with SHA-256 c3e53407690d6738a09b74655dd81296c8637015d835cf503ebc54787b6834a9 and mpv-2.dll was 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e before and after the run",
+        "an isolated temporary fixture used two distinct NTFS hardlink paths to that exact MP4 and a valid same-stem external ASS track with SHA-256 d87704ed5df5025b8d79e01e9b6634e06baa6701d8dd8ac2e29c1215559045c2; the ASS track satisfied libmpv subtitle discovery without entering the product's SRT auto-activation path",
+        "command: MLC_NATIVE_SMOKE=1, MLC_NATIVE_TEST_VIDEO=<temporary primary hardlink> and MLC_PLAYLIST_VIDEOS=<temporary secondary hardlink> followed by python tests/run_physical_acceptance.py buttons with an isolated TEMP and settings root",
+        "the runner completed on its first native attempt in 44.4 seconds with exit 0, MARK_DONE, 21 PASS, 0 FAIL, 0 BLOCKED and no timeout",
+        "closed and open playlist-panel phases both passed CC on/off state and icon read-back, play/pause, mute, amplified-volume synchronization, settings open/real-Esc close, next 0->1, previous 1->0 and fullscreen enter/real-Esc exit",
+        "the product shutdown path passed with exactly one stop and one terminate in stop->terminate order, accepted close, released mpv_player, restored cursor and no remaining MLC Player, python or pythonw process",
+        "two QThreadStorage teardown warnings appeared only after MARK_DONE; there was no Python exception, access violation, behavior failure or process leak",
+        "the measured host was Microsoft Windows 11 Pro 10.0.26200 64 bit with one 2560x1440 display; post-run source status remained clean and exactly equal to origin/master"
+      ],
+      "summary": "The repaired buttons group passed once with real SendInput, a real subtitle track, a measurable two-item playlist, bounded completion, canonical shutdown and no process leak.",
+      "limitations": [
+        "This native_smoke PASS belongs only to the exact commit, DLL, source media fingerprint, temporary ASS fixture, two hardlink paths and measured Windows environment; it is not installed-artifact evidence.",
+        "The two playlist paths intentionally reference identical media bytes, so this proves physical index/path transition and reload but not decoding of two different media contents or playlist reorder/end-target behavior.",
+        "Buttons alone does not complete WIN-P0-03, WIN-P0-04, WIN-P0-05 or WIN-P0-07: real audio/subtitle track switching, timeline seek, native resize/fullscreen groups, and distinct three-item playlist reorder acceptance remain separate gaps.",
+        "No product source, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Commit this evidence record with separate approval, then use separate push, PR and merge approvals; after merge request separate native approval for the timeline group only."
     }
   ]
 }

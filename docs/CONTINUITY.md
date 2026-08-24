@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 24 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `947a4ce8ee386030777228631c7237ce24f8356e`
+- Kayıt hazırlanırken doğrulanan HEAD: `227550d3cbefe62756a8fd764a1b4bc2b03f5237`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-004`
+- Son kanıt: `EV-20260824-006`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -757,18 +757,32 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    modal 900 ms sonra gerçek Esc ile bounded kapatılır. Seçili grup üst sınırı
    sırasıyla **180/300/180/120 saniye** oldu (`EV-20260824-004`). Ürün kodu ve
    native durum değişmedi; fiziksel retry yapılmadı.
+118. Harness düzeltmesi PR #26'nın exact `5742563` head'inde zorunlu hosted
+   testten **4822 passed / 30 skipped / 0 failed** ile geçti. Ayrı onayla iki
+   ebeveynli `227550d` merge commit'i üzerinden master'a alındı
+   (`EV-20260824-005`). Bu hosted kanıt fiziksel Windows davranışını PASS
+   yapmaz.
+119. Ayrı onaylı `buttons` koşumu exact `227550d`, aynı doğrulanmış MP4/DLL,
+   iki ayrı hardlink playlist yolu ve otomatik SRT etkinleştirmesine girmeyen
+   gerçek dış ASS iziyle ilk denemede **44,4 saniye / exit 0 / 21 PASS / 0
+   FAIL / 0 BLOCKED / MARK_DONE** verdi. Kapalı ve açık playlist panelinde CC,
+   oynat/duraklat, sessiz, ses kaydırıcısı, ayarlar, sonraki/önceki ve tam
+   ekran düğmeleri geçti; kapanış `stop -> terminate`, imleç geri dönüşü ve
+   süreç temizliği doğrulandı (`EV-20260824-006`). İki playlist yolu aynı
+   medya baytlarına aittir; timeline, native resize/fullscreen grupları ve
+   P0-03/P0-07'nin daha geniş kabulü tamamlanmış sayılmaz. Ürün kodu değişmedi.
 
 ## Sıradaki tek adım
 
-`EV-20260824-004` test-only harness düzeltmesini commit etmek için ayrı açık
-onay al. Native testi tekrar çalıştırma.
+`EV-20260824-005` ve `EV-20260824-006` kayıt paketini commit etmek için ayrı
+açık onay al. Native testi tekrar çalıştırma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında push, PR ve merge işlemlerini ayrı ayrı onaylat.
-2. Düzeltme merge edildikten sonra CC/playlist için gerekli exact girdileri
-   belirle; yeni açık native onayı olmadan fiziksel paketi tekrar çalıştırma.
-3. Dört açık boşluk için dar runner veya kayıtlı manuel kabul kararını ver.
+2. Kayıt merge edildikten sonra yalnız `timeline` grubu için ayrı native onay
+   al; `window_resize` ve `fullscreen` aynı onaya dahil değildir.
+3. Kalan açık boşluklar için dar runner veya kayıtlı manuel kabul kararını ver.
 4. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
 5. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
