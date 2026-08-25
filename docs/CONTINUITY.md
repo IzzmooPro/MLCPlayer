@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `b799362ef3a02e6307a5aac8ec98264d8f35286c`
+- Kayıt hazırlanırken doğrulanan HEAD: `30c06590582164f54912ea1c0d6d485ca88512e5`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-009`
+- Son kanıt: `EV-20260825-011`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1138,25 +1138,44 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    sızıntısı alındı (`EV-20260825-009`). Otomatik kapılar tamamdır; insan
    siyah/nötr-gri/beyaz-sınır ramp kabulü eksik olduğundan `VF-CORE-02`
    **BLOCKED** kalır. Ek retry yapılmadı.
+169. EV-009 kayıt commit'i exact `30c0659` sonrasında ayrıca onaylanan insan
+   ramp sunumu fingerprint aşamasında AppData Temp erişim reddiyle durdu.
+   İzinli TEMP konumuyla ayrıca onaylanan tek retry, regenerated medya
+   silindikten sonra boş kalan `TemporaryDirectory` klasörünü temizlerken
+   `WinError 5` verdi. İki denemede de pencere açılmadı, native MLC Player/
+   libmpv oynatması başlamadı ve hedef süreç sızıntısı olmadı
+   (`EV-20260825-010`, **FAILED**). Neden incelendi; otomatik üçüncü retry
+   yapılmadı ve `VF-CORE-02` **BLOCKED** kaldı.
+170. Ayrı onaylı test-only düzeltmede iki davranış regresyonu mevcut kaynakta
+   önce **2 failed** verdi: boş klasör politika reddi yayıldı ve beklenmeyen
+   yan içerik sessizce silindi. Minimal düzeltme yalnız regenerated medyayı
+   açıkça siliyor; klasör kaldırma `PermissionError`ını yalnız klasör hâlâ
+   mevcut ve boşsa tolere ediyor, içerik kalırsa fail-closed hatayı ve içeriği
+   koruyor. İki regresyon düzeltme sonrası geçti; fingerprint/SDR/HDR/
+   video-format etki grubu **94 passed** verdi (`EV-20260825-011`). Bu yalnız
+   deterministic test harness kanıtıdır; ürün kodu değişmedi, native oynatma
+   veya insan ramp kabulü yapılmadı ve EV-010 geriye dönük PASS olmadı.
 
 ## Sıradaki tek adım
 
-EV-009 kayıt commit'inden sonra kontrollü insan siyah/nötr-gri/beyaz-sınır
-ramp sunumunu ayrıca onaylat. Yeni native koşum veya push yapma.
+EV-010/011 kayıt paketi ve test-only harness düzeltmesi için ayrı commit onayı
+iste. Commit olmadan kontrollü insan ramp retry'ı, native koşum veya push yapma.
 
 ## Sonraki sıra
 
 1. Private görsel/native artifact'ları hiçbir Git işlemine ekleme.
-2. Kontrollü insan siyah/nötr-gri/beyaz-sınır ramp sunumunu ayrıca onaylat.
-3. İnsan kabul sonucunu ledger/devam belgelerine kaydet ve kayıt commit'ini
+2. Test-only düzeltme ve EV-010/011 kayıt paketini ayrı onayla commit et.
+3. Commit sonrasında kontrollü insan siyah/nötr-gri/beyaz-sınır ramp retry'ını
+   ayrıca onaylat; otomatik native retry yapma.
+4. İnsan kabul sonucunu ledger/devam belgelerine kaydet ve kayıt commit'ini
    ayrıca onaylat.
-4. İnsan kabul kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
+5. İnsan kabul kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
    onaylat.
-5. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
+6. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
-6. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+7. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-7. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+8. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni

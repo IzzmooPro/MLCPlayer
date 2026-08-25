@@ -3994,6 +3994,48 @@
         "Windows HDR remains enabled and no product code changed."
       ],
       "next_action": "Request separate approval to commit the native retry record; after commit, request a bounded controlled human SDR ramp presentation under active HDR separately."
+    },
+    {
+      "id": "EV-20260825-010",
+      "recorded_at_utc": "2026-08-25T19:38:46Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "30c06590582164f54912ea1c0d6d485ca88512e5",
+      "subject": "Two controlled VF-CORE-02 human-ramp attempts stopped before playback",
+      "evidence": [
+        "the user separately approved a controlled visual ramp presentation after the EV-20260825-009 record commit; the first attempt stopped in the canonical media fingerprint stage because the AppData Temp workspace was denied",
+        "the user approved one retry using an allowed TEMP location; it also stopped in the fingerprint stage when TemporaryDirectory cleanup raised WinError 5 while removing the already-empty regeneration directory",
+        "neither attempt opened the presentation window or started native MLC Player/libmpv playback, and both pre-playback exits left zero target-process leaks",
+        "the cleanup failure was inspected before any further action; no automatic third retry occurred"
+      ],
+      "summary": "Both approved visual attempts failed closed before native playback because temporary-workspace cleanup could not remove an empty managed directory.",
+      "limitations": [
+        "FAILED is not PASS: no black, neutral-gray or white-boundary judgment occurred and VF-CORE-02 remains BLOCKED.",
+        "The failures do not invalidate the exact EV-20260825-009 native_smoke PASS, which remains limited to its exact commit, runtime, fixture, display and automatic gates.",
+        "No product code, native playback, Windows HDR setting, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Apply and deterministically validate the separately approved test-only cleanup correction; do not retry native playback automatically."
+    },
+    {
+      "id": "EV-20260825-011",
+      "recorded_at_utc": "2026-08-25T19:39:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "30c06590582164f54912ea1c0d6d485ca88512e5",
+      "subject": "Fail-closed managed regeneration workspace cleanup",
+      "evidence": [
+        "two new behavior regressions first failed on the existing TemporaryDirectory implementation: empty-directory policy denial propagated and unexpected remaining content was silently removed",
+        "the minimal test-only harness correction explicitly deletes only the regenerated media and tolerates PermissionError from directory removal only when the workspace still exists as an empty directory",
+        "unexpected remaining workspace content still raises OSError and is preserved for diagnosis instead of being silently removed",
+        "the two new regressions passed after the correction and the combined fingerprint, SDR runner, HDR target and video-format plan impact group completed with 94 passed"
+      ],
+      "summary": "The fingerprint regenerator now tolerates only an empty managed-directory removal denial while preserving fail-closed behavior for unexpected content.",
+      "limitations": [
+        "This deterministic PASS changes only the test harness and does not rerun native playback or convert EV-20260825-010 to PASS.",
+        "VF-CORE-02 remains BLOCKED until a separately approved post-commit controlled human black, neutral-gray and white-boundary presentation is completed and recorded.",
+        "No product code, Windows HDR setting, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Request separate approval to commit the test-only cleanup correction and EV-20260825-010/011 records; request any controlled human ramp retry separately only after that commit."
     }
   ]
 }
