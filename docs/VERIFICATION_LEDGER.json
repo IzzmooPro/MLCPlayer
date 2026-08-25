@@ -3826,6 +3826,31 @@
         "No competitor comparison, HDR mode change, HDR playback, build, installation, signing, tag, release, push, PR or merge occurred."
       ],
       "next_action": "Request separate approval to commit the native result record; then define and obtain controlled human black/gray/white ramp evidence before changing VF-CORE-01 status."
+    },
+    {
+      "id": "EV-20260825-003",
+      "recorded_at_utc": "2026-08-25T15:49:47Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "ccbd4a0cf25f7f7623096c84f7cadea05488220d",
+      "subject": "Controlled human SDR black gray white ramp acceptance",
+      "evidence": [
+        "the separately approved one-time current_product presentation used the exact fingerprinted SYN-SDR709-01 fixture and exact mpv-2.dll identity on commit ccbd4a0; the visual hold was bounded to 10.0 seconds and no automatic retry occurred",
+        "the automated native gates reported BT.709 limited input with BT.1886 transfer, BT.709/BT.1886 target, duration 3.000 seconds, advancing time_pos to 0.600 seconds, decoder-frame-drop-count 0 and frame-drop-count 0",
+        "the child completed in 11.412 seconds with exit 0, MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "Windows colorspace remained DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 before and after",
+        "the user directly confirmed all three controlled judgments: black was not crushed, gray remained neutral, and white boundary detail was not clipped",
+        "private child log SHA-256 is c5849d4d7a4f5ae453a5ad79d7b1d4ffb49cb5bcd34a4587bcddad846a65aa15; private report SHA-256 is 37a52621ff071e7cf589881b042c47154f17e732904a306f643da8fec32d1f26",
+        "private pre-run DxDiag SHA-256 is 3b86e9121551d8da130bc20f30c22608e72ca22f3f4f124771c66e3b60c65d5a and post-run DxDiag SHA-256 is 89b5d58ce179afcb81b71612cae4c3707a27546477b6f72b5b33e41dba196c5a"
+      ],
+      "summary": "The exact current product SDR path passed both the automated gates and the required controlled human black, neutral-gray and white-boundary judgments, so VF-CORE-01 is PASSED.",
+      "limitations": [
+        "This PASS applies only to exact commit ccbd4a0, runtime, fixture, Windows SDR output state, display and controlled presentation scenario.",
+        "The human observation is a controlled visual acceptance, not an instrumented colorimeter or calibration measurement.",
+        "No HDR mode change, HDR playback, competitor run, installed-artifact acceptance, build, signing, tag, release, push, PR or merge occurred.",
+        "Only VF-CORE-01 changes to PASSED; the other 15 video-format cases and WIN-P2-01 remain blocked or not accepted."
+      ],
+      "next_action": "Request separate explicit approval to commit the bounded visual-hold helper, EV-20260825-003 record and linked acceptance documents; do not run another native scenario or push automatically."
     }
   ]
 }

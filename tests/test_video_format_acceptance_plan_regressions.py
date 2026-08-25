@@ -50,7 +50,7 @@ def test_media_candidates_are_fail_closed_and_cover_every_case():
     assert media["fingerprinted_state_enabled"] is True
     assert media["acquisition_or_generation_performed"] is True
     assert media["native_media_opened"] is True
-    assert media["latest_native_media_evidence_id"] == "EV-20260825-002"
+    assert media["latest_native_media_evidence_id"] == "EV-20260825-003"
     assert matrix["media_policy"]["manifest_document"] == (
         "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json")
     assert matrix["media_policy"]["manifest_status"] == (
@@ -214,9 +214,10 @@ def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     assert diagnostic["result"] == "PASSED"
     assert diagnostic["evidence_id"] == "EV-20260824-046"
     product_change = data["execution_policy"]["product_latency_change"]
-    assert product_change["status"] == "NATIVE_PASSED_MANUAL_PENDING"
+    assert product_change["status"] == "NATIVE_AND_MANUAL_PASSED"
     assert product_change["evidence_id"] == "EV-20260825-001"
     assert product_change["native_evidence_id"] == "EV-20260825-002"
+    assert product_change["manual_evidence_id"] == "EV-20260825-003"
     assert product_change["video_latency_hacks_override_present"] is False
     assert product_change["native_retest_completed"] is True
 
@@ -224,14 +225,21 @@ def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     ids = [case["id"] for case in cases]
     assert len(ids) == len(set(ids))
     assert REQUIRED_CASES <= set(ids)
+    passed_cases = {case["id"] for case in cases
+                    if case["status"] == "PASSED"}
+    assert passed_cases == {"VF-CORE-01"}
     for case in cases:
         assert case["status"] in ALLOWED_STATUS
-        assert case["status"] != "PASSED"
         assert case["input_class"]
         assert case["display_state"]
         assert case["expected_path"]
         assert case["required_evidence"]
-        assert case["blocker"]
+        if case["id"] == "VF-CORE-01":
+            assert case["evidence_id"] == "EV-20260825-003"
+            assert case["blocker"] is None
+        else:
+            assert case["status"] == "BLOCKED"
+            assert case["blocker"]
 
 
 def test_competitor_lessons_use_primary_sources_and_keep_claim_boundaries():
@@ -259,8 +267,8 @@ def test_capability_inventory_keeps_compiled_and_active_proof_separate():
     assert data["compiled_codec_drivers_are_hardware_proof"] is False
     assert data["media_opened"] is True
     assert data["latest_native_playback_evidence_id"] == (
-        "EV-20260825-002")
-    assert data["all_cases_remain_blocked"] is True
+        "EV-20260825-003")
+    assert data["all_cases_remain_blocked"] is False
     assert {"gpu", "gpu-next"} <= set(data["compiled_video_outputs"])
     assert "d3d11" in data["compiled_gpu_apis"]
     assert set(data["target_colorspace_hint_modes"]) == {

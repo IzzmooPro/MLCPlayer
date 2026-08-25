@@ -12,6 +12,7 @@ SDR_COLORSPACE = "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709"
 CURRENT_PROFILE = "current_product"
 NO_LATENCY_HACKS_PROFILE = "no_latency_hacks"
 PROFILES = (CURRENT_PROFILE, NO_LATENCY_HACKS_PROFILE)
+MAX_VISUAL_HOLD_SECONDS = 15.0
 _ALLOWED_STDERR_PREFIXES = ("QThreadStorage:",)
 
 
@@ -23,6 +24,19 @@ def sdr_probe_config(base_config, profile):
     if profile == NO_LATENCY_HACKS_PROFILE:
         configured["video_latency_hacks"] = "no"
     return configured
+
+
+def visual_hold_seconds(value):
+    """Insan ramp bakisi icin bos/0 veya en fazla 15 saniye kabul et."""
+    if value in (None, ""):
+        return 0.0
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError("gecersiz visual hold") from error
+    if not 0 <= seconds <= MAX_VISUAL_HOLD_SECONDS:
+        raise ValueError("visual hold 0..15 saniye olmali")
+    return seconds
 
 
 def _text(mapping, key):

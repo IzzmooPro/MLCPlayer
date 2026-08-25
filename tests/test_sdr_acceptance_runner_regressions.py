@@ -136,3 +136,19 @@ def test_product_uses_mpv_safe_default_for_video_latency_hacks():
     from app.config import MPV_CONFIG
 
     assert "video_latency_hacks" not in MPV_CONFIG
+
+
+@pytest.mark.parametrize("value,expected", [
+    ("", 0.0),
+    ("0", 0.0),
+    ("10", 10.0),
+    ("15", 15.0),
+])
+def test_visual_hold_is_bounded(contract, value, expected):
+    assert contract.visual_hold_seconds(value) == expected
+
+
+@pytest.mark.parametrize("value", ["-1", "15.1", "nan", "bad"])
+def test_visual_hold_rejects_unsafe_values(contract, value):
+    with pytest.raises(ValueError):
+        contract.visual_hold_seconds(value)

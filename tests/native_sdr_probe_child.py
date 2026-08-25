@@ -25,12 +25,18 @@ os.environ.pop("QT_QPA_PLATFORM", None)
 
 from native_media_contract import is_supported_media  # noqa: E402
 from sdr_probe_contract import (PROFILES, classify_sdr_input,  # noqa: E402
-                                sdr_probe_config)
+                                sdr_probe_config, visual_hold_seconds)
 
 
 VIDEO = os.environ.get("MLC_SDR_TEST_VIDEO", "")
 PROFILE = os.environ.get("MLC_SDR_PROBE_PROFILE", "")
-if not is_supported_media(VIDEO) or PROFILE not in PROFILES:
+try:
+    VISUAL_HOLD_SECONDS = visual_hold_seconds(
+        os.environ.get("MLC_SDR_VISUAL_HOLD_SECONDS", ""))
+except ValueError:
+    VISUAL_HOLD_SECONDS = -1
+if (not is_supported_media(VIDEO) or PROFILE not in PROFILES
+        or VISUAL_HOLD_SECONDS < 0):
     print("HARNESS_FAILURE invalid SDR media or profile", flush=True)
     raise SystemExit(2)
 
@@ -169,7 +175,11 @@ def main():
                  f"time_pos={state['max_time_pos']:.3f} "
                  f"drops={state['frame_drops']}")
             timer.stop()
-            QTimer.singleShot(250, close_player)
+            if VISUAL_HOLD_SECONDS:
+                mark("MARK_VISUAL_HOLD",
+                     f"seconds={VISUAL_HOLD_SECONDS:.1f}")
+            QTimer.singleShot(
+                int((VISUAL_HOLD_SECONDS or 0.25) * 1000), close_player)
             return
         if time.time() >= state["deadline"]:
             timer.stop()
@@ -188,6 +198,7 @@ def main():
 
     report = {
         "profile": PROFILE,
+        "visual_hold_seconds": VISUAL_HOLD_SECONDS,
         "input_class": classify_sdr_input(state["input"]),
         "input": state["input"],
         "target": state["target"],

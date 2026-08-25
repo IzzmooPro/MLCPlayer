@@ -415,6 +415,16 @@ kabul edildi (`EV-20260825-002`). Otomatik ürün kapıları tamamdır; kontroll
 insan siyah/gri/beyaz ramp kanıtı eksik olduğu için `VF-CORE-01` hâlâ
 **BLOCKED** kalır.
 
+Exact `ccbd4a0` üzerinde ayrıca onaylanan tek kontrollü görsel sunum, aynı
+fingerprint fixture/runtime ve gerçek `current_product` profiliyle pencereyi
+10 saniye görünür tuttu. Otomatik kapılar yine BT.709/BT.1886 girdi/hedef,
+`duration=3.000`, ilerleyen `time_pos=0.600`, sıfır decoder/VO drop, exit 0,
+`MARK_DONE`, kanonik `stop -> terminate`, imleç geri dönüşü ve sıfır süreç
+sızıntısıyla geçti. Kullanıcı siyahın ezilmediğini, grinin nötr kaldığını ve
+beyaz sınırların patlamadığını üç ayrı ölçüt için doğruladı
+(`EV-20260825-003`). Bu nedenle yalnız `VF-CORE-01` **PASSED** oldu; HDR,
+diğer video-format satırları ve genel `WIN-P2-01` durumu değişmedi.
+
 ## Var olan araçların yeniden kullanımı
 
 - `tests/run_physical_acceptance.py`

@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `d97525b92bc6b50a6d2ec364646abf3c62d281d8`
+- Kayıt hazırlanırken doğrulanan HEAD: `ccbd4a0cf25f7f7623096c84f7cadea05488220d`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-002`
+- Son kanıt: `EV-20260825-003`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1081,18 +1081,27 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    mevcut sıkı ortak sözleşmeyle bilinen LuaJIT first-chance tanısıdır.
    Otomatik ürün kapıları geçti; kontrollü insan siyah/gri/beyaz ramp kanıtı
    eksik olduğundan `VF-CORE-01` `BLOCKED` kaldı. Otomatik tekrar yapılmadı.
+162. Exact `ccbd4a0` üzerinde ayrıca onaylanan tek kontrollü insan SDR ramp
+   sunumu aynı fixture/runtime ve gerçek `current_product` profiliyle 10
+   saniye görünür kaldı. Otomatik kapılar BT.709/BT.1886 girdi/hedef,
+   `duration=3.000`, ilerleyen `time_pos=0.600`, sıfır decoder/VO drop, exit
+   0, `MARK_DONE`, `stop -> terminate`, geri gelen imleç ve sıfır süreç
+   sızıntısıyla geçti. Kullanıcı siyahın ezilmediğini, grinin nötr kaldığını
+   ve beyaz sınırların patlamadığını doğruladı (`EV-20260825-003`). Yalnız
+   `VF-CORE-01` **PASSED** oldu; diğer 15 format satırı, HDR ve genel
+   `WIN-P2-01` durumu değişmedi. Yeni native koşum veya otomatik tekrar
+   yapılmadı.
 
 ## Sıradaki tek adım
 
-EV-20260825-002 ürün-profili native retest sonucunu ve bağlı format/devam
-belgelerini mevcut `codex/sdr-native-smoke` dalında commit etmek için ayrı açık
-onay al. Yeni native koşum veya push yapma.
+Kontrollü görsel hold yardımcılarını, `EV-20260825-003` sonucunu ve bağlı
+format/devam belgelerini mevcut `codex/sdr-native-smoke` dalında commit etmek
+için ayrı açık onay al. Yeni native koşum veya push yapma.
 
 ## Sonraki sıra
 
-1. Kayıt commit'inden sonra kontrollü insan siyah/gri/beyaz ramp kabul yöntemini
-   ayrıca onaylat; private artifact hiçbir Git işlemine eklenmez.
-2. `VF-CORE-01` kararı sonrasında push, PR ve merge işlemlerini ayrı ayrı
+1. Private görsel/native artifact'ları hiçbir Git işlemine ekleme.
+2. `VF-CORE-01` kayıt commit'inden sonra push, PR ve merge işlemlerini ayrı ayrı
    onaylat.
 3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,

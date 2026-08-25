@@ -25,8 +25,8 @@
     "target_colorspace_hint_modes": ["target", "source", "source-dynamic"],
     "compiled_codec_drivers_are_hardware_proof": false,
     "media_opened": true,
-    "latest_native_playback_evidence_id": "EV-20260825-002",
-    "all_cases_remain_blocked": true
+    "latest_native_playback_evidence_id": "EV-20260825-003",
+    "all_cases_remain_blocked": false
   },
   "execution_policy": {
     "max_child_seconds": 60,
@@ -44,9 +44,10 @@
       "purpose": "The separately approved test-only profile reduced the observed startup VO drops from 3 to 0 while preserving all other automated gates; it cannot itself pass product acceptance."
     },
     "product_latency_change": {
-      "status": "NATIVE_PASSED_MANUAL_PENDING",
+      "status": "NATIVE_AND_MANUAL_PASSED",
       "evidence_id": "EV-20260825-001",
       "native_evidence_id": "EV-20260825-002",
+      "manual_evidence_id": "EV-20260825-003",
       "video_latency_hacks_override_present": false,
       "native_retest_completed": true
     }
@@ -132,8 +133,9 @@
       "display_state": "DXGI G22 P709",
       "expected_path": "SDR BT.709 input remains SDR BT.709 output without level or gamut shift",
       "required_evidence": ["input and target params", "black white ramp", "no frame drops", "shutdown gates"],
-      "status": "BLOCKED",
-      "blocker": "The changed current product profile passed the exact automated native SDR gates with zero decoder/VO drops. Only controlled human black/gray/white ramp evidence remains missing before VF-CORE-01 can pass (EV-20260825-002)."
+      "status": "PASSED",
+      "evidence_id": "EV-20260825-003",
+      "blocker": null
     },
     {
       "id": "VF-CORE-02",
