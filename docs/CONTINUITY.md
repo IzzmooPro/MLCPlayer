@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `03b9d2aae3c7adde5ba4e318d3a71710a000db56`
+- Kayıt hazırlanırken doğrulanan HEAD: `c5d5cf5607460256be4efc209724c75bae23952a`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-012`
+- Son kanıt: `EV-20260825-013`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1166,17 +1166,26 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    (`EV-20260825-012`). Yalnız `VF-CORE-02` **PASSED** oldu; bu gözlem
    kolorimetre değildir, diğer 14 format satırı ve genel `WIN-P2-01` durumu
    değişmedi. Otomatik ek retry yapılmadı.
+172. SDR-on-HDR harness/cleanup/insan kabul zinciri PR #46'nın exact
+   `5fd8f91` head'inde zorunlu hosted `test` run `32892062741` ile attempt
+   1'de **4963 passed / 30 skipped / 0 failed** ve
+   `LEDGER_APPEND_ONLY_OK` verdi. PR `CLEAN/MERGEABLE` ve check `SUCCESS`
+   iken ayrı onayla iki ebeveynli merge commit `c5d5cf5` üzerinden
+   `origin/master`a alındı (`EV-20260825-013`). Yerel ve uzak master temiz,
+   `0/0` ve exact merge commit'te eşittir; görev dalı korundu. Bu hosted/merge
+   kanıtı EV-012 native/insan kabul sınırını genişletmez, native oynatmayı
+   tekrar çalıştırmaz ve 30 skip'i PASS yapmaz.
 
 ## Sıradaki tek adım
 
-EV-012 insan kabul kaydı ve bağlı format/devam belgeleri için ayrı commit onayı
-iste. Yeni native koşum veya push yapma.
+EV-013 protected PR/merge kayıt paketi için ayrı commit onayı iste. Yeni native
+koşum, push veya PR yapma.
 
 ## Sonraki sıra
 
 1. Private görsel/native artifact'ları hiçbir Git işlemine ekleme.
-2. EV-012 insan kabul kaydı ve bağlı belgeleri ayrı onayla commit et.
-3. İnsan kabul kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
+2. EV-013 merge kayıt paketini ayrı onayla commit et.
+3. Kayıt dalı push, PR ve merge işlemlerini ayrı ayrı
    onaylat.
 4. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
