@@ -3851,6 +3851,29 @@
         "Only VF-CORE-01 changes to PASSED; the other 15 video-format cases and WIN-P2-01 remain blocked or not accepted."
       ],
       "next_action": "Request separate explicit approval to commit the bounded visual-hold helper, EV-20260825-003 record and linked acceptance documents; do not run another native scenario or push automatically."
+    },
+    {
+      "id": "EV-20260825-004",
+      "recorded_at_utc": "2026-08-25T16:01:09Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "4ae2d2a904bdee8cf53e020233701fbe79829cbf",
+      "subject": "Protected PR 44 hosted acceptance and merge",
+      "evidence": [
+        "PR 44 targeted master from codex/sdr-native-smoke at exact head ddf947829334fccde238db6bf37919ed4c9e3ca4",
+        "the required GitHub Actions test check run 32868662566 job 97870107691 completed SUCCESS on the pull_request event with 4957 passed, 30 skipped and 0 failed in 123.16 seconds",
+        "the hosted job independently passed locked-environment, ledger append-only, Python compile, translation, whitespace and CI-safe suite gates",
+        "pre-merge readback showed the PR CLEAN and MERGEABLE with the required test check successful",
+        "after separate merge approval PR 44 became MERGED at 2026-08-25T15:59:57Z through merge commit 4ae2d2a904bdee8cf53e020233701fbe79829cbf",
+        "the merge commit has exact parents b800a0e1e08a08ed7c8cbad1f30b3da574477fe1 and ddf947829334fccde238db6bf37919ed4c9e3ca4; live origin/master readback matched the merge commit"
+      ],
+      "summary": "The SDR latency-default, bounded diagnostic and VF-CORE-01 acceptance package passed the protected PR check and was merged to master with an exact two-parent merge commit.",
+      "limitations": [
+        "This hosted_ci PASS does not itself prove native playback, manual color judgment, installed artifact, build or release behavior; those claims remain limited to their earlier exact evidence records.",
+        "The merge does not pass HDR or any of the other 15 video-format cases and does not change the overall WIN-P2-01 acceptance state.",
+        "No new native run, build, installation, Windows HDR change, signing, tag or release occurred while recording this result."
+      ],
+      "next_action": "Request separate explicit approval to commit this protected PR acceptance record; request push, PR and merge separately afterward."
     }
   ]
 }
