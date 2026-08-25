@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `ccbd4a0cf25f7f7623096c84f7cadea05488220d`
+- Kayıt hazırlanırken doğrulanan HEAD: `4ae2d2a904bdee8cf53e020233701fbe79829cbf`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-003`
+- Son kanıt: `EV-20260825-004`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1091,18 +1091,24 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    `VF-CORE-01` **PASSED** oldu; diğer 15 format satırı, HDR ve genel
    `WIN-P2-01` durumu değişmedi. Yeni native koşum veya otomatik tekrar
    yapılmadı.
+163. SDR düzeltme ve kabul paketi PR #44'ün exact head'i `ddf9478` üzerinde
+   zorunlu hosted `test` run `32868662566` ile **4957 passed / 30 skipped /
+   0 failed** verdi. PR geri okumada `CLEAN / MERGEABLE` ve check
+   `SUCCESS` iken ayrı onayla iki ebeveynli merge commit `4ae2d2a` üzerinden
+   `origin/master`a alındı (`EV-20260825-004`). Bu hosted/merge kanıtı native
+   SDR kabul sınırlarını genişletmez; yeni native koşum, build, kurulum, HDR
+   değişikliği, tag veya release yapılmadı.
 
 ## Sıradaki tek adım
 
-Kontrollü görsel hold yardımcılarını, `EV-20260825-003` sonucunu ve bağlı
-format/devam belgelerini mevcut `codex/sdr-native-smoke` dalında commit etmek
-için ayrı açık onay al. Yeni native koşum veya push yapma.
+PR #44 hosted test/merge sonucunu ve bağlı continuity kaydını mevcut
+`codex/pr44-merge-record` dalında commit etmek için ayrı açık onay al. Yeni
+native koşum veya push yapma.
 
 ## Sonraki sıra
 
 1. Private görsel/native artifact'ları hiçbir Git işlemine ekleme.
-2. `VF-CORE-01` kayıt commit'inden sonra push, PR ve merge işlemlerini ayrı ayrı
-   onaylat.
+2. PR #44 kabul kaydının push, PR ve merge işlemlerini ayrı ayrı onaylat.
 3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
    tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;
