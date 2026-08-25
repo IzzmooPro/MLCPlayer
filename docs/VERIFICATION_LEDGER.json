@@ -3779,6 +3779,27 @@
         "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge changed."
       ],
       "next_action": "Request separate explicit approval for a regression-first product change removing video_latency_hacks=yes; request commit and exact product-profile native retest separately."
+    },
+    {
+      "id": "EV-20260825-001",
+      "recorded_at_utc": "2026-08-25T15:17:16Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "0ef21e1525eb86110f03349069a3d1eba507ee17",
+      "subject": "Remove the product video-latency-hacks override",
+      "evidence": [
+        "a regression was added first and failed only because app.config.MPV_CONFIG still contained video_latency_hacks=yes: 1 failed and 19 passed",
+        "the product change removes only the video_latency_hacks override so exact mpv 49418246f uses its documented default no behavior; renderer, video_sync, hwdec and every other MPV option remain unchanged",
+        "the focused SDR, playback lifecycle, runtime binary, built-in script policy and video-format package completed with 82 passed after the change",
+        "app/config.py py_compile and git diff check were clean"
+      ],
+      "summary": "The product no longer forces mpv's discouraged video-latency-hacks mode, matching the zero-drop diagnostic profile through the smallest configuration change.",
+      "limitations": [
+        "This deterministic PASS does not prove the changed product profile is drop-free; exact native retest remains separately approval-gated.",
+        "VF-CORE-01 remains BLOCKED pending product-profile native playback and manual black/gray/white ramp evidence.",
+        "No build, installation, Windows setting, signing, tag, release, push, PR or merge occurred."
+      ],
+      "next_action": "Request separate approval to commit the regression-first product change and evidence package; request exact product-profile native retest separately after commit."
     }
   ]
 }

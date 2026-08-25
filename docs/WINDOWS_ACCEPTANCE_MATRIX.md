@@ -396,6 +396,14 @@ geçti (`EV-20260824-046`). Ölçülen `3 -> 0` farkı kaynak hipotezini güçl�
 biçimde destekler; test-only profil mevcut ürünü değiştirmediği için
 `VF-CORE-01` yine **BLOCKED** kalır.
 
+Ayrı ürün değişikliği onayıyla `app/config.py` içindeki
+`video_latency_hacks=yes` override'ı kaldırıldı; renderer, `video_sync`, hwdec
+ve diğer MPV ayarları değişmedi. Regresyon önce yalnız bu anahtar nedeniyle
+**1 failed / 19 passed**, düzeltme sonrasında etki grubu **82 passed** verdi;
+`py_compile` ve diff kontrolü temizdir (`EV-20260825-001`). Bu deterministic
+kanıttır: yeni ürün profili henüz native çalıştırılmadığı için drop-free ürün
+kabulü veya `VF-CORE-01` PASS'i değildir.
+
 ## Var olan araçların yeniden kullanımı
 
 - `tests/run_physical_acceptance.py`

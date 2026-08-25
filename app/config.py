@@ -68,7 +68,9 @@ MPV_CONFIG = {
     "scale": "spline36",
     "cscale": "spline36",
     "deband": "yes",
-    "video_latency_hacks": "yes",
+    # mpv varsayilani `video-latency-hacks=no` korunur. `yes`, VO ilk kareyi
+    # hazirlarken beklemeyi kapatip baslangicta kare dusurebiliyor; exact SDR
+    # tanisinda ayni medya/runtime ile 3 -> 0 farki olculdu.
     # Kaldığın yerden devam kapalı: 20GB+ dosyalarda açılışta kayıtlı
     # konuma seek gecikmeye yol açıyor. Gerekirse "yes" yapılabilir.
     "save_position_on_quit": "no",

@@ -130,3 +130,9 @@ def test_diagnostic_profile_is_test_only_and_does_not_mutate_product_config(
 def test_unknown_profile_is_rejected(contract):
     with pytest.raises(ValueError):
         contract.sdr_probe_config({}, "unknown")
+
+
+def test_product_uses_mpv_safe_default_for_video_latency_hacks():
+    from app.config import MPV_CONFIG
+
+    assert "video_latency_hacks" not in MPV_CONFIG

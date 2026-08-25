@@ -213,6 +213,11 @@ def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     assert diagnostic["native_run_approved"] is True
     assert diagnostic["result"] == "PASSED"
     assert diagnostic["evidence_id"] == "EV-20260824-046"
+    product_change = data["execution_policy"]["product_latency_change"]
+    assert product_change["status"] == "DETERMINISTIC_PASSED"
+    assert product_change["evidence_id"] == "EV-20260825-001"
+    assert product_change["video_latency_hacks_override_present"] is False
+    assert product_change["native_retest_completed"] is False
 
     cases = data["cases"]
     ids = [case["id"] for case in cases]

@@ -10,7 +10,7 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-046`
+- Son kanıt: `EV-20260825-001`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1063,20 +1063,26 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    drop'unun `video_latency_hacks=yes` ile bağlantısı güçlü biçimde
    desteklenir; profil test-only olduğu için ürün veya `VF-CORE-01` PASS
    yapılmadı ve başka native koşum yapılmadı.
+160. Ayrı ürün değişikliği onayıyla `app/config.py` içindeki
+   `video_latency_hacks=yes` override'ı kaldırıldı; mpv'nin varsayılan `no`
+   davranışı korunuyor. Regresyon önce yalnız bu anahtar nedeniyle **1 failed /
+   19 passed**, dar ürün/oynatma/runtime/format grubu düzeltme sonrasında **82
+   passed** verdi; `py_compile` ve diff kontrolü temizdir
+   (`EV-20260825-001`). Renderer, `video_sync`, hwdec veya başka ürün ayarı
+   değişmedi. Bu deterministic kanıttır; yeni ürün profili native retesti
+   yapılmadı ve `VF-CORE-01` `BLOCKED` kaldı.
 
 ## Sıradaki tek adım
 
-EV-20260824-046 tanı sonucunu ve ona bağlı format/devam belgelerini mevcut
-`codex/sdr-native-smoke` dalında commit etmek için ayrı açık onay al. Ürün kodu
-değişikliği veya native retest yapma.
+Dar ürün değişikliği, regresyonu ve EV-20260825-001 kayıt paketini mevcut
+`codex/sdr-native-smoke` dalında commit etmek için ayrı açık onay al. Native
+retest veya push yapma.
 
 ## Sonraki sıra
 
-1. Kayıt commit'inden sonra ürün değişikliği ayrıca onaylanırsa önce regresyonu kırmızı kur, yalnız
-   `video_latency_hacks` override'ını kaldır ve hedef testleri çalıştır; private
-   artifact hiçbir Git işlemine eklenmez.
-2. Değişiklik commit edildikten sonra exact ürün profili native retestini,
-   push, PR ve merge işlemlerini ayrı ayrı onaylat.
+1. Değişiklik commit edildikten sonra exact ürün profili native retestini
+   ayrıca onaylat; private artifact hiçbir Git işlemine eklenmez.
+2. Retest sonucundan sonra push, PR ve merge işlemlerini ayrı ayrı onaylat.
 3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
    tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;
