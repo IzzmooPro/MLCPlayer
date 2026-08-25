@@ -3874,6 +3874,50 @@
         "No new native run, build, installation, Windows HDR change, signing, tag or release occurred while recording this result."
       ],
       "next_action": "Request separate explicit approval to commit this protected PR acceptance record; request push, PR and merge separately afterward."
+    },
+    {
+      "id": "EV-20260825-005",
+      "recorded_at_utc": "2026-08-25T16:51:05Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "be7b692130a3c5051a289b4ff271fcd06b72a582",
+      "subject": "Live Windows HDR10 output activation preflight",
+      "evidence": [
+        "the separately approved Windows Settings action changed the active display HDR switch from Kapali to Acik; the action was performed through the visible Settings UI rather than a registry or undocumented command",
+        "the pre-action read-only DxDiag color space was DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 and the immediate post-action DxDiag readback was exact DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020",
+        "the active display remained MSI G274QPF E2 on the previously fingerprinted HDR-capable path; the exact SDR fixture remained 374394 bytes with SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b",
+        "the exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "no MLC Player, Python or Pythonw target process was present before or after the activation preflight"
+      ],
+      "summary": "The active Windows display path now reports the exact HDR10 G2084/P2020 color space required before any HDR-output native scenario may start.",
+      "limitations": [
+        "This media-free native preflight proves only the active Windows HDR10 output state on this exact GPU, driver, display and session.",
+        "No MLC Player window or media was opened, so no SDR-on-HDR, HDR input, tone mapping, luminance, color accuracy, installed-artifact or video-format PASS was earned.",
+        "The Windows HDR switch remains enabled; no product code, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Prepare a regression-first, test-only VF-CORE-02 SDR-on-HDR gate that preserves the exact SDR input and requires the exact HDR display and output target; do not run native playback without separate approval."
+    },
+    {
+      "id": "EV-20260825-006",
+      "recorded_at_utc": "2026-08-25T16:51:06Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "be7b692130a3c5051a289b4ff271fcd06b72a582",
+      "subject": "Fail-closed VF-CORE-02 SDR-on-HDR harness",
+      "evidence": [
+        "new regression expectations failed first with 3 failed and 28 passed because no explicit HDR display mode, HDR color-space constant or HDR target validation existed",
+        "the existing exact SDR runner now has explicit sdr and hdr display modes instead of a copied runner; the default sdr mode preserves the prior VF-CORE-01 behavior",
+        "the hdr mode maps only to VF-CORE-02-partial-native-smoke, requires active DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020 before and after, preserves BT.709 SDR input classification and requires a BT.2020 PQ 10-bit video target",
+        "the existing canonical media fingerprint, exact DLL/media before-after identities, maximum 60-second child timeout, frame-drop, progress, marker, stderr, canonical shutdown, cursor and process-leak gates remain shared",
+        "the corrected SDR, HDR and video-format impact group completed with 47 passed; py_compile and git diff check were clean"
+      ],
+      "summary": "A bounded, fail-closed current-product SDR-on-HDR native gate is deterministically ready without changing product code or weakening the proven SDR-on-SDR path.",
+      "limitations": [
+        "This deterministic PASS does not open media or prove that the current product produces the required HDR target; the exact native run remains separately approval-gated.",
+        "VF-CORE-02 remains BLOCKED pending one exact current-product native run and controlled human black, neutral-gray and white-boundary judgment while Windows HDR is active.",
+        "No HDR10 input fixture was generated or acquired, and no HDR10, HLG, HDR10+, Dolby Vision, build, installation, signing, tag, release, push, PR or merge acceptance occurred."
+      ],
+      "next_action": "Request separate explicit approval to commit the test-only harness and EV-20260825-005/006 records; request the exact VF-CORE-02 native run separately after commit."
     }
   ]
 }

@@ -18,8 +18,10 @@
     "active_display": "MSI G274QPF E2",
     "active_edid_sha256": "f325d9f7e693b0ee79049ba342bf01066419110658a56452d0e0a20e44f4456f",
     "hdr_capable": true,
-    "active_dxgi_color_space": "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709",
-    "active_hdr10_output_proven": false,
+    "active_dxgi_color_space": "DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020",
+    "active_hdr10_output_proven": true,
+    "active_state_measured_commit": "be7b692130a3c5051a289b4ff271fcd06b72a582",
+    "active_state_evidence_id": "EV-20260825-005",
     "compiled_video_outputs": ["gpu-next", "gpu", "direct3d", "libmpv"],
     "compiled_gpu_apis": ["d3d11", "vulkan", "opengl"],
     "target_colorspace_hint_modes": ["target", "source", "source-dynamic"],
@@ -35,6 +37,15 @@
     "product_change_requires_separate_approval": true,
     "one_scenario_per_approval": true,
     "screenshot_proves_color_accuracy": false,
+    "sdr_on_hdr_harness": {
+      "status": "READY_NOT_RUN",
+      "evidence_id": "EV-20260825-006",
+      "display_mode": "hdr",
+      "scenario": "VF-CORE-02-partial-native-smoke",
+      "exact_fixture_id": "SYN-SDR709-01",
+      "product_code_changed": false,
+      "native_run_approved": false
+    },
     "diagnostic_profile": {
       "id": "no_latency_hacks",
       "product_config_changed": false,

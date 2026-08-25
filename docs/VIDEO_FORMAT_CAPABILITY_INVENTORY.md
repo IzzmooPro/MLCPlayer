@@ -28,6 +28,17 @@ Windows HDR ayarı değiştirilmedi ve ürün yapılandırması değiştirilmedi
 Kaynaklar: [Microsoft Advanced Color](https://learn.microsoft.com/windows/win32/direct3darticles/high-dynamic-range),
 [MSI G274QPF E2](https://www.msi.com/Monitor/G274QPF-E2/Specification).
 
+### 25 Ağustos 2026 canlı HDR çıkış güncellemesi
+
+Ayrı sistem ayarı onayıyla aynı tek aktif MSI ekranın Windows HDR anahtarı
+kapalıdan açığa alındı. Ayarlar arayüzü `HDR Açık` durumunu gösterdi ve hemen
+sonraki DxDiag ölçümü etkin renk uzayını exact
+`DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak verdi
+(`EV-20260825-005`). Bu, aktif HDR10 Windows çıkış ön koşulunu kanıtlar;
+MLC Player medya yolu, tone mapping, görsel doğruluk veya herhangi bir
+video-format satırı için PASS değildir. Bu güncellemede medya açılmadı ve
+hedef süreç sızıntısı yoktu.
+
 ## Exact mpv ve FFmpeg runtime
 
 - `bin/mpv-2.dll`: 112772608 bayt, SHA-256
@@ -72,4 +83,3 @@ HDR10/HLG/HDR10+/Dolby Vision çıkışı, tone mapping kalitesi, overlay
 parlaklığı, 4K60 performansı veya rakip oynatıcı davranışı. Bu nedenle
 `VIDEO_FORMAT_ACCEPTANCE_MATRIX.json` içindeki 16 senaryonun tamamı
 `BLOCKED` kalır.
-

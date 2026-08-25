@@ -327,7 +327,9 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
   `DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709` idi. Microsoft'un HDR10 çıkış
   sözleşmesindeki `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` canlı olarak
   görülmeden koşum başlamaz; HDR-capable donanım tek başına HDR çıkış PASS'i
-  değildir.
+  değildir. 25 Ağustos'ta ayrı onayla Windows HDR açıldı; arayüz `HDR Açık`,
+  hemen sonraki canlı DxDiag exact `G2084/P2020` verdi
+  (`EV-20260825-005`). Böylece yalnız aktif çıkış ön koşulu kapandı.
 - **Test-only native ölçüm:** `tests/run_hdr_acceptance.py`, yalnız
   `MLC_NATIVE_HDR_ACCEPTANCE=1` ve açık `MLC_HDR_TEST_VIDEO` ile çalışır.
   Önce etkin Windows renk uzayını fail-closed doğrular; sonra mevcut `vo=gpu`
@@ -336,6 +338,11 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
   `hwdec-current`, exit/`MARK_DONE`, kanonik `stop -> terminate`, kabul edilen
   kapanış, imleç geri dönüşü, medya kimliği ve süreç sızıntısı birlikte
   kaydedilir. Her child üst sınırı 60 saniyedir.
+  `tests/run_sdr_acceptance.py` ayrıca explicit `hdr` modunda fingerprint'li
+  `SYN-SDR709-01` girdisini değiştirmeden `VF-CORE-02` için G2084/P2020 ekran
+  ve BT.2020/PQ/10-bit hedefi zorunlu tutar; varsayılan `sdr` yolu değişmez.
+  Bu test-only kapı deterministik olarak hazırdır fakat çalıştırılmamıştır
+  (`EV-20260825-006`).
 - **Kanıt sınırı:** exact mpv belgeleri `gpu-next` yolunu önerir ve
   `target-colorspace-hint` seçeneğini yalnız bu VO ile destekler. Bu telemetri
   renk uzayı/transfer hedefini ve güvenli çalışma davranışını ölçer; ekran
@@ -346,8 +353,10 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
   [exact mpv options `49418246f`](https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/options.rst),
   [exact mpv properties `49418246f`](https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/input.rst),
   [MSI G274QPF E2 teknik özellikleri](https://www.msi.com/Monitor/G274QPF-E2/Specification).
-- **Durum:** `BLOCKED`. Test-only tanı koşumu hazırlanmıştır fakat native HDR
-  koşumu yapılmamıştır; aktif Windows HDR10 renk uzayı da henüz doğrulanmadı.
+- **Durum:** `BLOCKED`. Aktif Windows HDR10 renk uzayı doğrulandı ve
+  SDR-on-HDR kapısı hazırlandı; fakat native `VF-CORE-02` koşumu ve kontrollü
+  insan ramp kabulü henüz yapılmadı. Fingerprint'li HDR10 medya da henüz yok;
+  bu nedenle HDR10 girişli sonraki satırlara geçilmez.
 
 #### Bağlı video-format programı
 

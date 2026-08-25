@@ -220,6 +220,15 @@ def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     assert product_change["manual_evidence_id"] == "EV-20260825-003"
     assert product_change["video_latency_hacks_override_present"] is False
     assert product_change["native_retest_completed"] is True
+    sdr_on_hdr = data["execution_policy"]["sdr_on_hdr_harness"]
+    assert sdr_on_hdr["status"] == "READY_NOT_RUN"
+    assert sdr_on_hdr["evidence_id"] == "EV-20260825-006"
+    assert sdr_on_hdr["display_mode"] == "hdr"
+    assert sdr_on_hdr["scenario"] == "VF-CORE-02-partial-native-smoke"
+    assert sdr_on_hdr["exact_fixture_id"] == "SYN-SDR709-01"
+    assert sdr_on_hdr["product_code_changed"] is False
+    assert sdr_on_hdr["native_run_approved"] is False
+    assert sdr_on_hdr["evidence_id"] in ledger_ids
 
     cases = data["cases"]
     ids = [case["id"] for case in cases]
@@ -262,8 +271,11 @@ def test_capability_inventory_keeps_compiled_and_active_proof_separate():
     assert data["active_edid_sha256"] == (
         "f325d9f7e693b0ee79049ba342bf01066419110658a56452d0e0a20e44f4456f")
     assert data["active_dxgi_color_space"] == (
-        "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709")
-    assert data["active_hdr10_output_proven"] is False
+        "DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020")
+    assert data["active_hdr10_output_proven"] is True
+    assert data["active_state_measured_commit"] == (
+        "be7b692130a3c5051a289b4ff271fcd06b72a582")
+    assert data["active_state_evidence_id"] == "EV-20260825-005"
     assert data["compiled_codec_drivers_are_hardware_proof"] is False
     assert data["media_opened"] is True
     assert data["latest_native_playback_evidence_id"] == (

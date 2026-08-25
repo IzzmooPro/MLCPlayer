@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `4ae2d2a904bdee8cf53e020233701fbe79829cbf`
+- Kayıt hazırlanırken doğrulanan HEAD: `be7b692130a3c5051a289b4ff271fcd06b72a582`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-004`
+- Son kanıt: `EV-20260825-006`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1098,21 +1098,34 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    `origin/master`a alındı (`EV-20260825-004`). Bu hosted/merge kanıtı native
    SDR kabul sınırlarını genişletmez; yeni native koşum, build, kurulum, HDR
    değişikliği, tag veya release yapılmadı.
+164. PR #45 kayıt paketi zorunlu hosted belge kapısında **247 passed** verdi
+   ve ayrı onayla iki ebeveynli `be7b692` merge commit'i üzerinden master'a
+   alındı. Ardından ayrı sistem ayarı onayıyla Windows HDR kapalıdan açığa
+   geçirildi; Ayarlar `HDR Açık`, canlı DxDiag exact
+   `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` gösterdi
+   (`EV-20260825-005`). Bu yalnız aktif HDR10 çıkış ön koşuludur; MLC Player
+   veya medya açılmadı, native format PASS'i oluşmadı ve HDR açık bırakıldı.
+165. Mevcut exact SDR runner, kopya harness oluşturmadan explicit `sdr` ve
+   `hdr` display modlarına ayrıldı. Yeni `hdr` modu fingerprint'li BT.709 SDR
+   girdiyi korur; `VF-CORE-02` için G2084/P2020 ekran ile BT.2020/PQ/10-bit
+   hedefi fail-closed zorunlu tutar. Regresyon önce **3 failed / 28 passed**,
+   uygulama sonrası SDR/HDR/format etki grubu **47 passed** verdi
+   (`EV-20260825-006`). Ürün kodu değişmedi ve native oynatma yapılmadı.
 
 ## Sıradaki tek adım
 
-PR #44 hosted test/merge sonucunu ve bağlı continuity kaydını mevcut
-`codex/pr44-merge-record` dalında commit etmek için ayrı açık onay al. Yeni
-native koşum veya push yapma.
+Test-only SDR-on-HDR harness'ını, Windows HDR çıkış kaydını ve bağlı
+format/devam belgelerini mevcut `codex/sdr-on-hdr-harness` dalında commit
+etmek için ayrı açık onay al. Native koşum veya push yapma.
 
 ## Sonraki sıra
 
 1. Private görsel/native artifact'ları hiçbir Git işlemine ekleme.
-2. PR #44 kabul kaydının push, PR ve merge işlemlerini ayrı ayrı onaylat.
-3. Windows'un etkin HDR10 renk uzayı
-   `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
-   tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;
-   başarısızlıkta otomatik tekrar yapma.
+2. Harness kayıt commit'inden sonra exact `VF-CORE-02` current-product native
+   koşumunu en fazla 60 saniye/child için ayrıca onaylat; başarısızlıkta
+   otomatik tekrar yapma.
+3. Native sonuç kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
+   onaylat.
 4. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
 5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını

@@ -10,6 +10,7 @@ import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONTRACT_PATH = os.path.join(ROOT, "tests", "sdr_probe_contract.py")
+RUNNER_PATH = os.path.join(ROOT, "tests", "run_sdr_acceptance.py")
 
 
 @pytest.fixture(scope="module")
@@ -109,6 +110,33 @@ def test_sdr_display_contract_is_exact(contract):
     assert contract.display_problems(
         "DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020",
         "DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020")
+
+
+def test_sdr_on_hdr_requires_exact_hdr_display_and_target(contract):
+    report = passing_report()
+    report["target"] = {
+        "primaries": "bt.2020",
+        "gamma": "pq",
+        "pixelformat": "p010",
+    }
+    assert contract.display_problems(
+        contract.HDR_COLORSPACE, contract.HDR_COLORSPACE,
+        contract.HDR_DISPLAY_MODE) == []
+    assert contract.report_problems(
+        report, contract.HDR_DISPLAY_MODE) == []
+
+
+def test_sdr_on_hdr_fails_closed_for_sdr_target(contract):
+    assert contract.report_problems(
+        passing_report(), contract.HDR_DISPLAY_MODE)
+
+
+def test_runner_exposes_explicit_fail_closed_display_mode():
+    with open(RUNNER_PATH, encoding="utf-8") as handle:
+        runner = handle.read()
+    assert "MLC_SDR_DISPLAY_MODE" in runner
+    assert '"VF-CORE-02-partial-native-smoke"' in runner
+    assert "DISPLAY_MODES" in runner
 
 
 def test_timeout_never_exceeds_format_plan_limit(contract):
