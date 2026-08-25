@@ -5,21 +5,22 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `VERIFICATION_LEDGER.json`, diğer tarihsel anlatı `PROJECT_STATUS.md`,
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
-- Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `f4255f51c83950f8f1d25573119f7b989ee51adb`
+- Güncelleme: 26 Ağustos 2026
+- Kayıt hazırlanırken doğrulanan HEAD: `6308d553f7251438abcb509537cc8f7f77ff21ed`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-015`
+- Son kanıt: `EV-20260826-001`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
 
-- Yerel committed taban ile `origin/master` exact `f4255f5` üzerinde eşittir.
-  Belge/yönetişim düzenlemesi ve EV-014/EV-015 henüz çalışma ağacındadır;
-  HEAD'in içeriği veya push edilmiş kanıt değildir.
+- Belge/yönetişim paketi exact `6308d55` commit'indedir. Yerel görev dalı
+  `origin/master`dan bir commit ileridedir; push, PR veya merge yapılmadı.
+  `EV-20260826-001` commit bağlantı kaydı henüz çalışma ağacındadır ve HEAD'in
+  içeriği değildir.
 - `master` için PR ve GitHub Actions `test` kapısı aktiftir. GitHub approving
   review sayısı `0` olsa da bağımsız çift-süzgeç süreci uygulanır; force-push,
   protection bypass ve doğrudan master değişikliği yapılmaz.

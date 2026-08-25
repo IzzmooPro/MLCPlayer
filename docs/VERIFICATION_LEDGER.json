@@ -4170,6 +4170,30 @@
         "The private concept bitmaps remain outside Git; only their safe names and SHA-256 digests are recorded."
       ],
       "next_action": "Show the three existing installer previews and obtain the user's explicit A, B or C direction; request separate approval before any installer implementation or build."
+    },
+    {
+      "id": "EV-20260826-001",
+      "recorded_at_utc": "2026-08-25T21:01:12Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "6308d553f7251438abcb509537cc8f7f77ff21ed",
+      "baseline_commit": "f4255f51c83950f8f1d25573119f7b989ee51adb",
+      "evidence_commit": "6308d553f7251438abcb509537cc8f7f77ff21ed",
+      "subject": "Committed continuity consolidation and dual-filter governance package",
+      "evidence": [
+        "the separately approved commit completed as 6308d553f7251438abcb509537cc8f7f77ff21ed with subject docs: consolidate continuity and review contracts",
+        "the commit has exact parent f4255f51c83950f8f1d25573119f7b989ee51adb and contains the nine-file scope recorded by EV-20260825-015",
+        "git show readback reported 1604 insertions, 1201 deletions and the new 1220-line docs/CONTINUITY_HISTORY.md archive",
+        "the immediate post-commit working tree was clean and HEAD measured one commit ahead of origin/master",
+        "EV-20260825-014 and EV-20260825-015 remain unchanged append-only records; this entry binds their completed documentation package to its actual evidence commit"
+      ],
+      "summary": "The lossless continuity split, installer UX consolidation, independent dual-filter rules and their regressions are now committed on the task branch with an exact read-back identity.",
+      "limitations": [
+        "This deterministic commit readback does not provide hosted CI, native playback, source build, installed artifact or user installer acceptance evidence.",
+        "The commit exists only on the local codex/installer-ux-design branch and has not been pushed, proposed as a PR or merged.",
+        "No product or installer implementation code, build, installation, Windows setting, network operation, tag or release changed."
+      ],
+      "next_action": "Request separate approval to commit this EV-20260826-001 evidence-link record; request branch push, PR and merge approvals separately, and do not implement or build the installer before the user's A, B or C selection."
     }
   ]
 }
