@@ -70,6 +70,12 @@ def test_hdr_output_requires_pq_bt2020_while_sdr_target_is_not_hdr_pass():
          "pixelformat": "rgb8"}, expected_hdr=True)
 
 
+def test_hdr_output_accepts_exact_mpv_sixteen_bit_half_float_target():
+    assert output_problems(
+        {"primaries": "bt.2020", "gamma": "pq",
+         "pixelformat": "rgba16hf"}, expected_hdr=True) == []
+
+
 def test_dxdiag_colorspace_parser_requires_explicit_active_value():
     assert parse_dxdiag_colorspace(
         "Display Color Space: DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020\n"

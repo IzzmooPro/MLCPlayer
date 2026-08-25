@@ -221,14 +221,22 @@ def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     assert product_change["video_latency_hacks_override_present"] is False
     assert product_change["native_retest_completed"] is True
     sdr_on_hdr = data["execution_policy"]["sdr_on_hdr_harness"]
-    assert sdr_on_hdr["status"] == "READY_NOT_RUN"
+    assert sdr_on_hdr["status"] == "CLASSIFIER_FIXED_RETRY_PENDING"
     assert sdr_on_hdr["evidence_id"] == "EV-20260825-006"
+    assert sdr_on_hdr["native_evidence_id"] == "EV-20260825-007"
+    assert sdr_on_hdr["classifier_fix_evidence_id"] == "EV-20260825-008"
     assert sdr_on_hdr["display_mode"] == "hdr"
     assert sdr_on_hdr["scenario"] == "VF-CORE-02-partial-native-smoke"
     assert sdr_on_hdr["exact_fixture_id"] == "SYN-SDR709-01"
     assert sdr_on_hdr["product_code_changed"] is False
-    assert sdr_on_hdr["native_run_approved"] is False
+    assert sdr_on_hdr["native_run_approved"] is True
+    assert sdr_on_hdr["automatic_retry_performed"] is False
+    assert sdr_on_hdr["observed_target"] == {
+        "primaries": "bt.2020", "gamma": "pq",
+        "pixelformat": "rgba16hf"}
     assert sdr_on_hdr["evidence_id"] in ledger_ids
+    assert sdr_on_hdr["native_evidence_id"] in ledger_ids
+    assert sdr_on_hdr["classifier_fix_evidence_id"] in ledger_ids
 
     cases = data["cases"]
     ids = [case["id"] for case in cases]

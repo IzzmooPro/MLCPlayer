@@ -38,13 +38,21 @@
     "one_scenario_per_approval": true,
     "screenshot_proves_color_accuracy": false,
     "sdr_on_hdr_harness": {
-      "status": "READY_NOT_RUN",
+      "status": "CLASSIFIER_FIXED_RETRY_PENDING",
       "evidence_id": "EV-20260825-006",
+      "native_evidence_id": "EV-20260825-007",
+      "classifier_fix_evidence_id": "EV-20260825-008",
       "display_mode": "hdr",
       "scenario": "VF-CORE-02-partial-native-smoke",
       "exact_fixture_id": "SYN-SDR709-01",
       "product_code_changed": false,
-      "native_run_approved": false
+      "native_run_approved": true,
+      "automatic_retry_performed": false,
+      "observed_target": {
+        "primaries": "bt.2020",
+        "gamma": "pq",
+        "pixelformat": "rgba16hf"
+      }
     },
     "diagnostic_profile": {
       "id": "no_latency_hacks",
@@ -157,7 +165,7 @@
       "expected_path": "Source remains labeled SDR while renderer maps it to the HDR display target without washed blacks",
       "required_evidence": ["input SDR classification", "target params", "reference white", "manual ramp check"],
       "status": "BLOCKED",
-      "blocker": "The exact SDR reference clip is fingerprinted, but active Windows HDR10 output and the separately approved SDR-on-HDR native/manual evidence are missing."
+      "blocker": "The first exact current-product run preserved SDR input and produced BT.2020/PQ rgba16hf output with zero drops and clean lifecycle, but the fail-closed harness rejected the unrecognized 16-bit half-float target. A source-backed classifier correction, separately approved retry and manual ramp judgment remain required (EV-20260825-007)."
     },
     {
       "id": "VF-CORE-03",

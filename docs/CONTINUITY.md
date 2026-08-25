@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `be7b692130a3c5051a289b4ff271fcd06b72a582`
+- Kayıt hazırlanırken doğrulanan HEAD: `5b3fb2c7bac56db10e9047f40c20528c7675d939`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-006`
+- Son kanıt: `EV-20260825-008`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1111,26 +1111,46 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    hedefi fail-closed zorunlu tutar. Regresyon önce **3 failed / 28 passed**,
    uygulama sonrası SDR/HDR/format etki grubu **47 passed** verdi
    (`EV-20260825-006`). Ürün kodu değişmedi ve native oynatma yapılmadı.
+166. Harness commit'i exact `5b3fb2c` üzerinde ayrı onaylı tek
+   `VF-CORE-02` current-product native koşumu fail-closed **FAILED** verdi.
+   BT.709/BT.1886 SDR girdi, BT.2020/PQ `rgba16hf` hedef, G2084/P2020
+   öncesi/sonrası, duration `3.000`, ilerleyen `time_pos=0.567`, drop 0/0,
+   child exit 0, `MARK_DONE`, `stop -> terminate`, imleç dönüşü ve sıfır
+   süreç sızıntısı geçti. Tek problem sınıflandırıcının `rgba16hf` biçimini
+   10-bit veya üstü kabul etmemesiydi; runner exit 1 verdi
+   (`EV-20260825-007`). Exact mpv `49418246f` belgesi `rgba16hf`yi 16-bit
+   float olarak listeler. Bu nedenle kaynak destekli harness boşluğu vardır;
+   fakat düzeltme ve ayrı onaylı retry yapılmadan `VF-CORE-02` **BLOCKED**
+   kalır. Otomatik tekrar yapılmadı.
+167. Exact `rgba16hf` hedef sınıflandırma regresyonu önce **1 failed / 8
+   passed** verdi. Exact mpv `49418246f` belgesine göre yalnız bu 16-bit
+   half-float biçimi yüksek-hassasiyet desenine eklendi; SDR/HDR/format/
+   continuity etki grubu sonrasında **57 passed** tamamlandı
+   (`EV-20260825-008`). Ürün kodu ve diğer renk hedefleri değişmedi. Bu
+   deterministic düzeltme EV-007 FAILED sonucunu geriye dönük PASS yapmaz;
+   `VF-CORE-02` ayrı onaylı exact retry ve manuel ramp kabulüne kadar
+   **BLOCKED** kalır.
 
 ## Sıradaki tek adım
 
-Test-only SDR-on-HDR harness'ını, Windows HDR çıkış kaydını ve bağlı
-format/devam belgelerini mevcut `codex/sdr-on-hdr-harness` dalında commit
-etmek için ayrı açık onay al. Native koşum veya push yapma.
+EV-007/008 sonuç kaydını ve exact `rgba16hf` test-only sınıflandırıcı
+düzeltmesini mevcut `codex/sdr-on-hdr-harness` dalında commit etmek için ayrı
+açık onay al. Native retry veya push yapma.
 
 ## Sonraki sıra
 
 1. Private görsel/native artifact'ları hiçbir Git işlemine ekleme.
-2. Harness kayıt commit'inden sonra exact `VF-CORE-02` current-product native
-   koşumunu en fazla 60 saniye/child için ayrıca onaylat; başarısızlıkta
-   otomatik tekrar yapma.
-3. Native sonuç kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
+2. Sınıflandırıcı düzeltmesini ve EV-007/008 kaydını commit için ayrıca
    onaylat.
-4. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
+3. Commit sonrasında exact `VF-CORE-02` native retry'ı ayrıca onaylat;
+   başarısızlıkta otomatik tekrar yapma.
+4. Native sonuç kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
+   onaylat.
+5. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
-5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+6. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-6. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+7. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni

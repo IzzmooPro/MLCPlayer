@@ -3918,6 +3918,56 @@
         "No HDR10 input fixture was generated or acquired, and no HDR10, HLG, HDR10+, Dolby Vision, build, installation, signing, tag, release, push, PR or merge acceptance occurred."
       ],
       "next_action": "Request separate explicit approval to commit the test-only harness and EV-20260825-005/006 records; request the exact VF-CORE-02 native run separately after commit."
+    },
+    {
+      "id": "EV-20260825-007",
+      "recorded_at_utc": "2026-08-25T17:43:22Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "5b3fb2c7bac56db10e9047f40c20528c7675d939",
+      "subject": "First exact current-product VF-CORE-02 SDR-on-HDR run",
+      "evidence": [
+        "the separately approved one-time run used only current_product display mode hdr on exact commit 5b3fb2c; no automatic retry occurred",
+        "the canonical validator passed exact SYN-SDR709-01 at 374394 bytes, SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "the exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e; media and runtime identities were unchanged before and after",
+        "Windows colorspace remained DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020 before and after",
+        "real MLC Player/libmpv preserved BT.709 limited SDR input with BT.1886 transfer and produced a BT.2020 PQ full-range rgba16hf target; duration was 3.000 seconds and time_pos advanced to 0.567 seconds",
+        "decoder-frame-drop-count and frame-drop-count were both 0; child exit was 0 with MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "the fail-closed runner exited 1 only because its shared ten-bit detector did not recognize target pixelformat rgba16hf: target pixelformat/hw-pixelformat 10-bit degil",
+        "exact mpv 49418246f options documentation lists rgba16hf among 16-bit float FBO formats and documents SDR-to-PQ conversion for HDR targets: https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/options.rst",
+        "private report SHA-256 is b606d7279b35be0df1595f0c494437c0c077ab8bb60040acfd9a6b68d5de72ec; private child log SHA-256 is 90203a00858ac320b7405a68724c77d800846ea1121041db3608b7866d3d4ae8",
+        "private pre-run DxDiag SHA-256 is 05b5da0dbc5713551350f09cb3b20ff1988aa6d084b69afc417f99acf57b98cc and post-run DxDiag SHA-256 is f03da2ddabd730ed02aef5f7957d3da1f1d7208eb902c7a54ad312de3fa5763c"
+      ],
+      "summary": "The product emitted the expected SDR-to-HDR color path and passed playback/lifecycle gates, but the run remains FAILED because the harness omitted the valid 16-bit half-float rgba16hf target format.",
+      "limitations": [
+        "FAILED is not PASS: VF-CORE-02 remains BLOCKED until a regression-first classifier correction and separately approved exact retry pass.",
+        "The successful input, target primaries/transfer, progress, drop, shutdown and leak sub-gates do not override the fail-closed runner result.",
+        "No manual black, neutral-gray or white-boundary judgment occurred; no HDR10 input, competitor, installed artifact, build, signing, tag, release, push, PR or merge acceptance occurred.",
+        "Windows HDR remains enabled and no product code changed."
+      ],
+      "next_action": "Request separate approval for a regression-first test-only correction that classifies exact mpv rgba16hf as 16-bit half-float; do not retry native playback automatically."
+    },
+    {
+      "id": "EV-20260825-008",
+      "recorded_at_utc": "2026-08-25T17:46:05Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "5b3fb2c7bac56db10e9047f40c20528c7675d939",
+      "subject": "Recognize exact mpv rgba16hf HDR target precision",
+      "evidence": [
+        "a new regression using the exact EV-20260825-007 BT.2020 PQ rgba16hf target failed first with 1 failed and 8 passed because the shared high-precision detector rejected the format",
+        "exact mpv 49418246f options documentation lists rgba16hf as a 16-bit float FBO format; the correction adds only rgba16hf to the existing ten-bit-or-higher pixel-format pattern",
+        "the HDR target still independently requires BT.2020 primaries and PQ transfer; rgb8 and SDR targets remain rejected",
+        "the combined SDR, HDR, video-format and continuity impact group completed with 57 passed after the correction",
+        "hdr_probe_contract.py and the new regression py_compile passed and git diff check was clean"
+      ],
+      "summary": "The fail-closed target precision gate now recognizes the exact 16-bit half-float format observed from mpv without weakening primaries, transfer or low-precision rejection rules.",
+      "limitations": [
+        "This deterministic PASS does not rerun native playback and does not change EV-20260825-007 from FAILED.",
+        "VF-CORE-02 remains BLOCKED until a separately approved exact current-product retry passes and controlled human black, neutral-gray and white-boundary judgment is recorded.",
+        "No product code, Windows HDR setting, HDR10 input fixture, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Request separate approval to commit the classifier correction and EV-20260825-007/008 records; request one exact VF-CORE-02 native retry separately after commit."
     }
   ]
 }

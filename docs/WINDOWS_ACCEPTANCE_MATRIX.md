@@ -358,6 +358,22 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
   insan ramp kabulü henüz yapılmadı. Fingerprint'li HDR10 medya da henüz yok;
   bu nedenle HDR10 girişli sonraki satırlara geçilmez.
 
+Exact `5b3fb2c` üzerinde ayrı onaylı ilk `VF-CORE-02` current-product koşumu
+BT.709/BT.1886 SDR girdiyi korudu ve BT.2020/PQ `rgba16hf` hedef üretti;
+Windows öncesi/sonrası G2084/P2020, drop sayıları 0/0, exit 0, `MARK_DONE`,
+kanonik kapanış, imleç dönüşü ve süreç sızıntısı kapıları geçti. Runner yalnız
+`rgba16hf` biçimini 10-bit veya üstü olarak tanımadığı için fail-closed exit 1
+verdi (`EV-20260825-007`). Exact mpv belgesi bu biçimi 16-bit float olarak
+tanımlar; sınıflandırıcı düzeltilmeden ve ayrı retry onayı alınmadan sonuç PASS
+yapılmaz. Otomatik tekrar yapılmadı.
+
+Exact `rgba16hf` hedefi için regresyon önce **1 failed / 8 passed** verdi.
+Sınıflandırıcıya yalnız bu exact mpv 16-bit half-float biçimi eklendikten sonra
+SDR/HDR/format/continuity etki grubu **57 passed** tamamlandı
+(`EV-20260825-008`). Bu deterministic düzeltme ilk FAILED sonucu değiştirmez;
+`VF-CORE-02` ayrı onaylı exact retry ve insan ramp kabulüne kadar BLOCKED
+kalır.
+
 #### Bağlı video-format programı
 
 `WIN-P2-01` tek bir HDR klibiyle kapanmaz. SDR-on-SDR, SDR-on-HDR, HDR10,
