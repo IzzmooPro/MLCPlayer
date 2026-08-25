@@ -3968,6 +3968,32 @@
         "No product code, Windows HDR setting, HDR10 input fixture, build, installation, signing, tag, release, push, PR or merge changed."
       ],
       "next_action": "Request separate approval to commit the classifier correction and EV-20260825-007/008 records; request one exact VF-CORE-02 native retry separately after commit."
+    },
+    {
+      "id": "EV-20260825-009",
+      "recorded_at_utc": "2026-08-25T17:54:34Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "b799362ef3a02e6307a5aac8ec98264d8f35286c",
+      "subject": "Exact current-product VF-CORE-02 SDR-on-HDR retry",
+      "evidence": [
+        "the separately approved one-time retry used only current_product display mode hdr on exact commit b799362 after the source-backed rgba16hf classifier correction; no additional retry occurred",
+        "the canonical validator passed exact SYN-SDR709-01 at 374394 bytes, SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "the exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e; media and runtime identities were unchanged before and after",
+        "Windows colorspace remained DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020 before and after",
+        "real MLC Player/libmpv preserved BT.709 limited SDR input with BT.1886 transfer and produced a BT.2020 PQ full-range rgba16hf target; duration was 3.000 seconds and time_pos advanced to 0.567 seconds",
+        "decoder-frame-drop-count and frame-drop-count were both 0; child and runner exited 0 with empty problem list, MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "private report SHA-256 is 15576149547ddccf15338a6417cc0ad374de8d56957c41cfd7c3effc1656d870; private child log SHA-256 is 5104b520111f72bc88f2c59ad66dc6f1e2d8a592267477493ab5067ded8972e3",
+        "private pre-run DxDiag SHA-256 is c89f34aee4ea58fa2e65ca5952233d8e3f910103c3e73807416df6fdec534b92 and post-run DxDiag SHA-256 is 69ace325c098db732c203520ad60d73fe335f51242f93c104a819154a4d01761"
+      ],
+      "summary": "The exact current product preserved SDR input and produced the required HDR display target with zero drops and clean lifecycle after the classifier correction.",
+      "limitations": [
+        "This native_smoke PASS applies only to exact commit b799362, runtime, fixture, active Windows HDR state, display and VF-CORE-02 scenario.",
+        "VF-CORE-02 remains BLOCKED because controlled human black, neutral-gray and white-boundary judgment under active HDR has not been recorded.",
+        "No HDR10 input, HDR-to-SDR, HLG, HDR10+, Dolby Vision, competitor, installed artifact, build, signing, tag, release, push, PR or merge acceptance occurred.",
+        "Windows HDR remains enabled and no product code changed."
+      ],
+      "next_action": "Request separate approval to commit the native retry record; after commit, request a bounded controlled human SDR ramp presentation under active HDR separately."
     }
   ]
 }

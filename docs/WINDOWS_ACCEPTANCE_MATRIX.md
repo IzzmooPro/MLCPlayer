@@ -374,6 +374,15 @@ SDR/HDR/format/continuity etki grubu **57 passed** tamamlandı
 `VF-CORE-02` ayrı onaylı exact retry ve insan ramp kabulüne kadar BLOCKED
 kalır.
 
+Classifier commit'i exact `b799362` üzerinde ayrı onaylı tek retry ilk
+koşumda PASS verdi. Aynı fixture/runtime ve aktif G2084/P2020 durumda
+BT.709/BT.1886 SDR girdi, BT.2020/PQ `rgba16hf` hedef, duration `3.000`,
+ilerleyen `time_pos=0.567`, drop 0/0, exit 0, `MARK_DONE`, kanonik
+`stop -> terminate`, imleç dönüşü ve sıfır süreç sızıntısı birlikte geçti
+(`EV-20260825-009`). Bu otomatik native PASS'tir; kontrollü insan siyah,
+nötr-gri ve beyaz-sınır kabulü eksik olduğu için `VF-CORE-02` hâlâ BLOCKED
+kalır.
+
 #### Bağlı video-format programı
 
 `WIN-P2-01` tek bir HDR klibiyle kapanmaz. SDR-on-SDR, SDR-on-HDR, HDR10,

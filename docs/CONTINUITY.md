@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `5b3fb2c7bac56db10e9047f40c20528c7675d939`
+- Kayıt hazırlanırken doğrulanan HEAD: `b799362ef3a02e6307a5aac8ec98264d8f35286c`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-008`
+- Son kanıt: `EV-20260825-009`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1130,21 +1130,27 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    deterministic düzeltme EV-007 FAILED sonucunu geriye dönük PASS yapmaz;
    `VF-CORE-02` ayrı onaylı exact retry ve manuel ramp kabulüne kadar
    **BLOCKED** kalır.
+168. Sınıflandırıcı commit'i exact `b799362` üzerinde ayrı onaylı tek
+   `VF-CORE-02` current-product retry ilk koşumda geçti. Aynı fingerprint/
+   runtime ve G2084/P2020 durumda BT.709/BT.1886 SDR girdi, BT.2020/PQ
+   `rgba16hf` hedef, duration `3.000`, ilerleyen `time_pos=0.567`, drop 0/0,
+   exit 0, `MARK_DONE`, `stop -> terminate`, imleç dönüşü ve sıfır süreç
+   sızıntısı alındı (`EV-20260825-009`). Otomatik kapılar tamamdır; insan
+   siyah/nötr-gri/beyaz-sınır ramp kabulü eksik olduğundan `VF-CORE-02`
+   **BLOCKED** kalır. Ek retry yapılmadı.
 
 ## Sıradaki tek adım
 
-EV-007/008 sonuç kaydını ve exact `rgba16hf` test-only sınıflandırıcı
-düzeltmesini mevcut `codex/sdr-on-hdr-harness` dalında commit etmek için ayrı
-açık onay al. Native retry veya push yapma.
+EV-009 kayıt commit'inden sonra kontrollü insan siyah/nötr-gri/beyaz-sınır
+ramp sunumunu ayrıca onaylat. Yeni native koşum veya push yapma.
 
 ## Sonraki sıra
 
 1. Private görsel/native artifact'ları hiçbir Git işlemine ekleme.
-2. Sınıflandırıcı düzeltmesini ve EV-007/008 kaydını commit için ayrıca
-   onaylat.
-3. Commit sonrasında exact `VF-CORE-02` native retry'ı ayrıca onaylat;
-   başarısızlıkta otomatik tekrar yapma.
-4. Native sonuç kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
+2. Kontrollü insan siyah/nötr-gri/beyaz-sınır ramp sunumunu ayrıca onaylat.
+3. İnsan kabul sonucunu ledger/devam belgelerine kaydet ve kayıt commit'ini
+   ayrıca onaylat.
+4. İnsan kabul kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
    onaylat.
 5. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
