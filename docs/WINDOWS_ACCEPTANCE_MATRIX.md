@@ -367,6 +367,64 @@ ayrı açık onayla yapılır. Bu programın bütün satırları başlangıçta
 `BLOCKED`/`NOT_RUN` kalır; hiçbir plan veya rakip özelliği `WIN-P2-01` durumunu
 yükseltmez.
 
+25 Ağustos 2026'da ayrı onaylı tek `SYN-SDR709-01` MLC koşumu exact
+fingerprint ve runtime kimliğini korudu; BT.709 SDR girdi/hedef, `duration=3.0`,
+ilerleyen `time_pos=0.600`, exit 0, `MARK_DONE`, `stop -> terminate` ve sıfır
+süreç sızıntısı ölçüldü. Buna rağmen exact mpv'nin VO tarafından düşürülen kare
+sayacı `frame-drop-count=3` verdi; bu nedenle `VF-CORE-01` **BLOCKED** kaldı ve
+otomatik tekrar yapılmadı (`EV-20260824-044`). İlk runner DxDiag'ın BOM'suz
+Windows ANSI çıktısını `UNKNOWN` okudu; saklanan ham önce/sonra raporları
+aslında aynı `DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709` değerini taşıyordu.
+Parser bu kanıttan deterministik olarak düzeltildi. Tam biçimli
+`0xe24c4a02` izi de mevcut ortak CPython/LuaJIT sınıflandırıcısıyla tanısal
+first-chance raporu olarak doğrulandı; frame-drop başarısızlığını aklamaz.
+
+Exact mpv `49418246f` seçenek belgesi `video-latency-hacks=yes` ayarının ilk
+kare tamamen çizilene kadar beklemeyi kapattığını ve VO ilk kareyi hazırlarken
+kare düşürme ihtimali doğurduğunu açıkça belirtir. Ürün yapılandırması bu ayarı
+`yes` taşır; bu nedenle ölçülen üç başlangıç VO drop'u için kaynak destekli bir
+hipotezdir, kesin kök neden değildir. Test-only `no_latency_hacks` profili ürün
+sözlüğünü mutate etmeden hazırdır. Bu profil çalıştırılmadı, ürün kabulü sayılmaz
+ve tek native tanı koşumu için ayrıca açık onay gerekir (`EV-20260824-045`).
+
+Ayrı onaylı tek `no_latency_hacks` tanısı exact `133c335` üzerinde ilk
+koşumda exit 0 verdi. Aynı fixture/runtime/SDR ekranında
+`decoder-frame-drop-count=0` ve `frame-drop-count=0`; BT.709 girdi/hedef,
+`duration=3.000`, ilerleyen `time_pos=0.567`, boş stderr, `MARK_DONE`, kanonik
+`stop -> terminate`, imleç geri dönüşü ve sıfır süreç sızıntısı birlikte
+geçti (`EV-20260824-046`). Ölçülen `3 -> 0` farkı kaynak hipotezini güçlü
+biçimde destekler; test-only profil mevcut ürünü değiştirmediği için
+`VF-CORE-01` yine **BLOCKED** kalır.
+
+Ayrı ürün değişikliği onayıyla `app/config.py` içindeki
+`video_latency_hacks=yes` override'ı kaldırıldı; renderer, `video_sync`, hwdec
+ve diğer MPV ayarları değişmedi. Regresyon önce yalnız bu anahtar nedeniyle
+**1 failed / 19 passed**, düzeltme sonrasında etki grubu **82 passed** verdi;
+`py_compile` ve diff kontrolü temizdir (`EV-20260825-001`). Bu deterministic
+kanıttır: yeni ürün profili henüz native çalıştırılmadığı için drop-free ürün
+kabulü veya `VF-CORE-01` PASS'i değildir.
+
+Değişikliğin commit'i `d97525b` üzerinde ayrı onaylı tek gerçek
+`current_product` retesti ilk koşumda exit 0 verdi. Exact aynı
+fixture/runtime/SDR ekranda BT.709/BT.1886 girdi ve hedef, `duration=3.000`,
+ilerleyen `time_pos=0.567`, `decoder-frame-drop-count=0`,
+`frame-drop-count=0`, `MARK_DONE`, kanonik `stop -> terminate`, imleç geri
+dönüşü ve sıfır süreç sızıntısı birlikte geçti. Tam `0xe24c4a02` stderr raporu
+mevcut sıkı ortak sınıflandırıcıyla bilinen LuaJIT first-chance tanısı olarak
+kabul edildi (`EV-20260825-002`). Otomatik ürün kapıları tamamdır; kontrollü
+insan siyah/gri/beyaz ramp kanıtı eksik olduğu için `VF-CORE-01` hâlâ
+**BLOCKED** kalır.
+
+Exact `ccbd4a0` üzerinde ayrıca onaylanan tek kontrollü görsel sunum, aynı
+fingerprint fixture/runtime ve gerçek `current_product` profiliyle pencereyi
+10 saniye görünür tuttu. Otomatik kapılar yine BT.709/BT.1886 girdi/hedef,
+`duration=3.000`, ilerleyen `time_pos=0.600`, sıfır decoder/VO drop, exit 0,
+`MARK_DONE`, kanonik `stop -> terminate`, imleç geri dönüşü ve sıfır süreç
+sızıntısıyla geçti. Kullanıcı siyahın ezilmediğini, grinin nötr kaldığını ve
+beyaz sınırların patlamadığını üç ayrı ölçüt için doğruladı
+(`EV-20260825-003`). Bu nedenle yalnız `VF-CORE-01` **PASSED** oldu; HDR,
+diğer video-format satırları ve genel `WIN-P2-01` durumu değişmedi.
+
 ## Var olan araçların yeniden kullanımı
 
 - `tests/run_physical_acceptance.py`
@@ -375,6 +433,7 @@ yükseltmez.
 - `tests/native_feature_acceptance.py`
 - `tests/native_shutdown_acceptance.py`
 - `tests/run_hdr_acceptance.py`
+- `tests/run_sdr_acceptance.py`
 
 Yeni runner ancak mevcut araç kesin olarak senaryoyu ölçemiyorsa ve önce bu
 boşluk belgelenirse eklenir.

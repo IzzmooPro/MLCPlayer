@@ -57,6 +57,19 @@ def parse_dxdiag_colorspace(text):
     return match.group(1) if match else ""
 
 
+def parse_dxdiag_bytes(raw):
+    """DxDiag'in BOM'suz Windows ANSI veya Unicode ciktisini ayikla."""
+    for encoding in ("utf-16", "utf-8-sig", "mbcs", "cp1254", "cp1252"):
+        try:
+            text = raw.decode(encoding)
+        except (LookupError, UnicodeError):
+            continue
+        colorspace = parse_dxdiag_colorspace(text)
+        if colorspace:
+            return colorspace
+    return ""
+
+
 def classify_input(params):
     """Decoder parametrelerini HDR10/HLG/SDR veya gecersiz HDR diye ayir."""
     primaries = _text(params, "primaries")

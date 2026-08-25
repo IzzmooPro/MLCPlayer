@@ -18,7 +18,7 @@ sys.path.insert(0, TESTS_DIR)
 
 from hdr_probe_contract import (CANDIDATE_PROFILE, CURRENT_PROFILE,  # noqa: E402
                                 HDR_CHILD_TIMEOUT_SECONDS,
-                                parse_dxdiag_colorspace,
+                                parse_dxdiag_bytes,
                                 report_problems)
 from native_media_contract import is_supported_media  # noqa: E402
 
@@ -74,15 +74,7 @@ def windows_display_colorspace(workspace):
         return ""
     with open(target, "rb") as handle:
         raw = handle.read()
-    for encoding in ("utf-16", "utf-8"):
-        try:
-            text = raw.decode(encoding)
-        except UnicodeError:
-            continue
-        colorspace = parse_dxdiag_colorspace(text)
-        if colorspace:
-            return colorspace
-    return ""
+    return parse_dxdiag_bytes(raw)
 
 
 def parse_child_report(stdout):

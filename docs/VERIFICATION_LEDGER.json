@@ -3677,6 +3677,180 @@
         "No private artifact, product code, Windows setting, build, installation, signing, tag or release changed in this hosted result."
       ],
       "next_action": "Request separate approval to push the committed codex/pr42-merge-record task branch; request PR and merge separately afterward."
+    },
+    {
+      "id": "EV-20260824-043",
+      "recorded_at_utc": "2026-08-24T22:56:00Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "b800a0e1e08a08ed7c8cbad1f30b3da574477fe1",
+      "subject": "Protected PR acceptance for the PR #42 merge record",
+      "evidence": [
+        "https://github.com/IzzmooPro/MLCPlayer/pull/43",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32786620310",
+        "https://github.com/IzzmooPro/MLCPlayer/actions/runs/32786620310/job/97619752619",
+        "the required docs-only test check completed SUCCESS on exact head 88c2afda58fd67cfaf43ea888429fda11e22e638 with 247 passed and 0 failed",
+        "the hosted append-only step printed LEDGER_APPEND_ONLY_OK",
+        "the separately approved merge produced two-parent commit b800a0e1e08a08ed7c8cbad1f30b3da574477fe1 from parents 1f7fd31c34131377dd6cdacc6664a0b707f39b83 and 88c2afda58fd67cfaf43ea888429fda11e22e638",
+        "local master, origin/master and HEAD were read back clean and equal at the exact merge commit before the SDR native task branch was created"
+      ],
+      "summary": "The append-only record for the protected SDR fingerprint merge passed its own required hosted gate and entered master through a verified two-parent merge.",
+      "limitations": [
+        "This hosted_ci PASS is documentation and repository evidence only; it does not rerun media generation, the fingerprint CLI or MLC Player playback.",
+        "No video-format scenario is promoted by this record and all 16 scenarios remained BLOCKED.",
+        "No private artifact, product code, Windows setting, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Prepare one separately approved exact SYN-SDR709-01 MLC Player native smoke with a maximum 60-second child and no automatic retry."
+    },
+    {
+      "id": "EV-20260824-044",
+      "recorded_at_utc": "2026-08-24T23:02:28Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "b800a0e1e08a08ed7c8cbad1f30b3da574477fe1",
+      "subject": "First exact SYN-SDR709-01 MLC Player native smoke",
+      "evidence": [
+        "the separately approved one-time runner first revalidated the canonical SYN-SDR709-01 fingerprint with MEDIA_FINGERPRINT_OK, 374394 bytes, SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "the exact media identity remained unchanged before and after; exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "real MLC Player/libmpv reported BT.709 limited input with BT.1886 transfer, BT.709/BT.1886 target, duration 3.000 seconds and advancing time_pos to 0.600 seconds",
+        "the child completed in 1.637 seconds with exit 0, MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "decoder-frame-drop-count was 0 but frame-drop-count was 3; the exact mpv 49418246f property documentation defines frame-drop-count as frames dropped by the video output",
+        "the first runner reported Windows colorspace UNKNOWN because DxDiag emitted BOM-less Windows ANSI; preserved before and after files both decode to DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 and the shared parser was corrected deterministically without another native run",
+        "the preserved stderr is exactly one complete CPython 0xe24c4a02 report and the existing shared Windows exception contract classifies it as the known LuaJIT first-chance diagnostic only when exit and lifecycle gates also pass",
+        "private child log SHA-256 is 1b50395fbb4ba482ab3d58d3fba488f5c64a4a9c51e0ca9ec71ac3d7a7efbe2e; private report SHA-256 is cc1f54cab6bd5d5dc9726adc4a9b70754e2f7e51309241dd8f22aa3e5a65edd6",
+        "no automatic retry occurred and no target process remained after the failure"
+      ],
+      "summary": "The exact SDR fixture opened, classified and shut down correctly, but the native acceptance remains FAILED because the video output dropped three frames.",
+      "limitations": [
+        "FAILED is not PASS: VF-CORE-01 remains BLOCKED and the successful input, target, progress and shutdown sub-gates do not override the nonzero VO drop count.",
+        "The run did not perform a controlled human black/gray/white ramp judgment, competitor comparison, HDR mode change or HDR playback.",
+        "The initial report's colorspace UNKNOWN and stderr problem entries are preserved as runner observations; later read-only classification identified two harness interpretation defects but does not erase the frame-drop failure.",
+        "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Investigate the three startup/video-output drops without another native run; stabilize the measurement contract and request separate approval before any single retry."
+    },
+    {
+      "id": "EV-20260824-045",
+      "recorded_at_utc": "2026-08-24T23:06:07Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "b800a0e1e08a08ed7c8cbad1f30b3da574477fe1",
+      "subject": "Post-failure SDR harness correction and source-backed drop hypothesis",
+      "evidence": [
+        "the preserved DxDiag before and after files were parsed without another native run; both contain DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 and expose that the first runner omitted BOM-less Windows ANSI decoding",
+        "the shared HDR/SDR DxDiag parser now accepts Unicode, UTF-8 and Windows ANSI output while still requiring the exact Display Color Space field",
+        "the preserved stderr passed the existing strict complete_luajit_faulthandler_reports grammar as one complete CPython 0xe24c4a02 LuaJIT first-chance diagnostic; truncated, different-code or additional stderr remains fail-closed",
+        "exact mpv 49418246f documentation defines frame-drop-count as frames dropped by the video output and states that video-latency-hacks disables waiting for the first fully rendered video frame, which can make the VO drop frames during lazy initialization",
+        "app/config.py sets video_latency_hacks=yes; this is a source-backed hypothesis for the observed three startup VO drops, not a proven root cause",
+        "a test-only no_latency_hacks profile now copies rather than mutates the product MPV configuration and changes only video_latency_hacks to no; it has not been run and cannot itself promote product acceptance",
+        "the combined SDR, HDR, shared Windows exception, video-format, fingerprint and continuity package completed with 374 passed and 1 environment-limited skip",
+        "ledger append-only, three JSON parses, py_compile, git diff check and private-path scan were clean"
+      ],
+      "summary": "The two harness interpretation defects are corrected and a single source-backed diagnostic profile is ready, while EV-20260824-044 remains FAILED because the three VO drops were real.",
+      "limitations": [
+        "This deterministic PASS does not rerun MLC Player, prove that video-latency-hacks caused the drops, or convert VF-CORE-01 to PASS.",
+        "The no_latency_hacks profile is test-only; even a future diagnostic PASS would require a separately approved product change and product-profile native acceptance.",
+        "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Request separate explicit approval for one maximum-60-second exact SDR native diagnostic using only the no_latency_hacks test profile; do not retry automatically on failure."
+    },
+    {
+      "id": "EV-20260824-046",
+      "recorded_at_utc": "2026-08-24T23:09:48Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "133c3357e4f06b8234975cd5e73446477a7777e3",
+      "subject": "Exact SDR no-latency-hacks diagnostic",
+      "evidence": [
+        "the separately approved one-time diagnostic ran only the test-only no_latency_hacks profile on exact commit 133c335; no automatic retry or current-product rerun occurred",
+        "the canonical validator again emitted MEDIA_FINGERPRINT_OK for SYN-SDR709-01 at 374394 bytes, SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "the exact media identity remained unchanged before and after; exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "Windows colorspace remained DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 before and after",
+        "real MLC Player/libmpv reported BT.709 limited input with BT.1886 transfer, BT.709/BT.1886 target, duration 3.000 seconds and advancing time_pos to 0.567 seconds",
+        "decoder-frame-drop-count and frame-drop-count were both 0, compared with 0 and 3 respectively in the otherwise matching current-product-profile EV-20260824-044 observation",
+        "the child completed in 1.705 seconds with empty stderr, exit 0, MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "private child log SHA-256 is f056a2f5c4c64ed3a9e9905aae346fa0d60241263af66a5dd81dbbb7aaaf056c; private report SHA-256 is 103fed405e83701f83666ccb8d68de5647a73c0986fd0d318e88c4f93e56820e"
+      ],
+      "summary": "Disabling video-latency-hacks only in the test profile reduced the observed startup VO drops from three to zero while preserving every automated SDR, lifecycle and identity gate.",
+      "limitations": [
+        "This native_smoke PASS applies only to the test-only no_latency_hacks profile on exact commit 133c335, runtime, fixture, Windows SDR state and scenario.",
+        "The product configuration still sets video_latency_hacks=yes; VF-CORE-01 and the current product remain BLOCKED until a separately approved source change and product-profile native retest pass.",
+        "A single paired observation strongly supports but does not mathematically prove causality; no manual black/gray/white ramp judgment, competitor comparison or HDR playback occurred.",
+        "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Request separate explicit approval for a regression-first product change removing video_latency_hacks=yes; request commit and exact product-profile native retest separately."
+    },
+    {
+      "id": "EV-20260825-001",
+      "recorded_at_utc": "2026-08-25T15:17:16Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "0ef21e1525eb86110f03349069a3d1eba507ee17",
+      "subject": "Remove the product video-latency-hacks override",
+      "evidence": [
+        "a regression was added first and failed only because app.config.MPV_CONFIG still contained video_latency_hacks=yes: 1 failed and 19 passed",
+        "the product change removes only the video_latency_hacks override so exact mpv 49418246f uses its documented default no behavior; renderer, video_sync, hwdec and every other MPV option remain unchanged",
+        "the focused SDR, playback lifecycle, runtime binary, built-in script policy and video-format package completed with 82 passed after the change",
+        "app/config.py py_compile and git diff check were clean"
+      ],
+      "summary": "The product no longer forces mpv's discouraged video-latency-hacks mode, matching the zero-drop diagnostic profile through the smallest configuration change.",
+      "limitations": [
+        "This deterministic PASS does not prove the changed product profile is drop-free; exact native retest remains separately approval-gated.",
+        "VF-CORE-01 remains BLOCKED pending product-profile native playback and manual black/gray/white ramp evidence.",
+        "No build, installation, Windows setting, signing, tag, release, push, PR or merge occurred."
+      ],
+      "next_action": "Request separate approval to commit the regression-first product change and evidence package; request exact product-profile native retest separately after commit."
+    },
+    {
+      "id": "EV-20260825-002",
+      "recorded_at_utc": "2026-08-25T15:21:18Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "d97525b92bc6b50a6d2ec364646abf3c62d281d8",
+      "subject": "Exact changed-product SDR native retest",
+      "evidence": [
+        "the separately approved one-time run used only the real current_product profile on exact commit d97525b; no automatic retry or additional profile run occurred",
+        "the canonical validator emitted MEDIA_FINGERPRINT_OK for SYN-SDR709-01 at 374394 bytes, SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "the exact media identity remained unchanged before and after; exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "Windows colorspace remained DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 before and after",
+        "real MLC Player/libmpv reported BT.709 limited input with BT.1886 transfer, BT.709/BT.1886 target, duration 3.000 seconds and advancing time_pos to 0.567 seconds",
+        "decoder-frame-drop-count and frame-drop-count were both 0 in the changed real product profile",
+        "the child completed in 1.663 seconds with exit 0, MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "stderr was exactly one complete CPython 0xe24c4a02 report accepted by the existing strict LuaJIT first-chance diagnostic contract; no additional stderr was present",
+        "private child log SHA-256 is 294f7ec95dc699feea4beae50321a8bc805f18a635f1180fedf7869c5d532a7a; private report SHA-256 is 0cb202fbfa0f8b65ae59ecfbcd052960c2e2438215ac969465762bbce081edbb"
+      ],
+      "summary": "The changed real product profile preserved the exact SDR color and lifecycle path and eliminated the three startup VO drops measured before the fix.",
+      "limitations": [
+        "This native_smoke PASS is restricted to exact commit d97525b, runtime, fixture, Windows SDR state and scenario.",
+        "VF-CORE-01 remains BLOCKED because the required controlled human black/gray/white ramp judgment has not been recorded.",
+        "No competitor comparison, HDR mode change, HDR playback, build, installation, signing, tag, release, push, PR or merge occurred."
+      ],
+      "next_action": "Request separate approval to commit the native result record; then define and obtain controlled human black/gray/white ramp evidence before changing VF-CORE-01 status."
+    },
+    {
+      "id": "EV-20260825-003",
+      "recorded_at_utc": "2026-08-25T15:49:47Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "ccbd4a0cf25f7f7623096c84f7cadea05488220d",
+      "subject": "Controlled human SDR black gray white ramp acceptance",
+      "evidence": [
+        "the separately approved one-time current_product presentation used the exact fingerprinted SYN-SDR709-01 fixture and exact mpv-2.dll identity on commit ccbd4a0; the visual hold was bounded to 10.0 seconds and no automatic retry occurred",
+        "the automated native gates reported BT.709 limited input with BT.1886 transfer, BT.709/BT.1886 target, duration 3.000 seconds, advancing time_pos to 0.600 seconds, decoder-frame-drop-count 0 and frame-drop-count 0",
+        "the child completed in 11.412 seconds with exit 0, MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "Windows colorspace remained DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 before and after",
+        "the user directly confirmed all three controlled judgments: black was not crushed, gray remained neutral, and white boundary detail was not clipped",
+        "private child log SHA-256 is c5849d4d7a4f5ae453a5ad79d7b1d4ffb49cb5bcd34a4587bcddad846a65aa15; private report SHA-256 is 37a52621ff071e7cf589881b042c47154f17e732904a306f643da8fec32d1f26",
+        "private pre-run DxDiag SHA-256 is 3b86e9121551d8da130bc20f30c22608e72ca22f3f4f124771c66e3b60c65d5a and post-run DxDiag SHA-256 is 89b5d58ce179afcb81b71612cae4c3707a27546477b6f72b5b33e41dba196c5a"
+      ],
+      "summary": "The exact current product SDR path passed both the automated gates and the required controlled human black, neutral-gray and white-boundary judgments, so VF-CORE-01 is PASSED.",
+      "limitations": [
+        "This PASS applies only to exact commit ccbd4a0, runtime, fixture, Windows SDR output state, display and controlled presentation scenario.",
+        "The human observation is a controlled visual acceptance, not an instrumented colorimeter or calibration measurement.",
+        "No HDR mode change, HDR playback, competitor run, installed-artifact acceptance, build, signing, tag, release, push, PR or merge occurred.",
+        "Only VF-CORE-01 changes to PASSED; the other 15 video-format cases and WIN-P2-01 remain blocked or not accepted."
+      ],
+      "next_action": "Request separate explicit approval to commit the bounded visual-hold helper, EV-20260825-003 record and linked acceptance documents; do not run another native scenario or push automatically."
     }
   ]
 }
