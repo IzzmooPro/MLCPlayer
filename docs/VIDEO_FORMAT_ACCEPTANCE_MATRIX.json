@@ -25,7 +25,7 @@
     "target_colorspace_hint_modes": ["target", "source", "source-dynamic"],
     "compiled_codec_drivers_are_hardware_proof": false,
     "media_opened": true,
-    "latest_native_playback_evidence_id": "EV-20260824-044",
+    "latest_native_playback_evidence_id": "EV-20260824-046",
     "all_cases_remain_blocked": true
   },
   "execution_policy": {
@@ -35,11 +35,13 @@
     "product_change_requires_separate_approval": true,
     "one_scenario_per_approval": true,
     "screenshot_proves_color_accuracy": false,
-    "next_diagnostic_profile": {
+    "diagnostic_profile": {
       "id": "no_latency_hacks",
       "product_config_changed": false,
-      "native_run_approved": false,
-      "purpose": "Test the source-backed hypothesis that video-latency-hacks=yes caused the three startup VO drops; this profile cannot itself pass product acceptance."
+      "native_run_approved": true,
+      "result": "PASSED",
+      "evidence_id": "EV-20260824-046",
+      "purpose": "The separately approved test-only profile reduced the observed startup VO drops from 3 to 0 while preserving all other automated gates; it cannot itself pass product acceptance."
     }
   },
   "media_policy": {
@@ -124,7 +126,7 @@
       "expected_path": "SDR BT.709 input remains SDR BT.709 output without level or gamut shift",
       "required_evidence": ["input and target params", "black white ramp", "no frame drops", "shutdown gates"],
       "status": "BLOCKED",
-      "blocker": "Exact fingerprinted SDR clip opened with BT.709 input/target, duration/progress and clean shutdown, but the approved first native smoke measured 3 VO frame drops; drop-free and manual black/white ramp evidence are still missing (EV-20260824-044)."
+      "blocker": "The current product profile measured 3 startup VO drops; the separately approved test-only no_latency_hacks profile measured 0 while preserving all automated gates. A separately approved product change, product-profile native retest and manual black/white ramp evidence are still missing (EV-20260824-044/046)."
     },
     {
       "id": "VF-CORE-02",

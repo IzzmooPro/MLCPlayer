@@ -387,6 +387,15 @@ hipotezdir, kesin kök neden değildir. Test-only `no_latency_hacks` profili ür
 sözlüğünü mutate etmeden hazırdır. Bu profil çalıştırılmadı, ürün kabulü sayılmaz
 ve tek native tanı koşumu için ayrıca açık onay gerekir (`EV-20260824-045`).
 
+Ayrı onaylı tek `no_latency_hacks` tanısı exact `133c335` üzerinde ilk
+koşumda exit 0 verdi. Aynı fixture/runtime/SDR ekranında
+`decoder-frame-drop-count=0` ve `frame-drop-count=0`; BT.709 girdi/hedef,
+`duration=3.000`, ilerleyen `time_pos=0.567`, boş stderr, `MARK_DONE`, kanonik
+`stop -> terminate`, imleç geri dönüşü ve sıfır süreç sızıntısı birlikte
+geçti (`EV-20260824-046`). Ölçülen `3 -> 0` farkı kaynak hipotezini güçlü
+biçimde destekler; test-only profil mevcut ürünü değiştirmediği için
+`VF-CORE-01` yine **BLOCKED** kalır.
+
 ## Var olan araçların yeniden kullanımı
 
 - `tests/run_physical_acceptance.py`

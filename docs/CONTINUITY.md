@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `b800a0e1e08a08ed7c8cbad1f30b3da574477fe1`
+- Kayıt hazırlanırken doğrulanan HEAD: `133c3357e4f06b8234975cd5e73446477a7777e3`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260824-045`
+- Son kanıt: `EV-20260824-046`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1053,19 +1053,30 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    ANSI DxDiag parser düzeltmesi hazırlandı; birleşik paket **374 passed / 1
    skipped**, append-only/JSON/py_compile/diff/private-path kontrolleri temizdir
    (`EV-20260824-045`). Yeni native koşum yapılmadı.
+159. Ayrı onaylı tek test-only `no_latency_hacks` tanısı exact `133c335`
+   üzerinde ilk koşumda geçti. Kanonik fingerprint yeniden doğrulandı; exact
+   medya ve `mpv-2.dll` kimlikleri korundu. Aynı SDR ekranda BT.709/BT.1886
+   girdi ve hedef, `duration=3.000`, ilerleyen `time_pos=0.567`,
+   `decoder-frame-drop-count=0`, **`frame-drop-count=0`**, boş stderr, exit 0,
+   `MARK_DONE`, tek `stop -> terminate`, imleç geri dönüşü ve sıfır süreç
+   sızıntısı alındı (`EV-20260824-046`). İlk ürün profili koşumundaki üç VO
+   drop'unun `video_latency_hacks=yes` ile bağlantısı güçlü biçimde
+   desteklenir; profil test-only olduğu için ürün veya `VF-CORE-01` PASS
+   yapılmadı ve başka native koşum yapılmadı.
 
 ## Sıradaki tek adım
 
-EV-20260824-043/044/045 kayıtlarını, test-only SDR koşucusunu ve parser
-düzeltmelerini içeren mevcut `codex/sdr-native-smoke` çalışma ağacını commit
-etmek için ayrı açık onay al. Native koşum yapma.
+EV-20260824-046 tanı sonucunu ve ona bağlı format/devam belgelerini mevcut
+`codex/sdr-native-smoke` dalında commit etmek için ayrı açık onay al. Ürün kodu
+değişikliği veya native retest yapma.
 
 ## Sonraki sıra
 
-1. Commit sonrasında `no_latency_hacks` tanısı onaylanırsa yalnız o profili bir kez çalıştır;
-   mevcut ürün profili otomatik tekrarlanmaz ve private artifact hiçbir Git
-   işlemine eklenmez.
-2. Push, PR ve merge işlemlerini ayrı ayrı onaylat.
+1. Kayıt commit'inden sonra ürün değişikliği ayrıca onaylanırsa önce regresyonu kırmızı kur, yalnız
+   `video_latency_hacks` override'ını kaldır ve hedef testleri çalıştır; private
+   artifact hiçbir Git işlemine eklenmez.
+2. Değişiklik commit edildikten sonra exact ürün profili native retestini,
+   push, PR ve merge işlemlerini ayrı ayrı onaylat.
 3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
    tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;

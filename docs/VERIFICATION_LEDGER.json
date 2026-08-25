@@ -3753,6 +3753,32 @@
         "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge changed."
       ],
       "next_action": "Request separate explicit approval for one maximum-60-second exact SDR native diagnostic using only the no_latency_hacks test profile; do not retry automatically on failure."
+    },
+    {
+      "id": "EV-20260824-046",
+      "recorded_at_utc": "2026-08-24T23:09:48Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "133c3357e4f06b8234975cd5e73446477a7777e3",
+      "subject": "Exact SDR no-latency-hacks diagnostic",
+      "evidence": [
+        "the separately approved one-time diagnostic ran only the test-only no_latency_hacks profile on exact commit 133c335; no automatic retry or current-product rerun occurred",
+        "the canonical validator again emitted MEDIA_FINGERPRINT_OK for SYN-SDR709-01 at 374394 bytes, SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "the exact media identity remained unchanged before and after; exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "Windows colorspace remained DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 before and after",
+        "real MLC Player/libmpv reported BT.709 limited input with BT.1886 transfer, BT.709/BT.1886 target, duration 3.000 seconds and advancing time_pos to 0.567 seconds",
+        "decoder-frame-drop-count and frame-drop-count were both 0, compared with 0 and 3 respectively in the otherwise matching current-product-profile EV-20260824-044 observation",
+        "the child completed in 1.705 seconds with empty stderr, exit 0, MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "private child log SHA-256 is f056a2f5c4c64ed3a9e9905aae346fa0d60241263af66a5dd81dbbb7aaaf056c; private report SHA-256 is 103fed405e83701f83666ccb8d68de5647a73c0986fd0d318e88c4f93e56820e"
+      ],
+      "summary": "Disabling video-latency-hacks only in the test profile reduced the observed startup VO drops from three to zero while preserving every automated SDR, lifecycle and identity gate.",
+      "limitations": [
+        "This native_smoke PASS applies only to the test-only no_latency_hacks profile on exact commit 133c335, runtime, fixture, Windows SDR state and scenario.",
+        "The product configuration still sets video_latency_hacks=yes; VF-CORE-01 and the current product remain BLOCKED until a separately approved source change and product-profile native retest pass.",
+        "A single paired observation strongly supports but does not mathematically prove causality; no manual black/gray/white ramp judgment, competitor comparison or HDR playback occurred.",
+        "No product code, Windows setting, build, installation, signing, tag, release, push, PR or merge changed."
+      ],
+      "next_action": "Request separate explicit approval for a regression-first product change removing video_latency_hacks=yes; request commit and exact product-profile native retest separately."
     }
   ]
 }
