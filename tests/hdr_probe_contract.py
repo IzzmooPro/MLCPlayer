@@ -10,7 +10,7 @@ PROFILES = (CURRENT_PROFILE, CANDIDATE_PROFILE)
 HDR_CHILD_TIMEOUT_SECONDS = 60
 
 _TEN_BIT = re.compile(
-    r"(?:^|[^0-9])(?:p010|p012|p016|rgb10|x2rgb10|rgba10|"
+    r"(?:^|[^0-9])(?:p010|p012|p016|rgb10|x2rgb10|rgba10|rgba16hf|"
     r"yuv\d+p10(?:le|be)?)(?:$|[^0-9])",
     re.IGNORECASE,
 )

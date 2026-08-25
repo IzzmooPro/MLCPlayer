@@ -327,7 +327,9 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
   `DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709` idi. Microsoft'un HDR10 çıkış
   sözleşmesindeki `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` canlı olarak
   görülmeden koşum başlamaz; HDR-capable donanım tek başına HDR çıkış PASS'i
-  değildir.
+  değildir. 25 Ağustos'ta ayrı onayla Windows HDR açıldı; arayüz `HDR Açık`,
+  hemen sonraki canlı DxDiag exact `G2084/P2020` verdi
+  (`EV-20260825-005`). Böylece yalnız aktif çıkış ön koşulu kapandı.
 - **Test-only native ölçüm:** `tests/run_hdr_acceptance.py`, yalnız
   `MLC_NATIVE_HDR_ACCEPTANCE=1` ve açık `MLC_HDR_TEST_VIDEO` ile çalışır.
   Önce etkin Windows renk uzayını fail-closed doğrular; sonra mevcut `vo=gpu`
@@ -336,6 +338,11 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
   `hwdec-current`, exit/`MARK_DONE`, kanonik `stop -> terminate`, kabul edilen
   kapanış, imleç geri dönüşü, medya kimliği ve süreç sızıntısı birlikte
   kaydedilir. Her child üst sınırı 60 saniyedir.
+  `tests/run_sdr_acceptance.py` ayrıca explicit `hdr` modunda fingerprint'li
+  `SYN-SDR709-01` girdisini değiştirmeden `VF-CORE-02` için G2084/P2020 ekran
+  ve BT.2020/PQ/10-bit hedefi zorunlu tutar; varsayılan `sdr` yolu değişmez.
+  Bu test-only kapı deterministik olarak hazırdır fakat çalıştırılmamıştır
+  (`EV-20260825-006`).
 - **Kanıt sınırı:** exact mpv belgeleri `gpu-next` yolunu önerir ve
   `target-colorspace-hint` seçeneğini yalnız bu VO ile destekler. Bu telemetri
   renk uzayı/transfer hedefini ve güvenli çalışma davranışını ölçer; ekran
@@ -346,8 +353,46 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
   [exact mpv options `49418246f`](https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/options.rst),
   [exact mpv properties `49418246f`](https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/input.rst),
   [MSI G274QPF E2 teknik özellikleri](https://www.msi.com/Monitor/G274QPF-E2/Specification).
-- **Durum:** `BLOCKED`. Test-only tanı koşumu hazırlanmıştır fakat native HDR
-  koşumu yapılmamıştır; aktif Windows HDR10 renk uzayı da henüz doğrulanmadı.
+- **Durum:** yalnız `VF-CORE-02` için `PASSED`. Aktif Windows HDR10 renk uzayı,
+  SDR-on-HDR otomatik kapıları ve kontrollü insan ramp kabulü tamamlandı
+  (`EV-20260825-012`). Fingerprint'li HDR10 medya hâlâ yok; bu nedenle HDR10
+  girişli sonraki satırlara geçilmez ve genel `WIN-P2-01` kapanmaz.
+
+Exact `5b3fb2c` üzerinde ayrı onaylı ilk `VF-CORE-02` current-product koşumu
+BT.709/BT.1886 SDR girdiyi korudu ve BT.2020/PQ `rgba16hf` hedef üretti;
+Windows öncesi/sonrası G2084/P2020, drop sayıları 0/0, exit 0, `MARK_DONE`,
+kanonik kapanış, imleç dönüşü ve süreç sızıntısı kapıları geçti. Runner yalnız
+`rgba16hf` biçimini 10-bit veya üstü olarak tanımadığı için fail-closed exit 1
+verdi (`EV-20260825-007`). Exact mpv belgesi bu biçimi 16-bit float olarak
+tanımlar; sınıflandırıcı düzeltilmeden ve ayrı retry onayı alınmadan sonuç PASS
+yapılmaz. Otomatik tekrar yapılmadı.
+
+Exact `rgba16hf` hedefi için regresyon önce **1 failed / 8 passed** verdi.
+Sınıflandırıcıya yalnız bu exact mpv 16-bit half-float biçimi eklendikten sonra
+SDR/HDR/format/continuity etki grubu **57 passed** tamamlandı
+(`EV-20260825-008`). Bu deterministic düzeltme ilk FAILED sonucu değiştirmez;
+`VF-CORE-02` ayrı onaylı exact retry ve insan ramp kabulüne kadar BLOCKED
+kalır.
+
+Classifier commit'i exact `b799362` üzerinde ayrı onaylı tek retry ilk
+koşumda PASS verdi. Aynı fixture/runtime ve aktif G2084/P2020 durumda
+BT.709/BT.1886 SDR girdi, BT.2020/PQ `rgba16hf` hedef, duration `3.000`,
+ilerleyen `time_pos=0.567`, drop 0/0, exit 0, `MARK_DONE`, kanonik
+`stop -> terminate`, imleç dönüşü ve sıfır süreç sızıntısı birlikte geçti
+(`EV-20260825-009`). Bu otomatik native PASS'tir; kontrollü insan siyah,
+nötr-gri ve beyaz-sınır kabulü eksik olduğu için `VF-CORE-02` hâlâ BLOCKED
+kalır.
+
+Test-only cleanup commit'i exact `03b9d2a` üzerinde ayrıca onaylanan tek
+kontrollü insan HDR ramp sunumu aynı fingerprint fixture/runtime ve gerçek
+`current_product` profiliyle 10 saniye görünür kaldı. Otomatik kapılar
+G2084/P2020 önce/sonra, BT.709/BT.1886 SDR girdi, BT.2020/PQ `rgba16hf` hedef,
+duration `3.000`, ilerleyen `time_pos=0.567`, drop 0/0, exit 0, `MARK_DONE`,
+kanonik `stop -> terminate`, imleç dönüşü, boş stderr ve sıfır süreç
+sızıntısıyla geçti. Kullanıcı siyahın ezilmediğini, grinin nötr kaldığını ve
+beyaz sınır detayının patlamadığını doğruladı (`EV-20260825-012`). Yalnız
+`VF-CORE-02` **PASSED** oldu; gözlem kolorimetre değildir, diğer 14 format
+satırı ve genel `WIN-P2-01` durumu değişmedi. Otomatik ek retry yapılmadı.
 
 #### Bağlı video-format programı
 

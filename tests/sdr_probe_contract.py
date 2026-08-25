@@ -5,10 +5,15 @@
 from native_windows_exception_contract import (
     complete_luajit_faulthandler_reports,
 )
+from hdr_probe_contract import output_problems
 
 
 SDR_CHILD_TIMEOUT_SECONDS = 60
 SDR_COLORSPACE = "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709"
+HDR_COLORSPACE = "DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020"
+SDR_DISPLAY_MODE = "sdr"
+HDR_DISPLAY_MODE = "hdr"
+DISPLAY_MODES = (SDR_DISPLAY_MODE, HDR_DISPLAY_MODE)
 CURRENT_PROFILE = "current_product"
 NO_LATENCY_HACKS_PROFILE = "no_latency_hacks"
 PROFILES = (CURRENT_PROFILE, NO_LATENCY_HACKS_PROFILE)
@@ -53,10 +58,15 @@ def classify_sdr_input(params):
     return "other"
 
 
-def display_problems(before, after):
+def display_problems(before, after, display_mode=SDR_DISPLAY_MODE):
     problems = []
-    if before != SDR_COLORSPACE:
-        problems.append(f"Windows SDR/P709 renk uzayi yok: {before!r}")
+    if display_mode not in DISPLAY_MODES:
+        return [f"display mode gecersiz: {display_mode!r}"]
+    expected = (HDR_COLORSPACE if display_mode == HDR_DISPLAY_MODE
+                else SDR_COLORSPACE)
+    if before != expected:
+        problems.append(
+            f"Windows {display_mode} renk uzayi beklenen degil: {before!r}")
     if after != before:
         problems.append(
             f"Windows renk uzayi kosumda degisti: {before!r} -> {after!r}")
@@ -76,10 +86,12 @@ def _stderr_problems(stderr):
     return problems
 
 
-def report_problems(report):
+def report_problems(report, display_mode=SDR_DISPLAY_MODE):
     """Child raporunu oynatma, drop, kapanis ve sizintiyle degerlendir."""
     report = report or {}
     problems = []
+    if display_mode not in DISPLAY_MODES:
+        problems.append(f"display mode gecersiz: {display_mode!r}")
     if report.get("profile") not in PROFILES:
         problems.append(f"probe profili gecersiz: {report.get('profile')!r}")
     if report.get("timed_out") is True:
@@ -94,11 +106,15 @@ def report_problems(report):
         problems.append(
             f"girdi BT.709 SDR degil: {report.get('input_class')!r}")
     target = report.get("target") or {}
-    if _text(target, "primaries") != "bt.709":
-        problems.append(
-            f"target primaries bt.709 degil: {target.get('primaries')!r}")
-    if _text(target, "gamma") not in ("bt.1886", "bt.709"):
-        problems.append(f"target gamma SDR degil: {target.get('gamma')!r}")
+    if display_mode == HDR_DISPLAY_MODE:
+        problems.extend(output_problems(target, expected_hdr=True))
+    else:
+        if _text(target, "primaries") != "bt.709":
+            problems.append(
+                f"target primaries bt.709 degil: {target.get('primaries')!r}")
+        if _text(target, "gamma") not in ("bt.1886", "bt.709"):
+            problems.append(
+                f"target gamma SDR degil: {target.get('gamma')!r}")
     duration = report.get("duration")
     if not isinstance(duration, (int, float)) or not 2.8 <= duration <= 3.2:
         problems.append(f"duration exact fixture ile uyumsuz: {duration!r}")

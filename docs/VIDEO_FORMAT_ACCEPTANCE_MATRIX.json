@@ -18,14 +18,16 @@
     "active_display": "MSI G274QPF E2",
     "active_edid_sha256": "f325d9f7e693b0ee79049ba342bf01066419110658a56452d0e0a20e44f4456f",
     "hdr_capable": true,
-    "active_dxgi_color_space": "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709",
-    "active_hdr10_output_proven": false,
+    "active_dxgi_color_space": "DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020",
+    "active_hdr10_output_proven": true,
+    "active_state_measured_commit": "be7b692130a3c5051a289b4ff271fcd06b72a582",
+    "active_state_evidence_id": "EV-20260825-005",
     "compiled_video_outputs": ["gpu-next", "gpu", "direct3d", "libmpv"],
     "compiled_gpu_apis": ["d3d11", "vulkan", "opengl"],
     "target_colorspace_hint_modes": ["target", "source", "source-dynamic"],
     "compiled_codec_drivers_are_hardware_proof": false,
     "media_opened": true,
-    "latest_native_playback_evidence_id": "EV-20260825-003",
+    "latest_native_playback_evidence_id": "EV-20260825-012",
     "all_cases_remain_blocked": false
   },
   "execution_policy": {
@@ -35,6 +37,25 @@
     "product_change_requires_separate_approval": true,
     "one_scenario_per_approval": true,
     "screenshot_proves_color_accuracy": false,
+    "sdr_on_hdr_harness": {
+      "status": "NATIVE_AND_MANUAL_PASSED",
+      "evidence_id": "EV-20260825-006",
+      "native_evidence_id": "EV-20260825-007",
+      "classifier_fix_evidence_id": "EV-20260825-008",
+      "native_retry_evidence_id": "EV-20260825-009",
+      "manual_evidence_id": "EV-20260825-012",
+      "display_mode": "hdr",
+      "scenario": "VF-CORE-02-partial-native-smoke",
+      "exact_fixture_id": "SYN-SDR709-01",
+      "product_code_changed": false,
+      "native_run_approved": true,
+      "automatic_retry_performed": false,
+      "observed_target": {
+        "primaries": "bt.2020",
+        "gamma": "pq",
+        "pixelformat": "rgba16hf"
+      }
+    },
     "diagnostic_profile": {
       "id": "no_latency_hacks",
       "product_config_changed": false,
@@ -145,8 +166,9 @@
       "display_state": "DXGI G2084 P2020",
       "expected_path": "Source remains labeled SDR while renderer maps it to the HDR display target without washed blacks",
       "required_evidence": ["input SDR classification", "target params", "reference white", "manual ramp check"],
-      "status": "BLOCKED",
-      "blocker": "The exact SDR reference clip is fingerprinted, but active Windows HDR10 output and the separately approved SDR-on-HDR native/manual evidence are missing."
+      "status": "PASSED",
+      "evidence_id": "EV-20260825-012",
+      "blocker": null
     },
     {
       "id": "VF-CORE-03",

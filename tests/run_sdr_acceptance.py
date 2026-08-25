@@ -20,7 +20,9 @@ sys.path.insert(0, TESTS_DIR)
 from hdr_probe_contract import parse_dxdiag_bytes  # noqa: E402
 from native_media_contract import is_supported_media  # noqa: E402
 from sdr_probe_contract import (SDR_CHILD_TIMEOUT_SECONDS,  # noqa: E402
-                                CURRENT_PROFILE, PROFILES,
+                                CURRENT_PROFILE, DISPLAY_MODES,
+                                HDR_DISPLAY_MODE, PROFILES,
+                                SDR_DISPLAY_MODE,
                                 display_problems, report_problems)
 
 
@@ -105,12 +107,17 @@ def main():
         return 0
     video = required_path("MLC_SDR_TEST_VIDEO")
     profile = os.environ.get("MLC_SDR_PROBE_PROFILE", CURRENT_PROFILE)
+    display_mode = os.environ.get(
+        "MLC_SDR_DISPLAY_MODE", SDR_DISPLAY_MODE)
     evidence_dir = required_path("MLC_SDR_EVIDENCE_DIR")
     if not is_supported_media(video):
         print("BLOCKED: MLC_SDR_TEST_VIDEO gecerli .mkv/.mp4 olmali", flush=True)
         return 2
     if profile not in PROFILES:
         print("BLOCKED: MLC_SDR_PROBE_PROFILE gecersiz", flush=True)
+        return 2
+    if display_mode not in DISPLAY_MODES:
+        print("BLOCKED: MLC_SDR_DISPLAY_MODE gecersiz", flush=True)
         return 2
     if not evidence_dir or os.path.exists(evidence_dir):
         print("BLOCKED: yeni ve exact MLC_SDR_EVIDENCE_DIR gerekli", flush=True)
@@ -179,15 +186,19 @@ def main():
     colorspace_after = windows_display_colorspace(evidence_dir, "after")
     media_after = file_identity(video)
     runtime_after = file_identity(runtime_dll)
-    problems = (parse_problems + report_problems(report)
-                + display_problems(colorspace_before, colorspace_after))
+    problems = (parse_problems + report_problems(report, display_mode)
+                + display_problems(
+                    colorspace_before, colorspace_after, display_mode))
     if media_after != media_before:
         problems.append("exact SDR medya kimligi kosumda degisti")
     if runtime_after != runtime_before:
         problems.append("exact libmpv runtime kimligi kosumda degisti")
     payload = {
-        "scenario": "VF-CORE-01-partial-native-smoke",
+        "scenario": ("VF-CORE-02-partial-native-smoke"
+                     if display_mode == HDR_DISPLAY_MODE
+                     else "VF-CORE-01-partial-native-smoke"),
         "profile": profile,
+        "display_mode": display_mode,
         "fingerprint": fingerprint,
         "windows_colorspace_before": colorspace_before,
         "windows_colorspace_after": colorspace_after,

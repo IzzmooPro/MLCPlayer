@@ -326,13 +326,26 @@ def run_ffprobe(path, media_path, argv):
         raise MediaFingerprintError("ffprobe output is invalid JSON") from error
 
 
+def cleanup_regeneration_workspace(directory, output):
+    """Remove regenerated media; tolerate only an empty-dir policy denial."""
+    output.unlink(missing_ok=True)
+    try:
+        directory.rmdir()
+    except PermissionError:
+        if not directory.is_dir() or any(directory.iterdir()):
+            raise
+
+
 def regenerate_fixture(generator_path, argv):
-    with tempfile.TemporaryDirectory(prefix="mlc-sdr-regenerate-") as directory:
-        output = Path(directory).resolve() / "SYN-SDR709-01.mp4"
+    directory = Path(tempfile.mkdtemp(prefix="mlc-sdr-regenerate-")).resolve()
+    output = directory / "SYN-SDR709-01.mp4"
+    try:
         command = [generator_path] + [output if item == "$OUTPUT" else item for item in argv]
         run_bounded(command, timeout=90, label="fixture regeneration")
         output = ensure_regular_file(output, "regenerated media")
         return file_identity(output)
+    finally:
+        cleanup_regeneration_workspace(directory, output)
 
 
 def recipe_sha256(generation_identity):

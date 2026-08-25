@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `4ae2d2a904bdee8cf53e020233701fbe79829cbf`
+- Kayıt hazırlanırken doğrulanan HEAD: `03b9d2aae3c7adde5ba4e318d3a71710a000db56`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-004`
+- Son kanıt: `EV-20260825-012`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1098,21 +1098,86 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    `origin/master`a alındı (`EV-20260825-004`). Bu hosted/merge kanıtı native
    SDR kabul sınırlarını genişletmez; yeni native koşum, build, kurulum, HDR
    değişikliği, tag veya release yapılmadı.
+164. PR #45 kayıt paketi zorunlu hosted belge kapısında **247 passed** verdi
+   ve ayrı onayla iki ebeveynli `be7b692` merge commit'i üzerinden master'a
+   alındı. Ardından ayrı sistem ayarı onayıyla Windows HDR kapalıdan açığa
+   geçirildi; Ayarlar `HDR Açık`, canlı DxDiag exact
+   `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` gösterdi
+   (`EV-20260825-005`). Bu yalnız aktif HDR10 çıkış ön koşuludur; MLC Player
+   veya medya açılmadı, native format PASS'i oluşmadı ve HDR açık bırakıldı.
+165. Mevcut exact SDR runner, kopya harness oluşturmadan explicit `sdr` ve
+   `hdr` display modlarına ayrıldı. Yeni `hdr` modu fingerprint'li BT.709 SDR
+   girdiyi korur; `VF-CORE-02` için G2084/P2020 ekran ile BT.2020/PQ/10-bit
+   hedefi fail-closed zorunlu tutar. Regresyon önce **3 failed / 28 passed**,
+   uygulama sonrası SDR/HDR/format etki grubu **47 passed** verdi
+   (`EV-20260825-006`). Ürün kodu değişmedi ve native oynatma yapılmadı.
+166. Harness commit'i exact `5b3fb2c` üzerinde ayrı onaylı tek
+   `VF-CORE-02` current-product native koşumu fail-closed **FAILED** verdi.
+   BT.709/BT.1886 SDR girdi, BT.2020/PQ `rgba16hf` hedef, G2084/P2020
+   öncesi/sonrası, duration `3.000`, ilerleyen `time_pos=0.567`, drop 0/0,
+   child exit 0, `MARK_DONE`, `stop -> terminate`, imleç dönüşü ve sıfır
+   süreç sızıntısı geçti. Tek problem sınıflandırıcının `rgba16hf` biçimini
+   10-bit veya üstü kabul etmemesiydi; runner exit 1 verdi
+   (`EV-20260825-007`). Exact mpv `49418246f` belgesi `rgba16hf`yi 16-bit
+   float olarak listeler. Bu nedenle kaynak destekli harness boşluğu vardır;
+   fakat düzeltme ve ayrı onaylı retry yapılmadan `VF-CORE-02` **BLOCKED**
+   kalır. Otomatik tekrar yapılmadı.
+167. Exact `rgba16hf` hedef sınıflandırma regresyonu önce **1 failed / 8
+   passed** verdi. Exact mpv `49418246f` belgesine göre yalnız bu 16-bit
+   half-float biçimi yüksek-hassasiyet desenine eklendi; SDR/HDR/format/
+   continuity etki grubu sonrasında **57 passed** tamamlandı
+   (`EV-20260825-008`). Ürün kodu ve diğer renk hedefleri değişmedi. Bu
+   deterministic düzeltme EV-007 FAILED sonucunu geriye dönük PASS yapmaz;
+   `VF-CORE-02` ayrı onaylı exact retry ve manuel ramp kabulüne kadar
+   **BLOCKED** kalır.
+168. Sınıflandırıcı commit'i exact `b799362` üzerinde ayrı onaylı tek
+   `VF-CORE-02` current-product retry ilk koşumda geçti. Aynı fingerprint/
+   runtime ve G2084/P2020 durumda BT.709/BT.1886 SDR girdi, BT.2020/PQ
+   `rgba16hf` hedef, duration `3.000`, ilerleyen `time_pos=0.567`, drop 0/0,
+   exit 0, `MARK_DONE`, `stop -> terminate`, imleç dönüşü ve sıfır süreç
+   sızıntısı alındı (`EV-20260825-009`). Otomatik kapılar tamamdır; insan
+   siyah/nötr-gri/beyaz-sınır ramp kabulü eksik olduğundan `VF-CORE-02`
+   **BLOCKED** kalır. Ek retry yapılmadı.
+169. EV-009 kayıt commit'i exact `30c0659` sonrasında ayrıca onaylanan insan
+   ramp sunumu fingerprint aşamasında AppData Temp erişim reddiyle durdu.
+   İzinli TEMP konumuyla ayrıca onaylanan tek retry, regenerated medya
+   silindikten sonra boş kalan `TemporaryDirectory` klasörünü temizlerken
+   `WinError 5` verdi. İki denemede de pencere açılmadı, native MLC Player/
+   libmpv oynatması başlamadı ve hedef süreç sızıntısı olmadı
+   (`EV-20260825-010`, **FAILED**). Neden incelendi; otomatik üçüncü retry
+   yapılmadı ve `VF-CORE-02` **BLOCKED** kaldı.
+170. Ayrı onaylı test-only düzeltmede iki davranış regresyonu mevcut kaynakta
+   önce **2 failed** verdi: boş klasör politika reddi yayıldı ve beklenmeyen
+   yan içerik sessizce silindi. Minimal düzeltme yalnız regenerated medyayı
+   açıkça siliyor; klasör kaldırma `PermissionError`ını yalnız klasör hâlâ
+   mevcut ve boşsa tolere ediyor, içerik kalırsa fail-closed hatayı ve içeriği
+   koruyor. İki regresyon düzeltme sonrası geçti; fingerprint/SDR/HDR/
+   video-format etki grubu **94 passed** verdi (`EV-20260825-011`). Bu yalnız
+   deterministic test harness kanıtıdır; ürün kodu değişmedi, native oynatma
+   veya insan ramp kabulü yapılmadı ve EV-010 geriye dönük PASS olmadı.
+171. Düzeltme commit'i exact `03b9d2a` üzerinde ayrıca onaylanan tek kontrollü
+   insan HDR ramp sunumu, aynı fingerprint fixture/runtime ve gerçek
+   `current_product` profiliyle pencereyi 10 saniye görünür tuttu. Otomatik
+   kapılar G2084/P2020 önce/sonra, BT.709/BT.1886 SDR girdi, BT.2020/PQ
+   `rgba16hf` hedef, duration `3.000`, ilerleyen `time_pos=0.567`, sıfır
+   decoder/VO drop, exit 0, `MARK_DONE`, `stop -> terminate`, imleç dönüşü,
+   boş stderr ve sıfır süreç sızıntısıyla geçti. Kullanıcı siyahın ezilmediğini,
+   grinin nötr kaldığını ve beyaz sınır detayının patlamadığını doğruladı
+   (`EV-20260825-012`). Yalnız `VF-CORE-02` **PASSED** oldu; bu gözlem
+   kolorimetre değildir, diğer 14 format satırı ve genel `WIN-P2-01` durumu
+   değişmedi. Otomatik ek retry yapılmadı.
 
 ## Sıradaki tek adım
 
-PR #44 hosted test/merge sonucunu ve bağlı continuity kaydını mevcut
-`codex/pr44-merge-record` dalında commit etmek için ayrı açık onay al. Yeni
-native koşum veya push yapma.
+EV-012 insan kabul kaydı ve bağlı format/devam belgeleri için ayrı commit onayı
+iste. Yeni native koşum veya push yapma.
 
 ## Sonraki sıra
 
 1. Private görsel/native artifact'ları hiçbir Git işlemine ekleme.
-2. PR #44 kabul kaydının push, PR ve merge işlemlerini ayrı ayrı onaylat.
-3. Windows'un etkin HDR10 renk uzayı
-   `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
-   tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;
-   başarısızlıkta otomatik tekrar yapma.
+2. EV-012 insan kabul kaydı ve bağlı belgeleri ayrı onayla commit et.
+3. İnsan kabul kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
+   onaylat.
 4. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
 5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını

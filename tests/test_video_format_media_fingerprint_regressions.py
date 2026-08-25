@@ -248,6 +248,55 @@ def test_subprocess_invalid_utf8_and_timeout_fail_closed():
             timeout=0.1, label="test tool")
 
 
+def test_regeneration_tolerates_only_empty_directory_policy_denial(
+        tmp_path, monkeypatch):
+    workspace = tmp_path / "managed-regeneration"
+    real_rmdir = os.rmdir
+
+    def fake_mkdtemp(*_args, **_kwargs):
+        workspace.mkdir()
+        return str(workspace)
+
+    def fake_run(command, **_kwargs):
+        Path(command[-1]).write_bytes(b"fixture")
+        return "", ""
+
+    def deny_empty_workspace(path, *args, **kwargs):
+        if Path(path).resolve() == workspace.resolve():
+            raise PermissionError("managed filesystem denied empty rmdir")
+        return real_rmdir(path, *args, **kwargs)
+
+    monkeypatch.setattr(guard.tempfile, "mkdtemp", fake_mkdtemp)
+    monkeypatch.setattr(guard, "run_bounded", fake_run)
+    monkeypatch.setattr(os, "rmdir", deny_empty_workspace)
+    identity = guard.regenerate_fixture(Path("generator.exe"), ["$OUTPUT"])
+    assert identity == {"file_size": 7, "sha256": sha(b"fixture")}
+    assert list(workspace.iterdir()) == []
+    monkeypatch.setattr(os, "rmdir", real_rmdir)
+    workspace.rmdir()
+
+
+def test_regeneration_cleanup_still_fails_closed_when_content_remains(
+        tmp_path, monkeypatch):
+    workspace = tmp_path / "nonempty-regeneration"
+
+    def fake_mkdtemp(*_args, **_kwargs):
+        workspace.mkdir()
+        return str(workspace)
+
+    def fake_run(command, **_kwargs):
+        Path(command[-1]).write_bytes(b"fixture")
+        (workspace / "unexpected.bin").write_bytes(b"unexpected")
+        return "", ""
+
+    monkeypatch.setattr(guard.tempfile, "mkdtemp", fake_mkdtemp)
+    monkeypatch.setattr(guard, "run_bounded", fake_run)
+    with pytest.raises(OSError):
+        guard.regenerate_fixture(Path("generator.exe"), ["$OUTPUT"])
+    assert not (workspace / "SYN-SDR709-01.mp4").exists()
+    assert (workspace / "unexpected.bin").read_bytes() == b"unexpected"
+
+
 @pytest.mark.skipif(os.name != "nt", reason="Windows sharing contract")
 @pytest.mark.parametrize("file_index", range(4))
 def test_windows_lock_denies_write_delete_and_rename(
