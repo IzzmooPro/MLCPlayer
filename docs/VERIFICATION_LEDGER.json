@@ -4088,6 +4088,88 @@
         "No build, installation, signing, tag, release or Windows HDR setting change occurred during PR creation or merge."
       ],
       "next_action": "Request separate approval to commit this EV-20260825-013 merge record; then request its branch push, PR and merge separately before selecting the next open P0 acceptance gap."
+    },
+    {
+      "id": "EV-20260825-014",
+      "recorded_at_utc": "2026-08-25T20:16:09Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "f4255f51c83950f8f1d25573119f7b989ee51adb",
+      "subject": "MLC Player installer UX plan and three bounded visual concept previews",
+      "evidence": [
+        "docs/INSTALLER_UX_PLAN.md records the approved language, branding, GPL information, file-association, privacy, update, destination, summary, progress and completion boundaries",
+        "concept A Sinematik Gece PNG is 7f5ecfcadefe3f6e0a4453d7a1bd4bf1aac1db6e819216822b4ecd40a40bac2a",
+        "concept B Windows ile Uyumlu PNG is ac4055ef3c7b98a7fb4aecff1cce8c885ca6aede3ce25ca6f6b81469fa5c82a4",
+        "concept C Dengeli Hibrit PNG is deeeb9bfda27fefd5304925fbf0cda24214ab752edc2270afe052f539b0108a1",
+        "all three ui-mockup previews use the existing official MLC icon as a visual reference and show the same welcome, preferences/privacy, summary and progress stages for direct comparison",
+        "the nine user-supplied VLC flow references remained readable; their component-tree and separate privacy-popup patterns were intentionally excluded"
+      ],
+      "summary": "The installer UX decisions are captured and three comparable MLC-branded bitmap directions are ready for the user's explicit A, B or C selection.",
+      "limitations": [
+        "These generated bitmap mockups are design previews, not Inno Setup output, executable installer behavior, accessibility, DPI, localization, registry or uninstall evidence.",
+        "Generated images remain outside Git in the private visualization workspace; no user-supplied screenshot or private path is added to the repository.",
+        "No installer code, product code, build, installation, removal, Windows setting, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Show all three previews to the user and request an explicit A, B or C visual direction; do not implement or build the installer before that selection."
+    },
+    {
+      "id": "EV-20260825-015",
+      "recorded_at_utc": "2026-08-25T20:49:45Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "f4255f51c83950f8f1d25573119f7b989ee51adb",
+      "baseline_commit": "f4255f51c83950f8f1d25573119f7b989ee51adb",
+      "working_tree_state": "uncommitted",
+      "supersedes": [
+        "EV-20260825-014"
+      ],
+      "changed_files": [
+        "AGENTS.md",
+        "docs/CHANGE_WORKFLOW.md",
+        "docs/CONTINUITY.md",
+        "docs/CONTINUITY_HISTORY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_change_workflow_regressions.py",
+        "tests/test_continuity_regressions.py",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_change_workflow_regressions.py tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m py_compile tests/test_continuity_regressions.py tests/test_change_workflow_regressions.py tests/test_installer_branding_regressions.py",
+        "git diff --check",
+        "explicit UTF-8 JSON prefix comparison of HEAD:docs/VERIFICATION_LEDGER.json against the working-tree ledger",
+        "PowerShell private-path scan of git diff for user-profile, .codex and visualization path fragments"
+      ],
+      "private_artifact_digests": {
+        "installer-concept-a.png": "7f5ecfcadefe3f6e0a4453d7a1bd4bf1aac1db6e819216822b4ecd40a40bac2a",
+        "installer-concept-b.png": "ac4055ef3c7b98a7fb4aecff1cce8c885ca6aede3ce25ca6f6b81469fa5c82a4",
+        "installer-concept-c.png": "deeeb9bfda27fefd5304925fbf0cda24214ab752edc2270afe052f539b0108a1"
+      },
+      "subject": "Lossless continuity split, installer UX consolidation and independent dual-filter governance",
+      "evidence": [
+        "the 173-item continuity chronology was moved to docs/CONTINUITY_HISTORY.md instead of being deleted; the live docs/CONTINUITY.md is under the 200-line regression limit and routes explicitly to the archive",
+        "all EV identifiers found in the history archive are required by regression to exist in the append-only verification ledger",
+        "the installer UX contract moved into docs/PACKAGING_PLAN.md and the separate untracked docs/INSTALLER_UX_PLAN.md no longer exists",
+        "EV-20260825-014 remains an append-only historical record of the initial separate draft; this EV-20260825-015 entry supersedes its current document location and adds explicit working-tree baseline semantics without rewriting EV-20260825-014",
+        "AGENTS.md and docs/CHANGE_WORKFLOW.md now require implementer, adversarial reviewer and integrator separation, one writer per shared checkout, evidence dispositions and bounded test reuse",
+        "the first narrow run reported 30 passed and 1 failed because a new assertion did not normalize a valid Markdown line wrap; after source inspection only that test assertion was made whitespace-tolerant",
+        "the second exact narrow run completed with 31 passed in 0.41 seconds and the mandatory post-ledger continuity run completed with 10 passed in 0.32 seconds",
+        "the first ad-hoc ledger prefix checker used the Windows default subprocess decoding and falsely showed two historical Turkish strings as different; after inspection the explicit UTF-8 comparison found zero changed historical entries and emitted LEDGER_APPEND_ONLY_OK for 174 committed entries and 176 working-tree entries",
+        "the post-adversarial narrow run reported 30 passed and 1 failed because the strengthened per-document dual-filter assertion did not normalize a valid Markdown line wrap; source inspection confirmed both contracts contained the requirement and only the assertion was made whitespace-tolerant before one bounded rerun",
+        "that bounded rerun again reported 30 passed and 1 failed because the same strengthened assertion compared sentence-initial Aynı case-sensitively; inspection confirmed the clause was present and the complete required-clause check was then made whitespace- and case-insensitive before another run",
+        "the final post-adversarial exact documentation group completed with 31 passed in 0.47 seconds after the live v0.39 evidence IDs, per-document dual-filter checks, explicit different-agent rule, EV-014 supersession and full installer UX clause coverage were corrected",
+        "ledger JSON parsing, py_compile, git diff --check and the private-path scan completed cleanly"
+      ],
+      "summary": "The bloated continuity file was split without discarding its chronology, installer UX decisions were consolidated into the existing packaging plan, and the dual-filter workflow is now regression-protected.",
+      "limitations": [
+        "This is uncommitted working-tree deterministic evidence based on baseline commit f4255f5; the required commit field is not an evidence commit for these changes.",
+        "No product or installer implementation code, build, installation, native playback, Windows setting, network operation, push, PR, merge, tag or release changed.",
+        "The tests prove document routing and required contract text; they do not prove the truth of every historical statement or any real installer behavior.",
+        "The private concept bitmaps remain outside Git; only their safe names and SHA-256 digests are recorded."
+      ],
+      "next_action": "Show the three existing installer previews and obtain the user's explicit A, B or C direction; request separate approval before any installer implementation or build."
     }
   ]
 }

@@ -70,17 +70,49 @@ Bu kapı fail-closed çalışır.
 Bu manuel yol rutin değişikliklerin ikinci testi değildir. Başarısız bir koşum
 otomatik tekrarlanmaz; önce gerçek hata incelenir.
 
+## Bağımsız inceleme kapısı
+
+GitHub'daki `0` approving review ayarı yalnız tek yöneticiyle merge kapısının
+teknik biçimidir; değişikliğin bağımsız muhakeme görmediği anlamına gelmez.
+Birden fazla bağımsız konu veya doğrulama yüzeyi olduğunda çalışma üç role
+ayrılır:
+
+- uygulayan: kırmızı kanıt, minimal diff ve hedef yeşil test;
+- karşıt inceleyen: salt okunur kaynak/diff denetimi ve yalnız eksik kalan yeni
+  sınır veya negatif test;
+- entegratör: bulguların `fixed`, `accepted risk` veya
+  `rejected with evidence` kapanışı, tek ledger/continuity yazımı ve son kapsam
+  kararı.
+
+Aynı agent kendi değişikliğinin tek nihai PASS kaynağı olamaz. Aynı checkout'ta
+birden fazla yazma sahibi veya aynı dosyaya paralel edit olmaz. Karşıt inceleme
+uygulayanın yorumunu tekrarlamak yerine exact taban, ham diff, test komutu ve
+kanıt kimliğinden hareket eder.
+
+Maddi kod veya yönetişim değişikliğinde uygulayan ile karşıt inceleyen farklı
+agentlar olmalıdır. Bağımsız ikinci yazarlık gerçekten gerekirse ayrı worktree,
+aynı exact base ve karşılaştırılabilir diff kimliği kullanılır; ledger ve
+continuity yine tek entegrasyon sahibinde kalır.
+
+Test bütçesi kademelidir: hedef kırmızı/yeşil bir kez, ilgili etki ailesi bir
+kez, karşıt inceleyenin gerçekten yeni sınır kontrolü ve PR'de tek tam hosted
+`test`. Exact kaynak ağacı özeti, ortam, komut ve fixture/runtime/artifact
+kimliği değişmediyse daha önceki pahalı kanıt yeniden kullanılır. Native,
+build, kurulum ve yayın katmanları bu inceleme tarafından kendiliğinden
+yetkilendirilmez.
+
 PR tabanındaki `VERIFICATION_LEDGER.json` girdileri mevcut ledger'ın birebir
 başlangıç bölümü olmalıdır. CI yeni kayıt eklenmesine izin verir; eski kayıt
 silme, araya ekleme, yeniden sıralama veya yerinde düzeltmeyi reddeder. Yanlış
 eski alan yeni bir kaydın yapılandırılmış `corrects` listesiyle düzeltilir.
 
-## Neden sıfır inceleme onayı
+## Neden GitHub'da sıfır inceleme onayı
 
-Proje tek yöneticiyle yürütülüyor. İlk PR kapısı kod inceleme sayısını değil,
-izlenebilir PR kaydını ve zorunlu `test` sonucunu hedefler. Bu nedenle planlanan
-ayar **PR gerekli, approving review sayısı 0** biçimindedir. İkinci bir düzenli
-bakımcı oluşursa review sayısı ayrıca kararlaştırılır.
+Proje tek GitHub yöneticisiyle yürütülüyor. PR kapısı platformdaki onay sayısını
+değil, izlenebilir PR kaydını ve zorunlu `test` sonucunu hedefler. Bu nedenle
+planlanan ayar **PR gerekli, approving review sayısı 0** biçimindedir. Yukarıdaki
+bağımsız agent incelemesi yine uygulanır; ikinci bir düzenli insan bakımcı
+oluşursa GitHub review sayısı ayrıca kararlaştırılır.
 
 ## Yetkilendirme sınırları
 
