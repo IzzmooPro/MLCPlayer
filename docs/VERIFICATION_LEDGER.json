@@ -3800,6 +3800,32 @@
         "No build, installation, Windows setting, signing, tag, release, push, PR or merge occurred."
       ],
       "next_action": "Request separate approval to commit the regression-first product change and evidence package; request exact product-profile native retest separately after commit."
+    },
+    {
+      "id": "EV-20260825-002",
+      "recorded_at_utc": "2026-08-25T15:21:18Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "d97525b92bc6b50a6d2ec364646abf3c62d281d8",
+      "subject": "Exact changed-product SDR native retest",
+      "evidence": [
+        "the separately approved one-time run used only the real current_product profile on exact commit d97525b; no automatic retry or additional profile run occurred",
+        "the canonical validator emitted MEDIA_FINGERPRINT_OK for SYN-SDR709-01 at 374394 bytes, SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "the exact media identity remained unchanged before and after; exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "Windows colorspace remained DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 before and after",
+        "real MLC Player/libmpv reported BT.709 limited input with BT.1886 transfer, BT.709/BT.1886 target, duration 3.000 seconds and advancing time_pos to 0.567 seconds",
+        "decoder-frame-drop-count and frame-drop-count were both 0 in the changed real product profile",
+        "the child completed in 1.663 seconds with exit 0, MARK_DONE, accepted close, exact stop then terminate order, restored cursor and zero leaked target processes",
+        "stderr was exactly one complete CPython 0xe24c4a02 report accepted by the existing strict LuaJIT first-chance diagnostic contract; no additional stderr was present",
+        "private child log SHA-256 is 294f7ec95dc699feea4beae50321a8bc805f18a635f1180fedf7869c5d532a7a; private report SHA-256 is 0cb202fbfa0f8b65ae59ecfbcd052960c2e2438215ac969465762bbce081edbb"
+      ],
+      "summary": "The changed real product profile preserved the exact SDR color and lifecycle path and eliminated the three startup VO drops measured before the fix.",
+      "limitations": [
+        "This native_smoke PASS is restricted to exact commit d97525b, runtime, fixture, Windows SDR state and scenario.",
+        "VF-CORE-01 remains BLOCKED because the required controlled human black/gray/white ramp judgment has not been recorded.",
+        "No competitor comparison, HDR mode change, HDR playback, build, installation, signing, tag, release, push, PR or merge occurred."
+      ],
+      "next_action": "Request separate approval to commit the native result record; then define and obtain controlled human black/gray/white ramp evidence before changing VF-CORE-01 status."
     }
   ]
 }

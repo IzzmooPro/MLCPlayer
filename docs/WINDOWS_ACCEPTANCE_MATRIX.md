@@ -404,6 +404,17 @@ ve diğer MPV ayarları değişmedi. Regresyon önce yalnız bu anahtar nedeniyl
 kanıttır: yeni ürün profili henüz native çalıştırılmadığı için drop-free ürün
 kabulü veya `VF-CORE-01` PASS'i değildir.
 
+Değişikliğin commit'i `d97525b` üzerinde ayrı onaylı tek gerçek
+`current_product` retesti ilk koşumda exit 0 verdi. Exact aynı
+fixture/runtime/SDR ekranda BT.709/BT.1886 girdi ve hedef, `duration=3.000`,
+ilerleyen `time_pos=0.567`, `decoder-frame-drop-count=0`,
+`frame-drop-count=0`, `MARK_DONE`, kanonik `stop -> terminate`, imleç geri
+dönüşü ve sıfır süreç sızıntısı birlikte geçti. Tam `0xe24c4a02` stderr raporu
+mevcut sıkı ortak sınıflandırıcıyla bilinen LuaJIT first-chance tanısı olarak
+kabul edildi (`EV-20260825-002`). Otomatik ürün kapıları tamamdır; kontrollü
+insan siyah/gri/beyaz ramp kanıtı eksik olduğu için `VF-CORE-01` hâlâ
+**BLOCKED** kalır.
+
 ## Var olan araçların yeniden kullanımı
 
 - `tests/run_physical_acceptance.py`

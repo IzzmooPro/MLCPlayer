@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `133c3357e4f06b8234975cd5e73446477a7777e3`
+- Kayıt hazırlanırken doğrulanan HEAD: `d97525b92bc6b50a6d2ec364646abf3c62d281d8`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-001`
+- Son kanıt: `EV-20260825-002`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1071,18 +1071,29 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    (`EV-20260825-001`). Renderer, `video_sync`, hwdec veya başka ürün ayarı
    değişmedi. Bu deterministic kanıttır; yeni ürün profili native retesti
    yapılmadı ve `VF-CORE-01` `BLOCKED` kaldı.
+161. Değişikliğin commit'i exact `d97525b` üzerinde ayrı onaylı tek gerçek
+   `current_product` native retesti ilk koşumda geçti. Kanonik fingerprint,
+   exact medya/runtime kimlikleri ve Windows `G22/P709` durumu korundu;
+   BT.709/BT.1886 girdi/hedef, `duration=3.000`, ilerleyen `time_pos=0.567`,
+   `decoder-frame-drop-count=0`, **`frame-drop-count=0`**, exit 0,
+   `MARK_DONE`, tek `stop -> terminate`, imleç geri dönüşü ve sıfır süreç
+   sızıntısı alındı (`EV-20260825-002`). Tam biçimli `0xe24c4a02` stderr'i
+   mevcut sıkı ortak sözleşmeyle bilinen LuaJIT first-chance tanısıdır.
+   Otomatik ürün kapıları geçti; kontrollü insan siyah/gri/beyaz ramp kanıtı
+   eksik olduğundan `VF-CORE-01` `BLOCKED` kaldı. Otomatik tekrar yapılmadı.
 
 ## Sıradaki tek adım
 
-Dar ürün değişikliği, regresyonu ve EV-20260825-001 kayıt paketini mevcut
-`codex/sdr-native-smoke` dalında commit etmek için ayrı açık onay al. Native
-retest veya push yapma.
+EV-20260825-002 ürün-profili native retest sonucunu ve bağlı format/devam
+belgelerini mevcut `codex/sdr-native-smoke` dalında commit etmek için ayrı açık
+onay al. Yeni native koşum veya push yapma.
 
 ## Sonraki sıra
 
-1. Değişiklik commit edildikten sonra exact ürün profili native retestini
+1. Kayıt commit'inden sonra kontrollü insan siyah/gri/beyaz ramp kabul yöntemini
    ayrıca onaylat; private artifact hiçbir Git işlemine eklenmez.
-2. Retest sonucundan sonra push, PR ve merge işlemlerini ayrı ayrı onaylat.
+2. `VF-CORE-01` kararı sonrasında push, PR ve merge işlemlerini ayrı ayrı
+   onaylat.
 3. Windows'un etkin HDR10 renk uzayı
    `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` olarak canlı doğrulanırsa,
    tek format senaryosu ve en fazla 60 saniye/child için ayrıca native onay al;
