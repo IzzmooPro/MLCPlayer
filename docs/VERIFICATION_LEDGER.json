@@ -4063,6 +4063,31 @@
         "Only VF-CORE-02 changes to PASSED; VF-CORE-01 was already PASSED, the other 14 video-format cases and WIN-P2-01 remain blocked or not accepted."
       ],
       "next_action": "Request separate approval to commit the EV-20260825-012 record and linked acceptance documents; do not run another native scenario or push automatically."
+    },
+    {
+      "id": "EV-20260825-013",
+      "recorded_at_utc": "2026-08-25T19:58:14Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "c5d5cf5607460256be4efc209724c75bae23952a",
+      "subject": "Protected PR merge for the SDR-on-HDR acceptance chain",
+      "evidence": [
+        "PR #46 targeted master from codex/sdr-on-hdr-harness at exact head 5fd8f91b9317b8106981c165e749159bac8ac3fd: https://github.com/IzzmooPro/MLCPlayer/pull/46",
+        "required GitHub Actions test run 32892062741 completed on pull_request attempt 1 with SUCCESS: 4963 passed, 30 skipped and 0 failed in the CI-safe suite",
+        "the hosted ledger gate emitted LEDGER_APPEND_ONLY_OK before the test suite completed",
+        "live branch-protection readback required a strict test check from GitHub Actions, required a pull request with 0 approving reviews, enforced administrators and disallowed force pushes",
+        "PR readback was CLEAN and MERGEABLE with the required test SUCCESS before the separately approved merge",
+        "the merge used two-parent commit c5d5cf5607460256be4efc209724c75bae23952a with parents be7b692130a3c5051a289b4ff271fcd06b72a582 and 5fd8f91b9317b8106981c165e749159bac8ac3fd; squash and rebase were not used",
+        "local master was fast-forwarded to the exact remote merge commit and measured 0/0 against origin/master; the task branch remained available locally and remotely"
+      ],
+      "summary": "The complete SDR-on-HDR harness, cleanup and bounded human-acceptance chain passed the protected PR gate and was merged to master with a traceable merge commit.",
+      "limitations": [
+        "This hosted_ci and merge PASS does not rerun native playback, the controlled ramp or any installed artifact.",
+        "EV-20260825-012 remains limited to exact commit 03b9d2a, runtime, fixture, active HDR display and human observation; this merge does not broaden that evidence.",
+        "The 30 hosted skips are not PASS and remain outside this hosted run's executed surface.",
+        "No build, installation, signing, tag, release or Windows HDR setting change occurred during PR creation or merge."
+      ],
+      "next_action": "Request separate approval to commit this EV-20260825-013 merge record; then request its branch push, PR and merge separately before selecting the next open P0 acceptance gap."
     }
   ]
 }
