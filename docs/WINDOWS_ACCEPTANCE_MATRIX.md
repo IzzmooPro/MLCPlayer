@@ -353,10 +353,10 @@ P2 satırları uygun donanım doğrulanmadan çalıştırılmaz ve PASSED yazıl
   [exact mpv options `49418246f`](https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/options.rst),
   [exact mpv properties `49418246f`](https://raw.githubusercontent.com/mpv-player/mpv/49418246f/DOCS/man/input.rst),
   [MSI G274QPF E2 teknik özellikleri](https://www.msi.com/Monitor/G274QPF-E2/Specification).
-- **Durum:** `BLOCKED`. Aktif Windows HDR10 renk uzayı doğrulandı ve
-  SDR-on-HDR kapısı hazırlandı; fakat native `VF-CORE-02` koşumu ve kontrollü
-  insan ramp kabulü henüz yapılmadı. Fingerprint'li HDR10 medya da henüz yok;
-  bu nedenle HDR10 girişli sonraki satırlara geçilmez.
+- **Durum:** yalnız `VF-CORE-02` için `PASSED`. Aktif Windows HDR10 renk uzayı,
+  SDR-on-HDR otomatik kapıları ve kontrollü insan ramp kabulü tamamlandı
+  (`EV-20260825-012`). Fingerprint'li HDR10 medya hâlâ yok; bu nedenle HDR10
+  girişli sonraki satırlara geçilmez ve genel `WIN-P2-01` kapanmaz.
 
 Exact `5b3fb2c` üzerinde ayrı onaylı ilk `VF-CORE-02` current-product koşumu
 BT.709/BT.1886 SDR girdiyi korudu ve BT.2020/PQ `rgba16hf` hedef üretti;
@@ -382,6 +382,17 @@ ilerleyen `time_pos=0.567`, drop 0/0, exit 0, `MARK_DONE`, kanonik
 (`EV-20260825-009`). Bu otomatik native PASS'tir; kontrollü insan siyah,
 nötr-gri ve beyaz-sınır kabulü eksik olduğu için `VF-CORE-02` hâlâ BLOCKED
 kalır.
+
+Test-only cleanup commit'i exact `03b9d2a` üzerinde ayrıca onaylanan tek
+kontrollü insan HDR ramp sunumu aynı fingerprint fixture/runtime ve gerçek
+`current_product` profiliyle 10 saniye görünür kaldı. Otomatik kapılar
+G2084/P2020 önce/sonra, BT.709/BT.1886 SDR girdi, BT.2020/PQ `rgba16hf` hedef,
+duration `3.000`, ilerleyen `time_pos=0.567`, drop 0/0, exit 0, `MARK_DONE`,
+kanonik `stop -> terminate`, imleç dönüşü, boş stderr ve sıfır süreç
+sızıntısıyla geçti. Kullanıcı siyahın ezilmediğini, grinin nötr kaldığını ve
+beyaz sınır detayının patlamadığını doğruladı (`EV-20260825-012`). Yalnız
+`VF-CORE-02` **PASSED** oldu; gözlem kolorimetre değildir, diğer 14 format
+satırı ve genel `WIN-P2-01` durumu değişmedi. Otomatik ek retry yapılmadı.
 
 #### Bağlı video-format programı
 

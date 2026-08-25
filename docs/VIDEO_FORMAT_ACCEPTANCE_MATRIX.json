@@ -27,7 +27,7 @@
     "target_colorspace_hint_modes": ["target", "source", "source-dynamic"],
     "compiled_codec_drivers_are_hardware_proof": false,
     "media_opened": true,
-    "latest_native_playback_evidence_id": "EV-20260825-009",
+    "latest_native_playback_evidence_id": "EV-20260825-012",
     "all_cases_remain_blocked": false
   },
   "execution_policy": {
@@ -38,11 +38,12 @@
     "one_scenario_per_approval": true,
     "screenshot_proves_color_accuracy": false,
     "sdr_on_hdr_harness": {
-      "status": "NATIVE_PASSED_MANUAL_PENDING",
+      "status": "NATIVE_AND_MANUAL_PASSED",
       "evidence_id": "EV-20260825-006",
       "native_evidence_id": "EV-20260825-007",
       "classifier_fix_evidence_id": "EV-20260825-008",
       "native_retry_evidence_id": "EV-20260825-009",
+      "manual_evidence_id": "EV-20260825-012",
       "display_mode": "hdr",
       "scenario": "VF-CORE-02-partial-native-smoke",
       "exact_fixture_id": "SYN-SDR709-01",
@@ -165,8 +166,9 @@
       "display_state": "DXGI G2084 P2020",
       "expected_path": "Source remains labeled SDR while renderer maps it to the HDR display target without washed blacks",
       "required_evidence": ["input SDR classification", "target params", "reference white", "manual ramp check"],
-      "status": "BLOCKED",
-      "blocker": "The separately approved exact retry passed every automated current-product SDR-on-HDR gate with BT.709/BT.1886 input, BT.2020/PQ rgba16hf target, zero drops and clean lifecycle. Only controlled human black, neutral-gray and white-boundary judgment under active HDR remains required (EV-20260825-009)."
+      "status": "PASSED",
+      "evidence_id": "EV-20260825-012",
+      "blocker": null
     },
     {
       "id": "VF-CORE-03",

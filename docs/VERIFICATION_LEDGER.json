@@ -4036,6 +4036,33 @@
         "No product code, Windows HDR setting, build, installation, signing, tag, release, push, PR or merge changed."
       ],
       "next_action": "Request separate approval to commit the test-only cleanup correction and EV-20260825-010/011 records; request any controlled human ramp retry separately only after that commit."
+    },
+    {
+      "id": "EV-20260825-012",
+      "recorded_at_utc": "2026-08-25T19:46:54Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "03b9d2aae3c7adde5ba4e318d3a71710a000db56",
+      "subject": "Controlled human SDR-on-HDR black gray white ramp acceptance",
+      "evidence": [
+        "the separately approved one-time current_product presentation used display mode hdr on exact commit 03b9d2a after the managed temporary-workspace correction; the visual hold was bounded to 10.0 seconds and no automatic additional retry occurred",
+        "the canonical validator passed exact SYN-SDR709-01 at 374394 bytes, SHA-256 af07f8d68045766bc81b7d342bc2c131272f1cd3ed7e199b9de6c0fefcea728b and normalized probe SHA-256 ce0c4a6ade3aafe060fe97be6826b3761c01ffe23cecd37238a4f5070c43f36e",
+        "the exact mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e; media and runtime identities were unchanged before and after",
+        "Windows colorspace remained DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020 before and after",
+        "real MLC Player/libmpv preserved BT.709 limited SDR input with BT.1886 transfer and produced a BT.2020 PQ full-range rgba16hf target; duration was 3.000 seconds and time_pos advanced to 0.567 seconds",
+        "decoder-frame-drop-count and frame-drop-count were both 0; the child completed in 11.345 seconds with exit 0, MARK_DONE, accepted close, exact stop then terminate order, restored cursor, empty stderr and zero leaked target processes",
+        "the user directly confirmed all three controlled judgments under active HDR: black was not crushed, gray remained neutral and white boundary detail was not clipped",
+        "private report SHA-256 is 8fb653960e3485dbc46885097aeea8a1057ceac98746fa1dfa3e9d70fa9c914a; private child log SHA-256 is fbd75b83e1bbc81cda00328f96ae7681daae005b87ce0ff37699b046b58f6a69",
+        "private pre-run DxDiag SHA-256 is e4ef83fcb9a2727ac49490d1710dabcee04720baf626c689eb1f2c4e0a7bb312 and post-run DxDiag SHA-256 is 29115054eac0bd524cf5cfbd6d3583d145328c4f37a01c0b0f3b7bd6c101ef83"
+      ],
+      "summary": "The exact current product SDR-on-HDR path passed the automated gates and the required controlled human black, neutral-gray and white-boundary judgments, so VF-CORE-02 is PASSED.",
+      "limitations": [
+        "This PASS applies only to exact commit 03b9d2a, runtime, fixture, active Windows HDR output state, display and controlled presentation scenario.",
+        "The human observation is a controlled visual acceptance, not an instrumented colorimeter or calibration measurement.",
+        "No HDR10 input, HDR-to-SDR, HLG, HDR10+, Dolby Vision, competitor, installed-artifact acceptance, build, signing, tag, release, push, PR or merge occurred.",
+        "Only VF-CORE-02 changes to PASSED; VF-CORE-01 was already PASSED, the other 14 video-format cases and WIN-P2-01 remain blocked or not accepted."
+      ],
+      "next_action": "Request separate approval to commit the EV-20260825-012 record and linked acceptance documents; do not run another native scenario or push automatically."
     }
   ]
 }

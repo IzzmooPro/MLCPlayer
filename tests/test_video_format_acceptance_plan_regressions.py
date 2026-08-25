@@ -50,7 +50,7 @@ def test_media_candidates_are_fail_closed_and_cover_every_case():
     assert media["fingerprinted_state_enabled"] is True
     assert media["acquisition_or_generation_performed"] is True
     assert media["native_media_opened"] is True
-    assert media["latest_native_media_evidence_id"] == "EV-20260825-009"
+    assert media["latest_native_media_evidence_id"] == "EV-20260825-012"
     assert matrix["media_policy"]["manifest_document"] == (
         "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json")
     assert matrix["media_policy"]["manifest_status"] == (
@@ -221,11 +221,12 @@ def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     assert product_change["video_latency_hacks_override_present"] is False
     assert product_change["native_retest_completed"] is True
     sdr_on_hdr = data["execution_policy"]["sdr_on_hdr_harness"]
-    assert sdr_on_hdr["status"] == "NATIVE_PASSED_MANUAL_PENDING"
+    assert sdr_on_hdr["status"] == "NATIVE_AND_MANUAL_PASSED"
     assert sdr_on_hdr["evidence_id"] == "EV-20260825-006"
     assert sdr_on_hdr["native_evidence_id"] == "EV-20260825-007"
     assert sdr_on_hdr["classifier_fix_evidence_id"] == "EV-20260825-008"
     assert sdr_on_hdr["native_retry_evidence_id"] == "EV-20260825-009"
+    assert sdr_on_hdr["manual_evidence_id"] == "EV-20260825-012"
     assert sdr_on_hdr["display_mode"] == "hdr"
     assert sdr_on_hdr["scenario"] == "VF-CORE-02-partial-native-smoke"
     assert sdr_on_hdr["exact_fixture_id"] == "SYN-SDR709-01"
@@ -239,6 +240,7 @@ def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     assert sdr_on_hdr["native_evidence_id"] in ledger_ids
     assert sdr_on_hdr["classifier_fix_evidence_id"] in ledger_ids
     assert sdr_on_hdr["native_retry_evidence_id"] in ledger_ids
+    assert sdr_on_hdr["manual_evidence_id"] in ledger_ids
 
     cases = data["cases"]
     ids = [case["id"] for case in cases]
@@ -246,15 +248,17 @@ def test_matrix_is_exact_bounded_and_has_no_unearned_pass():
     assert REQUIRED_CASES <= set(ids)
     passed_cases = {case["id"] for case in cases
                     if case["status"] == "PASSED"}
-    assert passed_cases == {"VF-CORE-01"}
+    assert passed_cases == {"VF-CORE-01", "VF-CORE-02"}
     for case in cases:
         assert case["status"] in ALLOWED_STATUS
         assert case["input_class"]
         assert case["display_state"]
         assert case["expected_path"]
         assert case["required_evidence"]
-        if case["id"] == "VF-CORE-01":
-            assert case["evidence_id"] == "EV-20260825-003"
+        if case["id"] in {"VF-CORE-01", "VF-CORE-02"}:
+            expected = {"VF-CORE-01": "EV-20260825-003",
+                        "VF-CORE-02": "EV-20260825-012"}
+            assert case["evidence_id"] == expected[case["id"]]
             assert case["blocker"] is None
         else:
             assert case["status"] == "BLOCKED"
@@ -289,7 +293,7 @@ def test_capability_inventory_keeps_compiled_and_active_proof_separate():
     assert data["compiled_codec_drivers_are_hardware_proof"] is False
     assert data["media_opened"] is True
     assert data["latest_native_playback_evidence_id"] == (
-        "EV-20260825-009")
+        "EV-20260825-012")
     assert data["all_cases_remain_blocked"] is False
     assert {"gpu", "gpu-next"} <= set(data["compiled_video_outputs"])
     assert "d3d11" in data["compiled_gpu_apis"]

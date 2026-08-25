@@ -5,12 +5,12 @@ büyütülmez; doğrulanmış sonuçlar `VERIFICATION_LEDGER.json`, eski kapsaml
 notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 25 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `30c06590582164f54912ea1c0d6d485ca88512e5`
+- Kayıt hazırlanırken doğrulanan HEAD: `03b9d2aae3c7adde5ba4e318d3a71710a000db56`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260825-011`
+- Son kanıt: `EV-20260825-012`
 - Yayın kararı: **v0.39 canlı ve latest; 87 varlık eş, public indirme/kurulum/
   açılış/gerçek medya oynatma kullanıcı kabulü geçti; CI bootstrap gürültüsü
   gerçek hosted run ile temizlendi**
@@ -1155,27 +1155,34 @@ notlar `PROJECT_STATUS.md`, `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
    video-format etki grubu **94 passed** verdi (`EV-20260825-011`). Bu yalnız
    deterministic test harness kanıtıdır; ürün kodu değişmedi, native oynatma
    veya insan ramp kabulü yapılmadı ve EV-010 geriye dönük PASS olmadı.
+171. Düzeltme commit'i exact `03b9d2a` üzerinde ayrıca onaylanan tek kontrollü
+   insan HDR ramp sunumu, aynı fingerprint fixture/runtime ve gerçek
+   `current_product` profiliyle pencereyi 10 saniye görünür tuttu. Otomatik
+   kapılar G2084/P2020 önce/sonra, BT.709/BT.1886 SDR girdi, BT.2020/PQ
+   `rgba16hf` hedef, duration `3.000`, ilerleyen `time_pos=0.567`, sıfır
+   decoder/VO drop, exit 0, `MARK_DONE`, `stop -> terminate`, imleç dönüşü,
+   boş stderr ve sıfır süreç sızıntısıyla geçti. Kullanıcı siyahın ezilmediğini,
+   grinin nötr kaldığını ve beyaz sınır detayının patlamadığını doğruladı
+   (`EV-20260825-012`). Yalnız `VF-CORE-02` **PASSED** oldu; bu gözlem
+   kolorimetre değildir, diğer 14 format satırı ve genel `WIN-P2-01` durumu
+   değişmedi. Otomatik ek retry yapılmadı.
 
 ## Sıradaki tek adım
 
-EV-010/011 kayıt paketi ve test-only harness düzeltmesi için ayrı commit onayı
-iste. Commit olmadan kontrollü insan ramp retry'ı, native koşum veya push yapma.
+EV-012 insan kabul kaydı ve bağlı format/devam belgeleri için ayrı commit onayı
+iste. Yeni native koşum veya push yapma.
 
 ## Sonraki sıra
 
 1. Private görsel/native artifact'ları hiçbir Git işlemine ekleme.
-2. Test-only düzeltme ve EV-010/011 kayıt paketini ayrı onayla commit et.
-3. Commit sonrasında kontrollü insan siyah/nötr-gri/beyaz-sınır ramp retry'ını
-   ayrıca onaylat; otomatik native retry yapma.
-4. İnsan kabul sonucunu ledger/devam belgelerine kaydet ve kayıt commit'ini
-   ayrıca onaylat.
-5. İnsan kabul kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
+2. EV-012 insan kabul kaydı ve bağlı belgeleri ayrı onayla commit et.
+3. İnsan kabul kaydından sonra push, PR ve merge işlemlerini ayrı ayrı
    onaylat.
-6. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
+4. Kalan açık P0-03/P0-06/P0-07/P0-08 boşlukları için dar runner veya kayıtlı
    manuel kabul kararını ver.
-7. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
+5. P0 başlangıç çizgisi kaydedilmeden `app/media_targets.py` ayrıştırmasını
    uygulama.
-8. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
+6. SignPath yanıtını paralel olarak bekle; özel iletişim bilgisini yayımlama ve
    GitHub App, imzalama veya yayın işlemini ayrı açık karar olmadan yapma.
 
 ## Kayıt düzeni
