@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `5611c0c6c1528292bc060127077ae0b973424aaa`
+- Kayıt hazırlanırken doğrulanan HEAD: `da6c21e10913c19e7c93ede38c6f0dbc75591c91`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 10 commit ileride)
-- Son kanıt: `EV-20260826-044`
+- Dal: `codex/installer-experience` (`origin/master`dan 11 commit ileride)
+- Son kanıt: `EV-20260826-045`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -124,9 +124,9 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `30ce2986...f9a69c` oldu (`-033`–`-038`). Kullanıcı v2'yi görmeden iptal etti;
   önceki ekran beş compiler fix'iyle exact `d1dc658`e bağlandı, **58 passed**
   (`-039`, `-040`). Eski `c65...` EXE yoktur; v2 EXE restore kaynağını temsil etmez.
-- Restore kaynağının exact `3270239` Inno 7.1.0 build'i exit 0; unsigned setup `56339111`
-  byte/`fce72d...df601` (`-041`). Welcome geri geldi, ancak gri, sıkışık ve yatay kaydırmalı
-  Summary reddedildi (`-042`); native `ReadyMemo` düzeltmesi exact `5611c0c`e bağlıdır (`-043`, `-044`).
+- Önceki restore build'inde Welcome geri geldi, gri/yatay kaydırmalı Summary reddedildi (`-041`, `-042`).
+  Native `ReadyMemo` düzeltmesi exact `5611c0c`e bağlandı (`-043`, `-044`); exact `da6c21e`
+  Inno 7.1.0 build'i exit 0, `56346881` byte ve `cc1021...a274d` hash'i verdi (`-045`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -160,13 +160,13 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Exact `5611c0c` kaynağı için ayrı build ve pre-install görsel retry onayı al; onay olmadan artifact/setup çalıştırma; `Kur`, kurulum, push, PR ve merge yetkili değildir.
+Exact `cc1021...a274d` setup için ayrı pre-install görsel retry onayı al; onay olmadan setup çalıştırma; `Kur`, kurulum, push, PR ve merge yetkili değildir.
 
 ## Sonraki sıra
 
-1. Commit readback'inden sonra exact Inno 7.1.0 build için ayrıca onay al;
-   ardından yeni setup'ın ileri/geri görsel incelemesini ve fiziksel kurulumu
-   birbirinden ayrı onaylat.
+1. `EV-20260826-045` build kaydı commit/readback'inden sonra exact setup'ın
+   ileri/geri pre-install görsel retry'ını ve fiziksel kurulumu birbirinden
+   ayrı onaylat; sırf görsel retry için yeniden build alma.
 2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme

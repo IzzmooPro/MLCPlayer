@@ -5816,6 +5816,62 @@
         "No installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit this readback record; after that, request separate exact build and pre-install visual retry approval without clicking Install."
+    },
+    {
+      "id": "EV-20260826-045",
+      "recorded_at_utc": "2026-08-26T13:57:56Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "da6c21e10913c19e7c93ede38c6f0dbc75591c91",
+      "baseline_commit": "da6c21e10913c19e7c93ede38c6f0dbc75591c91",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "cc1021777973f44f40034d8c288b7763175e423fb026d753b5528a3849ea274d",
+        "MLC Player.exe": "e16ae46d2d88a6686f3822562a4ee536ff96e778ee695556768b7b7d2aa8049a"
+      },
+      "commands": [
+        "$targets = @(18256,19004); $procs = Get-Process -Id $targets -ErrorAction Stop",
+        "$procs | Select-Object Id,ProcessName,StartTime,MainWindowHandle | Format-Table -AutoSize",
+        "if (($procs | Where-Object ProcessName -ne 'MLCPlayer_Setup_v0.39').Count -ne 0) { throw 'PID_PROCESS_MISMATCH' }",
+        "$procs | Stop-Process -Force -ErrorAction Stop",
+        "$left = Get-Process -Id $targets -ErrorAction SilentlyContinue; if ($left) { throw 'SETUP_PROCESS_STILL_RUNNING' }",
+        "$all = Get-Process -Name MLCPlayer_Setup_v0.39 -ErrorAction SilentlyContinue; if ($all) { throw 'OTHER_SETUP_PROCESS_RUNNING' }",
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-Item installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-Item 'dist\\MLC Player\\MLC Player.exe'",
+        "Get-FileHash -Algorithm SHA256 'dist\\MLC Player\\MLC Player.exe'",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','ISCC','python','pythonw','pyinstaller') }",
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-045'; print('JSON_LAST_OK',len(d['entries']))\"",
+        "python -c \"import json,subprocess; b=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); c=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); assert c['entries'][:len(b['entries'])] == b['entries']; assert len(c['entries']) == len(b['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json,pathlib,subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images','AppData/Local/Temp'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands',None) for e in new]; blobs=[json.dumps(new),pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Exact Summary-refinement unsigned test build",
+      "evidence": [
+        "the user separately approved termination of exact stale hidden setup PIDs 18256 and 19004; PID-to-process readback matched MLCPlayer_Setup_v0.39 and zero same-name process remained before build",
+        "the separately approved build started from clean exact commit da6c21e10913c19e7c93ede38c6f0dbc75591c91 and exact Inno Setup 7.1.0",
+        "the six-step dependency, source/runtime, clean output, translation, PyInstaller, Inno and exact-artifact chain completed with exit 0 and DONE marker",
+        "the unsigned setup is 56346881 bytes with SHA-256 cc1021777973f44f40034d8c288b7763175e423fb026d753b5528a3849ea274d; Authenticode is NotSigned as intended for the test artifact",
+        "the packaged Player executable is 3133110 bytes with SHA-256 e16ae46d2d88a6686f3822562a4ee536ff96e778ee695556768b7b7d2aa8049a",
+        "before this evidence append, post-build readback found no setup, Player, compiler, Python or PyInstaller process leak and the Git working tree was clean"
+      ],
+      "summary": "The committed native Summary refinement produced an exact internally verified unsigned setup artifact.",
+      "limitations": [
+        "This is source-build evidence only; the updated setup has not been launched or visually inspected.",
+        "Actual Summary pixels, word wrapping, vertical overflow, DPI, High Contrast, keyboard and screen-reader behavior remain unmeasured.",
+        "The unsigned artifact is test-only; no installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this exact build record; after that, request separate pre-install visual retry approval and do not click Install."
     }
   ]
 }
