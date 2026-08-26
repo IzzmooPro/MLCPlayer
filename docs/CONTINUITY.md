@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `5c04c2dc84c80331b4ab107665743893ebcec640`
+- Kayıt hazırlanırken doğrulanan HEAD: `326f9bea9dc336827927ca1ff85daef593506062`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 2 commit ileride)
-- Son kanıt: `EV-20260826-033`
+- Dal: `codex/installer-experience` (`origin/master`dan 3 commit ileride)
+- Son kanıt: `EV-20260826-034`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -124,8 +124,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   görseli reddedildi; `Kur` çalışmadı ve süreç sızıntısı yoktu (`-032`).
 - Kullanıcı ikinci uygulanabilir C v2'yi güncel baseline seçti. Üç DPI bitmap,
   native state/progress ve High Contrast/dar/taşan metin fallback'li uyarlama
-  **44 passed** ve çift incelemede açık P0/P1 olmadan tamamlandı (`-033`). Yeni
-  kaynak henüz build, launch, piksel/DPI, erişilebilirlik veya kurulum PASS'i değil.
+  **44 passed**, çift incelemede açık P0/P1 olmadan exact `326f9be` commit'ine
+  bağlandı (`-033`, `-034`); build/launch/piksel/DPI/erişilebilirlik PASS'i değil.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -159,8 +159,8 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-İkinci C v2 kaynak/test/bitmap/kanıt paketini commit etmek için ayrıca açık onay
-iste; build, setup launch ve kurulum yetkisi bu onaydan çıkarılmaz.
+Exact commit readback kaydını commit etmek için ayrıca açık onay iste; build,
+setup launch ve kurulum yetkisi bu onaydan çıkarılmaz.
 
 ## Sonraki sıra
 

@@ -5385,6 +5385,46 @@
         "No product playback code, build, install, commit, push, PR, merge, tag or release occurred; the private preview remains outside Git."
       ],
       "next_action": "Run continuity, JSON append-only and private-path gates, then request separate approval to commit this exact installer source and evidence package; build remains a later separate approval."
+    },
+    {
+      "id": "EV-20260826-034",
+      "recorded_at_utc": "2026-08-26T11:46:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "326f9bea9dc336827927ca1ff85daef593506062",
+      "baseline_commit": "326f9bea9dc336827927ca1ff85daef593506062",
+      "evidence_commit": "326f9bea9dc336827927ca1ff85daef593506062",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss packaging/make_wizard_images.py packaging/wizard/c-back.bmp packaging/wizard/c-back-1.bmp packaging/wizard/c-back-2.bmp tests/test_installer_branding_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --stat",
+        "git diff --cached --check",
+        "git commit -m \"feat: apply installer C v2 visual shell\"",
+        "git rev-parse HEAD",
+        "git show --no-ext-diff --format=%P -s HEAD",
+        "git show --no-ext-diff --stat --oneline HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Committed applicable installer C v2 visual shell",
+      "evidence": [
+        "the separately approved commit completed as exact 326f9bea9dc336827927ca1ff85daef593506062 with subject feat: apply installer C v2 visual shell",
+        "readback showed exact parent 5c04c2dc84c80331b4ab107665743893ebcec640 and exactly the nine approved installer source, generator, three DPI bitmap, regression and canonical evidence files",
+        "the immediate post-commit working tree was clean and the local installer-experience branch measured three commits ahead and zero behind origin/master"
+      ],
+      "summary": "The approved second C v2 installer source package is bound to an exact local commit with verified parent and file scope.",
+      "limitations": [
+        "The commit is local only; it has not been built, launched, installed, pushed, opened as a PR or merged.",
+        "No exact Inno 7.1.0 compiler readback, compiled pixels, DPI, High Contrast, accessibility or Windows action result exists for this commit.",
+        "The post-commit readback record and continuity update are uncommitted working-tree documentation until separately approved."
+      ],
+      "next_action": "Request separate approval to commit this exact-commit readback record; after that commit, request build approval separately and do not launch or install automatically."
     }
   ]
 }
