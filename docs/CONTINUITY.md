@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `139921728e0e30b468a92bc287a0ad0ec665bc75`
+- Kayıt hazırlanırken doğrulanan HEAD: `82afdda90f832c234f01d24ac50a6eb41569ff92`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 14 commit ileride)
-- Son kanıt: `EV-20260826-052`
+- Dal: `codex/installer-experience` (`origin/master`dan 15 commit ileride)
+- Son kanıt: `EV-20260826-053`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -161,7 +161,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Exact `43b27e...41e6b` setup için ayrı görsel launch onayı al; otomatik kurulum yapma.
+EV053 commit-readback kaydını ayrı onayla commit et; setup launch/kurulum yapma.
 
 ## Sonraki sıra
 
