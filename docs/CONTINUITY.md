@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `82afdda90f832c234f01d24ac50a6eb41569ff92`
+- Kayıt hazırlanırken doğrulanan HEAD: `ef458df0296f7b74c7238e7ab262fb2881fbef73`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 15 commit ileride)
-- Son kanıt: `EV-20260826-053`
+- Dal: `codex/installer-experience` (`origin/master`dan 16 commit ileride)
+- Son kanıt: `EV-20260826-054`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -126,8 +126,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   (`-039`, `-040`). Eski `c65...` EXE yoktur; v2 EXE restore kaynağını temsil etmez.
 - Restore build'inde Welcome döndü, ilk Summary reddedildi (`-041`, `-042`); `ReadyMemo` düzeltmesi
   `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
-- Eski artifact kurulum/launch geçti (`-046`), Progress reddedildi (`-047`). `1399217` build'i
-  `43b27e...41e6b` verdi (`-048`–`-050`); eski temp süreç bulundu, sonra kendiliğinden kapandı (`-051`, `-052`).
+- Eski artifact launch geçti (`-046`); `1399217` build/install payload'ı exact eşleşti ancak Player
+  yanlış paketlenmiş ICU nedeniyle QtWidgets importunda FAILED oldu (`-048`–`-054`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -161,12 +161,12 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-EV053 commit-readback kaydını ayrı onayla commit et; setup launch/kurulum yapma.
+EV054 failure kaydını ayrı onayla commit et; ardından ICU/PATH paketleme düzeltmesi için kaynak değişikliği onayı al.
 
 ## Sonraki sıra
 
-1. EV050–052 kaydını commit/readback'e bağladıktan sonra exact `43b27e...41e6b`
-   setup'ın yalnız kontrollü Progress görsel retry'ını ayrıca onaylat.
+1. EV054 failure kaydını commit/readback'e bağla; düzeltme sonrası build ve tek
+   kontrollü launch/Progress retry'ını yine ayrı ayrı onaylat.
 2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme

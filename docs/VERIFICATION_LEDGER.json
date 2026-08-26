@@ -6176,6 +6176,53 @@
         "No setup launch, installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit this readback record; only afterward request separate approval for controlled visual launch of exact setup SHA-256 43b27e818bcb9aef894fdae5dbea9f98a2fb76298860fc29a62c3fbd5a841e6b."
+    },
+    {
+      "id": "EV-20260826-054",
+      "recorded_at_utc": "2026-08-26T17:10:28Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "ef458df0296f7b74c7238e7ab262fb2881fbef73",
+      "baseline_commit": "ef458df0296f7b74c7238e7ab262fb2881fbef73",
+      "artifact_commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "43b27e818bcb9aef894fdae5dbea9f98a2fb76298860fc29a62c3fbd5a841e6b",
+        "installed-MLC-Player.exe": "61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4e",
+        "bundled-icuuc.dll": "2882afacabd9d901762ab196c7a319b03051af39291e47fef51fcb69c26ab5b8"
+      },
+      "commands": [
+        "user-controlled navigation, Install and Finish of exact MLCPlayer_Setup_v0.39.exe",
+        "Get-FileHash -Algorithm SHA256 for the exact setup, packaged Player and installed Player; Get-Item VersionInfo for the installed Player",
+        "Get-CimInstance Win32_Process filtered to outer/inner setup and MLC Player; Get-Process MLC Player with MainWindowTitle and MainWindowHandle",
+        "Computer Use readback of the visible Unhandled exception in script dialog",
+        "Python pefile comparison of Qt6Core.dll icuuc.dll imports against bundled and System32 icuuc.dll exports",
+        "rg -n -i \"icuuc\\.dll|poppler|libheif\" build\\MLCPlayer\\Analysis-00.toc build\\MLCPlayer\\COLLECT-00.toc",
+        "development PyQt6 QtWidgets import plus GetModuleFileNameW readback for the loaded icuuc.dll",
+        "recursive SHA-256 comparison of all dist payload files against the installed tree"
+      ],
+      "subject": "Exact installed Progress build fails frozen QtWidgets startup",
+      "evidence": [
+        "the user completed the exact 43b27e setup; all four Inno outer and inner processes closed and the installed v0.39 Player was byte-identical to the packaged 61f61b executable",
+        "the complete 140-file dist payload matched the installed payload with zero missing or differing files; five installed-only files were the expected licence, readme and uninstaller files",
+        "Finish launched the installed Player but its only visible window was Unhandled exception in script with DLL load failed while importing QtWidgets: Belirtilen yordam bulunamadı",
+        "the bundled ICU 78.3 icuuc.dll is 2728448 bytes with SHA-256 2882afacabd9d901762ab196c7a319b03051af39291e47fef51fcb69c26ab5b8",
+        "Qt6Core imports twenty unversioned ICU procedures; the bundled ICU exports zero of twenty while the Windows System32 ICU exports all twenty",
+        "the development PyQt6 QtWidgets import passed and loaded icuuc.dll from System32; build TOC provenance shows the incompatible bundled ICU came from an external Poppler PATH entry",
+        "independent positive and adversarial reviews agree the installer copy is exact and the failure belongs to frozen build loader provenance, not product source or Inno copying"
+      ],
+      "summary": "Installation copied the exact artifact, but launch failed because build-environment PATH contamination bundled an ICU DLL incompatible with Qt6Core's required imports.",
+      "limitations": [
+        "The Progress page passed too quickly for a stable capture, so its new orange accent has no human visual acceptance from this run.",
+        "The source_build PASS in EV-20260826-050 remains limited to compilation and artifact identity; it is not installed or native launch acceptance.",
+        "No automatic launch retry, DLL replacement, PATH mutation, rebuild, process termination, commit, push, PR, merge, tag or release occurred.",
+        "The Player error dialog remains user-controlled; this record does not claim clean Player shutdown."
+      ],
+      "next_action": "Request separate source-change approval for regression-first packaging hygiene: reject or exclude incompatible root ICU and foreign PATH provenance, then separately approve a new build and one controlled launch."
     }
   ]
 }
