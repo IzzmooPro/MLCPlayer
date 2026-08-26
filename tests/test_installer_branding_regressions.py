@@ -258,10 +258,142 @@ def test_installer_c_summary_and_progress_use_live_engine_state():
     assert "CustomMessage('CPhaseIntegrating')" in code
     assert "CurProgress" not in code
     assert "TTimer" not in code
-    assert re.search(r'^Source: .*BeforeInstall: SetInstallPhase\(\'installing\'\)', text, re.MULTILINE)
+    assert re.search(
+        r"^Source: .*BeforeInstall: BeforeInstallMainPayload$",
+        text,
+        re.MULTILINE,
+    )
+    before_payload = code.split("procedure BeforeInstallMainPayload", 1)[1].split(
+        "procedure InitializeWizard", 1
+    )[0]
+    assert "VerifyLegacyRootRuntimeRemoved;" in before_payload
+    assert "SetInstallPhase('installing');" in before_payload
+    assert before_payload.index("VerifyLegacyRootRuntimeRemoved;") < (
+        before_payload.index("SetInstallPhase('installing');")
+    )
     assert re.search(r'^Name: "\{group\}.*BeforeInstall: SetInstallPhase\(\'integrating\'\)', text, re.MULTILINE)
     assert "InstallPhaseLabel.Caption := Caption" in code
     assert "WizardForm.StatusLabel.Caption := Caption" not in code
+
+
+def test_installer_summary_instruction_matches_install_button_once():
+    text = _iss()
+    code = text.split("[Code]", 1)[1]
+    ready = code.split("function UpdateReadyMemo", 1)[1].split(
+        "procedure CurPageChanged", 1
+    )[0]
+    ready_page = code.split("wpReady:", 1)[1].split("wpInstalling:", 1)[0]
+
+    assert (
+        "turkish.CSummaryAction=Kuruluma başlamak için Kur'u seçin. "
+        "Ayarları gözden geçirmek veya değiştirmek için Önceki'yi seçin."
+        in text
+    )
+    assert "CustomMessage('CSummaryAction')" not in ready
+    assert (
+        "WizardForm.ReadyLabel.Caption := CustomMessage('CSummaryAction')"
+        in ready_page
+    )
+    assert "WizardForm.ReadyLabel.AdjustHeight" in ready_page
+    assert (
+        "WizardForm.ReadyMemo.Top := WizardForm.ReadyLabel.Top +"
+        in ready_page
+    )
+    assert (
+        "WizardForm.ReadyMemo.Height := WizardForm.ReadyPage.ClientHeight -"
+        in ready_page
+    )
+
+
+def test_upgrade_removes_only_forbidden_root_dll_leftovers_before_copy():
+    text = _iss()
+    assert text.index("\n[InstallDelete]\n") < text.index("\n[Files]\n")
+    cleanup = text.split("\n[InstallDelete]\n", 1)[1].split(
+        "\n[Files]\n", 1
+    )[0]
+    api_sets = (
+        "api-ms-win-core-console-l1-1-0.dll",
+        "api-ms-win-core-datetime-l1-1-0.dll",
+        "api-ms-win-core-debug-l1-1-0.dll",
+        "api-ms-win-core-errorhandling-l1-1-0.dll",
+        "api-ms-win-core-fibers-l1-1-0.dll",
+        "api-ms-win-core-fibers-l1-1-1.dll",
+        "api-ms-win-core-file-l1-1-0.dll",
+        "api-ms-win-core-file-l1-2-0.dll",
+        "api-ms-win-core-file-l2-1-0.dll",
+        "api-ms-win-core-handle-l1-1-0.dll",
+        "api-ms-win-core-heap-l1-1-0.dll",
+        "api-ms-win-core-interlocked-l1-1-0.dll",
+        "api-ms-win-core-kernel32-legacy-l1-1-1.dll",
+        "api-ms-win-core-libraryloader-l1-1-0.dll",
+        "api-ms-win-core-localization-l1-2-0.dll",
+        "api-ms-win-core-memory-l1-1-0.dll",
+        "api-ms-win-core-namedpipe-l1-1-0.dll",
+        "api-ms-win-core-processenvironment-l1-1-0.dll",
+        "api-ms-win-core-processthreads-l1-1-0.dll",
+        "api-ms-win-core-processthreads-l1-1-1.dll",
+        "api-ms-win-core-profile-l1-1-0.dll",
+        "api-ms-win-core-rtlsupport-l1-1-0.dll",
+        "api-ms-win-core-string-l1-1-0.dll",
+        "api-ms-win-core-synch-l1-1-0.dll",
+        "api-ms-win-core-synch-l1-2-0.dll",
+        "api-ms-win-core-sysinfo-l1-1-0.dll",
+        "api-ms-win-core-sysinfo-l1-2-0.dll",
+        "api-ms-win-core-timezone-l1-1-0.dll",
+        "api-ms-win-core-util-l1-1-0.dll",
+        "api-ms-win-crt-conio-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-multibyte-l1-1-0.dll",
+        "api-ms-win-crt-private-l1-1-0.dll",
+        "api-ms-win-crt-process-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+    )
+    legacy_names = (*api_sets, "icudt78.dll", "icuuc.dll", "ucrtbase.dll")
+    expected = {
+        rf'Type: files; Name: "{{app}}\_internal\{name}"; '
+        "Check: IsMaintenanceInstall"
+        for name in legacy_names
+    }
+    assert {line.strip() for line in cleanup.splitlines() if line.strip()} == expected
+    assert len(expected) == 47
+    assert "recursesubdirs" not in cleanup
+    assert "filesandordirs" not in cleanup
+    assert r"{app}\_internal\PyQt6" not in cleanup
+    assert "DelTree" not in text
+    assert "userappdata" not in cleanup.casefold()
+    assert "localappdata" not in cleanup.casefold()
+
+    helper = text.split("function IsMaintenanceInstall", 1)[1].split(
+        "function ", 1
+    )[0]
+    assert "CurrentInstallMode <> InstallModeFirst" in helper
+
+    assert 'CloseApplicationsFilter="MLC Player.exe,*.dll"' in text
+    assert "function IsForbiddenRootRuntimeName" in text
+    assert "procedure VerifyLegacyRootRuntimeRemoved" in text
+    verify = text.split("procedure VerifyLegacyRootRuntimeRemoved", 1)[1].split(
+        "function DirectoryHasEntries", 1
+    )[0]
+    assert "ExpandConstant('{app}\\_internal')" in verify
+    assert "RaiseException(" in verify
+    assert "Exception.CreateFmt" not in text
+    assert not re.search(r"^\s*raise\b", text, re.MULTILINE | re.IGNORECASE)
+    assert "procedure BeforeInstallMainPayload" in text
+    assert "VerifyLegacyRootRuntimeRemoved;" in text
+    assert "SetInstallPhase('installing');" in text
+    assert "if not LegacyCleanupVerified then" in text
+    assert "LegacyCleanupVerified := True;" in text
+    files = text.split("\n[Files]\n", 1)[1].split("\n[Registry]\n", 1)[0]
+    assert "BeforeInstall: BeforeInstallMainPayload" in files
 
 
 def test_installer_c_summary_memo_is_clean_wrapped_and_grouped():
@@ -303,15 +435,14 @@ def test_installer_c_summary_memo_is_clean_wrapped_and_grouped():
         "CSummaryUpdate",
         "CSummaryAddon",
         "CSummaryUserData",
-        "CSummaryAction",
     )
     positions = [ready.index(key) for key in ordered_keys]
     assert positions == sorted(positions)
+    assert "CSummaryAction" not in ready
     for separator in (
         "NewLine + NewLine;",
         "CustomMessage('CSummaryOpenWith') + NewLine + NewLine +",
         "CustomMessage('CSummaryAddon') + NewLine + NewLine +",
-        "CustomMessage('CSummaryUserData') + NewLine + NewLine +",
     ):
         assert separator in ready
 

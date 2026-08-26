@@ -66,7 +66,7 @@ WizardStyle=modern
 ; kurulumda etkilenen uygulamayı gösterip onay ister; sessiz kurulumda ise
 ; CloseApplications=yes sözleşmesine göre kapatmayı dener.
 CloseApplications=yes
-CloseApplicationsFilter="MLC Player.exe"
+CloseApplicationsFilter="MLC Player.exe,*.dll"
 RestartApplications=no
 SetupMutex=MLCPlayer_SetupMutex
 UsePreviousAppDir=yes
@@ -181,7 +181,7 @@ turkish.CSummaryOpenWith=Birlikte aç listesi: Eklenecek (varsayılan uygulama d
 turkish.CSummaryUpdate=Açılış güncelleme denetimi: Herkese açık GitHub sürüm bilgisi
 turkish.CSummaryAddon=Internet Video eklentisi: Dahil değil
 turkish.CSummaryUserData=Kullanıcı ayarları, geçmiş ve önbellek: Korunacak
-turkish.CSummaryAction=Başlamak için Kur'u seçin.
+turkish.CSummaryAction=Kuruluma başlamak için Kur'u seçin. Ayarları gözden geçirmek veya değiştirmek için Önceki'yi seçin.
 turkish.CProgressTitle=MLC Player kuruluyor
 turkish.CProgressBody=Lütfen bekleyin.
 turkish.CPhasePreparing=Dosyalar hazırlanıyor
@@ -414,11 +414,60 @@ turkish.ClosePlayerBeforeUninstall=MLC Player hâlâ çalışıyor. Programı ta
 ; Varsayılan İŞARETLİ; kullanıcı istemezse kaldırır.
 Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
+[InstallDelete]
+Type: files; Name: "{app}\_internal\icuuc.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\icudt78.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\ucrtbase.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-console-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-datetime-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-debug-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-errorhandling-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-fibers-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-fibers-l1-1-1.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-file-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-file-l1-2-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-file-l2-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-handle-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-heap-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-interlocked-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-kernel32-legacy-l1-1-1.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-libraryloader-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-localization-l1-2-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-memory-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-namedpipe-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-processenvironment-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-processthreads-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-processthreads-l1-1-1.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-profile-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-rtlsupport-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-string-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-synch-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-synch-l1-2-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-sysinfo-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-sysinfo-l1-2-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-timezone-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-core-util-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-conio-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-convert-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-environment-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-filesystem-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-heap-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-locale-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-math-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-multibyte-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-private-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-process-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-runtime-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-stdio-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-string-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-time-l1-1-0.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\api-ms-win-crt-utility-l1-1-0.dll"; Check: IsMaintenanceInstall
+
 [Files]
 ; onedir: PyInstaller çıktısının TAMAMI kurulur (exe + _internal\).
 ; `_internal\bin` içindeki mpv-2.dll çekirdek runtime'dır. yt-dlp ve deno
 ; bilinçli olarak ana pakette yoktur; yalnız Internet Videosu ek paketindedir.
-Source: "..\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: SetInstallPhase('installing')
+Source: "..\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: BeforeInstallMainPayload
 ; GPLv3 metni ve README kurulum KÖKÜNDE de dursun: kullanıcı `_internal`
 ; içine bakmak zorunda kalmadan lisansa ulaşabilmelidir.
 Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
@@ -480,6 +529,7 @@ var
   InstallPhaseLabel: TNewStaticText;
   InstallAccentBar: TPanel;
   CurrentInstallPhase: String;
+  LegacyCleanupVerified: Boolean;
 
 function InitializeSetup(): Boolean;
 var
@@ -544,6 +594,93 @@ begin
   else
     CurrentInstallMode := InstallModeUpgrade;
   Result := True;
+end;
+
+function IsMaintenanceInstall(): Boolean;
+begin
+  Result := CurrentInstallMode <> InstallModeFirst;
+end;
+
+function HasOnlyAsciiDigits(Value: String): Boolean;
+var
+  Index: Integer;
+begin
+  Result := Value <> '';
+  if not Result then
+    Exit;
+
+  for Index := 1 to Length(Value) do
+    if (Value[Index] < '0') or (Value[Index] > '9') then
+    begin
+      Result := False;
+      Exit;
+    end;
+end;
+
+function IsIcuRuntimeStem(Stem, Prefix: String): Boolean;
+var
+  VersionText: String;
+begin
+  Result := False;
+  if Copy(Stem, 1, Length(Prefix)) <> Prefix then
+    Exit;
+
+  VersionText := Copy(Stem, Length(Prefix) + 1, Length(Stem));
+  Result := (VersionText = '') or HasOnlyAsciiDigits(VersionText);
+end;
+
+function IsForbiddenRootRuntimeName(FileName: String): Boolean;
+var
+  LowerName: String;
+  Stem: String;
+begin
+  LowerName := Lowercase(FileName);
+  Result := LowerName = 'ucrtbase.dll';
+  if Result then
+    Exit;
+
+  if (Pos('api-ms-win-', LowerName) = 1) and
+     (Copy(LowerName, Length(LowerName) - 3, 4) = '.dll') then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := False;
+  if (Length(LowerName) <= 4) or
+     (Copy(LowerName, Length(LowerName) - 3, 4) <> '.dll') then
+    Exit;
+
+  Stem := Copy(LowerName, 1, Length(LowerName) - 4);
+  Result := IsIcuRuntimeStem(Stem, 'icuuc') or
+    IsIcuRuntimeStem(Stem, 'icuin') or
+    IsIcuRuntimeStem(Stem, 'icudt');
+end;
+
+procedure VerifyLegacyRootRuntimeRemoved;
+var
+  RootDirectory: String;
+  CandidatePath: String;
+  FindRec: TFindRec;
+begin
+  RootDirectory := ExpandConstant('{app}\_internal');
+  if not DirExists(RootDirectory) then
+    Exit;
+
+  if not FindFirst(AddBackslash(RootDirectory) + '*.dll', FindRec) then
+    Exit;
+
+  try
+    repeat
+      CandidatePath := AddBackslash(RootDirectory) + FindRec.Name;
+      if FileExists(CandidatePath) and
+         IsForbiddenRootRuntimeName(FindRec.Name) then
+        RaiseException(
+          'Forbidden legacy root runtime remained after cleanup: ' + FindRec.Name);
+    until not FindNext(FindRec);
+  finally
+    FindClose(FindRec);
+  end;
 end;
 
 function DirectoryHasEntries(Directory: String): Boolean;
@@ -644,6 +781,16 @@ begin
 
   CurrentInstallPhase := Phase;
   InstallPhaseLabel.Caption := Caption;
+end;
+
+procedure BeforeInstallMainPayload;
+begin
+  if not LegacyCleanupVerified then
+  begin
+    VerifyLegacyRootRuntimeRemoved;
+    LegacyCleanupVerified := True;
+  end;
+  SetInstallPhase('installing');
 end;
 
 procedure InitializeWizard();
@@ -755,8 +902,7 @@ begin
   Result := Result + CustomMessage('CSummaryOpenWith') + NewLine + NewLine +
     CustomMessage('CSummaryUpdate') + NewLine +
     CustomMessage('CSummaryAddon') + NewLine + NewLine +
-    CustomMessage('CSummaryUserData') + NewLine + NewLine +
-    CustomMessage('CSummaryAction');
+    CustomMessage('CSummaryUserData');
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
@@ -776,6 +922,12 @@ begin
       begin
         WizardForm.PageNameLabel.Caption := CustomMessage('CSummaryTitle');
         WizardForm.PageDescriptionLabel.Caption := CustomMessage('CSummaryBody');
+        WizardForm.ReadyLabel.Caption := CustomMessage('CSummaryAction');
+        WizardForm.ReadyLabel.AdjustHeight;
+        WizardForm.ReadyMemo.Top := WizardForm.ReadyLabel.Top +
+          WizardForm.ReadyLabel.Height + ScaleY(8);
+        WizardForm.ReadyMemo.Height := WizardForm.ReadyPage.ClientHeight -
+          WizardForm.ReadyMemo.Top;
         WizardForm.ActiveControl := WizardForm.NextButton;
       end;
     wpInstalling:

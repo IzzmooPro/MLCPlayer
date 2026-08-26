@@ -37,7 +37,7 @@ def test_main_installer_never_force_kills_processes_by_image_name():
     code = executable_lines(iss)
 
     assert "CloseApplications=yes" in iss
-    assert 'CloseApplicationsFilter="MLC Player.exe"' in iss
+    assert 'CloseApplicationsFilter="MLC Player.exe,*.dll"' in iss
     assert "RestartApplications=no" in iss
     assert "taskkill" not in code.lower()
     assert '/F /IM "MLC Player.exe"' not in code

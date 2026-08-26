@@ -6506,6 +6506,88 @@
         "No setup launch, installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit EV061; afterward request separate approval to install the exact DBECC062 setup and verify the installed executable path, hash, launch and visual state as a distinct installed_artifact scenario."
+    },
+    {
+      "id": "EV-20260826-062",
+      "recorded_at_utc": "2026-08-26T18:18:15Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "51013e79ea6025d3204b081cb53279783407ec83",
+      "baseline_commit": "51013e79ea6025d3204b081cb53279783407ec83",
+      "artifact_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py",
+        "tests/test_installer_process_safety_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "user-controlled navigation, reinstall completion and Finish launch of exact MLCPlayer_Setup_v0.39.exe",
+        "user-provided screenshot and traceback readback of the installed Player QtWidgets DLL-load error",
+        "installed versus dist Player size and SHA-256 comparison",
+        "installed and dist immediate _internal forbidden ICU, API-set and UCRT DLL inventory and SHA-256 readback",
+        "post-report setup, Player and matching error-window process readback"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "dbecc062f3452492e9675249a0b4227515875457d5d631945c3774018c8322f7",
+        "installed-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "stale-installed-icuuc.dll": "2882afacabd9d901762ab196c7a319b03051af39291e47fef51fcb69c26ab5b8"
+      },
+      "subject": "Reinstall preserves obsolete root runtime DLLs and breaks the new Player",
+      "evidence": [
+        "the user completed reinstall with the exact DBECC062 setup and reported the visible installed Player traceback DLL load failed while importing QtWidgets",
+        "the installed Player was byte-identical to the new dist Player at 3133110 bytes and SHA-256 ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "the installed immediate _internal root retained forty-seven obsolete files absent from the new dist: forty-four exact api-ms-win DLLs plus icudt78.dll, icuuc.dll and ucrtbase.dll",
+        "the retained icuuc.dll SHA-256 2882afacabd9d901762ab196c7a319b03051af39291e47fef51fcb69c26ab5b8 matched the previously proven incompatible ICU payload",
+        "the later readback found no remaining setup or Player process and no matching visible error window"
+      ],
+      "summary": "The new setup copies the fixed Player but leaves obsolete root runtime DLLs from the prior installation, recreating the QtWidgets startup failure.",
+      "limitations": [
+        "This failure belongs to reinstall cleanup behavior and does not invalidate the direct-dist native PASS in EV-20260826-061.",
+        "No file was manually deleted and no automatic reinstall or launch retry occurred.",
+        "No commit, new build, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Implement a regression-first maintenance-only exact allowlist cleanup with a pre-copy fail-closed root-runtime guard; validate it before requesting a new build."
+    },
+    {
+      "id": "EV-20260826-063",
+      "recorded_at_utc": "2026-08-26T18:18:15Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "51013e79ea6025d3204b081cb53279783407ec83",
+      "baseline_commit": "51013e79ea6025d3204b081cb53279783407ec83",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py",
+        "tests/test_installer_process_safety_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k summary_instruction_matches_install_button_once",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k upgrade_removes_only_forbidden_root_dll_leftovers_before_copy",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py tests/test_installer_language_regressions.py tests/test_release_artifact_selection_regressions.py tests/test_dist_completeness_regressions.py tests/test_translation_pipeline_regressions.py",
+        "git diff --check"
+      ],
+      "subject": "Maintenance cleanup and Summary instruction fixes are source-ready",
+      "evidence": [
+        "the Summary regression first failed against the wrong Next instruction and duplicated action; the cleanup regression separately failed because InstallDelete was absent",
+        "the Turkish Summary instruction now names Install and Previous once in the built-in ReadyLabel while the memo contains only the selected settings and is repositioned below the wrapped label",
+        "maintenance cleanup uses forty-seven unique exact direct-root Type files entries and never uses wildcard deletion, recursion, filesandordirs, DelTree, nested Qt or user-data paths",
+        "the resolved app root is scanned once after InstallDelete and before payload copy; supported RaiseException stops installation if any ICU-family, API-set or UCRT root DLL remains",
+        "CloseApplications covers the Player and DLL resources; first installation is excluded and registered maintenance target/version checks remain fail-closed",
+        "the final affected family completed with 100 passed and independent positive and adversarial actual-diff reviews reported no remaining P0 or P1 finding"
+      ],
+      "summary": "The uncommitted installer fix removes only the measured obsolete root payload on reinstall or upgrade and corrects the Summary instruction without duplication.",
+      "limitations": [
+        "The 100-pass result is deterministic and static; Inno compilation and real locked or unlocked reinstall behavior are not yet proven.",
+        "The measured obsolete files are monotonic remediation and are not promised to be restored if a later installation step aborts.",
+        "The product version remains v0.39; no build, installation, launch, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit the exact source, tests and EV062-EV063 evidence package; after commit readback, request separate approval for one clean unsigned v0.39 validation build before any version bump."
     }
   ]
 }
