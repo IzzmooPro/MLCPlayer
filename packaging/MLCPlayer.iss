@@ -3,8 +3,8 @@
 #define MyAppName "MLC Player"
 ; SÜRÜM TEK KAYNAK: app/config.py → APP_VERSION. Burası onun kopyasıdır ve
 ; tests/test_version_consistency.py ikisini birbirine bağlar; elle ayrışamaz.
-#define MyAppVersion "v0.39"
-#define MyAppNumericVersion "0.39.0.0"
+#define MyAppVersion "v0.40"
+#define MyAppNumericVersion "0.40.0.0"
 #define MyAppPublisher "IzzmooPro"
 #define MyAppUrl "https://github.com/IzzmooPro/MLCPlayer"
 #define MyAppExeName "MLC Player.exe"
@@ -469,7 +469,9 @@ Type: files; Name: "{app}\_internal\api-ms-win-crt-utility-l1-1-0.dll"; Check: I
 ; onedir: PyInstaller çıktısının TAMAMI kurulur (exe + _internal\).
 ; `_internal\bin` içindeki mpv-2.dll çekirdek runtime'dır. yt-dlp ve deno
 ; bilinçli olarak ana pakette yoktur; yalnız Internet Videosu ek paketindedir.
+#ifndef MLCCompilePreflight
 Source: "..\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: BeforeInstallMainPayload
+#endif
 ; GPLv3 metni ve README kurulum KÖKÜNDE de dursun: kullanıcı `_internal`
 ; içine bakmak zorunda kalmadan lisansa ulaşabilmelidir.
 Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion

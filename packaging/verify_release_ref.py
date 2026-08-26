@@ -46,6 +46,11 @@ APP_VERSION_PATTERN = re.compile(
 #: `#define MyAppVersion "v0.37"`
 INSTALLER_VERSION_PATTERN = re.compile(
     r'^\s*#define\s+MyAppVersion\s+["\']([^"\']+)["\']', re.MULTILINE)
+#: Gercek ISS kaynagi Windows dosya surumlerini bu define uzerinden verir.
+INSTALLER_NUMERIC_VERSION_PATTERN = re.compile(
+    r'^\s*#define\s+MyAppNumericVersion\s+["\']([^"\']+)["\']',
+    re.MULTILINE)
+INSTALLER_NUMERIC_VERSION_MACRO = "{#MyAppNumericVersion}"
 
 #: Windows surum alanlari: `VersionInfoVersion=0.37.0.0` (tirnaksiz).
 #:
@@ -215,6 +220,8 @@ def verify(tag, cwd=None, log=print):
         ok = fail(f"tag bicimi Windows surumune cevrilemiyor: {tag} "
                   "(beklenen bicim: v0.37 / v1.2.3 / v1.2.3.4)", log) and ok
     elif installer_text is not None:
+        numeric_version = extract(INSTALLER_NUMERIC_VERSION_PATTERN,
+                                  installer_text)
         for field, pattern in WINDOWS_VERSION_FIELDS:
             found = pattern.search(installer_text)
             if not found:
@@ -222,6 +229,13 @@ def verify(tag, cwd=None, log=print):
                           f"{field} okunamadi", log) and ok
                 continue
             value = found.group(1).strip()
+            if value == INSTALLER_NUMERIC_VERSION_MACRO:
+                if not numeric_version:
+                    ok = fail(
+                        f"{field} {INSTALLER_NUMERIC_VERSION_MACRO} kullaniyor "
+                        "ama MyAppNumericVersion okunamadi", log) and ok
+                    continue
+                value = numeric_version
             if value != expected_windows:
                 ok = fail(f"{field} AYRISMIS: beklenen {expected_windows}, "
                           f"bulunan {value}", log) and ok

@@ -114,6 +114,8 @@ rem Publishability: do not produce a version installed clients CANNOT SEE
 rem (the comparison is numeric; with v0.31 out, v0.4 is invisible).
 python "packaging\check_publishable.py"
 if errorlevel 1 goto :fail
+python "packaging\verify_inno.py" all --iscc "%ISCC%"
+if errorlevel 1 goto :fail
 echo.
 
 echo STEP 2/8  Cleaning previous output

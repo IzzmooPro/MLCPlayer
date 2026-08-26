@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `cc3a59b9555801bd8b5b6f6fb9082f6d335a2536`
+- Kayıt hazırlanırken doğrulanan HEAD: `ce5aeb7a8ccb9b62a44e60f66deb6aa327d81bd1`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 33 commit ileride, 0 geride)
-- Son kanıt: `EV-20260826-074`
+- Dal: `codex/installer-experience` (`origin/master`dan 34 commit ileride, 0 geride)
+- Son kanıt: `EV-20260826-075`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -61,6 +61,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   ve seçim kayıt paketi exact `f432c73` commit'iyle bağlandı
   (`EV-20260826-008`). A ve B yalnız karşılaştırma referansıdır. Bitmap'ler
   Git'e alınmaz ve seçim gerçek Inno Setup davranışı sayılmaz.
+- v0.40 ve ISS numeric makro çözümü regression-first bağlandı; ortak Inno preflight
+  build öncesi compiler/sürüm/timeout kapısıdır (`EV-20260826-075`), artifact kabulü değildir.
 - `codex/installer-ux-c-selection` görev dalı exact `ce8211b` head'iyle origin'e
   push edildi ve yerel/uzak görev dalı `0/0` eş okundu (`EV-20260826-009`). PR
   #50 daha sonra exact `e262c0c` head'iyle açıldı. Zorunlu hosted run
@@ -154,14 +156,12 @@ veya eksik marker PASS değildir.
 
 ## Meta-kayıt terminal kuralı
 
-Merge-kayıt PR'ı protected master'a ulaştığında sırf meta-merge'i yeniden
-kaydetmek için yeni bir ledger/PR zinciri başlatma. Protected-master merge
-commit/parent/run ve `0/0` readback'ini sonraki ilk gerçek C ekran-sözleşmesi
-kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine geç.
+Merge-kayıt PR'ı protected master'a ulaştığında yeni meta-PR zinciri başlatma;
+merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağla.
 
 ## Sıradaki tek adım
 
-EV074'ü commit et; v0.40 version alanları ve regression hedefini güncelle, genel release boşluklarını ayrı tut.
+EV075 paketini commit et; exact committed head üzerinde tam deterministic paketi çalıştır ve yalnız yeşilse görev dalı push/PR kapısına geç.
 
 ## Sonraki sıra
 

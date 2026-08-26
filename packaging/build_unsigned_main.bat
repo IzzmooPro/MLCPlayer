@@ -47,6 +47,8 @@ set "MAIN_SETUP=installer_output\MLCPlayer_Setup_!APP_VER!.exe"
 echo STEP 1/6  Main-package source and runtime verification
 python "%VERIFY%" --pre-main
 if errorlevel 1 goto :fail
+python "packaging\verify_inno.py" main --iscc "%ISCC%"
+if errorlevel 1 goto :fail
 
 echo STEP 2/6  Clean exact build outputs
 if exist "build" (

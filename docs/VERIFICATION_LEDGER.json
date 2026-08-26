@@ -7017,6 +7017,54 @@
         "This bounded PASS is not general installer or release acceptance."
       ],
       "next_action": "Commit EV074, then prepare the v0.40 version-field and regression update; full release gates remain separate and unmeasured items cannot inherit this PASS."
+    },
+    {
+      "id": "EV-20260826-075",
+      "recorded_at_utc": "2026-08-26T19:42:52Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "ce5aeb7a8ccb9b62a44e60f66deb6aa327d81bd1",
+      "baseline_commit": "ce5aeb7a8ccb9b62a44e60f66deb6aa327d81bd1",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "app/config.py",
+        "packaging/MLCPlayer.iss",
+        "packaging/build_release.bat",
+        "packaging/build_unsigned_main.bat",
+        "packaging/verify_inno.py",
+        "packaging/verify_release_ref.py",
+        "tests/test_inno_compile_preflight_regressions.py",
+        "tests/test_verify_release_ref_regressions.py",
+        "tests/test_version_consistency.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "red: python -m pytest -q tests/test_verify_release_ref_regressions.py::test_matching_numeric_define_and_real_iss_macros_pass",
+        "red: python -m pytest -q tests/test_inno_compile_preflight_regressions.py",
+        "python -m pytest -q selected installer, version, release-ref, workflow and SPDX regression family",
+        "python packaging/verify_inno.py all",
+        "python packaging/verify_build.py --pre-main",
+        "python -m py_compile packaging/verify_inno.py packaging/verify_release_ref.py app/config.py; git diff --check"
+      ],
+      "subject": "v0.40 source ownership and shared fail-closed Inno preflight",
+      "evidence": [
+        "the real ISS numeric macro regression first failed because verify_release_ref compared the raw macro token with the four-part tag version",
+        "the release-ref fix resolves only the exact MyAppNumericVersion macro and rejects stale, missing or different values",
+        "APP_VERSION, MyAppVersion, MyAppNumericVersion and the explicit release regression target now agree on v0.40 and 0.40.0.0",
+        "both build chains invoke one shared compiler preflight before output cleanup and PyInstaller; main-only and full-release scopes remain distinct",
+        "the shared gate validates working-tree version ownership, exact VersionInfo macros and output name, rejects unknown scope, fails closed after a sixty-second compiler timeout and stops on the first compiler failure",
+        "the real installed ISCC compiled the main and Internet Video scripts with output disabled; generated dist payload alone is excluded in preflight mode and normal production commands do not receive that define",
+        "the final affected family completed with 461 passed, real main and add-on compiler preflight passed, the main runtime preflight matched mpv-2.dll, py_compile and diff check passed",
+        "independent positive and adversarial reviewers found no remaining P0 or P1 after clean-checkout, scope, timeout and guard-boundary hardening"
+      ],
+      "summary": "The v0.40 source target and installer release gates are aligned, and recurring Inno syntax, macro and version drift now fail before destructive or costly build work.",
+      "limitations": [
+        "This is uncommitted deterministic evidence; no v0.40 package was built, installed, signed, tagged or released.",
+        "The compile-only smoke excludes the generated main payload Source entry; the production ISCC build remains the proof for that directive.",
+        "Compiler engine pinning, previous-release manifest delta enforcement, rollback injection and exact-artifact physical acceptance remain separate open gates."
+      ],
+      "next_action": "Commit the exact EV075 package, run the full deterministic suite on the committed head and proceed to task-branch push and PR only if every required gate stays green."
     }
   ]
 }

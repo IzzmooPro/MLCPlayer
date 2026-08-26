@@ -281,6 +281,67 @@ def test_matching_windows_version_fields_pass(repo):
     assert verify_release_ref.verify("v0.37", repo) is True
 
 
+def test_matching_numeric_define_and_real_iss_macros_pass(repo):
+    """Gerçek ISS alanları numeric define'ı kullanır; tag kapısı bunu çözmeli."""
+    write_sources(repo, "v0.37")
+    installer = '''; gerçek kaynak biçimi
+#define MyAppName "MLC Player"
+#define MyAppVersion "v0.37"
+#define MyAppNumericVersion "0.37.0.0"
+AppVersion={#MyAppVersion}
+VersionInfoVersion={#MyAppNumericVersion}
+VersionInfoProductVersion={#MyAppNumericVersion}
+'''
+    with open(os.path.join(repo, "packaging", "MLCPlayer.iss"), "w",
+              encoding="utf-8") as handle:
+        handle.write(installer)
+    commit(repo, "gercek numeric macro bicimi")
+    git(repo, "tag", "v0.37")
+
+    assert verify_release_ref.verify("v0.37", repo) is True
+
+
+def test_an_outdated_numeric_define_behind_real_iss_macros_fails(repo, capsys):
+    """Makro cozumu eski numeric define'i sessizce kabul etmez."""
+    write_sources(repo, "v0.37")
+    installer = '''#define MyAppVersion "v0.37"
+#define MyAppNumericVersion "0.36.0.0"
+VersionInfoVersion={#MyAppNumericVersion}
+VersionInfoProductVersion={#MyAppNumericVersion}
+'''
+    with open(os.path.join(repo, "packaging", "MLCPlayer.iss"), "w",
+              encoding="utf-8") as handle:
+        handle.write(installer)
+    commit(repo, "eski numeric define")
+    git(repo, "tag", "v0.37")
+
+    passed = verify_release_ref.verify("v0.37", repo)
+    output = capsys.readouterr().out
+
+    assert passed is False
+    assert "0.36.0.0" in output and "0.37.0.0" in output
+
+
+def test_a_missing_numeric_define_behind_real_iss_macros_fails(repo, capsys):
+    """Makro kullanilip define eksikse kapinin davranisi fail-closed kalir."""
+    write_sources(repo, "v0.37")
+    installer = '''#define MyAppVersion "v0.37"
+VersionInfoVersion={#MyAppNumericVersion}
+VersionInfoProductVersion={#MyAppNumericVersion}
+'''
+    with open(os.path.join(repo, "packaging", "MLCPlayer.iss"), "w",
+              encoding="utf-8") as handle:
+        handle.write(installer)
+    commit(repo, "numeric define yok")
+    git(repo, "tag", "v0.37")
+
+    passed = verify_release_ref.verify("v0.37", repo)
+    output = capsys.readouterr().out
+
+    assert passed is False
+    assert "MyAppNumericVersion okunamadi" in output
+
+
 def test_an_outdated_version_info_version_fails(repo, capsys):
     """KANITLANMIS BOSLUK: `VersionInfoVersion` ayrissa bile geciyordu."""
     write_sources(repo, "v0.37")
