@@ -5056,6 +5056,2050 @@
         "The durable gate does not authorize any later operation without its separate user approval."
       ],
       "next_action": "Apply only the first unmet durable gate: request separate commit approval for this record, then separate push approval, then separate PR approval and require required-test SUCCESS on the live exact head before any merge request."
+    },
+    {
+      "id": "EV-20260826-026",
+      "recorded_at_utc": "2026-08-26T09:48:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3",
+      "baseline_commit": "f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py",
+        "tests/test_installer_language_regressions.py",
+        "tests/test_installer_process_safety_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_language_regressions.py -k c_screen_contract",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'installer_c_reuses or installer_c_summary'",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py -k 'mode_detection or finish_actions'"
+      ],
+      "subject": "Regression-first red evidence for installer C implementation",
+      "evidence": [
+        "the new C localization regression failed because the complete eight-language screen key set did not yet exist",
+        "the two built-in-page and live-summary/progress regressions failed because no C page event wiring or phase boundaries existed",
+        "the two mode-detection and finish-action regressions failed because numeric fail-closed installed-version handling and the exact three postinstall actions were absent",
+        "the five expected failures were inspected before implementation; later assertion-shape failures for placeholder collection, a split registry-key literal and an over-broad Result token count were also inspected and corrected before rerun"
+      ],
+      "summary": "The existing installer source failed all five new behavior-contract regressions before the C implementation was added.",
+      "limitations": [
+        "This FAILED record is deliberate regression-first evidence; it does not describe a product or installed-artifact failure.",
+        "No build, installer execution, installation, Windows action, commit, push, PR or merge occurred."
+      ],
+      "next_action": "Implement the smallest installer-only source change that satisfies the inspected regressions, then run only the targeted green checks."
+    },
+    {
+      "id": "EV-20260826-027",
+      "recorded_at_utc": "2026-08-26T09:56:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3",
+      "baseline_commit": "f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/PACKAGING_PLAN.md",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py",
+        "tests/test_installer_language_regressions.py",
+        "tests/test_installer_process_safety_regressions.py",
+        "tests/test_version_consistency.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'installer_c_reuses or installer_c_summary'",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py -k 'mode_detection or revalidates_the_effective_target or finish_actions'",
+        "python -m pytest -q tests/test_installer_language_regressions.py -k c_screen_contract",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py -k target_directory_enumeration_fails_closed"
+      ],
+      "subject": "Adversarial installer API and fail-closed target findings",
+      "evidence": [
+        "the first adversarial review rejected the initial green result because built-in notebook pages were treated as TWizardPage objects and a nonexistent FinishedButton was referenced",
+        "the same review proved the initial downgrade guard could be bypassed when the uninstall key was absent or the effective target differed while Files entries retained ignoreversion",
+        "four new boundary regressions first failed against those API, final-target and localization gaps, and a later focused regression failed because FindFirst failure could be mistaken for an empty directory",
+        "automatic retry was not used; every failure was inspected before the built-in API, PrepareToInstall target recheck, non-empty target and enumeration defaults were changed"
+      ],
+      "summary": "Independent adversarial review invalidated the first static green state and produced reproducible red boundaries for compile-facing API and target overwrite safety.",
+      "limitations": [
+        "This is source-review and deterministic FAILED evidence, not an ISCC compile or installed Windows failure.",
+        "No build, installer execution, installation, Windows action, commit, push, PR or merge occurred."
+      ],
+      "next_action": "Fix the invalid built-in API and every target-validation fail-open path, then require a fresh exact-tree bounded family and independent re-review."
+    },
+    {
+      "id": "EV-20260826-028",
+      "recorded_at_utc": "2026-08-26T10:03:15Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3",
+      "baseline_commit": "f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py",
+        "tests/test_installer_language_regressions.py",
+        "tests/test_installer_process_safety_regressions.py",
+        "tests/test_version_consistency.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_language_regressions.py -k c_screen_contract",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'installer_c_reuses or installer_c_summary'",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py -k 'mode_detection or revalidates_the_effective_target or finish_actions'",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py -k target_directory_enumeration_fails_closed",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_release_documentation_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 3; print('LEDGER_APPEND_ONLY_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Implemented and adversarially bounded installer C experience",
+      "evidence": [
+        "PR 52 was merged to protected master as exact f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3 with parents db96ac529f48a45fbc9233a22f98c6a0e2726df5 and 12ac7113ca850a3fe96e8e76f21b84e6f24a30be; hosted run 32953472410 job 98129903318 reported 4969 passed, 30 skipped, zero failed and LEDGER_APPEND_ONLY_OK, and local master/origin readback was 0/0 before this branch",
+        "the implementation reuses the five native Inno pages and native directory/task state, uses supported TNewNotebookPage and TWizardForm members, and creates controls only once in InitializeWizard",
+        "numeric install, reinstall and upgrade detection is fail-closed; PrepareToInstall revalidates the rooted effective target, registered path, exact packed version and non-empty or unregistered target immediately before installation",
+        "the first real Files and Icons boundaries drive a separate phase-owned progress label without timer or invented percentage",
+        "the finish RunList binds exact Player, Windows Default Apps and GitHub targets in order with checked and unchecked defaults, silent suppression and original-user flags",
+        "all used C messages, target failures and placeholders are present in eight languages; numeric package version is tied to WINDOWS_VERSION and both VersionInfo fields",
+        "the final exact working tree completed the bounded impact family with 247 passed in 0.83 seconds, and independent positive and adversarial reviewers reported no remaining P0 or P1 source blocker"
+      ],
+      "summary": "The installer C source implementation is deterministically green and independently bounded at the uncommitted working-tree layer.",
+      "limitations": [
+        "No ISCC compile or setup artifact was produced; this PASS is not source_build evidence.",
+        "No installation, reinstall, upgrade, downgrade, rollback, Restart Manager, silent-mode or postinstall Windows action was executed.",
+        "The accepted private previews are still design targets; pixel, DPI, text scaling, keyboard, Narrator and NVDA equality require a separately approved compiled build and physical screenshots.",
+        "The small general filesystem race between PrepareToInstall and actual copy remains a physical injected-acceptance boundary, not a claimed source PASS.",
+        "No product playback code, commit, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Request separate explicit approval to commit this installer-only source, regression, continuity and append-only evidence package; do not infer build, push, PR or installation approval."
+    },
+    {
+      "id": "EV-20260826-029",
+      "recorded_at_utc": "2026-08-26T10:15:10Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "6fe453fee41fd5473c30b51b4b97fe10d38e2e24",
+      "baseline_commit": "6fe453fee41fd5473c30b51b4b97fe10d38e2e24",
+      "evidence_commit": "6fe453fee41fd5473c30b51b4b97fe10d38e2e24",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"feat: implement installer C experience\"",
+        "git rev-parse HEAD",
+        "git show --no-ext-diff --format=%P -s HEAD",
+        "git show --no-ext-diff --stat --oneline HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Committed installer C experience implementation",
+      "evidence": [
+        "the separately approved commit completed as exact 6fe453fee41fd5473c30b51b4b97fe10d38e2e24 with subject feat: implement installer C experience",
+        "readback showed exact parent f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3 and exactly the eight approved installer source, canonical documentation, append-only ledger and regression files",
+        "the immediate post-commit working tree was clean and the local installer-experience branch measured one commit ahead and zero behind origin/master",
+        "the user then explicitly required an interactive compiled installer review with forward and back navigation; no build or setup process was started by this commit"
+      ],
+      "summary": "The approved installer C implementation is bound to an exact local commit with verified parent and file scope.",
+      "limitations": [
+        "The commit is local only; it has not been pushed, opened as a PR or merged.",
+        "No ISCC build, setup execution, installation, Windows action/readback, pixel/DPI acceptance, tag or release occurred.",
+        "Interactive Welcome, Preferences and Summary review requires a separately approved build and setup launch; Progress and Finish require separate physical installation approval."
+      ],
+      "next_action": "Request separate approval to commit this exact-commit readback record; then request build approval and launch the compiled setup only to the pre-install Summary boundary for the user's interactive forward/back review."
+    },
+    {
+      "id": "EV-20260826-030",
+      "recorded_at_utc": "2026-08-26T10:31:00Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "baseline_commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k pascal_character_codes",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k pascal_continuations"
+      ],
+      "subject": "Failed installer compile attempts exposed Inno line-leading syntax hazards",
+      "evidence": [
+        "an initial shell invocation stopped at the required environment gate before creating build outputs and was diagnosed as an environment propagation issue rather than retried blindly",
+        "the first effective clean build verified dependencies, mpv runtime, translations and the 181.3 MB PyInstaller tree, then Inno aborted at line 711 with Unknown preprocessor directive because a Pascal #13#10 continuation began the physical line",
+        "after the exact two offending character-code lines were regression-first repaired, the next clean build passed that point and aborted at line 692 with Invalid section tag because a FmtMessage array literal began the physical line",
+        "the expanded regression first reported three array-literal offenders; the three FmtMessage arguments were moved onto their call lines without changing values or order",
+        "neither failed compiler attempt produced a setup executable or left ISCC, PyInstaller, Python, Player or setup processes"
+      ],
+      "summary": "Two inspected Inno compile failures exposed and bounded line-leading Pascal tokens that the preprocessor misclassified.",
+      "limitations": [
+        "PyInstaller output success in these attempts was not installer source-build PASS because Inno compilation failed.",
+        "No setup was launched and no installation or Windows postinstall action occurred.",
+        "The fixes were still uncommitted working-tree changes at this record."
+      ],
+      "next_action": "Run the expanded installer regressions, obtain independent adversarial review of the minimal formatting-only fix, then perform one clean authorized rebuild."
+    },
+    {
+      "id": "EV-20260826-031",
+      "recorded_at_utc": "2026-08-26T10:40:37Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "baseline_commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k pascal_continuations",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "git diff --check"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "c65a5fbc5bfede1b8b1ebc2f4472322d2e7cc5e3edad646f5c843e0363c3bb39",
+        "MLC Player.exe": "48e17f20b9f3ced5d8b925b43df52e184d2379cb41d6c6fa3eb0a7a4bb6b8ea4"
+      },
+      "subject": "Unsigned installer C source build",
+      "evidence": [
+        "the exact-current formatting regression passed and the bounded installer/version family completed with 43 passed before rebuild",
+        "independent adversarial review found both line-leading syntax fixes minimal, behavior-preserving and free of a new source blocker",
+        "the separately authorized clean main-package chain completed all six steps with exit 0: dependency/runtime verification, translation compile, PyInstaller, Inno Setup and exact artifact verification",
+        "the verified PyInstaller tree is 181.3 MB and the unsigned setup is 56344277 bytes with SHA-256 c65a5fbc5bfede1b8b1ebc2f4472322d2e7cc5e3edad646f5c843e0363c3bb39",
+        "the packaged MLC Player.exe is 3133110 bytes with SHA-256 48e17f20b9f3ced5d8b925b43df52e184d2379cb41d6c6fa3eb0a7a4bb6b8ea4",
+        "Authenticode readback is NotSigned as required for this test-only unsigned build, and no ISCC, PyInstaller, Python, Player or setup process leaked after completion"
+      ],
+      "summary": "The current working-tree installer C source produced an internally verified unsigned setup artifact after two regression-bounded compiler fixes.",
+      "limitations": [
+        "This source-build PASS is bound to baseline commit 5c04c2d plus the recorded uncommitted two-file formatting/test diff; it is not evidence for a clean committed source tree.",
+        "The setup has not been launched, installed or used for Windows action/readback, DPI, accessibility or pixel acceptance.",
+        "Unsigned test artifact status is intentional and is not release signing or distribution approval.",
+        "No push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to launch the exact unsigned setup only through Welcome, Preferences and Summary for the user's interactive forward/back review; do not click Install or perform installation without another explicit approval."
+    },
+    {
+      "id": "EV-20260826-032",
+      "recorded_at_utc": "2026-08-26T11:36:40Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "baseline_commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "interactive pre-install launch of MLCPlayer_Setup_v0.39.exe and forward/back navigation through Welcome, Preferences and Summary; Install was not invoked",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','Setup','ISCC') }"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "c65a5fbc5bfede1b8b1ebc2f4472322d2e7cc5e3edad646f5c843e0363c3bb39"
+      },
+      "subject": "Pre-install visual comparison rejected the compiled C shell",
+      "evidence": [
+        "the first approved launch did not expose a usable wizard window and exited without installation; the inspected diagnostic launch later exposed the real native setup at the Summary boundary",
+        "the visible compiled wizard retained the standard Inno memo and grey native composition and did not match the accepted C visual hierarchy closely enough",
+        "the user explicitly rejected the visual consistency as incomplete; no Install action was invoked and no setup, Player, ISCC or Python process leaked"
+      ],
+      "summary": "The exact unsigned setup was usable only for a bounded pre-install comparison and failed the user's C visual-consistency acceptance.",
+      "limitations": [
+        "No installation, file copy, registry mutation, Progress page, Finish action or product launch occurred.",
+        "This FAILED result belongs only to the recorded unsigned artifact and its source state; it is not evidence about the later v2 source adaptation.",
+        "The visual observation is user acceptance evidence, not an automated pixel-distance measurement."
+      ],
+      "next_action": "Select one feasible C v2 baseline, implement it regression-first without replacing native state, and require independent adversarial review before any new build."
+    },
+    {
+      "id": "EV-20260826-033",
+      "recorded_at_utc": "2026-08-26T11:36:54Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "baseline_commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "working_tree_state": "uncommitted",
+      "supersedes": [
+        "EV-20260826-022"
+      ],
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "packaging/make_wizard_images.py",
+        "packaging/wizard/c-back.bmp",
+        "packaging/wizard/c-back-1.bmp",
+        "packaging/wizard/c-back-2.bmp",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'c_visual_shell or c_visual_geometry or c_summary_and_progress'",
+        "python packaging/make_wizard_images.py",
+        "python -m py_compile packaging/make_wizard_images.py tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "git diff --check",
+        "independent positive-evidence review and adversarial source re-review of the exact working-tree diff"
+      ],
+      "private_artifact_digests": {
+        "C-uygulanabilir-v2.png": "7e5b50e008818921a5ebdb82c1dda4ca214e5b5a725f49a90653a60e4d47308d"
+      },
+      "subject": "User-selected applicable C v2 baseline and bounded native installer shell",
+      "evidence": [
+        "the user selected the second applicable C v2 preview as the current five-screen composition baseline; only its safe name and SHA-256 are recorded",
+        "regression-first tests failed against the old source before the full-wizard background, High Contrast fallback, native progress preservation and measured vertical-fit rules were implemented",
+        "three deterministic RGB bitmap variants match the generator pixel-for-pixel at 596x432, 796x576 and 1272x922; the Pascal rail percentage and brand colours are cross-checked against the generator",
+        "the visual shell reuses native Welcome, SelectDir, Ready, Installing and Finished pages, native directory/task/summary/run state and the visible native ProgressGauge; no fake checkbox, page state or percentage was introduced",
+        "High Contrast, insufficient horizontal geometry or localized vertical overflow clears the custom background before any layout mutation and falls back to the native Inno layout",
+        "the final bounded installer, language, process-safety and version family completed with 44 passed; two independent reviewers reported no remaining source-level P0 or P1 blocker"
+      ],
+      "summary": "The selected second C v2 direction is implemented as a bounded native Inno visual shell and is deterministically source-green.",
+      "limitations": [
+        "This PASS is source/test evidence only; no ISCC compile, new setup artifact, setup launch, installation or Windows action/readback occurred.",
+        "Native Inno 7.1.0 syntax, real Welcome through Finish pixels, High Contrast, 100-250% DPI, 200% text, keyboard and screen-reader behavior remain unmeasured.",
+        "The native progress control intentionally keeps its platform colour and accessibility role; the private concept's exact orange progress fill is not claimed.",
+        "The three bitmap files are untracked working-tree inputs until a separately approved commit includes them.",
+        "No product playback code, build, install, commit, push, PR, merge, tag or release occurred; the private preview remains outside Git."
+      ],
+      "next_action": "Run continuity, JSON append-only and private-path gates, then request separate approval to commit this exact installer source and evidence package; build remains a later separate approval."
+    },
+    {
+      "id": "EV-20260826-034",
+      "recorded_at_utc": "2026-08-26T11:46:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "326f9bea9dc336827927ca1ff85daef593506062",
+      "baseline_commit": "326f9bea9dc336827927ca1ff85daef593506062",
+      "evidence_commit": "326f9bea9dc336827927ca1ff85daef593506062",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss packaging/make_wizard_images.py packaging/wizard/c-back.bmp packaging/wizard/c-back-1.bmp packaging/wizard/c-back-2.bmp tests/test_installer_branding_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --stat",
+        "git diff --cached --check",
+        "git commit -m \"feat: apply installer C v2 visual shell\"",
+        "git rev-parse HEAD",
+        "git show --no-ext-diff --format=%P -s HEAD",
+        "git show --no-ext-diff --stat --oneline HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Committed applicable installer C v2 visual shell",
+      "evidence": [
+        "the separately approved commit completed as exact 326f9bea9dc336827927ca1ff85daef593506062 with subject feat: apply installer C v2 visual shell",
+        "readback showed exact parent 5c04c2dc84c80331b4ab107665743893ebcec640 and exactly the nine approved installer source, generator, three DPI bitmap, regression and canonical evidence files",
+        "the immediate post-commit working tree was clean and the local installer-experience branch measured three commits ahead and zero behind origin/master"
+      ],
+      "summary": "The approved second C v2 installer source package is bound to an exact local commit with verified parent and file scope.",
+      "limitations": [
+        "The commit is local only; it has not been built, launched, installed, pushed, opened as a PR or merged.",
+        "No exact Inno 7.1.0 compiler readback, compiled pixels, DPI, High Contrast, accessibility or Windows action result exists for this commit.",
+        "The post-commit readback record and continuity update are uncommitted working-tree documentation until separately approved."
+      ],
+      "next_action": "Request separate approval to commit this exact-commit readback record; after that commit, request build approval separately and do not launch or install automatically."
+    },
+    {
+      "id": "EV-20260826-035",
+      "recorded_at_utc": "2026-08-26T12:18:30Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d",
+      "baseline_commit": "10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d",
+      "working_tree_state": "clean",
+      "changed_files": [],
+      "commands": [
+        "git rev-parse --show-toplevel",
+        "git status --short --branch",
+        "git log -1 --oneline --decorate",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-ChildItem installer_output -ErrorAction SilentlyContinue",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','Setup','ISCC','python','pythonw','pyinstaller') }"
+      ],
+      "subject": "First committed C v2 Inno 7.1.0 build failed on a line-leading hex character code",
+      "evidence": [
+        "the separately authorized build started from clean exact commit 10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d with local Inno Setup 7.1.0",
+        "dependency, runtime, translation and 181.3 MB PyInstaller tree stages completed before Inno aborted at MLCPlayer.iss line 761 with Unknown preprocessor directive",
+        "inspection proved the failing physical line began with #$2713 inside Pascal code; the existing continuation regression recognized decimal #13 and array literals but not hexadecimal character codes",
+        "no setup executable was produced and no setup, Player, ISCC, Python, pythonw or PyInstaller process leaked; no automatic rebuild occurred"
+      ],
+      "summary": "The first exact committed C v2 build failed closed because Inno misclassified a line-leading hexadecimal Pascal character code.",
+      "limitations": [
+        "The successful PyInstaller stage is not an installer source-build PASS because Inno compilation failed.",
+        "No setup was launched, installed or visually inspected, so the new C v2 test screen has still not been seen.",
+        "No source change, commit, push, PR, merge, tag or release is implied by this failed build record."
+      ],
+      "next_action": "Expand the continuation regression to cover line-leading hexadecimal character codes, apply only a behavior-preserving formatting fix, and require independent review before requesting a new build approval."
+    },
+    {
+      "id": "EV-20260826-036",
+      "recorded_at_utc": "2026-08-26T12:18:40Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d",
+      "baseline_commit": "10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k pascal_continuations",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "rg -n \"^\\s*(?:#(?:\\$[0-9A-Fa-f]+|[0-9])|\\[)\" packaging/MLCPlayer.iss",
+        "git diff --check",
+        "independent adversarial read-only review of the exact two-file source/test fix"
+      ],
+      "subject": "Regression-bounded Inno hexadecimal character-code continuation fix",
+      "evidence": [
+        "the expanded regression first failed with exactly three line-leading #$2713, #$25CF and #$25CB offenders",
+        "the minimal fix moved only each hexadecimal expression onto its existing function-call line; codepoints, captions, bold flag and max-height behavior are unchanged",
+        "the target regression then passed and the bounded installer, language, process-safety and version family completed with 44 passed",
+        "independent adversarial review found the diff minimal and behavior-preserving, with no remaining line-leading decimal, hexadecimal or array-literal offender in the Code section and no new source P0 or P1"
+      ],
+      "summary": "The exact compiler failure class is regression-protected and the minimal formatting fix is deterministically green.",
+      "limitations": [
+        "This PASS is source/static evidence only; Inno 7.1.0 compile success requires a separately approved rebuild.",
+        "No new setup artifact, launch, visual screen, installation, Windows action, commit, push, PR or merge occurred."
+      ],
+      "next_action": "Request separate approval to commit the exact four-file source, regression and append-only evidence package; request a rebuild separately after commit and do not launch setup automatically."
+    },
+    {
+      "id": "EV-20260826-037",
+      "recorded_at_utc": "2026-08-26T12:21:05Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "f96482a4025e13d74579355a173cf6844e8729f6",
+      "baseline_commit": "f96482a4025e13d74579355a173cf6844e8729f6",
+      "evidence_commit": "f96482a4025e13d74579355a173cf6844e8729f6",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss tests/test_installer_branding_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"fix: guard Inno hex continuations\"",
+        "git rev-parse HEAD",
+        "git show --no-ext-diff --format=%P -s HEAD",
+        "git show --no-ext-diff --stat --oneline HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Committed Inno hexadecimal continuation regression fix",
+      "evidence": [
+        "the separately approved commit completed as exact f96482a4025e13d74579355a173cf6844e8729f6 with subject fix: guard Inno hex continuations",
+        "readback showed exact parent 10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d and exactly the four approved source, regression, continuity and append-only evidence files",
+        "the immediate post-commit working tree was clean and the local installer-experience branch measured five commits ahead and zero behind origin/master"
+      ],
+      "summary": "The compiler-failure regression fix is bound to an exact local commit with verified parent and file scope.",
+      "limitations": [
+        "The commit is local only; no rebuild, setup artifact, launch, visual screen, installation, push, PR or merge occurred.",
+        "The post-commit readback record and continuity update are uncommitted until separately approved."
+      ],
+      "next_action": "Request separate approval to commit this exact-commit readback record; then request an exact Inno 7.1.0 rebuild approval separately and do not launch setup automatically."
+    },
+    {
+      "id": "EV-20260826-038",
+      "recorded_at_utc": "2026-08-26T12:39:39Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "7dcf8e097ee7966c8326381ea0102d174e9adcbd",
+      "baseline_commit": "7dcf8e097ee7966c8326381ea0102d174e9adcbd",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git rev-parse --show-toplevel",
+        "git status --short --branch",
+        "git log -1 --oneline --decorate",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-FileHash -Algorithm SHA256 'dist\\MLC Player\\MLC Player.exe'",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','Setup','ISCC','python','pythonw','pyinstaller') }"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "30ce298673d3dc7ebd7693d70a30891f76ae275a11e38763ef315e6da0f9a69c",
+        "MLC Player.exe": "7836a09fcb2965b9da19762291d6e7530caca90f8ca69355bc02af9cc0f7ec03"
+      },
+      "subject": "Exact Inno 7.1.0 unsigned C v2 rebuild",
+      "evidence": [
+        "the separately authorized rebuild started from clean exact commit 7dcf8e097ee7966c8326381ea0102d174e9adcbd and exact Inno Setup 7.1.0",
+        "the six-step dependency, runtime, translation, PyInstaller, Inno and exact-artifact verification chain completed with exit 0",
+        "the verified PyInstaller tree is 181.3 MB; the unsigned setup is 56565837 bytes with SHA-256 30ce298673d3dc7ebd7693d70a30891f76ae275a11e38763ef315e6da0f9a69c",
+        "the packaged MLC Player.exe is 3133110 bytes with SHA-256 7836a09fcb2965b9da19762291d6e7530caca90f8ca69355bc02af9cc0f7ec03",
+        "Authenticode readback is NotSigned as intended for the test build and no setup, Player, ISCC, Python, pythonw or PyInstaller process leaked"
+      ],
+      "summary": "The committed C v2 installer source produced an internally verified unsigned setup with exact Inno 7.1.0.",
+      "limitations": [
+        "This is source-build evidence only; the setup has not been launched, installed or visually inspected.",
+        "Welcome, Preferences, Summary, Progress, Finish, High Contrast, DPI, keyboard, accessibility and Windows action behavior remain unmeasured.",
+        "The unsigned artifact is test-only and is not release signing or distribution approval.",
+        "No commit of this record, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this exact build record; then request setup launch approval separately for the user's forward/back pre-install visual review and do not click Install."
+    },
+    {
+      "id": "EV-20260826-039",
+      "recorded_at_utc": "2026-08-26T12:55:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "99694d747e98c0509c2284d4c2dfa9d9699e3cc7",
+      "baseline_commit": "99694d747e98c0509c2284d4c2dfa9d9699e3cc7",
+      "working_tree_state": "uncommitted",
+      "supersedes": [
+        "EV-20260826-033"
+      ],
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "packaging/make_wizard_images.py",
+        "packaging/wizard/c-back.bmp",
+        "packaging/wizard/c-back-1.bmp",
+        "packaging/wizard/c-back-2.bmp",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -c \"from pathlib import Path; s=Path('packaging/MLCPlayer.iss').read_text(encoding='utf-8-sig'); assert 'WizardBackImageFile=' not in s; assert 'WizardImageFile=wizard\\\\wizard-large.bmp' in s; assert 'CVisualShellEnabled' not in s\"",
+        "git diff 5c04c2dc84c80331b4ab107665743893ebcec640 -- packaging/MLCPlayer.iss packaging/make_wizard_images.py tests/test_installer_branding_regressions.py",
+        "python -m py_compile packaging/make_wizard_images.py tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-039'; print('JSON_LAST_OK',len(d['entries']))\"",
+        "python -c \"import json,subprocess; b=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); c=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); assert c['entries'][:len(b['entries'])] == b['entries']; assert len(c['entries']) == len(b['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json,pathlib,subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands',None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','packaging/MLCPlayer.iss','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check",
+        "independent positive-evidence restore mapping and adversarial restore-plan review"
+      ],
+      "subject": "User-cancelled C v2 shell and reconstructed the previous compiled C source state",
+      "evidence": [
+        "the user explicitly cancelled the C v2 installer screen before a targetable new setup window was observed and requested the exact previous screen without losing it",
+        "independent reviews proved the previous successful source state is committed baseline 5c04c2d plus five recorded behavior-preserving Inno continuation fixes; a blind commit revert or whole-source restore would lose required compiler fixes and append-only history",
+        "the source now uses the previous WizardImageFile, WizardSmallImageFile, WizardImageStretch and modern style; all CVisualShell code, WizardBackImageFile binding and three c-back assets are removed",
+        "the final diff against 5c04c2d contains only the five required compiler formatting fixes in MLCPlayer.iss and the expanded line-leading continuation regression in the branding test",
+        "the previous large and small wizard bitmap set remains present; generator and branding tests returned to the previous screen contract",
+        "the final installer, continuity and append-only family completed with 58 passed; JSON, ledger prefix, private-path and diff gates passed",
+        "the user explicitly authorized the bounded restore, commit/readback, rebuild and pre-install screen inspection to proceed without further pauses; Install, installation, push, PR and merge remain excluded"
+      ],
+      "summary": "The active installer source is restored to the previous successfully compiled C screen behavior without erasing v2 history or known compiler fixes.",
+      "limitations": [
+        "This is working-tree source evidence; no restore commit, rebuild, setup launch or visual readback has occurred yet.",
+        "The former c65 setup bytes were overwritten by the clean v2 rebuild and are not present on disk; source reconstruction does not claim byte-identical reproduction.",
+        "The current on-disk 30ce setup is the cancelled v2 build and must not be used as evidence for the restored source.",
+        "No installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Use the user's explicit bounded authorization in sequence: commit/readback the restore package, then rebuild with Inno 7.1.0, then inspect only the pre-install screen without clicking Install."
+    },
+    {
+      "id": "EV-20260826-040",
+      "recorded_at_utc": "2026-08-26T13:00:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "d1dc6583bd77b8cf9b2d48ac3f0803f8aa8c0f93",
+      "baseline_commit": "d1dc6583bd77b8cf9b2d48ac3f0803f8aa8c0f93",
+      "evidence_commit": "d1dc6583bd77b8cf9b2d48ac3f0803f8aa8c0f93",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss packaging/make_wizard_images.py tests/test_installer_branding_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit --amend --no-edit",
+        "git rev-parse HEAD",
+        "git show --format=%P -s HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -c \"from pathlib import Path; s=Path('packaging/MLCPlayer.iss').read_text(encoding='utf-8-sig'); assert 'WizardBackImageFile=' not in s; assert 'WizardImageFile=wizard\\\\wizard-large.bmp' in s; assert 'WizardSmallImageFile=wizard\\\\wizard-small.bmp' in s; assert 'CVisualShellEnabled' not in s; print('COMMITTED_PREVIOUS_SCREEN_OK')\"",
+        "git status --short --branch"
+      ],
+      "subject": "Committed exact previous installer screen restoration",
+      "evidence": [
+        "the bounded restore commit completed as exact d1dc6583bd77b8cf9b2d48ac3f0803f8aa8c0f93 with exact parent 99694d747e98c0509c2284d4c2dfa9d9699e3cc7",
+        "readback showed exactly the nine expected canonical docs, installer source, generator, three c-back deletions and branding regression paths",
+        "the committed installer uses the previous WizardImageFile and WizardSmallImageFile set, contains no WizardBackImageFile or CVisualShell state, and preserves the known continuation fixes",
+        "the committed impact family completed with 58 passed, the working tree was clean and the branch measured eight commits ahead and zero behind origin/master"
+      ],
+      "summary": "The previous installer screen source is restored and bound to an exact local commit with verified scope and tests.",
+      "limitations": [
+        "No rebuild or visual launch has yet proven the committed pixels.",
+        "The on-disk setup still belongs to the cancelled v2 source until the next exact rebuild replaces it.",
+        "No installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Under the user's bounded continuous authorization, commit this readback record, rebuild exact committed source with Inno 7.1.0, then inspect only pre-install pages without clicking Install."
+    },
+    {
+      "id": "EV-20260826-041",
+      "recorded_at_utc": "2026-08-26T13:02:00Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "3270239aeb9560c0d30f73c33fd2dbabfc7459e6",
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "fce72dafdbb17cca5be157161fe906f39e408060fd72f609ff8fe46c81df601"
+      },
+      "commands": [
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','Setup','ISCC','python','pythonw','pyinstaller') }"
+      ],
+      "subject": "Exact previous-screen source build",
+      "evidence": [
+        "the bounded rebuild started from exact committed source 3270239aeb9560c0d30f73c33fd2dbabfc7459e6 and exact Inno Setup 7.1.0",
+        "the unsigned build completed with exit 0 and produced a 56339111-byte setup with SHA-256 fce72dafdbb17cca5be157161fe906f39e408060fd72f609ff8fe46c81df601",
+        "Authenticode readback was NotSigned as intended for the test-only artifact and the build completion check found no leaked setup, Player, compiler or Python process"
+      ],
+      "summary": "The committed previous-screen source produced an exact internally verified unsigned setup artifact.",
+      "limitations": [
+        "This is source-build evidence only and does not prove installation, actions, full visual acceptance or release readiness.",
+        "The former c65 artifact bytes are unavailable; this result does not claim byte identity with that historical setup.",
+        "No installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Launch only the exact pre-install artifact under the user's bounded authorization, inspect its pages and do not click Install."
+    },
+    {
+      "id": "EV-20260826-042",
+      "recorded_at_utc": "2026-08-26T13:08:00Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "3270239aeb9560c0d30f73c33fd2dbabfc7459e6",
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "fce72dafdbb17cca5be157161fe906f39e408060fd72f609ff8fe46c81df601",
+        "summary-page-user-capture.png": "f6a0e46fbc7d37c0913b39ac5e96cd750674ce379105f6b8cc519f537914a625"
+      },
+      "commands": [
+        "user-approved elevated pre-install setup launch",
+        "manual Next navigation without clicking Install",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe"
+      ],
+      "subject": "User-rejected native Summary text surface",
+      "evidence": [
+        "the exact restored artifact opened the previous native Welcome shell with the original dark left artwork, orange baseline, white content area and native navigation controls",
+        "on the Summary page the native memo appeared as a large gray bordered surface with dense ungrouped text and both horizontal and vertical scroll bars",
+        "the user explicitly rejected the Summary text area as visually poor; no Install action was invoked"
+      ],
+      "summary": "The previous installer shell was restored, but its native Summary text presentation failed user visual acceptance.",
+      "limitations": [
+        "The failure is limited to the observed Turkish Summary page on this exact unsigned artifact and does not reject the restored Welcome shell.",
+        "Installation, finish actions, other languages, DPI, High Contrast and screen-reader behavior were not exercised.",
+        "The elevated setup process could not be driven by automation; navigation was manual and Install remained excluded."
+      ],
+      "next_action": "Improve only the native ReadyMemo presentation regression-first while preserving the previous shell and live Inno state; do not rebuild automatically."
+    },
+    {
+      "id": "EV-20260826-043",
+      "recorded_at_utc": "2026-08-26T13:13:07Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "3270239aeb9560c0d30f73c33fd2dbabfc7459e6",
+      "baseline_commit": "3270239aeb9560c0d30f73c33fd2dbabfc7459e6",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k summary_memo_is_clean_wrapped_and_grouped",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'summary_memo_is_clean_wrapped_and_grouped or summary_and_progress_use_live_engine_state or pascal_continuations'",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-043'; print('JSON_LAST_OK',len(d['entries']))\"",
+        "python -c \"import json,subprocess; b=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); c=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); assert c['entries'][:len(b['entries'])] == b['entries']; assert len(c['entries']) == len(b['entries']) + 3; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json,pathlib,subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands',None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','packaging/MLCPlayer.iss','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check",
+        "independent positive-evidence source mapping and adversarial UX/accessibility review"
+      ],
+      "subject": "Native Summary text presentation refinement",
+      "evidence": [
+        "the new behavior regression first failed against the unchanged baseline because ReadyMemo had no explicit system color, wrapping or scroll contract",
+        "the minimal source change reuses the built-in read-only ReadyMemo, preserves UpdateReadyMemo as the sole live-state content owner and adds clWindow, word-wrap, vertical-only overflow and native resize anchors",
+        "plain-text blank lines separate location, Windows choices, online information, retained user data and the final action without introducing fake controls, custom pages, cached state or product behavior",
+        "the focused red-to-green group passed 3 tests and the installer branding, language, process-safety and version family passed 44 tests",
+        "independent positive and adversarial reviews agreed on the native-only architecture; the adversarial accessibility boundary kept the native border, read-only selection, keyboard access and system colors"
+      ],
+      "summary": "The rejected Summary memo now has a narrow native source fix for readability without changing the previous installer shell or live choices.",
+      "limitations": [
+        "This is uncommitted deterministic source evidence; no compiler run or updated setup pixels exist yet.",
+        "Actual wrapping, vertical overflow, Turkish and long localized text, DPI, High Contrast, keyboard and screen-reader behavior require a separately approved exact build and native visual run.",
+        "No installation, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this exact five-file package; after readback, request separate build and pre-install visual retry approval without clicking Install."
+    },
+    {
+      "id": "EV-20260826-044",
+      "recorded_at_utc": "2026-08-26T13:25:27Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "5611c0c6c1528292bc060127077ae0b973424aaa",
+      "baseline_commit": "5611c0c6c1528292bc060127077ae0b973424aaa",
+      "evidence_commit": "5611c0c6c1528292bc060127077ae0b973424aaa",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss tests/test_installer_branding_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"fix: refine installer summary text\"",
+        "git rev-parse HEAD",
+        "git show --format=%P -s HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git status --short --branch",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-043'; print('COMMITTED_JSON_OK',len(d['entries']))\""
+      ],
+      "subject": "Committed native Summary text refinement",
+      "evidence": [
+        "the separately approved commit completed as exact 5611c0c6c1528292bc060127077ae0b973424aaa with exact parent 3270239aeb9560c0d30f73c33fd2dbabfc7459e6",
+        "readback showed exactly the five approved continuity, packaging contract, append-only ledger, installer source and branding regression paths",
+        "the committed impact family completed with 59 passed, committed JSON ended at EV-20260826-043 and the branch measured ten commits ahead and zero behind origin/master",
+        "the working tree was clean immediately after commit readback"
+      ],
+      "summary": "The native Summary text refinement is bound to an exact local commit with verified parent, scope and committed tests.",
+      "limitations": [
+        "No updated setup has been built or visually launched from commit 5611c0c6c1528292bc060127077ae0b973424aaa.",
+        "Source tests do not prove actual pixels, DPI, High Contrast, keyboard or screen-reader acceptance.",
+        "No installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this readback record; after that, request separate exact build and pre-install visual retry approval without clicking Install."
+    },
+    {
+      "id": "EV-20260826-045",
+      "recorded_at_utc": "2026-08-26T13:57:56Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "da6c21e10913c19e7c93ede38c6f0dbc75591c91",
+      "baseline_commit": "da6c21e10913c19e7c93ede38c6f0dbc75591c91",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "cc1021777973f44f40034d8c288b7763175e423fb026d753b5528a3849ea274d",
+        "MLC Player.exe": "e16ae46d2d88a6686f3822562a4ee536ff96e778ee695556768b7b7d2aa8049a"
+      },
+      "commands": [
+        "$targets = @(18256,19004); $procs = Get-Process -Id $targets -ErrorAction Stop",
+        "$procs | Select-Object Id,ProcessName,StartTime,MainWindowHandle | Format-Table -AutoSize",
+        "if (($procs | Where-Object ProcessName -ne 'MLCPlayer_Setup_v0.39').Count -ne 0) { throw 'PID_PROCESS_MISMATCH' }",
+        "$procs | Stop-Process -Force -ErrorAction Stop",
+        "$left = Get-Process -Id $targets -ErrorAction SilentlyContinue; if ($left) { throw 'SETUP_PROCESS_STILL_RUNNING' }",
+        "$all = Get-Process -Name MLCPlayer_Setup_v0.39 -ErrorAction SilentlyContinue; if ($all) { throw 'OTHER_SETUP_PROCESS_RUNNING' }",
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-Item installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-Item 'dist\\MLC Player\\MLC Player.exe'",
+        "Get-FileHash -Algorithm SHA256 'dist\\MLC Player\\MLC Player.exe'",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','ISCC','python','pythonw','pyinstaller') }",
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-045'; print('JSON_LAST_OK',len(d['entries']))\"",
+        "python -c \"import json,subprocess; b=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); c=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); assert c['entries'][:len(b['entries'])] == b['entries']; assert len(c['entries']) == len(b['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json,pathlib,subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images','AppData/Local/Temp'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands',None) for e in new]; blobs=[json.dumps(new),pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Exact Summary-refinement unsigned test build",
+      "evidence": [
+        "the user separately approved termination of exact stale hidden setup PIDs 18256 and 19004; PID-to-process readback matched MLCPlayer_Setup_v0.39 and zero same-name process remained before build",
+        "the separately approved build started from clean exact commit da6c21e10913c19e7c93ede38c6f0dbc75591c91 and exact Inno Setup 7.1.0",
+        "the six-step dependency, source/runtime, clean output, translation, PyInstaller, Inno and exact-artifact chain completed with exit 0 and DONE marker",
+        "the unsigned setup is 56346881 bytes with SHA-256 cc1021777973f44f40034d8c288b7763175e423fb026d753b5528a3849ea274d; Authenticode is NotSigned as intended for the test artifact",
+        "the packaged Player executable is 3133110 bytes with SHA-256 e16ae46d2d88a6686f3822562a4ee536ff96e778ee695556768b7b7d2aa8049a",
+        "before this evidence append, post-build readback found no setup, Player, compiler, Python or PyInstaller process leak and the Git working tree was clean"
+      ],
+      "summary": "The committed native Summary refinement produced an exact internally verified unsigned setup artifact.",
+      "limitations": [
+        "This is source-build evidence only; the updated setup has not been launched or visually inspected.",
+        "Actual Summary pixels, word wrapping, vertical overflow, DPI, High Contrast, keyboard and screen-reader behavior remain unmeasured.",
+        "The unsigned artifact is test-only; no installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this exact build record; after that, request separate pre-install visual retry approval and do not click Install."
+    },
+    {
+      "id": "EV-20260826-046",
+      "recorded_at_utc": "2026-08-26T15:36:00Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "da6c21e10913c19e7c93ede38c6f0dbc75591c91",
+      "baseline_commit": "818f6736b8fa6c5e566661ce34f636985425cc02",
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "cc1021777973f44f40034d8c288b7763175e423fb026d753b5528a3849ea274d",
+        "installed-MLC-Player.exe": "e16ae46d2d88a6686f3822562a4ee536ff96e778ee695556768b7b7d2aa8049a",
+        "flow-01-welcome.png": "0c3b0212ac06748849cd7576667d8ffb9dcfc5fa8f90a09fd5b7842dc66ddbb4",
+        "flow-02-summary.png": "8e5abd5d95585462eb6c844910efb0fe3e0ac6704575bb72bfea87b78ff30b18",
+        "flow-03-progress.png": "e18f8cc96859e9d4aea38945deeb095ed2563cb82c9ecc933c180f2600cfe0d9",
+        "flow-04-finish.png": "c9be8e687f119cc0d9a9171fdded96a3eed96cbf763e00dc239a29ec6168c241"
+      },
+      "commands": [
+        "user-controlled launch and navigation of exact MLCPlayer_Setup_v0.39.exe",
+        "$installed='C:\\Program Files\\MLC Player\\MLC Player.exe'; $f=Get-Item -LiteralPath $installed; $f.Length; (Get-FileHash -Algorithm SHA256 -LiteralPath $installed).Hash; $f.VersionInfo.FileVersion",
+        "Get-Process -Name 'MLC Player' -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,StartTime,MainWindowTitle,MainWindowHandle",
+        "Get-Process -Name MLCPlayer_Setup_v0.39 -ErrorAction SilentlyContinue"
+      ],
+      "subject": "User-controlled exact installer completion and Player launch",
+      "evidence": [
+        "the user manually launched the exact 56346881-byte setup artifact built from da6c21e10913c19e7c93ede38c6f0dbc75591c91 and recorded by EV-20260826-045 while the observation checkout was 818f6736b8fa6c5e566661ce34f636985425cc02",
+        "the four stable private captures were hashed for identity; repository policy records only safe names and digests, not their private source paths or path-bearing hash commands",
+        "the Finish capture showed the Player launch action selected while Default Apps and GitHub actions remained unselected",
+        "after the user completed Finish, the installed MLC Player.exe was 3133110 bytes with SHA-256 e16ae46d2d88a6686f3822562a4ee536ff96e778ee695556768b7b7d2aa8049a, exactly matching the packaged executable recorded by EV-20260826-045",
+        "a visible MLC Player process and main window were present and no setup process remained"
+      ],
+      "summary": "The exact unsigned test artifact visibly completed installation and its selected Player-launch action opened the exact packaged executable.",
+      "limitations": [
+        "The user, not automation, clicked Install and Finish; cancellation, rollback, uninstall and installed registry/file-set completeness were not measured.",
+        "Default Apps and GitHub actions were unselected and therefore remain unverified.",
+        "This test-only unsigned installation is not release, signing, updater or general installer acceptance."
+      ],
+      "next_action": "Record the separate visual acceptance boundary from the same exact flow without transferring installation PASS to a future build."
+    },
+    {
+      "id": "EV-20260826-047",
+      "recorded_at_utc": "2026-08-26T15:38:00Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "da6c21e10913c19e7c93ede38c6f0dbc75591c91",
+      "baseline_commit": "818f6736b8fa6c5e566661ce34f636985425cc02",
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "cc1021777973f44f40034d8c288b7763175e423fb026d753b5528a3849ea274d",
+        "flow-03-progress.png": "e18f8cc96859e9d4aea38945deeb095ed2563cb82c9ecc933c180f2600cfe0d9"
+      },
+      "commands": [
+        "visual inspection of the user-provided exact Progress capture",
+        "independent positive-evidence and adversarial Inno layout reviews"
+      ],
+      "subject": "Progress-page brand-continuity visual rejection",
+      "evidence": [
+        "the Summary capture visibly proved that horizontal scrolling was removed and the effective state was grouped into readable wrapped blocks",
+        "Welcome and Finish retained the dark MLC artwork and orange baseline, while the native Progress page changed to an unbranded full-width white surface",
+        "the user approved correcting this Progress-only visual discontinuity"
+      ],
+      "summary": "The Summary refinement was visible, but the exact Progress page failed the requested cross-screen brand-continuity standard.",
+      "limitations": [
+        "This visual failure does not invalidate EV-20260826-046 installation completion or native progress behavior.",
+        "Screenshots do not prove DPI, High Contrast, keyboard, Narrator or cancellation behavior.",
+        "Welcome, Summary and Finish geometry must not be changed by the narrow repair."
+      ],
+      "next_action": "Repair only wpInstalling branding regression-first while preserving native progress, status, filename and Cancel state; do not rebuild automatically."
+    },
+    {
+      "id": "EV-20260826-048",
+      "recorded_at_utc": "2026-08-26T15:41:34Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "818f6736b8fa6c5e566661ce34f636985425cc02",
+      "baseline_commit": "818f6736b8fa6c5e566661ce34f636985425cc02",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k progress_has_bounded_native_brand_accent",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'progress_has_bounded_native_brand_accent or summary_memo_is_clean_wrapped_and_grouped or summary_and_progress_use_live_engine_state or pascal_continuations'",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-048'; print('JSON_LAST_OK',len(d['entries']))\"",
+        "python -c \"import json,subprocess; b=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); c=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); assert c['entries'][:len(b['entries'])] == b['entries']; assert len(c['entries']) == len(b['entries']) + 3; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json,pathlib,subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images','AppData/Local/Temp'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands',None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','packaging/MLCPlayer.iss','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check",
+        "independent positive-evidence and adversarial native-layout reviews"
+      ],
+      "subject": "Bounded native Progress brand accent",
+      "evidence": [
+        "the new regression first failed against the unchanged baseline because wpInstalling had no bounded brand accent",
+        "the minimal implementation adds only a DPI-scaled bottom-anchored orange TPanel and styles the existing real InstallPhaseLabel; High Contrast skips both decorations",
+        "the native ProgressGauge, StatusLabel, FilenameLabel, CancelButton, five built-in pages and BeforeInstall-driven phase state are not copied, hidden, reparented or replaced",
+        "the focused family passed 4 tests, the installer branding/language/process-safety/version family passed 45 tests and the final continuity/append-only package passed 60 tests",
+        "both independent reviews rejected the former global v2 shell and full left-panel reflow; the selected installing-only accent avoids those geometry and localization risks"
+      ],
+      "summary": "The Progress page now has a bounded source-level brand connection without restoring the rejected shell or changing native install behavior.",
+      "limitations": [
+        "This is uncommitted deterministic evidence; no new setup pixels or runtime behavior exist yet.",
+        "Actual z-order, DPI, High Contrast, localization, Cancel, progress and screen-reader behavior require a separately approved exact build and visual run.",
+        "EV-20260826-046 installed-artifact PASS belongs only to the old cc1021 artifact and cannot transfer to this source change.",
+        "No commit, build, setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Complete the impact-limited governance gates and adversarial diff review, then request separate approval to commit the exact five-file source/evidence package."
+    },
+    {
+      "id": "EV-20260826-049",
+      "recorded_at_utc": "2026-08-26T16:26:57Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f",
+      "baseline_commit": "4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f",
+      "evidence_commit": "4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss tests/test_installer_branding_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"fix: add bounded installer progress accent\"",
+        "git rev-parse HEAD",
+        "git show --no-patch --format=%P HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git status --short --branch",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-048'; print('COMMITTED_JSON_OK',len(d['entries']))\""
+      ],
+      "subject": "Committed bounded native Progress brand accent",
+      "evidence": [
+        "the separately approved source/evidence commit completed as exact 4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f with exact parent 818f6736b8fa6c5e566661ce34f636985425cc02",
+        "readback showed exactly the five approved continuity, packaging contract, append-only ledger, installer source and branding regression paths",
+        "the committed impact family completed with 60 passed, committed JSON ended at EV-20260826-048 and the branch measured thirteen commits ahead and zero behind origin/master",
+        "the working tree was clean immediately after commit readback"
+      ],
+      "summary": "The bounded native Progress accent is tied to an exact local commit with verified parent, scope and committed tests.",
+      "limitations": [
+        "No setup has been built or visually launched from commit 4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f.",
+        "Deterministic tests do not prove actual z-order, pixels, DPI, High Contrast, localization, Cancel, progress or screen-reader behavior.",
+        "EV-20260826-046 belongs only to the old cc1021 artifact; no installation, push, PR, merge, tag or release occurred for this commit."
+      ],
+      "next_action": "Request separate approval to commit this readback record; then request separate exact build approval before any new setup launch or installation."
+    },
+    {
+      "id": "EV-20260826-050",
+      "recorded_at_utc": "2026-08-26T16:32:23Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "baseline_commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "$setup=Get-Item -LiteralPath 'installer_output\\MLCPlayer_Setup_v0.39.exe'; $player=Get-Item -LiteralPath 'dist\\MLC Player\\MLC Player.exe'; $runtime=Get-Item -LiteralPath 'dist\\MLC Player\\_internal\\bin\\mpv-2.dll'; $manifest=Get-Item -LiteralPath 'dist\\MLC Player\\_internal\\bin\\RUNTIME_MANIFEST.txt'; $sourceRuntime=Get-Item -LiteralPath 'bin\\mpv-2.dll'; $setup,$player,$runtime,$manifest,$sourceRuntime | Select-Object Name,Length,CreationTimeUtc,LastWriteTimeUtc; $setup,$player,$runtime,$manifest,$sourceRuntime | Get-FileHash -Algorithm SHA256",
+        "$player.VersionInfo | Select-Object FileVersion,ProductVersion; Get-AuthenticodeSignature -LiteralPath $setup.FullName | Select-Object Status,StatusMessage; Test-Path -LiteralPath 'installer_output\\MLCPlayer_Setup_v0.39.exe.sig'",
+        "git rev-parse HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','ISCC','python','pythonw','pyinstaller') } | Select-Object Id,ProcessName,StartTime,MainWindowHandle"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "43b27e818bcb9aef894fdae5dbea9f98a2fb76298860fc29a62c3fbd5a841e6b",
+        "MLC Player.exe": "61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4e",
+        "packaged mpv-2.dll": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "source mpv-2.dll": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "RUNTIME_MANIFEST.txt": "c210d1e847e7f65982ff8214cb3581162d736b09b1807e5214c0f2111d1a8a6c"
+      },
+      "subject": "Unsigned main installer build with bounded Progress accent",
+      "evidence": [
+        "the separately approved build started from clean exact 139921728e0e30b468a92bc287a0ad0ec665bc75 with Inno Setup 7.1.0",
+        "the official unsigned-main dependency, runtime, translation, clean PyInstaller, Inno and exact-artifact chain completed once with exit 0 and DONE marker",
+        "the new MLCPlayer_Setup_v0.39.exe is 66222017 bytes with SHA-256 43b27e818bcb9aef894fdae5dbea9f98a2fb76298860fc29a62c3fbd5a841e6b, Authenticode NotSigned and no detached signature",
+        "the packaged Player is v0.39, 3133110 bytes with SHA-256 61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4",
+        "the packaged and source mpv-2.dll both measure 112772608 bytes and SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4",
+        "the packaged RUNTIME_MANIFEST.txt is 2428 bytes with SHA-256 c210d1e847e7f65982ff8214cb3581162d736b09b1807e5214c0f2111d1a8a6c",
+        "before this evidence append, post-build readback remained on exact HEAD with a clean tracked working tree, fourteen commits ahead and zero behind origin/master",
+        "the initial outer-process filter returned empty, but a later adversarial CIM check found a pre-existing inner Inno temp process; process cleanliness is therefore not claimed by this record"
+      ],
+      "summary": "The committed bounded Progress source produced a fresh, internally verified unsigned main setup artifact.",
+      "limitations": [
+        "This source_build PASS proves only the exact compiled artifact and recorded build chain.",
+        "No setup window was launched; Progress pixels, z-order, DPI, High Contrast, localization, Cancel and screen-reader behavior remain unmeasured.",
+        "No installation or installed-artifact readback occurred; EV-20260826-046 belongs only to the older cc1021 artifact.",
+        "The pre-build process filter omitted Inno inner temp process names; EV-20260826-051 records the stale process discovered after build and the build is not evidence of process cleanliness.",
+        "No commit of this record, push, PR, merge, tag, signing or release occurred."
+      ],
+      "next_action": "Resolve the separately recorded stale inner setup process under explicit approval before requesting any controlled visual Progress launch; installation and record commit remain separately approval-gated."
+    },
+    {
+      "id": "EV-20260826-051",
+      "recorded_at_utc": "2026-08-26T16:38:20Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "baseline_commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('MLCPlayer_Setup_v0.39.exe','mlcplayer_setup_v0.39.tmp','MLC Player.exe','ISCC.exe','python.exe','pythonw.exe','pyinstaller.exe') } | Select-Object ProcessId,Name,ExecutablePath,CreationDate,CommandLine",
+        "$p=Get-CimInstance Win32_Process -Filter \"ProcessId=34036\"; $parent=Get-CimInstance Win32_Process -Filter \"ProcessId=$($p.ParentProcessId)\" -ErrorAction SilentlyContinue; $hash=if($p.ExecutablePath -and (Test-Path -LiteralPath $p.ExecutablePath)){(Get-FileHash -Algorithm SHA256 -LiteralPath $p.ExecutablePath).Hash}else{''}; [pscustomobject]@{ProcessId=$p.ProcessId;Name=$p.Name;CreationDate=$p.CreationDate;ParentProcessId=$p.ParentProcessId;ParentAlive=[bool]$parent;ParentName=if($parent){$parent.Name}else{''};ExecutableSha256=$hash;MainWindowHandle=(Get-Process -Id 34036 -ErrorAction SilentlyContinue).MainWindowHandle} | ConvertTo-Json"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.tmp": "f8aa2691e72a430b0dca198a7562f4ad05235b49e1926369368ddc5e9b93aa10"
+      },
+      "subject": "Pre-launch safety gate found stale inner Inno setup process",
+      "evidence": [
+        "the adversarial process-name expansion found exact PID 34036 named MLCPlayer_Setup_v0.39.tmp with no main window",
+        "the process creation time was 2026-08-26T18:31:56+03:00, approximately one hour before the new setup artifact write time, so the new build is not identified as its creator",
+        "the recorded parent PID 31004 was no longer alive and the inner executable SHA-256 was f8aa2691e72a430b0dca198a7562f4ad05235b49e1926369368ddc5e9b93aa10",
+        "no process was terminated and no setup launch or retry occurred"
+      ],
+      "summary": "The visual pre-launch safety gate failed because a stale hidden inner Inno setup process remains alive.",
+      "limitations": [
+        "The omitted inner-process name in the original preflight means this record cannot determine which earlier setup attempt created the process.",
+        "The temp executable digest does not identify the outer setup artifact or prove installation activity.",
+        "This failure does not invalidate the exact source_build artifact result in EV-20260826-050, but it blocks a new visual launch until resolved.",
+        "No automatic termination, retry, installation, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Before termination, revalidate PID 34036, process name, creation time and executable SHA-256 as one fail-closed identity tuple; then read back outer and inner setup process absence before separately requesting a visual launch."
+    },
+    {
+      "id": "EV-20260826-052",
+      "recorded_at_utc": "2026-08-26T16:57:09Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "baseline_commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "$expectedPid=34036; $expectedName='MLCPlayer_Setup_v0.39.tmp'; $expectedCreated=[datetimeoffset]'2026-08-26T18:31:56.598313+03:00'; $expectedHash='F8AA2691E72A430B0DCA198A7562F4AD05235B49E1926369368DDC5E9B93AA10'; $p=Get-CimInstance Win32_Process -Filter \"ProcessId=$expectedPid\" -ErrorAction SilentlyContinue; if(-not $p){throw 'TARGET_PROCESS_MISSING'}; $actualCreated=[datetimeoffset]$p.CreationDate; $actualHash=if($p.ExecutablePath -and (Test-Path -LiteralPath $p.ExecutablePath)){(Get-FileHash -Algorithm SHA256 -LiteralPath $p.ExecutablePath).Hash}else{''}; if($p.ProcessId -ne $expectedPid -or $p.Name -cne $expectedName -or $actualCreated -ne $expectedCreated -or $actualHash -cne $expectedHash){throw 'PROCESS_IDENTITY_MISMATCH'}; Stop-Process -Id $expectedPid -Force -ErrorAction Stop",
+        "$matches=Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('MLCPlayer_Setup_v0.39.exe','MLCPlayer_Setup_v0.39.tmp') }; if($matches){$matches | Select-Object ProcessId,ParentProcessId,Name,CreationDate; exit 2}; 'OUTER_INNER_SETUP_PROCESS_ABSENCE_OK'",
+        "git rev-parse HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Stale inner setup process disappeared before approved termination",
+      "evidence": [
+        "the separately approved termination command failed closed at TARGET_PROCESS_MISSING before reaching Stop-Process, so no process was terminated",
+        "the immediate all-PID CIM readback returned OUTER_INNER_SETUP_PROCESS_ABSENCE_OK for both MLCPlayer_Setup_v0.39.exe and MLCPlayer_Setup_v0.39.tmp",
+        "the checkout remained on exact 139921728e0e30b468a92bc287a0ad0ec665bc75, fourteen commits ahead and zero behind origin/master"
+      ],
+      "summary": "The previously observed stale inner setup process was already gone and the controlled pre-launch process-absence gate passed without termination.",
+      "limitations": [
+        "This PASS proves only process absence at the recorded readback instant; it does not explain why or exactly when PID 34036 exited.",
+        "No setup was launched and no Progress pixels, installation behavior or installed artifact was tested.",
+        "No process termination, retry, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to launch only the exact 43b27e setup for controlled visual Progress review; installation and record commit remain separately approval-gated."
+    },
+    {
+      "id": "EV-20260826-053",
+      "recorded_at_utc": "2026-08-26T16:59:21Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "82afdda90f832c234f01d24ac50a6eb41569ff92",
+      "baseline_commit": "82afdda90f832c234f01d24ac50a6eb41569ff92",
+      "evidence_commit": "82afdda90f832c234f01d24ac50a6eb41569ff92",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"docs: record installer progress build\"",
+        "git rev-parse HEAD",
+        "git show --no-patch --format=%P HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git status --short --branch",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py"
+      ],
+      "subject": "Committed installer Progress build and process-safety evidence",
+      "evidence": [
+        "the separately approved EV050 through EV052 evidence package committed as exact 82afdda90f832c234f01d24ac50a6eb41569ff92 with exact parent 139921728e0e30b468a92bc287a0ad0ec665bc75",
+        "readback showed exactly docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json in the commit",
+        "the committed continuity and append-only ledger family completed with 15 passed and committed JSON ended at EV-20260826-052 with 228 entries",
+        "the working tree was clean immediately after commit readback and the branch measured fifteen commits ahead and zero behind origin/master"
+      ],
+      "summary": "The exact unsigned build, stale-process failure and subsequent process-absence evidence are tied to one verified local documentation commit.",
+      "limitations": [
+        "This deterministic readback does not prove setup pixels, launch behavior, installation or installed-artifact behavior.",
+        "No setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this readback record; only afterward request separate approval for controlled visual launch of exact setup SHA-256 43b27e818bcb9aef894fdae5dbea9f98a2fb76298860fc29a62c3fbd5a841e6b."
+    },
+    {
+      "id": "EV-20260826-054",
+      "recorded_at_utc": "2026-08-26T17:10:28Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "ef458df0296f7b74c7238e7ab262fb2881fbef73",
+      "baseline_commit": "ef458df0296f7b74c7238e7ab262fb2881fbef73",
+      "artifact_commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "43b27e818bcb9aef894fdae5dbea9f98a2fb76298860fc29a62c3fbd5a841e6b",
+        "installed-MLC-Player.exe": "61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4e",
+        "bundled-icuuc.dll": "2882afacabd9d901762ab196c7a319b03051af39291e47fef51fcb69c26ab5b8"
+      },
+      "commands": [
+        "user-controlled navigation, Install and Finish of exact MLCPlayer_Setup_v0.39.exe",
+        "Get-FileHash -Algorithm SHA256 for the exact setup, packaged Player and installed Player; Get-Item VersionInfo for the installed Player",
+        "Get-CimInstance Win32_Process filtered to outer/inner setup and MLC Player; Get-Process MLC Player with MainWindowTitle and MainWindowHandle",
+        "Computer Use readback of the visible Unhandled exception in script dialog",
+        "Python pefile comparison of Qt6Core.dll icuuc.dll imports against bundled and System32 icuuc.dll exports",
+        "rg -n -i \"icuuc\\.dll|poppler|libheif\" build\\MLCPlayer\\Analysis-00.toc build\\MLCPlayer\\COLLECT-00.toc",
+        "development PyQt6 QtWidgets import plus GetModuleFileNameW readback for the loaded icuuc.dll",
+        "recursive SHA-256 comparison of all dist payload files against the installed tree"
+      ],
+      "subject": "Exact installed Progress build fails frozen QtWidgets startup",
+      "evidence": [
+        "the user completed the exact 43b27e setup; all four Inno outer and inner processes closed and the installed v0.39 Player was byte-identical to the packaged 61f61b executable",
+        "the complete 140-file dist payload matched the installed payload with zero missing or differing files; five installed-only files were the expected licence, readme and uninstaller files",
+        "Finish launched the installed Player but its only visible window was Unhandled exception in script with DLL load failed while importing QtWidgets: Belirtilen yordam bulunamadı",
+        "the bundled ICU 78.3 icuuc.dll is 2728448 bytes with SHA-256 2882afacabd9d901762ab196c7a319b03051af39291e47fef51fcb69c26ab5b8",
+        "Qt6Core imports twenty unversioned ICU procedures; the bundled ICU exports zero of twenty while the Windows System32 ICU exports all twenty",
+        "the development PyQt6 QtWidgets import passed and loaded icuuc.dll from System32; build TOC provenance shows the incompatible bundled ICU came from an external Poppler PATH entry",
+        "independent positive and adversarial reviews agree the installer copy is exact and the failure belongs to frozen build loader provenance, not product source or Inno copying"
+      ],
+      "summary": "Installation copied the exact artifact, but launch failed because build-environment PATH contamination bundled an ICU DLL incompatible with Qt6Core's required imports.",
+      "limitations": [
+        "The Progress page passed too quickly for a stable capture, so its new orange accent has no human visual acceptance from this run.",
+        "The source_build PASS in EV-20260826-050 remains limited to compilation and artifact identity; it is not installed or native launch acceptance.",
+        "No automatic launch retry, DLL replacement, PATH mutation, rebuild, process termination, commit, push, PR, merge, tag or release occurred.",
+        "The Player error dialog remains user-controlled; this record does not claim clean Player shutdown."
+      ],
+      "next_action": "Request separate source-change approval for regression-first packaging hygiene: reject or exclude incompatible root ICU and foreign PATH provenance, then separately approve a new build and one controlled launch."
+    },
+    {
+      "id": "EV-20260826-055",
+      "recorded_at_utc": "2026-08-26T17:13:25Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "ddc79a1bb299a652e2c860992924451e4c1ca70b",
+      "baseline_commit": "ddc79a1bb299a652e2c860992924451e4c1ca70b",
+      "evidence_commit": "ddc79a1bb299a652e2c860992924451e4c1ca70b",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"docs: record frozen Qt startup failure\"",
+        "git rev-parse HEAD",
+        "git show --no-patch --format=%P HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git status --short --branch",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py"
+      ],
+      "subject": "Committed frozen Qt startup failure and ICU provenance evidence",
+      "evidence": [
+        "the separately approved EV054 failure package committed as exact ddc79a1bb299a652e2c860992924451e4c1ca70b with exact parent ef458df0296f7b74c7238e7ab262fb2881fbef73",
+        "readback showed exactly docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json in the commit",
+        "the committed continuity and append-only ledger family completed with 15 passed and committed JSON ended at failed EV-20260826-054 with 230 entries",
+        "the working tree was clean immediately after commit readback and the branch measured seventeen commits ahead and zero behind origin/master"
+      ],
+      "summary": "The exact installed-artifact failure and proven incompatible ICU build provenance are tied to one verified local documentation commit.",
+      "limitations": [
+        "This readback does not fix the frozen build or grant launch, build, installation, push, PR, merge, tag or release approval.",
+        "The Player error dialog remains user-controlled and no automatic retry occurred."
+      ],
+      "next_action": "Request separate approval to commit this readback record; afterward request separate source-change approval for the regression-first ICU and foreign-PATH packaging fix."
+    },
+    {
+      "id": "EV-20260826-056",
+      "recorded_at_utc": "2026-08-26T17:29:43Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "cf3b6bab91b2b6d0507fe0cd91c4b050e3b06773",
+      "baseline_commit": "cf3b6bab91b2b6d0507fe0cd91c4b050e3b06773",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "MLCPlayer.spec",
+        "packaging/build_release.bat",
+        "packaging/build_unsigned_main.bat",
+        "packaging/pyinstaller_binary_policy.py",
+        "packaging/run_pyinstaller.py",
+        "packaging/verify_build.py",
+        "tests/test_frozen_dll_provenance_regressions.py",
+        "tests/test_translation_pipeline_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_frozen_dll_provenance_regressions.py",
+        "python -m py_compile packaging\\pyinstaller_binary_policy.py packaging\\run_pyinstaller.py packaging\\verify_build.py",
+        "python -m pytest -q tests/test_frozen_dll_provenance_regressions.py tests/test_dist_completeness_regressions.py tests/test_translation_pipeline_regressions.py tests/test_signpath_hosted_unsigned_build_workflow_regressions.py tests/test_verify_build_runtime_regressions.py tests/test_release_artifact_selection_regressions.py tests/test_dependency_lock_regressions.py tests/test_developer_dependency_regressions.py tests/test_spdx_header_regressions.py",
+        "git diff --check",
+        "rg -n -i private-path patterns across the changed source and test files"
+      ],
+      "subject": "Regression-first frozen DLL provenance and clean PyInstaller environment fix",
+      "evidence": [
+        "the initial target regression package failed with nine failures and one pass before implementation; adversarial destination and environment boundary additions separately reproduced twelve failures and then two failures before their fixes",
+        "the final target package completed with 27 passed and the packaging impact family completed with 448 passed",
+        "the PyInstaller child PATH is reconstructed from the interpreter, Python base and OS-API Windows directories while caller PATH, Python and Qt overrides plus mixed-case SystemRoot, WINDIR and SystemDrive poisoning are removed",
+        "root-equivalent ICU, API-set and UCRT destinations are classified after lexical and Win32 alias normalization; absolute, drive, UNC and escaping destinations fail closed while nested Qt runtime destinations remain preserved",
+        "the spec sanitizer and post-build root guard form separate barriers and required Qt pyd and DLL inventory is checked before installer creation",
+        "independent positive and adversarial actual-diff reviews reported bounded PASS with no remaining P0 or P1 finding"
+      ],
+      "summary": "The uncommitted deterministic packaging fix prevents the proven foreign-PATH ICU collision and closes adversarial destination and Windows-environment bypasses.",
+      "limitations": [
+        "No new build or dist artifact exists, so the frozen DLL provenance and Qt loader behavior have not been remeasured.",
+        "This deterministic PASS does not close EV-20260826-054 or prove installer, installed-artifact, Progress pixels or application launch behavior.",
+        "No build, setup launch, installation, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit the exact source, tests and EV056 evidence package; after commit readback, request separate approval for one clean build."
+    },
+    {
+      "id": "EV-20260826-057",
+      "recorded_at_utc": "2026-08-26T17:32:01Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "61f97132e2a0ce90e72283e43a8aa30c230afdb7",
+      "baseline_commit": "61f97132e2a0ce90e72283e43a8aa30c230afdb7",
+      "evidence_commit": "61f97132e2a0ce90e72283e43a8aa30c230afdb7",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- MLCPlayer.spec docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json packaging/build_release.bat packaging/build_unsigned_main.bat packaging/pyinstaller_binary_policy.py packaging/run_pyinstaller.py packaging/verify_build.py tests/test_frozen_dll_provenance_regressions.py tests/test_translation_pipeline_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"fix: harden frozen DLL provenance\"",
+        "git rev-parse HEAD",
+        "git show --no-patch --format=%P HEAD",
+        "git diff-tree --no-commit-id --name-status -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git status --short --branch",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -m pytest -q tests/test_frozen_dll_provenance_regressions.py"
+      ],
+      "subject": "Committed frozen DLL provenance and clean-environment fix",
+      "evidence": [
+        "the separately approved EV056 source, test and evidence package committed as exact 61f97132e2a0ce90e72283e43a8aa30c230afdb7 with exact parent cf3b6bab91b2b6d0507fe0cd91c4b050e3b06773",
+        "readback showed exactly the ten expected files with three new packaging or regression files and no unrelated path",
+        "the branch measured nineteen commits ahead and zero behind origin/master and the working tree was clean immediately after commit readback",
+        "the committed continuity and append-only ledger family completed with 15 passed and the focused frozen provenance package completed with 27 passed"
+      ],
+      "summary": "The deterministic ICU and foreign-PATH packaging fix is tied to one verified local commit.",
+      "limitations": [
+        "No new build, dist artifact or frozen Qt launch was produced, so EV-20260826-054 remains open.",
+        "No setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this readback record; afterward request separate approval for one clean build from exact 61f97132e2a0ce90e72283e43a8aa30c230afdb7."
+    },
+    {
+      "id": "EV-20260826-058",
+      "recorded_at_utc": "2026-08-26T17:40:12Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "baseline_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "artifact_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "set MLC_HOSTED_UNSIGNED_BUILD=1&& call packaging\\build_unsigned_main.bat",
+        "Get-FileHash -Algorithm SHA256 and Get-AuthenticodeSignature for the exact setup and packaged Player",
+        "direct _internal root and recursive forbidden ICU, API-set and UCRT DLL readback",
+        "required PyQt6 pyd and Qt6 DLL existence, size and SHA-256 readback",
+        "Analysis-00.toc and COLLECT-00.toc foreign-provenance and required-payload inspection",
+        "static PE import and export closure for PyQt6, Qt6 and System32 ICU",
+        "Get-CimInstance Win32_Process build, compiler and setup process-leak readback",
+        "git status --short --branch; git rev-parse HEAD; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "dbecc062f3452492e9675249a0b4227515875457d5d631945c3774018c8322f7",
+        "packaged-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463"
+      },
+      "subject": "Clean unsigned build excludes foreign ICU and PATH provenance",
+      "evidence": [
+        "the official unsigned-main chain completed exit 0 with DONE from exact b28b4c4241fda6fc4d87c63ea4d00431e85db573 after verified cleanup of the exact old build, dist and v0.39 setup targets",
+        "the new unsigned setup is 55933326 bytes with SHA-256 dbecc062f3452492e9675249a0b4227515875457d5d631945c3774018c8322f7 and Authenticode status NotSigned; no detached signature exists",
+        "the packaged v0.39 Player is 3133110 bytes with SHA-256 ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "Analysis and COLLECT provenance contained zero Poppler, libheif, JXRLib, Codex-runtime, ICU, API-set or UCRT hit and final _internal contained zero forbidden root or recursive ICU DLL",
+        "all six required PyQt6 and Qt6 payload files were present; static PE closure found no missing Qt edge and all twenty Qt6Core ICU imports matched current-host System32 ICU exports",
+        "artifact and TOC timestamps formed one post-commit build chain, the previous bad setup and Player hashes differed, no stale signature or manifest remained and no relevant process leaked",
+        "independent positive and adversarial artifact reviews reported bounded source_build PASS with no P0 or P1 finding"
+      ],
+      "summary": "The exact clean unsigned build excludes the proven foreign-PATH ICU collision and passes artifact-level Qt dependency closure.",
+      "limitations": [
+        "Static import and export closure does not prove Windows loader selection or a real frozen QtWidgets import.",
+        "This source_build PASS does not prove setup launch, installation, installed payload, visual Progress or user acceptance and does not yet close EV-20260826-054.",
+        "The setup and Player are unsigned; no launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this exact source-build record; afterward request separate approval for one controlled frozen application launch with exit, visible-state and process-leak readback."
+    },
+    {
+      "id": "EV-20260826-059",
+      "recorded_at_utc": "2026-08-26T17:50:16Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "55ef3be29b897a1521df0e4d691100bfbaa29d0a",
+      "baseline_commit": "55ef3be29b897a1521df0e4d691100bfbaa29d0a",
+      "artifact_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "exact packaged Player size, SHA-256, version and pre-launch process-absence readback",
+        "Computer Use sky.launch_app with the explicit dist/MLC Player/MLC Player.exe target exactly once",
+        "Computer Use list_windows and screenshot plus accessibility readback of the only returned error window",
+        "Get-CimInstance and Get-Process readback of expected and observed executable path, PID, parent, creation time, SHA-256, window title and handle",
+        "git status --short --branch; git rev-parse HEAD"
+      ],
+      "private_artifact_digests": {
+        "expected-packaged-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "observed-installed-MLC-Player.exe": "61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4e"
+      },
+      "subject": "Controlled frozen launch harness selected the wrong artifact",
+      "evidence": [
+        "the approved pre-launch gate verified the expected packaged Player at relative dist target with SHA-256 ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463 and found no pre-existing MLC Player process",
+        "the single Computer Use explicit-path launch returned only PID 21796 at C:\\Program Files\\MLC Player\\MLC Player.exe with SHA-256 61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4e and parent codex-computer-use.exe",
+        "the observed old installed artifact displayed its previously known QtWidgets DLL-load error; the exact new dist target had process count zero",
+        "independent positive and adversarial reviews classified the attempt as a launch-target identity failure and rejected any PASS or FAIL inference about the new artifact"
+      ],
+      "summary": "The native launch harness failed because it dispatched the old installed Player instead of the approved new dist artifact.",
+      "limitations": [
+        "The new packaged Player never started, so this record provides no runtime, loader, GUI or fix result for SHA-256 ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463 and does not close EV-20260826-054.",
+        "PID 21796 remains active with a user-controlled error window; no clean process-absence or leak claim is made.",
+        "No close, termination, automatic retry, setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Have the user close PID 21796 or request separate approval to terminate only the revalidated exact PID, name, creation time, path and SHA-256 tuple; then prove old and new Player process absence before requesting a separate path-exact retry."
+    },
+    {
+      "id": "EV-20260826-060",
+      "recorded_at_utc": "2026-08-26T17:51:47Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "55ef3be29b897a1521df0e4d691100bfbaa29d0a",
+      "baseline_commit": "55ef3be29b897a1521df0e4d691100bfbaa29d0a",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "revalidate the approved PID 21796 exact name, creation time, installed path and SHA-256 tuple before termination; fail closed at TARGET_PROCESS_MISSING",
+        "read back all old installed and new dist MLC Player processes and matching visible error or Player windows",
+        "git status --short --branch; git rev-parse HEAD; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "User closed the wrong-target Player error window before termination",
+      "evidence": [
+        "the separately approved exact-tuple termination command found PID 21796 already absent and stopped at TARGET_PROCESS_MISSING before executing Stop-Process",
+        "the user confirmed that they had closed the error window",
+        "the immediate readback found zero old installed or new dist MLC Player process and no matching visible Player or Unhandled exception window",
+        "the checkout remained on exact 55ef3be29b897a1521df0e4d691100bfbaa29d0a, twenty-one commits ahead and zero behind origin/master"
+      ],
+      "summary": "The wrong-target error process is gone by user action and the old/new Player process-absence gate passed without agent termination.",
+      "limitations": [
+        "This PASS proves only process and matching-window absence at the recorded readback instant.",
+        "It does not retry or evaluate the new packaged Player and does not close EV-20260826-054 or EV-20260826-059.",
+        "No process was terminated by the agent and no retry, setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit EV059 and EV060; afterward request separate approval for one path-exact frozen retry whose returned PID, executable path and SHA-256 are verified before UI evaluation."
+    },
+    {
+      "id": "EV-20260826-061",
+      "recorded_at_utc": "2026-08-26T17:57:49Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "eb54a947ae4ea587c2b6f75acee51e3755d18222",
+      "baseline_commit": "eb54a947ae4ea587c2b6f75acee51e3755d18222",
+      "artifact_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "verify exact dist Player SHA-256 and all-Player process absence before launch",
+        "Start-Process -FilePath for the exact relative dist Player target with PassThru exactly once",
+        "verify returned PID 32028 executable path and SHA-256 before UI evaluation",
+        "Computer Use exact-process window selection, screenshot and accessibility readback",
+        "Get-Process module readback for PyQt6, Qt6 and icuuc.dll plus error-window and process-set checks",
+        "user visual acceptance of the visible MLC Player ready screen and user-controlled normal close",
+        "post-close PID, all-Player process and matching error-window absence readback"
+      ],
+      "private_artifact_digests": {
+        "packaged-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "loaded-System32-icuuc.dll": "59d134ddc15ae0594f0a328979f8201662fc82634ddb7c537b156e7cf871f5eb"
+      },
+      "subject": "Exact dist frozen Qt startup and visual-ready acceptance",
+      "evidence": [
+        "the path-exact launch returned PID 32028 and its executable path and SHA-256 matched the approved new dist Player before any UI inference",
+        "the exact process exposed one responsive MLC Player window showing the normal Izlemeye hazır state and no Unhandled exception window",
+        "QtCore, QtGui and QtWidgets pyd and Qt6 DLLs loaded from the exact dist tree while icuuc.dll loaded from Windows System32 with SHA-256 59d134ddc15ae0594f0a328979f8201662fc82634ddb7c537b156e7cf871f5eb",
+        "the user explicitly confirmed that the visible screen was correct",
+        "after the user closed the window normally, PID 32028, every MLC Player process and every matching Player or error window were absent",
+        "independent positive and adversarial reviews reported bounded native_smoke PASS with no remaining P0 or P1 when the unmeasured exit status is explicit"
+      ],
+      "summary": "The exact new dist Player starts with the intended System32 ICU, displays the accepted ready UI and leaves no residual process after user close.",
+      "limitations": [
+        "The process exit code was not retained and is unmeasured; this record does not claim exit 0, final marker, stderr cleanliness, call order or full shutdown-lifecycle acceptance.",
+        "This PASS is limited to the exact AC09EC12 artifact, current host and visible ready-state scenario; it is not media playback or broader feature acceptance.",
+        "This direct dist run does not prove setup copying or installed-artifact launch and does not alter the immutable EV-20260826-054 failure for the old installed artifact.",
+        "No setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit EV061; afterward request separate approval to install the exact DBECC062 setup and verify the installed executable path, hash, launch and visual state as a distinct installed_artifact scenario."
+    },
+    {
+      "id": "EV-20260826-062",
+      "recorded_at_utc": "2026-08-26T18:18:15Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "51013e79ea6025d3204b081cb53279783407ec83",
+      "baseline_commit": "51013e79ea6025d3204b081cb53279783407ec83",
+      "artifact_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py",
+        "tests/test_installer_process_safety_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "user-controlled navigation, reinstall completion and Finish launch of exact MLCPlayer_Setup_v0.39.exe",
+        "user-provided screenshot and traceback readback of the installed Player QtWidgets DLL-load error",
+        "installed versus dist Player size and SHA-256 comparison",
+        "installed and dist immediate _internal forbidden ICU, API-set and UCRT DLL inventory and SHA-256 readback",
+        "post-report setup, Player and matching error-window process readback"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "dbecc062f3452492e9675249a0b4227515875457d5d631945c3774018c8322f7",
+        "installed-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "stale-installed-icuuc.dll": "2882afacabd9d901762ab196c7a319b03051af39291e47fef51fcb69c26ab5b8"
+      },
+      "subject": "Reinstall preserves obsolete root runtime DLLs and breaks the new Player",
+      "evidence": [
+        "the user completed reinstall with the exact DBECC062 setup and reported the visible installed Player traceback DLL load failed while importing QtWidgets",
+        "the installed Player was byte-identical to the new dist Player at 3133110 bytes and SHA-256 ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "the installed immediate _internal root retained forty-seven obsolete files absent from the new dist: forty-four exact api-ms-win DLLs plus icudt78.dll, icuuc.dll and ucrtbase.dll",
+        "the retained icuuc.dll SHA-256 2882afacabd9d901762ab196c7a319b03051af39291e47fef51fcb69c26ab5b8 matched the previously proven incompatible ICU payload",
+        "the later readback found no remaining setup or Player process and no matching visible error window"
+      ],
+      "summary": "The new setup copies the fixed Player but leaves obsolete root runtime DLLs from the prior installation, recreating the QtWidgets startup failure.",
+      "limitations": [
+        "This failure belongs to reinstall cleanup behavior and does not invalidate the direct-dist native PASS in EV-20260826-061.",
+        "No file was manually deleted and no automatic reinstall or launch retry occurred.",
+        "No commit, new build, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Implement a regression-first maintenance-only exact allowlist cleanup with a pre-copy fail-closed root-runtime guard; validate it before requesting a new build."
+    },
+    {
+      "id": "EV-20260826-063",
+      "recorded_at_utc": "2026-08-26T18:18:15Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "51013e79ea6025d3204b081cb53279783407ec83",
+      "baseline_commit": "51013e79ea6025d3204b081cb53279783407ec83",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py",
+        "tests/test_installer_process_safety_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k summary_instruction_matches_install_button_once",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k upgrade_removes_only_forbidden_root_dll_leftovers_before_copy",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py tests/test_installer_language_regressions.py tests/test_release_artifact_selection_regressions.py tests/test_dist_completeness_regressions.py tests/test_translation_pipeline_regressions.py",
+        "git diff --check"
+      ],
+      "subject": "Maintenance cleanup and Summary instruction fixes are source-ready",
+      "evidence": [
+        "the Summary regression first failed against the wrong Next instruction and duplicated action; the cleanup regression separately failed because InstallDelete was absent",
+        "the Turkish Summary instruction now names Install and Previous once in the built-in ReadyLabel while the memo contains only the selected settings and is repositioned below the wrapped label",
+        "maintenance cleanup uses forty-seven unique exact direct-root Type files entries and never uses wildcard deletion, recursion, filesandordirs, DelTree, nested Qt or user-data paths",
+        "the resolved app root is scanned once after InstallDelete and before payload copy; supported RaiseException stops installation if any ICU-family, API-set or UCRT root DLL remains",
+        "CloseApplications covers the Player and DLL resources; first installation is excluded and registered maintenance target/version checks remain fail-closed",
+        "the final affected family completed with 100 passed and independent positive and adversarial actual-diff reviews reported no remaining P0 or P1 finding"
+      ],
+      "summary": "The uncommitted installer fix removes only the measured obsolete root payload on reinstall or upgrade and corrects the Summary instruction without duplication.",
+      "limitations": [
+        "The 100-pass result is deterministic and static; Inno compilation and real locked or unlocked reinstall behavior are not yet proven.",
+        "The measured obsolete files are monotonic remediation and are not promised to be restored if a later installation step aborts.",
+        "The product version remains v0.39; no build, installation, launch, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit the exact source, tests and EV062-EV063 evidence package; after commit readback, request separate approval for one clean unsigned v0.39 validation build before any version bump."
+    },
+    {
+      "id": "EV-20260826-064",
+      "recorded_at_utc": "2026-08-26T18:43:27Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "83a0fef18a12356fdfb68f3b02c292165effbc52",
+      "baseline_commit": "83a0fef18a12356fdfb68f3b02c292165effbc52",
+      "evidence_commit": "83a0fef18a12356fdfb68f3b02c292165effbc52",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/PACKAGING_PLAN.md",
+        "tests/test_installer_branding_regressions.py",
+        "tests/test_installer_process_safety_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git rev-parse --show-toplevel; git status --short --branch; git log -1 --oneline --decorate; git rev-list --left-right --count HEAD...origin/master; git show --name-status --format=fuller HEAD",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py tests/test_installer_language_regressions.py tests/test_release_artifact_selection_regressions.py tests/test_dist_completeness_regressions.py tests/test_translation_pipeline_regressions.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py -k restart_manager_filter_matches_the_canonical_packaging_plan",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k summary_instruction_matches_install_button_once",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "git diff --check"
+      ],
+      "subject": "Installer cleanup commit readback and canonical contract hardening",
+      "evidence": [
+        "commit readback tied the exact five-file EV062-EV063 package to evidence commit 83a0fef18a12356fdfb68f3b02c292165effbc52 with parent 51013e79ea6025d3204b081cb53279783407ec83, a clean tree and origin/master difference 24 ahead and zero behind",
+        "the committed affected, continuity and append-only family completed with 115 passed; both edited Python test files compiled and git diff --check passed",
+        "independent forward, adversarial and governance reviews found no P0 and no source P1 in the exact cleanup, while identifying stale continuity and canonical packaging text",
+        "the Restart Manager documentation regression first failed because the plan omitted the DLL filter; the Summary documentation regression separately failed because the plan still placed the action in the memo",
+        "the canonical plan now matches the source filter and ReadyLabel placement, explicitly bounds the exact cleanup as one-way sanitization and requires injected-abort physical readback",
+        "the hardened tests require one InstallDelete section, API-set, ICU and UCRT classifier semantics, verify-before-flag-before-phase ordering, one Summary ReadyLabel assignment and both canonical action sentences; the final focused, continuity and append-only package completed with 45 passed"
+      ],
+      "summary": "The installer cleanup is committed and its canonical documentation and fail-closed regression guards are prepared without changing product or installer source.",
+      "limitations": [
+        "The canonical and regression hardening remains uncommitted on top of evidence commit 83a0fef18a12356fdfb68f3b02c292165effbc52.",
+        "No Inno compilation, clean validation build, full pytest package at the next committed head, reinstall, injected abort, locked-file scenario or visual DPI and localization acceptance occurred.",
+        "The existing broken v0.39 installation remains the controlled forty-seven-file reinstall fixture and must not be manually cleaned before physical acceptance.",
+        "No version bump, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Commit the exact canonical contract, regression hardening and EV064 continuity package; then run one full deterministic pre-build gate before requesting the clean unsigned v0.39 validation build."
+    },
+    {
+      "id": "EV-20260826-065",
+      "recorded_at_utc": "2026-08-26T18:56:12Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "baseline_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "evidence_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch; git log -1 --oneline --decorate; git show --name-status --format=fuller HEAD; git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q",
+        "python -m compileall -q app packaging tests",
+        "git diff --check; git status --short --branch"
+      ],
+      "subject": "Exact committed-head deterministic pre-build gate",
+      "evidence": [
+        "EV064 canonical and regression package was committed as exact 89e23959d9ec34305043f4b27ff8896eddde2d81 with parent 83a0fef18a12356fdfb68f3b02c292165effbc52 and only the expected five files",
+        "the branch was clean and twenty-five commits ahead and zero behind origin/master",
+        "the fail-fast exact-head package completed with 5023 passed, 19 skipped and exit zero, followed by quiet compileall, git diff check and final clean status in the same exit-zero command chain",
+        "independent positive and adversarial reviews reported bounded deterministic pre-build PASS with no P0 or P1"
+      ],
+      "summary": "The exact committed head passed the complete local deterministic pre-build gate.",
+      "limitations": [
+        "The nineteen skipped scenarios are not PASS and the local package is not hosted CI.",
+        "This result does not prove Inno compilation, an artifact, installation, native launch, visual acceptance or release."
+      ],
+      "next_action": "Run one clean unsigned v0.39 validation build from exact 89e23959d9ec34305043f4b27ff8896eddde2d81 and stop without automatic retry on any failed build gate."
+    },
+    {
+      "id": "EV-20260826-066",
+      "recorded_at_utc": "2026-08-26T18:56:12Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "baseline_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "artifact_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "cmd.exe /d /c set MLC_HOSTED_UNSIGNED_BUILD=1&& call packaging\\build_unsigned_main.bat",
+        "Get-FileHash -Algorithm SHA256 and Get-AuthenticodeSignature for the exact setup and packaged Player",
+        "direct-root and recursive forbidden ICU, API-set and UCRT inventory",
+        "Analysis-00.toc and COLLECT-00.toc required-payload and foreign-provenance inspection",
+        "required PyQt6 pyd and Qt6 DLL existence, size and SHA-256 readback",
+        "Player, setup, Inno and PyInstaller process-leak readback",
+        "git status --short --branch; git rev-parse HEAD; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb",
+        "packaged-MLC-Player.exe": "9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60"
+      },
+      "subject": "Clean unsigned installer-cleanup validation build",
+      "evidence": [
+        "the official unsigned-main chain completed all six steps with exit zero and DONE from exact 89e23959d9ec34305043f4b27ff8896eddde2d81",
+        "the new unsigned setup is 55930338 bytes with SHA-256 90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb and Authenticode NotSigned; no detached signature exists",
+        "the packaged Player is 3133110 bytes with SHA-256 9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60",
+        "dist and build TOCs contained zero forbidden direct-root or recursive ICU, API-set or UCRT runtime and zero foreign Codex, Poppler or libheif provenance hit",
+        "all six required PyQt6 and Qt6 payload files were present and matched their recorded PyQt6 source hashes; mpv-2.dll retained the expected source-built identity",
+        "artifact timestamps formed one post-commit build chain, the previous DBECC062 setup was replaced, no relevant process leaked and the branch remained clean",
+        "independent positive and adversarial artifact reviews reported bounded source_build PASS with no P0 or P1"
+      ],
+      "summary": "The exact cleanup source compiled into a new unsigned v0.39 validation artifact with clean runtime provenance.",
+      "limitations": [
+        "The compiled installer was not semantically decompiled; InstallDelete behavior remains unproven until exact physical reinstall and injected-abort acceptance.",
+        "The packaged Player hash differs from the previous direct-dist native artifact, so EV061 launch evidence cannot be transferred.",
+        "No launch, installation, installed cleanup, visual acceptance, push, PR, merge, version bump, tag or release occurred."
+      ],
+      "next_action": "Commit EV065-EV066 and continuity; then perform one path-exact launch of packaged Player 9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60 without Computer Use before physical reinstall."
+    },
+    {
+      "id": "EV-20260826-067",
+      "recorded_at_utc": "2026-08-26T19:01:11Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "f67eeebe3a0c5c99bb1505cc9088f53f3aa901f3",
+      "baseline_commit": "f67eeebe3a0c5c99bb1505cc9088f53f3aa901f3",
+      "artifact_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "verify exact packaged Player SHA-256 and all-Player process absence before launch",
+        "Start-Process -FilePath for the exact dist Player target with PassThru exactly once",
+        "verify returned PID 48520 executable path, SHA-256, responding state, window title and handle",
+        "user visual acceptance of the visible MLC Player screen and user-controlled normal close",
+        "post-close exact PID, all-Player process and matching Player or error-window absence readback"
+      ],
+      "private_artifact_digests": {
+        "packaged-MLC-Player.exe": "9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60"
+      },
+      "subject": "Exact rebuilt dist Player startup and user visual acceptance without Computer Use",
+      "evidence": [
+        "the path-exact launch returned PID 48520 and its executable path and SHA-256 matched the new packaged Player before UI inference",
+        "the process was responsive with one MLC Player main window and a nonzero window handle",
+        "the user explicitly reported that the visible screen had no problem and closed it normally",
+        "post-close readback found PID 48520 absent, zero MLC Player process and zero matching Player or Unhandled exception window",
+        "Computer Use was not used"
+      ],
+      "summary": "The exact rebuilt dist Player opened correctly by user observation and left no residual process after normal close.",
+      "limitations": [
+        "The process exit code, stderr, final marker and internal shutdown call order were not retained.",
+        "This PASS is limited to startup, visible ready state and process absence for the exact dist artifact; no media playback occurred.",
+        "Direct dist behavior does not prove installer cleanup, installed launch, rollback or release."
+      ],
+      "next_action": "Commit EV067, snapshot the existing broken installed tree and user data, then have the user run the exact 90e8ccd1 setup for controlled reinstall and screenshot acceptance."
+    },
+    {
+      "id": "EV-20260826-068",
+      "recorded_at_utc": "2026-08-26T19:02:05Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "c493628b560690cd75ef24823691a421f1e7c257",
+      "baseline_commit": "f67eeebe3a0c5c99bb1505cc9088f53f3aa901f3",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "git add and git commit in a non-fail-fast PowerShell command chain"
+      ],
+      "subject": "EV067 record commit bypassed a failed continuity size gate",
+      "evidence": [
+        "the continuity and ledger package reported 1 failed and 14 passed because CONTINUITY.md had 201 lines while the enforced maximum is 200",
+        "the same PowerShell command string continued after pytest exit one and created commit c493628 because the shell chain did not explicitly stop on LASTEXITCODE",
+        "the failure was identified immediately from raw output before reinstall or further product action"
+      ],
+      "summary": "Commit c493628 contains the correct EV067 launch record but is not a valid evidence commit because its continuity gate was red.",
+      "limitations": [
+        "This is a documentation workflow failure; it does not invalidate the separately measured dist launch or source-build artifact.",
+        "No history was rewritten and no automatic retry occurred before inspecting the cause."
+      ],
+      "next_action": "Compact continuity without data loss, append this failure record, run the continuity and append-only tests in an explicit fail-fast gate, then create a corrective commit."
+    },
+    {
+      "id": "EV-20260826-069",
+      "recorded_at_utc": "2026-08-26T19:04:13Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "c910f1a917bd6910fb16a4b35b3b18dcf67bfbcd",
+      "baseline_commit": "c910f1a917bd6910fb16a4b35b3b18dcf67bfbcd",
+      "artifact_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "discover the single uninstall registry entry by MLC Player DisplayName",
+        "read installed executable size and SHA-256",
+        "inventory and hash immediate-root forbidden ICU, API-set and UCRT DLLs",
+        "compute user-data file count, byte total and relative-manifest aggregate SHA-256",
+        "verify exact setup SHA-256 and target-process absence"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb",
+        "pre-reinstall-installed-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "pre-reinstall-user-data-manifest": "de7aee29c69bc84f11957a32d60b3283e01d581fd82f262ab7d88bef19af5c95"
+      },
+      "subject": "Controlled broken-installation fixture before cleanup reinstall",
+      "evidence": [
+        "one registered MLC Player v0.39 installation resolved to the expected installed product",
+        "the installed Player was 3133110 bytes with the old AC09EC12 artifact identity",
+        "the immediate internal root contained exactly the measured forty-seven forbidden DLLs including the incompatible ICU payload",
+        "the user-data tree contained two files totaling 282015 bytes with aggregate relative-manifest SHA-256 de7aee29c69bc84f11957a32d60b3283e01d581fd82f262ab7d88bef19af5c95",
+        "the approved validation setup retained SHA-256 90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb and no Player or setup process was active"
+      ],
+      "summary": "The exact broken v0.39 installed tree and user-data baseline are preserved for the cleanup reinstall acceptance.",
+      "limitations": [
+        "This PASS proves the pre-reinstall snapshot only; it does not prove cleanup, rollback, launch or visual acceptance.",
+        "Private absolute paths are intentionally omitted and no installed file or user data was changed."
+      ],
+      "next_action": "Commit EV069 and launch the exact 90e8ccd1 setup once without Computer Use for user-controlled reinstall and screenshot acceptance."
+    },
+    {
+      "id": "EV-20260826-070",
+      "recorded_at_utc": "2026-08-26T19:11:37Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "3fc72ab87a30fb421c2e44bf7180577f8f56a959",
+      "baseline_commit": "3fc72ab87a30fb421c2e44bf7180577f8f56a959",
+      "artifact_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "user-controlled Welcome, Summary, Previous, Next, Install and Finish flow for exact setup",
+        "installed versus dist relative-path and SHA-256 manifest comparison",
+        "installed Player path, SHA-256, loaded Qt and ICU module readback",
+        "pre and post forbidden runtime, user-data and process/window readback"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb",
+        "installed-MLC-Player.exe": "9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60",
+        "stale-libcrypto-3-x64.dll": "5bd5c85c2863c624e1e715f736fe1c20869b106c3bd341df671187839124f2be",
+        "stale-libssl-3-x64.dll": "b4a534d770107439454bb33de3792cbe7c251f201d8ff88cf4dda6cbbe42c367"
+      },
+      "subject": "Cleanup reinstall leaves two obsolete OpenSSL DLLs",
+      "evidence": [
+        "the exact setup replaced the installed Player with the expected 9a5fc567 artifact and removed all forty-seven measured ICU, API-set and UCRT leftovers",
+        "the user accepted Welcome, Summary, Previous to Next and Finish; the selected Launch action opened the correct installed Player, Qt loaded from the installed tree, ICU loaded from System32 and normal close left zero process or matching window",
+        "the installed versus dist manifest had zero missing and zero mismatched payload but seven extras; five were expected installer-owned license, README and uninstaller files",
+        "the remaining two extras were obsolete OpenSSL 3.6.3 files absent from current dist: libcrypto-3-x64.dll and libssl-3-x64.dll with recorded SHA-256 values",
+        "the user settings file retained its old timestamp, 674-byte size and SHA-256 66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c while only the application log grew by 66 bytes",
+        "independent positive and adversarial reviews accepted the exact cleanup and launch sub-results but rejected general reinstall payload parity"
+      ],
+      "summary": "The targeted Qt startup cleanup worked, but the general reinstall failed because two obsolete OpenSSL DLLs remained mixed into the installed internal tree.",
+      "limitations": [
+        "The obsolete OpenSSL DLLs were not observed loaded by the accepted Player process, so this record does not claim runtime exploitation or the cause of a visible failure.",
+        "Progress visual acceptance was not measured; setup and Player exit codes, injected abort, locked-process behavior and the two unchecked Finish actions were not measured.",
+        "No automatic reinstall retry, manual file deletion, version bump, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Commit EV070, prove a regression-first exact maintenance cleanup for the two measured OpenSSL names, and rebuild before any controlled reinstall retry."
+    },
+    {
+      "id": "EV-20260826-071",
+      "recorded_at_utc": "2026-08-26T19:15:36Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "d4bd0e1a33968d2ecc3fc3877157b809499382a6",
+      "baseline_commit": "d4bd0e1a33968d2ecc3fc3877157b809499382a6",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py",
+        "docs/PACKAGING_PLAN.md",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k upgrade_removes_only_forbidden_root_dll_leftovers_before_copy",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py tests/test_installer_language_regressions.py tests/test_release_artifact_selection_regressions.py tests/test_dist_completeness_regressions.py tests/test_translation_pipeline_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "git diff --check"
+      ],
+      "subject": "Exact residual OpenSSL maintenance cleanup is source-ready",
+      "evidence": [
+        "the expanded exact-set regression first failed because the two measured stale OpenSSL names were absent from InstallDelete",
+        "the installer now adds only libcrypto-3-x64.dll and libssl-3-x64.dll as direct-root Type files maintenance entries and recognizes those exact names in the pre-payload fail-closed classifier",
+        "the allowlist is exactly forty-nine names; wildcard, recursion, directory deletion, nested Qt and user-data paths remain excluded",
+        "negative assertions preserve the current legitimate libcrypto-3.dll and libssl-3.dll names",
+        "the canonical plan distinguishes forty-seven foreign runtimes from two measured old residuals and retains the one-way sanitization and injected-abort limitation",
+        "the final affected family completed with 101 passed; py_compile and git diff check passed",
+        "independent positive and adversarial reviews found no remaining P0 or P1 after canonical drift and negative-test closure"
+      ],
+      "summary": "The maintenance cleanup is minimally extended to the two measured OpenSSL residuals while preserving current runtime and user-data boundaries.",
+      "limitations": [
+        "This is uncommitted deterministic evidence; no Inno build or physical forty-nine-file cleanup occurred.",
+        "Locked-file abort, rollback and Progress visual acceptance remain unmeasured."
+      ],
+      "next_action": "Commit the exact five-file EV071 package, run the committed-head pre-build gate and create one new validation build before any controlled reinstall retry."
+    },
+    {
+      "id": "EV-20260826-072",
+      "recorded_at_utc": "2026-08-26T19:20:49Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "baseline_commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "artifact_commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q; python -m compileall -q app packaging tests; git diff --check; git status --short --branch",
+        "cmd.exe /d /c set MLC_HOSTED_UNSIGNED_BUILD=1&& call packaging\\build_unsigned_main.bat",
+        "exact setup and Player SHA-256, signature, runtime inventory, TOC provenance, timestamp and process readback"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111",
+        "packaged-MLC-Player.exe": "6f19d8904bdc5d5d1aa20c4fb5c19049f1dc13f804653bba58391fe5c190a499"
+      },
+      "subject": "Fresh unsigned forty-nine-residual cleanup validation build",
+      "evidence": [
+        "the exact committed head passed 5023 tests with 19 skipped followed by compileall, diff check and clean status",
+        "the official unsigned build completed all six steps with exit zero and DONE",
+        "the new setup is 55932676 bytes with SHA-256 c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111 and Authenticode NotSigned; no detached signature exists",
+        "the new packaged Player is 3133110 bytes with SHA-256 6f19d8904bdc5d5d1aa20c4fb5c19049f1dc13f804653bba58391fe5c190a499",
+        "the committed installer source contains both exact OpenSSL residual entries and the fail-closed classifier; artifact timestamps form one post-commit build chain",
+        "dist and TOCs contain zero match from the forty-nine residual set while retaining the legitimate libcrypto-3.dll and libssl-3.dll plus six required Qt payloads",
+        "foreign provenance hits and relevant process leaks were zero; independent positive and adversarial reviews found no P0 or P1"
+      ],
+      "summary": "The exact forty-nine-residual cleanup source produced a fresh unsigned validation artifact with clean runtime provenance.",
+      "limitations": [
+        "The new Player identity has not yet received path-exact native startup evidence.",
+        "No physical forty-nine-file reinstall cleanup, Progress visual, locked-file abort, rollback, push, PR, merge, version bump, tag or release occurred."
+      ],
+      "next_action": "Commit EV072, path-exact launch and close the new 6f19d890 Player, then re-snapshot the installed two-residual fixture before one controlled C48097CE reinstall."
+    },
+    {
+      "id": "EV-20260826-073",
+      "recorded_at_utc": "2026-08-26T19:22:39Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "8d23558a61e1be00a156e73edb1af0b8f74125a1",
+      "baseline_commit": "8d23558a61e1be00a156e73edb1af0b8f74125a1",
+      "artifact_commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "path-exact Start-Process of the new packaged Player after exact SHA-256 and pre-process checks",
+        "returned PID, executable path, SHA-256, responsiveness, title and window-handle readback",
+        "user visual acceptance and normal close",
+        "post-close PID, process and matching-window absence plus installed fixture, user data and setup identity readback"
+      ],
+      "private_artifact_digests": {
+        "packaged-MLC-Player.exe": "6f19d8904bdc5d5d1aa20c4fb5c19049f1dc13f804653bba58391fe5c190a499",
+        "MLCPlayer_Setup_v0.39.exe": "c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111",
+        "pre-retry-user-data-manifest": "c0758669a0b4b873aae2474aaf661cb8dd9d8a172536b3bb908b6da8afa18741"
+      },
+      "subject": "New dist launch and exact two-residual reinstall fixture readback",
+      "evidence": [
+        "the path-exact launch returned PID 20184 with the expected 6f19d890 artifact, responsive MLC Player title and nonzero window handle",
+        "the user reported no screen problem and closed normally; exact PID, every Player process and matching window were absent afterward",
+        "the installed Player remained the prior 9a5fc567 artifact and the only residual-set matches were the same two exact OpenSSL files with unchanged recorded hashes",
+        "the user settings file retained its old timestamp, 674-byte size and SHA-256 66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c; only the log appended another 66 bytes",
+        "the approved new setup retained SHA-256 c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111"
+      ],
+      "summary": "The new dist Player passed bounded startup and the installed two-residual fixture is stable for one controlled retry.",
+      "limitations": [
+        "No media playback, process exit code, stderr, final marker or internal shutdown order was measured.",
+        "No reinstall, Progress visual, locked-file abort, rollback or unchecked Finish action occurred."
+      ],
+      "next_action": "Commit EV073 and run the exact C48097CE setup once without Computer Use; capture Progress and Finish before post-install parity and launch checks."
+    },
+    {
+      "id": "EV-20260826-074",
+      "recorded_at_utc": "2026-08-26T19:26:50Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "cc3a59b9555801bd8b5b6f6fb9082f6d335a2536",
+      "baseline_commit": "cc3a59b9555801bd8b5b6f6fb9082f6d335a2536",
+      "artifact_commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "user-controlled exact C48097CE setup reinstall and Progress screenshot without Computer Use",
+        "installed versus dist relative-path and SHA-256 manifest comparison",
+        "forty-nine-residual recursive inventory, installed Player identity and user-data readback",
+        "user Finish launch observation, user-controlled normal close and final process/window absence readback"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111",
+        "installed-MLC-Player.exe": "6f19d8904bdc5d5d1aa20c4fb5c19049f1dc13f804653bba58391fe5c190a499",
+        "post-reinstall-user-data-manifest": "67805dd7b720ad55afd7bab1ea02256c42246f4cd94af2460dbde97881d68f45"
+      },
+      "subject": "Exact forty-nine-residual cleanup reinstall and installed launch acceptance",
+      "evidence": [
+        "the exact setup completed the user-controlled reinstall and the user-provided Progress screen had correct phase text, real target file, progress bar and stable layout",
+        "the installed Player matched the exact 6f19d890 dist artifact and the forty-nine-residual recursive count was zero",
+        "the full manifest compared ninety-one dist files with ninety-six installed files at zero missing and zero mismatch; the only five extras were the expected license, two README and two uninstaller files",
+        "the selected Finish Launch action opened the Player without a user-observed problem and the user then closed it normally",
+        "MLCPlayer.ini retained its old timestamp, 674-byte size and SHA-256 66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c; only the application log appended 66 bytes",
+        "final Player, setup and matching-window counts were zero",
+        "independent positive and adversarial reviews reported bounded installed_artifact PASS with no P0 or P1"
+      ],
+      "summary": "The exact maintenance reinstall removes all measured residuals, preserves payload and settings identity, displays accepted Progress and launches the installed Player without a leak.",
+      "limitations": [
+        "The exact C480 Finish page was not captured, so its pixel layout and checkbox states are not a visual PASS even though the selected Launch behavior worked.",
+        "Setup and Player exit codes, installer log, registry and shortcut readback, Default Apps and GitHub actions, media playback, locked-process abort, injected abort, rollback, first install, older-version upgrade, signature and SmartScreen remain unmeasured.",
+        "This bounded PASS is not general installer or release acceptance."
+      ],
+      "next_action": "Commit EV074, then prepare the v0.40 version-field and regression update; full release gates remain separate and unmeasured items cannot inherit this PASS."
+    },
+    {
+      "id": "EV-20260826-075",
+      "recorded_at_utc": "2026-08-26T19:42:52Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "ce5aeb7a8ccb9b62a44e60f66deb6aa327d81bd1",
+      "baseline_commit": "ce5aeb7a8ccb9b62a44e60f66deb6aa327d81bd1",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "app/config.py",
+        "packaging/MLCPlayer.iss",
+        "packaging/build_release.bat",
+        "packaging/build_unsigned_main.bat",
+        "packaging/verify_inno.py",
+        "packaging/verify_release_ref.py",
+        "tests/test_inno_compile_preflight_regressions.py",
+        "tests/test_verify_release_ref_regressions.py",
+        "tests/test_version_consistency.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "red: python -m pytest -q tests/test_verify_release_ref_regressions.py::test_matching_numeric_define_and_real_iss_macros_pass",
+        "red: python -m pytest -q tests/test_inno_compile_preflight_regressions.py",
+        "python -m pytest -q selected installer, version, release-ref, workflow and SPDX regression family",
+        "python packaging/verify_inno.py all",
+        "python packaging/verify_build.py --pre-main",
+        "python -m py_compile packaging/verify_inno.py packaging/verify_release_ref.py app/config.py; git diff --check"
+      ],
+      "subject": "v0.40 source ownership and shared fail-closed Inno preflight",
+      "evidence": [
+        "the real ISS numeric macro regression first failed because verify_release_ref compared the raw macro token with the four-part tag version",
+        "the release-ref fix resolves only the exact MyAppNumericVersion macro and rejects stale, missing or different values",
+        "APP_VERSION, MyAppVersion, MyAppNumericVersion and the explicit release regression target now agree on v0.40 and 0.40.0.0",
+        "both build chains invoke one shared compiler preflight before output cleanup and PyInstaller; main-only and full-release scopes remain distinct",
+        "the shared gate validates working-tree version ownership, exact VersionInfo macros and output name, rejects unknown scope, fails closed after a sixty-second compiler timeout and stops on the first compiler failure",
+        "the real installed ISCC compiled the main and Internet Video scripts with output disabled; generated dist payload alone is excluded in preflight mode and normal production commands do not receive that define",
+        "the final affected family completed with 461 passed, real main and add-on compiler preflight passed, the main runtime preflight matched mpv-2.dll, py_compile and diff check passed",
+        "independent positive and adversarial reviewers found no remaining P0 or P1 after clean-checkout, scope, timeout and guard-boundary hardening"
+      ],
+      "summary": "The v0.40 source target and installer release gates are aligned, and recurring Inno syntax, macro and version drift now fail before destructive or costly build work.",
+      "limitations": [
+        "This is uncommitted deterministic evidence; no v0.40 package was built, installed, signed, tagged or released.",
+        "The compile-only smoke excludes the generated main payload Source entry; the production ISCC build remains the proof for that directive.",
+        "Compiler engine pinning, previous-release manifest delta enforcement, rollback injection and exact-artifact physical acceptance remain separate open gates."
+      ],
+      "next_action": "Commit the exact EV075 package, run the full deterministic suite on the committed head and proceed to task-branch push and PR only if every required gate stays green."
+    },
+    {
+      "id": "EV-20260826-076",
+      "recorded_at_utc": "2026-08-26T19:47:24Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "6bf53591be91fa1675a2fd3b55cfe60740f6b87d",
+      "baseline_commit": "6bf53591be91fa1675a2fd3b55cfe60740f6b87d",
+      "evidence_commit": "6bf53591be91fa1675a2fd3b55cfe60740f6b87d",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git commit -m build: gate v0.40 installer preflight; exact commit and clean status readback",
+        "python -m pytest -q",
+        "python -m compileall -q app packaging tests",
+        "python packaging/verify_inno.py all",
+        "git diff --check; git status --short --branch"
+      ],
+      "subject": "Committed v0.40 installer preflight full deterministic readback",
+      "evidence": [
+        "the exact eleven-file source and evidence package is commit 6bf53591be91fa1675a2fd3b55cfe60740f6b87d",
+        "the committed head completed 5036 tests with 19 skipped and zero failed in 92.35 seconds",
+        "compileall completed and the installed ISCC compile-only preflight passed both main and Internet Video installer sources",
+        "diff check passed and the task branch read back clean at thirty-five commits ahead and zero behind origin/master"
+      ],
+      "summary": "The committed v0.40 source and shared Inno preflight package passes the full deterministic local gate.",
+      "limitations": [
+        "This is deterministic committed-source evidence, not hosted CI, build, installed artifact or release acceptance.",
+        "The nineteen skipped tests remain skipped and no v0.40 artifact exists yet.",
+        "Compiler pinning, previous-to-current installed manifest delta and physical rollback/Finish/process scenarios remain separate gates."
+      ],
+      "next_action": "Commit this EV076 record, push the task branch, open a protected-master PR and require the exact PR head hosted test to pass before merge."
     }
   ]
 }

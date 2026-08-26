@@ -14,6 +14,8 @@ import hashlib
 import os
 import sys
 
+from pyinstaller_binary_policy import is_forbidden_root_destination
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST = os.path.join(ROOT, "dist", "MLC Player")
 MANIFEST = os.path.join(ROOT, "bin", "RUNTIME_MANIFEST.txt")
@@ -53,6 +55,8 @@ MAIN_SOURCE_FILES = tuple(
     "README.md",
     "README.tr.md",
     "MLCPlayer.spec",
+    os.path.join("packaging", "pyinstaller_binary_policy.py"),
+    os.path.join("packaging", "run_pyinstaller.py"),
     "main.py",
 )
 
@@ -78,6 +82,12 @@ FORBIDDEN_IN_DIST = (
 # Files that must be PRESENT inside dist.
 REQUIRED_IN_DIST = (
     "MLC Player.exe",
+    os.path.join("_internal", "PyQt6", "QtCore.pyd"),
+    os.path.join("_internal", "PyQt6", "QtGui.pyd"),
+    os.path.join("_internal", "PyQt6", "QtWidgets.pyd"),
+    os.path.join("_internal", "PyQt6", "Qt6", "bin", "Qt6Core.dll"),
+    os.path.join("_internal", "PyQt6", "Qt6", "bin", "Qt6Gui.dll"),
+    os.path.join("_internal", "PyQt6", "Qt6", "bin", "Qt6Widgets.dll"),
     os.path.join("_internal", "bin", "mpv-2.dll"),
     os.path.join("_internal", "bin", "RUNTIME_MANIFEST.txt"),
     os.path.join("_internal", "licenses", "mpv-NOTICE.txt"),
@@ -231,6 +241,13 @@ def check_post():
     for relative in FORBIDDEN_IN_DIST:
         if os.path.exists(os.path.join(DIST, relative)):
             ok = fail(f"file that should be excluded is in the package: {relative}") and ok
+    internal = os.path.join(DIST, "_internal")
+    if os.path.isdir(internal):
+        for name in os.listdir(internal):
+            path = os.path.join(internal, name)
+            if os.path.isfile(path) and is_forbidden_root_destination(name):
+                ok = fail(
+                    f"foreign root binary is in the package: _internal/{name}") and ok
     if ok:
         total = sum(os.path.getsize(os.path.join(base, name))
                     for base, _dirs, files in os.walk(DIST) for name in files)

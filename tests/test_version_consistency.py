@@ -31,10 +31,10 @@ def test_app_version_has_release_format():
     assert re.fullmatch(r"v\d+\.\d+", APP_VERSION), APP_VERSION
 
 
-def test_current_release_target_is_v0_39():
+def test_current_release_target_is_v0_40():
     """Bu yayin turunun acikca onaylanan hedefi sessizce ayrismamali."""
-    assert APP_VERSION == "v0.39"
-    assert WINDOWS_VERSION == "0.39.0.0"
+    assert APP_VERSION == "v0.40"
+    assert WINDOWS_VERSION == "0.40.0.0"
 
 
 def test_windows_version_is_derived_from_app_version():
@@ -52,10 +52,13 @@ def test_installer_define_matches_app_version():
 
 def test_installer_version_info_matches_app_version():
     text = _iss_text()
+    define = re.search(r'#define\s+MyAppNumericVersion\s+"([^"]+)"', text)
+    assert define, "MLCPlayer.iss içinde MyAppNumericVersion tanımı yok"
+    assert define.group(1) == WINDOWS_VERSION
     for key in ("VersionInfoVersion", "VersionInfoProductVersion"):
         match = re.search(rf"^{key}=(.+)$", text, re.MULTILINE)
         assert match, f"MLCPlayer.iss içinde {key} yok"
-        assert match.group(1).strip() == WINDOWS_VERSION, key
+        assert match.group(1).strip() == "{#MyAppNumericVersion}", key
 
 
 def test_installer_output_name_derives_from_define():

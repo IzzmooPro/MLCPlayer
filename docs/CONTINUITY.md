@@ -6,14 +6,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `9467db37df68ab7cf7f1dd63a5098765e916b631`
-- Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
-  HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
-  önceden tahmin etmez.
-- Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-025`
-- Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
-  kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
+- Kayıt hazırlanırken doğrulanan HEAD: `6bf53591be91fa1675a2fd3b55cfe60740f6b87d`
+- Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
+- Dal: `codex/installer-experience` (`origin/master`dan 35 commit ileride, 0 geride)
+- Son kanıt: `EV-20260826-076`
+- Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
 
@@ -64,6 +61,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   ve seçim kayıt paketi exact `f432c73` commit'iyle bağlandı
   (`EV-20260826-008`). A ve B yalnız karşılaştırma referansıdır. Bitmap'ler
   Git'e alınmaz ve seçim gerçek Inno Setup davranışı sayılmaz.
+- v0.40 ve ISS numeric makro çözümü regression-first bağlandı; ortak Inno preflight
+  build öncesi compiler/sürüm/timeout kapısıdır (`EV-20260826-075`), artifact kabulü değildir.
 - `codex/installer-ux-c-selection` görev dalı exact `ce8211b` head'iyle origin'e
   push edildi ve yerel/uzak görev dalı `0/0` eş okundu (`EV-20260826-009`). PR
   #50 daha sonra exact `e262c0c` head'iyle açıldı. Zorunlu hosted run
@@ -89,6 +88,9 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `32949577656` **249 passed / 0 failed** ve `LEDGER_APPEND_ONLY_OK` verdi,
   yerel/uzak master `0/0` okundu. Bu provenance ilk gerçek C ekran-sözleşmesi
   kaydında bağlandı (`EV-20260826-017`).
+- C ekran-sözleşmesi PR #52 ile exact `f0a91ad` merge commit'ine alındı
+  (parent `db96ac5` + `12ac711`); hosted run/job `32953472410/98129903318`
+  **4969 passed / 30 skipped**, ledger temiz ve master `0/0` (`EV-20260826-028`).
 - Beş ekranlı C sözleşmesi tek kanonik sahibi `PACKAGING_PLAN.md` içinde
   hazırlandı. Güncelleme kutusu mevcut ürün ayarına bağlı olmadığı için
   çıkarıldı; Internet Video yalnız ayrı paket bilgisi olarak kaldı. İki private
@@ -115,6 +117,19 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   uzak görev dalına gönderildi; yerel/uzak dal exact `f794670`, `0/0` ve temiz
   okundu (`EV-20260826-025`). Aşağıdaki dayanıklı kapı ilk karşılanmayan
   durumu seçer; sırf her push'u yeniden kaydetmek için meta-kayıt döngüsü kurmaz.
+- Installer C kaynağı `6fe453f`, kayıt commit'i `5c04c2d`dir
+  (`EV-20260826-028`, `-029`). İki syntax hatası regression-first kapandı (`-030`);
+  build exit 0, 56,344,277 byte, `c65a5fbc...3c3bb39`, NotSigned (`-031`). Pre-install
+  görseli reddedildi; `Kur` çalışmadı ve süreç sızıntısı yoktu (`-032`).
+- C v2 `326f9be`ye bağlı; ilk build durdu, fix `f96482a`, rebuild `7dcf8e0`/
+  `30ce2986...f9a69c` oldu (`-033`–`-038`). Kullanıcı v2'yi görmeden iptal etti;
+  önceki ekran beş compiler fix'iyle exact `d1dc658`e bağlandı, **58 passed**
+  (`-039`, `-040`). Eski `c65...` EXE yoktur; v2 EXE restore kaynağını temsil etmez.
+- Restore build'inde Welcome döndü, ilk Summary reddedildi (`-041`, `-042`); `ReadyMemo` düzeltmesi
+  `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
+- Dist PASS'ti; reinstall yeni EXE'yi kopyaladı ama eski 47 root DLL'yi bırakarak FAILED oldu.
+  Fix `83a0fef`; full gate **5023/19**; `89e2395` build'i setup `90e8ccd1...0698ffb`, Player `9a5fc567...a037d60` verdi (`-059`–`-066`).
+  Exact 49 cleanup `ddeac9c`/setup `c480...`; residual/missing/mismatch `0`, Progress ve installed Launch geçti (`-067`–`-074`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -141,32 +156,22 @@ veya eksik marker PASS değildir.
 
 ## Meta-kayıt terminal kuralı
 
-Merge-kayıt PR'ı protected master'a ulaştığında sırf meta-merge'i yeniden
-kaydetmek için yeni bir ledger/PR zinciri başlatma. Protected-master merge
-commit/parent/run ve `0/0` readback'ini sonraki ilk gerçek C ekran-sözleşmesi
-kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine geç.
+Merge-kayıt PR'ı protected master'a ulaştığında yeni meta-PR zinciri başlatma;
+merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağla.
 
 ## Sıradaki tek adım
 
-C ekran-sözleşmesi dalı için şu **ilk karşılanmayan kapıyı** uygula: bu bounded
-continuity/ledger kaydı çalışma ağacındaysa commit için ayrıca açık onay iste;
-yerel görev dalı uzaktan ilerideyse push için ayrıca açık onay iste; uzak dal
-için PR yoksa PR oluşturmak için ayrıca açık onay iste. PR açılırsa live exact
-`headRefOid` üzerindeki required `test` SUCCESS olmadan merge onayı isteme.
-Eski run kullanma; installer kodu, build veya fiziksel kurulum yapma.
+EV076 kayıt paketini commit et; görev dalını push edip PR aç ve exact head required hosted `test` sonucunu bekle.
 
 ## Sonraki sıra
 
-1. C ekran sözleşmesi ve test görselleri kullanıcı tarafından kabul edilip
-   kayıt paketi protected master'a ulaştıktan sonra uygulama için ayrıca açık
-   onay al.
-2. Installer uygulamasını ayrı `codex/installer-experience` dalında
-   regresyon-first yürüt; build ve fiziksel kurulumu ayrı ayrı onaylat.
-3. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
+1. Dist launch geçerse mevcut 47-DLL bozuk kurulumu elle temizlemeden exact
+   setup ile kullanıcı kontrollü reinstall ve ekran görüntüsü kabuline geç.
+2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
-4. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
+3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
-5. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
+4. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
    uygulama, build ve kurulum için ayrı onay al.
 
 ## Dokunulmayacaklar ve ayrı onaylar

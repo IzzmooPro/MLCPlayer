@@ -47,6 +47,8 @@ set "MAIN_SETUP=installer_output\MLCPlayer_Setup_!APP_VER!.exe"
 echo STEP 1/6  Main-package source and runtime verification
 python "%VERIFY%" --pre-main
 if errorlevel 1 goto :fail
+python "packaging\verify_inno.py" main --iscc "%ISCC%"
+if errorlevel 1 goto :fail
 
 echo STEP 2/6  Clean exact build outputs
 if exist "build" (
@@ -71,7 +73,7 @@ python "packaging\compile_translations.py"
 if errorlevel 1 goto :fail
 
 echo STEP 4/6  PyInstaller main package
-python -m PyInstaller "%SPEC%" --noconfirm --clean --log-level WARN
+python "packaging\run_pyinstaller.py" "%SPEC%" --noconfirm --clean --log-level WARN
 if errorlevel 1 goto :fail
 python "%VERIFY%" --post
 if errorlevel 1 goto :fail

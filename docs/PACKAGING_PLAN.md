@@ -73,6 +73,21 @@ klavye odak sırası, gerçek Inno piksel çıktısı, yüksek DPI, erişilebili
 build ve fiziksel kurulum ayrıca tasarlanıp doğrulanmadan kabul edilmiş sayılmaz.
 Seçim installer veya ürün kodunu değiştirme yetkisi değildir.
 
+#### İptal edilen uygulanabilir C v2 referansı
+
+Kullanıcı iki uygulanabilir C v2 seçeneğinden ikincisini önce seçti; güvenli adı
+`C-uygulanabilir-v2.png`, exact digest ve provenance kaydı `EV-20260826-033`
+içindedir. Kullanıcı compiled v2 ekran açılmadan önce bu yönü iptal edip önceki
+başarıyla derlenen C ekranına dönülmesini istedi (`EV-20260826-039`). V2 ve
+`EV-20260826-022` preview'ları yalnız tarihsel karar kanıtıdır; güncel uygulama
+hedefi değildir.
+
+Güncel görsel hedef, `EV-20260826-031` artifact'ını üreten önceki C kaynak
+davranışıdır: yerel Inno `modern` stili, `wizard-large*` sol marka görselleri,
+başlık yüzeyiyle aynı `wizard-small*` görselleri ve native kontrol yerleşimi.
+Bu hedef exact eski artifact byte'larının korunduğu anlamına gelmez; yeni build
+ayrı artifact kimliği ve ayrı görsel kabul ister.
+
 ### C ekran sözleşmesi
 
 Bu sözleşme C yönünün Türkçe ana metnini, etkin durumunu ve klavye akışını
@@ -82,11 +97,9 @@ tanımlar. Görsel yön provenance kaydı `EV-20260826-007`'dir. Buradaki
 çeviriler bu belgeye çoğaltılmaz. Bu sözleşme gerçek Inno uygulamasını,
 build'i veya fiziksel kurulumu kanıtlamaz.
 
-Kullanıcı 26 Ağustos 2026'da beş ekranı gösteren iki C akış görselini hedef
-kompozisyon ve metin olarak açıkça kabul etti. Bu görsel kabul, yalnız private
-preview digest'leriyle `EV-20260826-022` kaydına bağlıdır; compiled Inno'nun
-birebir uygulandığını kanıtlamaz. Gerçek build ekranları aynı referanslarla
-karşılaştırılmadan piksel/yerleşim PASS verilmez.
+V2 seçimi ve build kayıtları tarihsel olarak korunur; aktif baseline önceki C
+ekranıdır (`EV-20260826-039`). Yeni build ekranda doğrulanmadan önceki görsel
+davranışın geri geldiğine ilişkin piksel/yerleşim PASS verilmez.
 
 #### Ortak görsel ve etkileşim kuralları
 
@@ -95,6 +108,9 @@ karşılaştırılmadan piksel/yerleşim PASS verilmez.
 - Turuncu yalnız birincil eylem ve görünür klavye odağı için kullanılır;
   renk tek durum göstergesi değildir. Etiket, erişilebilir ad, rol ve durum
   her etkileşimli kontrolde programatik olarak bulunur.
+- Native kontrol rolü ve erişilebilirlik, konseptteki exact renkten önce gelir.
+  Bu nedenle gerçek ilerleme Inno'nun görünür native progress kontrolüdür;
+  turuncu vurgu marka çizgisinde ve etkin aşama etiketinde kalır.
 - `Tab` ileri, `Shift+Tab` geri dolaşır; `Space` odaktaki kutuyu değiştirir.
   `Enter` yalnız o ekrandaki geçerli birincil eylemi çalıştırır. `Esc`
   doğrudan çıkmaz, yerel iptal onayını açar. Geri dönüldüğünde yol ve seçimler
@@ -146,6 +162,12 @@ karşılaştırılmadan piksel/yerleşim PASS verilmez.
   bilgisi odak almaz → `Geri` → `İleri` → `İptal`.
 - **Geçiş:** geçerli hedefte `İleri` → `C-SUMMARY`; geçersiz hedefte bu
   ekranda kalınır ve odak konum alanına döner; `Geri` → `C-WELCOME`.
+- **Hedef güvenliği:** reinstall/upgrade sırasında effective hedef kayıtlı
+  kurulum konumuyla birebir eşleşmelidir; farklı hedef kurulum başlamadan
+  durdurulur. İlk kurulumda seçilen klasörde kayıtlı olmayan aynı adlı Player
+  EXE'si veya başka kalan içerik varsa üzerine yazılmaz. Effective hedef ve EXE
+  sürümü gerçek kopyalama başlamadan hemen önce yeniden ve sayısal olarak
+  doğrulanır; başlangıçtan sonra sürüm değişmişse kurulum fail-closed durur.
 - **Fail-closed bağımlılık:** başlangıç güncelleme tercihi Player Settings'in
   sahipliğindedir. Kalıcı kullanıcı ayarı ürün kodunda ayrıca onaylanıp açılış
   denetimine bağlanmadan installer seçim kutusu gösterilemez; bugünkü yalnız
@@ -160,7 +182,12 @@ karşılaştırılmadan piksel/yerleşim PASS verilmez.
   Oluşturulacak/Oluşturulmayacak”; “Birlikte Aç listesi: Eklenecek
   (varsayılan uygulama değişmez)”; “Başlangıç güncelleme denetimi: GitHub
   release bilgisi, sessiz”; “Internet Video eklentisi: Dahil değil”; “Kullanıcı ayarları,
-  geçmiş ve önbellek: Korunacak”. Son satır “Kur'a basarak başlayın.”dır.
+  geçmiş ve önbellek: Korunacak”. Özet alanının üzerindeki yerleşik
+  `ReadyLabel`, “Kuruluma başlamak için `Kur`'u seçin. Ayarları gözden geçirmek
+  veya değiştirmek için `Önceki`'yi seçin.” eylemini bir kez gösterir.
+  Yerleşik salt-okunur özet alanı sistem pencere rengini kullanır; metin
+  mantıksal boşluklarla gruplanır, satır sonunda kaydırılır ve yatay kaydırma
+  göstermez. Uzun yerelleştirme veya hedef yolu yalnız dikey taşabilir.
 - **İlk odak:** `Kur`.
 - **Tab sırası:** `Geri` → `Kur` → `İptal`; ilk girişte `Kur` odaktadır.
 - **Geçiş:** `Kur` → `C-PROGRESS`; `Geri` → `C-PREFERENCES` ve değişiklikten
@@ -174,7 +201,10 @@ karşılaştırılmadan piksel/yerleşim PASS verilmez.
   kapalıdır. Aşama metinleri yalnız karşılık gelen gerçek Inno olayıyla
   “Dosyalar hazırlanıyor” → “MLC Player kuruluyor” → “Windows ile
   bütünleştiriliyor” olarak değişir; sahte yüzde gösterilmez ve teknik
-  ayrıntılar varsayılan kapalıdır.
+  ayrıntılar varsayılan kapalıdır. Welcome/Finish marka diline bağlanan ince
+  turuncu alt çizgi yalnız `wpInstalling` yüzeyinde dekoratiftir; mevcut gerçek
+  aşama metni aynı renkte ve kalın gösterilir. High Contrast etkinse bu iki
+  dekorasyon uygulanmaz; progress, durum, dosya yolu ve iptal kontrolü değişmez.
 - **İlk odak:** `İptal`; odak görünürdür ancak doğrudan iptal etmez.
 - **Tab sırası:** `İptal` tek etkileşimli kontroldür; aşama bilgisi Tab durağı
   değil, erişilebilir durum duyurusu olarak okunur.
@@ -203,8 +233,9 @@ karşılaştırılmadan piksel/yerleşim PASS verilmez.
   optional eylem hatası kurulumu başarısız saymaz ve sonraki seçili eylemi
   düşürmez.
 - **İlk odak:** `Bitir`.
-- **Tab sırası:** uygulamayı aç → Windows Varsayılan Uygulamalar → GitHub →
-  `Bitir`; ilk girişte `Bitir` odaktadır.
+- **Tab sırası:** yerleşik `RunList` tek Tab durağıdır; listede `Yukarı/Aşağı`
+  ile seçenekler arasında gezinilir ve `Space` ile seçim değiştirilir. Sonraki
+  Tab durağı `Bitir`dir; ilk girişte `Bitir` odaktadır.
 - **Geçiş:** `Bitir` zorunlu kurulum başarıyla tamamlandıysa yalnız kullanıcının
   işaretlediği optional eylemleri yukarıdaki sırayla dener ve ardından kurulumu
   kapatır.
@@ -239,7 +270,7 @@ ilerlemez ve ayrı açık karar olmadan desteklenmiş sayılmaz.
 - Ürün ayarına bağlanmayan güncelleme kutusu, task/condition'a bağlanmayan
   association kutusu ve ana installer içinde Internet Video kurulum kutusu
   uygulanamaz.
-- Tasarım kabulü; Inno 6.7.1 compile, sekiz dil, 100–250% DPI, 200% text
+- Tasarım kabulü; exact Inno 7.1.0 compile, sekiz dil, 100–250% DPI, 200% text
   scaling, 1366×768/4K, farklı DPI monitör geçişi, Narrator/NVDA ve yalnız
   klavye kabulünün yerine geçmez.
 - İlk kurulum, reinstall, upgrade, downgrade reddi, özel hedefin korunması,
@@ -255,6 +286,9 @@ ilerlemez ve ayrı açık karar olmadan desteklenmiş sayılmaz.
   `ms-settings:defaultapps` shell-launch sonucu ve görünür Settings sayfası,
   varsayılan değişikliği değil; GitHub için resolved exact `{#MyAppUrl}`
   shell-launch sonucu. Seçili olmayan her yolun hiç çalışmadığı da ölçülür.
+- Önceki unsigned setup güncel v2 baseline'ı devralmaz. Kaynak uyarlamasından
+  sonra ayrı onaylı yeniden build gerekir; compiled beş ekran, High Contrast
+  fallback ve DPI/text davranışı kullanıcı görsel kabulü olmadan PASS yazılmaz.
 
 ### Görsel seçimden sonra uygulama sırası
 
@@ -395,9 +429,13 @@ Planlanan temel ayarlar:
 [Setup]
 DefaultDirName={autopf}\MLC Player
 CloseApplications=yes
-CloseApplicationsFilter=MLC Player.exe
+CloseApplicationsFilter="MLC Player.exe,*.dll"
 RestartApplications=no
 ```
+
+Ana EXE yanında kurulumun güncellediği kilitli DLL kaynakları da Restart
+Manager kapsamındadır; bu filtre yalnız ilgili dosya kaynaklarını hedefler ve
+ad-temelli zorla süreç sonlandırma yetkisi vermez.
 
 Ayrıca:
 
@@ -440,6 +478,14 @@ kullanılmayacaktır.
   sonlanmadan `_internal` dosyaları değiştirilmemelidir.
 - Güncelleme sırasında eski `_internal` ile yeni `_internal` karışmamalıdır.
 - Başarısız güncellemede yarım kurulmuş klasör bırakılmamalıdır.
+- Kanıtlanmış yabancı 47 runtime dosyası ile current dist'te bulunmayan ölçülmüş
+  iki eski OpenSSL `*-3-x64.dll` kalıntısının maintenance başlangıcında toplam
+  49 exact direct-root adla silinmesi tek yönlü güvenlik
+  sanitasyonudur. Sonraki kopyalama durursa bu dosyaların geri getirileceği
+  veya eski kurulumun hâlâ çalışan sürüm olduğu iddia edilmez; gerçek rollback
+  sonucu enjekte abort senaryosunda dosya ağacı ve açılışla geri okunur. Bu,
+  OpenSSL ad ailesini genel olarak zararlı saymaz; current dist'in meşru
+  `libcrypto-3.dll` ve `libssl-3.dll` dosyaları silme kapsamı dışındadır.
 - Kaldırma sırasında uygulama çalışıyorsa kullanıcıya anlaşılır bildirim
   verilmeli veya kontrollü kapanış uygulanmalıdır.
 - Kaldırıcı yalnız kurulumun sahip olduğu dosyaları silmelidir.
@@ -477,6 +523,8 @@ Temiz veya izole bir Windows ortamında en az şu senaryolar ölçülmelidir:
 - Uygulama açıkken kaldırma
 - Kaldırma sonrasında Program Files artık taraması
 - Kullanıcı log/ayar saklama politikasının doğrulanması
+- Exact 49 residual sanitasyonundan sonra enjekte abort: yarım payload, kalan
+  sakıncalı DLL, açılabilir sürüm ve kullanıcıya gösterilen onarım yolu readback'i
 
 Her senaryoda süreçler, çıkış kodları, kurulum logu, kalan dosyalar ve gerçek
 uygulama davranışı kaydedilmelidir. Yalnız EXE'nin açılması yeterli kabul

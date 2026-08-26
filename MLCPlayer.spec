@@ -28,6 +28,12 @@ _resource_spec = importlib.util.spec_from_file_location(
 version_resource = importlib.util.module_from_spec(_resource_spec)
 _resource_spec.loader.exec_module(version_resource)
 
+_policy_spec = importlib.util.spec_from_file_location(
+    'mlc_pyinstaller_binary_policy',
+    os.path.join(_project_root, 'packaging', 'pyinstaller_binary_policy.py'))
+binary_policy = importlib.util.module_from_spec(_policy_spec)
+_policy_spec.loader.exec_module(binary_policy)
+
 VERSION_FILE = os.path.join(_project_root, 'build', 'file_version_info.txt')
 os.makedirs(os.path.dirname(VERSION_FILE), exist_ok=True)
 version_resource.write(VERSION_FILE, APP_VERSION, WINDOWS_VERSION)
@@ -123,6 +129,10 @@ def _keep_data(entry):
 
 
 a.binaries = [entry for entry in a.binaries if _keep_binary(entry)]
+a.binaries, _removed_root_binaries = binary_policy.sanitize_binaries(
+    a.binaries, project_root=_project_root, python_root=sys.base_prefix)
+for _entry in _removed_root_binaries:
+    print(f"INFO: excluded foreign root binary: {_entry[0]}")
 a.datas = [entry for entry in a.datas if _keep_data(entry)]
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)

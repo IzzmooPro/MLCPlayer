@@ -25,6 +25,22 @@ ADDON = ROOT / "packaging" / "MLCPlayer_InternetVideo.iss"
 EXPECTED = ("english", "turkish", "german", "spanish", "french", "italian",
             "russian", "brazilianportuguese")
 
+REQUIRED_C_KEYS = (
+    "CWelcomeTitle", "CWelcomeInstallBody", "CWelcomeReinstallBody",
+    "CWelcomeUpgradeBody", "CWelcomeLicenseInfo", "CDowngradeBlocked",
+    "CVersionStateUnknown", "CTargetLocationMismatch",
+    "CTargetAlreadyOccupied", "CTargetNotEmpty", "CPreferencesTitle",
+    "CPreferencesBody",
+    "CInstallLocation", "COpenWithInfo", "CPrivacyInfo", "CAddonInfo",
+    "CSummaryTitle", "CSummaryBody", "CSummaryLocation",
+    "CSummaryDesktopYes", "CSummaryDesktopNo", "CSummaryOpenWith",
+    "CSummaryUpdate", "CSummaryAddon", "CSummaryUserData",
+    "CSummaryAction", "CProgressTitle", "CProgressBody",
+    "CPhasePreparing", "CPhaseInstalling", "CPhaseIntegrating",
+    "CFinishTitle", "CFinishBody", "CFinishDescription",
+    "OpenDefaultApps",
+)
+
 
 def _read(path):
     return path.read_text(encoding="utf-8-sig")
@@ -65,6 +81,44 @@ def test_our_own_strings_exist_for_every_language():
     for language in EXPECTED:
         for key in ("DesktopIcon", "LaunchApp", "OpenRepository"):
             assert f"{language}.{key}=" in section, f"eksik: {language}.{key}"
+
+
+def test_c_screen_contract_strings_exist_for_every_language():
+    """C ekran akışında İngilizce/Türkçe karışması veya eksik key olamaz."""
+    section = _read(MAIN).split("[CustomMessages]", 1)[1].split("\n[", 1)[0]
+    for language in EXPECTED:
+        for key in REQUIRED_C_KEYS:
+            assert f"{language}.{key}=" in section, f"eksik: {language}.{key}"
+
+    for key in ("CWelcomeInstallBody", "CWelcomeReinstallBody"):
+        placeholders = {
+            tuple(re.findall(r"%\d", re.search(
+                rf"^{language}\.{key}=(.*)$", section, re.MULTILINE
+            ).group(1)))
+            for language in EXPECTED
+        }
+        assert placeholders == {("%1",)}, (key, placeholders)
+
+    placeholders = {
+        tuple(re.findall(r"%\d", re.search(
+            rf"^{language}\.CWelcomeUpgradeBody=(.*)$", section, re.MULTILINE
+        ).group(1)))
+        for language in EXPECTED
+    }
+    assert placeholders == {("%1", "%2")}, placeholders
+
+    summary_placeholders = {
+        tuple(re.findall(r"%\d", re.search(
+            rf"^{language}\.CSummaryLocation=(.*)$", section, re.MULTILINE
+        ).group(1)))
+        for language in EXPECTED
+    }
+    assert summary_placeholders == {("%1",)}, summary_placeholders
+
+    code = _read(MAIN).split("[Code]", 1)[1]
+    used_c_keys = set(re.findall(r"CustomMessage\('(C[^']+)'\)", code))
+    assert used_c_keys <= set(REQUIRED_C_KEYS), sorted(used_c_keys - set(REQUIRED_C_KEYS))
+    assert set(REQUIRED_C_KEYS) - {"OpenDefaultApps"} == used_c_keys
 
 
 def test_the_addon_error_is_translated():

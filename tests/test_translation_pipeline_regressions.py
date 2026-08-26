@@ -199,7 +199,7 @@ def test_the_release_chain_compiles_the_translations():
     # Derleme PyInstaller'ın GERÇEK koşumundan ÖNCE olmalı; sonra olursa
     # pakete girmez. Ölçüt `--version` ön kontrolü DEĞİL, spec ile yapılan
     # asıl çağrıdır (o kontrol dosyanın başında yer alır).
-    build_call = 'PyInstaller "%SPEC%"'
+    build_call = 'run_pyinstaller.py" "%SPEC%"'
     assert build_call in chain
     assert chain.index("compile_translations.py") < chain.index(build_call)
 

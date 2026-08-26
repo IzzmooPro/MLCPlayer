@@ -114,6 +114,8 @@ rem Publishability: do not produce a version installed clients CANNOT SEE
 rem (the comparison is numeric; with v0.31 out, v0.4 is invisible).
 python "packaging\check_publishable.py"
 if errorlevel 1 goto :fail
+python "packaging\verify_inno.py" all --iscc "%ISCC%"
+if errorlevel 1 goto :fail
 echo.
 
 echo STEP 2/8  Cleaning previous output
@@ -165,7 +167,7 @@ if errorlevel 1 goto :fail
 echo.
 
 echo STEP 4/8  PyInstaller (onedir)  -  this can take a few minutes
-python -m PyInstaller "%SPEC%" --noconfirm --clean --log-level WARN
+python "packaging\run_pyinstaller.py" "%SPEC%" --noconfirm --clean --log-level WARN
 if errorlevel 1 (
     echo ERROR: PyInstaller failed.
     goto :fail
