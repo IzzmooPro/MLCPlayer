@@ -6975,6 +6975,48 @@
         "No reinstall, Progress visual, locked-file abort, rollback or unchecked Finish action occurred."
       ],
       "next_action": "Commit EV073 and run the exact C48097CE setup once without Computer Use; capture Progress and Finish before post-install parity and launch checks."
+    },
+    {
+      "id": "EV-20260826-074",
+      "recorded_at_utc": "2026-08-26T19:26:50Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "cc3a59b9555801bd8b5b6f6fb9082f6d335a2536",
+      "baseline_commit": "cc3a59b9555801bd8b5b6f6fb9082f6d335a2536",
+      "artifact_commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "user-controlled exact C48097CE setup reinstall and Progress screenshot without Computer Use",
+        "installed versus dist relative-path and SHA-256 manifest comparison",
+        "forty-nine-residual recursive inventory, installed Player identity and user-data readback",
+        "user Finish launch observation, user-controlled normal close and final process/window absence readback"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111",
+        "installed-MLC-Player.exe": "6f19d8904bdc5d5d1aa20c4fb5c19049f1dc13f804653bba58391fe5c190a499",
+        "post-reinstall-user-data-manifest": "67805dd7b720ad55afd7bab1ea02256c42246f4cd94af2460dbde97881d68f45"
+      },
+      "subject": "Exact forty-nine-residual cleanup reinstall and installed launch acceptance",
+      "evidence": [
+        "the exact setup completed the user-controlled reinstall and the user-provided Progress screen had correct phase text, real target file, progress bar and stable layout",
+        "the installed Player matched the exact 6f19d890 dist artifact and the forty-nine-residual recursive count was zero",
+        "the full manifest compared ninety-one dist files with ninety-six installed files at zero missing and zero mismatch; the only five extras were the expected license, two README and two uninstaller files",
+        "the selected Finish Launch action opened the Player without a user-observed problem and the user then closed it normally",
+        "MLCPlayer.ini retained its old timestamp, 674-byte size and SHA-256 66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c; only the application log appended 66 bytes",
+        "final Player, setup and matching-window counts were zero",
+        "independent positive and adversarial reviews reported bounded installed_artifact PASS with no P0 or P1"
+      ],
+      "summary": "The exact maintenance reinstall removes all measured residuals, preserves payload and settings identity, displays accepted Progress and launches the installed Player without a leak.",
+      "limitations": [
+        "The exact C480 Finish page was not captured, so its pixel layout and checkbox states are not a visual PASS even though the selected Launch behavior worked.",
+        "Setup and Player exit codes, installer log, registry and shortcut readback, Default Apps and GitHub actions, media playback, locked-process abort, injected abort, rollback, first install, older-version upgrade, signature and SmartScreen remain unmeasured.",
+        "This bounded PASS is not general installer or release acceptance."
+      ],
+      "next_action": "Commit EV074, then prepare the v0.40 version-field and regression update; full release gates remain separate and unmeasured items cannot inherit this PASS."
     }
   ]
 }

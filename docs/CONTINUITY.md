@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `8d23558a61e1be00a156e73edb1af0b8f74125a1`
+- Kayıt hazırlanırken doğrulanan HEAD: `cc3a59b9555801bd8b5b6f6fb9082f6d335a2536`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 32 commit ileride, 0 geride)
-- Son kanıt: `EV-20260826-073`
+- Dal: `codex/installer-experience` (`origin/master`dan 33 commit ileride, 0 geride)
+- Son kanıt: `EV-20260826-074`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -127,7 +127,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
 - Dist PASS'ti; reinstall yeni EXE'yi kopyaladı ama eski 47 root DLL'yi bırakarak FAILED oldu.
   Fix `83a0fef`; full gate **5023/19**; `89e2395` build'i setup `90e8ccd1...0698ffb`, Player `9a5fc567...a037d60` verdi (`-059`–`-066`).
-  İki OpenSSL kalıntısı için exact 49 cleanup `ddeac9c`/setup `c480...`; yeni dist açılışı ve iki-residual retry fixture'ı geçti (`-067`–`-073`).
+  Exact 49 cleanup `ddeac9c`/setup `c480...`; residual/missing/mismatch `0`, Progress ve installed Launch geçti (`-067`–`-074`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -161,7 +161,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-EV073'ü commit et; exact `c480...` setup'ı bir kez aç, Progress/Finish görselleriyle kontrollü reinstall yap.
+EV074'ü commit et; v0.40 version alanları ve regression hedefini güncelle, genel release boşluklarını ayrı tut.
 
 ## Sonraki sıra
 
