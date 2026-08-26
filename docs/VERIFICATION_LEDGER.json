@@ -4932,6 +4932,50 @@
         "The private images remain outside Git; only safe names and SHA-256 digests are recorded."
       ],
       "next_action": "Request separate explicit approval to commit the bounded C screen-contract, regression, continuity and append-only evidence package; do not infer push or implementation approval."
+    },
+    {
+      "id": "EV-20260826-023",
+      "recorded_at_utc": "2026-08-26T09:22:30Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "9467db37df68ab7cf7f1dd63a5098765e916b631",
+      "baseline_commit": "9467db37df68ab7cf7f1dd63a5098765e916b631",
+      "evidence_commit": "9467db37df68ab7cf7f1dd63a5098765e916b631",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json tests/test_installer_branding_regressions.py",
+        "git diff --cached --check",
+        "git commit -m \"docs: define installer C screen contract\"",
+        "git rev-parse HEAD",
+        "git show --no-ext-diff --format=%P -s HEAD",
+        "git show --no-ext-diff --stat --oneline HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new), pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Committed C installer screen-contract and visual-acceptance package",
+      "evidence": [
+        "the separately approved commit completed as exact 9467db37df68ab7cf7f1dd63a5098765e916b631 with subject docs: define installer C screen contract",
+        "readback showed the single parent db96ac529f48a45fbc9233a22f98c6a0e2726df5 and exactly the four expected continuity, packaging-plan, append-only-ledger and installer-branding-regression files",
+        "the commit contains the five-screen C contract, functional finish-action boundaries, independent dual-review closure and the user's explicit two-preview visual acceptance",
+        "the immediate post-commit working tree was clean and the local task branch measured one commit ahead and zero behind origin/master"
+      ],
+      "summary": "The approved C screen-contract package is now bound to an exact local commit with verified parent and file scope.",
+      "limitations": [
+        "The commit is local only and has not been pushed, opened as a PR or merged.",
+        "No installer handler, product code, build, installation, Windows action/readback, tag or release occurred.",
+        "This commit does not prove compiled Inno pixels match the accepted private previews."
+      ],
+      "next_action": "Request separate explicit approval to commit this bounded exact-commit readback record; do not infer push or implementation approval."
     }
   ]
 }
