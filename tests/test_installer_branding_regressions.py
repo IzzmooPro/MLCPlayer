@@ -199,6 +199,69 @@ def test_finish_actions_are_real_and_do_not_overpromise_windows_defaults():
         assert forbidden_key not in contract
 
 
+def test_installer_c_reuses_builtin_pages_and_native_state():
+    """Implementation tek directory/task state'i ve beş built-in sayfa kullanır."""
+    text = _iss()
+    code = text.split("[Code]", 1)[1]
+
+    for event in (
+        "procedure InitializeWizard",
+        "procedure CurPageChanged",
+        "function ShouldSkipPage",
+        "function UpdateReadyMemo",
+    ):
+        assert event in code
+    for page in ("wpWelcome", "wpSelectDir", "wpReady", "wpInstalling", "wpFinished"):
+        assert page in code
+
+    assert "CreateCustomPage" not in code
+    assert "CreateInputDirPage" not in code
+    skip_body = code.split("function ShouldSkipPage", 1)[1].split("end;", 1)[0]
+    assert re.search(r"Result\s*:=\s*PageID\s*=\s*wpSelectTasks", skip_body)
+    assert "WizardForm.TasksList.Parent := WizardForm.SelectDirPage" in code
+    assert "SelectDirPage.Surface" not in code
+    assert "SelectDirPage.SurfaceWidth" not in code
+    assert "SelectDirPage.SurfaceHeight" not in code
+    assert "WizardDirValue" in code
+    assert "WizardIsTaskSelected('desktopicon')" in code
+    assert "WizardSelectTasks" not in code
+    assert "WizardForm.DirEdit.TabOrder" in code
+    assert "WizardForm.DirBrowseButton.TabOrder" in code
+    assert "WizardForm.TasksList.TabOrder" in code
+    assert "WizardForm.ActiveControl := WizardForm.DirEdit" in code
+    assert "WizardForm.ActiveControl := WizardForm.NextButton" in code
+    assert "WizardForm.ActiveControl := WizardForm.NextButton" in code
+    assert "WizardForm.FinishedButton" not in code
+    assert "WizardForm.PageNameLabel.Caption" in code
+    assert "WizardForm.PageDescriptionLabel.Caption" in code
+    assert "CustomMessage('CFinishBody')" in code
+    assert "CustomMessage('CFinishDescription')" in code
+    assert "WizardForm.FinishedLabel.AdjustHeight" in code
+
+
+def test_installer_c_summary_and_progress_use_live_engine_state():
+    text = _iss()
+    code = text.split("[Code]", 1)[1]
+
+    ready = code.split("function UpdateReadyMemo", 1)[1]
+    assert "WizardDirValue" in ready
+    assert "WizardIsTaskSelected('desktopicon')" in ready
+    assert "CustomMessage('CSummaryLocation')" in ready
+    assert "CustomMessage('CSummaryDesktopYes')" in ready
+    assert "CustomMessage('CSummaryDesktopNo')" in ready
+
+    assert "procedure SetInstallPhase" in code
+    assert "CustomMessage('CPhasePreparing')" in code
+    assert "CustomMessage('CPhaseInstalling')" in code
+    assert "CustomMessage('CPhaseIntegrating')" in code
+    assert "CurProgress" not in code
+    assert "TTimer" not in code
+    assert re.search(r'^Source: .*BeforeInstall: SetInstallPhase\(\'installing\'\)', text, re.MULTILINE)
+    assert re.search(r'^Name: "\{group\}.*BeforeInstall: SetInstallPhase\(\'integrating\'\)', text, re.MULTILINE)
+    assert "InstallPhaseLabel.Caption := Caption" in code
+    assert "WizardForm.StatusLabel.Caption := Caption" not in code
+
+
 def test_wizard_images_referenced_by_the_installer_exist():
     """`.iss` var olmayan bir görsel gösterirse derleme sessizce bozulur."""
     text = _iss()

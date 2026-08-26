@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `9467db37df68ab7cf7f1dd63a5098765e916b631`
+- Kayıt hazırlanırken doğrulanan HEAD: `f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
-- Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-025`
+- Dal: `codex/installer-experience` (taban protected `master` ile eş)
+- Son kanıt: `EV-20260826-028`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -89,6 +89,9 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `32949577656` **249 passed / 0 failed** ve `LEDGER_APPEND_ONLY_OK` verdi,
   yerel/uzak master `0/0` okundu. Bu provenance ilk gerçek C ekran-sözleşmesi
   kaydında bağlandı (`EV-20260826-017`).
+- C ekran-sözleşmesi PR #52 ile exact `f0a91ad` merge commit'ine alındı
+  (parent `db96ac5` + `12ac711`); hosted run/job `32953472410/98129903318`
+  **4969 passed / 30 skipped**, ledger temiz ve master `0/0` (`EV-20260826-028`).
 - Beş ekranlı C sözleşmesi tek kanonik sahibi `PACKAGING_PLAN.md` içinde
   hazırlandı. Güncelleme kutusu mevcut ürün ayarına bağlı olmadığı için
   çıkarıldı; Internet Video yalnız ayrı paket bilgisi olarak kaldı. İki private
@@ -115,6 +118,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   uzak görev dalına gönderildi; yerel/uzak dal exact `f794670`, `0/0` ve temiz
   okundu (`EV-20260826-025`). Aşağıdaki dayanıklı kapı ilk karşılanmayan
   durumu seçer; sırf her push'u yeniden kaydetmek için meta-kayıt döngüsü kurmaz.
+- Installer C uygulaması `codex/installer-experience` dalında regression-first
+  yürütüldü; geçersiz Inno API, target/downgrade ve enumeration açıkları kırmızı
+  kayıtlarda korundu (`EV-20260826-026`, `-027`). Native sayfalar/state, final
+  hedef-sürüm recheck'i, gerçek fazlar, üç finish eylemi ve sekiz dil **247
+  passed** ve çift incelemede P0/P1 bloklayıcısızdır (`EV-20260826-028`). ISCC,
+  piksel/DPI, kurulum ve Windows action kabulü henüz yoktur.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -148,25 +157,20 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-C ekran-sözleşmesi dalı için şu **ilk karşılanmayan kapıyı** uygula: bu bounded
-continuity/ledger kaydı çalışma ağacındaysa commit için ayrıca açık onay iste;
-yerel görev dalı uzaktan ilerideyse push için ayrıca açık onay iste; uzak dal
-için PR yoksa PR oluşturmak için ayrıca açık onay iste. PR açılırsa live exact
-`headRefOid` üzerindeki required `test` SUCCESS olmadan merge onayı isteme.
-Eski run kullanma; installer kodu, build veya fiziksel kurulum yapma.
+`codex/installer-experience` çalışma ağacındaki installer-only kaynak, dar
+regresyon, continuity ve append-only kanıt paketini commit etmek için ayrıca
+açık kullanıcı onayı iste. Bu onay build, setup çalıştırma, kurulum, push, PR
+veya merge yetkisi vermez.
 
 ## Sonraki sıra
 
-1. C ekran sözleşmesi ve test görselleri kullanıcı tarafından kabul edilip
-   kayıt paketi protected master'a ulaştıktan sonra uygulama için ayrıca açık
-   onay al.
-2. Installer uygulamasını ayrı `codex/installer-experience` dalında
-   regresyon-first yürüt; build ve fiziksel kurulumu ayrı ayrı onaylat.
-3. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
+1. Installer uygulama paketini ayrı onayla commit et; ardından build ve fiziksel
+   kurulumu birbirinden ayrı onaylat.
+2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
-4. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
+3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
-5. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
+4. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
    uygulama, build ve kurulum için ayrı onay al.
 
 ## Dokunulmayacaklar ve ayrı onaylar

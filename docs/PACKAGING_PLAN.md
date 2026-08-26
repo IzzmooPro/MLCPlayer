@@ -146,6 +146,12 @@ karşılaştırılmadan piksel/yerleşim PASS verilmez.
   bilgisi odak almaz → `Geri` → `İleri` → `İptal`.
 - **Geçiş:** geçerli hedefte `İleri` → `C-SUMMARY`; geçersiz hedefte bu
   ekranda kalınır ve odak konum alanına döner; `Geri` → `C-WELCOME`.
+- **Hedef güvenliği:** reinstall/upgrade sırasında effective hedef kayıtlı
+  kurulum konumuyla birebir eşleşmelidir; farklı hedef kurulum başlamadan
+  durdurulur. İlk kurulumda seçilen klasörde kayıtlı olmayan aynı adlı Player
+  EXE'si veya başka kalan içerik varsa üzerine yazılmaz. Effective hedef ve EXE
+  sürümü gerçek kopyalama başlamadan hemen önce yeniden ve sayısal olarak
+  doğrulanır; başlangıçtan sonra sürüm değişmişse kurulum fail-closed durur.
 - **Fail-closed bağımlılık:** başlangıç güncelleme tercihi Player Settings'in
   sahipliğindedir. Kalıcı kullanıcı ayarı ürün kodunda ayrıca onaylanıp açılış
   denetimine bağlanmadan installer seçim kutusu gösterilemez; bugünkü yalnız
@@ -203,8 +209,9 @@ karşılaştırılmadan piksel/yerleşim PASS verilmez.
   optional eylem hatası kurulumu başarısız saymaz ve sonraki seçili eylemi
   düşürmez.
 - **İlk odak:** `Bitir`.
-- **Tab sırası:** uygulamayı aç → Windows Varsayılan Uygulamalar → GitHub →
-  `Bitir`; ilk girişte `Bitir` odaktadır.
+- **Tab sırası:** yerleşik `RunList` tek Tab durağıdır; listede `Yukarı/Aşağı`
+  ile seçenekler arasında gezinilir ve `Space` ile seçim değiştirilir. Sonraki
+  Tab durağı `Bitir`dir; ilk girişte `Bitir` odaktadır.
 - **Geçiş:** `Bitir` zorunlu kurulum başarıyla tamamlandıysa yalnız kullanıcının
   işaretlediği optional eylemleri yukarıdaki sırayla dener ve ardından kurulumu
   kapatır.

@@ -52,10 +52,13 @@ def test_installer_define_matches_app_version():
 
 def test_installer_version_info_matches_app_version():
     text = _iss_text()
+    define = re.search(r'#define\s+MyAppNumericVersion\s+"([^"]+)"', text)
+    assert define, "MLCPlayer.iss içinde MyAppNumericVersion tanımı yok"
+    assert define.group(1) == WINDOWS_VERSION
     for key in ("VersionInfoVersion", "VersionInfoProductVersion"):
         match = re.search(rf"^{key}=(.+)$", text, re.MULTILINE)
         assert match, f"MLCPlayer.iss içinde {key} yok"
-        assert match.group(1).strip() == WINDOWS_VERSION, key
+        assert match.group(1).strip() == "{#MyAppNumericVersion}", key
 
 
 def test_installer_output_name_derives_from_define():
