@@ -6023,6 +6023,120 @@
         "EV-20260826-046 belongs only to the old cc1021 artifact; no installation, push, PR, merge, tag or release occurred for this commit."
       ],
       "next_action": "Request separate approval to commit this readback record; then request separate exact build approval before any new setup launch or installation."
+    },
+    {
+      "id": "EV-20260826-050",
+      "recorded_at_utc": "2026-08-26T16:32:23Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "baseline_commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "$setup=Get-Item -LiteralPath 'installer_output\\MLCPlayer_Setup_v0.39.exe'; $player=Get-Item -LiteralPath 'dist\\MLC Player\\MLC Player.exe'; $runtime=Get-Item -LiteralPath 'dist\\MLC Player\\_internal\\bin\\mpv-2.dll'; $manifest=Get-Item -LiteralPath 'dist\\MLC Player\\_internal\\bin\\RUNTIME_MANIFEST.txt'; $sourceRuntime=Get-Item -LiteralPath 'bin\\mpv-2.dll'; $setup,$player,$runtime,$manifest,$sourceRuntime | Select-Object Name,Length,CreationTimeUtc,LastWriteTimeUtc; $setup,$player,$runtime,$manifest,$sourceRuntime | Get-FileHash -Algorithm SHA256",
+        "$player.VersionInfo | Select-Object FileVersion,ProductVersion; Get-AuthenticodeSignature -LiteralPath $setup.FullName | Select-Object Status,StatusMessage; Test-Path -LiteralPath 'installer_output\\MLCPlayer_Setup_v0.39.exe.sig'",
+        "git rev-parse HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','ISCC','python','pythonw','pyinstaller') } | Select-Object Id,ProcessName,StartTime,MainWindowHandle"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "43b27e818bcb9aef894fdae5dbea9f98a2fb76298860fc29a62c3fbd5a841e6b",
+        "MLC Player.exe": "61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4e",
+        "packaged mpv-2.dll": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "source mpv-2.dll": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "RUNTIME_MANIFEST.txt": "c210d1e847e7f65982ff8214cb3581162d736b09b1807e5214c0f2111d1a8a6c"
+      },
+      "subject": "Unsigned main installer build with bounded Progress accent",
+      "evidence": [
+        "the separately approved build started from clean exact 139921728e0e30b468a92bc287a0ad0ec665bc75 with Inno Setup 7.1.0",
+        "the official unsigned-main dependency, runtime, translation, clean PyInstaller, Inno and exact-artifact chain completed once with exit 0 and DONE marker",
+        "the new MLCPlayer_Setup_v0.39.exe is 66222017 bytes with SHA-256 43b27e818bcb9aef894fdae5dbea9f98a2fb76298860fc29a62c3fbd5a841e6b, Authenticode NotSigned and no detached signature",
+        "the packaged Player is v0.39, 3133110 bytes with SHA-256 61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4",
+        "the packaged and source mpv-2.dll both measure 112772608 bytes and SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4",
+        "the packaged RUNTIME_MANIFEST.txt is 2428 bytes with SHA-256 c210d1e847e7f65982ff8214cb3581162d736b09b1807e5214c0f2111d1a8a6c",
+        "before this evidence append, post-build readback remained on exact HEAD with a clean tracked working tree, fourteen commits ahead and zero behind origin/master",
+        "the initial outer-process filter returned empty, but a later adversarial CIM check found a pre-existing inner Inno temp process; process cleanliness is therefore not claimed by this record"
+      ],
+      "summary": "The committed bounded Progress source produced a fresh, internally verified unsigned main setup artifact.",
+      "limitations": [
+        "This source_build PASS proves only the exact compiled artifact and recorded build chain.",
+        "No setup window was launched; Progress pixels, z-order, DPI, High Contrast, localization, Cancel and screen-reader behavior remain unmeasured.",
+        "No installation or installed-artifact readback occurred; EV-20260826-046 belongs only to the older cc1021 artifact.",
+        "The pre-build process filter omitted Inno inner temp process names; EV-20260826-051 records the stale process discovered after build and the build is not evidence of process cleanliness.",
+        "No commit of this record, push, PR, merge, tag, signing or release occurred."
+      ],
+      "next_action": "Resolve the separately recorded stale inner setup process under explicit approval before requesting any controlled visual Progress launch; installation and record commit remain separately approval-gated."
+    },
+    {
+      "id": "EV-20260826-051",
+      "recorded_at_utc": "2026-08-26T16:38:20Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "baseline_commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('MLCPlayer_Setup_v0.39.exe','mlcplayer_setup_v0.39.tmp','MLC Player.exe','ISCC.exe','python.exe','pythonw.exe','pyinstaller.exe') } | Select-Object ProcessId,Name,ExecutablePath,CreationDate,CommandLine",
+        "$p=Get-CimInstance Win32_Process -Filter \"ProcessId=34036\"; $parent=Get-CimInstance Win32_Process -Filter \"ProcessId=$($p.ParentProcessId)\" -ErrorAction SilentlyContinue; $hash=if($p.ExecutablePath -and (Test-Path -LiteralPath $p.ExecutablePath)){(Get-FileHash -Algorithm SHA256 -LiteralPath $p.ExecutablePath).Hash}else{''}; [pscustomobject]@{ProcessId=$p.ProcessId;Name=$p.Name;CreationDate=$p.CreationDate;ParentProcessId=$p.ParentProcessId;ParentAlive=[bool]$parent;ParentName=if($parent){$parent.Name}else{''};ExecutableSha256=$hash;MainWindowHandle=(Get-Process -Id 34036 -ErrorAction SilentlyContinue).MainWindowHandle} | ConvertTo-Json"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.tmp": "f8aa2691e72a430b0dca198a7562f4ad05235b49e1926369368ddc5e9b93aa10"
+      },
+      "subject": "Pre-launch safety gate found stale inner Inno setup process",
+      "evidence": [
+        "the adversarial process-name expansion found exact PID 34036 named MLCPlayer_Setup_v0.39.tmp with no main window",
+        "the process creation time was 2026-08-26T18:31:56+03:00, approximately one hour before the new setup artifact write time, so the new build is not identified as its creator",
+        "the recorded parent PID 31004 was no longer alive and the inner executable SHA-256 was f8aa2691e72a430b0dca198a7562f4ad05235b49e1926369368ddc5e9b93aa10",
+        "no process was terminated and no setup launch or retry occurred"
+      ],
+      "summary": "The visual pre-launch safety gate failed because a stale hidden inner Inno setup process remains alive.",
+      "limitations": [
+        "The omitted inner-process name in the original preflight means this record cannot determine which earlier setup attempt created the process.",
+        "The temp executable digest does not identify the outer setup artifact or prove installation activity.",
+        "This failure does not invalidate the exact source_build artifact result in EV-20260826-050, but it blocks a new visual launch until resolved.",
+        "No automatic termination, retry, installation, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Before termination, revalidate PID 34036, process name, creation time and executable SHA-256 as one fail-closed identity tuple; then read back outer and inner setup process absence before separately requesting a visual launch."
+    },
+    {
+      "id": "EV-20260826-052",
+      "recorded_at_utc": "2026-08-26T16:57:09Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "baseline_commit": "139921728e0e30b468a92bc287a0ad0ec665bc75",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "$expectedPid=34036; $expectedName='MLCPlayer_Setup_v0.39.tmp'; $expectedCreated=[datetimeoffset]'2026-08-26T18:31:56.598313+03:00'; $expectedHash='F8AA2691E72A430B0DCA198A7562F4AD05235B49E1926369368DDC5E9B93AA10'; $p=Get-CimInstance Win32_Process -Filter \"ProcessId=$expectedPid\" -ErrorAction SilentlyContinue; if(-not $p){throw 'TARGET_PROCESS_MISSING'}; $actualCreated=[datetimeoffset]$p.CreationDate; $actualHash=if($p.ExecutablePath -and (Test-Path -LiteralPath $p.ExecutablePath)){(Get-FileHash -Algorithm SHA256 -LiteralPath $p.ExecutablePath).Hash}else{''}; if($p.ProcessId -ne $expectedPid -or $p.Name -cne $expectedName -or $actualCreated -ne $expectedCreated -or $actualHash -cne $expectedHash){throw 'PROCESS_IDENTITY_MISMATCH'}; Stop-Process -Id $expectedPid -Force -ErrorAction Stop",
+        "$matches=Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('MLCPlayer_Setup_v0.39.exe','MLCPlayer_Setup_v0.39.tmp') }; if($matches){$matches | Select-Object ProcessId,ParentProcessId,Name,CreationDate; exit 2}; 'OUTER_INNER_SETUP_PROCESS_ABSENCE_OK'",
+        "git rev-parse HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Stale inner setup process disappeared before approved termination",
+      "evidence": [
+        "the separately approved termination command failed closed at TARGET_PROCESS_MISSING before reaching Stop-Process, so no process was terminated",
+        "the immediate all-PID CIM readback returned OUTER_INNER_SETUP_PROCESS_ABSENCE_OK for both MLCPlayer_Setup_v0.39.exe and MLCPlayer_Setup_v0.39.tmp",
+        "the checkout remained on exact 139921728e0e30b468a92bc287a0ad0ec665bc75, fourteen commits ahead and zero behind origin/master"
+      ],
+      "summary": "The previously observed stale inner setup process was already gone and the controlled pre-launch process-absence gate passed without termination.",
+      "limitations": [
+        "This PASS proves only process absence at the recorded readback instant; it does not explain why or exactly when PID 34036 exited.",
+        "No setup was launched and no Progress pixels, installation behavior or installed artifact was tested.",
+        "No process termination, retry, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to launch only the exact 43b27e setup for controlled visual Progress review; installation and record commit remain separately approval-gated."
     }
   ]
 }
