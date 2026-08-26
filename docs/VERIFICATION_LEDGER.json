@@ -6817,6 +6817,48 @@
         "Private absolute paths are intentionally omitted and no installed file or user data was changed."
       ],
       "next_action": "Commit EV069 and launch the exact 90e8ccd1 setup once without Computer Use for user-controlled reinstall and screenshot acceptance."
+    },
+    {
+      "id": "EV-20260826-070",
+      "recorded_at_utc": "2026-08-26T19:11:37Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "3fc72ab87a30fb421c2e44bf7180577f8f56a959",
+      "baseline_commit": "3fc72ab87a30fb421c2e44bf7180577f8f56a959",
+      "artifact_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "user-controlled Welcome, Summary, Previous, Next, Install and Finish flow for exact setup",
+        "installed versus dist relative-path and SHA-256 manifest comparison",
+        "installed Player path, SHA-256, loaded Qt and ICU module readback",
+        "pre and post forbidden runtime, user-data and process/window readback"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb",
+        "installed-MLC-Player.exe": "9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60",
+        "stale-libcrypto-3-x64.dll": "5bd5c85c2863c624e1e715f736fe1c20869b106c3bd341df671187839124f2be",
+        "stale-libssl-3-x64.dll": "b4a534d770107439454bb33de3792cbe7c251f201d8ff88cf4dda6cbbe42c367"
+      },
+      "subject": "Cleanup reinstall leaves two obsolete OpenSSL DLLs",
+      "evidence": [
+        "the exact setup replaced the installed Player with the expected 9a5fc567 artifact and removed all forty-seven measured ICU, API-set and UCRT leftovers",
+        "the user accepted Welcome, Summary, Previous to Next and Finish; the selected Launch action opened the correct installed Player, Qt loaded from the installed tree, ICU loaded from System32 and normal close left zero process or matching window",
+        "the installed versus dist manifest had zero missing and zero mismatched payload but seven extras; five were expected installer-owned license, README and uninstaller files",
+        "the remaining two extras were obsolete OpenSSL 3.6.3 files absent from current dist: libcrypto-3-x64.dll and libssl-3-x64.dll with recorded SHA-256 values",
+        "the user settings file retained its old timestamp, 674-byte size and SHA-256 66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c while only the application log grew by 66 bytes",
+        "independent positive and adversarial reviews accepted the exact cleanup and launch sub-results but rejected general reinstall payload parity"
+      ],
+      "summary": "The targeted Qt startup cleanup worked, but the general reinstall failed because two obsolete OpenSSL DLLs remained mixed into the installed internal tree.",
+      "limitations": [
+        "The obsolete OpenSSL DLLs were not observed loaded by the accepted Player process, so this record does not claim runtime exploitation or the cause of a visible failure.",
+        "Progress visual acceptance was not measured; setup and Player exit codes, injected abort, locked-process behavior and the two unchecked Finish actions were not measured.",
+        "No automatic reinstall retry, manual file deletion, version bump, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Commit EV070, prove a regression-first exact maintenance cleanup for the two measured OpenSSL names, and rebuild before any controlled reinstall retry."
     }
   ]
 }

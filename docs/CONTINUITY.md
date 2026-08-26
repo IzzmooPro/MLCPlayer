@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `c910f1a917bd6910fb16a4b35b3b18dcf67bfbcd`
+- Kayıt hazırlanırken doğrulanan HEAD: `3fc72ab87a30fb421c2e44bf7180577f8f56a959`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 28 commit ileride, 0 geride)
-- Son kanıt: `EV-20260826-069`
+- Dal: `codex/installer-experience` (`origin/master`dan 29 commit ileride, 0 geride)
+- Son kanıt: `EV-20260826-070`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -127,7 +127,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
 - Dist PASS'ti; reinstall yeni EXE'yi kopyaladı ama eski 47 root DLL'yi bırakarak FAILED oldu.
   Fix `83a0fef`; full gate **5023/19**; `89e2395` build'i setup `90e8ccd1...0698ffb`, Player `9a5fc567...a037d60` verdi (`-059`–`-066`).
-  Yeni Player path-exact açıldı/kapatıldı (`-067`); reinstall öncesi eski `AC09...` Player, 47 DLL ve kullanıcı verisi hash'i sabitlendi (`-069`).
+  Yeni Player path-exact açıldı/kapatıldı (`-067`); reinstall 47 hedefi temizledi ama iki eski OpenSSL DLL bıraktığı için genel parity FAILED (`-069`, `-070`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -161,7 +161,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-EV069'u commit et; sonra exact `90e8...` setup'ı bir kez açıp kullanıcı kontrollü reinstall/görsel kabul yap.
+EV070'i commit et; iki measured OpenSSL kalıntısı için regression-first exact maintenance cleanup uygula.
 
 ## Sonraki sıra
 
