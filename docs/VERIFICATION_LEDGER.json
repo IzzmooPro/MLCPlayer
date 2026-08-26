@@ -4644,6 +4644,418 @@
         "No product or installer code, hook implementation, private bitmap, build, installation, signing, tag or release changed."
       ],
       "next_action": "Apply only the first unmet durable publication gate: request separate approval to commit this bounded continuity and append-only ledger package."
+    },
+    {
+      "id": "EV-20260826-015",
+      "recorded_at_utc": "2026-08-26T08:55:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "baseline_commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k visual_direction_c_has_one_complete_screen_contract"
+      ],
+      "subject": "Regression-first red proof for the missing C installer screen contract",
+      "evidence": [
+        "the new bounded regression required one canonical C screen-contract section, five stable screen identities, copy/default/focus/tab/transition fields, negative outcomes and the prior C-direction provenance link",
+        "the exact committed source had no C screen-contract section, so the targeted run failed at the first missing-section assertion with 1 failed and 13 deselected",
+        "no documentation or installer behavior was changed before this expected red result"
+      ],
+      "summary": "The current source correctly failed the new contract regression before the C screen contract was added.",
+      "limitations": [
+        "This expected deterministic red result is not a product, installer, native Windows, build or installation failure.",
+        "The regression does not prove compiled Inno controls, pixels, accessibility, DPI or physical behavior.",
+        "No product or installer code, build, installation, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Add the C screen contract only to the existing canonical packaging plan, then run the same targeted regression without implementing the installer."
+    },
+    {
+      "id": "EV-20260826-016",
+      "recorded_at_utc": "2026-08-26T09:00:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "baseline_commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/PACKAGING_PLAN.md",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k visual_direction_c_has_one_complete_screen_contract"
+      ],
+      "subject": "Over-broad screen-identity count in the first post-contract regression",
+      "evidence": [
+        "the first post-contract targeted run completed with 1 failed and 13 deselected",
+        "read-only failure inspection showed C-WELCOME occurred once as a screen heading and once as a legitimate transition target while the assertion incorrectly counted every occurrence",
+        "the screen contract was not weakened; the regression was narrowed to require exactly one standalone heading for every screen identity",
+        "no automatic retry occurred before the assertion semantics and document references were inspected"
+      ],
+      "summary": "The prepared contract exposed a test-methodology defect: valid transition references were incorrectly treated as duplicate screen definitions.",
+      "limitations": [
+        "This is a deterministic test-contract failure, not an installer, product, native Windows, build or installation failure.",
+        "The failed result remains append-only and is not replaced by the later corrected pass.",
+        "No product or installer code, build, installation, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Constrain uniqueness to standalone screen headings, rerun the target, then execute one bounded installer-documentation impact family."
+    },
+    {
+      "id": "EV-20260826-017",
+      "recorded_at_utc": "2026-08-26T09:03:08Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "baseline_commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k visual_direction_c_has_one_complete_screen_contract",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_release_documentation_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 3; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "private_artifact_digests": {
+        "installer-c-welcome-preferences-summary.png": "254ce96493f8d7e8d00573f7fa15946824ddba766077b6fc2ec004c7df759639",
+        "installer-c-progress-finish.png": "78f81e1d431f4e5a33beb38f3e9e1af135fde2b6f91e5a828f44897bee7228b9"
+      },
+      "subject": "C Dengeli Hibrit installer screen contract and bounded visual target previews",
+      "evidence": [
+        "PR 51 reached protected master as exact two-parent merge db96ac529f48a45fbc9233a22f98c6a0e2726df5 with parents 33680f44becb8fe35d592891058d0a552d01c494 and e9be732bbfefb4832515ca29ae1fa5977f90793d",
+        "PR 51 exact hosted run 32949577656 job 98117728730 completed with 249 passed, 0 failed and LEDGER_APPEND_ONLY_OK; local and origin master were read back at 0/0 before this work",
+        "the canonical packaging plan now defines five C screens with exact Turkish source copy, effective defaults, focus/tab/keyboard transitions, negative paths and explicit accessibility and physical-acceptance boundaries",
+        "independent positive and adversarial source reviews agreed that built-in Inno pages should be reused, Internet Video must remain informational and the unsupported startup-update checkbox must not be presented as a working choice",
+        "the corrected target regression passed, the bounded installer documentation impact family completed with 232 passed, and the test module compiled successfully",
+        "two private user-visible C-flow previews were generated from the selected visual direction and inspected at original resolution; only safe names and SHA-256 digests are recorded"
+      ],
+      "summary": "The C installer target now has one test-protected five-screen copy, focus, state and failure contract plus two private visual previews ready for explicit user review.",
+      "limitations": [
+        "The previews are design targets, not screenshots of compiled Inno output; exact visual application remains unproven until separately approved implementation, build and physical pixel comparison.",
+        "The persistent startup-update preference belongs to Player Settings and remains a separate product-code prerequisite; no decorative installer checkbox was added.",
+        "The private preview files remain outside Git; no private path is recorded.",
+        "No product or installer code, build, installation, Windows setting, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Obtain explicit user visual acceptance or requested corrections for the two C-flow previews; after visual acceptance, request separate approval to commit this bounded documentation, test and append-only evidence package."
+    },
+    {
+      "id": "EV-20260826-018",
+      "recorded_at_utc": "2026-08-26T09:08:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "baseline_commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k finish_actions_are_real_and_do_not_overpromise_windows_defaults"
+      ],
+      "subject": "Regression-first red proof for functional finish actions",
+      "evidence": [
+        "the user explicitly required every visible finish option to perform the action it promises",
+        "a new regression required an exact installed executable target, the Windows Default Apps URI without a make-default claim, the single-source repository URL, explicit failure handling and physical action/readback",
+        "the targeted run failed at the first missing exact-action clause with 1 failed and 14 deselected before the action contract was added"
+      ],
+      "summary": "The existing C screen contract did not yet define executable finish actions strongly enough to satisfy the user's functional-control requirement.",
+      "limitations": [
+        "This deterministic red result concerns the design contract only and is not evidence that the current compiled installer action failed.",
+        "No real handler, installer code, build, installation, Windows setting, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Bind each visible finish option to an exact allowed target, ordered failure semantics and later physical readback without claiming Windows can silently change defaults."
+    },
+    {
+      "id": "EV-20260826-019",
+      "recorded_at_utc": "2026-08-26T09:12:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "baseline_commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'visual_direction_c_has_one_complete_screen_contract or finish_actions_are_real_and_do_not_overpromise_windows_defaults'",
+        "rg -n \"WelcomeLicense|exact .*MyAppExeName|Finish action/readback|optional eylem\" docs/PACKAGING_PLAN.md",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'visual_direction_c_has_one_complete_screen_contract or finish_actions_are_real_and_do_not_overpromise_windows_defaults'"
+      ],
+      "subject": "Per-screen regression representation failures during adversarial contract tightening",
+      "evidence": [
+        "independent adversarial review found that global-token tests could pass while copy or state moved to the wrong screen, UAC denial was incorrectly presented as MLC-owned, mode-specific welcome copy and downgrade blocking were incomplete, and finish action targets were not exact enough",
+        "after those contract gaps were repaired, the first tightened run produced 2 failures because block anchors did not normalize wrapped text and the documented Inno path contained a doubled separator",
+        "after inspecting the exact failure and source lines, the next run produced 1 failure because WizardDirValue was defined only globally rather than inside the preferences block",
+        "no retry occurred before each failure was inspected; the document path and block-local state ownership were corrected without weakening the intended invariants"
+      ],
+      "summary": "The adversarially strengthened tests exposed representation and ownership defects in the draft contract/test pair; both failed runs remain recorded.",
+      "limitations": [
+        "These deterministic failures do not prove a compiled installer, native Windows, build or installation defect.",
+        "No installer or product code, build, installation, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Rerun the two tightened regressions, then execute the bounded documentation impact family and governance checks once."
+    },
+    {
+      "id": "EV-20260826-020",
+      "recorded_at_utc": "2026-08-26T09:14:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "baseline_commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'visual_direction_c_has_one_complete_screen_contract or finish_actions_are_real_and_do_not_overpromise_windows_defaults'",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_release_documentation_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 6; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Adversarially tightened C screen and functional-action contract",
+      "evidence": [
+        "the five screen blocks now carry block-local exact copy, effective defaults, focus/tab/transition anchors and negative no-placebo invariants rather than relying only on global token presence",
+        "install, reinstall and upgrade welcome copy is exact; a newer installed version produces a fail-closed downgrade message and exits without installation changes",
+        "UAC denial is correctly Windows-owned and no MLC-authored message is promised before the elevated wizard runs",
+        "finish actions bind the Player to exact {app}\\{#MyAppExeName}, Default Apps only to ms-settings:defaultapps, and GitHub to exact {#MyAppUrl}; ordered optional failures are separate from mandatory installation success",
+        "the two tightened targeted regressions passed and the bounded installer-documentation impact family, compilation, continuity, JSON, append-only, private-path and diff checks completed successfully"
+      ],
+      "summary": "The C design contract is now deterministic and adversarially bounded enough for user visual review, while real action behavior remains separately gated to compiled-artifact acceptance.",
+      "limitations": [
+        "This PASS protects a documentation contract and its internal invariants; it does not prove an implemented handler, compiled Inno pixels, build, installation or Windows UI result.",
+        "The two private previews remain design targets and require explicit user visual acceptance; exact application still requires later screenshot comparison against a separately approved build.",
+        "No product or installer code, build, installation, Windows setting, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Obtain explicit user visual acceptance or requested corrections for the two C-flow previews; then request separate commit approval for this bounded documentation, test and append-only evidence package."
+    },
+    {
+      "id": "EV-20260826-021",
+      "recorded_at_utc": "2026-08-26T09:16:45Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "baseline_commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'visual_direction_c_has_one_complete_screen_contract or finish_actions_are_real_and_do_not_overpromise_windows_defaults'",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_release_documentation_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 7; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Final block-scoped regression and independent dual-review closure",
+      "evidence": [
+        "the final adversarial review found one remaining fail-open condition: finish-action tokens were searched across the whole packaging document and could be satisfied by the physical-acceptance section after removal from C-FINISH",
+        "the regression now extracts C-FINISH and the physical-acceptance block separately; exact targets, optional-action semantics and readback criteria must remain in their correct owners",
+        "the screen-contract inventory separately forbids unsupported update, Internet Video install and file-association control keys",
+        "the tightened target completed with 2 passed and 13 deselected, the bounded impact family completed with 233 passed, continuity completed with 10 passed, and compilation, JSON, append-only, private-path and diff checks passed",
+        "independent positive review reported bounded PASS; the final adversarial blocker was resolved without changing installer or product code"
+      ],
+      "summary": "The C screen and finish-action documentation contract now passes both evidence-positive and adversarial review with block-scoped fail-closed regressions.",
+      "limitations": [
+        "This is documentation and deterministic regression evidence only; no finish handler, compiled Inno pixel, build, installation or Windows action has been executed.",
+        "User visual acceptance of the two private previews remains open, and exact implementation must later be compared against the approved reference on a separately approved build.",
+        "No product or installer code, build, installation, Windows setting, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Obtain explicit user visual acceptance or requested corrections for the two C-flow previews; after acceptance, request separate commit approval for this bounded documentation, test and append-only evidence package."
+    },
+    {
+      "id": "EV-20260826-022",
+      "recorded_at_utc": "2026-08-26T09:20:41Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "baseline_commit": "db96ac529f48a45fbc9233a22f98c6a0e2726df5",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'visual_direction_c_has_one_complete_screen_contract or finish_actions_are_real_and_do_not_overpromise_windows_defaults'",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 8; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "private_artifact_digests": {
+        "installer-c-welcome-preferences-summary.png": "254ce96493f8d7e8d00573f7fa15946824ddba766077b6fc2ec004c7df759639",
+        "installer-c-progress-finish.png": "78f81e1d431f4e5a33beb38f3e9e1af135fde2b6f91e5a828f44897bee7228b9"
+      },
+      "subject": "Explicit user acceptance of the two C installer flow visual targets",
+      "evidence": [
+        "after both C flow previews were displayed in the conversation, the user explicitly replied Onay to the visual-acceptance question",
+        "the accepted target covers the welcome, preferences, summary, progress and finish composition and visible copy represented by the two private preview digests",
+        "the acceptance preserves the exact functional-action requirement: every visible finish choice must later execute its promised bounded action and be physically read back",
+        "the targeted screen/finish regressions and continuity handoff remained green after recording the decision"
+      ],
+      "summary": "The user accepted the two C installer flow previews as the visual and copy target for later implementation.",
+      "limitations": [
+        "This is user acceptance of private design previews, not evidence that compiled Inno output matches them pixel-for-pixel.",
+        "No installer handler, product code, build, installation, Windows action/readback, push, PR, merge, tag or release was executed.",
+        "The private images remain outside Git; only safe names and SHA-256 digests are recorded."
+      ],
+      "next_action": "Request separate explicit approval to commit the bounded C screen-contract, regression, continuity and append-only evidence package; do not infer push or implementation approval."
+    },
+    {
+      "id": "EV-20260826-023",
+      "recorded_at_utc": "2026-08-26T09:22:30Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "9467db37df68ab7cf7f1dd63a5098765e916b631",
+      "baseline_commit": "9467db37df68ab7cf7f1dd63a5098765e916b631",
+      "evidence_commit": "9467db37df68ab7cf7f1dd63a5098765e916b631",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json tests/test_installer_branding_regressions.py",
+        "git diff --cached --check",
+        "git commit -m \"docs: define installer C screen contract\"",
+        "git rev-parse HEAD",
+        "git show --no-ext-diff --format=%P -s HEAD",
+        "git show --no-ext-diff --stat --oneline HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new), pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Committed C installer screen-contract and visual-acceptance package",
+      "evidence": [
+        "the separately approved commit completed as exact 9467db37df68ab7cf7f1dd63a5098765e916b631 with subject docs: define installer C screen contract",
+        "readback showed the single parent db96ac529f48a45fbc9233a22f98c6a0e2726df5 and exactly the four expected continuity, packaging-plan, append-only-ledger and installer-branding-regression files",
+        "the commit contains the five-screen C contract, functional finish-action boundaries, independent dual-review closure and the user's explicit two-preview visual acceptance",
+        "the immediate post-commit working tree was clean and the local task branch measured one commit ahead and zero behind origin/master"
+      ],
+      "summary": "The approved C screen-contract package is now bound to an exact local commit with verified parent and file scope.",
+      "limitations": [
+        "The commit is local only and has not been pushed, opened as a PR or merged.",
+        "No installer handler, product code, build, installation, Windows action/readback, tag or release occurred.",
+        "This commit does not prove compiled Inno pixels match the accepted private previews."
+      ],
+      "next_action": "Request separate explicit approval to commit this bounded exact-commit readback record; do not infer push or implementation approval."
+    },
+    {
+      "id": "EV-20260826-024",
+      "recorded_at_utc": "2026-08-26T09:25:48Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "531127b2cca0d060d2b72018f364702fffa058d2",
+      "baseline_commit": "531127b2cca0d060d2b72018f364702fffa058d2",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git ls-remote --heads origin refs/heads/codex/installer-c-screen-contract",
+        "git push -u origin codex/installer-c-screen-contract",
+        "git fetch origin codex/installer-c-screen-contract",
+        "git rev-parse origin/codex/installer-c-screen-contract",
+        "git rev-list --left-right --count HEAD...origin/codex/installer-c-screen-contract",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new), pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Published C installer screen-contract task branch",
+      "evidence": [
+        "the separately approved push created origin/codex/installer-c-screen-contract at exact 531127b2cca0d060d2b72018f364702fffa058d2",
+        "post-push fetch and readback showed local HEAD and the remote task ref at the same exact commit with a 0/0 left-right count",
+        "the immediate working tree was clean and tracked the new remote task branch",
+        "no pull request was created"
+      ],
+      "summary": "The bounded C screen-contract and visual-acceptance commit chain is published on its dedicated remote task branch with exact local/remote parity.",
+      "limitations": [
+        "The remote branch is not protected master and no required hosted PR check has run for this branch head.",
+        "No PR, merge, installer handler, product code, build, installation, Windows action/readback, tag or release occurred.",
+        "The push does not prove compiled Inno pixels match the accepted private previews."
+      ],
+      "next_action": "Request separate explicit approval to commit this bounded push/readback record; do not infer approval for the next push, PR or implementation."
+    },
+    {
+      "id": "EV-20260826-025",
+      "recorded_at_utc": "2026-08-26T09:29:18Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "f7946703fc3524b53cc26f149259a2f95b0aced9",
+      "baseline_commit": "f7946703fc3524b53cc26f149259a2f95b0aced9",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git rev-parse origin/codex/installer-c-screen-contract",
+        "git push origin codex/installer-c-screen-contract",
+        "git fetch origin codex/installer-c-screen-contract",
+        "git rev-list --left-right --count HEAD...origin/codex/installer-c-screen-contract",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new), pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Published C installer branch push record and durable PR gate",
+      "evidence": [
+        "the separately approved push advanced origin/codex/installer-c-screen-contract from 531127b2cca0d060d2b72018f364702fffa058d2 to exact f7946703fc3524b53cc26f149259a2f95b0aced9",
+        "post-push fetch and readback showed local and remote task refs at exact f7946703fc3524b53cc26f149259a2f95b0aced9 with a 0/0 left-right count and clean working tree",
+        "the continuity next step now selects the first unmet commit, push, PR or exact-head required-check gate instead of starting a new record solely because a prior record was pushed"
+      ],
+      "summary": "The complete C screen-contract branch, including its prior push record, is remotely synchronized and governed by a durable first-unmet PR gate.",
+      "limitations": [
+        "No PR exists yet and no required hosted check has run on a PR head.",
+        "No merge, installer handler, product code, build, installation, Windows action/readback, tag or release occurred.",
+        "The durable gate does not authorize any later operation without its separate user approval."
+      ],
+      "next_action": "Apply only the first unmet durable gate: request separate commit approval for this record, then separate push approval, then separate PR approval and require required-test SUCCESS on the live exact head before any merge request."
     }
   ]
 }

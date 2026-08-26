@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `33680f44becb8fe35d592891058d0a552d01c494`
+- Kayıt hazırlanırken doğrulanan HEAD: `9467db37df68ab7cf7f1dd63a5098765e916b631`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-014`
+- Son kanıt: `EV-20260826-025`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -84,6 +84,37 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   verdi: uzayan canlı adım, oturum hook'unun 12 satırlık sınırında kesiliyordu
   (`EV-20260826-013`). Terminal kuralı ayrı bölüme taşındı; hook veya limit
   değiştirilmeden aynı dar paket **10 passed** oldu (`EV-20260826-014`).
+- PR #51 kayıt paketi protected master'a iki ebeveynli exact `db96ac5` merge
+  commit'iyle alındı; parent'lar `33680f4` ve `e9be732`, exact hosted run
+  `32949577656` **249 passed / 0 failed** ve `LEDGER_APPEND_ONLY_OK` verdi,
+  yerel/uzak master `0/0` okundu. Bu provenance ilk gerçek C ekran-sözleşmesi
+  kaydında bağlandı (`EV-20260826-017`).
+- Beş ekranlı C sözleşmesi tek kanonik sahibi `PACKAGING_PLAN.md` içinde
+  hazırlandı. Güncelleme kutusu mevcut ürün ayarına bağlı olmadığı için
+  çıkarıldı; Internet Video yalnız ayrı paket bilgisi olarak kaldı. İki private
+  test görseli gösterildi; gerçek Inno, build ve kurulum kabulü değildir.
+- Kullanıcı finish seçeneklerinin gerçekten çalışmasını zorunlu tuttu.
+  Regression-first kırmızıdan sonra exact EXE, Default Apps ve GitHub hedefi,
+  optional-action sıra/hata/readback'i sözleşmeye bağlandı (`EV-20260826-018`).
+  Son çift-süzgeç UAC sahipliği, install/reinstall/upgrade metni, downgrade
+  engeli ve per-screen test boşluklarını buldu; ara test hataları incelenip
+  sözleşme/test daraltıldı. Son karşıt incelemede finish testinin belge-geneli
+  araması da fail-open bulundu; test finish ve fiziksel kabul bloklarına ayrı
+  bağlandı ve nihai paket `EV-20260826-021` ile doğrulandı.
+- Kullanıcı gösterilen iki private C akış görselini hedef kompozisyon ve metin
+  olarak açıkça kabul etti (`EV-20260826-022`). Bu, compiled Inno pikseli,
+  handler, build, kurulum veya Windows action/readback kabulü değildir.
+- Ayrı commit onayıyla C ekran-sözleşmesi paketi exact `9467db3` commit'ine
+  bağlandı; parent `db96ac5`, kapsam dört beklenen belge/test dosyası ve dal
+  temiz readback'te `origin/master`dan 1 commit ilerideydi (`EV-20260826-023`).
+- Commit-readback kaydı exact `531127b` commit'iyle bağlandı ve ayrı push
+  onayıyla yeni `origin/codex/installer-c-screen-contract` dalına gönderildi;
+  yerel/uzak görev dalı exact `531127b`, `0/0` ve temiz okundu. PR açılmadı
+  (`EV-20260826-024`).
+- Push/readback kaydı exact `f794670` commit'iyle bağlandı ve ayrı onayla aynı
+  uzak görev dalına gönderildi; yerel/uzak dal exact `f794670`, `0/0` ve temiz
+  okundu (`EV-20260826-025`). Aşağıdaki dayanıklı kapı ilk karşılanmayan
+  durumu seçer; sırf her push'u yeniden kaydetmek için meta-kayıt döngüsü kurmaz.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -117,21 +148,18 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-PR #50 merge kayıt paketi için aşağıdaki **ilk karşılanmayan kapıyı** uygula:
-çalışma ağacında bu continuity/ledger kaydı varsa önce commit için ayrıca açık
-onay al; görev dalı uzakta yoksa veya yerel HEAD ilerideyse push için ayrıca
-açık onay al; uzak dal için PR yoksa PR oluşturmak için ayrıca açık onay al.
-PR açıldığında canlı `headRefOid` ve required `test` commit'ini yeniden oku;
-PR OPEN, draft değil, base exact `master`, MERGEABLE ve CLEAN, required check
-aynı değişmemiş exact head'de SUCCESS ise merge için ayrıca açık onay al.
-Koşullardan biri eksikse eski run'ı kullanma. Installer kodu, build veya
-fiziksel kurulum yapma.
+C ekran-sözleşmesi dalı için şu **ilk karşılanmayan kapıyı** uygula: bu bounded
+continuity/ledger kaydı çalışma ağacındaysa commit için ayrıca açık onay iste;
+yerel görev dalı uzaktan ilerideyse push için ayrıca açık onay iste; uzak dal
+için PR yoksa PR oluşturmak için ayrıca açık onay iste. PR açılırsa live exact
+`headRefOid` üzerindeki required `test` SUCCESS olmadan merge onayı isteme.
+Eski run kullanma; installer kodu, build veya fiziksel kurulum yapma.
 
 ## Sonraki sıra
 
-1. Merge kayıt zinciri protected master'a alındıktan sonra meta-kayıt terminal
-   kuralını uygula ve C yönünün ekran metinlerini, klavye odak sırasını ve ekran
-   akışını kesinleştir; uygulama değişikliği için ayrıca açık onay al.
+1. C ekran sözleşmesi ve test görselleri kullanıcı tarafından kabul edilip
+   kayıt paketi protected master'a ulaştıktan sonra uygulama için ayrıca açık
+   onay al.
 2. Installer uygulamasını ayrı `codex/installer-experience` dalında
    regresyon-first yürüt; build ve fiziksel kurulumu ayrı ayrı onaylat.
 3. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
