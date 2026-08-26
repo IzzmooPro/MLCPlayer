@@ -4277,6 +4277,30 @@
         "No product or installer implementation code, build, installation, native playback, Windows setting, merge, tag or release changed."
       ],
       "next_action": "Request separate approval to commit this EV-20260826-004 evidence-link record, then request branch-push approval separately; do not rerun the failed hosted job or merge while the required check is red."
+    },
+    {
+      "id": "EV-20260826-005",
+      "recorded_at_utc": "2026-08-26T05:45:01Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "5a94d4e91b47349a83946f80af1ddbd31c633c33",
+      "subject": "PR 48 repaired exact-head hosted PASS and protected merge",
+      "evidence": [
+        "PR 48 exact repaired head 8558b7305864d88541077d320e40125fe26aa08f triggered a new pull_request run; failed run 32899094320 was not retried",
+        "GitHub Actions run 32934932893 job 98074248850 completed with conclusion success: 4966 passed, 30 skipped, 0 failed in 123.30 seconds and emitted LEDGER_APPEND_ONLY_OK",
+        "live PR readback before merge showed OPEN, MERGEABLE, exact head 8558b7305864d88541077d320e40125fe26aa08f and required test SUCCESS",
+        "live master protection required strict GitHub Actions test, enforced administrators, required zero platform approvals and disallowed force pushes",
+        "after separate merge approval PR 48 became MERGED through two-parent commit 5a94d4e91b47349a83946f80af1ddbd31c633c33 with parents f4255f51c83950f8f1d25573119f7b989ee51adb and 8558b7305864d88541077d320e40125fe26aa08f",
+        "local master was fast-forwarded only after the merge and measured clean 0/0 against origin/master; the task branch remained available locally and remotely"
+      ],
+      "summary": "The lossless documentation consolidation and semantic packaging-ownership repair passed the required hosted gate on the repaired exact head and merged to protected master with a traceable merge commit.",
+      "limitations": [
+        "This hosted_ci and merge PASS does not provide native playback, product behavior, source build, installed artifact or real installer UX evidence.",
+        "The 30 hosted skips are not PASS and remain outside the executed surface.",
+        "Failed run 32899094320 remains FAILED evidence and is not superseded or rewritten by the later repaired-head PASS.",
+        "No product or installer implementation code, build, installation, Windows setting, signing, tag or release changed."
+      ],
+      "next_action": "Request separate approval to commit this bounded PR 48 merge record; do not push or create another PR automatically, and obtain the user's explicit A, B or C installer direction before implementation or build."
     }
   ]
 }
