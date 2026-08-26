@@ -469,6 +469,7 @@ const
   InstallModeFirst = 0;
   InstallModeReinstall = 1;
   InstallModeUpgrade = 2;
+  CInstallerAccent = $002050F0;
 
 var
   CurrentInstallMode: Integer;
@@ -477,6 +478,7 @@ var
   RegisteredInstalledVersion: Int64;
   PreferencesInfoLabel: TNewStaticText;
   InstallPhaseLabel: TNewStaticText;
+  InstallAccentBar: TPanel;
   CurrentInstallPhase: String;
 
 function InitializeSetup(): Boolean;
@@ -686,6 +688,26 @@ begin
   WizardForm.StatusLabel.Top := WizardForm.StatusLabel.Top + ScaleY(20);
   WizardForm.FilenameLabel.Top := WizardForm.FilenameLabel.Top + ScaleY(20);
   WizardForm.ProgressGauge.Top := WizardForm.ProgressGauge.Top + ScaleY(20);
+
+  if not HighContrastActive then
+  begin
+    InstallAccentBar := TPanel.Create(WizardForm);
+    InstallAccentBar.Parent := WizardForm.InstallingPage;
+    InstallAccentBar.Caption := '';
+    InstallAccentBar.Left := 0;
+    InstallAccentBar.Top := WizardForm.InstallingPage.ClientHeight - ScaleY(4);
+    InstallAccentBar.Width := WizardForm.InstallingPage.ClientWidth;
+    InstallAccentBar.Height := ScaleY(4);
+    InstallAccentBar.Anchors := [akLeft, akRight, akBottom];
+    InstallAccentBar.BevelOuter := bvNone;
+    InstallAccentBar.ParentBackground := False;
+    InstallAccentBar.Color := CInstallerAccent;
+    InstallAccentBar.TabStop := False;
+    InstallAccentBar.Enabled := False;
+    InstallAccentBar.BringToFront;
+    InstallPhaseLabel.Font.Style := [fsBold];
+    InstallPhaseLabel.Font.Color := CInstallerAccent;
+  end;
 end;
 
 procedure UpdateWelcomePage();

@@ -316,6 +316,88 @@ def test_installer_c_summary_memo_is_clean_wrapped_and_grouped():
         assert separator in ready
 
 
+def test_installer_progress_has_bounded_native_brand_accent():
+    """Progress yalnız dekoratif marka vurgusu ekler; native engine korunur."""
+    text = _iss()
+    code = text.split("[Code]", 1)[1]
+    initialize = code.split("procedure InitializeWizard", 1)[1].split(
+        "procedure UpdateWelcomePage", 1
+    )[0]
+    guarded = re.search(
+        r"if not HighContrastActive then\s*begin(?P<body>.*?)\n  end;",
+        initialize,
+        re.DOTALL,
+    )
+    assert guarded
+    guard_body = guarded.group("body")
+
+    for clause in (
+        "InstallAccentBar := TPanel.Create(WizardForm)",
+        "InstallAccentBar.Parent := WizardForm.InstallingPage",
+        "InstallAccentBar.Caption := ''",
+        "InstallAccentBar.Left := 0",
+        "InstallAccentBar.Top := WizardForm.InstallingPage.ClientHeight - ScaleY(4)",
+        "InstallAccentBar.Width := WizardForm.InstallingPage.ClientWidth",
+        "InstallAccentBar.Height := ScaleY(4)",
+        "InstallAccentBar.Anchors := [akLeft, akRight, akBottom]",
+        "InstallAccentBar.BevelOuter := bvNone",
+        "InstallAccentBar.ParentBackground := False",
+        "InstallAccentBar.Color := CInstallerAccent",
+        "InstallAccentBar.TabStop := False",
+        "InstallAccentBar.Enabled := False",
+        "InstallAccentBar.BringToFront",
+        "InstallPhaseLabel.Font.Style := [fsBold]",
+        "InstallPhaseLabel.Font.Color := CInstallerAccent",
+    ):
+        assert clause in guard_body
+
+    assert "CInstallerAccent = $002050F0" in code
+    assert _generator().ACCENT == (240, 80, 32)
+    native_assignments = {
+        line.strip() for line in initialize.splitlines()
+        if re.match(
+            r"\s*WizardForm\.(?:StatusLabel|FilenameLabel|ProgressGauge|CancelButton)"
+            r"\.[A-Za-z]+\s*:=",
+            line,
+        )
+    }
+    expected_assignments = {
+        "WizardForm.StatusLabel.Top := WizardForm.StatusLabel.Top + ScaleY(20);",
+        "WizardForm.FilenameLabel.Top := WizardForm.FilenameLabel.Top + ScaleY(20);",
+        "WizardForm.ProgressGauge.Top := WizardForm.ProgressGauge.Top + ScaleY(20);",
+    }
+    assert native_assignments == expected_assignments
+
+    installing = code.split("wpInstalling:", 1)[1].split("wpFinished:", 1)[0]
+    assert "WizardForm.ActiveControl := WizardForm.CancelButton" in installing
+    for forbidden in (
+        "WizardSetBackImage",
+        "TBitmapImage.Create",
+        "WizardForm.WizardBitmapImage",
+        "WizardForm.WizardSmallBitmapImage",
+        "TNewProgressBar.Create",
+        "WizardForm.ProgressGauge.Parent :=",
+        "WizardForm.ProgressGauge.Visible := False",
+        "WizardForm.ProgressGauge.Position :=",
+        "WizardForm.ProgressGauge.Min :=",
+        "WizardForm.ProgressGauge.Max :=",
+        "WizardForm.ProgressGauge.Enabled := False",
+        "WizardForm.StatusLabel.Parent :=",
+        "WizardForm.StatusLabel.Visible := False",
+        "WizardForm.FilenameLabel.Parent :=",
+        "WizardForm.FilenameLabel.Visible := False",
+        "WizardForm.CancelButton.Parent :=",
+        "WizardForm.CancelButton.Visible := False",
+        "WizardForm.CancelButton.Enabled := False",
+        "InstallAccentBar.OnClick",
+        "InstallAccentBar.OnKey",
+        "TTimer",
+        "CurProgress",
+        "CVisualShell",
+    ):
+        assert forbidden not in code
+
+
 def test_pascal_continuations_cannot_look_like_inno_syntax():
     """Inno, Code içindeki satır başı karakter kodu veya array'i section sanmaz."""
     code = _iss().split("[Code]", 1)[1]

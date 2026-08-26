@@ -199,7 +199,10 @@ davranışın geri geldiğine ilişkin piksel/yerleşim PASS verilmez.
   kapalıdır. Aşama metinleri yalnız karşılık gelen gerçek Inno olayıyla
   “Dosyalar hazırlanıyor” → “MLC Player kuruluyor” → “Windows ile
   bütünleştiriliyor” olarak değişir; sahte yüzde gösterilmez ve teknik
-  ayrıntılar varsayılan kapalıdır.
+  ayrıntılar varsayılan kapalıdır. Welcome/Finish marka diline bağlanan ince
+  turuncu alt çizgi yalnız `wpInstalling` yüzeyinde dekoratiftir; mevcut gerçek
+  aşama metni aynı renkte ve kalın gösterilir. High Contrast etkinse bu iki
+  dekorasyon uygulanmaz; progress, durum, dosya yolu ve iptal kontrolü değişmez.
 - **İlk odak:** `İptal`; odak görünürdür ancak doğrudan iptal etmez.
 - **Tab sırası:** `İptal` tek etkileşimli kontroldür; aşama bilgisi Tab durağı
   değil, erişilebilir durum duyurusu olarak okunur.

@@ -5872,6 +5872,116 @@
         "The unsigned artifact is test-only; no installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit this exact build record; after that, request separate pre-install visual retry approval and do not click Install."
+    },
+    {
+      "id": "EV-20260826-046",
+      "recorded_at_utc": "2026-08-26T15:36:00Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "da6c21e10913c19e7c93ede38c6f0dbc75591c91",
+      "baseline_commit": "818f6736b8fa6c5e566661ce34f636985425cc02",
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "cc1021777973f44f40034d8c288b7763175e423fb026d753b5528a3849ea274d",
+        "installed-MLC-Player.exe": "e16ae46d2d88a6686f3822562a4ee536ff96e778ee695556768b7b7d2aa8049a",
+        "flow-01-welcome.png": "0c3b0212ac06748849cd7576667d8ffb9dcfc5fa8f90a09fd5b7842dc66ddbb4",
+        "flow-02-summary.png": "8e5abd5d95585462eb6c844910efb0fe3e0ac6704575bb72bfea87b78ff30b18",
+        "flow-03-progress.png": "e18f8cc96859e9d4aea38945deeb095ed2563cb82c9ecc933c180f2600cfe0d9",
+        "flow-04-finish.png": "c9be8e687f119cc0d9a9171fdded96a3eed96cbf763e00dc239a29ec6168c241"
+      },
+      "commands": [
+        "user-controlled launch and navigation of exact MLCPlayer_Setup_v0.39.exe",
+        "$installed='C:\\Program Files\\MLC Player\\MLC Player.exe'; $f=Get-Item -LiteralPath $installed; $f.Length; (Get-FileHash -Algorithm SHA256 -LiteralPath $installed).Hash; $f.VersionInfo.FileVersion",
+        "Get-Process -Name 'MLC Player' -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,StartTime,MainWindowTitle,MainWindowHandle",
+        "Get-Process -Name MLCPlayer_Setup_v0.39 -ErrorAction SilentlyContinue"
+      ],
+      "subject": "User-controlled exact installer completion and Player launch",
+      "evidence": [
+        "the user manually launched the exact 56346881-byte setup artifact built from da6c21e10913c19e7c93ede38c6f0dbc75591c91 and recorded by EV-20260826-045 while the observation checkout was 818f6736b8fa6c5e566661ce34f636985425cc02",
+        "the four stable private captures were hashed for identity; repository policy records only safe names and digests, not their private source paths or path-bearing hash commands",
+        "the Finish capture showed the Player launch action selected while Default Apps and GitHub actions remained unselected",
+        "after the user completed Finish, the installed MLC Player.exe was 3133110 bytes with SHA-256 e16ae46d2d88a6686f3822562a4ee536ff96e778ee695556768b7b7d2aa8049a, exactly matching the packaged executable recorded by EV-20260826-045",
+        "a visible MLC Player process and main window were present and no setup process remained"
+      ],
+      "summary": "The exact unsigned test artifact visibly completed installation and its selected Player-launch action opened the exact packaged executable.",
+      "limitations": [
+        "The user, not automation, clicked Install and Finish; cancellation, rollback, uninstall and installed registry/file-set completeness were not measured.",
+        "Default Apps and GitHub actions were unselected and therefore remain unverified.",
+        "This test-only unsigned installation is not release, signing, updater or general installer acceptance."
+      ],
+      "next_action": "Record the separate visual acceptance boundary from the same exact flow without transferring installation PASS to a future build."
+    },
+    {
+      "id": "EV-20260826-047",
+      "recorded_at_utc": "2026-08-26T15:38:00Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "da6c21e10913c19e7c93ede38c6f0dbc75591c91",
+      "baseline_commit": "818f6736b8fa6c5e566661ce34f636985425cc02",
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "cc1021777973f44f40034d8c288b7763175e423fb026d753b5528a3849ea274d",
+        "flow-03-progress.png": "e18f8cc96859e9d4aea38945deeb095ed2563cb82c9ecc933c180f2600cfe0d9"
+      },
+      "commands": [
+        "visual inspection of the user-provided exact Progress capture",
+        "independent positive-evidence and adversarial Inno layout reviews"
+      ],
+      "subject": "Progress-page brand-continuity visual rejection",
+      "evidence": [
+        "the Summary capture visibly proved that horizontal scrolling was removed and the effective state was grouped into readable wrapped blocks",
+        "Welcome and Finish retained the dark MLC artwork and orange baseline, while the native Progress page changed to an unbranded full-width white surface",
+        "the user approved correcting this Progress-only visual discontinuity"
+      ],
+      "summary": "The Summary refinement was visible, but the exact Progress page failed the requested cross-screen brand-continuity standard.",
+      "limitations": [
+        "This visual failure does not invalidate EV-20260826-046 installation completion or native progress behavior.",
+        "Screenshots do not prove DPI, High Contrast, keyboard, Narrator or cancellation behavior.",
+        "Welcome, Summary and Finish geometry must not be changed by the narrow repair."
+      ],
+      "next_action": "Repair only wpInstalling branding regression-first while preserving native progress, status, filename and Cancel state; do not rebuild automatically."
+    },
+    {
+      "id": "EV-20260826-048",
+      "recorded_at_utc": "2026-08-26T15:41:34Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "818f6736b8fa6c5e566661ce34f636985425cc02",
+      "baseline_commit": "818f6736b8fa6c5e566661ce34f636985425cc02",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k progress_has_bounded_native_brand_accent",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'progress_has_bounded_native_brand_accent or summary_memo_is_clean_wrapped_and_grouped or summary_and_progress_use_live_engine_state or pascal_continuations'",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-048'; print('JSON_LAST_OK',len(d['entries']))\"",
+        "python -c \"import json,subprocess; b=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); c=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); assert c['entries'][:len(b['entries'])] == b['entries']; assert len(c['entries']) == len(b['entries']) + 3; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json,pathlib,subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images','AppData/Local/Temp'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands',None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','packaging/MLCPlayer.iss','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check",
+        "independent positive-evidence and adversarial native-layout reviews"
+      ],
+      "subject": "Bounded native Progress brand accent",
+      "evidence": [
+        "the new regression first failed against the unchanged baseline because wpInstalling had no bounded brand accent",
+        "the minimal implementation adds only a DPI-scaled bottom-anchored orange TPanel and styles the existing real InstallPhaseLabel; High Contrast skips both decorations",
+        "the native ProgressGauge, StatusLabel, FilenameLabel, CancelButton, five built-in pages and BeforeInstall-driven phase state are not copied, hidden, reparented or replaced",
+        "the focused family passed 4 tests, the installer branding/language/process-safety/version family passed 45 tests and the final continuity/append-only package passed 60 tests",
+        "both independent reviews rejected the former global v2 shell and full left-panel reflow; the selected installing-only accent avoids those geometry and localization risks"
+      ],
+      "summary": "The Progress page now has a bounded source-level brand connection without restoring the rejected shell or changing native install behavior.",
+      "limitations": [
+        "This is uncommitted deterministic evidence; no new setup pixels or runtime behavior exist yet.",
+        "Actual z-order, DPI, High Contrast, localization, Cancel, progress and screen-reader behavior require a separately approved exact build and visual run.",
+        "EV-20260826-046 installed-artifact PASS belongs only to the old cc1021 artifact and cannot transfer to this source change.",
+        "No commit, build, setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Complete the impact-limited governance gates and adversarial diff review, then request separate approval to commit the exact five-file source/evidence package."
     }
   ]
 }
