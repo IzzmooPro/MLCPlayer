@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `ddc79a1bb299a652e2c860992924451e4c1ca70b`
+- Kayıt hazırlanırken doğrulanan HEAD: `cf3b6bab91b2b6d0507fe0cd91c4b050e3b06773`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 17 commit ileride)
-- Son kanıt: `EV-20260826-055`
+- Dal: `codex/installer-experience` (`origin/master`dan 18 commit ileride)
+- Son kanıt: `EV-20260826-056`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -126,8 +126,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   (`-039`, `-040`). Eski `c65...` EXE yoktur; v2 EXE restore kaynağını temsil etmez.
 - Restore build'inde Welcome döndü, ilk Summary reddedildi (`-041`, `-042`); `ReadyMemo` düzeltmesi
   `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
-- Eski artifact launch geçti (`-046`); `1399217` build/install payload'ı exact eşleşti ancak Player
-  yanlış paketlenmiş ICU nedeniyle QtWidgets importunda FAILED oldu (`-048`–`-054`).
+- `1399217` build/install payload'ı eşleşti ama foreign-PATH ICU yüzünden QtWidgets FAILED oldu
+  (`-048`–`-054`); root policy + OS-API child-env fix'i çift-süzgeçte **448 passed** verdi (`-056`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -161,7 +161,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-EV055 commit-readback kaydını ayrı onayla commit et; ardından ICU/PATH paketleme düzeltmesi için kaynak değişikliği onayı al.
+EV056 ICU/PATH deterministic düzeltme ve kanıt paketini ayrı onayla commit et.
 
 ## Sonraki sıra
 

@@ -6262,6 +6262,50 @@
         "The Player error dialog remains user-controlled and no automatic retry occurred."
       ],
       "next_action": "Request separate approval to commit this readback record; afterward request separate source-change approval for the regression-first ICU and foreign-PATH packaging fix."
+    },
+    {
+      "id": "EV-20260826-056",
+      "recorded_at_utc": "2026-08-26T17:29:43Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "cf3b6bab91b2b6d0507fe0cd91c4b050e3b06773",
+      "baseline_commit": "cf3b6bab91b2b6d0507fe0cd91c4b050e3b06773",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "MLCPlayer.spec",
+        "packaging/build_release.bat",
+        "packaging/build_unsigned_main.bat",
+        "packaging/pyinstaller_binary_policy.py",
+        "packaging/run_pyinstaller.py",
+        "packaging/verify_build.py",
+        "tests/test_frozen_dll_provenance_regressions.py",
+        "tests/test_translation_pipeline_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_frozen_dll_provenance_regressions.py",
+        "python -m py_compile packaging\\pyinstaller_binary_policy.py packaging\\run_pyinstaller.py packaging\\verify_build.py",
+        "python -m pytest -q tests/test_frozen_dll_provenance_regressions.py tests/test_dist_completeness_regressions.py tests/test_translation_pipeline_regressions.py tests/test_signpath_hosted_unsigned_build_workflow_regressions.py tests/test_verify_build_runtime_regressions.py tests/test_release_artifact_selection_regressions.py tests/test_dependency_lock_regressions.py tests/test_developer_dependency_regressions.py tests/test_spdx_header_regressions.py",
+        "git diff --check",
+        "rg -n -i private-path patterns across the changed source and test files"
+      ],
+      "subject": "Regression-first frozen DLL provenance and clean PyInstaller environment fix",
+      "evidence": [
+        "the initial target regression package failed with nine failures and one pass before implementation; adversarial destination and environment boundary additions separately reproduced twelve failures and then two failures before their fixes",
+        "the final target package completed with 27 passed and the packaging impact family completed with 448 passed",
+        "the PyInstaller child PATH is reconstructed from the interpreter, Python base and OS-API Windows directories while caller PATH, Python and Qt overrides plus mixed-case SystemRoot, WINDIR and SystemDrive poisoning are removed",
+        "root-equivalent ICU, API-set and UCRT destinations are classified after lexical and Win32 alias normalization; absolute, drive, UNC and escaping destinations fail closed while nested Qt runtime destinations remain preserved",
+        "the spec sanitizer and post-build root guard form separate barriers and required Qt pyd and DLL inventory is checked before installer creation",
+        "independent positive and adversarial actual-diff reviews reported bounded PASS with no remaining P0 or P1 finding"
+      ],
+      "summary": "The uncommitted deterministic packaging fix prevents the proven foreign-PATH ICU collision and closes adversarial destination and Windows-environment bypasses.",
+      "limitations": [
+        "No new build or dist artifact exists, so the frozen DLL provenance and Qt loader behavior have not been remeasured.",
+        "This deterministic PASS does not close EV-20260826-054 or prove installer, installed-artifact, Progress pixels or application launch behavior.",
+        "No build, setup launch, installation, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit the exact source, tests and EV056 evidence package; after commit readback, request separate approval for one clean build."
     }
   ]
 }

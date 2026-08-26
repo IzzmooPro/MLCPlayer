@@ -165,7 +165,7 @@ if errorlevel 1 goto :fail
 echo.
 
 echo STEP 4/8  PyInstaller (onedir)  -  this can take a few minutes
-python -m PyInstaller "%SPEC%" --noconfirm --clean --log-level WARN
+python "packaging\run_pyinstaller.py" "%SPEC%" --noconfirm --clean --log-level WARN
 if errorlevel 1 (
     echo ERROR: PyInstaller failed.
     goto :fail
