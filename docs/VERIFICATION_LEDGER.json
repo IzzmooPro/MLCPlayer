@@ -4362,6 +4362,46 @@
         "No installer or product code, build, installation, Windows setting, push, PR, merge, tag or release changed."
       ],
       "next_action": "Request separate approval to commit the bounded PR 49 merge and C-direction selection record package; do not implement or build the installer automatically."
+    },
+    {
+      "id": "EV-20260826-008",
+      "recorded_at_utc": "2026-08-26T06:02:54Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "f432c73b77c98b5bda8b260c4d9cd85d8154b337",
+      "baseline_commit": "f432c73b77c98b5bda8b260c4d9cd85d8154b337",
+      "evidence_commit": "f432c73b77c98b5bda8b260c4d9cd85d8154b337",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git show --no-ext-diff --pretty=fuller --stat --oneline f432c73b77c98b5bda8b260c4d9cd85d8154b337",
+        "git show --no-ext-diff --format=%P -s f432c73b77c98b5bda8b260c4d9cd85d8154b337",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new), pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Committed installer direction C selection record package",
+      "evidence": [
+        "the separately approved commit completed as f432c73b77c98b5bda8b260c4d9cd85d8154b337 with subject docs: record installer direction C selection",
+        "git readback reported exact parent b7e7cdde0c08ff8fff80a1dc9310f4dceb2bb9ec and the four-file scope recorded by EV-20260826-007",
+        "the commit contains 103 insertions and 10 deletions across continuity, packaging plan, append-only ledger and the installer-branding regression",
+        "the immediate post-commit working tree was clean and the local task branch measured one commit ahead of origin/master",
+        "EV-20260826-006 and EV-20260826-007 remain unchanged; this record binds their committed package to its actual evidence commit"
+      ],
+      "summary": "The bounded PR 49 closure and user-selected C visual-direction package is committed locally with an exact parent and traceable four-file scope.",
+      "limitations": [
+        "This deterministic commit readback is not hosted CI, real Inno Setup output, installer implementation, build, installation, accessibility, DPI or executable user acceptance.",
+        "The commit is local only; no push, PR, merge, signing, tag or release occurred.",
+        "No installer or product code, Windows setting or private bitmap was changed or committed."
+      ],
+      "next_action": "Request separate approval to commit this EV-20260826-008 evidence-link record; request task-branch push approval separately and do not implement or build the installer automatically."
     }
   ]
 }
