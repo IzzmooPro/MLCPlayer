@@ -5532,6 +5532,51 @@
         "The post-commit readback record and continuity update are uncommitted until separately approved."
       ],
       "next_action": "Request separate approval to commit this exact-commit readback record; then request an exact Inno 7.1.0 rebuild approval separately and do not launch setup automatically."
+    },
+    {
+      "id": "EV-20260826-038",
+      "recorded_at_utc": "2026-08-26T12:39:39Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "7dcf8e097ee7966c8326381ea0102d174e9adcbd",
+      "baseline_commit": "7dcf8e097ee7966c8326381ea0102d174e9adcbd",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git rev-parse --show-toplevel",
+        "git status --short --branch",
+        "git log -1 --oneline --decorate",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-FileHash -Algorithm SHA256 'dist\\MLC Player\\MLC Player.exe'",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','Setup','ISCC','python','pythonw','pyinstaller') }"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "30ce298673d3dc7ebd7693d70a30891f76ae275a11e38763ef315e6da0f9a69c",
+        "MLC Player.exe": "7836a09fcb2965b9da19762291d6e7530caca90f8ca69355bc02af9cc0f7ec03"
+      },
+      "subject": "Exact Inno 7.1.0 unsigned C v2 rebuild",
+      "evidence": [
+        "the separately authorized rebuild started from clean exact commit 7dcf8e097ee7966c8326381ea0102d174e9adcbd and exact Inno Setup 7.1.0",
+        "the six-step dependency, runtime, translation, PyInstaller, Inno and exact-artifact verification chain completed with exit 0",
+        "the verified PyInstaller tree is 181.3 MB; the unsigned setup is 56565837 bytes with SHA-256 30ce298673d3dc7ebd7693d70a30891f76ae275a11e38763ef315e6da0f9a69c",
+        "the packaged MLC Player.exe is 3133110 bytes with SHA-256 7836a09fcb2965b9da19762291d6e7530caca90f8ca69355bc02af9cc0f7ec03",
+        "Authenticode readback is NotSigned as intended for the test build and no setup, Player, ISCC, Python, pythonw or PyInstaller process leaked"
+      ],
+      "summary": "The committed C v2 installer source produced an internally verified unsigned setup with exact Inno 7.1.0.",
+      "limitations": [
+        "This is source-build evidence only; the setup has not been launched, installed or visually inspected.",
+        "Welcome, Preferences, Summary, Progress, Finish, High Contrast, DPI, keyboard, accessibility and Windows action behavior remain unmeasured.",
+        "The unsigned artifact is test-only and is not release signing or distribution approval.",
+        "No commit of this record, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this exact build record; then request setup launch approval separately for the user's forward/back pre-install visual review and do not click Install."
     }
   ]
 }
