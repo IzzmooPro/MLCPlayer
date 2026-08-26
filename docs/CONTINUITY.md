@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `d4bd0e1a33968d2ecc3fc3877157b809499382a6`
+- Kayıt hazırlanırken doğrulanan HEAD: `ddeac9cc0aee14a3ec33b5e4626bd60202ede910`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 30 commit ileride, 0 geride)
-- Son kanıt: `EV-20260826-071`
+- Dal: `codex/installer-experience` (`origin/master`dan 31 commit ileride, 0 geride)
+- Son kanıt: `EV-20260826-072`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -127,7 +127,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
 - Dist PASS'ti; reinstall yeni EXE'yi kopyaladı ama eski 47 root DLL'yi bırakarak FAILED oldu.
   Fix `83a0fef`; full gate **5023/19**; `89e2395` build'i setup `90e8ccd1...0698ffb`, Player `9a5fc567...a037d60` verdi (`-059`–`-066`).
-  Yeni Player açıldı/kapatıldı; reinstall 47 hedefi temizledi ama iki eski OpenSSL DLL bıraktı; exact 49 cleanup source-ready (`-067`–`-071`).
+  Reinstall iki eski OpenSSL DLL bıraktı; exact 49 cleanup `ddeac9c` ve yeni setup `c48097ce...2f4111` olarak build edildi (`-067`–`-072`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -161,7 +161,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-EV071 beş-dosya paketini commit et; committed-head pre-build kapısından sonra tek yeni validation build üret.
+EV072'yi commit et; yeni `6f19...` Player'ı path-exact aç/kapat, sonra iki-residual fixture'ı yeniden snapshot et.
 
 ## Sonraki sıra
 

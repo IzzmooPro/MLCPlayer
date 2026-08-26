@@ -6897,6 +6897,45 @@
         "Locked-file abort, rollback and Progress visual acceptance remain unmeasured."
       ],
       "next_action": "Commit the exact five-file EV071 package, run the committed-head pre-build gate and create one new validation build before any controlled reinstall retry."
+    },
+    {
+      "id": "EV-20260826-072",
+      "recorded_at_utc": "2026-08-26T19:20:49Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "baseline_commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "artifact_commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q; python -m compileall -q app packaging tests; git diff --check; git status --short --branch",
+        "cmd.exe /d /c set MLC_HOSTED_UNSIGNED_BUILD=1&& call packaging\\build_unsigned_main.bat",
+        "exact setup and Player SHA-256, signature, runtime inventory, TOC provenance, timestamp and process readback"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111",
+        "packaged-MLC-Player.exe": "6f19d8904bdc5d5d1aa20c4fb5c19049f1dc13f804653bba58391fe5c190a499"
+      },
+      "subject": "Fresh unsigned forty-nine-residual cleanup validation build",
+      "evidence": [
+        "the exact committed head passed 5023 tests with 19 skipped followed by compileall, diff check and clean status",
+        "the official unsigned build completed all six steps with exit zero and DONE",
+        "the new setup is 55932676 bytes with SHA-256 c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111 and Authenticode NotSigned; no detached signature exists",
+        "the new packaged Player is 3133110 bytes with SHA-256 6f19d8904bdc5d5d1aa20c4fb5c19049f1dc13f804653bba58391fe5c190a499",
+        "the committed installer source contains both exact OpenSSL residual entries and the fail-closed classifier; artifact timestamps form one post-commit build chain",
+        "dist and TOCs contain zero match from the forty-nine residual set while retaining the legitimate libcrypto-3.dll and libssl-3.dll plus six required Qt payloads",
+        "foreign provenance hits and relevant process leaks were zero; independent positive and adversarial reviews found no P0 or P1"
+      ],
+      "summary": "The exact forty-nine-residual cleanup source produced a fresh unsigned validation artifact with clean runtime provenance.",
+      "limitations": [
+        "The new Player identity has not yet received path-exact native startup evidence.",
+        "No physical forty-nine-file reinstall cleanup, Progress visual, locked-file abort, rollback, push, PR, merge, version bump, tag or release occurred."
+      ],
+      "next_action": "Commit EV072, path-exact launch and close the new 6f19d890 Player, then re-snapshot the installed two-residual fixture before one controlled C48097CE reinstall."
     }
   ]
 }
