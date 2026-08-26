@@ -73,13 +73,20 @@ klavye odak sırası, gerçek Inno piksel çıktısı, yüksek DPI, erişilebili
 build ve fiziksel kurulum ayrıca tasarlanıp doğrulanmadan kabul edilmiş sayılmaz.
 Seçim installer veya ürün kodunu değiştirme yetkisi değildir.
 
-#### Seçilen uygulanabilir C v2 referansı
+#### İptal edilen uygulanabilir C v2 referansı
 
-Kullanıcı iki uygulanabilir C v2 seçeneğinden ikincisini seçti. Güncel görsel
-baseline'ın güvenli adı `C-uygulanabilir-v2.png`, exact digest ve provenance
-kaydı `EV-20260826-033` içindedir. Önceki C konsepti ile `EV-20260826-022`
-preview'ları tarihsel karar kanıtıdır; güncel uygulama karşılaştırma hedefi
-değildir.
+Kullanıcı iki uygulanabilir C v2 seçeneğinden ikincisini önce seçti; güvenli adı
+`C-uygulanabilir-v2.png`, exact digest ve provenance kaydı `EV-20260826-033`
+içindedir. Kullanıcı compiled v2 ekran açılmadan önce bu yönü iptal edip önceki
+başarıyla derlenen C ekranına dönülmesini istedi (`EV-20260826-039`). V2 ve
+`EV-20260826-022` preview'ları yalnız tarihsel karar kanıtıdır; güncel uygulama
+hedefi değildir.
+
+Güncel görsel hedef, `EV-20260826-031` artifact'ını üreten önceki C kaynak
+davranışıdır: yerel Inno `modern` stili, `wizard-large*` sol marka görselleri,
+başlık yüzeyiyle aynı `wizard-small*` görselleri ve native kontrol yerleşimi.
+Bu hedef exact eski artifact byte'larının korunduğu anlamına gelmez; yeni build
+ayrı artifact kimliği ve ayrı görsel kabul ister.
 
 ### C ekran sözleşmesi
 
@@ -90,11 +97,9 @@ tanımlar. Görsel yön provenance kaydı `EV-20260826-007`'dir. Buradaki
 çeviriler bu belgeye çoğaltılmaz. Bu sözleşme gerçek Inno uygulamasını,
 build'i veya fiziksel kurulumu kanıtlamaz.
 
-Kullanıcı 26 Ağustos 2026'da beş ekranlı C akışının ikinci uygulanabilir v2
-referansını kompozisyon, görsel hiyerarşi, marka rengi, görünür metin ve kontrol
-yerleşimi baseline'ı olarak seçti (`EV-20260826-033`). Bu seçim compiled
-Inno'nun birebir uygulandığını kanıtlamaz. Gerçek build ekranları güncel safe
-basename/digest referansıyla karşılaştırılmadan piksel/yerleşim PASS verilmez.
+V2 seçimi ve build kayıtları tarihsel olarak korunur; aktif baseline önceki C
+ekranıdır (`EV-20260826-039`). Yeni build ekranda doğrulanmadan önceki görsel
+davranışın geri geldiğine ilişkin piksel/yerleşim PASS verilmez.
 
 #### Ortak görsel ve etkileşim kuralları
 

@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `7dcf8e097ee7966c8326381ea0102d174e9adcbd`
+- Kayıt hazırlanırken doğrulanan HEAD: `99694d747e98c0509c2284d4c2dfa9d9699e3cc7`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 6 commit ileride)
-- Son kanıt: `EV-20260826-038`
+- Dal: `codex/installer-experience` (`origin/master`dan 7 commit ileride)
+- Son kanıt: `EV-20260826-039`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -122,10 +122,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   (`EV-20260826-028`, `-029`). İki syntax hatası regression-first kapandı (`-030`);
   build exit 0, 56,344,277 byte, `c65a5fbc...3c3bb39`, NotSigned (`-031`). Pre-install
   görseli reddedildi; `Kur` çalışmadı ve süreç sızıntısı yoktu (`-032`).
-- C v2 `326f9be`ye bağlı (`-033`, `-034`); ilk build hexte durdu, setup/sızıntı yok (`-035`). Minimal
-  fix regression-first **44 passed**, açık P0/P1 olmadan exact `f96482a`ya
-  bağlandı (`-036`, `-037`). Exact `7dcf8e0` rebuild exit 0, setup 56,565,837
-  byte/`30ce2986...f9a69c`, NotSigned (`-038`); henüz launch/görsel kabul değil.
+- C v2 `326f9be`ye bağlı; ilk build durdu, fix `f96482a`, rebuild `7dcf8e0`/
+  `30ce2986...f9a69c` oldu (`-033`–`-038`). Kullanıcı v2'yi görmeden iptal etti;
+  önceki ekran beş compiler fix'iyle restore edildi, **43 passed** (`-039`). Eski
+  `c65...` EXE diskte yoktur; v2 EXE restore kaynağını temsil etmez.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -159,8 +159,8 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Exact build kaydını commit etmek için ayrıca açık onay iste; setup launch,
-`Kur`, kurulum ve finish action yetkisi bu onaydan çıkarılmaz.
+Kesintisiz yetkiyle restore paketini commit/readback et; sonra build ve yalnız pre-install açılışına geç.
+`Kur`, kurulum, push, PR ve merge yetkili değildir.
 
 ## Sonraki sıra
 

@@ -5577,6 +5577,60 @@
         "No commit of this record, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit this exact build record; then request setup launch approval separately for the user's forward/back pre-install visual review and do not click Install."
+    },
+    {
+      "id": "EV-20260826-039",
+      "recorded_at_utc": "2026-08-26T12:55:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "99694d747e98c0509c2284d4c2dfa9d9699e3cc7",
+      "baseline_commit": "99694d747e98c0509c2284d4c2dfa9d9699e3cc7",
+      "working_tree_state": "uncommitted",
+      "supersedes": [
+        "EV-20260826-033"
+      ],
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "packaging/make_wizard_images.py",
+        "packaging/wizard/c-back.bmp",
+        "packaging/wizard/c-back-1.bmp",
+        "packaging/wizard/c-back-2.bmp",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -c \"from pathlib import Path; s=Path('packaging/MLCPlayer.iss').read_text(encoding='utf-8-sig'); assert 'WizardBackImageFile=' not in s; assert 'WizardImageFile=wizard\\\\wizard-large.bmp' in s; assert 'CVisualShellEnabled' not in s\"",
+        "git diff 5c04c2dc84c80331b4ab107665743893ebcec640 -- packaging/MLCPlayer.iss packaging/make_wizard_images.py tests/test_installer_branding_regressions.py",
+        "python -m py_compile packaging/make_wizard_images.py tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-039'; print('JSON_LAST_OK',len(d['entries']))\"",
+        "python -c \"import json,subprocess; b=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); c=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); assert c['entries'][:len(b['entries'])] == b['entries']; assert len(c['entries']) == len(b['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json,pathlib,subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands',None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','packaging/MLCPlayer.iss','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check",
+        "independent positive-evidence restore mapping and adversarial restore-plan review"
+      ],
+      "subject": "User-cancelled C v2 shell and reconstructed the previous compiled C source state",
+      "evidence": [
+        "the user explicitly cancelled the C v2 installer screen before a targetable new setup window was observed and requested the exact previous screen without losing it",
+        "independent reviews proved the previous successful source state is committed baseline 5c04c2d plus five recorded behavior-preserving Inno continuation fixes; a blind commit revert or whole-source restore would lose required compiler fixes and append-only history",
+        "the source now uses the previous WizardImageFile, WizardSmallImageFile, WizardImageStretch and modern style; all CVisualShell code, WizardBackImageFile binding and three c-back assets are removed",
+        "the final diff against 5c04c2d contains only the five required compiler formatting fixes in MLCPlayer.iss and the expanded line-leading continuation regression in the branding test",
+        "the previous large and small wizard bitmap set remains present; generator and branding tests returned to the previous screen contract",
+        "the final installer, continuity and append-only family completed with 58 passed; JSON, ledger prefix, private-path and diff gates passed",
+        "the user explicitly authorized the bounded restore, commit/readback, rebuild and pre-install screen inspection to proceed without further pauses; Install, installation, push, PR and merge remain excluded"
+      ],
+      "summary": "The active installer source is restored to the previous successfully compiled C screen behavior without erasing v2 history or known compiler fixes.",
+      "limitations": [
+        "This is working-tree source evidence; no restore commit, rebuild, setup launch or visual readback has occurred yet.",
+        "The former c65 setup bytes were overwritten by the clean v2 rebuild and are not present on disk; source reconstruction does not claim byte-identical reproduction.",
+        "The current on-disk 30ce setup is the cancelled v2 build and must not be used as evidence for the restored source.",
+        "No installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Use the user's explicit bounded authorization in sequence: commit/readback the restore package, then rebuild with Inno 7.1.0, then inspect only the pre-install screen without clicking Install."
     }
   ]
 }

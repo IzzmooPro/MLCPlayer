@@ -41,14 +41,13 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 ; Sihirbaz görselleri ürünün kendi ikonundan üretilir
 ; (packaging\make_wizard_images.py). Aksi hâlde sol taraf boş gri kalıyordu.
 ; Çoklu boyut yüksek DPI'da bulanıklığı önler; Inno 24-bit BMP ister.
-WizardBackImageFile=wizard\c-back.bmp,wizard\c-back-1.bmp,wizard\c-back-2.bmp
-WizardBackColor=#ffffff
-WizardImageFile=
-WizardSmallImageFile=
-; Tam sihirbaz arka planı markayı bütün yerel sayfalarda tutar. Modern stil
-; hoş geldiniz sayfasını varsayılan olarak kapattığı için bu sayfa açıkça
-; etkin kalır. High Contrast veya güvenli olmayan dar geometride Pascal kodu
-; arka planı temizler ve değiştirilmemiş yerel düzene döner.
+WizardImageFile=wizard\wizard-large.bmp,wizard\wizard-large-1.bmp,wizard\wizard-large-2.bmp
+WizardSmallImageFile=wizard\wizard-small.bmp,wizard\wizard-small-1.bmp,wizard\wizard-small-2.bmp
+WizardImageStretch=yes
+; Boydan boya sol panel YALNIZ hoş geldiniz ve son sayfada görünür; Inno 6
+; modern stilde hoş geldiniz sayfasını VARSAYILAN OLARAK KAPATIR. Kapalıyken
+; büyük görsel hiç çizilmiyordu (ölçüldü: kullanıcı yalnız sağ üstteki küçük
+; logoyu gördü). Referans VLC kurulumundaki markalı şeridin karşılığı budur.
 DisableWelcomePage=no
 ; Kurulum dili Windows'un dilinden seçilir; kullanıcıya dil sorulmaz.
 ; Program içindeki dil AYRI bir tercihtir ve ayarlardan değiştirilir.
@@ -60,7 +59,7 @@ ShowLanguageDialog=no
 ; bozulma riski var ve antivirüs yanlış-pozitifi ihtimali yüksek.
 Compression=lzma2/max
 SolidCompression=yes
-WizardStyle=modern light windows11 excludelightcontrols hidebevels
+WizardStyle=modern
 
 ; AppMutex BİLEREK YOK (bkz. referans proje): Inno başlangıçta gereksiz
 ; "uygulamayı kapatın" uyarısı gösteriyordu. Restart Manager interaktif
@@ -470,10 +469,6 @@ const
   InstallModeFirst = 0;
   InstallModeReinstall = 1;
   InstallModeUpgrade = 2;
-  CBrandRailPercent = 24;
-  CBrandDark = $00201010;
-  CBrandOrange = $002050F0;
-  CContentBackground = $00FFFFFF;
 
 var
   CurrentInstallMode: Integer;
@@ -483,14 +478,6 @@ var
   PreferencesInfoLabel: TNewStaticText;
   InstallPhaseLabel: TNewStaticText;
   CurrentInstallPhase: String;
-  CVisualShellEnabled: Boolean;
-  CBrandLabelWelcome: TNewStaticText;
-  CBrandLabelInner: TNewStaticText;
-  CBrandLabelFinished: TNewStaticText;
-  CPreferencesCard: TPanel;
-  CSummaryCard: TPanel;
-  CProgressCard: TPanel;
-  CPhaseLabels: array [0..2] of TNewStaticText;
 
 function InitializeSetup(): Boolean;
 var
@@ -637,198 +624,6 @@ begin
   Result := ValidateInstallTarget;
 end;
 
-function CreateCBrandLabel(AParent: TWinControl; ATop: Integer): TNewStaticText;
-begin
-  Result := TNewStaticText.Create(WizardForm);
-  Result.Parent := AParent;
-  Result.Left := ScaleX(16);
-  Result.Top := ATop;
-  Result.Width := (AParent.ClientWidth * CBrandRailPercent div 100) - ScaleX(32);
-  Result.Height := ScaleY(24);
-  Result.AutoSize := False;
-  Result.Alignment := taCenter;
-  Result.Color := CBrandDark;
-  Result.Font.Color := clWhite;
-  Result.Font.Style := [fsBold];
-  Result.Caption := '{#MyAppName}';
-  Result.Anchors := [akLeft, akTop];
-  Result.TabStop := False;
-end;
-
-function CreateCCard(AParent: TWinControl): TPanel;
-begin
-  Result := TPanel.Create(WizardForm);
-  Result.Parent := AParent;
-  Result.Left := 0;
-  Result.Top := 0;
-  Result.Width := AParent.ClientWidth;
-  Result.Height := AParent.ClientHeight;
-  Result.Anchors := [akLeft, akTop, akRight, akBottom];
-  Result.BevelOuter := bvNone;
-  Result.BorderStyle := bsSingle;
-  Result.Caption := '';
-  Result.Color := CContentBackground;
-  Result.TabStop := False;
-  Result.SendToBack;
-end;
-
-procedure UpdateCPhaseLabels;
-var
-  ActiveIndex: Integer;
-  I: Integer;
-  PhaseTop: Integer;
-  Prefix: String;
-begin
-  if not CVisualShellEnabled then
-    Exit;
-
-  if CurrentInstallPhase = 'preparing' then
-    ActiveIndex := 0
-  else if CurrentInstallPhase = 'installing' then
-    ActiveIndex := 1
-  else if CurrentInstallPhase = 'integrating' then
-    ActiveIndex := 2
-  else
-    ActiveIndex := 0;
-
-  PhaseTop := ScaleY(16);
-  for I := 0 to 2 do
-  begin
-    if I < ActiveIndex then
-      Prefix := #$2713 + ' '
-    else if I = ActiveIndex then
-      Prefix := #$25CF + ' '
-    else
-      Prefix := #$25CB + ' ';
-
-    case I of
-      0: CPhaseLabels[I].Caption := Prefix + CustomMessage('CPhasePreparing');
-      1: CPhaseLabels[I].Caption := Prefix + CustomMessage('CPhaseInstalling');
-      2: CPhaseLabels[I].Caption := Prefix + CustomMessage('CPhaseIntegrating');
-    end;
-
-    if I = ActiveIndex then
-    begin
-      CPhaseLabels[I].Font.Color := CBrandOrange;
-      CPhaseLabels[I].Font.Style := [fsBold];
-    end
-    else
-    begin
-      CPhaseLabels[I].Font.Color := clWindowText;
-      CPhaseLabels[I].Font.Style := [];
-    end;
-
-    CPhaseLabels[I].AdjustHeight;
-    CPhaseLabels[I].Top := PhaseTop;
-    PhaseTop := PhaseTop + CPhaseLabels[I].Height + ScaleY(8);
-  end;
-end;
-
-procedure DisableCVisualShellBackground;
-begin
-  WizardSetBackImage([], True, True, 255);
-end;
-
-function MeasureCWrappedHeight(AParent: TWinControl; AWidth: Integer;
-  ACaption: String; ABold: Boolean): Integer;
-var
-  MeasureLabel: TNewStaticText;
-begin
-  MeasureLabel := TNewStaticText.Create(WizardForm);
-  try
-    MeasureLabel.Parent := AParent;
-    MeasureLabel.Visible := False;
-    MeasureLabel.AutoSize := False;
-    MeasureLabel.WordWrap := True;
-    MeasureLabel.Width := AWidth;
-    MeasureLabel.Height := ScaleY(16);
-    MeasureLabel.Caption := ACaption;
-    if ABold then
-      MeasureLabel.Font.Style := [fsBold];
-    MeasureLabel.AdjustHeight;
-    Result := MeasureLabel.Height;
-  finally
-    MeasureLabel.Free;
-  end;
-end;
-
-function MeasureCPhaseCaptionHeight(AParent: TWinControl; AWidth: Integer;
-  ACaption: String): Integer;
-var
-  CandidateHeight: Integer;
-begin
-  Result := MeasureCWrappedHeight(AParent, AWidth, #$2713 + ' ' + ACaption,
-    True);
-  CandidateHeight := MeasureCWrappedHeight(AParent, AWidth, #$25CF + ' ' +
-    ACaption, True);
-  if CandidateHeight > Result then
-    Result := CandidateHeight;
-  CandidateHeight := MeasureCWrappedHeight(AParent, AWidth, #$25CB + ' ' +
-    ACaption, True);
-  if CandidateHeight > Result then
-    Result := CandidateHeight;
-end;
-
-function CVisualShellFits(RailWidth: Integer): Boolean;
-var
-  ProjectedWidth: Integer;
-  PhaseColumnWidth: Integer;
-  PhaseHeight: Integer;
-  RightHeight: Integer;
-  RightCaptionHeight: Integer;
-  CandidateHeight: Integer;
-  PreferencesHeight: Integer;
-  PreferencesText: String;
-begin
-  ProjectedWidth := WizardForm.SelectDirPage.ClientWidth - RailWidth;
-  PhaseColumnWidth := ProjectedWidth * 42 div 100 - ScaleX(20);
-  if (ProjectedWidth < ScaleX(300)) or
-     (PhaseColumnWidth < ScaleX(100)) then
-  begin
-    Result := False;
-    Exit;
-  end;
-
-  PreferencesText := CustomMessage('COpenWithInfo') + #13#10#13#10 +
-    CustomMessage('CPrivacyInfo') + #13#10#13#10 +
-    CustomMessage('CAddonInfo');
-  PreferencesHeight := MeasureCWrappedHeight(WizardForm.SelectDirPage,
-    ProjectedWidth, PreferencesText, False);
-
-  PhaseHeight := ScaleY(16) +
-    MeasureCPhaseCaptionHeight(WizardForm.InstallingPage, PhaseColumnWidth,
-      CustomMessage('CPhasePreparing')) + ScaleY(8) +
-    MeasureCPhaseCaptionHeight(WizardForm.InstallingPage, PhaseColumnWidth,
-      CustomMessage('CPhaseInstalling')) + ScaleY(8) +
-    MeasureCPhaseCaptionHeight(WizardForm.InstallingPage, PhaseColumnWidth,
-      CustomMessage('CPhaseIntegrating')) + ScaleY(8);
-
-  RightCaptionHeight := MeasureCWrappedHeight(WizardForm.InstallingPage,
-    ProjectedWidth - PhaseColumnWidth - ScaleX(28),
-    CustomMessage('CPhasePreparing'), True);
-  CandidateHeight := MeasureCWrappedHeight(WizardForm.InstallingPage,
-    ProjectedWidth - PhaseColumnWidth - ScaleX(28),
-    CustomMessage('CPhaseInstalling'), True);
-  if CandidateHeight > RightCaptionHeight then
-    RightCaptionHeight := CandidateHeight;
-  CandidateHeight := MeasureCWrappedHeight(WizardForm.InstallingPage,
-    ProjectedWidth - PhaseColumnWidth - ScaleX(28),
-    CustomMessage('CPhaseIntegrating'), True);
-  if CandidateHeight > RightCaptionHeight then
-    RightCaptionHeight := CandidateHeight;
-
-  RightHeight := ScaleY(18) + RightCaptionHeight + ScaleY(10) +
-    WizardForm.StatusLabel.Height + ScaleY(8) +
-    WizardForm.FilenameLabel.Height + ScaleY(10) +
-    WizardForm.ProgressGauge.Height;
-
-  Result :=
-    (PreferencesInfoLabel.Top + PreferencesHeight <=
-      WizardForm.SelectDirPage.ClientHeight) and
-    (PhaseHeight <= WizardForm.InstallingPage.ClientHeight) and
-    (RightHeight <= WizardForm.InstallingPage.ClientHeight);
-end;
-
 procedure SetInstallPhase(Phase: String);
 var
   Caption: String;
@@ -847,117 +642,6 @@ begin
 
   CurrentInstallPhase := Phase;
   InstallPhaseLabel.Caption := Caption;
-  InstallPhaseLabel.AdjustHeight;
-  if CVisualShellEnabled then
-  begin
-    WizardForm.StatusLabel.Top := InstallPhaseLabel.Top +
-      InstallPhaseLabel.Height + ScaleY(10);
-    WizardForm.FilenameLabel.Top := WizardForm.StatusLabel.Top +
-      WizardForm.StatusLabel.Height + ScaleY(8);
-    WizardForm.ProgressGauge.Top := WizardForm.FilenameLabel.Top +
-      WizardForm.FilenameLabel.Height + ScaleY(10);
-  end;
-  UpdateCPhaseLabels;
-end;
-
-procedure ApplyCVisualShell;
-var
-  RailWidth: Integer;
-  ContentLeft: Integer;
-  PhaseColumnWidth: Integer;
-  I: Integer;
-begin
-  CVisualShellEnabled := False;
-  if HighContrastActive then
-  begin
-    DisableCVisualShellBackground;
-    Exit;
-  end;
-
-  RailWidth := WizardForm.InnerPage.ClientWidth * CBrandRailPercent div 100;
-  if (RailWidth < ScaleX(100)) or
-     (WizardForm.InnerNotebook.Width - RailWidth < ScaleX(300)) then
-  begin
-    DisableCVisualShellBackground;
-    Exit;
-  end;
-
-  if not CVisualShellFits(RailWidth) then
-  begin
-    DisableCVisualShellBackground;
-    Exit;
-  end;
-
-  ContentLeft := RailWidth + ScaleX(24);
-  WizardForm.PageNameLabel.Left := WizardForm.PageNameLabel.Left + RailWidth;
-  WizardForm.PageNameLabel.Width := WizardForm.PageNameLabel.Width - RailWidth;
-  WizardForm.PageDescriptionLabel.Left := WizardForm.PageDescriptionLabel.Left + RailWidth;
-  WizardForm.PageDescriptionLabel.Width := WizardForm.PageDescriptionLabel.Width - RailWidth;
-  WizardForm.InnerNotebook.Left := WizardForm.InnerNotebook.Left + RailWidth;
-  WizardForm.InnerNotebook.Width := WizardForm.InnerNotebook.Width - RailWidth;
-  WizardForm.Bevel1.Left := WizardForm.Bevel1.Left + RailWidth;
-  WizardForm.Bevel1.Width := WizardForm.Bevel1.Width - RailWidth;
-
-  WizardForm.WelcomeLabel1.Left := ContentLeft;
-  WizardForm.WelcomeLabel1.Width := WizardForm.WelcomePage.ClientWidth -
-    ContentLeft - ScaleX(24);
-  WizardForm.WelcomeLabel2.Left := ContentLeft;
-  WizardForm.WelcomeLabel2.Width := WizardForm.WelcomeLabel1.Width;
-  WizardForm.FinishedHeadingLabel.Left := ContentLeft;
-  WizardForm.FinishedHeadingLabel.Width := WizardForm.FinishedPage.ClientWidth -
-    ContentLeft - ScaleX(24);
-  WizardForm.FinishedLabel.Left := ContentLeft;
-  WizardForm.FinishedLabel.Width := WizardForm.FinishedHeadingLabel.Width;
-  WizardForm.RunList.Left := ContentLeft;
-  WizardForm.RunList.Width := WizardForm.FinishedHeadingLabel.Width;
-
-  CBrandLabelWelcome := CreateCBrandLabel(WizardForm.WelcomePage, ScaleY(210));
-  CBrandLabelInner := CreateCBrandLabel(WizardForm.InnerPage, ScaleY(210));
-  CBrandLabelFinished := CreateCBrandLabel(WizardForm.FinishedPage, ScaleY(210));
-
-  CPreferencesCard := CreateCCard(WizardForm.SelectDirPage);
-  CSummaryCard := CreateCCard(WizardForm.ReadyPage);
-  CProgressCard := CreateCCard(WizardForm.InstallingPage);
-
-  WizardForm.ReadyMemo.Left := ScaleX(12);
-  WizardForm.ReadyMemo.Top := ScaleY(10);
-  WizardForm.ReadyMemo.Width := WizardForm.ReadyPage.ClientWidth - ScaleX(24);
-  WizardForm.ReadyMemo.Height := WizardForm.ReadyPage.ClientHeight - ScaleY(20);
-  WizardForm.ReadyMemo.BorderStyle := bsNone;
-  WizardForm.ReadyMemo.Anchors := [akLeft, akTop, akRight, akBottom];
-  WizardForm.ReadyMemo.BringToFront;
-
-  PhaseColumnWidth := WizardForm.InstallingPage.ClientWidth * 42 div 100;
-  for I := 0 to 2 do
-  begin
-    CPhaseLabels[I] := TNewStaticText.Create(WizardForm);
-    CPhaseLabels[I].Parent := WizardForm.InstallingPage;
-    CPhaseLabels[I].Left := ScaleX(12);
-    CPhaseLabels[I].Top := ScaleY(16 + (I * 32));
-    CPhaseLabels[I].Width := PhaseColumnWidth - ScaleX(20);
-    CPhaseLabels[I].Height := ScaleY(28);
-    CPhaseLabels[I].AutoSize := False;
-    CPhaseLabels[I].WordWrap := True;
-    CPhaseLabels[I].TabStop := False;
-    CPhaseLabels[I].BringToFront;
-  end;
-
-  InstallPhaseLabel.Left := PhaseColumnWidth + ScaleX(16);
-  InstallPhaseLabel.Top := ScaleY(18);
-  InstallPhaseLabel.Width := WizardForm.InstallingPage.ClientWidth -
-    InstallPhaseLabel.Left - ScaleX(12);
-  WizardForm.StatusLabel.Left := InstallPhaseLabel.Left;
-  WizardForm.StatusLabel.Top := ScaleY(52);
-  WizardForm.StatusLabel.Width := InstallPhaseLabel.Width;
-  WizardForm.FilenameLabel.Left := InstallPhaseLabel.Left;
-  WizardForm.FilenameLabel.Top := ScaleY(78);
-  WizardForm.FilenameLabel.Width := InstallPhaseLabel.Width;
-  WizardForm.ProgressGauge.Left := InstallPhaseLabel.Left;
-  WizardForm.ProgressGauge.Top := ScaleY(108);
-  WizardForm.ProgressGauge.Width := InstallPhaseLabel.Width;
-
-  CVisualShellEnabled := True;
-  SetInstallPhase(CurrentInstallPhase);
 end;
 
 procedure InitializeWizard();
@@ -996,7 +680,6 @@ begin
   WizardForm.StatusLabel.Top := WizardForm.StatusLabel.Top + ScaleY(20);
   WizardForm.FilenameLabel.Top := WizardForm.FilenameLabel.Top + ScaleY(20);
   WizardForm.ProgressGauge.Top := WizardForm.ProgressGauge.Top + ScaleY(20);
-  ApplyCVisualShell;
 end;
 
 procedure UpdateWelcomePage();
