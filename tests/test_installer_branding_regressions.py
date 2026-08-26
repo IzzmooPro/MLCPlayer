@@ -254,53 +254,168 @@ def test_installer_c_summary_and_progress_use_live_engine_state():
     assert "CustomMessage('CPhasePreparing')" in code
     assert "CustomMessage('CPhaseInstalling')" in code
     assert "CustomMessage('CPhaseIntegrating')" in code
-    assert "CurProgress" not in code
     assert "TTimer" not in code
     assert re.search(r'^Source: .*BeforeInstall: SetInstallPhase\(\'installing\'\)', text, re.MULTILINE)
     assert re.search(r'^Name: "\{group\}.*BeforeInstall: SetInstallPhase\(\'integrating\'\)', text, re.MULTILINE)
     assert "InstallPhaseLabel.Caption := Caption" in code
     assert "WizardForm.StatusLabel.Caption := Caption" not in code
 
+    assert "procedure CurInstallProgressChanged" not in code
+    assert "CProgressFill" not in code
+    assert "CProgressTrack" not in code
+    assert "WizardForm.ProgressGauge.Visible := False" not in code
+
+
+def test_c_visual_shell_is_decorative_native_and_high_contrast_safe():
+    """V2 chrome görünümü değiştirir; Inno sayfa ve tercih state'ini kopyalamaz."""
+    text = _iss()
+    code = text.split("[Code]", 1)[1]
+
+    assert re.search(
+        r"^WizardStyle=modern light windows11 excludelightcontrols hidebevels\s*$",
+        text,
+        re.MULTILINE,
+    )
+    assert re.search(r"^WizardBackColor=#ffffff\s*$", text, re.MULTILINE)
+    assert re.search(r"^WizardBackImageFile=wizard\\c-back.+$", text, re.MULTILINE)
+    assert re.search(r"^WizardImageFile=\s*$", text, re.MULTILINE)
+    assert re.search(r"^WizardSmallImageFile=\s*$", text, re.MULTILINE)
+
+    visual = code.split("procedure ApplyCVisualShell", 1)[1]
+    visual = visual.split("procedure InitializeWizard", 1)[0]
+    assert "HighContrastActive" in visual
+    assert "DisableCVisualShellBackground;" in visual
+    assert visual.count("DisableCVisualShellBackground;") >= 2
+    assert "WizardSetBackImage([], True, True, 255);" in code
+    assert "function CVisualShellFits(RailWidth: Integer): Boolean;" in code
+    assert "MeasureCWrappedHeight" in code
+    assert "function MeasureCPhaseCaptionHeight" in code
+    phase_measure = code.split("function MeasureCPhaseCaptionHeight", 1)[1]
+    phase_measure = phase_measure.split("function CVisualShellFits", 1)[0]
+    for prefix in ("#$2713", "#$25CF", "#$25CB"):
+        assert prefix in phase_measure
+    fit_scope = code.split("function CVisualShellFits", 1)[1]
+    fit_scope = fit_scope.split("procedure SetInstallPhase", 1)[0]
+    assert fit_scope.count("MeasureCPhaseCaptionHeight") == 3
+    assert "PreferencesInfoLabel.Top" in code
+    assert "WizardForm.InstallingPage.ClientHeight" in code
+    assert "WizardForm.ProgressGauge.Height" in code
+    assert "CBrandRailPercent" in visual
+    assert "WizardForm.InnerNotebook.Left" in visual
+    assert "WizardForm.InnerNotebook.Width" in visual
+    assert "WizardForm.WelcomeLabel1.Left" in visual
+    assert "WizardForm.FinishedHeadingLabel.Left" in visual
+    assert "ScaleX" in visual
+    assert "ScaleY" in visual
+    fit_check = visual.index("if not CVisualShellFits(RailWidth) then")
+    first_layout_change = visual.index("WizardForm.PageNameLabel.Left :=")
+    assert fit_check < first_layout_change
+
+    for forbidden in (
+        "CreateCustomPage",
+        "CreateInputDirPage",
+        "TBitmapButton.Create",
+        "TNewCheckBox.Create",
+        "WizardForm.NextButton.Visible := False",
+        "WizardForm.BackButton.Visible := False",
+        "WizardForm.CancelButton.Visible := False",
+        "WizardForm.InnerNotebook.ActivePage :=",
+    ):
+        assert forbidden not in code
+
+    assert "WizardForm.DirEdit" in code
+    assert "WizardForm.TasksList" in code
+    assert "WizardForm.ReadyMemo" in code
+    assert "WizardForm.ProgressGauge" in code
+    assert "CPhaseLabels[I].AdjustHeight;" in code
+    assert "CPhaseLabels[I].Top := PhaseTop" in code
+    assert "InstallPhaseLabel.AdjustHeight;" in code
+    assert "WizardForm.StatusLabel.Top := InstallPhaseLabel.Top +" in code
+    assert "WizardForm.RunList" in code
+
+
+def test_c_visual_geometry_uses_one_real_backdrop_and_engine_progress():
+    generator = _generator()
+    image = generator.back_image(596, 432)
+    rail_width = 596 * generator.BRAND_RAIL_PERCENT // 100
+
+    assert image.getpixel((0, 0)) == generator.BACKGROUND
+    assert image.getpixel((rail_width - 3, 200)) == generator.BACKGROUND
+    assert image.getpixel((rail_width - 1, 200)) == generator.ACCENT
+    assert image.getpixel((rail_width - 1, 431)) == generator.CONTENT_BACKGROUND
+    assert image.getpixel((rail_width + 1, 431)) == generator.CONTENT_BACKGROUND
+
+    code = _iss().split("[Code]", 1)[1]
+    assert "TTimer" not in code
+    assert "WizardForm.ProgressGauge.Visible := False" not in code
+    initialize = code.split("procedure InitializeWizard", 1)[1]
+    initialize = initialize.split("procedure UpdateWelcomePage", 1)[0]
+    assert initialize.count("ApplyCVisualShell;") == 1
+
+
+def test_pascal_continuations_cannot_look_like_inno_syntax():
+    """Inno, Code içindeki satır başı #13 veya [args] ifadelerini yanlış yorumlar."""
+    code = _iss().split("[Code]", 1)[1]
+    offenders = [
+        line for line in code.splitlines()
+        if re.match(r"^\s*(?:#\d|\[)", line)
+    ]
+    assert offenders == []
+
 
 def test_wizard_images_referenced_by_the_installer_exist():
     """`.iss` var olmayan bir görsel gösterirse derleme sessizce bozulur."""
     text = _iss()
-    for key in ("WizardImageFile", "WizardSmallImageFile"):
-        match = re.search(rf"^{key}=(.+)$", text, re.MULTILINE)
-        assert match, f"{key} tanımlı değil"
-        for relative in match.group(1).split(","):
-            path = ISS.parent / relative.strip().replace("\\", "/")
-            assert path.is_file(), f"eksik görsel: {path}"
+    match = re.search(r"^WizardBackImageFile=(.+)$", text, re.MULTILINE)
+    assert match, "WizardBackImageFile tanımlı değil"
+    for relative in match.group(1).split(","):
+        path = ISS.parent / relative.strip().replace("\\", "/")
+        assert path.is_file(), f"eksik görsel: {path}"
+
+    # C v2 tek arka plan kullanır; eski büyük/küçük Inno resimleri yeniden
+    # etkinleşirse iç sayfalarda ikinci bir logo ve beyaz kutu oluşur.
+    assert re.search(r"^WizardImageFile=\s*$", text, re.MULTILINE)
+    assert re.search(r"^WizardSmallImageFile=\s*$", text, re.MULTILINE)
 
 
 def test_wizard_images_are_24_bit_bmp():
-    """Inno PNG kabul etmez; yanlış biçim derlemede hata verir."""
+    """Projede bilinçli seçilen deterministic 24-bit RGB BMP sözleşmesi korunur."""
+    generator = _generator()
     for path in WIZARD_DIR.glob("*.bmp"):
         header = path.read_bytes()[:2]
         assert header == b"BM", f"{path.name} BMP değil"
+        with generator.Image.open(path) as image:
+            assert image.format == "BMP", f"{path.name} BMP değil"
+            assert image.mode == "RGB", f"{path.name} 24-bit RGB değil"
+
+    for index, expected_size in enumerate(generator.BACK_SIZES):
+        suffix = "" if index == 0 else f"-{index}"
+        with generator.Image.open(WIZARD_DIR / f"c-back{suffix}.bmp") as image:
+            assert image.size == expected_size
+            expected = generator.back_image(*expected_size)
+            assert image.tobytes() == expected.tobytes()
 
 
-def test_wizard_images_use_the_product_identity():
-    """Görseller ikondan ÖLÇÜLEN marka renklerini taşır."""
+def test_c_back_generator_and_pascal_shell_share_the_same_brand_geometry():
+    """Bitmap rayı ile Pascal içerik ofseti sessizce birbirinden ayrılamaz."""
     generator = _generator()
-    image = generator.large_image(164, 314)
-    assert image.getpixel((2, 2)) == generator.BACKGROUND
-    # Alt şerit vurgu rengidir.
-    assert image.getpixel((2, 313)) == generator.ACCENT
+    code = _iss().split("[Code]", 1)[1]
+    match = re.search(r"CBrandRailPercent\s*=\s*(\d+);", code)
+    assert match
+    assert int(match.group(1)) == generator.BRAND_RAIL_PERCENT
 
+    def inno_bgr(rgb):
+        red, green, blue = rgb
+        return red | (green << 8) | (blue << 16)
 
-def test_inner_pages_have_no_second_logo():
-    """KULLANICI KARARI: sağ üstteki küçük logo KALDIRILDI.
-
-    Inno'da küçük görseli kapatan anahtar yoktur; verilmezse Inno KENDİ
-    varsayılan görselini koyar. Bu yüzden başlık zeminiyle aynı renkte düz
-    bir görsel verilir — dosya var olmalı ama üzerinde logo OLMAMALIDIR.
-    """
-    generator = _generator()
-    image = generator.small_image(55, 55)
-    colours = image.getcolors(maxcolors=16)
-    assert colours == [(55 * 55, generator.HEADER_BACKGROUND)], (
-        f"küçük görsel düz değil: {colours}")
+    for name, rgb in (
+        ("CBrandDark", generator.BACKGROUND),
+        ("CBrandOrange", generator.ACCENT),
+        ("CContentBackground", generator.CONTENT_BACKGROUND),
+    ):
+        colour = re.search(rf"{name}\s*=\s*\$([0-9A-Fa-f]+);", code)
+        assert colour
+        assert int(colour.group(1), 16) == inno_bgr(rgb)
 
 
 def test_windows_gets_the_friendly_name_explicitly():

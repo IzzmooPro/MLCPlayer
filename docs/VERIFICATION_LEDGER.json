@@ -5219,6 +5219,172 @@
         "Interactive Welcome, Preferences and Summary review requires a separately approved build and setup launch; Progress and Finish require separate physical installation approval."
       ],
       "next_action": "Request separate approval to commit this exact-commit readback record; then request build approval and launch the compiled setup only to the pre-install Summary boundary for the user's interactive forward/back review."
+    },
+    {
+      "id": "EV-20260826-030",
+      "recorded_at_utc": "2026-08-26T10:31:00Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "baseline_commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k pascal_character_codes",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k pascal_continuations"
+      ],
+      "subject": "Failed installer compile attempts exposed Inno line-leading syntax hazards",
+      "evidence": [
+        "an initial shell invocation stopped at the required environment gate before creating build outputs and was diagnosed as an environment propagation issue rather than retried blindly",
+        "the first effective clean build verified dependencies, mpv runtime, translations and the 181.3 MB PyInstaller tree, then Inno aborted at line 711 with Unknown preprocessor directive because a Pascal #13#10 continuation began the physical line",
+        "after the exact two offending character-code lines were regression-first repaired, the next clean build passed that point and aborted at line 692 with Invalid section tag because a FmtMessage array literal began the physical line",
+        "the expanded regression first reported three array-literal offenders; the three FmtMessage arguments were moved onto their call lines without changing values or order",
+        "neither failed compiler attempt produced a setup executable or left ISCC, PyInstaller, Python, Player or setup processes"
+      ],
+      "summary": "Two inspected Inno compile failures exposed and bounded line-leading Pascal tokens that the preprocessor misclassified.",
+      "limitations": [
+        "PyInstaller output success in these attempts was not installer source-build PASS because Inno compilation failed.",
+        "No setup was launched and no installation or Windows postinstall action occurred.",
+        "The fixes were still uncommitted working-tree changes at this record."
+      ],
+      "next_action": "Run the expanded installer regressions, obtain independent adversarial review of the minimal formatting-only fix, then perform one clean authorized rebuild."
+    },
+    {
+      "id": "EV-20260826-031",
+      "recorded_at_utc": "2026-08-26T10:40:37Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "baseline_commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k pascal_continuations",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "git diff --check"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "c65a5fbc5bfede1b8b1ebc2f4472322d2e7cc5e3edad646f5c843e0363c3bb39",
+        "MLC Player.exe": "48e17f20b9f3ced5d8b925b43df52e184d2379cb41d6c6fa3eb0a7a4bb6b8ea4"
+      },
+      "subject": "Unsigned installer C source build",
+      "evidence": [
+        "the exact-current formatting regression passed and the bounded installer/version family completed with 43 passed before rebuild",
+        "independent adversarial review found both line-leading syntax fixes minimal, behavior-preserving and free of a new source blocker",
+        "the separately authorized clean main-package chain completed all six steps with exit 0: dependency/runtime verification, translation compile, PyInstaller, Inno Setup and exact artifact verification",
+        "the verified PyInstaller tree is 181.3 MB and the unsigned setup is 56344277 bytes with SHA-256 c65a5fbc5bfede1b8b1ebc2f4472322d2e7cc5e3edad646f5c843e0363c3bb39",
+        "the packaged MLC Player.exe is 3133110 bytes with SHA-256 48e17f20b9f3ced5d8b925b43df52e184d2379cb41d6c6fa3eb0a7a4bb6b8ea4",
+        "Authenticode readback is NotSigned as required for this test-only unsigned build, and no ISCC, PyInstaller, Python, Player or setup process leaked after completion"
+      ],
+      "summary": "The current working-tree installer C source produced an internally verified unsigned setup artifact after two regression-bounded compiler fixes.",
+      "limitations": [
+        "This source-build PASS is bound to baseline commit 5c04c2d plus the recorded uncommitted two-file formatting/test diff; it is not evidence for a clean committed source tree.",
+        "The setup has not been launched, installed or used for Windows action/readback, DPI, accessibility or pixel acceptance.",
+        "Unsigned test artifact status is intentional and is not release signing or distribution approval.",
+        "No push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to launch the exact unsigned setup only through Welcome, Preferences and Summary for the user's interactive forward/back review; do not click Install or perform installation without another explicit approval."
+    },
+    {
+      "id": "EV-20260826-032",
+      "recorded_at_utc": "2026-08-26T11:36:40Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "baseline_commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "interactive pre-install launch of MLCPlayer_Setup_v0.39.exe and forward/back navigation through Welcome, Preferences and Summary; Install was not invoked",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','Setup','ISCC') }"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "c65a5fbc5bfede1b8b1ebc2f4472322d2e7cc5e3edad646f5c843e0363c3bb39"
+      },
+      "subject": "Pre-install visual comparison rejected the compiled C shell",
+      "evidence": [
+        "the first approved launch did not expose a usable wizard window and exited without installation; the inspected diagnostic launch later exposed the real native setup at the Summary boundary",
+        "the visible compiled wizard retained the standard Inno memo and grey native composition and did not match the accepted C visual hierarchy closely enough",
+        "the user explicitly rejected the visual consistency as incomplete; no Install action was invoked and no setup, Player, ISCC or Python process leaked"
+      ],
+      "summary": "The exact unsigned setup was usable only for a bounded pre-install comparison and failed the user's C visual-consistency acceptance.",
+      "limitations": [
+        "No installation, file copy, registry mutation, Progress page, Finish action or product launch occurred.",
+        "This FAILED result belongs only to the recorded unsigned artifact and its source state; it is not evidence about the later v2 source adaptation.",
+        "The visual observation is user acceptance evidence, not an automated pixel-distance measurement."
+      ],
+      "next_action": "Select one feasible C v2 baseline, implement it regression-first without replacing native state, and require independent adversarial review before any new build."
+    },
+    {
+      "id": "EV-20260826-033",
+      "recorded_at_utc": "2026-08-26T11:36:54Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "baseline_commit": "5c04c2dc84c80331b4ab107665743893ebcec640",
+      "working_tree_state": "uncommitted",
+      "supersedes": [
+        "EV-20260826-022"
+      ],
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "packaging/make_wizard_images.py",
+        "packaging/wizard/c-back.bmp",
+        "packaging/wizard/c-back-1.bmp",
+        "packaging/wizard/c-back-2.bmp",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'c_visual_shell or c_visual_geometry or c_summary_and_progress'",
+        "python packaging/make_wizard_images.py",
+        "python -m py_compile packaging/make_wizard_images.py tests/test_installer_branding_regressions.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "git diff --check",
+        "independent positive-evidence review and adversarial source re-review of the exact working-tree diff"
+      ],
+      "private_artifact_digests": {
+        "C-uygulanabilir-v2.png": "7e5b50e008818921a5ebdb82c1dda4ca214e5b5a725f49a90653a60e4d47308d"
+      },
+      "subject": "User-selected applicable C v2 baseline and bounded native installer shell",
+      "evidence": [
+        "the user selected the second applicable C v2 preview as the current five-screen composition baseline; only its safe name and SHA-256 are recorded",
+        "regression-first tests failed against the old source before the full-wizard background, High Contrast fallback, native progress preservation and measured vertical-fit rules were implemented",
+        "three deterministic RGB bitmap variants match the generator pixel-for-pixel at 596x432, 796x576 and 1272x922; the Pascal rail percentage and brand colours are cross-checked against the generator",
+        "the visual shell reuses native Welcome, SelectDir, Ready, Installing and Finished pages, native directory/task/summary/run state and the visible native ProgressGauge; no fake checkbox, page state or percentage was introduced",
+        "High Contrast, insufficient horizontal geometry or localized vertical overflow clears the custom background before any layout mutation and falls back to the native Inno layout",
+        "the final bounded installer, language, process-safety and version family completed with 44 passed; two independent reviewers reported no remaining source-level P0 or P1 blocker"
+      ],
+      "summary": "The selected second C v2 direction is implemented as a bounded native Inno visual shell and is deterministically source-green.",
+      "limitations": [
+        "This PASS is source/test evidence only; no ISCC compile, new setup artifact, setup launch, installation or Windows action/readback occurred.",
+        "Native Inno 7.1.0 syntax, real Welcome through Finish pixels, High Contrast, 100-250% DPI, 200% text, keyboard and screen-reader behavior remain unmeasured.",
+        "The native progress control intentionally keeps its platform colour and accessibility role; the private concept's exact orange progress fill is not claimed.",
+        "The three bitmap files are untracked working-tree inputs until a separately approved commit includes them.",
+        "No product playback code, build, install, commit, push, PR, merge, tag or release occurred; the private preview remains outside Git."
+      ],
+      "next_action": "Run continuity, JSON append-only and private-path gates, then request separate approval to commit this exact installer source and evidence package; build remains a later separate approval."
     }
   ]
 }

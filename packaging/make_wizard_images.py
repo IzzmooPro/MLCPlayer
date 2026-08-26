@@ -9,8 +9,9 @@ side; this gives the same function in our own visual identity.
 The colours were MEASURED from `assets/mlc-player-icon.png` (the two
 dominant ones): dark ground #101020 (40%) and brand orange #F05020 (26%).
 
-Inno Setup wants 24-bit BMP and does not accept PNG. Several sizes are
-provided so the images do not blur on high-DPI screens.
+Inno Setup 7.1 also accepts PNG; this project deliberately emits deterministic
+24-bit RGB BMP files for a simple, decoder-independent installer input. Several
+sizes are provided so the images do not blur on high-DPI screens.
 
 Usage: python packaging/make_wizard_images.py
 """
@@ -30,6 +31,11 @@ ACCENT = (240, 80, 32)             # marka turuncusu
 LARGE_SIZES = ((164, 314), (192, 386), (256, 496))
 #: The small image in the top corner.
 SMALL_SIZES = ((55, 55), (110, 110), (138, 140))
+#: Inno 7.1 full wizard background sizes for 100%, 125% and 200% DPI.
+BACK_SIZES = ((596, 432), (796, 576), (1272, 922))
+BRAND_RAIL_PERCENT = 24
+CONTENT_BACKGROUND = (255, 255, 255)
+FOOTER_PERCENT = 14
 
 
 def _logo(size):
@@ -67,6 +73,33 @@ def small_image(width, height):
     return Image.new("RGB", (width, height), HEADER_BACKGROUND)
 
 
+def back_image(width, height):
+    """C v2 shell: dark brand rail, white content/footer and real logo.
+
+    The footer remains white because Inno owns the native navigation buttons.
+    Only the page surface receives brand colour; the bitmap contains no fake
+    controls, text, progress value or clickable affordance.
+    """
+    canvas = Image.new("RGB", (width, height), CONTENT_BACKGROUND)
+    rail_width = width * BRAND_RAIL_PERCENT // 100
+    footer_top = height * (100 - FOOTER_PERCENT) // 100
+    canvas.paste(BACKGROUND, (0, 0, rail_width, footer_top))
+
+    accent_width = max(2, width // 240)
+    canvas.paste(ACCENT, (
+        rail_width - accent_width,
+        0,
+        rail_width,
+        footer_top,
+    ))
+
+    logo_size = int(rail_width * 0.48)
+    logo = _logo(logo_size)
+    position = ((rail_width - logo_size) // 2, int(height * 0.19))
+    canvas.paste(logo, position, logo)
+    return canvas
+
+
 def build():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     written = []
@@ -79,6 +112,11 @@ def build():
         suffix = "" if index == 0 else f"-{index}"
         path = os.path.join(OUTPUT_DIR, f"wizard-small{suffix}.bmp")
         small_image(width, height).save(path, "BMP")
+        written.append(path)
+    for index, (width, height) in enumerate(BACK_SIZES):
+        suffix = "" if index == 0 else f"-{index}"
+        path = os.path.join(OUTPUT_DIR, f"c-back{suffix}.bmp")
+        back_image(width, height).save(path, "BMP")
         written.append(path)
     return written
 

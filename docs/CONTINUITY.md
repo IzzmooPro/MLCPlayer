@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `6fe453fee41fd5473c30b51b4b97fe10d38e2e24`
+- Kayıt hazırlanırken doğrulanan HEAD: `5c04c2dc84c80331b4ab107665743893ebcec640`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 1 commit ileride)
-- Son kanıt: `EV-20260826-029`
+- Dal: `codex/installer-experience` (`origin/master`dan 2 commit ileride)
+- Son kanıt: `EV-20260826-033`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -118,13 +118,14 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   uzak görev dalına gönderildi; yerel/uzak dal exact `f794670`, `0/0` ve temiz
   okundu (`EV-20260826-025`). Aşağıdaki dayanıklı kapı ilk karşılanmayan
   durumu seçer; sırf her push'u yeniden kaydetmek için meta-kayıt döngüsü kurmaz.
-- Installer C uygulaması `codex/installer-experience` dalında regression-first
-  yürütüldü; geçersiz Inno API, target/downgrade ve enumeration açıkları kırmızı
-  kayıtlarda korundu (`EV-20260826-026`, `-027`). Native sayfalar/state, final
-  hedef-sürüm recheck'i, gerçek fazlar, üç finish eylemi ve sekiz dil **247
-  passed** ve çift incelemede P0/P1 bloklayıcısızdır (`EV-20260826-028`). ISCC,
-  piksel/DPI, kurulum ve Windows action kabulü henüz yoktur. Paket ayrı onayla
-  exact `6fe453f` commit'ine bağlandı (`EV-20260826-029`).
+- Installer C kaynağı `6fe453f`, kayıt commit'i `5c04c2d`dir
+  (`EV-20260826-028`, `-029`). İki syntax hatası regression-first kapandı (`-030`);
+  build exit 0, 56,344,277 byte, `c65a5fbc...3c3bb39`, NotSigned (`-031`). Pre-install
+  görseli reddedildi; `Kur` çalışmadı ve süreç sızıntısı yoktu (`-032`).
+- Kullanıcı ikinci uygulanabilir C v2'yi güncel baseline seçti. Üç DPI bitmap,
+  native state/progress ve High Contrast/dar/taşan metin fallback'li uyarlama
+  **44 passed** ve çift incelemede açık P0/P1 olmadan tamamlandı (`-033`). Yeni
+  kaynak henüz build, launch, piksel/DPI, erişilebilirlik veya kurulum PASS'i değil.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -158,15 +159,14 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Exact `6fe453f` commit readback'ini taşıyan bounded continuity/ledger kaydını
-commit etmek için ayrıca açık kullanıcı onayı iste. Ardından gerçek installer
-ekranlarını ileri/geri incelemek üzere build ve pre-install setup launch
-onaylarını ayrı al; `Kur` ve fiziksel kurulum yine ayrı kapıdır.
+İkinci C v2 kaynak/test/bitmap/kanıt paketini commit etmek için ayrıca açık onay
+iste; build, setup launch ve kurulum yetkisi bu onaydan çıkarılmaz.
 
 ## Sonraki sıra
 
-1. Installer uygulama paketini ayrı onayla commit et; ardından build ve fiziksel
-   kurulumu birbirinden ayrı onaylat.
+1. Commit readback'inden sonra exact Inno 7.1.0 build için ayrıca onay al;
+   ardından yeni setup'ın ileri/geri görsel incelemesini ve fiziksel kurulumu
+   birbirinden ayrı onaylat.
 2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme

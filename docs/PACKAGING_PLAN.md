@@ -73,6 +73,14 @@ klavye odak sırası, gerçek Inno piksel çıktısı, yüksek DPI, erişilebili
 build ve fiziksel kurulum ayrıca tasarlanıp doğrulanmadan kabul edilmiş sayılmaz.
 Seçim installer veya ürün kodunu değiştirme yetkisi değildir.
 
+#### Seçilen uygulanabilir C v2 referansı
+
+Kullanıcı iki uygulanabilir C v2 seçeneğinden ikincisini seçti. Güncel görsel
+baseline'ın güvenli adı `C-uygulanabilir-v2.png`, exact digest ve provenance
+kaydı `EV-20260826-033` içindedir. Önceki C konsepti ile `EV-20260826-022`
+preview'ları tarihsel karar kanıtıdır; güncel uygulama karşılaştırma hedefi
+değildir.
+
 ### C ekran sözleşmesi
 
 Bu sözleşme C yönünün Türkçe ana metnini, etkin durumunu ve klavye akışını
@@ -82,11 +90,11 @@ tanımlar. Görsel yön provenance kaydı `EV-20260826-007`'dir. Buradaki
 çeviriler bu belgeye çoğaltılmaz. Bu sözleşme gerçek Inno uygulamasını,
 build'i veya fiziksel kurulumu kanıtlamaz.
 
-Kullanıcı 26 Ağustos 2026'da beş ekranı gösteren iki C akış görselini hedef
-kompozisyon ve metin olarak açıkça kabul etti. Bu görsel kabul, yalnız private
-preview digest'leriyle `EV-20260826-022` kaydına bağlıdır; compiled Inno'nun
-birebir uygulandığını kanıtlamaz. Gerçek build ekranları aynı referanslarla
-karşılaştırılmadan piksel/yerleşim PASS verilmez.
+Kullanıcı 26 Ağustos 2026'da beş ekranlı C akışının ikinci uygulanabilir v2
+referansını kompozisyon, görsel hiyerarşi, marka rengi, görünür metin ve kontrol
+yerleşimi baseline'ı olarak seçti (`EV-20260826-033`). Bu seçim compiled
+Inno'nun birebir uygulandığını kanıtlamaz. Gerçek build ekranları güncel safe
+basename/digest referansıyla karşılaştırılmadan piksel/yerleşim PASS verilmez.
 
 #### Ortak görsel ve etkileşim kuralları
 
@@ -95,6 +103,9 @@ karşılaştırılmadan piksel/yerleşim PASS verilmez.
 - Turuncu yalnız birincil eylem ve görünür klavye odağı için kullanılır;
   renk tek durum göstergesi değildir. Etiket, erişilebilir ad, rol ve durum
   her etkileşimli kontrolde programatik olarak bulunur.
+- Native kontrol rolü ve erişilebilirlik, konseptteki exact renkten önce gelir.
+  Bu nedenle gerçek ilerleme Inno'nun görünür native progress kontrolüdür;
+  turuncu vurgu marka çizgisinde ve etkin aşama etiketinde kalır.
 - `Tab` ileri, `Shift+Tab` geri dolaşır; `Space` odaktaki kutuyu değiştirir.
   `Enter` yalnız o ekrandaki geçerli birincil eylemi çalıştırır. `Esc`
   doğrudan çıkmaz, yerel iptal onayını açar. Geri dönüldüğünde yol ve seçimler
@@ -246,7 +257,7 @@ ilerlemez ve ayrı açık karar olmadan desteklenmiş sayılmaz.
 - Ürün ayarına bağlanmayan güncelleme kutusu, task/condition'a bağlanmayan
   association kutusu ve ana installer içinde Internet Video kurulum kutusu
   uygulanamaz.
-- Tasarım kabulü; Inno 6.7.1 compile, sekiz dil, 100–250% DPI, 200% text
+- Tasarım kabulü; exact Inno 7.1.0 compile, sekiz dil, 100–250% DPI, 200% text
   scaling, 1366×768/4K, farklı DPI monitör geçişi, Narrator/NVDA ve yalnız
   klavye kabulünün yerine geçmez.
 - İlk kurulum, reinstall, upgrade, downgrade reddi, özel hedefin korunması,
@@ -262,6 +273,9 @@ ilerlemez ve ayrı açık karar olmadan desteklenmiş sayılmaz.
   `ms-settings:defaultapps` shell-launch sonucu ve görünür Settings sayfası,
   varsayılan değişikliği değil; GitHub için resolved exact `{#MyAppUrl}`
   shell-launch sonucu. Seçili olmayan her yolun hiç çalışmadığı da ölçülür.
+- Önceki unsigned setup güncel v2 baseline'ı devralmaz. Kaynak uyarlamasından
+  sonra ayrı onaylı yeniden build gerekir; compiled beş ekran, High Contrast
+  fallback ve DPI/text davranışı kullanıcı görsel kabulü olmadan PASS yazılmaz.
 
 ### Görsel seçimden sonra uygulama sırası
 
