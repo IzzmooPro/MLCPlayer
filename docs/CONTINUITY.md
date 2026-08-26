@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `326f9bea9dc336827927ca1ff85daef593506062`
+- Kayıt hazırlanırken doğrulanan HEAD: `f96482a4025e13d74579355a173cf6844e8729f6`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 3 commit ileride)
-- Son kanıt: `EV-20260826-036`
+- Dal: `codex/installer-experience` (`origin/master`dan 5 commit ileride)
+- Son kanıt: `EV-20260826-037`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -124,8 +124,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   görseli reddedildi; `Kur` çalışmadı ve süreç sızıntısı yoktu (`-032`).
 - İkinci C v2 exact `326f9be`ye bağlandı (`-033`, `-034`). İlk Inno 7.1.0 build
   satır-başı hex kodunda fail-closed durdu; setup/sızıntı yok (`-035`). Minimal
-  formatting fix'i regression-first **44 passed** ve karşıt incelemede açık P0/P1
-  olmadan kapandı (`-036`); rebuild/launch/görsel kabul henüz yapılmadı.
+  fix regression-first **44 passed**, açık P0/P1 olmadan exact `f96482a`ya
+  bağlandı (`-036`, `-037`); rebuild/launch/görsel kabul henüz yapılmadı.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -159,8 +159,8 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Hex-fix/test/kanıt paketini commit etmek için ayrıca açık onay iste; rebuild,
-setup launch ve kurulum yetkisi bu onaydan çıkarılmaz.
+Exact fix-commit readback kaydını commit etmek için ayrıca açık onay iste;
+rebuild, setup launch ve kurulum yetkisi bu onaydan çıkarılmaz.
 
 ## Sonraki sıra
 

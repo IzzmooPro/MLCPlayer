@@ -5494,6 +5494,44 @@
         "No new setup artifact, launch, visual screen, installation, Windows action, commit, push, PR or merge occurred."
       ],
       "next_action": "Request separate approval to commit the exact four-file source, regression and append-only evidence package; request a rebuild separately after commit and do not launch setup automatically."
+    },
+    {
+      "id": "EV-20260826-037",
+      "recorded_at_utc": "2026-08-26T12:21:05Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "f96482a4025e13d74579355a173cf6844e8729f6",
+      "baseline_commit": "f96482a4025e13d74579355a173cf6844e8729f6",
+      "evidence_commit": "f96482a4025e13d74579355a173cf6844e8729f6",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss tests/test_installer_branding_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"fix: guard Inno hex continuations\"",
+        "git rev-parse HEAD",
+        "git show --no-ext-diff --format=%P -s HEAD",
+        "git show --no-ext-diff --stat --oneline HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Committed Inno hexadecimal continuation regression fix",
+      "evidence": [
+        "the separately approved commit completed as exact f96482a4025e13d74579355a173cf6844e8729f6 with subject fix: guard Inno hex continuations",
+        "readback showed exact parent 10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d and exactly the four approved source, regression, continuity and append-only evidence files",
+        "the immediate post-commit working tree was clean and the local installer-experience branch measured five commits ahead and zero behind origin/master"
+      ],
+      "summary": "The compiler-failure regression fix is bound to an exact local commit with verified parent and file scope.",
+      "limitations": [
+        "The commit is local only; no rebuild, setup artifact, launch, visual screen, installation, push, PR or merge occurred.",
+        "The post-commit readback record and continuity update are uncommitted until separately approved."
+      ],
+      "next_action": "Request separate approval to commit this exact-commit readback record; then request an exact Inno 7.1.0 rebuild approval separately and do not launch setup automatically."
     }
   ]
 }
