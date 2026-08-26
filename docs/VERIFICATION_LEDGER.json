@@ -4976,6 +4976,47 @@
         "This commit does not prove compiled Inno pixels match the accepted private previews."
       ],
       "next_action": "Request separate explicit approval to commit this bounded exact-commit readback record; do not infer push or implementation approval."
+    },
+    {
+      "id": "EV-20260826-024",
+      "recorded_at_utc": "2026-08-26T09:25:48Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "531127b2cca0d060d2b72018f364702fffa058d2",
+      "baseline_commit": "531127b2cca0d060d2b72018f364702fffa058d2",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git ls-remote --heads origin refs/heads/codex/installer-c-screen-contract",
+        "git push -u origin codex/installer-c-screen-contract",
+        "git fetch origin codex/installer-c-screen-contract",
+        "git rev-parse origin/codex/installer-c-screen-contract",
+        "git rev-list --left-right --count HEAD...origin/codex/installer-c-screen-contract",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new), pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Published C installer screen-contract task branch",
+      "evidence": [
+        "the separately approved push created origin/codex/installer-c-screen-contract at exact 531127b2cca0d060d2b72018f364702fffa058d2",
+        "post-push fetch and readback showed local HEAD and the remote task ref at the same exact commit with a 0/0 left-right count",
+        "the immediate working tree was clean and tracked the new remote task branch",
+        "no pull request was created"
+      ],
+      "summary": "The bounded C screen-contract and visual-acceptance commit chain is published on its dedicated remote task branch with exact local/remote parity.",
+      "limitations": [
+        "The remote branch is not protected master and no required hosted PR check has run for this branch head.",
+        "No PR, merge, installer handler, product code, build, installation, Windows action/readback, tag or release occurred.",
+        "The push does not prove compiled Inno pixels match the accepted private previews."
+      ],
+      "next_action": "Request separate explicit approval to commit this bounded push/readback record; do not infer approval for the next push, PR or implementation."
     }
   ]
 }

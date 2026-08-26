@@ -11,7 +11,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-023`
+- Son kanıt: `EV-20260826-024`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -107,6 +107,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Ayrı commit onayıyla C ekran-sözleşmesi paketi exact `9467db3` commit'ine
   bağlandı; parent `db96ac5`, kapsam dört beklenen belge/test dosyası ve dal
   temiz readback'te `origin/master`dan 1 commit ilerideydi (`EV-20260826-023`).
+- Commit-readback kaydı exact `531127b` commit'iyle bağlandı ve ayrı push
+  onayıyla yeni `origin/codex/installer-c-screen-contract` dalına gönderildi;
+  yerel/uzak görev dalı exact `531127b`, `0/0` ve temiz okundu. PR açılmadı
+  (`EV-20260826-024`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -140,9 +144,9 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Exact `9467db3` commit readback'ini bağlayan bounded continuity/ledger kaydını
-commit etmek için ayrıca açık kullanıcı onayı iste. Bu onayı push, PR, merge,
-installer kodu, build veya fiziksel kurulum yetkisi sayma.
+Exact `531127b` uzak-dal eşliğini bağlayan bounded continuity/ledger kaydını
+commit etmek için ayrıca açık kullanıcı onayı iste. Bu onayı sonraki push, PR,
+merge, installer kodu, build veya fiziksel kurulum yetkisi sayma.
 
 ## Sonraki sıra
 
