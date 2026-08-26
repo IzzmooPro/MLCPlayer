@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `5a94d4e91b47349a83946f80af1ddbd31c633c33`
+- Kayıt hazırlanırken doğrulanan HEAD: `acccb8745b6d9d7e2d830a118dee073066fa7392`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-005`
+- Son kanıt: `EV-20260826-011`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -19,7 +19,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 
 - Belge/yönetişim paketi ve semantik sahiplik düzeltmesi PR #48 üzerinden
   iki ebeveynli exact `5a94d4e` merge commit'iyle master'a alındı. Yerel ve
-  uzak master temiz, `0/0` ve aynı commit'tedir; görev dalı korundu.
+  uzak master, PR #49 kayıt merge'i sonrasında exact `b7e7cdd` üzerinde temiz,
+  `0/0` ve aynıdır; iki görev dalı da korundu (`EV-20260826-006`).
 - PR #48'in exact head'inde ilk zorunlu hosted run `32899094320`, **4965
   passed / 30 skipped / 1 failed** verdi (`EV-20260826-002`). Tek hata
   `PACKAGING_PLAN.md` için stale bütün-belge-tarihsel testiydi; otomatik retry
@@ -59,9 +60,21 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 ## Açık çalışma ve korunan kapılar
 
 - Installer UX kararları `PACKAGING_PLAN.md` içinde tutulur. Üç private bitmap
-  yönü hazırdır: A Sinematik Gece, B Windows ile Uyumlu, C Dengeli Hibrit.
-  Kullanıcı henüz A/B/C seçimi yapmadı; bitmap'ler Git'e alınmaz ve gerçek
-  Inno Setup davranışı sayılmaz.
+  yönü karşılaştırıldı; kullanıcı **C — Dengeli Hibrit** yönünü açıkça seçti
+  ve seçim kayıt paketi exact `f432c73` commit'iyle bağlandı
+  (`EV-20260826-008`). A ve B yalnız karşılaştırma referansıdır. Bitmap'ler
+  Git'e alınmaz ve seçim gerçek Inno Setup davranışı sayılmaz.
+- `codex/installer-ux-c-selection` görev dalı exact `ce8211b` head'iyle origin'e
+  push edildi ve yerel/uzak görev dalı `0/0` eş okundu (`EV-20260826-009`). PR
+  #50 daha sonra exact `e262c0c` head'iyle açıldı. Zorunlu hosted run
+  `32937990279`, **4967 passed / 30 skipped / 0 failed** ve
+  `LEDGER_APPEND_ONLY_OK` verdi (`EV-20260826-010`). Bu continuity yenilemesi
+  yeni head oluşturacağından aynı eski run merge yetkisi vermez.
+- Continuity yenilemesinin exact `acccb87` head'indeki yeni zorunlu run
+  `32944386076`, **4967 passed / 30 skipped / 0 failed** ve
+  `LEDGER_APPEND_ONLY_OK` verdi (`EV-20260826-011`). PR OPEN/MERGEABLE/CLEAN ve
+  required `test=SUCCESS` okundu; aşağıdaki canlı kapı yenilemesi yeni head
+  oluşturacağından bu run da yalnız `acccb87` için geçerlidir.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -88,20 +101,32 @@ veya eksik marker PASS değildir.
 
 ## Sıradaki tek adım
 
-Üç installer önizlemesi arasından kullanıcının açık A, B veya C görsel yön
-seçimini al. Seçimden önce installer kodu, build veya kurulum yapma.
+PR #50 için aşağıdaki **ilk karşılanmayan kapıyı** uygula: çalışma ağacında bu
+continuity/ledger yenilemesi varsa önce commit için ayrıca açık onay al; yerel
+HEAD uzak PR head'inden ilerideyse push için ayrıca açık onay al. Ardından
+GitHub'daki canlı `headRefOid` ile required `test` check'inin bağlı olduğu
+commit'i yeniden oku. PR OPEN, draft değil, base exact `master`, MERGEABLE ve
+`mergeStateStatus=CLEAN`; required check aynı değişmemiş exact head'de SUCCESS
+ise kullanıcıdan ayrıca merge onayı al. Bunlardan biri karşılanmıyorsa merge
+onayı isteme; yeni durumu veya run'ı bekle ve eski run'ı kullanma. Installer
+kodu, build veya fiziksel kurulum yapma.
 
 ## Sonraki sıra
 
-1. Seçilen installer yönünün metin, odak ve ekran akışını kesinleştir;
-   uygulama değişikliği için ayrıca açık onay al.
-2. Installer uygulamasını ayrı `codex/installer-experience` dalında
+1. Canlı kapı merge onayına ulaştığında yalnız iki ebeveynli merge commit
+   yöntemini kullan; squash/rebase yapma.
+2. Merge sonrasında exact merge commit, iki parent, hosted run ve master `0/0`
+   durumunu yeni append-only kayıtla bağla.
+3. Kayıt zinciri protected master'a alındıktan sonra C yönünün ekran
+   metinlerini, klavye odak sırasını ve ekran akışını kesinleştir; uygulama
+   değişikliği için ayrıca açık onay al.
+4. Installer uygulamasını ayrı `codex/installer-experience` dalında
    regresyon-first yürüt; build ve fiziksel kurulumu ayrı ayrı onaylat.
-3. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
+5. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
-4. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
+6. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
-5. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
+7. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
    uygulama, build ve kurulum için ayrı onay al.
 
 ## Dokunulmayacaklar ve ayrı onaylar

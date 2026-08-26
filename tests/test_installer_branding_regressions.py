@@ -59,6 +59,22 @@ def test_installer_ux_contract_is_consolidated_into_the_packaging_plan():
         assert clause in normalized
 
 
+def test_installer_visual_direction_c_is_selected_without_claiming_acceptance():
+    text = PACKAGING_PLAN.read_text(encoding="utf-8")
+    normalized = " ".join(text.split())
+
+    assert "### Seçilen görsel yön — C Dengeli Hibrit" in text
+    assert "C — Dengeli Hibrit** yönünü açıkça seçti" in normalized
+    assert "A ve B yalnız karşılaştırma referansı" in normalized
+    assert "uygulama hedefi değildir" in normalized
+    assert "gerçek Inno piksel çıktısı" in normalized
+    assert (
+        "build ve fiziksel kurulum ayrıca tasarlanıp doğrulanmadan kabul edilmiş sayılmaz"
+        in normalized
+    )
+    assert "Seçim installer veya ürün kodunu değiştirme yetkisi değildir" in normalized
+
+
 def test_wizard_images_referenced_by_the_installer_exist():
     """`.iss` var olmayan bir görsel gösterirse derleme sessizce bozulur."""
     text = _iss()
