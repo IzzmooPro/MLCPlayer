@@ -79,15 +79,21 @@ değiştirmez.
   `tests/test_subtitle_track_watch_regressions.py` ve yerel altyazı testleri
   seçim/state sözleşmesini korur.
 - **Native ölçüm:** `tests/run_physical_acceptance.py buttons` ve `subtitles`
-  grupları altyazı görünürlüğü ile CC durumunu ölçer; mevcut
-  `tests/media_track_probe_child.py` track read-back sağlayabilir fakat tek
-  başına fail-closed ebeveyn kabul runner'ı değildir.
+  grupları altyazı görünürlüğü ile CC durumunu ölçer. Yeni test-only `tracks`
+  grubu gerçek görünen sağ-tık menüsünde dinamik action-data hedeflerine
+  `SendInput` uygular; ses A→B ve altyazı S1→S2→S1 sonrasında `aid`/`sid`,
+  exact tek `track-list.selected`, altyazı görünürlüğü/ikon durumu ve yeniden
+  açılan menü checked read-back'ini üç stabil örnekle ister. Parent exact
+  RESULT/summary/marker/cursor zinciri ile Windows Job Object içindeki sıfır
+  aktif süreç şartını fail-closed uygular (`EV-20260827-001`).
 - **Exact girdiler:** en az iki ses ve iki altyazı parçası içeren gerçek medya;
   ayrıca `MLC_NO_SUB_VIDEO` için altyazısız gerçek medya ve runtime kimliği.
-- **Açık boşluk:** mevcut runner gerçek ses parçasını ve iki ayrı altyazı
-  parçasını kullanıcı eylemiyle değiştirip ikisini de libmpv read-back ile
-  kabul etmiyor. Bu satır yeni dar runner veya kayıtlı manuel adım olmadan
-  PASSED yapılamaz; `buttons` grubu hoparlörü korumak için `ao=null` kullanır.
+- **Açık boşluk:** `tracks` grubu deterministik olarak hazırdır fakat henüz
+  native çalıştırılmadı. Gerçek QMenu popup koordinasyonu, exact fixture ve
+  runtime davranışı UNMEASURED olduğundan satır **NOT_RUN** kalır. İlk native
+  koşum ayrı onay ister; hata/BLOCKED sonrası otomatik retry yapılmaz. Bütün
+  fiziksel child grupları gerçek hoparlörü korumak için `ao=null` kullanır;
+  bu nedenle duyulan ses kabulü iddia edilmez.
 
 ### WIN-P0-04 — Seek, duraklatma ve devam
 

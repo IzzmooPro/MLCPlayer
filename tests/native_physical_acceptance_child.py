@@ -34,9 +34,10 @@ os.environ["PATH"] = os.path.join(PROJECT_ROOT, "bin") + os.pathsep + os.environ
 
 from PyQt6.QtCore import (QEvent, QObject, QPoint, QRect, QSettings,  # noqa: E402
                           QStandardPaths, Qt, QTimer)
-from PyQt6.QtWidgets import QApplication, QDialog, QPushButton  # noqa: E402
+from PyQt6.QtWidgets import QApplication, QDialog, QMenu, QPushButton  # noqa: E402
 
 from app.player import MPVPlayer  # noqa: E402
+from app.i18n import tr  # noqa: E402
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from physical_tolerances import (slider_value_tolerance,  # noqa: E402
@@ -49,6 +50,13 @@ from physical_buttons_contract import (MODAL_DISMISS_DELAY_MS,  # noqa: E402
                                        arm_modal_dismissal,
                                        has_subtitle_track,
                                        playlist_step_available)
+from physical_tracks_contract import (StableSelection,  # noqa: E402
+                                      alternate_track_id,
+                                      fixture_block_code,
+                                      fixture_problems,
+                                      normalise_track_id,
+                                      unique_target_index,
+                                      track_snapshot)
 from physical_layout import (resize_problems,  # noqa: E402
                              zorder_after_resize_problems)
 
@@ -56,6 +64,7 @@ user32 = ctypes.windll.user32
 kernel32 = ctypes.windll.kernel32
 INPUT_MOUSE, INPUT_KEYBOARD = 0, 1
 MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP = 0x0002, 0x0004
+MOUSEEVENTF_RIGHTDOWN, MOUSEEVENTF_RIGHTUP = 0x0008, 0x0010
 KEYEVENTF_KEYUP, KEYEVENTF_EXTENDEDKEY = 0x0002, 0x0001
 VK_ESCAPE, VK_MENU, VK_TAB, VK_V = 0x1B, 0x12, 0x09, 0x56
 ULONG_PTR = ctypes.c_ulonglong if ctypes.sizeof(ctypes.c_void_p) == 8 else ctypes.c_ulong
@@ -127,8 +136,11 @@ def _send(*items):
         raise OSError("SendInput failed")
 
 
-def mouse_button(down):
-    flag = MOUSEEVENTF_LEFTDOWN if down else MOUSEEVENTF_LEFTUP
+def mouse_button(down, right=False):
+    if right:
+        flag = MOUSEEVENTF_RIGHTDOWN if down else MOUSEEVENTF_RIGHTUP
+    else:
+        flag = MOUSEEVENTF_LEFTDOWN if down else MOUSEEVENTF_LEFTUP
     _send(INPUT(type=INPUT_MOUSE, u=_U(mi=MOUSEINPUT(0, 0, 0, flag, 0, 0))))
 
 
@@ -454,6 +466,156 @@ def physical_click(x, y, settle=250, target=None, label=""):
     mouse_button(False)
     pump(settle)
     return True
+
+
+def _plain_menu_text(value):
+    return str(value or "").replace("&", "").strip()
+
+
+def _menu_action(menu, text):
+    wanted = _plain_menu_text(text)
+    matches = [action for action in menu.actions()
+               if _plain_menu_text(action.text()) == wanted]
+    return matches[0] if len(matches) == 1 else None
+
+
+def _menu_target_action(menu, target_id):
+    actions = [action for action in menu.actions()
+               if action.isEnabled() and action.isCheckable()]
+    index = unique_target_index([action.data() for action in actions],
+                                target_id)
+    return actions[index] if index is not None else None
+
+
+def _menu_action_point(menu, action):
+    """Gorunen QAction merkezi ve hit/PID onkosulu; aksi halde None."""
+    if not isinstance(menu, QMenu) or not menu.isVisible() or action is None:
+        return None
+    rect = menu.actionGeometry(action)
+    if not rect.isValid() or rect.isEmpty():
+        return None
+    local = rect.center()
+    if menu.actionAt(local) is not action:
+        return None
+    point = menu.mapToGlobal(local)
+    hwnd = int(user32.WindowFromPoint(
+        wintypes.POINT(int(point.x()), int(point.y()))) or 0)
+    pid = ctypes.c_ulong(0)
+    if hwnd:
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+    if int(pid.value) != os.getpid():
+        return None
+    return int(point.x()), int(point.y())
+
+
+def physical_menu_action(root_text, track_text, target_id, inspect_only=False):
+    """Sag-tik menusu yolunu gercek Win32 girdisiyle acar ve hedefler.
+
+    Qt nesneleri yalniz gorunen popup/action geometrisini okumak icin
+    kullanilir. Secim ``QAction.trigger`` veya player metodu ile uretilmez.
+    ``inspect_only`` ikinci bir fiziksel menu acilisinda checked read-back
+    yapar ve menuyu gercek Esc ile kapatir.
+    """
+    state = {"done": False, "delivered": False, "checked": False,
+             "reason": "menu_sequence_incomplete"}
+    frame = PLAYER.video_frame
+
+    def finish(reason, delivered=False, checked=False):
+        state.update(done=True, reason=reason, delivered=delivered,
+                     checked=checked)
+
+    def abort(reason):
+        finish(reason)
+        tap(VK_ESCAPE)
+
+    def hover(action_menu, action, next_step):
+        point = _menu_action_point(action_menu, action)
+        if point is None:
+            abort("action_hit_or_pid_mismatch")
+            return
+        user32.SetCursorPos(*point)
+        QTimer.singleShot(350, next_step)
+
+    def target_step(track_action):
+        target_menu = track_action.menu()
+        target = (_menu_target_action(target_menu, target_id)
+                  if target_menu is not None else None)
+        point = (_menu_action_point(target_menu, target)
+                 if target is not None else None)
+        if point is None:
+            abort("target_action_missing_or_ambiguous")
+            return
+        user32.SetCursorPos(*point)
+        if inspect_only:
+            state["action"] = target
+            checked = bool(target.isChecked())
+            finish("checked_readback", delivered=True, checked=checked)
+            tap(VK_ESCAPE)
+            return
+        mouse_button(True)
+        mouse_button(False)
+        finish("physical_action_click", delivered=True,
+               checked=bool(target.isChecked()))
+
+    def track_step(root_action):
+        root_menu = root_action.menu()
+        track_action = (_menu_action(root_menu, track_text)
+                        if root_menu is not None else None)
+        if track_action is None or track_action.menu() is None:
+            abort("track_submenu_missing_or_ambiguous")
+            return
+        hover(root_menu, track_action,
+              lambda: target_step(track_action))
+
+    def root_step():
+        root_menu = QApplication.activePopupWidget()
+        if not isinstance(root_menu, QMenu):
+            abort("root_popup_not_visible")
+            return
+        root_action = _menu_action(root_menu, root_text)
+        if root_action is None or root_action.menu() is None:
+            abort("root_action_missing_or_ambiguous")
+            return
+        hover(root_menu, root_action,
+              lambda: track_step(root_action))
+
+    if not player_front():
+        state["reason"] = "player_not_foreground"
+        return state
+    point = frame.mapToGlobal(frame.rect().center())
+    hwnd = int(user32.WindowFromPoint(
+        wintypes.POINT(int(point.x()), int(point.y()))) or 0)
+    pid = ctypes.c_ulong(0)
+    if hwnd:
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+    if int(pid.value) != os.getpid():
+        state["reason"] = "video_surface_pid_mismatch"
+        return state
+
+    QTimer.singleShot(250, root_step)
+    user32.SetCursorPos(int(point.x()), int(point.y()))
+    mouse_button(True, right=True)
+    mouse_button(False, right=True)
+    # Sag-tik QMenu.exec() nested loop'una girer. Yukaridaki timer zinciri
+    # gorunen action'lari hedefleyip final click/Esc ile bu donguyu kapatir.
+    pump(5000)
+    popup = QApplication.activePopupWidget()
+    state["menu_closed"] = not (isinstance(popup, QMenu) and popup.isVisible())
+    if not state["done"]:
+        tap(VK_ESCAPE)
+    return state
+
+
+PRODUCT_MENU_FAILURES = {
+    "root_action_missing_or_ambiguous",
+    "track_submenu_missing_or_ambiguous",
+    "target_action_missing_or_ambiguous",
+}
+
+
+def menu_failure_result(reason):
+    """Gecerli fixture sonrasi urun menusu bozuksa FAIL, erisim yoksa BLOCKED."""
+    return False if reason in PRODUCT_MENU_FAILURES else None
 
 
 def physical_drag(x0, y0, x1, y1, steps=14, hold=0.014, release=True):
@@ -2172,6 +2334,203 @@ def osd_layout_state(name, enter):
     wait_for(lambda: not frame.osd_label.isVisible(), 6000)
 
 
+# ================= GRUP 13 - ses / altyazi parcasi gecisi =================
+
+def _track_inventory(mpv):
+    tracks = [track for track in (mpv.track_list or [])
+              if isinstance(track, dict)]
+    audio = track_snapshot(tracks, "audio", getattr(mpv, "aid", None))
+    subtitles = track_snapshot(
+        tracks, "sub", getattr(mpv, "sid", None),
+        getattr(mpv, "sub_visibility", False))
+    signature = tuple(
+        (track.get("type"), normalise_track_id(track.get("id")),
+         bool(track.get("selected")), str(track.get("lang") or ""),
+         str(track.get("title") or ""),
+         os.path.basename(str(track.get("external-filename") or "")))
+        for track in tracks if track.get("type") in ("video", "audio", "sub"))
+    return {
+        "tracks": tracks,
+        "audio": audio,
+        "subtitles": subtitles,
+        "video_count": len([track for track in tracks
+                            if track.get("type") == "video"]),
+        "signature": (signature, audio["signature"], subtitles["signature"]),
+    }
+
+
+def _stable_track_inventory(mpv, timeout_ms=10000, samples=3):
+    end = time.time() + timeout_ms / 1000.0
+    history = []
+    latest = _track_inventory(mpv)
+    while time.time() < end:
+        latest = _track_inventory(mpv)
+        history.append(latest["signature"])
+        if len(history) >= samples and len(set(history[-samples:])) == 1:
+            latest["stable"] = True
+            return latest
+        pump(250)
+    latest["stable"] = False
+    return latest
+
+
+def _wait_track_selection(mpv, kind, target, expected_ids,
+                          require_visible=False, timeout_ms=8000):
+    stabilizer = StableSelection(target, require_visible=require_visible,
+                                 required=3, expected_ids=expected_ids)
+    latest = {"snapshot": track_snapshot(
+        [], kind, None, False if kind == "sub" else None)}
+
+    def matches():
+        tracks = list(mpv.track_list or [])
+        snapshot = track_snapshot(
+            tracks, kind,
+            getattr(mpv, "aid" if kind == "audio" else "sid", None),
+            getattr(mpv, "sub_visibility", False) if kind == "sub" else None)
+        latest["snapshot"] = snapshot
+        return stabilizer.observe(snapshot)
+
+    return wait_for(matches, timeout_ms, step_ms=180), latest["snapshot"]
+
+
+def _checked_after_reopen(root_text, track_text, target_id):
+    result = physical_menu_action(root_text, track_text, target_id,
+                                  inspect_only=True)
+    action = result.get("action")
+    try:
+        checked = bool(action is not None and action.isChecked())
+    except RuntimeError:
+        checked = False
+    return result, checked
+
+
+def group_tracks():
+    frame, mpv = PLAYER.video_frame, PLAYER.mpv_player
+    wait_for(lambda: (mpv.duration or 0) > 0, 10000)
+    inventory = _stable_track_inventory(mpv)
+    audio_tracks = [track for track in inventory["tracks"]
+                    if track.get("type") == "audio"]
+    subtitle_tracks = [track for track in inventory["tracks"]
+                       if track.get("type") == "sub"]
+    problems = fixture_problems(
+        inventory["audio"], inventory["subtitles"],
+        inventory["video_count"], mpv.duration)
+    if len(audio_tracks) < 2 or len(subtitle_tracks) < 2:
+        problems.append("MULTI_TRACK_MEDIA_REQUIRED")
+    if not inventory.get("stable"):
+        problems.append("TRACK_INVENTORY_UNSTABLE")
+    ao_problems = audio_safety_problems(getattr(mpv, "current_ao", None))
+    problems.extend(ao_problems)
+    if problems:
+        block_code = fixture_block_code(problems)
+        record("track_fixture_contract", "libmpv stable track inventory",
+               "video>0, duration>0, 2 unique audio, 2 unique sub, exact "
+               "selected/current, ao=null",
+               f"video={inventory['video_count']} audio={len(audio_tracks)} "
+               f"sub={len(subtitle_tracks)} stable={inventory.get('stable')} "
+               f"audio_ids={inventory['audio']['ids']} "
+               f"sub_ids={inventory['subtitles']['ids']} problems={problems}",
+               None, f"BLOCKED: {block_code}")
+        return
+    record("track_fixture_contract", "libmpv stable track inventory",
+           "video>0, duration>0, 2 unique audio, 2 unique sub, exact "
+           "selected/current, ao=null",
+           f"video={inventory['video_count']} audio={len(audio_tracks)} "
+           f"sub={len(subtitle_tracks)} stable=True "
+           f"audio_ids={inventory['audio']['ids']} "
+           f"sub_ids={inventory['subtitles']['ids']} ao={mpv.current_ao}", True)
+
+    audio_a = inventory["audio"]["current"]
+    audio_b = alternate_track_id(inventory["audio"])
+    audio_click = physical_menu_action(
+        tr("Ses"), tr("Ses Parçası"), audio_b)
+    if not (audio_click["delivered"] and audio_click.get("menu_closed")):
+        record("audio_track_switch", "gercek sag-tik menu SendInput",
+               "A->B hedef tiklamasi", f"a={audio_a} b={audio_b} "
+               f"reason={audio_click.get('reason')} "
+               f"closed={audio_click.get('menu_closed')}",
+               menu_failure_result(audio_click.get("reason")),
+               "TRACK_MENU_TARGET")
+        return
+    audio_ok, audio_after = _wait_track_selection(
+        mpv, "audio", audio_b, inventory["audio"]["ids"])
+    audio_check, audio_checked = _checked_after_reopen(
+        tr("Ses"), tr("Ses Parçası"), audio_b)
+    record("audio_track_switch", "gercek sag-tik menu SendInput + libmpv",
+           "A!=B, aid=B, exact selected B, yeniden acilan menude B checked",
+           f"a={audio_a} b={audio_b} current={audio_after['current']} "
+           f"selected={audio_after['selected']} checked={audio_checked} "
+           f"reopen={audio_check.get('reason')}",
+           audio_a != audio_b and audio_ok and audio_checked
+           and audio_check["delivered"] and audio_check.get("menu_closed"))
+
+    subtitle_s1 = inventory["subtitles"]["current"]
+    subtitle_s2 = alternate_track_id(inventory["subtitles"])
+    s2_click = physical_menu_action(
+        tr("Altyazı"), tr("Altyazı Parçası"), subtitle_s2)
+    if not (s2_click["delivered"] and s2_click.get("menu_closed")):
+        record("subtitle_track_switch_1", "gercek sag-tik menu SendInput",
+               "S1->S2 hedef tiklamasi",
+               f"s1={subtitle_s1} s2={subtitle_s2} "
+               f"reason={s2_click.get('reason')} "
+               f"closed={s2_click.get('menu_closed')}",
+               menu_failure_result(s2_click.get("reason")),
+               "TRACK_MENU_TARGET")
+        return
+    if not bool(mpv.sub_visibility):
+        cc = overlay_button("overlaySubtitles")
+        ready = click_ready(cc, "tracks_subtitle_visibility")
+        if ready is None or not physical_click(
+                ready[0], ready[1], settle=250, target=cc,
+                label="tracks_subtitle_visibility"):
+            record("subtitle_track_switch_1", "gercek CC SendInput",
+                   "altyazi gorunur", "CC hedeflenemedi", None,
+                   "BLOCKED: CLICK_TARGET")
+            return
+    s2_ok, s2_after = _wait_track_selection(
+        mpv, "sub", subtitle_s2, inventory["subtitles"]["ids"],
+        require_visible=True)
+    s2_check, s2_checked = _checked_after_reopen(
+        tr("Altyazı"), tr("Altyazı Parçası"), subtitle_s2)
+    record("subtitle_track_switch_1",
+           "gercek sag-tik menu/CC SendInput + libmpv",
+           "S1!=S2, sid=S2, exact selected S2, gorunur, ikon aktif, menu checked",
+           f"s1={subtitle_s1} s2={subtitle_s2} "
+           f"current={s2_after['current']} selected={s2_after['selected']} "
+           f"visible={mpv.sub_visibility} icon={frame.overlay_subtitles_active} "
+           f"checked={s2_checked}",
+           subtitle_s1 != subtitle_s2 and s2_ok and s2_checked
+           and frame.overlay_subtitles_active is True and s2_check["delivered"]
+           and s2_check.get("menu_closed"))
+
+    s1_click = physical_menu_action(
+        tr("Altyazı"), tr("Altyazı Parçası"), subtitle_s1)
+    if not (s1_click["delivered"] and s1_click.get("menu_closed")):
+        record("subtitle_track_switch_2", "gercek sag-tik menu SendInput",
+               "S2->S1 hedef tiklamasi",
+               f"s1={subtitle_s1} s2={subtitle_s2} "
+               f"reason={s1_click.get('reason')} "
+               f"closed={s1_click.get('menu_closed')}",
+               menu_failure_result(s1_click.get("reason")),
+               "TRACK_MENU_TARGET")
+        return
+    s1_ok, s1_after = _wait_track_selection(
+        mpv, "sub", subtitle_s1, inventory["subtitles"]["ids"],
+        require_visible=True)
+    s1_check, s1_checked = _checked_after_reopen(
+        tr("Altyazı"), tr("Altyazı Parçası"), subtitle_s1)
+    record("subtitle_track_switch_2",
+           "gercek sag-tik menu SendInput + libmpv",
+           "S2!=S1, sid=S1, exact selected S1, gorunur, ikon aktif, menu checked",
+           f"s1={subtitle_s1} s2={subtitle_s2} "
+           f"current={s1_after['current']} selected={s1_after['selected']} "
+           f"visible={mpv.sub_visibility} icon={frame.overlay_subtitles_active} "
+           f"checked={s1_checked}",
+           subtitle_s2 != subtitle_s1 and s1_ok and s1_checked
+           and frame.overlay_subtitles_active is True and s1_check["delivered"]
+           and s1_check.get("menu_closed"))
+
+
 # ================= GRUP 11 - z-order / goruntu bozulmasi =================
 
 def group_zorder(focus_child_geometry):
@@ -2436,8 +2795,8 @@ def main():
     print(f"CHILD_SAVED cursor={original_cursor} fg={original_foreground}", flush=True)
 
     APP = QApplication(sys.argv)
-    # GUVENLIK: buttons grubu sesi gercekten degistiriyor (44 -> 140).
-    # Gercek hoparlorden yuksek ses cikmasin diye YALNIZ bu test
+    # GUVENLIK: fiziksel gruplar ses seviyesini veya ses parcasi secimini
+    # degistirebilir. Gercek hoparlorden ses cikmasin diye bu test child
     # surecinde `ao=null` kullanilir. Urunun MPV_CONFIG sozlugu mutate
     # EDILMEZ; yalnizca bu surecteki modul referansi degistirilir.
     import app.player as _player_module
@@ -2544,6 +2903,8 @@ def run_group_body(args, original_cursor, original_foreground):
             # Sozlesme dogrulamasi (dosya var mi, video>0, sub=0) grubun
             # kendi icinde yapilir; burada deger oldugu gibi gecirilir.
             group_subtitles(args.no_sub_video)
+        elif GROUP == "tracks":
+            group_tracks()
         elif GROUP == "zorder":
             rect = PLAYER.geometry()
             group_zorder(f"{rect.x()+140},{rect.y()+140},640,460")
