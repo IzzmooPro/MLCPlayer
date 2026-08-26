@@ -182,7 +182,9 @@ davranışın geri geldiğine ilişkin piksel/yerleşim PASS verilmez.
   Oluşturulacak/Oluşturulmayacak”; “Birlikte Aç listesi: Eklenecek
   (varsayılan uygulama değişmez)”; “Başlangıç güncelleme denetimi: GitHub
   release bilgisi, sessiz”; “Internet Video eklentisi: Dahil değil”; “Kullanıcı ayarları,
-  geçmiş ve önbellek: Korunacak”. Son satır “Kur'a basarak başlayın.”dır.
+  geçmiş ve önbellek: Korunacak”. Özet alanının üzerindeki yerleşik
+  `ReadyLabel`, “Kuruluma başlamak için `Kur`'u seçin. Ayarları gözden geçirmek
+  veya değiştirmek için `Önceki`'yi seçin.” eylemini bir kez gösterir.
   Yerleşik salt-okunur özet alanı sistem pencere rengini kullanır; metin
   mantıksal boşluklarla gruplanır, satır sonunda kaydırılır ve yatay kaydırma
   göstermez. Uzun yerelleştirme veya hedef yolu yalnız dikey taşabilir.
@@ -427,9 +429,13 @@ Planlanan temel ayarlar:
 [Setup]
 DefaultDirName={autopf}\MLC Player
 CloseApplications=yes
-CloseApplicationsFilter=MLC Player.exe
+CloseApplicationsFilter="MLC Player.exe,*.dll"
 RestartApplications=no
 ```
+
+Ana EXE yanında kurulumun güncellediği kilitli DLL kaynakları da Restart
+Manager kapsamındadır; bu filtre yalnız ilgili dosya kaynaklarını hedefler ve
+ad-temelli zorla süreç sonlandırma yetkisi vermez.
 
 Ayrıca:
 
@@ -472,6 +478,11 @@ kullanılmayacaktır.
   sonlanmadan `_internal` dosyaları değiştirilmemelidir.
 - Güncelleme sırasında eski `_internal` ile yeni `_internal` karışmamalıdır.
 - Başarısız güncellemede yarım kurulmuş klasör bırakılmamalıdır.
+- Kanıtlanmış zararlı/yabancı 47 direct-root runtime dosyasının maintenance
+  başlangıcında exact allowlist ile silinmesi tek yönlü güvenlik
+  sanitasyonudur. Sonraki kopyalama durursa bu dosyaların geri getirileceği
+  veya eski kurulumun hâlâ çalışan sürüm olduğu iddia edilmez; gerçek rollback
+  sonucu enjekte abort senaryosunda dosya ağacı ve açılışla geri okunur.
 - Kaldırma sırasında uygulama çalışıyorsa kullanıcıya anlaşılır bildirim
   verilmeli veya kontrollü kapanış uygulanmalıdır.
 - Kaldırıcı yalnız kurulumun sahip olduğu dosyaları silmelidir.
@@ -509,6 +520,8 @@ Temiz veya izole bir Windows ortamında en az şu senaryolar ölçülmelidir:
 - Uygulama açıkken kaldırma
 - Kaldırma sonrasında Program Files artık taraması
 - Kullanıcı log/ayar saklama politikasının doğrulanması
+- Exact 47 runtime sanitasyonundan sonra enjekte abort: yarım payload, kalan
+  sakıncalı DLL, açılabilir sürüm ve kullanıcıya gösterilen onarım yolu readback'i
 
 Her senaryoda süreçler, çıkış kodları, kurulum logu, kalan dosyalar ve gerçek
 uygulama davranışı kaydedilmelidir. Yalnız EXE'nin açılması yeterli kabul

@@ -6588,6 +6588,50 @@
         "The product version remains v0.39; no build, installation, launch, commit, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit the exact source, tests and EV062-EV063 evidence package; after commit readback, request separate approval for one clean unsigned v0.39 validation build before any version bump."
+    },
+    {
+      "id": "EV-20260826-064",
+      "recorded_at_utc": "2026-08-26T18:43:27Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "83a0fef18a12356fdfb68f3b02c292165effbc52",
+      "baseline_commit": "83a0fef18a12356fdfb68f3b02c292165effbc52",
+      "evidence_commit": "83a0fef18a12356fdfb68f3b02c292165effbc52",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/PACKAGING_PLAN.md",
+        "tests/test_installer_branding_regressions.py",
+        "tests/test_installer_process_safety_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git rev-parse --show-toplevel; git status --short --branch; git log -1 --oneline --decorate; git rev-list --left-right --count HEAD...origin/master; git show --name-status --format=fuller HEAD",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py tests/test_installer_language_regressions.py tests/test_release_artifact_selection_regressions.py tests/test_dist_completeness_regressions.py tests/test_translation_pipeline_regressions.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py -k restart_manager_filter_matches_the_canonical_packaging_plan",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k summary_instruction_matches_install_button_once",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "git diff --check"
+      ],
+      "subject": "Installer cleanup commit readback and canonical contract hardening",
+      "evidence": [
+        "commit readback tied the exact five-file EV062-EV063 package to evidence commit 83a0fef18a12356fdfb68f3b02c292165effbc52 with parent 51013e79ea6025d3204b081cb53279783407ec83, a clean tree and origin/master difference 24 ahead and zero behind",
+        "the committed affected, continuity and append-only family completed with 115 passed; both edited Python test files compiled and git diff --check passed",
+        "independent forward, adversarial and governance reviews found no P0 and no source P1 in the exact cleanup, while identifying stale continuity and canonical packaging text",
+        "the Restart Manager documentation regression first failed because the plan omitted the DLL filter; the Summary documentation regression separately failed because the plan still placed the action in the memo",
+        "the canonical plan now matches the source filter and ReadyLabel placement, explicitly bounds the exact cleanup as one-way sanitization and requires injected-abort physical readback",
+        "the hardened tests require one InstallDelete section, API-set, ICU and UCRT classifier semantics, verify-before-flag-before-phase ordering, one Summary ReadyLabel assignment and both canonical action sentences; the final focused, continuity and append-only package completed with 45 passed"
+      ],
+      "summary": "The installer cleanup is committed and its canonical documentation and fail-closed regression guards are prepared without changing product or installer source.",
+      "limitations": [
+        "The canonical and regression hardening remains uncommitted on top of evidence commit 83a0fef18a12356fdfb68f3b02c292165effbc52.",
+        "No Inno compilation, clean validation build, full pytest package at the next committed head, reinstall, injected abort, locked-file scenario or visual DPI and localization acceptance occurred.",
+        "The existing broken v0.39 installation remains the controlled forty-seven-file reinstall fixture and must not be manually cleaned before physical acceptance.",
+        "No version bump, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Commit the exact canonical contract, regression hardening and EV064 continuity package; then run one full deterministic pre-build gate before requesting the clean unsigned v0.39 validation build."
     }
   ]
 }

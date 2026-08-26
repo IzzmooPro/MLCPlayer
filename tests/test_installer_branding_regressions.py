@@ -120,7 +120,9 @@ def test_visual_direction_c_has_one_complete_screen_contract():
         "C-SUMMARY": (
             "Başlangıç güncelleme denetimi: GitHub release bilgisi, sessiz",
             "Kullanıcı ayarları, geçmiş ve önbellek: Korunacak",
-            "Kur'a basarak başlayın.",
+            "Kuruluma başlamak için `Kur`'u seçin.",
+            "Ayarları gözden geçirmek veya değiştirmek için `Önceki`'yi seçin.",
+            "ReadyLabel",
         ),
         "C-PROGRESS": (
             "Dosyalar hazırlanıyor",
@@ -278,6 +280,8 @@ def test_installer_c_summary_and_progress_use_live_engine_state():
 
 def test_installer_summary_instruction_matches_install_button_once():
     text = _iss()
+    plan = PACKAGING_PLAN.read_text(encoding="utf-8")
+    normalized_plan = " ".join(plan.split())
     code = text.split("[Code]", 1)[1]
     ready = code.split("function UpdateReadyMemo", 1)[1].split(
         "procedure CurPageChanged", 1
@@ -289,11 +293,21 @@ def test_installer_summary_instruction_matches_install_button_once():
         "Ayarları gözden geçirmek veya değiştirmek için Önceki'yi seçin."
         in text
     )
+    assert "Kuruluma başlamak için `Kur`'u seçin." in normalized_plan
+    assert (
+        "Ayarları gözden geçirmek veya değiştirmek için `Önceki`'yi seçin."
+        in normalized_plan
+    )
+    assert "`ReadyLabel`" in normalized_plan
+    assert "Son satır “Kur'a basarak başlayın.”dır." not in normalized_plan
     assert "CustomMessage('CSummaryAction')" not in ready
     assert (
         "WizardForm.ReadyLabel.Caption := CustomMessage('CSummaryAction')"
         in ready_page
     )
+    assert code.count(
+        "WizardForm.ReadyLabel.Caption := CustomMessage('CSummaryAction')"
+    ) == 1
     assert "WizardForm.ReadyLabel.AdjustHeight" in ready_page
     assert (
         "WizardForm.ReadyMemo.Top := WizardForm.ReadyLabel.Top +"
@@ -307,6 +321,7 @@ def test_installer_summary_instruction_matches_install_button_once():
 
 def test_upgrade_removes_only_forbidden_root_dll_leftovers_before_copy():
     text = _iss()
+    assert text.count("\n[InstallDelete]\n") == 1
     assert text.index("\n[InstallDelete]\n") < text.index("\n[Files]\n")
     cleanup = text.split("\n[InstallDelete]\n", 1)[1].split(
         "\n[Files]\n", 1
@@ -378,7 +393,18 @@ def test_upgrade_removes_only_forbidden_root_dll_leftovers_before_copy():
     assert "CurrentInstallMode <> InstallModeFirst" in helper
 
     assert 'CloseApplicationsFilter="MLC Player.exe,*.dll"' in text
-    assert "function IsForbiddenRootRuntimeName" in text
+    assert text.count("function IsForbiddenRootRuntimeName") == 1
+    classifier = text.split("function IsForbiddenRootRuntimeName", 1)[1].split(
+        "procedure VerifyLegacyRootRuntimeRemoved", 1
+    )[0]
+    for token in (
+        "LowerName = 'ucrtbase.dll'",
+        "Pos('api-ms-win-', LowerName) = 1",
+        "IsIcuRuntimeStem(Stem, 'icuuc')",
+        "IsIcuRuntimeStem(Stem, 'icuin')",
+        "IsIcuRuntimeStem(Stem, 'icudt')",
+    ):
+        assert token in classifier
     assert "procedure VerifyLegacyRootRuntimeRemoved" in text
     verify = text.split("procedure VerifyLegacyRootRuntimeRemoved", 1)[1].split(
         "function DirectoryHasEntries", 1
@@ -387,11 +413,18 @@ def test_upgrade_removes_only_forbidden_root_dll_leftovers_before_copy():
     assert "RaiseException(" in verify
     assert "Exception.CreateFmt" not in text
     assert not re.search(r"^\s*raise\b", text, re.MULTILINE | re.IGNORECASE)
-    assert "procedure BeforeInstallMainPayload" in text
-    assert "VerifyLegacyRootRuntimeRemoved;" in text
-    assert "SetInstallPhase('installing');" in text
-    assert "if not LegacyCleanupVerified then" in text
-    assert "LegacyCleanupVerified := True;" in text
+    assert text.count("procedure BeforeInstallMainPayload") == 1
+    before_payload = text.split("procedure BeforeInstallMainPayload", 1)[1].split(
+        "procedure InitializeWizard", 1
+    )[0]
+    ordered_cleanup = (
+        "VerifyLegacyRootRuntimeRemoved;",
+        "LegacyCleanupVerified := True;",
+        "SetInstallPhase('installing');",
+    )
+    positions = [before_payload.index(token) for token in ordered_cleanup]
+    assert positions == sorted(positions)
+    assert "if not LegacyCleanupVerified then" in before_payload
     files = text.split("\n[Files]\n", 1)[1].split("\n[Registry]\n", 1)[0]
     assert "BeforeInstall: BeforeInstallMainPayload" in files
 

@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 MAIN_ISS = ROOT / "packaging" / "MLCPlayer.iss"
 ADDON_ISS = ROOT / "packaging" / "MLCPlayer_InternetVideo.iss"
 SINGLE_INSTANCE = ROOT / "app" / "single_instance.py"
+PACKAGING_PLAN = ROOT / "docs" / "PACKAGING_PLAN.md"
 
 
 def read(path):
@@ -41,6 +42,19 @@ def test_main_installer_never_force_kills_processes_by_image_name():
     assert "RestartApplications=no" in iss
     assert "taskkill" not in code.lower()
     assert '/F /IM "MLC Player.exe"' not in code
+
+
+def test_restart_manager_filter_matches_the_canonical_packaging_plan():
+    iss = read(MAIN_ISS)
+    plan = read(PACKAGING_PLAN)
+    expected = 'CloseApplicationsFilter="MLC Player.exe,*.dll"'
+    setup_contract = plan.split("Planlanan temel ayarlar:", 1)[1].split(
+        "```ini", 1
+    )[1].split("```", 1)[0]
+
+    assert expected in iss
+    assert setup_contract.count(expected) == 1
+    assert "CloseApplicationsFilter=MLC Player.exe" not in plan
 
 
 def test_main_uninstaller_blocks_while_the_installed_player_is_running():
