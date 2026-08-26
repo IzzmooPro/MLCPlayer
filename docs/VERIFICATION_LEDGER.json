@@ -7065,6 +7065,41 @@
         "Compiler engine pinning, previous-release manifest delta enforcement, rollback injection and exact-artifact physical acceptance remain separate open gates."
       ],
       "next_action": "Commit the exact EV075 package, run the full deterministic suite on the committed head and proceed to task-branch push and PR only if every required gate stays green."
+    },
+    {
+      "id": "EV-20260826-076",
+      "recorded_at_utc": "2026-08-26T19:47:24Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "6bf53591be91fa1675a2fd3b55cfe60740f6b87d",
+      "baseline_commit": "6bf53591be91fa1675a2fd3b55cfe60740f6b87d",
+      "evidence_commit": "6bf53591be91fa1675a2fd3b55cfe60740f6b87d",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git commit -m build: gate v0.40 installer preflight; exact commit and clean status readback",
+        "python -m pytest -q",
+        "python -m compileall -q app packaging tests",
+        "python packaging/verify_inno.py all",
+        "git diff --check; git status --short --branch"
+      ],
+      "subject": "Committed v0.40 installer preflight full deterministic readback",
+      "evidence": [
+        "the exact eleven-file source and evidence package is commit 6bf53591be91fa1675a2fd3b55cfe60740f6b87d",
+        "the committed head completed 5036 tests with 19 skipped and zero failed in 92.35 seconds",
+        "compileall completed and the installed ISCC compile-only preflight passed both main and Internet Video installer sources",
+        "diff check passed and the task branch read back clean at thirty-five commits ahead and zero behind origin/master"
+      ],
+      "summary": "The committed v0.40 source and shared Inno preflight package passes the full deterministic local gate.",
+      "limitations": [
+        "This is deterministic committed-source evidence, not hosted CI, build, installed artifact or release acceptance.",
+        "The nineteen skipped tests remain skipped and no v0.40 artifact exists yet.",
+        "Compiler pinning, previous-to-current installed manifest delta and physical rollback/Finish/process scenarios remain separate gates."
+      ],
+      "next_action": "Commit this EV076 record, push the task branch, open a protected-master PR and require the exact PR head hosted test to pass before merge."
     }
   ]
 }

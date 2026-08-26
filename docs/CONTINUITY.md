@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `ce5aeb7a8ccb9b62a44e60f66deb6aa327d81bd1`
+- Kayıt hazırlanırken doğrulanan HEAD: `6bf53591be91fa1675a2fd3b55cfe60740f6b87d`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 34 commit ileride, 0 geride)
-- Son kanıt: `EV-20260826-075`
+- Dal: `codex/installer-experience` (`origin/master`dan 35 commit ileride, 0 geride)
+- Son kanıt: `EV-20260826-076`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -161,7 +161,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV075 paketini commit et; exact committed head üzerinde tam deterministic paketi çalıştır ve yalnız yeşilse görev dalı push/PR kapısına geç.
+EV076 kayıt paketini commit et; görev dalını push edip PR aç ve exact head required hosted `test` sonucunu bekle.
 
 ## Sonraki sıra
 
