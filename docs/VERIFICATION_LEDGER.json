@@ -5175,6 +5175,50 @@
         "No product playback code, commit, push, PR, merge, tag or release changed."
       ],
       "next_action": "Request separate explicit approval to commit this installer-only source, regression, continuity and append-only evidence package; do not infer build, push, PR or installation approval."
+    },
+    {
+      "id": "EV-20260826-029",
+      "recorded_at_utc": "2026-08-26T10:15:10Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "6fe453fee41fd5473c30b51b4b97fe10d38e2e24",
+      "baseline_commit": "6fe453fee41fd5473c30b51b4b97fe10d38e2e24",
+      "evidence_commit": "6fe453fee41fd5473c30b51b4b97fe10d38e2e24",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"feat: implement installer C experience\"",
+        "git rev-parse HEAD",
+        "git show --no-ext-diff --format=%P -s HEAD",
+        "git show --no-ext-diff --stat --oneline HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Committed installer C experience implementation",
+      "evidence": [
+        "the separately approved commit completed as exact 6fe453fee41fd5473c30b51b4b97fe10d38e2e24 with subject feat: implement installer C experience",
+        "readback showed exact parent f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3 and exactly the eight approved installer source, canonical documentation, append-only ledger and regression files",
+        "the immediate post-commit working tree was clean and the local installer-experience branch measured one commit ahead and zero behind origin/master",
+        "the user then explicitly required an interactive compiled installer review with forward and back navigation; no build or setup process was started by this commit"
+      ],
+      "summary": "The approved installer C implementation is bound to an exact local commit with verified parent and file scope.",
+      "limitations": [
+        "The commit is local only; it has not been pushed, opened as a PR or merged.",
+        "No ISCC build, setup execution, installation, Windows action/readback, pixel/DPI acceptance, tag or release occurred.",
+        "Interactive Welcome, Preferences and Summary review requires a separately approved build and setup launch; Progress and Finish require separate physical installation approval."
+      ],
+      "next_action": "Request separate approval to commit this exact-commit readback record; then request build approval and launch the compiled setup only to the pre-install Summary boundary for the user's interactive forward/back review."
     }
   ]
 }

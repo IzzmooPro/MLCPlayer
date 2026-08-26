@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3`
+- Kayıt hazırlanırken doğrulanan HEAD: `6fe453fee41fd5473c30b51b4b97fe10d38e2e24`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
-- Dal: `codex/installer-experience` (taban protected `master` ile eş)
-- Son kanıt: `EV-20260826-028`
+- Dal: `codex/installer-experience` (`origin/master`dan 1 commit ileride)
+- Son kanıt: `EV-20260826-029`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -123,7 +123,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   kayıtlarda korundu (`EV-20260826-026`, `-027`). Native sayfalar/state, final
   hedef-sürüm recheck'i, gerçek fazlar, üç finish eylemi ve sekiz dil **247
   passed** ve çift incelemede P0/P1 bloklayıcısızdır (`EV-20260826-028`). ISCC,
-  piksel/DPI, kurulum ve Windows action kabulü henüz yoktur.
+  piksel/DPI, kurulum ve Windows action kabulü henüz yoktur. Paket ayrı onayla
+  exact `6fe453f` commit'ine bağlandı (`EV-20260826-029`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -157,10 +158,10 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-`codex/installer-experience` çalışma ağacındaki installer-only kaynak, dar
-regresyon, continuity ve append-only kanıt paketini commit etmek için ayrıca
-açık kullanıcı onayı iste. Bu onay build, setup çalıştırma, kurulum, push, PR
-veya merge yetkisi vermez.
+Exact `6fe453f` commit readback'ini taşıyan bounded continuity/ledger kaydını
+commit etmek için ayrıca açık kullanıcı onayı iste. Ardından gerçek installer
+ekranlarını ileri/geri incelemek üzere build ve pre-install setup launch
+onaylarını ayrı al; `Kur` ve fiziksel kurulum yine ayrı kapıdır.
 
 ## Sonraki sıra
 
