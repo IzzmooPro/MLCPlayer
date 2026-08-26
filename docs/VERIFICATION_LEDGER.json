@@ -4484,6 +4484,50 @@
         "No merge, installer or product code change, build, installation, signing, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit this EV-20260826-010 continuity refresh; request push separately, require a new exact-head hosted PASS and only then request merge approval."
+    },
+    {
+      "id": "EV-20260826-011",
+      "recorded_at_utc": "2026-08-26T07:51:32Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "acccb8745b6d9d7e2d830a118dee073066fa7392",
+      "baseline_commit": "acccb8745b6d9d7e2d830a118dee073066fa7392",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git push origin codex/installer-ux-c-selection",
+        "git rev-parse HEAD",
+        "git rev-parse origin/codex/installer-ux-c-selection",
+        "git rev-list --left-right --count HEAD...origin/codex/installer-ux-c-selection",
+        "gh run watch 32944386076 --repo IzzmooPro/MLCPlayer --exit-status --interval 10",
+        "gh run view 32944386076 --repo IzzmooPro/MLCPlayer --job 98101881235 --log",
+        "gh pr view 50 --repo IzzmooPro/MLCPlayer --json number,state,isDraft,mergeable,mergeStateStatus,baseRefName,headRefName,headRefOid,url,statusCheckRollup",
+        "gh pr diff 50 --repo IzzmooPro/MLCPlayer --name-only",
+        "gh api repos/IzzmooPro/MLCPlayer/branches/master/protection",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new), pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "PR 50 refreshed exact-head hosted PASS and durable live merge gate",
+      "evidence": [
+        "the separately approved branch update moved PR 50 to exact head acccb8745b6d9d7e2d830a118dee073066fa7392 with local and remote task refs at 0/0",
+        "GitHub Actions run 32944386076 job 98101881235 completed success on that exact head with 4967 passed, 30 skipped, 0 failed and LEDGER_APPEND_ONLY_OK",
+        "live PR readback showed OPEN, MERGEABLE, CLEAN and required test SUCCESS on exact acccb8745b6d9d7e2d830a118dee073066fa7392",
+        "the PR diff remained limited to continuity, packaging plan, append-only ledger and the installer-branding regression",
+        "independent dual review identified that a static pre-merge next action becomes stale after every push; the replacement live gate always selects the first unmet commit, push, exact-head check or merge-approval condition"
+      ],
+      "summary": "PR 50's refreshed exact head passed the protected hosted gate; a durable conditional continuity gate is prepared so future head changes fail closed without another stale-state loop.",
+      "limitations": [
+        "The 30 skipped tests are not PASS and this hosted result does not provide native Windows, real Inno Setup, build, installation, DPI, accessibility or executable acceptance evidence.",
+        "This uncommitted gate refresh will create another PR head; run 32944386076 remains valid only for acccb8745b6d9d7e2d830a118dee073066fa7392 and cannot authorize that future head.",
+        "No merge, installer or product code change, build, installation, signing, tag or release occurred."
+      ],
+      "next_action": "Apply only the first unmet durable gate: obtain separate commit approval for this record, then separate push approval, then require required-test SUCCESS on the live unchanged exact head before requesting merge approval."
     }
   ]
 }

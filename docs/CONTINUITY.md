@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `e262c0c50925d8c0d90cc700d5f53f36edda35ca`
+- Kayıt hazırlanırken doğrulanan HEAD: `acccb8745b6d9d7e2d830a118dee073066fa7392`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-010`
+- Son kanıt: `EV-20260826-011`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -70,6 +70,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `32937990279`, **4967 passed / 30 skipped / 0 failed** ve
   `LEDGER_APPEND_ONLY_OK` verdi (`EV-20260826-010`). Bu continuity yenilemesi
   yeni head oluşturacağından aynı eski run merge yetkisi vermez.
+- Continuity yenilemesinin exact `acccb87` head'indeki yeni zorunlu run
+  `32944386076`, **4967 passed / 30 skipped / 0 failed** ve
+  `LEDGER_APPEND_ONLY_OK` verdi (`EV-20260826-011`). PR OPEN/MERGEABLE/CLEAN ve
+  required `test=SUCCESS` okundu; aşağıdaki canlı kapı yenilemesi yeni head
+  oluşturacağından bu run da yalnız `acccb87` için geçerlidir.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -96,15 +101,22 @@ veya eksik marker PASS değildir.
 
 ## Sıradaki tek adım
 
-`EV-20260826-010` continuity kayıt commit'ini mevcut PR #50 dalına push etmek
-için kullanıcıdan ayrıca açık onay al. Bu onaydan önce push, merge, installer
+PR #50 için aşağıdaki **ilk karşılanmayan kapıyı** uygula: çalışma ağacında bu
+continuity/ledger yenilemesi varsa önce commit için ayrıca açık onay al; yerel
+HEAD uzak PR head'inden ilerideyse push için ayrıca açık onay al. Ardından
+GitHub'daki canlı `headRefOid` ile required `test` check'inin bağlı olduğu
+commit'i yeniden oku. PR OPEN, draft değil, base exact `master`, MERGEABLE ve
+`mergeStateStatus=CLEAN`; required check aynı değişmemiş exact head'de SUCCESS
+ise kullanıcıdan ayrıca merge onayı al. Bunlardan biri karşılanmıyorsa merge
+onayı isteme; yeni durumu veya run'ı bekle ve eski run'ı kullanma. Installer
 kodu, build veya fiziksel kurulum yapma.
 
 ## Sonraki sıra
 
-1. Kayıt commit'ini mevcut PR dalına push etmek için ayrıca açık onay al.
-2. PR'ın yeni exact head'inde zorunlu hosted `test` PASS sonucunu doğrula;
-   ancak bundan sonra merge için ayrıca açık onay al.
+1. Canlı kapı merge onayına ulaştığında yalnız iki ebeveynli merge commit
+   yöntemini kullan; squash/rebase yapma.
+2. Merge sonrasında exact merge commit, iki parent, hosted run ve master `0/0`
+   durumunu yeni append-only kayıtla bağla.
 3. Kayıt zinciri protected master'a alındıktan sonra C yönünün ekran
    metinlerini, klavye odak sırasını ve ekran akışını kesinleştir; uygulama
    değişikliği için ayrıca açık onay al.
