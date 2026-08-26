@@ -6632,6 +6632,83 @@
         "No version bump, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Commit the exact canonical contract, regression hardening and EV064 continuity package; then run one full deterministic pre-build gate before requesting the clean unsigned v0.39 validation build."
+    },
+    {
+      "id": "EV-20260826-065",
+      "recorded_at_utc": "2026-08-26T18:56:12Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "baseline_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "evidence_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch; git log -1 --oneline --decorate; git show --name-status --format=fuller HEAD; git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q",
+        "python -m compileall -q app packaging tests",
+        "git diff --check; git status --short --branch"
+      ],
+      "subject": "Exact committed-head deterministic pre-build gate",
+      "evidence": [
+        "EV064 canonical and regression package was committed as exact 89e23959d9ec34305043f4b27ff8896eddde2d81 with parent 83a0fef18a12356fdfb68f3b02c292165effbc52 and only the expected five files",
+        "the branch was clean and twenty-five commits ahead and zero behind origin/master",
+        "the fail-fast exact-head package completed with 5023 passed, 19 skipped and exit zero, followed by quiet compileall, git diff check and final clean status in the same exit-zero command chain",
+        "independent positive and adversarial reviews reported bounded deterministic pre-build PASS with no P0 or P1"
+      ],
+      "summary": "The exact committed head passed the complete local deterministic pre-build gate.",
+      "limitations": [
+        "The nineteen skipped scenarios are not PASS and the local package is not hosted CI.",
+        "This result does not prove Inno compilation, an artifact, installation, native launch, visual acceptance or release."
+      ],
+      "next_action": "Run one clean unsigned v0.39 validation build from exact 89e23959d9ec34305043f4b27ff8896eddde2d81 and stop without automatic retry on any failed build gate."
+    },
+    {
+      "id": "EV-20260826-066",
+      "recorded_at_utc": "2026-08-26T18:56:12Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "baseline_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "artifact_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "cmd.exe /d /c set MLC_HOSTED_UNSIGNED_BUILD=1&& call packaging\\build_unsigned_main.bat",
+        "Get-FileHash -Algorithm SHA256 and Get-AuthenticodeSignature for the exact setup and packaged Player",
+        "direct-root and recursive forbidden ICU, API-set and UCRT inventory",
+        "Analysis-00.toc and COLLECT-00.toc required-payload and foreign-provenance inspection",
+        "required PyQt6 pyd and Qt6 DLL existence, size and SHA-256 readback",
+        "Player, setup, Inno and PyInstaller process-leak readback",
+        "git status --short --branch; git rev-parse HEAD; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb",
+        "packaged-MLC-Player.exe": "9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60"
+      },
+      "subject": "Clean unsigned installer-cleanup validation build",
+      "evidence": [
+        "the official unsigned-main chain completed all six steps with exit zero and DONE from exact 89e23959d9ec34305043f4b27ff8896eddde2d81",
+        "the new unsigned setup is 55930338 bytes with SHA-256 90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb and Authenticode NotSigned; no detached signature exists",
+        "the packaged Player is 3133110 bytes with SHA-256 9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60",
+        "dist and build TOCs contained zero forbidden direct-root or recursive ICU, API-set or UCRT runtime and zero foreign Codex, Poppler or libheif provenance hit",
+        "all six required PyQt6 and Qt6 payload files were present and matched their recorded PyQt6 source hashes; mpv-2.dll retained the expected source-built identity",
+        "artifact timestamps formed one post-commit build chain, the previous DBECC062 setup was replaced, no relevant process leaked and the branch remained clean",
+        "independent positive and adversarial artifact reviews reported bounded source_build PASS with no P0 or P1"
+      ],
+      "summary": "The exact cleanup source compiled into a new unsigned v0.39 validation artifact with clean runtime provenance.",
+      "limitations": [
+        "The compiled installer was not semantically decompiled; InstallDelete behavior remains unproven until exact physical reinstall and injected-abort acceptance.",
+        "The packaged Player hash differs from the previous direct-dist native artifact, so EV061 launch evidence cannot be transferred.",
+        "No launch, installation, installed cleanup, visual acceptance, push, PR, merge, version bump, tag or release occurred."
+      ],
+      "next_action": "Commit EV065-EV066 and continuity; then perform one path-exact launch of packaged Player 9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60 without Computer Use before physical reinstall."
     }
   ]
 }

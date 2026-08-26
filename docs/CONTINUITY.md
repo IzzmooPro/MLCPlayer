@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `83a0fef18a12356fdfb68f3b02c292165effbc52`
+- Kayıt hazırlanırken doğrulanan HEAD: `89e23959d9ec34305043f4b27ff8896eddde2d81`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 24 commit ileride, 0 geride)
-- Son kanıt: `EV-20260826-064`
+- Dal: `codex/installer-experience` (`origin/master`dan 25 commit ileride, 0 geride)
+- Son kanıt: `EV-20260826-066`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -127,7 +127,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Restore build'inde Welcome döndü, ilk Summary reddedildi (`-041`, `-042`); `ReadyMemo` düzeltmesi
   `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
 - Dist PASS'ti; reinstall yeni EXE'yi kopyaladı ama eski 47 root DLL'yi bırakarak FAILED oldu.
-  Cleanup/Summary fix'i **100 passed**, exact `83a0fef` readback'i **115 passed** (`-059`–`-064`).
+  Fix `83a0fef`; full gate **5023/19**; `89e2395` build'i setup `90e8ccd1...0698ffb`, Player `9a5fc567...a037d60` verdi (`-059`–`-066`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -161,12 +161,12 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-EV064 canonical sözleşme/test/continuity paketini commit et; sonra exact committed head'de tam pre-build kapısını çalıştır.
+EV065–EV066 kayıt paketini commit et; sonra yeni Player için Computer Use olmadan tek path-exact dist launch yap.
 
 ## Sonraki sıra
 
-1. Tam pytest, compileall ve diff kapısı geçerse exact committed head'den tek
-   clean unsigned v0.39 validation build için ayrı onay al.
+1. Dist launch geçerse mevcut 47-DLL bozuk kurulumu elle temizlemeden exact
+   setup ile kullanıcı kontrollü reinstall ve ekran görüntüsü kabuline geç.
 2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
