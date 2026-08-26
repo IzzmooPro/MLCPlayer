@@ -58,6 +58,55 @@ def test_the_addon_refuses_to_run_without_the_player():
     assert "english.PlayerRequired=" in iss
 
 
+def test_turkish_ready_copy_names_the_visible_install_button():
+    """Türkçe Ready talimatı görünmeyen ``Sonraki`` düğmesini söylememeli.
+
+    Exact Inno dil kaynağında düğme ``Kur`` iken yerleşik ReadyLabel2a/2b
+    hâlâ ``Sonraki`` diyordu. Yalnız ölçülen Türkçe kusuru ürün kaynağında
+    override edilir; diğer yedi dilin native state ve yerleşimi korunur.
+    """
+    iss = ADDON_ISS.read_text(encoding="utf-8-sig")
+    match = re.search(
+        r"^\[Messages\]\s*$([\s\S]*?)(?=^\[|\Z)",
+        iss,
+        re.MULTILINE,
+    )
+
+    assert match, "add-on [Messages] bölümü yok"
+    assert len(re.findall(
+        r"^\[Messages\]\s*$", iss, re.MULTILINE | re.IGNORECASE
+    )) == 1, "add-on birden fazla [Messages] bölümü taşıyor"
+    active = [
+        line.strip() for line in match.group(1).splitlines()
+        if line.strip() and not line.lstrip().startswith(";")
+    ]
+    values = {}
+    for line in active:
+        key, separator, value = line.partition("=")
+        assert separator, f"geçersiz [Messages] satırı: {line}"
+        assert key not in values, f"yinelenen mesaj anahtarı: {key}"
+        values[key] = value
+
+    assert set(values) == {
+        "turkish.ReadyLabel2a",
+        "turkish.ReadyLabel2b",
+    }
+    for key in values:
+        assert iss.count(f"{key}=") == 1, f"yinelenen mesaj anahtarı: {key}"
+    assert values["turkish.ReadyLabel2a"] == (
+        "Kuruluma başlamak için Kur'u seçin. Ayarları gözden geçirmek veya "
+        "değiştirmek için Önceki'yi seçin."
+    )
+    assert values["turkish.ReadyLabel2b"] == (
+        "Kuruluma başlamak için Kur'u seçin."
+    )
+    assert re.search(
+        r"NextButton\s*\.\s*Caption\s*:=",
+        iss,
+        re.IGNORECASE,
+    ) is None
+
+
 def test_the_addon_validates_the_registered_player_directory_fail_closed():
     """A stale uninstall key must never redirect add-on writes elsewhere."""
     iss = ADDON_ISS.read_text(encoding="utf-8-sig")

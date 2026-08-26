@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `3dc9dde8b939a1bf8b7e766fbac09da375d615d6`
+- Kayıt hazırlanırken doğrulanan HEAD: `ba0a2a6885a04f57461e5ef51e29cc61267cb825`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/subtitle-apply-reentry-test` (`origin/master` ile 0/0 committed taban; test/docs değişikliği kirli)
-- Son kanıt: `EV-20260826-078`
+- Dal: `codex/addon-ready-copy` (exact `ba0a2a6` tabanı; add-on ISS, regresyon ve iki kayıt belgesi kirli)
+- Son kanıt: `EV-20260826-081`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -63,34 +63,29 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   Git'e alınmaz ve seçim gerçek Inno Setup davranışı sayılmaz.
 - v0.40/Inno paketi PR #53 ile `3dc9dde` master'a alındı; exact-master run tek flaky
   reentry testinde durdu, timer kök nedeni test-only kapatıldı (`EV-20260826-077/078`).
-- `codex/installer-ux-c-selection` görev dalı exact `ce8211b` head'iyle origin'e
-  push edildi ve yerel/uzak görev dalı `0/0` eş okundu (`EV-20260826-009`). PR
-  #50 daha sonra exact `e262c0c` head'iyle açıldı. Zorunlu hosted run
-  `32937990279`, **4967 passed / 30 skipped / 0 failed** ve
-  `LEDGER_APPEND_ONLY_OK` verdi (`EV-20260826-010`). Bu continuity yenilemesi
-  yeni head oluşturacağından aynı eski run merge yetkisi vermez.
-- Continuity yenilemesinin exact `acccb87` head'indeki yeni zorunlu run
-  `32944386076`, **4967 passed / 30 skipped / 0 failed** ve
-  `LEDGER_APPEND_ONLY_OK` verdi (`EV-20260826-011`). PR OPEN/MERGEABLE/CLEAN ve
-  required `test=SUCCESS` okundu; aşağıdaki canlı kapı yenilemesi yeni head
-  oluşturacağından bu run da yalnız `acccb87` için geçerlidir.
-- Kalıcı canlı kapının exact `4ad4999` head'indeki zorunlu run `32945821716`,
-  **4967 passed / 30 skipped / 0 failed** ve `LEDGER_APPEND_ONLY_OK` verdi. Ayrı
-  onay sonrasında PR #50 iki ebeveynli exact `33680f4` merge commit'iyle
-  protected master'a alındı; parent'lar `b7e7cdd` ve `4ad4999`, yerel/uzak
-  master `0/0` ve görev dalı korundu (`EV-20260826-012`).
-- Post-merge kayıt hazırlanırken continuity testi önce **9 passed / 1 failed**
-  verdi: uzayan canlı adım, oturum hook'unun 12 satırlık sınırında kesiliyordu
-  (`EV-20260826-013`). Terminal kuralı ayrı bölüme taşındı; hook veya limit
-  değiştirilmeden aynı dar paket **10 passed** oldu (`EV-20260826-014`).
-- PR #51 kayıt paketi protected master'a iki ebeveynli exact `db96ac5` merge
-  commit'iyle alındı; parent'lar `33680f4` ve `e9be732`, exact hosted run
-  `32949577656` **249 passed / 0 failed** ve `LEDGER_APPEND_ONLY_OK` verdi,
-  yerel/uzak master `0/0` okundu. Bu provenance ilk gerçek C ekran-sözleşmesi
-  kaydında bağlandı (`EV-20260826-017`).
-- C ekran-sözleşmesi PR #52 ile exact `f0a91ad` merge commit'ine alındı
-  (parent `db96ac5` + `12ac711`); hosted run/job `32953472410/98129903318`
-  **4969 passed / 30 skipped**, ledger temiz ve master `0/0` (`EV-20260826-028`).
+- Test-only reentry düzeltmesi PR #54 ile exact `98c9511` protected master'a
+  alındı. PR run'ı ve yeni exact-master dispatch sırasıyla **5025 passed / 30
+  skipped / 0 failed** verdi; eski başarısız run retry edilmedi.
+- Exact `98c9511` kaynak build'inin 55,934,004 baytlık ana v0.40 setup'ı önce
+  kurulu v0.39'u kullanıcı kontrollü interaktif akışta v0.40'a yükseltti;
+  kurulu Player build EXE'siyle exact eş, 91 dist dosyasında eksik/uyuşmazlık
+  sıfır ve normal kullanıcı kapanışı sonrasında süreç sızıntısı sıfırdı.
+- Ayrı aynı-sürüm maintenance senaryosunda kurulu Player açık bırakıldı;
+  Restart Manager uygulamayı listeledi ve kullanıcı close-applications yolunu
+  seçti. Eski PID kopya başlamadan kapandı, kurulum logu başarı ve restart yok
+  sonucu verdi, 91 dist dosyası yine exact eş kaldı ve üç Finish eylemi kapalıyken
+  yeni Player/Settings/tarayıcı süreci açılmadı (`EV-20260826-079`). Setup launcher
+  exit code'u tutulmadığından ve aktif ayar baseline'ı Player açılmadan önce
+  alındığından genel exit-code veya kullanıcı-ayar-koruma PASS'i yazılmadı.
+- Exact v0.40 add-on maintenance, Ready ekranı görünmeyen `Sonraki` eylemine
+  yönlendirirken gerçek düğme `Kur` olduğu için kopya başlamadan iptal edildi;
+  103 dosya, ayarlar, kayıtlar ve süreçler değişmeden kaldı (`EV-20260826-080`).
+  Regression-first düzeltme yalnız Inno'nun iki hatalı Türkçe Ready mesajını
+  override eder; hedef/aile **1/14 passed**, ilgili aile **33 passed**, gerçek
+  main+add-on compile preflight PASS ve çift-süzgeç temizdir (`EV-20260826-081`).
+- C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
+  merge edildi; exact commit/run/parent ayrıntıları append-only
+  `EV-20260826-009`–`017` ve `EV-20260826-028` kayıtlarındadır.
 - Beş ekranlı C sözleşmesi tek kanonik sahibi `PACKAGING_PLAN.md` içinde
   hazırlandı. Güncelleme kutusu mevcut ürün ayarına bağlı olmadığı için
   çıkarıldı; Internet Video yalnız ayrı paket bilgisi olarak kaldı. İki private
@@ -106,17 +101,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Kullanıcı gösterilen iki private C akış görselini hedef kompozisyon ve metin
   olarak açıkça kabul etti (`EV-20260826-022`). Bu, compiled Inno pikseli,
   handler, build, kurulum veya Windows action/readback kabulü değildir.
-- Ayrı commit onayıyla C ekran-sözleşmesi paketi exact `9467db3` commit'ine
-  bağlandı; parent `db96ac5`, kapsam dört beklenen belge/test dosyası ve dal
-  temiz readback'te `origin/master`dan 1 commit ilerideydi (`EV-20260826-023`).
-- Commit-readback kaydı exact `531127b` commit'iyle bağlandı ve ayrı push
-  onayıyla yeni `origin/codex/installer-c-screen-contract` dalına gönderildi;
-  yerel/uzak görev dalı exact `531127b`, `0/0` ve temiz okundu. PR açılmadı
-  (`EV-20260826-024`).
-- Push/readback kaydı exact `f794670` commit'iyle bağlandı ve ayrı onayla aynı
-  uzak görev dalına gönderildi; yerel/uzak dal exact `f794670`, `0/0` ve temiz
-  okundu (`EV-20260826-025`). Aşağıdaki dayanıklı kapı ilk karşılanmayan
-  durumu seçer; sırf her push'u yeniden kaydetmek için meta-kayıt döngüsü kurmaz.
+- C ekran-sözleşmesinin commit/push provenance'ı `EV-20260826-023`–`025`
+  kayıtlarında korunur; continuity meta-kayıt döngüsü başlatmaz.
 - Installer C kaynağı `6fe453f`, kayıt commit'i `5c04c2d`dir
   (`EV-20260826-028`, `-029`). İki syntax hatası regression-first kapandı (`-030`);
   build exit 0, 56,344,277 byte, `c65a5fbc...3c3bb39`, NotSigned (`-031`). Pre-install
@@ -161,18 +147,20 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV077/078 test-only kayıt paketini commit et; yeni görev dalı/PR exact hosted testini çalıştır, eski failed run'u retry etme.
+Exact dört dosyalık EV080/EV081 paketini commit et; ardından görev dalı push,
+protected-master PR/hosted test ve merge kapılarını sırayla tamamlamadan yeni
+add-on artifact build veya fiziksel retry yapma.
 
 ## Sonraki sıra
 
-1. Dist launch geçerse mevcut 47-DLL bozuk kurulumu elle temizlemeden exact
-   setup ile kullanıcı kontrollü reinstall ve ekran görüntüsü kabuline geç.
-2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
+1. Exact merged commit'ten yeni add-on artifact üretip ad/boyut/SHA ve imza
+   doğrulamasını kaynak build katmanında kaydet.
+2. Yeni exact artifact üzerinde Türkçe Ready, Geri→İleri, bakım kurulumu,
+   sahiplik ve süreç readback'ini kullanıcı kontrollü fiziksel kabulde ölç.
+3. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
-3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
+4. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
-4. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
-   uygulama, build ve kurulum için ayrı onay al.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 
