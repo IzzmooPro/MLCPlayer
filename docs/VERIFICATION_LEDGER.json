@@ -5672,6 +5672,109 @@
         "No installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Under the user's bounded continuous authorization, commit this readback record, rebuild exact committed source with Inno 7.1.0, then inspect only pre-install pages without clicking Install."
+    },
+    {
+      "id": "EV-20260826-041",
+      "recorded_at_utc": "2026-08-26T13:02:00Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "3270239aeb9560c0d30f73c33fd2dbabfc7459e6",
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "fce72dafdbb17cca5be157161fe906f39e408060fd72f609ff8fe46c81df601"
+      },
+      "commands": [
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','Setup','ISCC','python','pythonw','pyinstaller') }"
+      ],
+      "subject": "Exact previous-screen source build",
+      "evidence": [
+        "the bounded rebuild started from exact committed source 3270239aeb9560c0d30f73c33fd2dbabfc7459e6 and exact Inno Setup 7.1.0",
+        "the unsigned build completed with exit 0 and produced a 56339111-byte setup with SHA-256 fce72dafdbb17cca5be157161fe906f39e408060fd72f609ff8fe46c81df601",
+        "Authenticode readback was NotSigned as intended for the test-only artifact and the build completion check found no leaked setup, Player, compiler or Python process"
+      ],
+      "summary": "The committed previous-screen source produced an exact internally verified unsigned setup artifact.",
+      "limitations": [
+        "This is source-build evidence only and does not prove installation, actions, full visual acceptance or release readiness.",
+        "The former c65 artifact bytes are unavailable; this result does not claim byte identity with that historical setup.",
+        "No installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Launch only the exact pre-install artifact under the user's bounded authorization, inspect its pages and do not click Install."
+    },
+    {
+      "id": "EV-20260826-042",
+      "recorded_at_utc": "2026-08-26T13:08:00Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "3270239aeb9560c0d30f73c33fd2dbabfc7459e6",
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "fce72dafdbb17cca5be157161fe906f39e408060fd72f609ff8fe46c81df601",
+        "summary-page-user-capture.png": "f6a0e46fbc7d37c0913b39ac5e96cd750674ce379105f6b8cc519f537914a625"
+      },
+      "commands": [
+        "user-approved elevated pre-install setup launch",
+        "manual Next navigation without clicking Install",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.39.exe",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.39.exe"
+      ],
+      "subject": "User-rejected native Summary text surface",
+      "evidence": [
+        "the exact restored artifact opened the previous native Welcome shell with the original dark left artwork, orange baseline, white content area and native navigation controls",
+        "on the Summary page the native memo appeared as a large gray bordered surface with dense ungrouped text and both horizontal and vertical scroll bars",
+        "the user explicitly rejected the Summary text area as visually poor; no Install action was invoked"
+      ],
+      "summary": "The previous installer shell was restored, but its native Summary text presentation failed user visual acceptance.",
+      "limitations": [
+        "The failure is limited to the observed Turkish Summary page on this exact unsigned artifact and does not reject the restored Welcome shell.",
+        "Installation, finish actions, other languages, DPI, High Contrast and screen-reader behavior were not exercised.",
+        "The elevated setup process could not be driven by automation; navigation was manual and Install remained excluded."
+      ],
+      "next_action": "Improve only the native ReadyMemo presentation regression-first while preserving the previous shell and live Inno state; do not rebuild automatically."
+    },
+    {
+      "id": "EV-20260826-043",
+      "recorded_at_utc": "2026-08-26T13:13:07Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "3270239aeb9560c0d30f73c33fd2dbabfc7459e6",
+      "baseline_commit": "3270239aeb9560c0d30f73c33fd2dbabfc7459e6",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k summary_memo_is_clean_wrapped_and_grouped",
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k 'summary_memo_is_clean_wrapped_and_grouped or summary_and_progress_use_live_engine_state or pascal_continuations'",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-043'; print('JSON_LAST_OK',len(d['entries']))\"",
+        "python -c \"import json,subprocess; b=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); c=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); assert c['entries'][:len(b['entries'])] == b['entries']; assert len(c['entries']) == len(b['entries']) + 3; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json,pathlib,subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations','.codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands',None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','packaging/MLCPlayer.iss','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check",
+        "independent positive-evidence source mapping and adversarial UX/accessibility review"
+      ],
+      "subject": "Native Summary text presentation refinement",
+      "evidence": [
+        "the new behavior regression first failed against the unchanged baseline because ReadyMemo had no explicit system color, wrapping or scroll contract",
+        "the minimal source change reuses the built-in read-only ReadyMemo, preserves UpdateReadyMemo as the sole live-state content owner and adds clWindow, word-wrap, vertical-only overflow and native resize anchors",
+        "plain-text blank lines separate location, Windows choices, online information, retained user data and the final action without introducing fake controls, custom pages, cached state or product behavior",
+        "the focused red-to-green group passed 3 tests and the installer branding, language, process-safety and version family passed 44 tests",
+        "independent positive and adversarial reviews agreed on the native-only architecture; the adversarial accessibility boundary kept the native border, read-only selection, keyboard access and system colors"
+      ],
+      "summary": "The rejected Summary memo now has a narrow native source fix for readability without changing the previous installer shell or live choices.",
+      "limitations": [
+        "This is uncommitted deterministic source evidence; no compiler run or updated setup pixels exist yet.",
+        "Actual wrapping, vertical overflow, Turkish and long localized text, DPI, High Contrast, keyboard and screen-reader behavior require a separately approved exact build and native visual run.",
+        "No installation, commit, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this exact five-file package; after readback, request separate build and pre-install visual retry approval without clicking Install."
     }
   ]
 }

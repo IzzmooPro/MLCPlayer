@@ -243,7 +243,9 @@ def test_installer_c_summary_and_progress_use_live_engine_state():
     text = _iss()
     code = text.split("[Code]", 1)[1]
 
-    ready = code.split("function UpdateReadyMemo", 1)[1]
+    ready = code.split("function UpdateReadyMemo", 1)[1].split(
+        "procedure CurPageChanged", 1
+    )[0]
     assert "WizardDirValue" in ready
     assert "WizardIsTaskSelected('desktopicon')" in ready
     assert "CustomMessage('CSummaryLocation')" in ready
@@ -260,6 +262,58 @@ def test_installer_c_summary_and_progress_use_live_engine_state():
     assert re.search(r'^Name: "\{group\}.*BeforeInstall: SetInstallPhase\(\'integrating\'\)', text, re.MULTILINE)
     assert "InstallPhaseLabel.Caption := Caption" in code
     assert "WizardForm.StatusLabel.Caption := Caption" not in code
+
+
+def test_installer_c_summary_memo_is_clean_wrapped_and_grouped():
+    """Ready özeti yatay kaydırma üretmez ve okunabilir gruplara ayrılır."""
+    text = _iss()
+    code = text.split("[Code]", 1)[1]
+    init = code.split("procedure InitializeWizard", 1)[1].split(
+        "procedure UpdateWelcomePage", 1
+    )[0]
+    ready = code.split("function UpdateReadyMemo", 1)[1].split(
+        "procedure CurPageChanged", 1
+    )[0]
+
+    assert "WizardForm.ReadyMemo.Color := clWindow" in init
+    assert "WizardForm.ReadyMemo.ReadOnly := True" in init
+    assert "WizardForm.ReadyMemo.WordWrap := True" in init
+    assert "WizardForm.ReadyMemo.ScrollBars := ssVertical" in init
+    assert (
+        "WizardForm.ReadyMemo.Anchors := [akLeft, akTop, akRight, akBottom]"
+        in init
+    )
+    assert "WizardForm.ReadyMemo.BorderStyle := bsNone" not in init
+    assert "WizardForm.ReadyMemo.ScrollBars := ssBoth" not in init
+    assert "WizardForm.ReadyMemo.ScrollBars := ssHorizontal" not in init
+    assert "WizardForm.ReadyMemo.Text :=" not in code
+    assert "WizardForm.ReadyMemo.Lines" not in code
+    assert "WizardForm.ReadyMemo.Parent" not in code
+    assert "WizardForm.ReadyMemo.Enabled := False" not in code
+    assert "WizardForm.ReadyMemo.TabStop := False" not in code
+    assert "WizardForm.ReadyMemo.Visible := False" not in code
+    assert "TNewMemo.Create" not in code
+    assert "TRichEditViewer" not in code
+
+    ordered_keys = (
+        "CSummaryLocation",
+        "CSummaryDesktopYes",
+        "CSummaryDesktopNo",
+        "CSummaryOpenWith",
+        "CSummaryUpdate",
+        "CSummaryAddon",
+        "CSummaryUserData",
+        "CSummaryAction",
+    )
+    positions = [ready.index(key) for key in ordered_keys]
+    assert positions == sorted(positions)
+    for separator in (
+        "NewLine + NewLine;",
+        "CustomMessage('CSummaryOpenWith') + NewLine + NewLine +",
+        "CustomMessage('CSummaryAddon') + NewLine + NewLine +",
+        "CustomMessage('CSummaryUserData') + NewLine + NewLine +",
+    ):
+        assert separator in ready
 
 
 def test_pascal_continuations_cannot_look_like_inno_syntax():

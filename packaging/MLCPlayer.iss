@@ -646,6 +646,12 @@ end;
 
 procedure InitializeWizard();
 begin
+  WizardForm.ReadyMemo.Color := clWindow;
+  WizardForm.ReadyMemo.ReadOnly := True;
+  WizardForm.ReadyMemo.WordWrap := True;
+  WizardForm.ReadyMemo.ScrollBars := ssVertical;
+  WizardForm.ReadyMemo.Anchors := [akLeft, akTop, akRight, akBottom];
+
   WizardForm.TasksList.Parent := WizardForm.SelectDirPage;
   WizardForm.TasksList.Left := 0;
   WizardForm.TasksList.Top := WizardForm.DirEdit.Top +
@@ -719,14 +725,14 @@ function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo,
   MemoTasksInfo: String): String;
 begin
   Result := FmtMessage(CustomMessage('CSummaryLocation'), [WizardDirValue]) +
-    NewLine;
+    NewLine + NewLine;
   if WizardIsTaskSelected('desktopicon') then
     Result := Result + CustomMessage('CSummaryDesktopYes') + NewLine
   else
     Result := Result + CustomMessage('CSummaryDesktopNo') + NewLine;
-  Result := Result + CustomMessage('CSummaryOpenWith') + NewLine +
+  Result := Result + CustomMessage('CSummaryOpenWith') + NewLine + NewLine +
     CustomMessage('CSummaryUpdate') + NewLine +
-    CustomMessage('CSummaryAddon') + NewLine +
+    CustomMessage('CSummaryAddon') + NewLine + NewLine +
     CustomMessage('CSummaryUserData') + NewLine + NewLine +
     CustomMessage('CSummaryAction');
 end;

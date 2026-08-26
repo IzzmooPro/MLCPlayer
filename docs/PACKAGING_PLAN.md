@@ -183,6 +183,9 @@ davranışın geri geldiğine ilişkin piksel/yerleşim PASS verilmez.
   (varsayılan uygulama değişmez)”; “Başlangıç güncelleme denetimi: GitHub
   release bilgisi, sessiz”; “Internet Video eklentisi: Dahil değil”; “Kullanıcı ayarları,
   geçmiş ve önbellek: Korunacak”. Son satır “Kur'a basarak başlayın.”dır.
+  Yerleşik salt-okunur özet alanı sistem pencere rengini kullanır; metin
+  mantıksal boşluklarla gruplanır, satır sonunda kaydırılır ve yatay kaydırma
+  göstermez. Uzun yerelleştirme veya hedef yolu yalnız dikey taşabilir.
 - **İlk odak:** `Kur`.
 - **Tab sırası:** `Geri` → `Kur` → `İptal`; ilk girişte `Kur` odaktadır.
 - **Geçiş:** `Kur` → `C-PROGRESS`; `Geri` → `C-PREFERENCES` ve değişiklikten

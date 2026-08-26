@@ -6,12 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `d1dc6583bd77b8cf9b2d48ac3f0803f8aa8c0f93`
-- Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
-  HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
-  önceden tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 8 commit ileride)
-- Son kanıt: `EV-20260826-040`
+- Kayıt hazırlanırken doğrulanan HEAD: `3270239aeb9560c0d30f73c33fd2dbabfc7459e6`
+- Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
+- Dal: `codex/installer-experience` (`origin/master`dan 9 commit ileride)
+- Son kanıt: `EV-20260826-043`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -126,6 +124,9 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `30ce2986...f9a69c` oldu (`-033`–`-038`). Kullanıcı v2'yi görmeden iptal etti;
   önceki ekran beş compiler fix'iyle exact `d1dc658`e bağlandı, **58 passed**
   (`-039`, `-040`). Eski `c65...` EXE yoktur; v2 EXE restore kaynağını temsil etmez.
+- Restore kaynağının exact `3270239` Inno 7.1.0 build'i exit 0; unsigned setup `56339111`
+  byte/`fce72d...df601` (`-041`). Welcome geri geldi, ancak gri, sıkışık ve yatay kaydırmalı
+  Summary reddedildi (`-042`); native `ReadyMemo` düzeltmesi çift-süzgeç bloklayıcısızdır (`-043`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -159,8 +160,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Readback kaydını commit et; sonra exact build ve yalnız pre-install açılışına geç.
-`Kur`, kurulum, push, PR ve merge yetkili değildir.
+Summary düzeltmesini gösterip ayrı commit onayı al; ayrı build/görsel retry onayı olmadan artifact/setup çalıştırma; `Kur`, kurulum, push, PR ve merge yetkili değildir.
 
 ## Sonraki sıra
 
