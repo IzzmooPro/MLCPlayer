@@ -66,7 +66,7 @@ class InstantClient:
 class DelayedTrackMPV:
     """`sub_add()` track'i ANINDA eklemez; gerçek MPV gibi gecikmeli ekler."""
 
-    def __init__(self, delay_ms=80, never=False):
+    def __init__(self, delay_ms=80, never=False, on_sub_add=None):
         # Yanlış dahili track önceden listede: doğrulanmamış seçim yakalanır.
         self.track_list = [{"type": "sub", "id": 1, "selected": False}]
         self.removed = []
@@ -75,10 +75,13 @@ class DelayedTrackMPV:
         self.sub_visibility = False
         self.delay_ms = delay_ms
         self.never = never
+        self.on_sub_add = on_sub_add
         self._next = 2
 
     def sub_add(self, path, *args):
         self.added.append(path)
+        if callable(self.on_sub_add):
+            self.on_sub_add()
         if self.never:
             return  # track HİÇ gelmez: tam polling bütçesi harcanmalı.
         track = {"type": "sub", "id": self._next,
@@ -264,17 +267,22 @@ def test_second_download_cannot_start_during_apply(bench):
     client = InstantClient()
     mpv = DelayedTrackMPV(delay_ms=200)
     app, dialog, controller, mpv, tmp = bench(client=client, mpv=mpv)
-    attempts = {"result": None}
+    attempts = []
 
     def reenter():
-        if controller.is_applying():
-            attempts["result"] = controller.download_and_apply()
+        attempts.append((controller.is_applying(),
+                         controller.download_and_apply()))
 
-    QTimer.singleShot(40, Qt.TimerType.PreciseTimer, reenter)
+    # `sub_add` yalnız `_on_saved` `_applying=True` yaptıktan sonra çağrılır.
+    # Callback'i oradan planlamak, CI yüküne bağlı sabit 40 ms yarışını kaldırır;
+    # gerçek nested Qt event loop yine callback'i çalıştırmak zorundadır.
+    mpv.on_sub_add = lambda: QTimer.singleShot(
+        0, Qt.TimerType.PreciseTimer, reenter)
     controller.download_and_apply()
     assert pump_until(app, lambda: settled(controller))
 
-    assert attempts["result"] is False, "apply sirasinda ikinci indirme basladi"
+    assert attempts == [(True, False)], (
+        f"apply reentry guard beklenen anda calismadi: {attempts}")
     assert len(client.download_calls) == 1
 
 
