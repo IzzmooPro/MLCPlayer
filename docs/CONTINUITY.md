@@ -9,7 +9,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Kayıt hazırlanırken doğrulanan HEAD: `89e23959d9ec34305043f4b27ff8896eddde2d81`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
 - Dal: `codex/installer-experience` (`origin/master`dan 25 commit ileride, 0 geride)
-- Son kanıt: `EV-20260826-066`
+- Son kanıt: `EV-20260826-067`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -128,6 +128,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
 - Dist PASS'ti; reinstall yeni EXE'yi kopyaladı ama eski 47 root DLL'yi bırakarak FAILED oldu.
   Fix `83a0fef`; full gate **5023/19**; `89e2395` build'i setup `90e8ccd1...0698ffb`, Player `9a5fc567...a037d60` verdi (`-059`–`-066`).
+- Yeni Player Computer Use olmadan path-exact açıldı; kullanıcı ekranı doğru buldu ve normal kapanış sonrası süreç/pencere artığı `0`dı (`-067`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -161,7 +162,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-EV065–EV066 kayıt paketini commit et; sonra yeni Player için Computer Use olmadan tek path-exact dist launch yap.
+EV067'yi commit et; sonra mevcut bozuk kurulum ve kullanıcı verisini snapshot edip exact yeni setup ile kullanıcı kontrollü reinstall yap.
 
 ## Sonraki sıra
 

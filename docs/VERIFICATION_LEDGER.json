@@ -6709,6 +6709,45 @@
         "No launch, installation, installed cleanup, visual acceptance, push, PR, merge, version bump, tag or release occurred."
       ],
       "next_action": "Commit EV065-EV066 and continuity; then perform one path-exact launch of packaged Player 9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60 without Computer Use before physical reinstall."
+    },
+    {
+      "id": "EV-20260826-067",
+      "recorded_at_utc": "2026-08-26T19:01:11Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "f67eeebe3a0c5c99bb1505cc9088f53f3aa901f3",
+      "baseline_commit": "f67eeebe3a0c5c99bb1505cc9088f53f3aa901f3",
+      "artifact_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "verify exact packaged Player SHA-256 and all-Player process absence before launch",
+        "Start-Process -FilePath for the exact dist Player target with PassThru exactly once",
+        "verify returned PID 48520 executable path, SHA-256, responding state, window title and handle",
+        "user visual acceptance of the visible MLC Player screen and user-controlled normal close",
+        "post-close exact PID, all-Player process and matching Player or error-window absence readback"
+      ],
+      "private_artifact_digests": {
+        "packaged-MLC-Player.exe": "9a5fc5678f91a335951d6e9d1228e7d124aa17596ecd4b95dc7c7826aa037d60"
+      },
+      "subject": "Exact rebuilt dist Player startup and user visual acceptance without Computer Use",
+      "evidence": [
+        "the path-exact launch returned PID 48520 and its executable path and SHA-256 matched the new packaged Player before UI inference",
+        "the process was responsive with one MLC Player main window and a nonzero window handle",
+        "the user explicitly reported that the visible screen had no problem and closed it normally",
+        "post-close readback found PID 48520 absent, zero MLC Player process and zero matching Player or Unhandled exception window",
+        "Computer Use was not used"
+      ],
+      "summary": "The exact rebuilt dist Player opened correctly by user observation and left no residual process after normal close.",
+      "limitations": [
+        "The process exit code, stderr, final marker and internal shutdown call order were not retained.",
+        "This PASS is limited to startup, visible ready state and process absence for the exact dist artifact; no media playback occurred.",
+        "Direct dist behavior does not prove installer cleanup, installed launch, rollback or release."
+      ],
+      "next_action": "Commit EV067, snapshot the existing broken installed tree and user data, then have the user run the exact 90e8ccd1 setup for controlled reinstall and screenshot acceptance."
     }
   ]
 }
