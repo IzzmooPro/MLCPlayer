@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `f432c73b77c98b5bda8b260c4d9cd85d8154b337`
+- Kayıt hazırlanırken doğrulanan HEAD: `ce8211be185663d1020c7c3aed1c986a26dc296b`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-008`
+- Son kanıt: `EV-20260826-009`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -64,6 +64,9 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   ve seçim kayıt paketi exact `f432c73` commit'iyle bağlandı
   (`EV-20260826-008`). A ve B yalnız karşılaştırma referansıdır. Bitmap'ler
   Git'e alınmaz ve seçim gerçek Inno Setup davranışı sayılmaz.
+- `codex/installer-ux-c-selection` görev dalı exact `ce8211b` head'iyle origin'e
+  push edildi ve yerel/uzak görev dalı `0/0` eş okundu (`EV-20260826-009`). PR
+  henüz oluşturulmadı.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -90,9 +93,9 @@ veya eksik marker PASS değildir.
 
 ## Sıradaki tek adım
 
-`EV-20260826-008` bağlama commit'ini içeren görev dalının push'u için
-kullanıcıdan ayrıca açık onay al. Bu onaydan önce push, PR, installer kodu,
-build veya fiziksel kurulum yapma.
+`EV-20260826-009` kayıt commit'ini mevcut uzak görev dalına push etmek için
+kullanıcıdan ayrıca açık onay al. Bu onaydan önce branch güncellemesi, PR,
+installer kodu, build veya fiziksel kurulum yapma.
 
 ## Sonraki sıra
 
