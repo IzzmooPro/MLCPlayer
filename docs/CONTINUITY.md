@@ -6,29 +6,29 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `6428af94125514876f6e8b15d07ea1d02111dccf`
+- Kayıt hazırlanırken doğrulanan HEAD: `5a94d4e91b47349a83946f80af1ddbd31c633c33`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-004`
+- Son kanıt: `EV-20260826-005`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
 
-- Belge/yönetişim paketi exact `6308d55` commit'indedir. Yerel görev dalı
-  `origin/master`dan iki commit ileridedir ve remote görev dalıyla exact
-  `567328f` üzerinde eşittir. PR #48 açıktır; merge yapılmadı.
+- Belge/yönetişim paketi ve semantik sahiplik düzeltmesi PR #48 üzerinden
+  iki ebeveynli exact `5a94d4e` merge commit'iyle master'a alındı. Yerel ve
+  uzak master temiz, `0/0` ve aynı commit'tedir; görev dalı korundu.
 - PR #48'in exact head'inde ilk zorunlu hosted run `32899094320`, **4965
   passed / 30 skipped / 1 failed** verdi (`EV-20260826-002`). Tek hata
   `PACKAGING_PLAN.md` için stale bütün-belge-tarihsel testiydi; otomatik retry
   yapılmadı.
-- Semantik sahiplik düzeltmesi `EV-20260826-003` ile kanıtlandı: güncel UX,
-  kalıcı paketleme kararları ve tarihsel snapshot ayrımı dar grupta
-  **13 passed** ve bağımsız karşıt incelemede bloklayıcı bulgusuzdur. Düzeltme
-  exact `6428af9` commit'indedir; yerel görev dalı remote görev dalından bir
-  commit ileridedir. `EV-20260826-004` bağlantı kaydı henüz çalışma ağacındadır.
+- Semantik sahiplik düzeltmesi `EV-20260826-003` ile dar grupta **13 passed**
+  ve bağımsız karşıt incelemede bloklayıcı bulgusuzdu. Repaired exact head
+  `8558b73` üzerindeki yeni run `32934932893`, **4966 passed / 30 skipped /
+  0 failed** ve `LEDGER_APPEND_ONLY_OK` verdi; PR merge öncesi MERGEABLE ve
+  required `test=SUCCESS` olarak geri okundu (`EV-20260826-005`).
 - `master` için PR ve GitHub Actions `test` kapısı aktiftir. GitHub approving
   review sayısı `0` olsa da bağımsız çift-süzgeç süreci uygulanır; force-push,
   protection bypass ve doğrudan master değişikliği yapılmaz.
