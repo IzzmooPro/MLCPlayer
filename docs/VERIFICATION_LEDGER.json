@@ -6859,6 +6859,44 @@
         "No automatic reinstall retry, manual file deletion, version bump, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Commit EV070, prove a regression-first exact maintenance cleanup for the two measured OpenSSL names, and rebuild before any controlled reinstall retry."
+    },
+    {
+      "id": "EV-20260826-071",
+      "recorded_at_utc": "2026-08-26T19:15:36Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "d4bd0e1a33968d2ecc3fc3877157b809499382a6",
+      "baseline_commit": "d4bd0e1a33968d2ecc3fc3877157b809499382a6",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py",
+        "docs/PACKAGING_PLAN.md",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k upgrade_removes_only_forbidden_root_dll_leftovers_before_copy",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_process_safety_regressions.py tests/test_installer_language_regressions.py tests/test_release_artifact_selection_regressions.py tests/test_dist_completeness_regressions.py tests/test_translation_pipeline_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "git diff --check"
+      ],
+      "subject": "Exact residual OpenSSL maintenance cleanup is source-ready",
+      "evidence": [
+        "the expanded exact-set regression first failed because the two measured stale OpenSSL names were absent from InstallDelete",
+        "the installer now adds only libcrypto-3-x64.dll and libssl-3-x64.dll as direct-root Type files maintenance entries and recognizes those exact names in the pre-payload fail-closed classifier",
+        "the allowlist is exactly forty-nine names; wildcard, recursion, directory deletion, nested Qt and user-data paths remain excluded",
+        "negative assertions preserve the current legitimate libcrypto-3.dll and libssl-3.dll names",
+        "the canonical plan distinguishes forty-seven foreign runtimes from two measured old residuals and retains the one-way sanitization and injected-abort limitation",
+        "the final affected family completed with 101 passed; py_compile and git diff check passed",
+        "independent positive and adversarial reviews found no remaining P0 or P1 after canonical drift and negative-test closure"
+      ],
+      "summary": "The maintenance cleanup is minimally extended to the two measured OpenSSL residuals while preserving current runtime and user-data boundaries.",
+      "limitations": [
+        "This is uncommitted deterministic evidence; no Inno build or physical forty-nine-file cleanup occurred.",
+        "Locked-file abort, rollback and Progress visual acceptance remain unmeasured."
+      ],
+      "next_action": "Commit the exact five-file EV071 package, run the committed-head pre-build gate and create one new validation build before any controlled reinstall retry."
     }
   ]
 }

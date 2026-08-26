@@ -372,17 +372,26 @@ def test_upgrade_removes_only_forbidden_root_dll_leftovers_before_copy():
         "api-ms-win-crt-time-l1-1-0.dll",
         "api-ms-win-crt-utility-l1-1-0.dll",
     )
-    legacy_names = (*api_sets, "icudt78.dll", "icuuc.dll", "ucrtbase.dll")
+    legacy_names = (
+        *api_sets,
+        "icudt78.dll",
+        "icuuc.dll",
+        "ucrtbase.dll",
+        "libcrypto-3-x64.dll",
+        "libssl-3-x64.dll",
+    )
     expected = {
         rf'Type: files; Name: "{{app}}\_internal\{name}"; '
         "Check: IsMaintenanceInstall"
         for name in legacy_names
     }
     assert {line.strip() for line in cleanup.splitlines() if line.strip()} == expected
-    assert len(expected) == 47
+    assert len(expected) == 49
     assert "recursesubdirs" not in cleanup
     assert "filesandordirs" not in cleanup
     assert r"{app}\_internal\PyQt6" not in cleanup
+    assert r'{app}\_internal\libcrypto-3.dll' not in cleanup
+    assert r'{app}\_internal\libssl-3.dll' not in cleanup
     assert "DelTree" not in text
     assert "userappdata" not in cleanup.casefold()
     assert "localappdata" not in cleanup.casefold()
@@ -399,12 +408,16 @@ def test_upgrade_removes_only_forbidden_root_dll_leftovers_before_copy():
     )[0]
     for token in (
         "LowerName = 'ucrtbase.dll'",
+        "LowerName = 'libcrypto-3-x64.dll'",
+        "LowerName = 'libssl-3-x64.dll'",
         "Pos('api-ms-win-', LowerName) = 1",
         "IsIcuRuntimeStem(Stem, 'icuuc')",
         "IsIcuRuntimeStem(Stem, 'icuin')",
         "IsIcuRuntimeStem(Stem, 'icudt')",
     ):
         assert token in classifier
+    assert "LowerName = 'libcrypto-3.dll'" not in classifier
+    assert "LowerName = 'libssl-3.dll'" not in classifier
     assert "procedure VerifyLegacyRootRuntimeRemoved" in text
     verify = text.split("procedure VerifyLegacyRootRuntimeRemoved", 1)[1].split(
         "function DirectoryHasEntries", 1

@@ -418,6 +418,8 @@ Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:Add
 Type: files; Name: "{app}\_internal\icuuc.dll"; Check: IsMaintenanceInstall
 Type: files; Name: "{app}\_internal\icudt78.dll"; Check: IsMaintenanceInstall
 Type: files; Name: "{app}\_internal\ucrtbase.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\libcrypto-3-x64.dll"; Check: IsMaintenanceInstall
+Type: files; Name: "{app}\_internal\libssl-3-x64.dll"; Check: IsMaintenanceInstall
 Type: files; Name: "{app}\_internal\api-ms-win-core-console-l1-1-0.dll"; Check: IsMaintenanceInstall
 Type: files; Name: "{app}\_internal\api-ms-win-core-datetime-l1-1-0.dll"; Check: IsMaintenanceInstall
 Type: files; Name: "{app}\_internal\api-ms-win-core-debug-l1-1-0.dll"; Check: IsMaintenanceInstall
@@ -635,7 +637,9 @@ var
   Stem: String;
 begin
   LowerName := Lowercase(FileName);
-  Result := LowerName = 'ucrtbase.dll';
+  Result := (LowerName = 'ucrtbase.dll') or
+    (LowerName = 'libcrypto-3-x64.dll') or
+    (LowerName = 'libssl-3-x64.dll');
   if Result then
     Exit;
 

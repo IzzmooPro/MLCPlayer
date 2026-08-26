@@ -478,11 +478,14 @@ kullanılmayacaktır.
   sonlanmadan `_internal` dosyaları değiştirilmemelidir.
 - Güncelleme sırasında eski `_internal` ile yeni `_internal` karışmamalıdır.
 - Başarısız güncellemede yarım kurulmuş klasör bırakılmamalıdır.
-- Kanıtlanmış zararlı/yabancı 47 direct-root runtime dosyasının maintenance
-  başlangıcında exact allowlist ile silinmesi tek yönlü güvenlik
+- Kanıtlanmış yabancı 47 runtime dosyası ile current dist'te bulunmayan ölçülmüş
+  iki eski OpenSSL `*-3-x64.dll` kalıntısının maintenance başlangıcında toplam
+  49 exact direct-root adla silinmesi tek yönlü güvenlik
   sanitasyonudur. Sonraki kopyalama durursa bu dosyaların geri getirileceği
   veya eski kurulumun hâlâ çalışan sürüm olduğu iddia edilmez; gerçek rollback
-  sonucu enjekte abort senaryosunda dosya ağacı ve açılışla geri okunur.
+  sonucu enjekte abort senaryosunda dosya ağacı ve açılışla geri okunur. Bu,
+  OpenSSL ad ailesini genel olarak zararlı saymaz; current dist'in meşru
+  `libcrypto-3.dll` ve `libssl-3.dll` dosyaları silme kapsamı dışındadır.
 - Kaldırma sırasında uygulama çalışıyorsa kullanıcıya anlaşılır bildirim
   verilmeli veya kontrollü kapanış uygulanmalıdır.
 - Kaldırıcı yalnız kurulumun sahip olduğu dosyaları silmelidir.
@@ -520,7 +523,7 @@ Temiz veya izole bir Windows ortamında en az şu senaryolar ölçülmelidir:
 - Uygulama açıkken kaldırma
 - Kaldırma sonrasında Program Files artık taraması
 - Kullanıcı log/ayar saklama politikasının doğrulanması
-- Exact 47 runtime sanitasyonundan sonra enjekte abort: yarım payload, kalan
+- Exact 49 residual sanitasyonundan sonra enjekte abort: yarım payload, kalan
   sakıncalı DLL, açılabilir sürüm ve kullanıcıya gösterilen onarım yolu readback'i
 
 Her senaryoda süreçler, çıkış kodları, kurulum logu, kalan dosyalar ve gerçek
