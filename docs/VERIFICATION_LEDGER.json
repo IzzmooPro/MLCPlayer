@@ -6777,6 +6777,46 @@
         "No history was rewritten and no automatic retry occurred before inspecting the cause."
       ],
       "next_action": "Compact continuity without data loss, append this failure record, run the continuity and append-only tests in an explicit fail-fast gate, then create a corrective commit."
+    },
+    {
+      "id": "EV-20260826-069",
+      "recorded_at_utc": "2026-08-26T19:04:13Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "c910f1a917bd6910fb16a4b35b3b18dcf67bfbcd",
+      "baseline_commit": "c910f1a917bd6910fb16a4b35b3b18dcf67bfbcd",
+      "artifact_commit": "89e23959d9ec34305043f4b27ff8896eddde2d81",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "discover the single uninstall registry entry by MLC Player DisplayName",
+        "read installed executable size and SHA-256",
+        "inventory and hash immediate-root forbidden ICU, API-set and UCRT DLLs",
+        "compute user-data file count, byte total and relative-manifest aggregate SHA-256",
+        "verify exact setup SHA-256 and target-process absence"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb",
+        "pre-reinstall-installed-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "pre-reinstall-user-data-manifest": "de7aee29c69bc84f11957a32d60b3283e01d581fd82f262ab7d88bef19af5c95"
+      },
+      "subject": "Controlled broken-installation fixture before cleanup reinstall",
+      "evidence": [
+        "one registered MLC Player v0.39 installation resolved to the expected installed product",
+        "the installed Player was 3133110 bytes with the old AC09EC12 artifact identity",
+        "the immediate internal root contained exactly the measured forty-seven forbidden DLLs including the incompatible ICU payload",
+        "the user-data tree contained two files totaling 282015 bytes with aggregate relative-manifest SHA-256 de7aee29c69bc84f11957a32d60b3283e01d581fd82f262ab7d88bef19af5c95",
+        "the approved validation setup retained SHA-256 90e8ccd16a3bc4951831dc98ed1c590f9220a89448548fad03cc679bf0698ffb and no Player or setup process was active"
+      ],
+      "summary": "The exact broken v0.39 installed tree and user-data baseline are preserved for the cleanup reinstall acceptance.",
+      "limitations": [
+        "This PASS proves the pre-reinstall snapshot only; it does not prove cleanup, rollback, launch or visual acceptance.",
+        "Private absolute paths are intentionally omitted and no installed file or user data was changed."
+      ],
+      "next_action": "Commit EV069 and launch the exact 90e8ccd1 setup once without Computer Use for user-controlled reinstall and screenshot acceptance."
     }
   ]
 }
