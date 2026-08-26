@@ -11,7 +11,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-024`
+- Son kanıt: `EV-20260826-025`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -111,6 +111,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   onayıyla yeni `origin/codex/installer-c-screen-contract` dalına gönderildi;
   yerel/uzak görev dalı exact `531127b`, `0/0` ve temiz okundu. PR açılmadı
   (`EV-20260826-024`).
+- Push/readback kaydı exact `f794670` commit'iyle bağlandı ve ayrı onayla aynı
+  uzak görev dalına gönderildi; yerel/uzak dal exact `f794670`, `0/0` ve temiz
+  okundu (`EV-20260826-025`). Aşağıdaki dayanıklı kapı ilk karşılanmayan
+  durumu seçer; sırf her push'u yeniden kaydetmek için meta-kayıt döngüsü kurmaz.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -144,9 +148,12 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Exact `531127b` uzak-dal eşliğini bağlayan bounded continuity/ledger kaydını
-commit etmek için ayrıca açık kullanıcı onayı iste. Bu onayı sonraki push, PR,
-merge, installer kodu, build veya fiziksel kurulum yetkisi sayma.
+C ekran-sözleşmesi dalı için şu **ilk karşılanmayan kapıyı** uygula: bu bounded
+continuity/ledger kaydı çalışma ağacındaysa commit için ayrıca açık onay iste;
+yerel görev dalı uzaktan ilerideyse push için ayrıca açık onay iste; uzak dal
+için PR yoksa PR oluşturmak için ayrıca açık onay iste. PR açılırsa live exact
+`headRefOid` üzerindeki required `test` SUCCESS olmadan merge onayı isteme.
+Eski run kullanma; installer kodu, build veya fiziksel kurulum yapma.
 
 ## Sonraki sıra
 
