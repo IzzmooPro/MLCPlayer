@@ -6391,6 +6391,77 @@
         "The setup and Player are unsigned; no launch, installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit this exact source-build record; afterward request separate approval for one controlled frozen application launch with exit, visible-state and process-leak readback."
+    },
+    {
+      "id": "EV-20260826-059",
+      "recorded_at_utc": "2026-08-26T17:50:16Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "55ef3be29b897a1521df0e4d691100bfbaa29d0a",
+      "baseline_commit": "55ef3be29b897a1521df0e4d691100bfbaa29d0a",
+      "artifact_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "exact packaged Player size, SHA-256, version and pre-launch process-absence readback",
+        "Computer Use sky.launch_app with the explicit dist/MLC Player/MLC Player.exe target exactly once",
+        "Computer Use list_windows and screenshot plus accessibility readback of the only returned error window",
+        "Get-CimInstance and Get-Process readback of expected and observed executable path, PID, parent, creation time, SHA-256, window title and handle",
+        "git status --short --branch; git rev-parse HEAD"
+      ],
+      "private_artifact_digests": {
+        "expected-packaged-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "observed-installed-MLC-Player.exe": "61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4e"
+      },
+      "subject": "Controlled frozen launch harness selected the wrong artifact",
+      "evidence": [
+        "the approved pre-launch gate verified the expected packaged Player at relative dist target with SHA-256 ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463 and found no pre-existing MLC Player process",
+        "the single Computer Use explicit-path launch returned only PID 21796 at C:\\Program Files\\MLC Player\\MLC Player.exe with SHA-256 61f61bc1c56cbce364b5d512e2f6f3b254b62d4c1c61b48b805ca44119902e4e and parent codex-computer-use.exe",
+        "the observed old installed artifact displayed its previously known QtWidgets DLL-load error; the exact new dist target had process count zero",
+        "independent positive and adversarial reviews classified the attempt as a launch-target identity failure and rejected any PASS or FAIL inference about the new artifact"
+      ],
+      "summary": "The native launch harness failed because it dispatched the old installed Player instead of the approved new dist artifact.",
+      "limitations": [
+        "The new packaged Player never started, so this record provides no runtime, loader, GUI or fix result for SHA-256 ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463 and does not close EV-20260826-054.",
+        "PID 21796 remains active with a user-controlled error window; no clean process-absence or leak claim is made.",
+        "No close, termination, automatic retry, setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Have the user close PID 21796 or request separate approval to terminate only the revalidated exact PID, name, creation time, path and SHA-256 tuple; then prove old and new Player process absence before requesting a separate path-exact retry."
+    },
+    {
+      "id": "EV-20260826-060",
+      "recorded_at_utc": "2026-08-26T17:51:47Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "55ef3be29b897a1521df0e4d691100bfbaa29d0a",
+      "baseline_commit": "55ef3be29b897a1521df0e4d691100bfbaa29d0a",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "revalidate the approved PID 21796 exact name, creation time, installed path and SHA-256 tuple before termination; fail closed at TARGET_PROCESS_MISSING",
+        "read back all old installed and new dist MLC Player processes and matching visible error or Player windows",
+        "git status --short --branch; git rev-parse HEAD; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "User closed the wrong-target Player error window before termination",
+      "evidence": [
+        "the separately approved exact-tuple termination command found PID 21796 already absent and stopped at TARGET_PROCESS_MISSING before executing Stop-Process",
+        "the user confirmed that they had closed the error window",
+        "the immediate readback found zero old installed or new dist MLC Player process and no matching visible Player or Unhandled exception window",
+        "the checkout remained on exact 55ef3be29b897a1521df0e4d691100bfbaa29d0a, twenty-one commits ahead and zero behind origin/master"
+      ],
+      "summary": "The wrong-target error process is gone by user action and the old/new Player process-absence gate passed without agent termination.",
+      "limitations": [
+        "This PASS proves only process and matching-window absence at the recorded readback instant.",
+        "It does not retry or evaluate the new packaged Player and does not close EV-20260826-054 or EV-20260826-059.",
+        "No process was terminated by the agent and no retry, setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit EV059 and EV060; afterward request separate approval for one path-exact frozen retry whose returned PID, executable path and SHA-256 are verified before UI evaluation."
     }
   ]
 }
