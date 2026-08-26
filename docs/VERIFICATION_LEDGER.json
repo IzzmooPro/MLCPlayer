@@ -7100,6 +7100,68 @@
         "Compiler pinning, previous-to-current installed manifest delta and physical rollback/Finish/process scenarios remain separate gates."
       ],
       "next_action": "Commit this EV076 record, push the task branch, open a protected-master PR and require the exact PR head hosted test to pass before merge."
+    },
+    {
+      "id": "EV-20260826-077",
+      "recorded_at_utc": "2026-08-26T20:00:39Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "3dc9dde8b939a1bf8b7e766fbac09da375d615d6",
+      "commands": [
+        "PR 53 required run https://github.com/IzzmooPro/MLCPlayer/actions/runs/33007132109",
+        "protected-master merge commit and parent readback",
+        "workflow_dispatch run https://github.com/IzzmooPro/MLCPlayer/actions/runs/33007592271 with expected_sha=3dc9dde8b939a1bf8b7e766fbac09da375d615d6",
+        "failed job log, PR/master tree identity and controller/test source readback"
+      ],
+      "subject": "v0.40 protected merge and failed exact-master dispatch",
+      "evidence": [
+        "PR 53 exact head 821b3197ac3d98288760bee967c8f72403634cff completed the required test with 5025 passed, 30 skipped, zero failed and LEDGER_APPEND_ONLY_OK",
+        "the protected merge produced two-parent commit 3dc9dde8b939a1bf8b7e766fbac09da375d615d6 from f0a91ad7c30264ac05b12a8ae6ab9edfb6ae68f3 and 821b3197ac3d98288760bee967c8f72403634cff",
+        "the exact-master dispatch SHA guard passed but the full suite stopped at one failure with 5024 passed and 30 skipped",
+        "the only failure was test_second_download_cannot_start_during_apply with an unobserved result value rather than an accepted second download",
+        "PR head and merge commit have the identical tree ce1cc22e3ac76c129814dad1c43e34eeec2ea4c8; no source-content difference explains the variance",
+        "source analysis showed the fixed forty-millisecond timer could fire before the worker entered applying state and silently record nothing; no automatic retry occurred"
+      ],
+      "summary": "The v0.40 package reached protected master, but its mandatory exact-master hosted gate failed because a wall-clock-dependent test did not observe the intended apply window.",
+      "limitations": [
+        "The earlier PR PASS does not override the failed master dispatch.",
+        "No build, artifact, installation, tag or release is permitted from this failed gate.",
+        "The failed assertion did not demonstrate that a second download started; it demonstrated that the test observation remained empty."
+      ],
+      "next_action": "Do not retry the failed run; replace the wall-clock trigger with state-bound test synchronization, verify narrowly and require a new exact head hosted run."
+    },
+    {
+      "id": "EV-20260826-078",
+      "recorded_at_utc": "2026-08-26T20:00:39Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "3dc9dde8b939a1bf8b7e766fbac09da375d615d6",
+      "baseline_commit": "3dc9dde8b939a1bf8b7e766fbac09da375d615d6",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/test_subtitle_apply_wait_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_subtitle_apply_wait_regressions.py::test_second_download_cannot_start_during_apply",
+        "python -m pytest -q tests/test_subtitle_apply_wait_regressions.py",
+        "python -m py_compile tests/test_subtitle_apply_wait_regressions.py; git diff --check"
+      ],
+      "subject": "State-bound subtitle apply reentry regression",
+      "evidence": [
+        "the test-only change removes the fixed forty-millisecond assumption and schedules reentry from the fake MPV sub_add call after the controller has set applying true",
+        "the zero-delay callback still requires the real nested Qt event loop and records applying state plus the second start result without a silent conditional skip",
+        "the exact expectation is one observation of true applying state and false second-start result, while the client retains exactly one download call",
+        "the target completed with one passed and the complete apply-wait file completed with twelve passed; py_compile and diff check passed",
+        "independent positive and adversarial reviews found no P0, P1 or P2 and confirmed the hook is test-only, default-off and event-order bound"
+      ],
+      "summary": "The reentry regression now measures controller state instead of runner speed and preserves the real nested-event-loop guard contract.",
+      "limitations": [
+        "This is uncommitted deterministic test evidence and does not repair or reclassify the failed hosted run.",
+        "A new commit and new hosted PR run are required; the old run must not be rerun as evidence."
+      ],
+      "next_action": "Commit the exact three-file EV077/EV078 package, push a new task branch, open a PR and require a fresh exact-head hosted test before merge."
     }
   ]
 }

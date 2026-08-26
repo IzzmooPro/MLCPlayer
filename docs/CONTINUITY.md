@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `6bf53591be91fa1675a2fd3b55cfe60740f6b87d`
+- Kayıt hazırlanırken doğrulanan HEAD: `3dc9dde8b939a1bf8b7e766fbac09da375d615d6`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 35 commit ileride, 0 geride)
-- Son kanıt: `EV-20260826-076`
+- Dal: `codex/subtitle-apply-reentry-test` (`origin/master` ile 0/0 committed taban; test/docs değişikliği kirli)
+- Son kanıt: `EV-20260826-078`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -61,8 +61,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   ve seçim kayıt paketi exact `f432c73` commit'iyle bağlandı
   (`EV-20260826-008`). A ve B yalnız karşılaştırma referansıdır. Bitmap'ler
   Git'e alınmaz ve seçim gerçek Inno Setup davranışı sayılmaz.
-- v0.40 ve ISS numeric makro çözümü regression-first bağlandı; ortak Inno preflight
-  build öncesi compiler/sürüm/timeout kapısıdır (`EV-20260826-075`), artifact kabulü değildir.
+- v0.40/Inno paketi PR #53 ile `3dc9dde` master'a alındı; exact-master run tek flaky
+  reentry testinde durdu, timer kök nedeni test-only kapatıldı (`EV-20260826-077/078`).
 - `codex/installer-ux-c-selection` görev dalı exact `ce8211b` head'iyle origin'e
   push edildi ve yerel/uzak görev dalı `0/0` eş okundu (`EV-20260826-009`). PR
   #50 daha sonra exact `e262c0c` head'iyle açıldı. Zorunlu hosted run
@@ -161,7 +161,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV076 kayıt paketini commit et; görev dalını push edip PR aç ve exact head required hosted `test` sonucunu bekle.
+EV077/078 test-only kayıt paketini commit et; yeni görev dalı/PR exact hosted testini çalıştır, eski failed run'u retry etme.
 
 ## Sonraki sıra
 
