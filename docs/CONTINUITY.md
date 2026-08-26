@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `acccb8745b6d9d7e2d830a118dee073066fa7392`
+- Kayıt hazırlanırken doğrulanan HEAD: `33680f44becb8fe35d592891058d0a552d01c494`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-011`
+- Son kanıt: `EV-20260826-014`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -75,6 +75,15 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   `LEDGER_APPEND_ONLY_OK` verdi (`EV-20260826-011`). PR OPEN/MERGEABLE/CLEAN ve
   required `test=SUCCESS` okundu; aşağıdaki canlı kapı yenilemesi yeni head
   oluşturacağından bu run da yalnız `acccb87` için geçerlidir.
+- Kalıcı canlı kapının exact `4ad4999` head'indeki zorunlu run `32945821716`,
+  **4967 passed / 30 skipped / 0 failed** ve `LEDGER_APPEND_ONLY_OK` verdi. Ayrı
+  onay sonrasında PR #50 iki ebeveynli exact `33680f4` merge commit'iyle
+  protected master'a alındı; parent'lar `b7e7cdd` ve `4ad4999`, yerel/uzak
+  master `0/0` ve görev dalı korundu (`EV-20260826-012`).
+- Post-merge kayıt hazırlanırken continuity testi önce **9 passed / 1 failed**
+  verdi: uzayan canlı adım, oturum hook'unun 12 satırlık sınırında kesiliyordu
+  (`EV-20260826-013`). Terminal kuralı ayrı bölüme taşındı; hook veya limit
+  değiştirilmeden aynı dar paket **10 passed** oldu (`EV-20260826-014`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -99,34 +108,37 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 Bir katmandaki PASS başka katmana aktarılmaz. `blocked`, `failed`, `skipped`
 veya eksik marker PASS değildir.
 
+## Meta-kayıt terminal kuralı
+
+Merge-kayıt PR'ı protected master'a ulaştığında sırf meta-merge'i yeniden
+kaydetmek için yeni bir ledger/PR zinciri başlatma. Protected-master merge
+commit/parent/run ve `0/0` readback'ini sonraki ilk gerçek C ekran-sözleşmesi
+kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine geç.
+
 ## Sıradaki tek adım
 
-PR #50 için aşağıdaki **ilk karşılanmayan kapıyı** uygula: çalışma ağacında bu
-continuity/ledger yenilemesi varsa önce commit için ayrıca açık onay al; yerel
-HEAD uzak PR head'inden ilerideyse push için ayrıca açık onay al. Ardından
-GitHub'daki canlı `headRefOid` ile required `test` check'inin bağlı olduğu
-commit'i yeniden oku. PR OPEN, draft değil, base exact `master`, MERGEABLE ve
-`mergeStateStatus=CLEAN`; required check aynı değişmemiş exact head'de SUCCESS
-ise kullanıcıdan ayrıca merge onayı al. Bunlardan biri karşılanmıyorsa merge
-onayı isteme; yeni durumu veya run'ı bekle ve eski run'ı kullanma. Installer
-kodu, build veya fiziksel kurulum yapma.
+PR #50 merge kayıt paketi için aşağıdaki **ilk karşılanmayan kapıyı** uygula:
+çalışma ağacında bu continuity/ledger kaydı varsa önce commit için ayrıca açık
+onay al; görev dalı uzakta yoksa veya yerel HEAD ilerideyse push için ayrıca
+açık onay al; uzak dal için PR yoksa PR oluşturmak için ayrıca açık onay al.
+PR açıldığında canlı `headRefOid` ve required `test` commit'ini yeniden oku;
+PR OPEN, draft değil, base exact `master`, MERGEABLE ve CLEAN, required check
+aynı değişmemiş exact head'de SUCCESS ise merge için ayrıca açık onay al.
+Koşullardan biri eksikse eski run'ı kullanma. Installer kodu, build veya
+fiziksel kurulum yapma.
 
 ## Sonraki sıra
 
-1. Canlı kapı merge onayına ulaştığında yalnız iki ebeveynli merge commit
-   yöntemini kullan; squash/rebase yapma.
-2. Merge sonrasında exact merge commit, iki parent, hosted run ve master `0/0`
-   durumunu yeni append-only kayıtla bağla.
-3. Kayıt zinciri protected master'a alındıktan sonra C yönünün ekran
-   metinlerini, klavye odak sırasını ve ekran akışını kesinleştir; uygulama
-   değişikliği için ayrıca açık onay al.
-4. Installer uygulamasını ayrı `codex/installer-experience` dalında
+1. Merge kayıt zinciri protected master'a alındıktan sonra meta-kayıt terminal
+   kuralını uygula ve C yönünün ekran metinlerini, klavye odak sırasını ve ekran
+   akışını kesinleştir; uygulama değişikliği için ayrıca açık onay al.
+2. Installer uygulamasını ayrı `codex/installer-experience` dalında
    regresyon-first yürüt; build ve fiziksel kurulumu ayrı ayrı onaylat.
-5. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
+3. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
-6. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
+4. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
-7. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
+5. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
    uygulama, build ve kurulum için ayrı onay al.
 
 ## Dokunulmayacaklar ve ayrı onaylar

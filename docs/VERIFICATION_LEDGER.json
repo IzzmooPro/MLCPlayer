@@ -4528,6 +4528,122 @@
         "No merge, installer or product code change, build, installation, signing, tag or release occurred."
       ],
       "next_action": "Apply only the first unmet durable gate: obtain separate commit approval for this record, then separate push approval, then require required-test SUCCESS on the live unchanged exact head before requesting merge approval."
+    },
+    {
+      "id": "EV-20260826-012",
+      "recorded_at_utc": "2026-08-26T08:32:15Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "33680f44becb8fe35d592891058d0a552d01c494",
+      "baseline_commit": "33680f44becb8fe35d592891058d0a552d01c494",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "gh pr view 50 --repo IzzmooPro/MLCPlayer --json number,state,isDraft,mergeable,mergeStateStatus,baseRefName,headRefName,headRefOid,statusCheckRollup,url",
+        "gh api repos/IzzmooPro/MLCPlayer/branches/master/protection",
+        "gh run view 32945821716 --repo IzzmooPro/MLCPlayer --job 98106181286 --log",
+        "gh pr merge 50 --repo IzzmooPro/MLCPlayer --merge --match-head-commit 4ad499989fe5e87b92e139641b1e05ff6603477e",
+        "gh pr view 50 --repo IzzmooPro/MLCPlayer --json number,state,mergedAt,mergeCommit,baseRefName,headRefName,headRefOid,url",
+        "git fetch origin master codex/installer-ux-c-selection",
+        "git rev-parse origin/master",
+        "git show --no-ext-diff --format=%P -s origin/master",
+        "git show --no-ext-diff --stat --oneline origin/master",
+        "git rev-parse origin/codex/installer-ux-c-selection",
+        "git branch --list codex/installer-ux-c-selection",
+        "git switch master",
+        "git merge --ff-only origin/master",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 1; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new), pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "PR 50 final exact-head hosted PASS and protected merge",
+      "evidence": [
+        "PR 50 final exact head 4ad499989fe5e87b92e139641b1e05ff6603477e passed GitHub Actions run 32945821716 job 98106181286 with 4967 passed, 30 skipped, 0 failed and LEDGER_APPEND_ONLY_OK",
+        "immediate pre-merge live readback showed OPEN, not draft, base master, MERGEABLE, CLEAN and required test SUCCESS on the unchanged exact head",
+        "the separately approved exact-head merge completed as 33680f44becb8fe35d592891058d0a552d01c494 with parents b7e7cdde0c08ff8fff80a1dc9310f4dceb2bb9ec and 4ad499989fe5e87b92e139641b1e05ff6603477e",
+        "local master was updated only by fast-forward and measured 0/0 against origin/master",
+        "the installer-direction task branch remained available locally and remotely"
+      ],
+      "summary": "The user-selected installer direction C documentation chain passed the final exact-head protected hosted gate and merged through a traceable two-parent commit.",
+      "limitations": [
+        "The 30 skipped tests are not PASS and this hosted merge result does not provide native Windows, real Inno Setup, build, installation, DPI, accessibility or executable acceptance evidence.",
+        "No installer or product code, private bitmap, Windows setting, signing, tag or release changed.",
+        "This record binds PR 50 only and does not broaden earlier proof layers."
+      ],
+      "next_action": "Apply only the first unmet durable publication gate for this merge record; after it reaches protected master, do not create a meta-merge record loop and instead bind that readback as provenance in the first substantive C screen-contract record."
+    },
+    {
+      "id": "EV-20260826-013",
+      "recorded_at_utc": "2026-08-26T08:36:24Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "33680f44becb8fe35d592891058d0a552d01c494",
+      "baseline_commit": "33680f44becb8fe35d592891058d0a552d01c494",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "rg -n \"Sıradaki tek adım|S.radaki tek ad.m|max|splitlines|additionalContext|CONTINUITY\" .claude .github scripts tests -g \"*.py\" -g \"*.ps1\" -g \"*.md\"",
+        "Get-Content .claude/hooks/session_start.py",
+        "Get-Content docs/CONTINUITY.md | Select-Object -Skip 96 -First 45"
+      ],
+      "subject": "Post-merge continuity hook truncation on an overlong live-step section",
+      "evidence": [
+        "the first targeted continuity run completed with 9 passed and 1 failed",
+        "test_session_start_injects_the_current_next_step_not_stale_history failed because the hook output did not contain the complete current next-step section",
+        "read-only inspection found .claude/hooks/session_start.py intentionally limits the injected section to MAX_LINES = 12 while the new terminal paragraph extended the section beyond that boundary",
+        "no automatic retry was attempted before the failure output, hook source and continuity section were inspected"
+      ],
+      "summary": "The merge-record evidence was valid, but the first documentation package failed its live-session handoff contract because the next-step section exceeded the existing hook boundary.",
+      "limitations": [
+        "This deterministic documentation failure is not a product, installer, native Windows, build or hosted CI failure.",
+        "The hook implementation and its 12-line limit were not changed.",
+        "This FAILED result is not superseded or rewritten by a later corrected PASS."
+      ],
+      "next_action": "Move the meta-record terminal rule outside the injected next-step section without weakening either rule, then rerun only the continuity regression package."
+    },
+    {
+      "id": "EV-20260826-014",
+      "recorded_at_utc": "2026-08-26T08:36:25Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "33680f44becb8fe35d592891058d0a552d01c494",
+      "baseline_commit": "33680f44becb8fe35d592891058d0a552d01c494",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 3; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new), pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "subject": "Corrected post-merge continuity handoff with a separate meta-record terminal rule",
+      "evidence": [
+        "the meta-record terminal policy moved to its own continuity section while the first-unmet durable publication gate remained the sole next-step section",
+        "the session hook again injected the complete current next step without changing hook code or MAX_LINES",
+        "the corrected targeted continuity package completed with 10 passed and 0 failed",
+        "the failed EV-20260826-013 record remains append-only and unchanged"
+      ],
+      "summary": "The post-merge record package now preserves both the durable publication gate and the terminal anti-recursion rule while satisfying the live session-handoff contract.",
+      "limitations": [
+        "This deterministic PASS does not broaden EV-20260826-012 hosted merge evidence or provide installer, native Windows, build or installation acceptance.",
+        "The merge-record package remains uncommitted and unpublished on its task branch.",
+        "No product or installer code, hook implementation, private bitmap, build, installation, signing, tag or release changed."
+      ],
+      "next_action": "Apply only the first unmet durable publication gate: request separate approval to commit this bounded continuity and append-only ledger package."
     }
   ]
 }
