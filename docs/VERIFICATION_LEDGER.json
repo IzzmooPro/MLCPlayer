@@ -6306,6 +6306,46 @@
         "No build, setup launch, installation, commit, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit the exact source, tests and EV056 evidence package; after commit readback, request separate approval for one clean build."
+    },
+    {
+      "id": "EV-20260826-057",
+      "recorded_at_utc": "2026-08-26T17:32:01Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "61f97132e2a0ce90e72283e43a8aa30c230afdb7",
+      "baseline_commit": "61f97132e2a0ce90e72283e43a8aa30c230afdb7",
+      "evidence_commit": "61f97132e2a0ce90e72283e43a8aa30c230afdb7",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- MLCPlayer.spec docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json packaging/build_release.bat packaging/build_unsigned_main.bat packaging/pyinstaller_binary_policy.py packaging/run_pyinstaller.py packaging/verify_build.py tests/test_frozen_dll_provenance_regressions.py tests/test_translation_pipeline_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"fix: harden frozen DLL provenance\"",
+        "git rev-parse HEAD",
+        "git show --no-patch --format=%P HEAD",
+        "git diff-tree --no-commit-id --name-status -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git status --short --branch",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -m pytest -q tests/test_frozen_dll_provenance_regressions.py"
+      ],
+      "subject": "Committed frozen DLL provenance and clean-environment fix",
+      "evidence": [
+        "the separately approved EV056 source, test and evidence package committed as exact 61f97132e2a0ce90e72283e43a8aa30c230afdb7 with exact parent cf3b6bab91b2b6d0507fe0cd91c4b050e3b06773",
+        "readback showed exactly the ten expected files with three new packaging or regression files and no unrelated path",
+        "the branch measured nineteen commits ahead and zero behind origin/master and the working tree was clean immediately after commit readback",
+        "the committed continuity and append-only ledger family completed with 15 passed and the focused frozen provenance package completed with 27 passed"
+      ],
+      "summary": "The deterministic ICU and foreign-PATH packaging fix is tied to one verified local commit.",
+      "limitations": [
+        "No new build, dist artifact or frozen Qt launch was produced, so EV-20260826-054 remains open.",
+        "No setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this readback record; afterward request separate approval for one clean build from exact 61f97132e2a0ce90e72283e43a8aa30c230afdb7."
     }
   ]
 }
