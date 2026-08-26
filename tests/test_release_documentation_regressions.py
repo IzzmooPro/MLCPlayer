@@ -103,10 +103,18 @@ def test_every_other_place_links_to_the_official_document(path):
         f"{os.path.basename(path)} resmi belgeye baglanmiyor")
 
 
-def test_packaging_plan_is_explicitly_historical_not_current_state():
-    text = fold(read(PACKAGING_DOC)).lower()
-    assert "tarihsel karar" in text
+def test_packaging_plan_separates_live_contracts_from_historical_snapshots():
+    text = " ".join(
+        fold(read(PACKAGING_DOC)).replace(">", " ").split()
+    ).lower()
+    assert "guncel installer ux sozlesmesi" in text
+    assert "onaylanmis urun siniridir" in text
+    assert "tarihsel paketleme kayitlari" in text
+    assert "eski surum, olcum ve checklist snapshot'lari" in text
+    assert "tarihsel kayittir" in text
+    assert "canli durum veya siradaki is buradan cikarilmaz" in text
     assert "continuity.md" in text
+    assert "verification_ledger.json" in text
     assert "release_process.md" in text
     assert "dogrudan bu belgeye gore calisilmali" not in text
 

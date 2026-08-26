@@ -1,14 +1,16 @@
 # MLC Player Paketleme ve Kurulum Planı
 
-> **KAPSAM:** Kalıcı paketleme/installer kararları ve güncel UX sözleşmesi bu
-> belgede tutulur; canlı durum veya sıradaki iş buradan çıkarılmaz. Güncel devir
+> **GÜNCEL INSTALLER UX SÖZLEŞMESİ VE TARİHSEL PAKETLEME KAYITLARI:** Kalıcı
+> paketleme/installer kararları ve güncel UX sözleşmesi bu belgede tutulur;
+> canlı durum veya sıradaki iş buradan çıkarılmaz. Güncel devir
 > için `docs/CONTINUITY.md`, kesin yayın sırası için yalnız
 > `docs/RELEASE_PROCESS.md` kullanılır. Aşağıdaki eski sürüm, ölçüm ve checklist
 > snapshot'ları tarihsel kayıttır; canlı kaynakla yeniden doğrulanmadan güncel
 > engel sayılmaz.
 
-Bu dosya, Windows kurulum paketinin tarihsel tasarım kararlarını açıklar.
-Paketleme aşamasında gerekçeler buradan okunabilir; yürütme sırası
+Bu dosya Windows kurulumunun güncel UX sözleşmesini, kalıcı paketleme
+kararlarını ve tarihsel tasarım kayıtlarını açıklar. Paketleme aşamasında
+gerekçeler buradan okunabilir; yürütme sırası
 `docs/RELEASE_PROCESS.md` üzerinden alınır ve o günkü kaynak, araç sürümleri
 ile Windows kabul sonuçları yeniden doğrulanır.
 
@@ -471,7 +473,13 @@ zaten icerir).
 - Bu bolum hukuki danismanlik DEGILDIR; MLC Player'in butununun lisans durumu
   hakkinda bu turda kesin hukum verilmemistir.
 
-## YAYIN ENGELI: mpv-2.dll DAGITILAMAZ -> COZULDU (16 Agustos 2026)
+## Tarihsel paketleme kayıtları
+
+Aşağıdaki tarihli libmpv engel ve kapanış ölçümleri dondurulmuş tarihsel
+snapshot'tır. Güncel dağıtım durumu bu bölümden çıkarılmaz; `CONTINUITY.md` ve
+`VERIFICATION_LEDGER.json` üzerinden okunur.
+
+### YAYIN ENGELI: mpv-2.dll DAGITILAMAZ -> COZULDU (16 Agustos 2026)
 
 **DURUM: kapatildi.** Asagidaki teshis kayit olarak korunuyor; en altta
 degisim ve dogrulama sonuclari var.

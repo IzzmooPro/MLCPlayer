@@ -11,16 +11,23 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-001`
+- Son kanıt: `EV-20260826-003`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
 
 - Belge/yönetişim paketi exact `6308d55` commit'indedir. Yerel görev dalı
-  `origin/master`dan bir commit ileridedir; push, PR veya merge yapılmadı.
-  `EV-20260826-001` commit bağlantı kaydı henüz çalışma ağacındadır ve HEAD'in
-  içeriği değildir.
+  `origin/master`dan iki commit ileridedir ve remote görev dalıyla exact
+  `567328f` üzerinde eşittir. PR #48 açıktır; merge yapılmadı.
+- PR #48'in exact head'inde ilk zorunlu hosted run `32899094320`, **4965
+  passed / 30 skipped / 1 failed** verdi (`EV-20260826-002`). Tek hata
+  `PACKAGING_PLAN.md` için stale bütün-belge-tarihsel testiydi; otomatik retry
+  yapılmadı.
+- Semantik sahiplik düzeltmesi ve `EV-20260826-003` çalışma ağacındadır;
+  güncel UX, kalıcı paketleme kararları ve tarihsel snapshot ayrımı dar grupta
+  **13 passed** ve bağımsız karşıt incelemede bloklayıcı bulgusuzdur. HEAD veya
+  remote dal henüz bu düzeltmeyi içermez.
 - `master` için PR ve GitHub Actions `test` kapısı aktiftir. GitHub approving
   review sayısı `0` olsa da bağımsız çift-süzgeç süreci uygulanır; force-push,
   protection bypass ve doğrudan master değişikliği yapılmaz.
