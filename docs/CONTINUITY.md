@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `5a94d4e91b47349a83946f80af1ddbd31c633c33`
+- Kayıt hazırlanırken doğrulanan HEAD: `b7e7cdde0c08ff8fff80a1dc9310f4dceb2bb9ec`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-005`
+- Son kanıt: `EV-20260826-007`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -19,7 +19,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 
 - Belge/yönetişim paketi ve semantik sahiplik düzeltmesi PR #48 üzerinden
   iki ebeveynli exact `5a94d4e` merge commit'iyle master'a alındı. Yerel ve
-  uzak master temiz, `0/0` ve aynı commit'tedir; görev dalı korundu.
+  uzak master, PR #49 kayıt merge'i sonrasında exact `b7e7cdd` üzerinde temiz,
+  `0/0` ve aynıdır; iki görev dalı da korundu (`EV-20260826-006`).
 - PR #48'in exact head'inde ilk zorunlu hosted run `32899094320`, **4965
   passed / 30 skipped / 1 failed** verdi (`EV-20260826-002`). Tek hata
   `PACKAGING_PLAN.md` için stale bütün-belge-tarihsel testiydi; otomatik retry
@@ -59,9 +60,9 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 ## Açık çalışma ve korunan kapılar
 
 - Installer UX kararları `PACKAGING_PLAN.md` içinde tutulur. Üç private bitmap
-  yönü hazırdır: A Sinematik Gece, B Windows ile Uyumlu, C Dengeli Hibrit.
-  Kullanıcı henüz A/B/C seçimi yapmadı; bitmap'ler Git'e alınmaz ve gerçek
-  Inno Setup davranışı sayılmaz.
+  yönü karşılaştırıldı; kullanıcı **C — Dengeli Hibrit** yönünü açıkça seçti
+  (`EV-20260826-007`). A ve B yalnız karşılaştırma referansıdır. Bitmap'ler
+  Git'e alınmaz ve seçim gerçek Inno Setup davranışı sayılmaz.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -88,13 +89,15 @@ veya eksik marker PASS değildir.
 
 ## Sıradaki tek adım
 
-Üç installer önizlemesi arasından kullanıcının açık A, B veya C görsel yön
-seçimini al. Seçimden önce installer kodu, build veya kurulum yapma.
+PR #49 merge kaydı ile C — Dengeli Hibrit yön seçimi kayıt paketinin commit'i
+için kullanıcıdan ayrıca açık onay al. Bu onaydan önce installer kodu, build
+veya fiziksel kurulum yapma.
 
 ## Sonraki sıra
 
-1. Seçilen installer yönünün metin, odak ve ekran akışını kesinleştir;
-   uygulama değişikliği için ayrıca açık onay al.
+1. Kayıt paketi commit edildikten sonra C yönünün ekran metinlerini, klavye
+   odak sırasını ve ekran akışını kesinleştir; uygulama değişikliği için ayrıca
+   açık onay al.
 2. Installer uygulamasını ayrı `codex/installer-experience` dalında
    regresyon-first yürüt; build ve fiziksel kurulumu ayrı ayrı onaylat.
 3. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı

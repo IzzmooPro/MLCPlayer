@@ -58,6 +58,19 @@ Inno Setup'ın gerçek piksel çıktısını, DPI davranışını, erişilebilir
 registry veya kurulum davranışını kanıtlamaz. Private görsel yolları Git'e
 eklenmez.
 
+### Seçilen görsel yön — C Dengeli Hibrit
+
+Kullanıcı 26 Ağustos 2026'da önerilen **C — Dengeli Hibrit** yönünü açıkça
+seçti. Installer uygulamasının görsel hedefi koyu MLC marka şeridi, açık içerik
+yüzeyi, ölçülü turuncu birincil eylem vurgusu ve Windows'a tanıdık kontrol
+düzenidir. A ve B yalnız karşılaştırma referansı olarak korunur; uygulama hedefi
+değildir.
+
+Bu seçim yalnız görsel kompozisyon yönünü kesinleştirir. Nihai ekran metinleri,
+klavye odak sırası, gerçek Inno piksel çıktısı, yüksek DPI, erişilebilirlik,
+build ve fiziksel kurulum ayrıca tasarlanıp doğrulanmadan kabul edilmiş sayılmaz.
+Seçim installer veya ürün kodunu değiştirme yetkisi değildir.
+
 ### Görsel seçimden sonra uygulama sırası
 
 1. Seçilen yönün ekran metinleri ve odak sırası kesinleştirilir.

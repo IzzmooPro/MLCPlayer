@@ -4301,6 +4301,67 @@
         "No product or installer implementation code, build, installation, Windows setting, signing, tag or release changed."
       ],
       "next_action": "Request separate approval to commit this bounded PR 48 merge record; do not push or create another PR automatically, and obtain the user's explicit A, B or C installer direction before implementation or build."
+    },
+    {
+      "id": "EV-20260826-006",
+      "recorded_at_utc": "2026-08-26T05:50:35Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "b7e7cdde0c08ff8fff80a1dc9310f4dceb2bb9ec",
+      "subject": "PR 49 hosted merge-record gate and protected merge",
+      "evidence": [
+        "PR 49 exact head e4d8f0db4f2529a1f45a8763af91be025eef8380 passed GitHub Actions run 32935536494 job 98075926151 with 249 passed, 0 failed and LEDGER_APPEND_ONLY_OK",
+        "live PR readback before merge showed OPEN, MERGEABLE, exact head e4d8f0db4f2529a1f45a8763af91be025eef8380 and required test SUCCESS",
+        "after separate approval PR 49 merged through two-parent commit b7e7cdde0c08ff8fff80a1dc9310f4dceb2bb9ec with parents 5a94d4e91b47349a83946f80af1ddbd31c633c33 and e4d8f0db4f2529a1f45a8763af91be025eef8380",
+        "local master was fast-forwarded only after merge and measured clean 0/0 against origin/master; both installer UX task branches remained available locally and remotely"
+      ],
+      "summary": "The PR 48 merge record passed its bounded hosted documentation gate and merged to protected master with a traceable merge commit.",
+      "limitations": [
+        "This hosted_ci merge-record PASS does not rerun the PR 48 full suite, native playback, product behavior, build, installation or real installer UX.",
+        "No product or installer implementation code, Windows setting, signing, tag or release changed.",
+        "The result records PR 49 only; it does not broaden EV-20260826-005 or turn hosted skips into PASS."
+      ],
+      "next_action": "Record the user's explicit installer visual-direction decision without implementing or building the installer; request implementation approval separately."
+    },
+    {
+      "id": "EV-20260826-007",
+      "recorded_at_utc": "2026-08-26T05:55:11Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "b7e7cdde0c08ff8fff80a1dc9310f4dceb2bb9ec",
+      "baseline_commit": "b7e7cdde0c08ff8fff80a1dc9310f4dceb2bb9ec",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/PACKAGING_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_continuity_regressions.py",
+        "python -m py_compile tests/test_installer_branding_regressions.py",
+        "python -c \"import json, pathlib; json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'), encoding='utf-8')); print('JSON_OK')\"",
+        "python -c \"import json, subprocess; base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); assert cur['entries'][:len(base['entries'])] == base['entries']; assert len(cur['entries']) == len(base['entries']) + 2; print('LEDGER_APPEND_ONLY_OK')\"",
+        "python -c \"import json, pathlib, subprocess; needles=('C:/Users/Universe','C:\\\\Users\\\\Universe','.codex/visualizations'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'], text=True, encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json', encoding='utf-8')); new=cur['entries'][len(base['entries']):]; [e.pop('commands', None) for e in new]; blobs=[json.dumps(new)]+[pathlib.Path(p).read_text(encoding='utf-8') for p in ('docs/CONTINUITY.md','docs/PACKAGING_PLAN.md','tests/test_installer_branding_regressions.py')]; assert not any(n in b for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK')\"",
+        "git diff --check"
+      ],
+      "private_artifact_digests": {
+        "installer-concept-c.png": "deeeb9bfda27fefd5304925fbf0cda24214ab752edc2270afe052f539b0108a1"
+      },
+      "subject": "User-selected installer visual direction C Dengeli Hibrit",
+      "evidence": [
+        "after all three bounded concept previews were shown again, the user explicitly accepted the recommendation C Dengeli Hibrit",
+        "docs/PACKAGING_PLAN.md now identifies C as the sole implementation target while retaining A and B only as comparison references",
+        "the selected direction is bounded to a dark MLC brand rail, light content surface, measured orange primary-action accent and Windows-familiar control layout",
+        "a regression requires the selected direction, non-selected A/B status and the explicit boundary that real Inno output, build and physical installation remain unaccepted"
+      ],
+      "summary": "C Dengeli Hibrit is the approved installer visual direction; screen copy, focus order and real implementation remain separately gated.",
+      "limitations": [
+        "This records a product-design choice and document contract, not real Inno Setup output, accessibility, DPI, build, installation or user acceptance of an executable installer.",
+        "The private bitmap remains outside Git; only its safe name and SHA-256 digest are recorded.",
+        "No installer or product code, build, installation, Windows setting, push, PR, merge, tag or release changed."
+      ],
+      "next_action": "Request separate approval to commit the bounded PR 49 merge and C-direction selection record package; do not implement or build the installer automatically."
     }
   ]
 }
