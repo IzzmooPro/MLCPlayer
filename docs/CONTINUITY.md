@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `6dacfd529374fc88ede63f9910627fe948124718`
+- Kayıt hazırlanırken doğrulanan HEAD: `33d2a18d2ff5d13f1e5df1a39234115bc5f65b19`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/record-addon-ready-build` (exact `6dacfd5` tabanı; yalnız EV082 kayıt belgeleri kirli)
-- Son kanıt: `EV-20260826-082`
+- Dal: `codex/record-addon-ready-acceptance` (exact `33d2a18` tabanı; yalnız EV083 kayıt belgeleri kirli)
+- Son kanıt: `EV-20260826-083`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -90,6 +90,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   48.909.130 baytlık `85b9b249...fcd3b51` artifact üretti; repo ve resmî
   çıktı konumu değişmedi (`EV-20260826-082`). Bu kaynak build sonucu henüz
   Türkçe Ready/Geri→İleri veya kurulu bakım kabulü değildir.
+- Exact `85b9b249...fcd3b51` artifact'ın insan kontrollü Türkçe same-version
+  akışında Ready, Önceki→Welcome→Sonraki→Ready, Progress ve Finish görselleri
+  geçti. Beş payload kaynakla exact eş; kullanıcı verisi ve ürün kayıtları
+  korundu, yalnız add-on uninstaller çifti ile `InstallDate` beklenen bakım
+  metadata'sı olarak değişti ve kayıtlı süreç envanteri sıfırdı
+  (`EV-20260826-083`). Log/exit code, silent, rollback ve uninstall ölçülmedi.
 - C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
   merge edildi; exact commit/run/parent ayrıntıları append-only
   `EV-20260826-009`–`017` ve `EV-20260826-028` kayıtlarındadır.
@@ -154,16 +160,14 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli EV082 kayıt paketini commit et; protected task-branch
-provenance'ı kalıcı olmadan private artifact'ı fiziksel olarak başlatma.
+Exact iki belgeli EV083 kayıt paketini commit et; protected task-branch
+provenance'ı kalıcı olmadan başka fiziksel installer senaryosu başlatma.
 
 ## Sonraki sıra
 
-1. Yeni exact artifact üzerinde Türkçe Ready, Geri→İleri, bakım kurulumu,
-   sahiplik ve süreç readback'ini kullanıcı kontrollü fiziksel kabulde ölç.
-2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
+1. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
-3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
+2. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
 
 ## Dokunulmayacaklar ve ayrı onaylar
