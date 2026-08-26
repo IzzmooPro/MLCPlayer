@@ -30,9 +30,11 @@ uygulaması, build veya fiziksel kurulum kanıtı değildir.
 - Dosya ilişkilendirmeleri sessizce ele geçirilmez. MLC desteklenen türler için
   Windows'un "Birlikte aç" listesine eklenir; varsayılan uygulama seçimi
   Windows Ayarları üzerinden kullanıcıya bırakılır.
-- Telemetri, reklam ve analiz yoktur. Başlangıçta güncelleme kontrolü görünür
-  ve kullanıcı tarafından değiştirilebilir. İnternet Video özelliği ayrı ve
-  isteğe bağlıdır; ana kurulumla otomatik yüklenmez.
+- Telemetri, reklam ve analiz yoktur. Mevcut başlangıç güncelleme davranışı
+  kullanıcıya görünür biçimde açıklanır. Bu davranışı değiştiren tercih,
+  installer'a ait değildir; ayrıca onaylı Player Settings işiyle kalıcı
+  kullanıcı ayarı olarak uygulanmadan seçim kutusu gösterilmez. İnternet Video
+  özelliği ayrı ve isteğe bağlıdır; ana kurulumla otomatik yüklenmez.
 - Kurulumdan önce özet ekranı gösterilir. Kurulum sırasında "Dosyalar
   hazırlanıyor", "MLC Player kuruluyor" ve "Windows ile bütünleştiriliyor"
   gibi anlaşılır aşamalar kullanılır; teknik ayrıntılar varsayılan kapalıdır.
@@ -70,6 +72,189 @@ Bu seçim yalnız görsel kompozisyon yönünü kesinleştirir. Nihai ekran meti
 klavye odak sırası, gerçek Inno piksel çıktısı, yüksek DPI, erişilebilirlik,
 build ve fiziksel kurulum ayrıca tasarlanıp doğrulanmadan kabul edilmiş sayılmaz.
 Seçim installer veya ürün kodunu değiştirme yetkisi değildir.
+
+### C ekran sözleşmesi
+
+Bu sözleşme C yönünün Türkçe ana metnini, etkin durumunu ve klavye akışını
+tanımlar. Görsel yön provenance kaydı `EV-20260826-007`'dir. Buradaki
+`C.*` message key değerleri uygulama aşamasında `[CustomMessages]` içinde
+İngilizce fallback ve desteklenen sekiz dilin tamamıyla karşılanmalıdır;
+çeviriler bu belgeye çoğaltılmaz. Bu sözleşme gerçek Inno uygulamasını,
+build'i veya fiziksel kurulumu kanıtlamaz.
+
+Kullanıcı 26 Ağustos 2026'da beş ekranı gösteren iki C akış görselini hedef
+kompozisyon ve metin olarak açıkça kabul etti. Bu görsel kabul, yalnız private
+preview digest'leriyle `EV-20260826-022` kaydına bağlıdır; compiled Inno'nun
+birebir uygulandığını kanıtlamaz. Gerçek build ekranları aynı referanslarla
+karşılaştırılmadan piksel/yerleşim PASS verilmez.
+
+#### Ortak görsel ve etkileşim kuralları
+
+- Koyu MLC marka şeridi dekoratiftir; açık içerik yüzeyindeki metin ve
+  kontroller Windows'un metin ölçeklendirmesiyle kırpılmadan büyümelidir.
+- Turuncu yalnız birincil eylem ve görünür klavye odağı için kullanılır;
+  renk tek durum göstergesi değildir. Etiket, erişilebilir ad, rol ve durum
+  her etkileşimli kontrolde programatik olarak bulunur.
+- `Tab` ileri, `Shift+Tab` geri dolaşır; `Space` odaktaki kutuyu değiştirir.
+  `Enter` yalnız o ekrandaki geçerli birincil eylemi çalıştırır. `Esc`
+  doğrudan çıkmaz, yerel iptal onayını açar. Geri dönüldüğünde yol ve seçimler
+  korunur.
+- Marka bitmap'i ekran okuyucu sırasına girmez. İlerleme duyuruları yalnız
+  gerçek aşama değiştiğinde yapılır; yüzde veya sürekli metin tekrarıyla
+  ekran okuyucu spam'i üretilmez.
+- Hedef klasör için ikinci bir state oluşturulmaz. Tercihler ekranındaki alan
+  Inno'nun `WizardDirValue` değeriyle çift yönlüdür; yükseltmede önceki klasör,
+  `UsePreviousTasks=yes` ile önceki görev seçimi korunur.
+
+#### Ekran metni ve kontrol matrisi
+
+`C-WELCOME`
+
+- **Amaç ve message key:** `C.WelcomeTitle` = “MLC Player'a hoş geldiniz”;
+  `C.WelcomeInstallBody` = “Bu sihirbaz MLC Player {version} sürümünü
+  bilgisayarınıza kurar.”; `C.WelcomeReinstallBody` = “Bu sihirbaz MLC Player
+  {version} sürümünü yeniden kurar.”; `C.WelcomeUpgradeBody` = “Bu sihirbaz
+  MLC Player'ı {old_version} sürümünden {version} sürümüne günceller.”;
+  `C.WelcomeLicenseInfo` = “MLC Player, GPLv3 kapsamında dağıtılan
+  açık kaynaklı bir medya oynatıcıdır. Kurmak veya çalıştırmak için lisans
+  kabulü gerekmez. Internet Video eklentisi bu pakete dahil değildir.”
+- **Kontroller ve Varsayılan:** seçim kutusu yok; sürüm install, reinstall
+  veya upgrade kipinden ve exact kurulu/paket sürümünden üretilir. Paket sürümü
+  kurulu sürümden eskiyse normal akış açılmaz; aşağıdaki downgrade engeli
+  gösterilir.
+- **İlk odak:** `İleri`.
+- **Tab sırası:** `İleri` → `İptal`.
+- **Geçiş:** `İleri` → `C-PREFERENCES`; `Esc`/`İptal` → açık iptal onayı.
+
+`C-PREFERENCES`
+
+- **Amaç ve message key:** `C.PreferencesTitle` = “Kurulum tercihleri”;
+  `C.PreferencesBody` = “Kurulum konumunu ve kısayol seçimini gözden geçirin.”
+- **Kontroller ve Varsayılan:** `C.InstallLocation` = “Kurulum konumu”; ilk
+  kurulumda `{autopf}\MLC Player`, yükseltmede önceki effective hedef;
+  `C.Browse` = “Gözat…”; `C.DesktopShortcut` = “Masaüstü kısayolu oluştur”
+  ilk kurulumda işaretli, yükseltmede önceki seçim. Konum alanının tek state'i
+  Inno `WizardDirValue` değeridir.
+- **Sabit bilgi:** `C.OpenWithInfo` = “MLC Player desteklenen dosya türleri
+  için ‘Birlikte aç’ listesine eklenir. Varsayılan uygulamanız değişmez.”;
+  `C.PrivacyInfo` = “MLC Player açılışta GitHub'daki herkese açık sürüm
+  bilgisini sessizce denetler. Telemetri, reklam veya analiz yoktur.”;
+  `C.AddonInfo` = “Internet Video eklentisi bu pakete dahil değildir ve ayrı
+  kurulur.” Internet Video için kur/indir seçim kutusu gösterilmez.
+- **İlk odak:** kurulum konumu alanı.
+- **Tab sırası:** konum → `Gözat…` → masaüstü kısayolu → başlangıç güncelleme
+  bilgisi odak almaz → `Geri` → `İleri` → `İptal`.
+- **Geçiş:** geçerli hedefte `İleri` → `C-SUMMARY`; geçersiz hedefte bu
+  ekranda kalınır ve odak konum alanına döner; `Geri` → `C-WELCOME`.
+- **Fail-closed bağımlılık:** başlangıç güncelleme tercihi Player Settings'in
+  sahipliğindedir. Kalıcı kullanıcı ayarı ürün kodunda ayrıca onaylanıp açılış
+  denetimine bağlanmadan installer seçim kutusu gösterilemez; bugünkü yalnız
+  environment-variable davranışıyla dekoratif veya etkisiz tercih kabul edilmez.
+
+`C-SUMMARY`
+
+- **Amaç ve message key:** `C.SummaryTitle` = “Kuruluma hazır”;
+  `C.SummaryBody` = “Seçimlerinizi kontrol edin.”
+- **Kontroller ve Varsayılan:** salt okunur effective özet şu satırları
+  gerçek Inno state'inden üretir: “Konum: {app}”; “Masaüstü kısayolu:
+  Oluşturulacak/Oluşturulmayacak”; “Birlikte Aç listesi: Eklenecek
+  (varsayılan uygulama değişmez)”; “Başlangıç güncelleme denetimi: GitHub
+  release bilgisi, sessiz”; “Internet Video eklentisi: Dahil değil”; “Kullanıcı ayarları,
+  geçmiş ve önbellek: Korunacak”. Son satır “Kur'a basarak başlayın.”dır.
+- **İlk odak:** `Kur`.
+- **Tab sırası:** `Geri` → `Kur` → `İptal`; ilk girişte `Kur` odaktadır.
+- **Geçiş:** `Kur` → `C-PROGRESS`; `Geri` → `C-PREFERENCES` ve değişiklikten
+  sonra özet yeniden üretilir.
+
+`C-PROGRESS`
+
+- **Amaç ve message key:** `C.ProgressTitle` = “MLC Player kuruluyor”;
+  `C.ProgressBody` = “Lütfen bekleyin.”
+- **Kontroller ve Varsayılan:** yerleşik progress bar; `Geri` ve `İleri`
+  kapalıdır. Aşama metinleri yalnız karşılık gelen gerçek Inno olayıyla
+  “Dosyalar hazırlanıyor” → “MLC Player kuruluyor” → “Windows ile
+  bütünleştiriliyor” olarak değişir; sahte yüzde gösterilmez ve teknik
+  ayrıntılar varsayılan kapalıdır.
+- **İlk odak:** `İptal`; odak görünürdür ancak doğrudan iptal etmez.
+- **Tab sırası:** `İptal` tek etkileşimli kontroldür; aşama bilgisi Tab durağı
+  değil, erişilebilir durum duyurusu olarak okunur.
+- **Geçiş:** tam ve başarılı dosya/registry/kısayol işlemi → `C-FINISH`;
+  `Esc`/`İptal` → açık iptal onayı; hata → başarı sayfasına geçmeden güvenli
+  sonuç mesajı.
+
+`C-FINISH`
+
+- **Amaç ve message key:** `C.FinishTitle` = “Kurulum tamamlandı”;
+  `C.FinishBody` = “MLC Player kullanıma hazır.”; açıklama = “MLC Player
+  bilgisayarınıza kuruldu. Varsayılan uygulama seçimini Windows Ayarları'ndan
+  değiştirebilirsiniz.”
+- **Kontroller ve Varsayılan:** “MLC Player'ı aç” işaretli; “Windows
+  Varsayılan Uygulamalar ayarını aç” işaretsiz; “MLC Player GitHub sayfasını
+  aç” işaretsiz. Internet Video otomatik indirilmez veya başlatılmaz. Sessiz
+  kurulumda hiçbir post-install eylemi çalışmaz.
+- **Gerçek eylem bağı:** “MLC Player'ı aç” yalnız başarılı kurulumdan sonra
+  exact `{app}\{#MyAppExeName}` installed executable dosyasını çalıştırır. “Windows
+  Varsayılan Uygulamalar ayarını aç” yalnız `ms-settings:defaultapps`
+  sayfasını açar; MLC'nin varsayılan yapıldığı veya varsayılan yapıldı denmez.
+  “MLC Player GitHub sayfasını aç” exact `{#MyAppUrl}` kaynağını kullanıcı
+  açıkça seçtiğinde açar. Zorunlu kurulum başarıyla bittikten sonra seçili
+  opsiyonlar sırayla denenir: Player → Windows Ayarları → GitHub. Her sonuç
+  ayrı kaydedilir/gösterilir. Eylem çalıştırılamazsa hata sessizce yutulmaz;
+  optional eylem hatası kurulumu başarısız saymaz ve sonraki seçili eylemi
+  düşürmez.
+- **İlk odak:** `Bitir`.
+- **Tab sırası:** uygulamayı aç → Windows Varsayılan Uygulamalar → GitHub →
+  `Bitir`; ilk girişte `Bitir` odaktadır.
+- **Geçiş:** `Bitir` zorunlu kurulum başarıyla tamamlandıysa yalnız kullanıcının
+  işaretlediği optional eylemleri yukarıdaki sırayla dener ve ardından kurulumu
+  kapatır.
+
+#### Negatif durum ve kullanıcı metni
+
+| Durum | Canonical kullanıcı sonucu |
+|---|---|
+| Yönetici yetkisi reddedildi | Bu sonuç Windows UAC tarafından yönetilir; MLC sihirbazı kendi canonical mesajını garanti etmez. UAC iptalinde MLC kurulum değişikliği yapılmaz. |
+| Restart Manager kapanışı tamamlamadı | “MLC Player kapatılamadı. Çalışan uygulamayı kapatıp yeniden deneyin.” |
+| Welcome, preferences veya summary iptali | “Kurulumdan vazgeçildi. Bilgisayarınızda değişiklik yapılmadı.” |
+| Progress iptali veya orta-kopya hata | “Kurulum geri alındı. Önceki çalışan sürüm korunmuştur.” yalnız rollback readback'i bunu doğrularsa gösterilir; aksi hâlde onarım yolu verilir. |
+| Hedef doğrulama/yazma hatası | “Hedef klasöre yazılamadı. Başka bir klasör seçin veya izinleri kontrol edin.” |
+| Upgrade state'i geri okundu | “Önceki hedef ve tercihler korundu.” yalnız effective state gerçekten eşitse gösterilir. |
+| Open With kaydı | “Varsayılan uygulama değiştirilmedi. İsterseniz seçimi Windows Ayarları'ndan yapabilirsiniz.” |
+| Başarı sonrası OS gereksinimi | “Yeniden başlatma gerekiyor. Değişiklikleri tamamlamak için Windows'u yeniden başlatın.” yalnız gerçek restart requirement varsa gösterilir. |
+| Daha yeni sürüm kurulu | `C.DowngradeBlocked` = “Bu bilgisayarda daha yeni bir MLC Player sürümü yüklü. Daha eski sürüm otomatik kurulamaz.” İlk ve tek odak `Kapat`; geçiş kurulum değişikliği yapmadan çıkıştır. |
+
+Bu metinler teknik mekanizmanın yerine geçmez. İptal, rollback, sahip olunan
+dosyalar, çalışan süreç ve kullanıcı verisi invariantları aynı belgedeki
+“Kapanış, güncelleme ve kaldırma sözleşmesi”, “Kurulum kabul matrisi” ve
+“Inno Setup için uygulanacaklar” bölümlerinden uygulanır. Success completion
+yalnız bütün zorunlu adımlar başarılıysa gösterilir; downgrade sessizce
+ilerlemez ve ayrı açık karar olmadan desteklenmiş sayılmaz.
+
+#### Uygulama ve kabul kapıları
+
+- Built-in `wpWelcome`, `wpSelectDir`, `wpReady`, `wpInstalling` ve
+  `wpFinished` sayfaları yeniden kullanılır. `wpSelectDir` tek hedef state'ini
+  koruyarak preferences görünümüne genişletilir; baştan paralel bir custom
+  wizard/state modeli kurulmaz.
+- Ürün ayarına bağlanmayan güncelleme kutusu, task/condition'a bağlanmayan
+  association kutusu ve ana installer içinde Internet Video kurulum kutusu
+  uygulanamaz.
+- Tasarım kabulü; Inno 6.7.1 compile, sekiz dil, 100–250% DPI, 200% text
+  scaling, 1366×768/4K, farklı DPI monitör geçişi, Narrator/NVDA ve yalnız
+  klavye kabulünün yerine geçmez.
+- İlk kurulum, reinstall, upgrade, downgrade reddi, özel hedefin korunması,
+  her aşamada iptal, enjekte hata/rollback, Open With/Default Apps readback,
+  main/add-on kaldırma sırası ve kalan dosya/registry/süreç ayrıca exact
+  artifact üzerinde fiziksel kabul ister.
+- Her görünür checkbox veya düğme için gerçek handler, seçili/seçili-değil
+  yolları, hata sonucu ve action/readback fiziksel kabulde ölçülür. Handler'a
+  bağlanmayan kontrol gösterilmez; etiket, Windows'un izin verdiğinden daha
+  geniş bir sonuç vaat etmez.
+- Finish action/readback ölçütleri: Player için resolved path exact
+  `{app}\{#MyAppExeName}` ve process-start sonucu; Default Apps için yalnız
+  `ms-settings:defaultapps` shell-launch sonucu ve görünür Settings sayfası,
+  varsayılan değişikliği değil; GitHub için resolved exact `{#MyAppUrl}`
+  shell-launch sonucu. Seçili olmayan her yolun hiç çalışmadığı da ölçülür.
 
 ### Görsel seçimden sonra uygulama sırası
 

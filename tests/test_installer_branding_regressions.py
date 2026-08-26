@@ -75,6 +75,130 @@ def test_installer_visual_direction_c_is_selected_without_claiming_acceptance():
     assert "Seçim installer veya ürün kodunu değiştirme yetkisi değildir" in normalized
 
 
+def test_visual_direction_c_has_one_complete_screen_contract():
+    """Tasarım kararı, gerçek Inno uygulamasından ayrı ve test edilebilir kalır."""
+    text = PACKAGING_PLAN.read_text(encoding="utf-8")
+    normalized = " ".join(text.split())
+
+    assert text.count("### C ekran sözleşmesi") == 1
+    screen_ids = (
+        "C-WELCOME",
+        "C-PREFERENCES",
+        "C-SUMMARY",
+        "C-PROGRESS",
+        "C-FINISH",
+    )
+    for screen_id in screen_ids:
+        assert len(re.findall(rf"^`{screen_id}`$", text, re.MULTILINE)) == 1, screen_id
+
+    blocks = {}
+    for index, screen_id in enumerate(screen_ids):
+        start = text.index(f"`{screen_id}`\n")
+        end_marker = (
+            f"`{screen_ids[index + 1]}`\n"
+            if index + 1 < len(screen_ids)
+            else "#### Negatif durum ve kullanıcı metni"
+        )
+        end = text.index(end_marker, start + 1)
+        blocks[screen_id] = " ".join(text[start:end].split())
+        for field in ("message key", "Varsayılan", "İlk odak", "Tab sırası", "Geçiş"):
+            assert field in blocks[screen_id], (screen_id, field)
+
+    exact_anchors = {
+        "C-WELCOME": (
+            "C.WelcomeInstallBody",
+            "C.WelcomeReinstallBody",
+            "C.WelcomeUpgradeBody",
+            "Kurmak veya çalıştırmak için lisans kabulü gerekmez",
+        ),
+        "C-PREFERENCES": (
+            "Kurulum konumunu ve kısayol seçimini gözden geçirin.",
+            "WizardDirValue",
+            "ilk kurulumda işaretli, yükseltmede önceki seçim",
+            "Internet Video için kur/indir seçim kutusu gösterilmez",
+        ),
+        "C-SUMMARY": (
+            "Başlangıç güncelleme denetimi: GitHub release bilgisi, sessiz",
+            "Kullanıcı ayarları, geçmiş ve önbellek: Korunacak",
+            "Kur'a basarak başlayın.",
+        ),
+        "C-PROGRESS": (
+            "Dosyalar hazırlanıyor",
+            "İptal` tek etkileşimli kontroldür",
+            "sahte yüzde gösterilmez",
+        ),
+        "C-FINISH": (
+            "MLC Player'ı aç” işaretli",
+            "Windows Varsayılan Uygulamalar ayarını aç” işaretsiz",
+            "GitHub sayfasını aç” işaretsiz",
+            "Player → Windows Ayarları → GitHub",
+        ),
+    }
+    for screen_id, anchors in exact_anchors.items():
+        for anchor in anchors:
+            assert anchor in blocks[screen_id], (screen_id, anchor)
+
+    for clause in (
+        "Windows UAC tarafından yönetilir",
+        "MLC Player kapatılamadı",
+        "Kurulumdan vazgeçildi",
+        "Kurulum geri alındı",
+        "Hedef klasöre yazılamadı",
+        "Önceki hedef ve tercihler korundu",
+        "Varsayılan uygulama değiştirilmedi",
+        "Yeniden başlatma gerekiyor",
+        "EV-20260826-007",
+        "gerçek Inno uygulamasını, build'i veya fiziksel kurulumu kanıtlamaz",
+        "C.DowngradeBlocked",
+        "Built-in `wpWelcome`, `wpSelectDir`, `wpReady`, `wpInstalling` ve `wpFinished`",
+        "dekoratif veya etkisiz tercih kabul edilmez",
+        "baştan paralel bir custom wizard/state modeli kurulmaz",
+    ):
+        assert clause in normalized
+
+    assert "C:\\Users\\" not in text
+    assert "C.UpdateAtStartup" not in blocks["C-PREFERENCES"]
+    assert "Başlangıçta güncellemeleri denetle (önerilen)" not in blocks["C-PREFERENCES"]
+
+
+def test_finish_actions_are_real_and_do_not_overpromise_windows_defaults():
+    """Finish tasarım sözleşmesi exact hedef taşır; Windows yetkisi abartılmaz."""
+    text = PACKAGING_PLAN.read_text(encoding="utf-8")
+    finish_start = text.index("`C-FINISH`\n")
+    finish_end = text.index("#### Negatif durum ve kullanıcı metni", finish_start)
+    finish = " ".join(text[finish_start:finish_end].split())
+    acceptance_start = text.index("#### Uygulama ve kabul kapıları", finish_end)
+    acceptance_end = text.index("### Görsel seçimden sonra uygulama sırası", acceptance_start)
+    acceptance = " ".join(text[acceptance_start:acceptance_end].split())
+
+    for clause in (
+        "exact `{app}\\{#MyAppExeName}` installed executable",
+        "ms-settings:defaultapps",
+        "varsayılan yapıldı denmez",
+        "{#MyAppUrl}",
+        "Eylem çalıştırılamazsa",
+        "optional eylem hatası kurulumu başarısız saymaz",
+        "sonraki seçili eylemi düşürmez",
+    ):
+        assert clause in finish
+
+    for clause in (
+        "Finish action/readback ölçütleri",
+        "process-start sonucu",
+        "görünür Settings sayfası",
+        "Seçili olmayan her yolun hiç çalışmadığı",
+    ):
+        assert clause in acceptance
+
+    contract = " ".join(text[text.index("### C ekran sözleşmesi"):acceptance_end].split())
+    for forbidden_key in (
+        "C.UpdateAtStartup",
+        "C.InternetVideoInstall",
+        "C.FileAssociations",
+    ):
+        assert forbidden_key not in contract
+
+
 def test_wizard_images_referenced_by_the_installer_exist():
     """`.iss` var olmayan bir görsel gösterirse derleme sessizce bozulur."""
     text = _iss()
