@@ -5982,6 +5982,47 @@
         "No commit, build, setup launch, installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Complete the impact-limited governance gates and adversarial diff review, then request separate approval to commit the exact five-file source/evidence package."
+    },
+    {
+      "id": "EV-20260826-049",
+      "recorded_at_utc": "2026-08-26T16:26:57Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f",
+      "baseline_commit": "4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f",
+      "evidence_commit": "4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss tests/test_installer_branding_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit -m \"fix: add bounded installer progress accent\"",
+        "git rev-parse HEAD",
+        "git show --no-patch --format=%P HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git status --short --branch",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -c \"import json,pathlib; d=json.load(open(pathlib.Path('docs/VERIFICATION_LEDGER.json'),encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-048'; print('COMMITTED_JSON_OK',len(d['entries']))\""
+      ],
+      "subject": "Committed bounded native Progress brand accent",
+      "evidence": [
+        "the separately approved source/evidence commit completed as exact 4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f with exact parent 818f6736b8fa6c5e566661ce34f636985425cc02",
+        "readback showed exactly the five approved continuity, packaging contract, append-only ledger, installer source and branding regression paths",
+        "the committed impact family completed with 60 passed, committed JSON ended at EV-20260826-048 and the branch measured thirteen commits ahead and zero behind origin/master",
+        "the working tree was clean immediately after commit readback"
+      ],
+      "summary": "The bounded native Progress accent is tied to an exact local commit with verified parent, scope and committed tests.",
+      "limitations": [
+        "No setup has been built or visually launched from commit 4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f.",
+        "Deterministic tests do not prove actual z-order, pixels, DPI, High Contrast, localization, Cancel, progress or screen-reader behavior.",
+        "EV-20260826-046 belongs only to the old cc1021 artifact; no installation, push, PR, merge, tag or release occurred for this commit."
+      ],
+      "next_action": "Request separate approval to commit this readback record; then request separate exact build approval before any new setup launch or installation."
     }
   ]
 }

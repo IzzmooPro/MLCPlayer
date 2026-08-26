@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `818f6736b8fa6c5e566661ce34f636985425cc02`
+- Kayıt hazırlanırken doğrulanan HEAD: `4b36fab2b75ea9f9786ec8a4e4cf50247ced0a0f`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/installer-experience` (`origin/master`dan 12 commit ileride)
-- Son kanıt: `EV-20260826-048`
+- Dal: `codex/installer-experience` (`origin/master`dan 13 commit ileride)
+- Son kanıt: `EV-20260826-049`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -127,7 +127,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Restore build'inde Welcome döndü, ilk Summary reddedildi (`-041`, `-042`); `ReadyMemo` düzeltmesi
   `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
 - Exact artifact kurulum/EXE hash/Player-launch akışı geçti (`-046`); Summary düzeltmesi görünürken
-  Progress marka sürekliliği reddedildi (`-047`). Installing-only vurgu **60 passed** (`-048`).
+  Progress marka sürekliliği reddedildi (`-047`). Installing-only vurgu exact `4b36fab`e bağlıdır (`-048`, `-049`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -161,7 +161,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Progress marka vurgusu kaynak/kanıt paketini gösterip ayrı commit onayı al; build, setup, kurulum, push, PR ve merge ayrıca onaylıdır.
+Exact `4b36fab` kaynağı için ayrı build onayı al; build olmadan setup çalıştırma. Kurulum, push, PR ve merge ayrıca onaylıdır.
 
 ## Sonraki sıra
 
