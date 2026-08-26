@@ -6462,6 +6462,50 @@
         "No process was terminated by the agent and no retry, setup launch, installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit EV059 and EV060; afterward request separate approval for one path-exact frozen retry whose returned PID, executable path and SHA-256 are verified before UI evaluation."
+    },
+    {
+      "id": "EV-20260826-061",
+      "recorded_at_utc": "2026-08-26T17:57:49Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "eb54a947ae4ea587c2b6f75acee51e3755d18222",
+      "baseline_commit": "eb54a947ae4ea587c2b6f75acee51e3755d18222",
+      "artifact_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "verify exact dist Player SHA-256 and all-Player process absence before launch",
+        "Start-Process -FilePath for the exact relative dist Player target with PassThru exactly once",
+        "verify returned PID 32028 executable path and SHA-256 before UI evaluation",
+        "Computer Use exact-process window selection, screenshot and accessibility readback",
+        "Get-Process module readback for PyQt6, Qt6 and icuuc.dll plus error-window and process-set checks",
+        "user visual acceptance of the visible MLC Player ready screen and user-controlled normal close",
+        "post-close PID, all-Player process and matching error-window absence readback"
+      ],
+      "private_artifact_digests": {
+        "packaged-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "loaded-System32-icuuc.dll": "59d134ddc15ae0594f0a328979f8201662fc82634ddb7c537b156e7cf871f5eb"
+      },
+      "subject": "Exact dist frozen Qt startup and visual-ready acceptance",
+      "evidence": [
+        "the path-exact launch returned PID 32028 and its executable path and SHA-256 matched the approved new dist Player before any UI inference",
+        "the exact process exposed one responsive MLC Player window showing the normal Izlemeye hazır state and no Unhandled exception window",
+        "QtCore, QtGui and QtWidgets pyd and Qt6 DLLs loaded from the exact dist tree while icuuc.dll loaded from Windows System32 with SHA-256 59d134ddc15ae0594f0a328979f8201662fc82634ddb7c537b156e7cf871f5eb",
+        "the user explicitly confirmed that the visible screen was correct",
+        "after the user closed the window normally, PID 32028, every MLC Player process and every matching Player or error window were absent",
+        "independent positive and adversarial reviews reported bounded native_smoke PASS with no remaining P0 or P1 when the unmeasured exit status is explicit"
+      ],
+      "summary": "The exact new dist Player starts with the intended System32 ICU, displays the accepted ready UI and leaves no residual process after user close.",
+      "limitations": [
+        "The process exit code was not retained and is unmeasured; this record does not claim exit 0, final marker, stderr cleanliness, call order or full shutdown-lifecycle acceptance.",
+        "This PASS is limited to the exact AC09EC12 artifact, current host and visible ready-state scenario; it is not media playback or broader feature acceptance.",
+        "This direct dist run does not prove setup copying or installed-artifact launch and does not alter the immutable EV-20260826-054 failure for the old installed artifact.",
+        "No setup launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit EV061; afterward request separate approval to install the exact DBECC062 setup and verify the installed executable path, hash, launch and visual state as a distinct installed_artifact scenario."
     }
   ]
 }
