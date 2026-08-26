@@ -5,11 +5,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `VERIFICATION_LEDGER.json`, diğer tarihsel anlatı `PROJECT_STATUS.md`,
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
-- Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `ba0a2a6885a04f57461e5ef51e29cc61267cb825`
+- Güncelleme: 27 Ağustos 2026
+- Kayıt hazırlanırken doğrulanan HEAD: `6dacfd529374fc88ede63f9910627fe948124718`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/addon-ready-copy` (exact `ba0a2a6` tabanı; add-on ISS, regresyon ve iki kayıt belgesi kirli)
-- Son kanıt: `EV-20260826-081`
+- Dal: `codex/record-addon-ready-build` (exact `6dacfd5` tabanı; yalnız EV082 kayıt belgeleri kirli)
+- Son kanıt: `EV-20260826-082`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -83,6 +83,13 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   Regression-first düzeltme yalnız Inno'nun iki hatalı Türkçe Ready mesajını
   override eder; hedef/aile **1/14 passed**, ilgili aile **33 passed**, gerçek
   main+add-on compile preflight PASS ve çift-süzgeç temizdir (`EV-20260826-081`).
+- Düzeltme PR #55 ile iki ebeveynli exact `6dacfd5` merge commit'i olarak
+  protected master'a ulaştı. PR koşumu `33013632094` ve zorunlu exact-master
+  dispatch `33014038693` ayrı ayrı **5026 passed / 30 skipped / 0 failed** verdi.
+  Yalnız add-on'u hedefleyen private build exact `6dacfd5`ten tek, unsigned
+  48.909.130 baytlık `85b9b249...fcd3b51` artifact üretti; repo ve resmî
+  çıktı konumu değişmedi (`EV-20260826-082`). Bu kaynak build sonucu henüz
+  Türkçe Ready/Geri→İleri veya kurulu bakım kabulü değildir.
 - C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
   merge edildi; exact commit/run/parent ayrıntıları append-only
   `EV-20260826-009`–`017` ve `EV-20260826-028` kayıtlarındadır.
@@ -147,19 +154,16 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact dört dosyalık EV080/EV081 paketini commit et; ardından görev dalı push,
-protected-master PR/hosted test ve merge kapılarını sırayla tamamlamadan yeni
-add-on artifact build veya fiziksel retry yapma.
+Exact iki belgeli EV082 kayıt paketini commit et; protected task-branch
+provenance'ı kalıcı olmadan private artifact'ı fiziksel olarak başlatma.
 
 ## Sonraki sıra
 
-1. Exact merged commit'ten yeni add-on artifact üretip ad/boyut/SHA ve imza
-   doğrulamasını kaynak build katmanında kaydet.
-2. Yeni exact artifact üzerinde Türkçe Ready, Geri→İleri, bakım kurulumu,
+1. Yeni exact artifact üzerinde Türkçe Ready, Geri→İleri, bakım kurulumu,
    sahiplik ve süreç readback'ini kullanıcı kontrollü fiziksel kabulde ölç.
-3. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
+2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
-4. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
+3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
 
 ## Dokunulmayacaklar ve ayrı onaylar

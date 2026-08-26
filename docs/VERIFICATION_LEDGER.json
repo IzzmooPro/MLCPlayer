@@ -7313,6 +7313,54 @@
         "The previous exact add-on artifact remains failed for Ready visual acceptance and cannot inherit this source PASS."
       ],
       "next_action": "Commit the exact four-file EV080/EV081 package, push the task branch and require a new protected-master PR hosted run before any new add-on build or physical retest."
+    },
+    {
+      "id": "EV-20260826-082",
+      "recorded_at_utc": "2026-08-26T21:16:41Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "6dacfd529374fc88ede63f9910627fe948124718",
+      "artifact_source_commit": "6dacfd529374fc88ede63f9910627fe948124718",
+      "baseline_commit": "6dacfd529374fc88ede63f9910627fe948124718",
+      "working_tree_state": "clean",
+      "changed_files": [],
+      "commands": [
+        "gh run view 33013632094 --log; gh run view 33013632094 --json status,conclusion,headSha,url; gh pr view 55 --json state,headRefOid,mergeable,mergeStateStatus,statusCheckRollup,url",
+        "gh pr view 55 --json state,mergedAt,mergeCommit,headRefOid,baseRefOid,url; git show -s --format=%H%n%P%n%s origin/master; git switch master; git merge --ff-only origin/master; git rev-list --left-right --count HEAD...origin/master",
+        "gh workflow run CI --ref master -f expected_sha=6dacfd529374fc88ede63f9910627fe948124718; gh run watch 33014038693 --exit-status; gh run view 33014038693 --log",
+        "python -c \"from app.config import APP_VERSION, WINDOWS_VERSION; print(APP_VERSION); print(WINDOWS_VERSION)\"",
+        "$artifactDir='<private-output-dir>'; if(Test-Path -LiteralPath $artifactDir){throw 'ARTIFACT_DIR_ALREADY_EXISTS'}; New-Item -ItemType Directory -Path $artifactDir | Out-Null",
+        "ISCC.exe /Q /O<private-output-dir> /DAddonVersion=v0.40 /DAddonNumericVersion=0.40.0.0 packaging\\MLCPlayer_InternetVideo.iss",
+        "$artifact='<private-output-dir>\\MLCPlayer_InternetVideo_v0.40.exe'; $item=Get-Item -LiteralPath $artifact; $sig=Get-AuthenticodeSignature -LiteralPath $artifact; [pscustomobject]@{FullName=$item.FullName;Length=$item.Length;SHA256=(Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash;ProductVersion=$item.VersionInfo.ProductVersion;FileVersion=$item.VersionInfo.FileVersion;Description=$item.VersionInfo.FileDescription;AuthenticodeStatus=$sig.Status.ToString();Signer=if($sig.SignerCertificate){$sig.SignerCertificate.Subject}else{$null}}",
+        "@(Get-ChildItem -LiteralPath '<private-output-dir>' -File -Force).Count; Get-ChildItem -LiteralPath '<private-output-dir>' -Force | Select-Object Name,Length,LastWriteTimeUtc",
+        "Get-ChildItem installer_output -File | Where-Object {$_.Name -like 'MLCPlayer_InternetVideo_v0.40*'} | ForEach-Object {[pscustomobject]@{Name=$_.Name;Length=$_.Length;SHA256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash;LastWriteTimeUtc=$_.LastWriteTimeUtc.ToString('o')}}",
+        "$cutoff=[DateTime]::Parse('2026-08-26T21:15:20Z').ToUniversalTime(); Get-ChildItem -LiteralPath . -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object {$_.FullName -notlike '*\\.git\\*' -and $_.LastWriteTimeUtc -ge $cutoff} | Select-Object FullName,Length,LastWriteTimeUtc",
+        "Get-Process ISCC,MLCPlayer_InternetVideo_v0.40 -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,Path",
+        "git status --porcelain=v1; git rev-parse HEAD; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_InternetVideo_v0.40.exe": "85b9b2494119fdf0599acd4e8fc0641e662ba307e0c355e8c19622f43fcd3b51"
+      },
+      "subject": "Exact merged-master Internet Video Ready-copy test artifact build",
+      "evidence": [
+        "PR 55 merged as two-parent commit 6dacfd529374fc88ede63f9910627fe948124718 from protected master 98c9511a81943fcc84a6e6652a2ca24f3a9ba74e and exact PR head 2be370e5b855e47283c4efb6d8ecb7cd20d85e30; local and origin master then read back clean and zero ahead/zero behind",
+        "PR 55 exact-head run 33013632094 and the required exact-master workflow_dispatch run 33014038693 each completed with 5026 passed, 30 skipped and zero failed; the dispatch also passed its expected-SHA guard",
+        "the narrow Inno invocation used exact v0.40 and 0.40.0.0 macros and an initially absent private output directory, leaving the main installer, dist tree and existing release-output location outside the build target",
+        "ISCC exited zero and the private output contained exactly one fresh 48909130-byte file named MLCPlayer_InternetVideo_v0.40.exe",
+        "the artifact SHA-256 is 85b9b2494119fdf0599acd4e8fc0641e662ba307e0c355e8c19622f43fcd3b51; embedded product and file versions read 0.40.0.0 and Authenticode read NotSigned with no signer",
+        "the post-build repository timestamp scan found no file written after the pre-build cutoff; the pre-existing installer_output add-on signature remained 88 bytes with SHA-256 c3220a67b98484bd87b029eaef4fd468cc0d839988dbba92acf8785b068e1ec7",
+        "no ISCC or artifact process remained, the Git working tree stayed clean at exact 6dacfd529374fc88ede63f9910627fe948124718 and master remained zero ahead/zero behind origin",
+        "an independent adversarial preflight confirmed the macro, absolute-output and stale-output boundaries and found no blocker for the isolated source build"
+      ],
+      "summary": "The Turkish Ready-copy fix now exists in one isolated, exact-merged-master v0.40 Internet Video test artifact with recorded identity and no observed repository or official-output mutation.",
+      "limitations": [
+        "This is a private unsigned source-build test artifact, not a release asset, detached Ed25519 signature, installed-artifact acceptance, tag or published release.",
+        "The build invocation did not explicitly disable IDE sign-tool discovery; the exact resulting artifact nevertheless read Authenticode NotSigned with no signer. Future isolated commands should pass explicit no-signing flags.",
+        "The repository-wide timestamp scan and clean Git readback establish no observed repository write during the build, but there was no serialized pre-build snapshot of the entire ignored dist tree.",
+        "The corrected Turkish Ready text, Back-to-Ready state, maintenance copy, ownership and process behavior remain unmeasured until the exact artifact is launched under user-controlled physical acceptance.",
+        "The older a2090138 artifact remains failed for visual Ready acceptance and cannot inherit this build result."
+      ],
+      "next_action": "Commit this EV082 record package through the protected task-branch workflow; after that provenance is durable, request separate approval to launch the exact 85b9b249 artifact for user-controlled Turkish Ready and maintenance acceptance."
     }
   ]
 }
