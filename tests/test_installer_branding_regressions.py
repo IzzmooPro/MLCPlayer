@@ -358,7 +358,7 @@ def test_pascal_continuations_cannot_look_like_inno_syntax():
     code = _iss().split("[Code]", 1)[1]
     offenders = [
         line for line in code.splitlines()
-        if re.match(r"^\s*(?:#\d|\[)", line)
+        if re.match(r"^\s*(?:#(?:\$[0-9A-Fa-f]+|\d)|\[)", line)
     ]
     assert offenders == []
 

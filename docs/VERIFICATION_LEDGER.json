@@ -5425,6 +5425,75 @@
         "The post-commit readback record and continuity update are uncommitted working-tree documentation until separately approved."
       ],
       "next_action": "Request separate approval to commit this exact-commit readback record; after that commit, request build approval separately and do not launch or install automatically."
+    },
+    {
+      "id": "EV-20260826-035",
+      "recorded_at_utc": "2026-08-26T12:18:30Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d",
+      "baseline_commit": "10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d",
+      "working_tree_state": "clean",
+      "changed_files": [],
+      "commands": [
+        "git rev-parse --show-toplevel",
+        "git status --short --branch",
+        "git log -1 --oneline --decorate",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "C:\\Program Files\\Inno Setup 7\\ISCC.exe --version",
+        "$env:MLC_HOSTED_UNSIGNED_BUILD = '1'; & '.\\packaging\\build_unsigned_main.bat'; exit $LASTEXITCODE",
+        "Get-ChildItem installer_output -ErrorAction SilentlyContinue",
+        "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -in @('MLCPlayer_Setup_v0.39','MLC Player','Setup','ISCC','python','pythonw','pyinstaller') }"
+      ],
+      "subject": "First committed C v2 Inno 7.1.0 build failed on a line-leading hex character code",
+      "evidence": [
+        "the separately authorized build started from clean exact commit 10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d with local Inno Setup 7.1.0",
+        "dependency, runtime, translation and 181.3 MB PyInstaller tree stages completed before Inno aborted at MLCPlayer.iss line 761 with Unknown preprocessor directive",
+        "inspection proved the failing physical line began with #$2713 inside Pascal code; the existing continuation regression recognized decimal #13 and array literals but not hexadecimal character codes",
+        "no setup executable was produced and no setup, Player, ISCC, Python, pythonw or PyInstaller process leaked; no automatic rebuild occurred"
+      ],
+      "summary": "The first exact committed C v2 build failed closed because Inno misclassified a line-leading hexadecimal Pascal character code.",
+      "limitations": [
+        "The successful PyInstaller stage is not an installer source-build PASS because Inno compilation failed.",
+        "No setup was launched, installed or visually inspected, so the new C v2 test screen has still not been seen.",
+        "No source change, commit, push, PR, merge, tag or release is implied by this failed build record."
+      ],
+      "next_action": "Expand the continuation regression to cover line-leading hexadecimal character codes, apply only a behavior-preserving formatting fix, and require independent review before requesting a new build approval."
+    },
+    {
+      "id": "EV-20260826-036",
+      "recorded_at_utc": "2026-08-26T12:18:40Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d",
+      "baseline_commit": "10c61d4a223a82d49dd4a3fcd7f81d44f4b8519d",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_branding_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_installer_branding_regressions.py -k pascal_continuations",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py",
+        "rg -n \"^\\s*(?:#(?:\\$[0-9A-Fa-f]+|[0-9])|\\[)\" packaging/MLCPlayer.iss",
+        "git diff --check",
+        "independent adversarial read-only review of the exact two-file source/test fix"
+      ],
+      "subject": "Regression-bounded Inno hexadecimal character-code continuation fix",
+      "evidence": [
+        "the expanded regression first failed with exactly three line-leading #$2713, #$25CF and #$25CB offenders",
+        "the minimal fix moved only each hexadecimal expression onto its existing function-call line; codepoints, captions, bold flag and max-height behavior are unchanged",
+        "the target regression then passed and the bounded installer, language, process-safety and version family completed with 44 passed",
+        "independent adversarial review found the diff minimal and behavior-preserving, with no remaining line-leading decimal, hexadecimal or array-literal offender in the Code section and no new source P0 or P1"
+      ],
+      "summary": "The exact compiler failure class is regression-protected and the minimal formatting fix is deterministically green.",
+      "limitations": [
+        "This PASS is source/static evidence only; Inno 7.1.0 compile success requires a separately approved rebuild.",
+        "No new setup artifact, launch, visual screen, installation, Windows action, commit, push, PR or merge occurred."
+      ],
+      "next_action": "Request separate approval to commit the exact four-file source, regression and append-only evidence package; request a rebuild separately after commit and do not launch setup automatically."
     }
   ]
 }

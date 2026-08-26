@@ -757,14 +757,14 @@ function MeasureCPhaseCaptionHeight(AParent: TWinControl; AWidth: Integer;
 var
   CandidateHeight: Integer;
 begin
-  Result := MeasureCWrappedHeight(AParent, AWidth,
-    #$2713 + ' ' + ACaption, True);
-  CandidateHeight := MeasureCWrappedHeight(AParent, AWidth,
-    #$25CF + ' ' + ACaption, True);
+  Result := MeasureCWrappedHeight(AParent, AWidth, #$2713 + ' ' + ACaption,
+    True);
+  CandidateHeight := MeasureCWrappedHeight(AParent, AWidth, #$25CF + ' ' +
+    ACaption, True);
   if CandidateHeight > Result then
     Result := CandidateHeight;
-  CandidateHeight := MeasureCWrappedHeight(AParent, AWidth,
-    #$25CB + ' ' + ACaption, True);
+  CandidateHeight := MeasureCWrappedHeight(AParent, AWidth, #$25CB + ' ' +
+    ACaption, True);
   if CandidateHeight > Result then
     Result := CandidateHeight;
 end;

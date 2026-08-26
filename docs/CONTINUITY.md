@@ -11,7 +11,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `codex/installer-experience` (`origin/master`dan 3 commit ileride)
-- Son kanıt: `EV-20260826-034`
+- Son kanıt: `EV-20260826-036`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -122,10 +122,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   (`EV-20260826-028`, `-029`). İki syntax hatası regression-first kapandı (`-030`);
   build exit 0, 56,344,277 byte, `c65a5fbc...3c3bb39`, NotSigned (`-031`). Pre-install
   görseli reddedildi; `Kur` çalışmadı ve süreç sızıntısı yoktu (`-032`).
-- Kullanıcı ikinci uygulanabilir C v2'yi güncel baseline seçti. Üç DPI bitmap,
-  native state/progress ve High Contrast/dar/taşan metin fallback'li uyarlama
-  **44 passed**, çift incelemede açık P0/P1 olmadan exact `326f9be` commit'ine
-  bağlandı (`-033`, `-034`); build/launch/piksel/DPI/erişilebilirlik PASS'i değil.
+- İkinci C v2 exact `326f9be`ye bağlandı (`-033`, `-034`). İlk Inno 7.1.0 build
+  satır-başı hex kodunda fail-closed durdu; setup/sızıntı yok (`-035`). Minimal
+  formatting fix'i regression-first **44 passed** ve karşıt incelemede açık P0/P1
+  olmadan kapandı (`-036`); rebuild/launch/görsel kabul henüz yapılmadı.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -159,7 +159,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-Exact commit readback kaydını commit etmek için ayrıca açık onay iste; build,
+Hex-fix/test/kanıt paketini commit etmek için ayrıca açık onay iste; rebuild,
 setup launch ve kurulum yetkisi bu onaydan çıkarılmaz.
 
 ## Sonraki sıra
