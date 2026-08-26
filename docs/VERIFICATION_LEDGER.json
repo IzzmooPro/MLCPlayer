@@ -5631,6 +5631,47 @@
         "No installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Use the user's explicit bounded authorization in sequence: commit/readback the restore package, then rebuild with Inno 7.1.0, then inspect only the pre-install screen without clicking Install."
+    },
+    {
+      "id": "EV-20260826-040",
+      "recorded_at_utc": "2026-08-26T13:00:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "d1dc6583bd77b8cf9b2d48ac3f0803f8aa8c0f93",
+      "baseline_commit": "d1dc6583bd77b8cf9b2d48ac3f0803f8aa8c0f93",
+      "evidence_commit": "d1dc6583bd77b8cf9b2d48ac3f0803f8aa8c0f93",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/PACKAGING_PLAN.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss packaging/make_wizard_images.py tests/test_installer_branding_regressions.py",
+        "git diff --cached --name-only",
+        "git diff --cached --check",
+        "git commit --amend --no-edit",
+        "git rev-parse HEAD",
+        "git show --format=%P -s HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_installer_branding_regressions.py tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "python -c \"from pathlib import Path; s=Path('packaging/MLCPlayer.iss').read_text(encoding='utf-8-sig'); assert 'WizardBackImageFile=' not in s; assert 'WizardImageFile=wizard\\\\wizard-large.bmp' in s; assert 'WizardSmallImageFile=wizard\\\\wizard-small.bmp' in s; assert 'CVisualShellEnabled' not in s; print('COMMITTED_PREVIOUS_SCREEN_OK')\"",
+        "git status --short --branch"
+      ],
+      "subject": "Committed exact previous installer screen restoration",
+      "evidence": [
+        "the bounded restore commit completed as exact d1dc6583bd77b8cf9b2d48ac3f0803f8aa8c0f93 with exact parent 99694d747e98c0509c2284d4c2dfa9d9699e3cc7",
+        "readback showed exactly the nine expected canonical docs, installer source, generator, three c-back deletions and branding regression paths",
+        "the committed installer uses the previous WizardImageFile and WizardSmallImageFile set, contains no WizardBackImageFile or CVisualShell state, and preserves the known continuation fixes",
+        "the committed impact family completed with 58 passed, the working tree was clean and the branch measured eight commits ahead and zero behind origin/master"
+      ],
+      "summary": "The previous installer screen source is restored and bound to an exact local commit with verified scope and tests.",
+      "limitations": [
+        "No rebuild or visual launch has yet proven the committed pixels.",
+        "The on-disk setup still belongs to the cancelled v2 source until the next exact rebuild replaces it.",
+        "No installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Under the user's bounded continuous authorization, commit this readback record, rebuild exact committed source with Inno 7.1.0, then inspect only pre-install pages without clicking Install."
     }
   ]
 }
