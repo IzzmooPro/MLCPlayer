@@ -9,7 +9,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Kayıt hazırlanırken doğrulanan HEAD: `61f97132e2a0ce90e72283e43a8aa30c230afdb7`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
 - Dal: `codex/installer-experience` (`origin/master`dan 19 commit ileride)
-- Son kanıt: `EV-20260826-057`
+- Son kanıt: `EV-20260826-058`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -126,8 +126,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   (`-039`, `-040`). Eski `c65...` EXE yoktur; v2 EXE restore kaynağını temsil etmez.
 - Restore build'inde Welcome döndü, ilk Summary reddedildi (`-041`, `-042`); `ReadyMemo` düzeltmesi
   `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
-- Foreign-PATH ICU QtWidgets failure'ı (`-054`) için çift-süzgeçte **448 passed** veren root-policy
-  ve OS-API child-env fix'i exact `61f9713` commit'ine bağlandı (`-056`, `-057`).
+- ICU fix'i `61f9713`e bağlandı; exact `b28b4c4` unsigned build'i `dbecc062...c8322f7`
+  üretti, foreign DLL 0 ve Qt/System32 statik kapanışı tamdı (`-056`–`-058`).
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -161,7 +161,7 @@ kaydında provenance olarak bağla; ardından ekran metni, odak ve akış işine
 
 ## Sıradaki tek adım
 
-EV057 commit-readback kaydını ayrı onayla commit et; ardından temiz build için ayrıca onay al.
+EV058 exact source-build kaydını ayrı onayla commit et; ardından tek kontrollü frozen launch için ayrıca onay al.
 
 ## Sonraki sıra
 

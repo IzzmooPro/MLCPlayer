@@ -6346,6 +6346,51 @@
         "No setup launch, installation, push, PR, merge, tag or release occurred."
       ],
       "next_action": "Request separate approval to commit this readback record; afterward request separate approval for one clean build from exact 61f97132e2a0ce90e72283e43a8aa30c230afdb7."
+    },
+    {
+      "id": "EV-20260826-058",
+      "recorded_at_utc": "2026-08-26T17:40:12Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "baseline_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "artifact_commit": "b28b4c4241fda6fc4d87c63ea4d00431e85db573",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "set MLC_HOSTED_UNSIGNED_BUILD=1&& call packaging\\build_unsigned_main.bat",
+        "Get-FileHash -Algorithm SHA256 and Get-AuthenticodeSignature for the exact setup and packaged Player",
+        "direct _internal root and recursive forbidden ICU, API-set and UCRT DLL readback",
+        "required PyQt6 pyd and Qt6 DLL existence, size and SHA-256 readback",
+        "Analysis-00.toc and COLLECT-00.toc foreign-provenance and required-payload inspection",
+        "static PE import and export closure for PyQt6, Qt6 and System32 ICU",
+        "Get-CimInstance Win32_Process build, compiler and setup process-leak readback",
+        "git status --short --branch; git rev-parse HEAD; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.39.exe": "dbecc062f3452492e9675249a0b4227515875457d5d631945c3774018c8322f7",
+        "packaged-MLC-Player.exe": "ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463"
+      },
+      "subject": "Clean unsigned build excludes foreign ICU and PATH provenance",
+      "evidence": [
+        "the official unsigned-main chain completed exit 0 with DONE from exact b28b4c4241fda6fc4d87c63ea4d00431e85db573 after verified cleanup of the exact old build, dist and v0.39 setup targets",
+        "the new unsigned setup is 55933326 bytes with SHA-256 dbecc062f3452492e9675249a0b4227515875457d5d631945c3774018c8322f7 and Authenticode status NotSigned; no detached signature exists",
+        "the packaged v0.39 Player is 3133110 bytes with SHA-256 ac09ec12ae2d82c3b1c12dece21d29d22989295abf4f0c7a43dc4923fc2f1463",
+        "Analysis and COLLECT provenance contained zero Poppler, libheif, JXRLib, Codex-runtime, ICU, API-set or UCRT hit and final _internal contained zero forbidden root or recursive ICU DLL",
+        "all six required PyQt6 and Qt6 payload files were present; static PE closure found no missing Qt edge and all twenty Qt6Core ICU imports matched current-host System32 ICU exports",
+        "artifact and TOC timestamps formed one post-commit build chain, the previous bad setup and Player hashes differed, no stale signature or manifest remained and no relevant process leaked",
+        "independent positive and adversarial artifact reviews reported bounded source_build PASS with no P0 or P1 finding"
+      ],
+      "summary": "The exact clean unsigned build excludes the proven foreign-PATH ICU collision and passes artifact-level Qt dependency closure.",
+      "limitations": [
+        "Static import and export closure does not prove Windows loader selection or a real frozen QtWidgets import.",
+        "This source_build PASS does not prove setup launch, installation, installed payload, visual Progress or user acceptance and does not yet close EV-20260826-054.",
+        "The setup and Player are unsigned; no launch, installation, push, PR, merge, tag or release occurred."
+      ],
+      "next_action": "Request separate approval to commit this exact source-build record; afterward request separate approval for one controlled frozen application launch with exit, visible-state and process-leak readback."
     }
   ]
 }
