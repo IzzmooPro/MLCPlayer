@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `ce8211be185663d1020c7c3aed1c986a26dc296b`
+- Kayıt hazırlanırken doğrulanan HEAD: `e262c0c50925d8c0d90cc700d5f53f36edda35ca`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-009`
+- Son kanıt: `EV-20260826-010`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -66,7 +66,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   Git'e alınmaz ve seçim gerçek Inno Setup davranışı sayılmaz.
 - `codex/installer-ux-c-selection` görev dalı exact `ce8211b` head'iyle origin'e
   push edildi ve yerel/uzak görev dalı `0/0` eş okundu (`EV-20260826-009`). PR
-  henüz oluşturulmadı.
+  #50 daha sonra exact `e262c0c` head'iyle açıldı. Zorunlu hosted run
+  `32937990279`, **4967 passed / 30 skipped / 0 failed** ve
+  `LEDGER_APPEND_ONLY_OK` verdi (`EV-20260826-010`). Bu continuity yenilemesi
+  yeni head oluşturacağından aynı eski run merge yetkisi vermez.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -93,15 +96,15 @@ veya eksik marker PASS değildir.
 
 ## Sıradaki tek adım
 
-`EV-20260826-009` kayıt commit'ini mevcut uzak görev dalına push etmek için
-kullanıcıdan ayrıca açık onay al. Bu onaydan önce branch güncellemesi, PR,
-installer kodu, build veya fiziksel kurulum yapma.
+`EV-20260826-010` continuity kayıt commit'ini mevcut PR #50 dalına push etmek
+için kullanıcıdan ayrıca açık onay al. Bu onaydan önce push, merge, installer
+kodu, build veya fiziksel kurulum yapma.
 
 ## Sonraki sıra
 
-1. Push sonrasında PR oluşturmak için ayrıca açık onay al.
-2. PR exact head'inde zorunlu hosted `test` PASS sonucunu doğrula; ancak bundan
-   sonra merge için ayrıca açık onay al.
+1. Kayıt commit'ini mevcut PR dalına push etmek için ayrıca açık onay al.
+2. PR'ın yeni exact head'inde zorunlu hosted `test` PASS sonucunu doğrula;
+   ancak bundan sonra merge için ayrıca açık onay al.
 3. Kayıt zinciri protected master'a alındıktan sonra C yönünün ekran
    metinlerini, klavye odak sırasını ve ekran akışını kesinleştir; uygulama
    değişikliği için ayrıca açık onay al.
