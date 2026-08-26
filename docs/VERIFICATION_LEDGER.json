@@ -4253,6 +4253,30 @@
         "No product or installer implementation code, build, installation, native playback, Windows setting, merge, tag or release changed."
       ],
       "next_action": "Request separate approval to commit this four-file PR-fix record, then request branch-push approval separately and wait for the new exact-head required check without rerunning the failed job."
+    },
+    {
+      "id": "EV-20260826-004",
+      "recorded_at_utc": "2026-08-26T05:37:35Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "6428af94125514876f6e8b15d07ea1d02111dccf",
+      "baseline_commit": "567328f247601a3e3b0a6ba85b3b960dacb4d272",
+      "evidence_commit": "6428af94125514876f6e8b15d07ea1d02111dccf",
+      "subject": "Committed PR 48 packaging-ownership repair",
+      "evidence": [
+        "the separately approved repair commit completed as 6428af94125514876f6e8b15d07ea1d02111dccf with subject docs: clarify packaging ownership contracts",
+        "the commit has exact parent 567328f247601a3e3b0a6ba85b3b960dacb4d272 and contains the four-file scope recorded by EV-20260826-003",
+        "git show readback reported 94 insertions and 12 deletions across continuity, packaging plan, append-only ledger and the release-documentation regression",
+        "the immediate post-commit working tree was clean; the local task branch measured one commit ahead of its remote and three commits ahead of origin/master",
+        "EV-20260826-002 remains FAILED hosted evidence and EV-20260826-003 remains unchanged working-tree evidence; this record binds only the deterministic repair to its actual commit"
+      ],
+      "summary": "The semantic packaging-document ownership repair is committed locally and ready for a separately approved task-branch push that will create a new exact-head PR check.",
+      "limitations": [
+        "This deterministic commit readback does not turn the failed PR run into PASS and does not provide a new hosted result.",
+        "Commit 6428af9 is not yet on the remote task branch; PR 48 still points to 567328f and its required check remains red.",
+        "No product or installer implementation code, build, installation, native playback, Windows setting, merge, tag or release changed."
+      ],
+      "next_action": "Request separate approval to commit this EV-20260826-004 evidence-link record, then request branch-push approval separately; do not rerun the failed hosted job or merge while the required check is red."
     }
   ]
 }

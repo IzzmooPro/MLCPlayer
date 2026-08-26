@@ -6,12 +6,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `6308d553f7251438abcb509537cc8f7f77ff21ed`
+- Kayıt hazırlanırken doğrulanan HEAD: `6428af94125514876f6e8b15d07ea1d02111dccf`
 - Güncel HEAD/origin farkı: her oturumda `git rev-list --left-right --count
   HEAD...origin/master` ile canlı ölçülür; bu belge kendi commit hash'ini
   önceden tahmin etmez.
 - Dal: `master` (yerel çalışma dalı farklı ad taşıyabilir)
-- Son kanıt: `EV-20260826-003`
+- Son kanıt: `EV-20260826-004`
 - Yayın kararı: **v0.39 canlı ve latest; 87 yayın varlığı eş, public indirme,
   kurulum, açılış ve gerçek medya oynatma kullanıcı kabulü geçti.**
 
@@ -24,10 +24,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   passed / 30 skipped / 1 failed** verdi (`EV-20260826-002`). Tek hata
   `PACKAGING_PLAN.md` için stale bütün-belge-tarihsel testiydi; otomatik retry
   yapılmadı.
-- Semantik sahiplik düzeltmesi ve `EV-20260826-003` çalışma ağacındadır;
-  güncel UX, kalıcı paketleme kararları ve tarihsel snapshot ayrımı dar grupta
-  **13 passed** ve bağımsız karşıt incelemede bloklayıcı bulgusuzdur. HEAD veya
-  remote dal henüz bu düzeltmeyi içermez.
+- Semantik sahiplik düzeltmesi `EV-20260826-003` ile kanıtlandı: güncel UX,
+  kalıcı paketleme kararları ve tarihsel snapshot ayrımı dar grupta
+  **13 passed** ve bağımsız karşıt incelemede bloklayıcı bulgusuzdur. Düzeltme
+  exact `6428af9` commit'indedir; yerel görev dalı remote görev dalından bir
+  commit ileridedir. `EV-20260826-004` bağlantı kaydı henüz çalışma ağacındadır.
 - `master` için PR ve GitHub Actions `test` kapısı aktiftir. GitHub approving
   review sayısı `0` olsa da bağımsız çift-süzgeç süreci uygulanır; force-push,
   protection bypass ve doğrudan master değişikliği yapılmaz.
