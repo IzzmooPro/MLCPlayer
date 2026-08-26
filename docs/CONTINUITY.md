@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 26 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `98c9511a81943fcc84a6e6652a2ca24f3a9ba74e`
+- Kayıt hazırlanırken doğrulanan HEAD: `ba0a2a6885a04f57461e5ef51e29cc61267cb825`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-installed-acceptance` (exact `origin/master` tabanı; yalnız ledger/continuity kayıt değişikliği kirli)
-- Son kanıt: `EV-20260826-079`
+- Dal: `codex/addon-ready-copy` (exact `ba0a2a6` tabanı; add-on ISS, regresyon ve iki kayıt belgesi kirli)
+- Son kanıt: `EV-20260826-081`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -77,6 +77,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   yeni Player/Settings/tarayıcı süreci açılmadı (`EV-20260826-079`). Setup launcher
   exit code'u tutulmadığından ve aktif ayar baseline'ı Player açılmadan önce
   alındığından genel exit-code veya kullanıcı-ayar-koruma PASS'i yazılmadı.
+- Exact v0.40 add-on maintenance, Ready ekranı görünmeyen `Sonraki` eylemine
+  yönlendirirken gerçek düğme `Kur` olduğu için kopya başlamadan iptal edildi;
+  103 dosya, ayarlar, kayıtlar ve süreçler değişmeden kaldı (`EV-20260826-080`).
+  Regression-first düzeltme yalnız Inno'nun iki hatalı Türkçe Ready mesajını
+  override eder; hedef/aile **1/14 passed**, ilgili aile **33 passed**, gerçek
+  main+add-on compile preflight PASS ve çift-süzgeç temizdir (`EV-20260826-081`).
 - C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
   merge edildi; exact commit/run/parent ayrıntıları append-only
   `EV-20260826-009`–`017` ve `EV-20260826-028` kayıtlarındadır.
@@ -141,20 +147,20 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact v0.40 Internet Video add-on için tam main/add-on sahiplik ve aktif-ayar
-baseline'ından kullanıcı kontrollü interaktif aynı-sürüm maintenance senaryosunu
-çalıştır; bunu upgrade diye adlandırma ve henüz uninstall/rollback başlatma.
+Exact dört dosyalık EV080/EV081 paketini commit et; ardından görev dalı push,
+protected-master PR/hosted test ve merge kapılarını sırayla tamamlamadan yeni
+add-on artifact build veya fiziksel retry yapma.
 
 ## Sonraki sıra
 
-1. Dist launch geçerse mevcut 47-DLL bozuk kurulumu elle temizlemeden exact
-   setup ile kullanıcı kontrollü reinstall ve ekran görüntüsü kabuline geç.
-2. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
+1. Exact merged commit'ten yeni add-on artifact üretip ad/boyut/SHA ve imza
+   doğrulamasını kaynak build katmanında kaydet.
+2. Yeni exact artifact üzerinde Türkçe Ready, Geri→İleri, bakım kurulumu,
+   sahiplik ve süreç readback'ini kullanıcı kontrollü fiziksel kabulde ölç.
+3. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
    yeniden kullanarak dar kabul sırasını belirle.
-3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
+4. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
-4. Internet Video add-on güven ve eş-sürüm zincirini fail-closed tasarla;
-   uygulama, build ve kurulum için ayrı onay al.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

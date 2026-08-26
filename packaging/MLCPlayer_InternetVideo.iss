@@ -69,6 +69,13 @@ Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 
+[Messages]
+; Inno'nun Türkçe dil dosyasında düğme "Kur" iken yerleşik Ready metni
+; hâlâ görünmeyen "Sonraki" düğmesine yönlendiriyor. Native ReadyLabel2a/2b
+; seçimini ve yerleşimini koru; yalnız ölçülen iki Türkçe mesajı düzelt.
+turkish.ReadyLabel2a=Kuruluma başlamak için Kur'u seçin. Ayarları gözden geçirmek veya değiştirmek için Önceki'yi seçin.
+turkish.ReadyLabel2b=Kuruluma başlamak için Kur'u seçin.
+
 [CustomMessages]
 english.PlayerRequired=MLC Player must be installed first.%nThis add-on adds the internet video components to an existing installation.
 turkish.PlayerRequired=Önce MLC Player kurulmalıdır.%nBu ek paket internet videosu bileşenlerini mevcut kuruluma ekler.

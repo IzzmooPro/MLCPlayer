@@ -7226,6 +7226,93 @@
         "This is exact-artifact installed acceptance only; it is not Authenticode, SmartScreen, media playback, tag or release acceptance."
       ],
       "next_action": "Run the exact v0.40 Internet Video add-on interactive same-version maintenance scenario from a complete main/add-on ownership and active-settings baseline; do not call it an upgrade and do not start uninstall or rollback yet."
+    },
+    {
+      "id": "EV-20260826-080",
+      "recorded_at_utc": "2026-08-26T20:56:32Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "ba0a2a6885a04f57461e5ef51e29cc61267cb825",
+      "artifact_source_commit": "98c9511a81943fcc84a6e6652a2ca24f3a9ba74e",
+      "commands": [
+        "git rev-parse --show-toplevel; git status --short --branch; git log -1 --oneline --decorate; git rev-list --left-right --count HEAD...origin/codex/v040-installed-acceptance",
+        "Get-FileHash installer_output\\MLCPlayer_InternetVideo_v0.40.exe -Algorithm SHA256; Get-AuthenticodeSignature installer_output\\MLCPlayer_InternetVideo_v0.40.exe",
+        "function FileRows($root){if(-not(Test-Path $root)){return @()}; $base=(Resolve-Path $root).Path; @((Get-ChildItem $base -Recurse -File -ErrorAction Stop | Sort-Object FullName | ForEach-Object {[pscustomobject]@{Relative=$_.FullName.Substring($base.Length).TrimStart('\\');Length=$_.Length;MtimeUtc=$_.LastWriteTimeUtc.ToString('o');SHA256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash}}))}; FileRows 'C:\\Program Files\\MLC Player'; FileRows (Join-Path $env:APPDATA 'MLCPlayer')",
+        "function RegRows($path){if(-not(Test-Path $path)){return $null}; $out=@{}; foreach($k in @((Get-Item $path)) + @(Get-ChildItem $path -Recurse)){ $vals=@{}; foreach($p in (Get-ItemProperty $k.PSPath).PSObject.Properties | Where-Object {$_.Name -notmatch '^PS'}){$vals[$p.Name]=$p.Value}; $out[$k.Name]=$vals}; $out}; RegRows 'HKCU:\\Software\\MLCPlayer\\MLCPlayer'; RegRows 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{EB0DD5CF-F20B-4B23-A1C9-2C23A83A8758}_is1'; RegRows 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{7C4F2A61-9B3D-4E58-9C2A-5D8E1F0B7A34}_is1'; RegRows 'HKLM:\\Software\\Classes\\Applications\\MLC Player.exe'",
+        "Start-Process -FilePath installer_output\\MLCPlayer_InternetVideo_v0.40.exe -ArgumentList '/LOG=<private-log-path>' -PassThru",
+        "user selected Cancel on the Ready page before file copy; repeat the exact FileRows and RegRows commands",
+        "in-session JavaScript: const b=JSON.parse(String(load('addon_maintenance_baseline_json')).trim()); const p=JSON.parse(String(load('addon_cancel_post_json')).trim()); const arr=v=>v==null?[]:(Array.isArray(v)?v:[v]); const rows=v=>new Map(arr(v).map(x=>[x.Relative,x])); const cmpRows=(x,y)=>{const before=rows(x),after=rows(y);return {before:before.size,after:after.size,missing:[...before.keys()].filter(k=>!after.has(k)),added:[...after.keys()].filter(k=>!before.has(k)),content_changed:[...before.keys()].filter(k=>after.has(k)&&(before.get(k).Length!==after.get(k).Length||before.get(k).SHA256!==after.get(k).SHA256)),mtime_changed:[...before.keys()].filter(k=>after.has(k)&&before.get(k).MtimeUtc!==after.get(k).MtimeUtc)}}; const stable=v=>{if(Array.isArray(v))return v.map(stable);if(v&&typeof v==='object')return Object.fromEntries(Object.keys(v).sort().map(k=>[k,stable(v[k])]));return v}; const eq=(x,y)=>JSON.stringify(stable(x))===JSON.stringify(stable(y)); const result={installed:cmpRows(b.Installed,p.Installed),user_data:cmpRows(b.UserData,p.UserData),active_settings_equal:eq(b.ActiveSettings,p.ActiveSettings),main_uninstall_equal:eq(b.MainUninstall,p.MainUninstall),addon_uninstall_equal:eq(b.AddonUninstall,p.AddonUninstall),open_with_equal:eq(b.OpenWith,p.OpenWith)}; const badRows=x=>x.missing.length||x.added.length||x.content_changed.length||x.mtime_changed.length; if(badRows(result.installed)||badRows(result.user_data)||!result.active_settings_equal||!result.main_uninstall_equal||!result.addon_uninstall_equal||!result.open_with_equal)throw new Error('ADDON_CANCEL_READBACK_MISMATCH'); text(JSON.stringify(result,null,2))",
+        "Get-CimInstance Win32_Process | Where-Object {($_.Name -match '^(MLC Player|yt-dlp|deno|mpv|ffmpeg|MLCPlayer_InternetVideo_v0.40)\\.exe$') -or ($_.ExecutablePath -like 'C:\\Program Files\\MLC Player*')}",
+        "Get-Process -Id 46260 -ErrorAction SilentlyContinue"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_InternetVideo_v0.40.exe": "a20901385800fea0637fcf1a0d4d85cdad97d34fb349adc7afbbf2f1fd19bbe2",
+        "addon-maintenance-welcome.png": "4b1116cb79a104ffc4689ac8d0c6d2413992d46d794af8341ae312959676b771",
+        "addon-maintenance-ready-failed.png": "54886a364e884269edc9064b4e015fd203d0f043263916badc6bab344741d17a",
+        "addon-maintenance-cancel-log": "b60a9e7ae04b48493dbe7a4e830a07d4b171a25d8fc7df857b96fe25fc485015"
+      },
+      "subject": "Exact v0.40 Internet Video maintenance Ready-copy failure and safe cancel",
+      "evidence": [
+        "the exact 48909120-byte unsigned add-on setup opened against an already installed v0.40 add-on from a complete 103-file, active-settings, registry and zero-process baseline",
+        "the branded Turkish Welcome was visually intact; its built-in generic install wording did not misstate an upgrade but did not identify same-version maintenance",
+        "the Ready page instructed the user to click Sonraki while the only forward action was visibly named Kur",
+        "the user canceled before file copy; post-cancel comparison retained all 103 installed files and both user-data files with zero missing, added, content or mtime change",
+        "active HKCU settings, main/add-on uninstall records and Open With were structurally identical to baseline; the recorded inventory contained no product, runtime or helper process and exact launcher PID 46260 was absent at final readback",
+        "independent reviews classified the Ready copy as a visual acceptance blocker but not an installer-engine or ownership failure"
+      ],
+      "summary": "The exact v0.40 add-on maintenance attempt failed visual acceptance because Ready named a nonexistent Sonraki action; cancellation before copy preserved measured bytes, metadata and registry state, with no product/runtime/helper process in the recorded inventory and the exact launcher PID absent.",
+      "limitations": [
+        "No add-on file was installed or replaced, so this is not maintenance, upgrade, runtime, ownership or uninstall acceptance.",
+        "The generic Welcome wording is a separate non-blocking P2 UX limitation; mode-aware add-on Welcome and downgrade rejection remain unimplemented.",
+        "The setup process exit code was not retained; safe cancellation is established by user action, the short installer log and complete post-cancel readback.",
+        "The final process inventory did not identify Inno's temporary child by PID or command line; no general all-setup-process claim is made.",
+        "The pre/post snapshots existed only as serialized in-session terminal data; the digested screenshots and cancel log are the durable private artifacts."
+      ],
+      "next_action": "Add a regression that fails on the Turkish Sonraki/Kur mismatch, override only the measured native Turkish ReadyLabel2a/2b messages and run the narrow add-on plus real Inno compile preflight gates."
+    },
+    {
+      "id": "EV-20260826-081",
+      "recorded_at_utc": "2026-08-26T20:56:32Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "ba0a2a6885a04f57461e5ef51e29cc61267cb825",
+      "baseline_commit": "ba0a2a6885a04f57461e5ef51e29cc61267cb825",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "packaging/MLCPlayer_InternetVideo.iss",
+        "tests/test_internet_video_addon_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "rg -n -C 4 'Ready|CustomMessages|InitializeWizard|CurPageChanged|InternetVideo' tests/test_internet_video_addon_regressions.py tests/test_inno_compile_preflight_regressions.py packaging/MLCPlayer_InternetVideo.iss",
+        "rg -n '^(ButtonInstall|ButtonBack|ReadyLabel2a|ReadyLabel2b)=' <installed-Inno-language-files>",
+        "red: python -m pytest -q tests/test_internet_video_addon_regressions.py::test_turkish_ready_copy_names_the_visible_install_button",
+        "green: python -m pytest -q tests/test_internet_video_addon_regressions.py::test_turkish_ready_copy_names_the_visible_install_button",
+        "python -m pytest -q tests/test_internet_video_addon_regressions.py tests/test_installer_language_regressions.py tests/test_inno_compile_preflight_regressions.py",
+        "python packaging/verify_inno.py addon (expected command-usage failure: supported scopes are main and all; not retried)",
+        "python packaging/verify_inno.py all",
+        "python -m pytest -q tests/test_internet_video_addon_regressions.py; python -m py_compile tests/test_internet_video_addon_regressions.py; git diff --check"
+      ],
+      "subject": "Fail-closed Turkish add-on Ready action copy",
+      "evidence": [
+        "the exact installed Inno language sources showed ButtonInstall as Kur while only Turkish ReadyLabel2a/2b still named Sonraki; all other seven active languages already matched their native install/back captions",
+        "the target regression first failed only because the add-on had no product-owned Messages section",
+        "the minimal source change overrides only turkish.ReadyLabel2a and turkish.ReadyLabel2b; button caption, page code, layout, other languages, main installer and product code remain untouched",
+        "the regression requires one exact Messages section, exactly two globally unique Turkish keys, exact approved sentences naming Kur and Önceki, and forbids spacing/case variants of NextButton Caption mutation",
+        "the target completed with one passed; the add-on file completed with fourteen passed and the broader installer/add-on family completed with thirty-three passed",
+        "the shared real compiler preflight accepted both main and add-on scripts; py_compile and diff check passed",
+        "an attempted unsupported addon preflight scope failed closed at argument parsing; the command was not retried and the supported all scope ran once",
+        "independent positive and adversarial reviewers found and closed the Kuruluma substring and Caption-spacing fail-open test gaps, then reported no remaining P0, P1 or P2"
+      ],
+      "summary": "The add-on now uses Inno's native Ready state and layout while replacing only the two defective Turkish action messages with exact Kur/Önceki copy protected by a fail-closed regression.",
+      "limitations": [
+        "This is uncommitted deterministic source evidence; no new add-on artifact has been built or physically accepted.",
+        "The real compiler validates all eight language resources and script syntax, not pixel layout or human translation quality in every language.",
+        "The generic Welcome wording, mode-aware maintenance text and add-on downgrade rejection remain separate product-hardening work.",
+        "The previous exact add-on artifact remains failed for Ready visual acceptance and cannot inherit this source PASS."
+      ],
+      "next_action": "Commit the exact four-file EV080/EV081 package, push the task branch and require a new protected-master PR hosted run before any new add-on build or physical retest."
     }
   ]
 }
