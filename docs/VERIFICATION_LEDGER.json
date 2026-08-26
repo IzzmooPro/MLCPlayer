@@ -6936,6 +6936,45 @@
         "No physical forty-nine-file reinstall cleanup, Progress visual, locked-file abort, rollback, push, PR, merge, version bump, tag or release occurred."
       ],
       "next_action": "Commit EV072, path-exact launch and close the new 6f19d890 Player, then re-snapshot the installed two-residual fixture before one controlled C48097CE reinstall."
+    },
+    {
+      "id": "EV-20260826-073",
+      "recorded_at_utc": "2026-08-26T19:22:39Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "8d23558a61e1be00a156e73edb1af0b8f74125a1",
+      "baseline_commit": "8d23558a61e1be00a156e73edb1af0b8f74125a1",
+      "artifact_commit": "ddeac9cc0aee14a3ec33b5e4626bd60202ede910",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "path-exact Start-Process of the new packaged Player after exact SHA-256 and pre-process checks",
+        "returned PID, executable path, SHA-256, responsiveness, title and window-handle readback",
+        "user visual acceptance and normal close",
+        "post-close PID, process and matching-window absence plus installed fixture, user data and setup identity readback"
+      ],
+      "private_artifact_digests": {
+        "packaged-MLC-Player.exe": "6f19d8904bdc5d5d1aa20c4fb5c19049f1dc13f804653bba58391fe5c190a499",
+        "MLCPlayer_Setup_v0.39.exe": "c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111",
+        "pre-retry-user-data-manifest": "c0758669a0b4b873aae2474aaf661cb8dd9d8a172536b3bb908b6da8afa18741"
+      },
+      "subject": "New dist launch and exact two-residual reinstall fixture readback",
+      "evidence": [
+        "the path-exact launch returned PID 20184 with the expected 6f19d890 artifact, responsive MLC Player title and nonzero window handle",
+        "the user reported no screen problem and closed normally; exact PID, every Player process and matching window were absent afterward",
+        "the installed Player remained the prior 9a5fc567 artifact and the only residual-set matches were the same two exact OpenSSL files with unchanged recorded hashes",
+        "the user settings file retained its old timestamp, 674-byte size and SHA-256 66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c; only the log appended another 66 bytes",
+        "the approved new setup retained SHA-256 c48097ce6d913e0475b565f50434bd17bfde564a38e97886aedca1b4782f4111"
+      ],
+      "summary": "The new dist Player passed bounded startup and the installed two-residual fixture is stable for one controlled retry.",
+      "limitations": [
+        "No media playback, process exit code, stderr, final marker or internal shutdown order was measured.",
+        "No reinstall, Progress visual, locked-file abort, rollback or unchecked Finish action occurred."
+      ],
+      "next_action": "Commit EV073 and run the exact C48097CE setup once without Computer Use; capture Progress and Finish before post-install parity and launch checks."
     }
   ]
 }
