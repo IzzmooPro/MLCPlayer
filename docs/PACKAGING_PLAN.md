@@ -1,16 +1,73 @@
 # MLC Player Paketleme ve Kurulum Planı
 
-> **TARİHSEL KARAR KAYDI:** Bu belge paketleme tasarımının gerekçelerini ve
-> eski ölçüm/checklist snapshot'larını korur; güncel durum veya sıradaki iş
-> kaynağı değildir. Güncel devir için `docs/CONTINUITY.md`, kesin yayın sırası
-> için yalnız `docs/RELEASE_PROCESS.md` kullanılır. Aşağıdaki eski sürüm,
-> boyut ve işaretsiz kutular canlı kaynakla yeniden doğrulanmadan güncel engel
-> sayılmaz.
+> **GÜNCEL INSTALLER UX SÖZLEŞMESİ VE TARİHSEL PAKETLEME KAYITLARI:** Kalıcı
+> paketleme/installer kararları ve güncel UX sözleşmesi bu belgede tutulur;
+> canlı durum veya sıradaki iş buradan çıkarılmaz. Güncel devir
+> için `docs/CONTINUITY.md`, kesin yayın sırası için yalnız
+> `docs/RELEASE_PROCESS.md` kullanılır. Aşağıdaki eski sürüm, ölçüm ve checklist
+> snapshot'ları tarihsel kayıttır; canlı kaynakla yeniden doğrulanmadan güncel
+> engel sayılmaz.
 
-Bu dosya, Windows kurulum paketinin tarihsel tasarım kararlarını açıklar.
-Paketleme aşamasında gerekçeler buradan okunabilir; yürütme sırası
+Bu dosya Windows kurulumunun güncel UX sözleşmesini, kalıcı paketleme
+kararlarını ve tarihsel tasarım kayıtlarını açıklar. Paketleme aşamasında
+gerekçeler buradan okunabilir; yürütme sırası
 `docs/RELEASE_PROCESS.md` üzerinden alınır ve o günkü kaynak, araç sürümleri
 ile Windows kabul sonuçları yeniden doğrulanır.
+
+## Güncel installer UX sözleşmesi
+
+Bu bölüm kurulum deneyiminin onaylanmış ürün sınırıdır. Henüz installer
+uygulaması, build veya fiziksel kurulum kanıtı değildir.
+
+### Sabit kararlar
+
+- Kurulum dili Windows dilinden otomatik seçilir; ayrı dil ekranı gösterilmez.
+- İlk ekran MLC markalı, sade ve ürünün ne kuracağını açıkça anlatır.
+- GPLv3 ve açık kaynak bilgisi sunulur; lisans kabulü zorunlu tutulmaz.
+- VLC benzeri kalabalık bileşen ağacı, ActiveX, Mozilla veya tarayıcı eklentisi
+  gösterilmez.
+- Hedef klasör görünür ve değiştirilebilir; güncellemede önceki hedef korunur.
+- Dosya ilişkilendirmeleri sessizce ele geçirilmez. MLC desteklenen türler için
+  Windows'un "Birlikte aç" listesine eklenir; varsayılan uygulama seçimi
+  Windows Ayarları üzerinden kullanıcıya bırakılır.
+- Telemetri, reklam ve analiz yoktur. Başlangıçta güncelleme kontrolü görünür
+  ve kullanıcı tarafından değiştirilebilir. İnternet Video özelliği ayrı ve
+  isteğe bağlıdır; ana kurulumla otomatik yüklenmez.
+- Kurulumdan önce özet ekranı gösterilir. Kurulum sırasında "Dosyalar
+  hazırlanıyor", "MLC Player kuruluyor" ve "Windows ile bütünleştiriliyor"
+  gibi anlaşılır aşamalar kullanılır; teknik ayrıntılar varsayılan kapalıdır.
+- Son ekranda "MLC Player'ı aç" bulunur. GitHub sayfasını açma varsayılan
+  kapalıdır. İstenirse Windows Varsayılan Uygulamalar ekranı açılabilir.
+- Kullanıcı ayarı, önbelleği veya geçmişi silen bir seçenek kurulum akışına
+  eklenmez.
+
+### Görsel yön adayları
+
+- **A — Sinematik Gece:** Koyu yüzeyler, güçlü turuncu odak ve büyük MLC marka
+  alanı. En belirgin ürün kimliğidir; kontrast ve klavye odağı özellikle
+  doğrulanmalıdır.
+- **B — Windows ile Uyumlu:** Açık nötr yüzey, Windows 11'e yakın düzen ve MLC
+  turuncusunu yalnız önemli eylemlerde kullanır. En tanıdık ve erişilebilir
+  yöndür; marka etkisi A'ya göre daha sakindir.
+- **C — Dengeli Hibrit:** Koyu marka şeridi ile açık içerik yüzeyini
+  birleştirir. Mevcut Inno Setup yapısına en düşük riskle uyarlanabilecek,
+  marka ve kullanım kolaylığı dengeli yöndür.
+
+Konsept bitmap'leri yalnız metin, yerleşim ve marka yönü seçimi içindir;
+Inno Setup'ın gerçek piksel çıktısını, DPI davranışını, erişilebilirliği,
+registry veya kurulum davranışını kanıtlamaz. Private görsel yolları Git'e
+eklenmez.
+
+### Görsel seçimden sonra uygulama sırası
+
+1. Seçilen yönün ekran metinleri ve odak sırası kesinleştirilir.
+2. Ayrı `codex/installer-experience` dalında regresyon önce kırmızı kanıtlanır.
+3. Yalnız installer/test kodu değiştirilir; ürün oynatma koduna dokunulmaz.
+4. Dil, klavye, yüksek DPI, gizlilik metni, kayıt defteri, güncelleme ve
+   kaldırma sözleşmeleri dar testlerle doğrulanır.
+5. Build için ayrıca açık onay alınır.
+6. Gerçek Windows kurulum/güncelleme/kaldırma deneyi için ayrıca açık onay
+   alınır.
 
 ## Kesin karar
 
@@ -416,7 +473,13 @@ zaten icerir).
 - Bu bolum hukuki danismanlik DEGILDIR; MLC Player'in butununun lisans durumu
   hakkinda bu turda kesin hukum verilmemistir.
 
-## YAYIN ENGELI: mpv-2.dll DAGITILAMAZ -> COZULDU (16 Agustos 2026)
+## Tarihsel paketleme kayıtları
+
+Aşağıdaki tarihli libmpv engel ve kapanış ölçümleri dondurulmuş tarihsel
+snapshot'tır. Güncel dağıtım durumu bu bölümden çıkarılmaz; `CONTINUITY.md` ve
+`VERIFICATION_LEDGER.json` üzerinden okunur.
+
+### YAYIN ENGELI: mpv-2.dll DAGITILAMAZ -> COZULDU (16 Agustos 2026)
 
 **DURUM: kapatildi.** Asagidaki teshis kayit olarak korunuyor; en altta
 degisim ve dogrulama sonuclari var.

@@ -17,6 +17,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ISS = ROOT / "packaging" / "MLCPlayer.iss"
 WIZARD_DIR = ROOT / "packaging" / "wizard"
+PACKAGING_PLAN = ROOT / "docs" / "PACKAGING_PLAN.md"
+SEPARATE_UX_PLAN = ROOT / "docs" / "INSTALLER_UX_PLAN.md"
 REPO_URL = "https://github.com/IzzmooPro/MLCPlayer"
 
 
@@ -30,6 +32,31 @@ def _generator():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def test_installer_ux_contract_is_consolidated_into_the_packaging_plan():
+    text = PACKAGING_PLAN.read_text(encoding="utf-8")
+    normalized = " ".join(text.split())
+    assert not SEPARATE_UX_PLAN.exists()
+    assert "## Güncel installer UX sözleşmesi" in text
+    assert "A — Sinematik Gece" in text
+    assert "B — Windows ile Uyumlu" in text
+    assert "C — Dengeli Hibrit" in text
+    for clause in (
+        "Windows dilinden otomatik seçilir",
+        "lisans kabulü zorunlu tutulmaz",
+        "Hedef klasör görünür ve değiştirilebilir",
+        "Dosya ilişkilendirmeleri sessizce ele geçirilmez",
+        "Telemetri, reklam ve analiz yoktur",
+        "İnternet Video özelliği ayrı ve isteğe bağlıdır",
+        "Kurulumdan önce özet ekranı gösterilir",
+        "GitHub sayfasını açma varsayılan kapalıdır",
+        "Kullanıcı ayarı, önbelleği veya geçmişi silen bir seçenek",
+        "Private görsel yolları Git'e eklenmez",
+        "Build için ayrıca açık onay alınır",
+        "Gerçek Windows kurulum/güncelleme/kaldırma deneyi için ayrıca açık onay",
+    ):
+        assert clause in normalized
 
 
 def test_wizard_images_referenced_by_the_installer_exist():

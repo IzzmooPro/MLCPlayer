@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 from datetime import datetime
+from hashlib import sha256
 from pathlib import Path
 
 
@@ -14,6 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 AGENTS = ROOT / "AGENTS.md"
 CLAUDE = ROOT / "CLAUDE.md"
 CONTINUITY = ROOT / "docs" / "CONTINUITY.md"
+CONTINUITY_HISTORY = ROOT / "docs" / "CONTINUITY_HISTORY.md"
 LEDGER = ROOT / "docs" / "VERIFICATION_LEDGER.json"
 PROJECT_HISTORY = ROOT / "docs" / "PROJECT_STATUS.md"
 ROADMAP_HISTORY = ROOT / "docs" / "ROADMAP.md"
@@ -56,6 +58,25 @@ def test_every_agent_has_one_current_starting_point():
     assert "docs/VERIFICATION_LEDGER.json" in agents
     assert "docs/RELEASE_PROCESS.md" in agents
     assert "ayrı ayrı açık" in agents
+
+
+def test_continuity_is_compact_and_history_is_losslessly_routed():
+    current = read(CONTINUITY)
+    history = read(CONTINUITY_HISTORY)
+    ledger_ids = {entry["id"] for entry in ledger()["entries"]}
+    history_ids = set(re.findall(r"EV-[0-9]{8}-[0-9]{3}", history))
+
+    assert len(current.splitlines()) <= 200
+    assert "CONTINUITY_HISTORY.md" in current
+    assert "TARİHSEL ARŞİV" in history
+    assert "## Sıradaki tek adım" not in history
+    assert history_ids
+    assert len(history_ids) == 170
+    assert history_ids <= ledger_ids
+    normalized_history = "\n".join(history.splitlines()) + "\n"
+    assert sha256(normalized_history.encode("utf-8")).hexdigest() == (
+        "8bf29c2f732dd105a9e231bd820fe7f49623ce8e2ff508c5759a225ce60c8ed1"
+    )
 
 
 def test_historical_status_cannot_claim_to_be_the_current_start():

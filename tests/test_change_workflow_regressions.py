@@ -63,6 +63,27 @@ def test_change_workflow_uses_one_automatic_ci_run_per_change():
     assert "sürüm adayı" in text
 
 
+def test_change_workflow_requires_independent_dual_filter_without_test_repeats():
+    text = workflow_text()
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+
+    for contract in (text, agents):
+        normalized = " ".join(contract.split()).casefold()
+        assert "uygulayan" in normalized
+        assert "karşıt inceleyen" in normalized
+        assert "farklı agentlar olmalıdır" in normalized
+        assert "tek nihai pass kaynağı olamaz" in normalized
+        assert "aynı checkout'ta" in normalized
+        assert "ayrı worktree" in normalized
+        assert "fixed" in normalized
+        assert "accepted risk" in normalized
+        assert "rejected with evidence" in normalized
+
+    assert "aynı pahalı koşum" in agents
+    assert "tek tam hosted" in agents
+    assert "tek tam hosted" in text
+
+
 def test_agent_entrypoint_links_to_the_change_workflow():
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     assert "docs/CHANGE_WORKFLOW.md" in agents
