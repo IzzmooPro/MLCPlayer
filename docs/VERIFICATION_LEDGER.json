@@ -7162,6 +7162,70 @@
         "A new commit and new hosted PR run are required; the old run must not be rerun as evidence."
       ],
       "next_action": "Commit the exact three-file EV077/EV078 package, push a new task branch, open a PR and require a fresh exact-head hosted test before merge."
+    },
+    {
+      "id": "EV-20260826-079",
+      "recorded_at_utc": "2026-08-26T20:33:32Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "98c9511a81943fcc84a6e6652a2ca24f3a9ba74e",
+      "baseline_commit": "98c9511a81943fcc84a6e6652a2ca24f3a9ba74e",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git rev-parse --show-toplevel; git status --short --branch; git log -1 --oneline --decorate; git rev-list --left-right --count HEAD...origin/master",
+        "Get-FileHash installer_output\\MLCPlayer_Setup_v0.40.exe -Algorithm SHA256; Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.40.exe",
+        "Start-Process -FilePath 'C:\\Program Files\\MLC Player\\MLC Player.exe' -PassThru; Start-Process -FilePath installer_output\\MLCPlayer_Setup_v0.40.exe -ArgumentList '/LOG=<private-log-path>' -PassThru",
+        "$install='C:\\Program Files\\MLC Player'; $dist=(Resolve-Path 'dist\\MLC Player').Path; $distRows=Get-ChildItem $dist -Recurse -File; foreach($f in $distRows){$rel=$f.FullName.Substring($dist.Length).TrimStart('\\'); $q=Join-Path $install $rel; Test-Path $q; Get-Item $q; Get-FileHash $f.FullName -Algorithm SHA256; Get-FileHash $q -Algorithm SHA256}",
+        "$distRel=@{}; Get-ChildItem $dist -Recurse -File | ForEach-Object {$distRel[$_.FullName.Substring($dist.Length).TrimStart('\\')]=1}; Get-ChildItem $install -Recurse -File | Where-Object {$rel=$_.FullName.Substring($install.Length).TrimStart('\\'); -not $distRel.ContainsKey($rel)} | Select-Object FullName,Length",
+        "function FileRows($root){if(-not(Test-Path $root)){return @()}; $base=(Resolve-Path $root).Path; @((Get-ChildItem $base -Recurse -File -ErrorAction Stop | Sort-Object FullName | ForEach-Object {[pscustomobject]@{Relative=$_.FullName.Substring($base.Length).TrimStart('\\');Length=$_.Length;MtimeUtc=$_.LastWriteTimeUtc.ToString('o');SHA256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash}}))}; FileRows 'C:\\Program Files\\MLC Player'; FileRows (Join-Path $env:APPDATA 'MLCPlayer')",
+        "function RegRows($path){if(-not(Test-Path $path)){return $null}; $out=@{}; foreach($k in @((Get-Item $path)) + @(Get-ChildItem $path -Recurse)){$props=Get-ItemProperty $k.PSPath; $vals=@{}; foreach($p in $props.PSObject.Properties | Where-Object {$_.Name -notmatch '^PS'}){$vals[$p.Name]=$p.Value}; $out[$k.Name]=$vals}; $out}; RegRows 'HKCU:\\Software\\MLCPlayer\\MLCPlayer'",
+        "Get-ItemProperty 'HKCU:\\Software\\MLCPlayer\\MLCPlayer'; Get-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{EB0DD5CF-F20B-4B23-A1C9-2C23A83A8758}_is1'; Get-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{7C4F2A61-9B3D-4E58-9C2A-5D8E1F0B7A34}_is1'; Get-ItemProperty 'HKLM:\\Software\\Classes\\Applications\\MLC Player.exe'",
+        "Get-Process -Id 41856 -ErrorAction SilentlyContinue; Get-CimInstance Win32_Process | Where-Object {($_.Name -match '^(MLC Player|yt-dlp|deno|mpv|ffmpeg|MLCPlayer_Setup_v0.40|SystemSettings|msedge|chrome|firefox)\\.exe$') -or ($_.ExecutablePath -like 'C:\\Program Files\\MLC Player*')}",
+        "Select-String -Path <private-log-path> -Pattern 'RmGetList|Installation process succeeded|Need to restart|Deinitializing Setup|Run entry|ShellExec'",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json,pathlib; d=json.loads(pathlib.Path('docs/VERIFICATION_LEDGER.json').read_text(encoding='utf-8')); assert d['entries'][-1]['id']=='EV-20260826-079'; assert len({e['id'] for e in d['entries']})==len(d['entries']); print('JSON_UNIQUE_OK',len(d['entries']))\"",
+        "python -c \"import json,subprocess,pathlib; old=json.loads(subprocess.check_output(['git','show','origin/master:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); new=json.loads(pathlib.Path('docs/VERIFICATION_LEDGER.json').read_text(encoding='utf-8')); assert new['entries'][:len(old['entries'])]==old['entries']; print('LEDGER_APPEND_ONLY_OK',len(old['entries']),len(new['entries']))\"",
+        "git diff --check; $diff=git diff -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json; if($diff -match 'C:\\\\Users\\\\[^\\s\\\"'']+' -or $diff -match '\\.codex[\\\\/]visualizations'){throw 'PRIVATE_PATH_IN_DIFF'}else{'PRIVATE_PATH_SCAN_OK'}"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.40.exe": "2e674d5c6a371949c3631bd479146be238821e9c8f2e19ab95284e256ab97e51",
+        "installed-MLC-Player-v0.40.exe": "d9f85c399516c964e29f13132826d02655e3542cfe1327a0bf4901a9f594044b",
+        "main-reinstall-log": "ca6f5752b3e5d309f46f1dd5dbed2a5519ce831086bade4e4cb693c92502e3e1",
+        "main-reinstall-open-player-welcome.png": "b90186c9d8a34f61a756a2dff04eb3bd635ed4d5a6c1b9fa06cfb8d2c5254d3b",
+        "main-reinstall-ready.png": "42b586872ad105886d6d6d3c696b6edc85f2708b975a84bd36dd6d7a48c3e936",
+        "main-reinstall-restart-manager.png": "ac078f2db743c16dbc125c8fc43bea580c1d6a1ded6d75457ba5265a7c9b2809",
+        "main-reinstall-progress.png": "4c83d29a05e4e4001ff88dde2e591bcd9268fd73018a24c61d3d9e66049d80b5",
+        "main-reinstall-finish-defaults.png": "5dafba35ecab5eba99fa502ddb6abcc7bf681ca3dadc257cc07e1cda28c98895",
+        "main-reinstall-finish-all-off.png": "43e50cd994a153a032eeab2afb68c06b35cd92afa537a5137d6b94be121155fe"
+      },
+      "subject": "Exact v0.40 interactive upgrade and open-Player maintenance reinstall acceptance",
+      "evidence": [
+        "the exact 55934004-byte unsigned main setup upgraded installed v0.39 to v0.40; the installed 3133111-byte Player matched the source-build artifact SHA-256 and launched from the installed path",
+        "the user accepted the Turkish Welcome, Ready, Progress and Finish screens; independent visual review found no blocker against the accepted C hybrid contract",
+        "the upgrade contained all ninety-one dist files with zero missing and zero mismatch; the twelve additional files were classified as three main documents, four main/add-on uninstaller files and five preserved Internet Video v0.40 files",
+        "the user closed the launched Player normally and the final product/helper process inventory was empty",
+        "during same-version reinstall the live installed Player was listed by Restart Manager and the user retained the close-applications choice; old PID 41856 was absent before file copy",
+        "the installer log recorded successful installation, no Windows restart requirement and normal setup deinitialization",
+        "post-reinstall contained the same 103 relative files; all ninety-one dist files had zero missing and zero mismatch, with only the expected main uninstaller data changing among pre-existing files",
+        "all three Finish actions were visibly unchecked; no Player or helper remained, and every observed Edge or System Settings process predated the test baseline",
+        "the active HKCU settings delta was confined to window geometry bytes written across the controlled Player launch and Restart Manager close; other active settings, both uninstall records and payload identities remained stable",
+        "independent positive and adversarial reviews found no product-payload blocker and corrected the extra-file ownership and legacy-INI evidence boundaries"
+      ],
+      "summary": "The exact v0.40 main artifact passes the bounded interactive v0.39 upgrade plus launch/close flow and the distinct open-Player same-version reinstall: the Restart Manager close-applications path was selected, the old PID was absent before copy, visuals were accepted, payload parity was exact and no product process leaked.",
+      "limitations": [
+        "The setup launcher exit code was not retained; PASS relies on the completed Finish page, installer-log success and post-install readback rather than an exit-code assertion.",
+        "The pre-reinstall snapshot preceded the controlled Player launch, so the application-log append and geometry-byte update cannot be attributed exclusively to the installer; no broader user-settings preservation PASS is claimed.",
+        "The pre/post tree, registry and settings snapshots existed only as serialized in-session terminal data; no persistent private snapshot artifact was created, so only the recorded commands, aggregate readback and digested log/screenshots remain durable.",
+        "The unchanged 674-byte legacy INI is not the active settings owner and is not used as proof of current settings preservation.",
+        "Unchecked Finish actions prove no new target process in this scenario; Default Apps and GitHub positive-action behavior remain separate physical tests.",
+        "Silent install, clean first install, downgrade rejection, cancellation, injected failure and rollback, suspended or close-refusing Player, same-name external process, add-on maintenance/upgrade and both uninstall orders remain unmeasured.",
+        "This is exact-artifact installed acceptance only; it is not Authenticode, SmartScreen, media playback, tag or release acceptance."
+      ],
+      "next_action": "Run the exact v0.40 Internet Video add-on interactive same-version maintenance scenario from a complete main/add-on ownership and active-settings baseline; do not call it an upgrade and do not start uninstall or rollback yet."
     }
   ]
 }
