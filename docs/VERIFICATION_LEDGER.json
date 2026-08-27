@@ -9518,6 +9518,35 @@
         "The five-file package is uncommitted; no build, install, retry, push, PR, merge, tag, upload or release followed."
       ],
       "next_action": "Complete independent adversarial readback and required JSON, append-only, continuity and private-path checks; then request separate commit approval."
+    },
+    {
+      "id": "EV-20260828-008",
+      "recorded_at_utc": "2026-08-27T22:08:37Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "315e83a5d6d1a0a5c97873356abb61ce1b0af39b",
+      "evidence_commit": "315e83a5d6d1a0a5c97873356abb61ce1b0af39b",
+      "subject": "Committed running-Player installer fast-fail and B2 latency evidence package",
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json packaging/MLCPlayer.iss tests/test_installer_language_regressions.py tests/test_installer_process_safety_regressions.py",
+        "git commit -m \"fix: fail fast when Player blocks setup\"",
+        "git rev-parse HEAD; git rev-parse HEAD^; git show --stat --oneline --decorate --no-renames HEAD; git diff-tree --no-commit-id --name-only -r HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py tests/test_installer_language_regressions.py tests/test_installer_branding_regressions.py tests/test_inno_compile_preflight_regressions.py tests/test_continuity_regressions.py tests/test_release_documentation_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json; python scripts/verify_ledger_append_only.py --base-ref origin/master"
+      ],
+      "evidence": [
+        "the separately approved five-file package committed as exact 315e83a5d6d1a0a5c97873356abb61ce1b0af39b with sole parent a4a4ba207e8f233eea07680486f6ffb7a5e24b77",
+        "commit readback reports exactly the two live evidence documents, main Inno source and two installer regression files with 146 insertions and 10 deletions",
+        "post-commit bounded installer, language, branding, compile-preflight, continuity and release-documentation package passed 266 tests",
+        "the ledger remained valid JSON and the committed origin/master ledger remained an exact prefix; the branch was clean and four commits ahead, zero behind origin/master immediately after commit"
+      ],
+      "summary": "The approved fast-fail source, regression and failed physical-latency evidence package is committed and read back at exact 315e83a.",
+      "limitations": [
+        "No compiled artifact exists for 315e83a; physical 5-10-second behavior remains NOT_RUN.",
+        "This post-commit evidence entry and continuity update remain uncommitted until separately approved.",
+        "No build, install, retry, push, PR, merge, tag, upload or release followed the commit."
+      ],
+      "next_action": "Request separate approval to commit this two-document evidence_commit record; then request isolated build approval separately."
     }
   ]
 }

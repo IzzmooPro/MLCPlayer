@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 28 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `a4a4ba207e8f233eea07680486f6ffb7a5e24b77`
+- Kayıt hazırlanırken doğrulanan HEAD: `315e83a5d6d1a0a5c97873356abb61ce1b0af39b`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `3/0`; fast-fail kaynak ve EV006/EV007 kayıt paketi uncommitted)
-- Son kanıt: `EV-20260828-007`
+- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `4/0`; EV008 iki-belge commit-readback kaydı uncommitted)
+- Son kanıt: `EV-20260828-008`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -116,6 +116,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Ayrı onaylı izole build exact `dcfb343` üzerinde exit 0 ve `DONE` verdi; ana setup `B7EAA997...FC8119` / 55.928.017 bayt, add-on `D4A4D799...F9E675` / 48.909.126 bayt, iki detached Ed25519 geçerli, iki EXE Authenticode `NotSigned` ve süreç sızıntısı 0. Dal protected master'dan 2 commit ileride olduğundan bu yalnız `source_build` PASS'tir; publishable RC veya fiziksel B2 değildir (`EV-20260828-004`).
 - Exact B7/D4 normal fiziksel döngüsü gerçek v0.39 yükseltmesi, iki kaldırma sırası, clean install, maintenance, payload/ayar koruması ve final restore ile geçti. Askıya alınmış Player yolu kopya öncesi Abort/exit 5, tam rollback ve sıfır sızıntıyla güvenliydi; fakat Restart Manager **66,715 saniye** bekledi. Kullanıcının 5–10 saniye UX sınırı nedeniyle tam B2 **FAILED** (`EV-20260828-006`).
 - Regression-first installer-only düzeltme maintenance/upgrade sırasında süreç-ömürlü `MLCPlayer-Running` mutex'ini `PrepareToInstall` içinde önce denetler ve çalışan Player varsa kopya/RM bekleyişinden önce sekiz dilde hızlı fail-closed durur. `CloseApplications` fallback'i korunur; force/taskkill/ürün kodu yoktur. Dil sözleşmesi ve yanlış aynı-sihirbaz talimatı kapatıldı; dar paket **60 passed** (`EV-20260828-007`).
+- Onaylı beş-dosya fast-fail/kayıt paketi exact `315e83a` olarak commit edildi; sole parent `a4a4ba2`, dosya sınırı doğru ve post-commit dar paket **266 passed**. EV008 iki-belge evidence-commit kaydı henüz uncommitted; build/fiziksel süre kanıtı yoktur (`EV-20260828-008`).
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -179,7 +180,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV006/EV007 beş-dosya fast-fail paketinin son JSON/append-only/private-path ve bağımsız karşıt okumasını tamamla; sonra commit için ayrıca onay iste. Build ve tek fiziksel süre retry'ı daha sonra ayrı ayrı onaylanmadan yapılmaz. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
+EV008 iki-belge evidence-commit kaydını ayrı onayla commit et; sonra isolated build için ayrıca onay iste. Tek fiziksel süre retry'ı daha sonra ayrıca onaylanmadan yapılmaz. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 
