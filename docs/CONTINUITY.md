@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `9090cafaf9dea52c0aa0422fa8f00c6aa9795680`
+- Kayıt hazırlanırken doğrulanan HEAD: `3abdf13dc3ce0a5d7cf07d1a4a3d656f2fe9e1ec`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/internet-video-format-fallback` (ürün düzeltmesi ve kayıtlar uncommitted)
-- Son kanıt: `EV-20260827-014`
+- Dal: `codex/internet-video-format-fallback` (`origin/master`dan 1 ileride; commit provenance kaydı uncommitted)
+- Son kanıt: `EV-20260827-015`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -100,7 +100,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   URL önkoşulu da setup başlamadan FAILED; release bloklu (`EV-20260827-013`).
 - Regression-first düzeltme izole `web_safari,visionos,web` allowlist ve mpv
   kaçışı getirdi; hedef **2/2**, aile **42 passed / 2 skipped**, py_compile/diff
-  ve bağımsız inceleme temiz (`EV-20260827-014`). Eski kurulu URL önkoşulu FAILED; düzeltilmiş kaynak için ağ/native kabulü NOT_RUN.
+  ve bağımsız inceleme temiz (`EV-20260827-014`); exact paket `3abdf13` olarak geri okundu (`EV-20260827-015`). Eski URL FAILED; yeni kaynak ağ/native NOT_RUN.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -164,7 +164,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact dört dosyalı `EV-20260827-012`–`014` paketini ayrıca açık onayla commit et; build, kurulum, tag veya release başlatma.
+Exact iki belgeli `EV-20260827-015` commit-provenance kaydını ayrıca açık onayla commit et; push, build, kurulum, tag veya release başlatma.
 
 ## Sonraki sıra
 

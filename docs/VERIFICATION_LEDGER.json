@@ -8017,6 +8017,45 @@
         "A native libmpv option-map roundtrip and exact URL acceptance require separate approval after protected merge and rebuild."
       ],
       "next_action": "Request separate approval to commit this exact four-file source and append-only evidence package; do not build, install, push, tag or release."
+    },
+    {
+      "id": "EV-20260827-015",
+      "recorded_at_utc": "2026-08-27T09:30:14Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "3abdf13dc3ce0a5d7cf07d1a4a3d656f2fe9e1ec",
+      "evidence_commit": "3abdf13dc3ce0a5d7cf07d1a4a3d656f2fe9e1ec",
+      "baseline_commit": "3abdf13dc3ce0a5d7cf07d1a4a3d656f2fe9e1ec",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git commit -m \"fix: harden Internet Video client fallback\"",
+        "git status --short --branch",
+        "git log -1 --format=\"%H%n%P%n%s\"",
+        "git show --stat --oneline --decorate --no-renames HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json,pathlib,subprocess; cur=json.loads(pathlib.Path('docs/VERIFICATION_LEDGER.json').read_text(encoding='utf-8')); old=json.loads(subprocess.check_output(['git','show','origin/master:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); ids=[e['id'] for e in cur['entries']]; assert cur['entries'][:len(old['entries'])]==old['entries']; assert len(ids)==len(set(ids)); assert len(pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8').splitlines())==200; print('LEDGER_APPEND_ONLY_OK',len(old['entries']),len(cur['entries']))\"",
+        "git diff --check"
+      ],
+      "subject": "Internet Video bounded-isolation fix commit read-back",
+      "evidence": [
+        "the separately approved four-file package committed as exact 3abdf13dc3ce0a5d7cf07d1a4a3d656f2fe9e1ec with parent 9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+        "the commit subject is fix: harden Internet Video client fallback and its exact tree delta contains only app/runtime_binaries.py, tests/test_runtime_binaries_regressions.py, docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json",
+        "post-commit task worktree was clean before this provenance append and the branch measured one commit ahead and zero behind origin/master",
+        "the provenance package passed ten continuity regression tests; append-only read-back printed LEDGER_APPEND_ONLY_OK 270 274 with unique IDs and the continuity contract remained exactly two hundred lines"
+      ],
+      "summary": "Exact commit read-back binds the regression-first Internet Video client allowlist and isolation change plus EV012-EV014 evidence to commit 3abdf13.",
+      "limitations": [
+        "This commit read-back does not add hosted CI, network URL, native libmpv, build, installer, installed-artifact, push, PR, merge, tag or release evidence.",
+        "The two-document EV015 provenance append is uncommitted and requires a separate commit approval.",
+        "The task branch has not been pushed and origin/master is unchanged."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV015 provenance record; do not push, open a PR, build, install, tag or release."
     }
   ]
 }
