@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 28 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `994f0e25c7774b3bbdd5f961530a62137a847f16`
+- Kayıt hazırlanırken doğrulanan HEAD: `e3a21950d7669a2da4419243b130e2a4f5843047`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `0/0`; EV030-EV038 ve EV-20260828-001/002 beş-dosya paketi uncommitted)
-- Son kanıt: `EV-20260828-002`
+- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `1/0`; beş-dosya B2 paketi exact `e3a2195`, EV-20260828-003 iki-belge readback kaydı uncommitted)
+- Son kanıt: `EV-20260828-003`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -176,11 +176,11 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Final cycle'ı durdur; beş-dosya paketi için ayrı commit, ardından ayrı build onayı olmadan restore/rebuild/install/uninstall/retry/push/tag/release yapma.
+Final cycle'ı durdur; iki-belge `e3a2195` evidence-commit kaydını ayrı onayla commit et, ardından ayrı build onayı olmadan restore/rebuild/install/uninstall/retry/push/tag/release yapma.
 
 ## Sonraki sıra
 
-1. Beş-dosya kanıt paketini ayrı onayla commit et; sonra izole exact build ve yeni artifact kimliği için ayrı build onayı iste.
+1. İki-belge evidence-commit kaydını ayrı onayla commit et; sonra izole exact build ve yeni artifact kimliği için ayrı build onayı iste.
 2. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar

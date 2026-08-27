@@ -9312,6 +9312,35 @@
         "No rebuild, restore, install, uninstall, commit, push, tag, upload or release action was performed."
       ],
       "next_action": "Request separate commit approval for this five-file evidence package; only after clean commit readback request separate isolated build approval."
+    },
+    {
+      "id": "EV-20260828-003",
+      "recorded_at_utc": "2026-08-27T21:24:49Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "e3a21950d7669a2da4419243b130e2a4f5843047",
+      "evidence_commit": "e3a21950d7669a2da4419243b130e2a4f5843047",
+      "subject": "Committed v0.40 B2 process-contract and artifact-loss evidence package",
+      "commands": [
+        "git commit -m \"docs: record v0.40 B2 process contract\"",
+        "git rev-parse HEAD; git rev-parse HEAD^; git show --stat --oneline --decorate --no-renames HEAD; git diff-tree --no-commit-id --name-only -r HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_release_documentation_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json > $null; python scripts/verify_ledger_append_only.py --base-ref origin/master"
+      ],
+      "evidence": [
+        "the separately approved five-file package committed as exact e3a21950d7669a2da4419243b130e2a4f5843047 with sole parent 994f0e25c7774b3bbdd5f961530a62137a847f16",
+        "commit readback reports exactly docs/CONTINUITY.md, docs/RELEASE_PROCESS.md, docs/VERIFICATION_LEDGER.json, tests/test_continuity_regressions.py and tests/test_release_documentation_regressions.py with 805 insertions and 60 deletions",
+        "post-commit scoped regressions passed 216 tests and the ledger remained valid JSON with the committed origin/master ledger as an exact prefix",
+        "the worktree was clean immediately after commit and the branch readback was one commit ahead and zero behind origin/master"
+      ],
+      "summary": "The approved five-file B2 process-contract package is committed and read back at exact e3a2195; no artifact build or product mutation followed.",
+      "limitations": [
+        "This deterministic commit evidence does not restore the missing installer executables or add source-build, installed-artifact, native, tag or release acceptance.",
+        "The final clean physical cycle remains NOT_RUN.",
+        "This append-only evidence entry and continuity update are prepared after e3a2195 and remain uncommitted until separately approved.",
+        "No push, PR, merge, build, install, uninstall, retry, tag, upload or release action was performed."
+      ],
+      "next_action": "Request separate approval to commit this two-document evidence_commit record; after its clean readback request isolated build approval separately."
     }
   ]
 }
