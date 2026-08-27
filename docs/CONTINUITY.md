@@ -8,8 +8,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Güncelleme: 28 Ağustos 2026
 - Kayıt hazırlanırken doğrulanan HEAD: `e3a21950d7669a2da4419243b130e2a4f5843047`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `1/0`; beş-dosya B2 paketi exact `e3a2195`, EV-20260828-003 iki-belge readback kaydı uncommitted)
-- Son kanıt: `EV-20260828-003`
+- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `2/0`; B2 belgeleri exact `e3a2195` ve `dcfb343`, EV-20260828-004 iki-belge source-build kaydı uncommitted)
+- Son kanıt: `EV-20260828-005`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -113,6 +113,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   kullanıcı Retry/Ignore yerine Abort seçti, exit 5 ve rollback başarılıydı. Tüm
   ölçülen 103+2 dosya ile ayar/uninstall/OpenWith/kısayol yüzeyleri exact korundu; resume 0, normal kapanış, watchdog
   ateşlenmedi, sızıntı 0; evaluator **23/23 PASS**, karşıt P0/P1=0 (`EV-20260827-036`); app-level semantik/normal maintenance/silent/add-on'a aktarılmaz, belge kapanışı P0/P1/P2=0 (`EV-20260827-037`).
+- Ayrı onaylı izole build exact `dcfb343` üzerinde exit 0 ve `DONE` verdi; ana setup `B7EAA997...FC8119` / 55.928.017 bayt, add-on `D4A4D799...F9E675` / 48.909.126 bayt, iki detached Ed25519 geçerli, iki EXE Authenticode `NotSigned` ve süreç sızıntısı 0. Dal protected master'dan 2 commit ileride olduğundan bu yalnız `source_build` PASS'tir; publishable RC veya fiziksel B2 değildir (`EV-20260828-004`).
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -176,11 +177,11 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Final cycle'ı durdur; iki-belge `e3a2195` evidence-commit kaydını ayrı onayla commit et, ardından ayrı build onayı olmadan restore/rebuild/install/uninstall/retry/push/tag/release yapma.
+İki-belge `EV-20260828-004` source-build kaydını ayrı onayla commit et; ardından exact yeni artifact B2 fiziksel kabulü için ayrıca onay almadan install/uninstall/retry/push/tag/release yapma.
 
 ## Sonraki sıra
 
-1. İki-belge evidence-commit kaydını ayrı onayla commit et; sonra izole exact build ve yeni artifact kimliği için ayrı build onayı iste.
+1. İki-belge source-build kaydını ayrı onayla commit et; sonra exact yeni artifact B2 fiziksel kabulü için ayrı onay iste.
 2. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar

@@ -9341,6 +9341,98 @@
         "No push, PR, merge, build, install, uninstall, retry, tag, upload or release action was performed."
       ],
       "next_action": "Request separate approval to commit this two-document evidence_commit record; after its clean readback request isolated build approval separately."
+    },
+    {
+      "id": "EV-20260828-004",
+      "recorded_at_utc": "2026-08-27T21:39:20Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "dcfb343f931bee98f439bcc5f8516f980bd30d09",
+      "baseline_commit": "dcfb343f931bee98f439bcc5f8516f980bd30d09",
+      "working_tree_state": "clean before evidence recording",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Isolated v0.40 main and Internet Video source build",
+      "commands": [
+        "git rev-parse HEAD; git status --porcelain=v1; exact pre-build installer_output identity readback",
+        "cmd.exe /d /c packaging\\build_release.bat",
+        "git rev-parse HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master",
+        "python packaging/verify_build.py --post",
+        "python packaging/verify_build.py --final installer_output\\MLCPlayer_Setup_v0.40.exe",
+        "python packaging/verify_build.py --final installer_output\\MLCPlayer_InternetVideo_v0.40.exe",
+        "Get-Item and Get-FileHash SHA256 for the four exact artifacts; packaging.prepublish.signature_is_valid for both EXEs; Get-AuthenticodeSignature for both EXEs; worktree process readback"
+      ],
+      "artifacts": [
+        {
+          "name": "MLCPlayer_Setup_v0.40.exe",
+          "size_bytes": 55928017,
+          "sha256": "B7EAA9972B347F2546BDC72B1B198917C6B7DDE4B5FE35D902EDC826C2FC8119"
+        },
+        {
+          "name": "MLCPlayer_Setup_v0.40.exe.sig",
+          "size_bytes": 88,
+          "sha256": "FE17A04682831A3C1628856E19C481666AE746B4575C2513DD6702C1B55A3664"
+        },
+        {
+          "name": "MLCPlayer_InternetVideo_v0.40.exe",
+          "size_bytes": 48909126,
+          "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"
+        },
+        {
+          "name": "MLCPlayer_InternetVideo_v0.40.exe.sig",
+          "size_bytes": 88,
+          "sha256": "516CA07EE797C06C8B0902CE16EB85E98BCC2713D277FFDC689D6C4D15E2DF73"
+        }
+      ],
+      "evidence": [
+        "the approved isolated build started from exact clean dcfb343f931bee98f439bcc5f8516f980bd30d09, produced the final DONE marker and exited zero without changing HEAD or tracked source state",
+        "dependency pins, three runtime identities, publishability, both Inno compile preflights, translation compile, PyInstaller, dist post-check, both Inno builds, detached signing and final checks completed in one sequential transcript",
+        "the main and add-on EXEs and their detached signatures were read back by exact name, byte size and SHA-256; both Ed25519 signatures independently verified against their corresponding EXE bytes",
+        "both installer EXEs report product version 0.40.0.0 and Authenticode NotSigned as expected by the active unsigned chain; Authenticode is not substituted by Ed25519",
+        "the add-on bytes equal EV029 because its exact inputs are unchanged and deterministic; the pre-build add-on EXE was absent, the exact old signature was removed, and new timestamps plus independent signature verification exclude stale carry-over",
+        "two independent adversarial reviews found no P0/P1/P2 defect in the bounded source-build claim; the worktree process count after build was zero"
+      ],
+      "summary": "Exact dcfb343 produced a fresh isolated v0.40 main installer and a deterministic add-on installer with four bound artifact identities and two valid detached Ed25519 signatures.",
+      "limitations": [
+        "dcfb343 is two commits ahead of origin/master and has no exact hosted-tested protected-master acceptance; these bytes are not yet a publishable release candidate or tag basis.",
+        "The add-on final helper checks artifact presence and size rather than unpacking its payload; add-on payload and installed behavior remain a physical B2 responsibility.",
+        "Both EXEs are Authenticode NotSigned; SignPath and SmartScreen acceptance are NOT_RUN.",
+        "Install, upgrade, maintenance, uninstall, Restart Manager, native playback, human acceptance, source fetch, push, PR, merge, tag, upload and release are NOT_RUN for these exact bytes.",
+        "No automatic retry or product mutation followed the successful build."
+      ],
+      "next_action": "Request separate approval to commit this two-document source-build record; after clean readback request separate exact-artifact B2 physical acceptance approval."
+    },
+    {
+      "id": "EV-20260828-005",
+      "recorded_at_utc": "2026-08-27T21:40:36Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "dcfb343f931bee98f439bcc5f8516f980bd30d09",
+      "baseline_commit": "dcfb343f931bee98f439bcc5f8516f980bd30d09",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Lossless continuity compaction after isolated build record",
+      "commands": [
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_release_documentation_regressions.py (first run: 1 failed, 215 passed because continuity was 206 lines)",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_release_documentation_regressions.py (after compaction: 216 passed)"
+      ],
+      "evidence": [
+        "the first post-record regression run failed only the explicit continuity compactness limit because the live handoff grew to 206 lines; the source build and artifact evidence did not fail",
+        "the new EV004 continuity paragraph was reflowed without deleting any artifact identity, proof boundary, process result or next-action decision",
+        "the second scoped run passed all 216 continuity and release-documentation regressions with continuity at the 200-line limit"
+      ],
+      "summary": "The live continuity handoff is losslessly back within its enforced compactness limit after a recorded red-to-green documentation regression.",
+      "limitations": [
+        "This deterministic documentation result adds no build, installed-artifact, native or release acceptance beyond EV004.",
+        "The two-document EV004/EV005 package remains uncommitted until separately approved.",
+        "No build retry, install, uninstall, push, tag, upload or release action was performed."
+      ],
+      "next_action": "Request separate approval to commit the two-document EV004/EV005 package; after clean readback request separate exact-artifact B2 physical acceptance approval."
     }
   ]
 }
