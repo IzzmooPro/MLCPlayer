@@ -6,11 +6,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `316c827793ef9998fe666d6a7dd0b61c3cc248c0`
+- Kayıt hazırlanırken doğrulanan HEAD: `66b4584d1aa51121bec4c4892f4d409446fc1ad8`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/p0-tracks-menu-watchdog` (hardening commit'i exact `316c827`;
+- Dal: `codex/p0-tracks-native-pass` (native kanıt commit'i exact `66b4584`;
   yalnız commit-provenance belgeleri uncommitted)
-- Son kanıt: `EV-20260827-008`
+- Son kanıt: `EV-20260827-010`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -42,9 +42,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 
 ## Kalite kabul özeti
 
-- Windows P0 matrisi: `WIN-P0-01`, `WIN-P0-02`, `WIN-P0-04` ve `WIN-P0-05`
-  PASSED; track değiştirme `P0-03` FAILED; drag/drop, playlist sınırları ve
-  IPC için `P0-06`, `P0-07`, `P0-08` NOT_RUN.
+- Windows P0 matrisi: `WIN-P0-01`–`WIN-P0-05` PASSED; drag/drop, playlist
+  sınırları ve IPC için `P0-06`, `P0-07`, `P0-08` NOT_RUN.
 - Video biçimi matrisi: SDR ekranda `VF-CORE-01` ve HDR ekranda SDR-on-HDR
   `VF-CORE-02` exact native ve kontrollü insan ramp kabulüyle PASSED. Kalan
   14 biçim satırı ve genel `WIN-P2-01` BLOCKED; bu iki PASS genel HDR/format
@@ -97,18 +96,16 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   korundu, yalnız add-on uninstaller çifti ile `InstallDate` beklenen bakım
   metadata'sı olarak değişti ve kayıtlı süreç envanteri sıfırdı
   (`EV-20260826-083`). Log/exit code, silent, rollback ve uninstall ölçülmedi.
-- `WIN-P0-03` hardening'i PR #59 ile exact iki ebeveynli `06cebc4` merge
-  commit'ine ulaştı; exact-head CI **5045 passed / 30 skipped / 0 failed**
-  verdi. Ayrı onaylı tek native `tracks` koşumunda fixture kapısı 1 video,
-  2 ses, 2 altyazı, stabil ID/current-selected ve `ao=null` ile geçti; ilk
-  audio sonuç satırından önce senkron QMenu sınırında 180.2 saniye TIMEOUT
-  oldu. Exit 1, eksik final marker'lar, Job Object active=0, parent cursor
-  restore ve ölçülen ilgili süreç=0 kaydedildi (`EV-20260827-005`). Ses veya
-  altyazı geçişi ve ürün bug'ı kanıtlanmadı; otomatik retry yapılmadı ve satır
-  **FAILED**. Sonraki test-only paket nested `QMenu.exec()` içinde çalışan iç
-  watchdog, bounded çoklu Escape/forced cleanup, fail-closed karar kapısı ve
-  faz marker'ları ekledi; 222 dar test geçti, karşıt inceleme P0/P1 bulmadı
-  (`EV-20260827-007`). Native retry yapılmadı; FAILED sonucu değişmedi.
+- `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
+  geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
+  nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
+  (`EV-20260827-005`). Test-only nested-loop watchdog paketi 222 dar test ve
+  karşıt P0/P1=0 sonrası PR #61 exact head `8b1471d` üzerinde **5058 passed /
+  30 skipped / 0 failed** verdi ve exact `18a88b8` olarak merge edildi. Ayrı
+  onaylı tek retry 35.6 saniyede **5 PASS / 0 FAIL / 0 BLOCKED**, exit 0, tam
+  marker zinciri, ses 1→2, altyazı 1→2→1, checked read-back,
+  `stop→terminate`, child/parent cursor restore ve ölçülen süreç=0 ile geçti
+  (`EV-20260827-009`). `WIN-P0-03` artık **PASSED**.
 - C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
   merge edildi; exact commit/run/parent ayrıntıları append-only
   `EV-20260826-009`–`017` ve `EV-20260826-028` kayıtlarındadır.
@@ -162,13 +159,13 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-008` commit-provenance paketini ayrıca açık
-onayla commit et; push veya native retry başlatma.
+Exact iki belgeli `EV-20260827-010` commit-provenance paketini ayrıca açık
+onayla commit et; build, kurulum veya başka native senaryo başlatma.
 
 ## Sonraki sıra
 
 1. Commit sonrasında ayrı onaylarla push, PR, hosted check ve merge zincirini
-   tamamla; protected PR tamamlanmadan native retry yapma.
+   tamamla; başka native senaryo başlatma.
 2. Kalan `P0-06`, `P0-07`, `P0-08` boşlukları için aynı çift-süzgeçli dar
    kabul sırasını uygula.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme

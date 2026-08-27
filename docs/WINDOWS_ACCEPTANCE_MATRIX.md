@@ -1,6 +1,6 @@
 # MLC Player gerçek Windows kabul matrisi
 
-**Durum:** P0 4 PASSED / 1 FAILED / 3 NOT_RUN; P1 6 NOT_RUN; P2 3 BLOCKED
+**Durum:** P0 5 PASSED / 0 FAILED / 3 NOT_RUN; P1 6 NOT_RUN; P2 3 BLOCKED
 
 **Plan tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`
 
@@ -37,7 +37,7 @@ yazılır.
 | --- | --- | --- | --- |
 | WIN-P0-01 | Uygulama açılışı ve normal kapanış | Exit 0, final marker, stderr sınıflaması, süreç sızıntısı yok | PASSED |
 | WIN-P0-02 | Gerçek yerel video oynatma | Süre ilerler, kare/oynatma kanıtı vardır, medya değişmez | PASSED |
-| WIN-P0-03 | Ses ve yerel altyazı parçası değiştirme | Seçim libmpv read-back ile doğrulanır | FAILED |
+| WIN-P0-03 | Ses ve yerel altyazı parçası değiştirme | Seçim libmpv read-back ile doğrulanır | PASSED |
 | WIN-P0-04 | Seek, duraklatma ve devam | Zaman/state read-back beklenen aralıkta | PASSED |
 | WIN-P0-05 | Tam ekran, native resize ve geri dönüş | Boyut/state doğru, donma ve kontrol kaybı yok | PASSED |
 | WIN-P0-06 | Dosya/altyazı sürükle-bırak | Doğru medya veya altyazı uygulanır | NOT_RUN |
@@ -97,6 +97,19 @@ değiştirmez.
   ilgili süreç=0 yalnız cleanup sınırını destekler. Otomatik retry yapılmaz;
   önce test-only iç watchdog/faz-marker hardening'i gerekir. `ao=null`
   nedeniyle duyulan ses kabulü ayrıca iddia edilmez.
+
+- **Son native sonuç:** watchdog hardening'i PR #61 ile exact iki ebeveynli
+  `18a88b8` master'a ulaştıktan sonra ayrı onaylı tek `tracks` retry 35.6
+  saniyede **5 PASS / 0 FAIL / 0 BLOCKED** verdi (`EV-20260827-009`). Fixture
+  1 video, iki benzersiz ses ve iki benzersiz altyazı parçasıyla stabil kaldı;
+  ses 1→2, altyazı 1→2→1 değişti ve exact current/selected ile yeniden açılan
+  menüde checked read-back doğrulandı. Altı menü oturumunun tamamında root
+  popup kapandı; watchdog timeout ve forced cleanup oluşmadı. Exit 0, tam
+  `CHILD_RESTORED`→`MARK_APP_EXEC_RETURNED`→`GROUP_SUMMARY`→`MARK_DONE`,
+  `stop→terminate`, Job Object active=0, parent cursor ilk denemede restore ve
+  koşum-sonrası hedef süreç=0 ölçüldü. Satır artık **PASSED**. `ao=null`
+  duyulabilir ses/cihaz yönlendirmesini; state/menu/icon read-back insan görsel
+  altyazı kalitesini; kaynak koşumu kurulu artifact veya release'i kanıtlamaz.
 
 ### WIN-P0-04 — Seek, duraklatma ve devam
 
@@ -494,8 +507,7 @@ boşluk belgelenirse eklenir.
 
 ## Kalan kabul boşlukları
 
-P0 eşlemesi tamamlandı. `WIN-P0-03` FAILED; açık `WIN-P0-06/07/08` satırları
-`NOT_RUN` kalır;
+P0 eşlemesi tamamlandı. Açık `WIN-P0-06/07/08` satırları `NOT_RUN` kalır;
 P1 ve P2 satırları tabloda yazan sınırların dışına taşınmaz. Gerçek yürütme
 sırası yalnız `docs/CONTINUITY.md` içindeki sıradaki tek adımdır. Hiçbir native
 koşumu veya kurulum açık kullanıcı onayı olmadan başlatılmaz.
