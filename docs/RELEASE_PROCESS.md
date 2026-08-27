@@ -104,8 +104,35 @@ doğrular. Bu koşum yeşil olmadan build başlamaz. Yerel
         - Test medyası ile `%APPDATA%\MLCPlayer` ayar/log ağacı önce/sonra
           dosya listesi, metadata ve SHA-256 hash ile aynı kalır.
         - Add-on, boş/relative/root/UNC/eski/wrong-product InstallLocation
-          kayıtlarını dosya yazmadan reddeder; aktif Player, yt-dlp ve deno
-          süreçleriyle gerçek upgrade ayrıca ölçülür.
+          kayıtlarını dosya yazmadan reddeder.
+        - Gerçek ürün URL'si yalnız Player tarafından başlatılan exact kurulu
+          `yt-dlp` yolu, PID/ebeveyn/komut korelasyonu, ilerleyen
+          `position/duration` ve başarılı oynatma ile kabul edilir. Deno yalnız
+          gerçek çıkarım gerektirirse aynı ürün süreç ağacında aranır; Deno
+          yokluğu başarısızlık değildir ve ihtiyaç duyulmayan Deno'yu yapay
+          biçimde başlatmak başarılı ürün senaryosu sayılmaz.
+        - Bağımsız kapanmayı reddeden exact kurulu `yt-dlp`, diğer hedef süreçler
+          kapalıyken tek engelleyici ve exact kurulu çalıştırılabilir yol/PID
+          baseline'ıyla sınanır. Kaydedilmemiş kullanıcı verisini riske atan
+          `CloseApplications=force` kullanılmaz. Installer kopya başlamadan
+          fail-closed durmalı; “Sorun yok sayılıp ilerlensin” seçilmez,
+          “Kurulum iptal edilsin” ile abort ölçülür ve setup başarı marker'ı
+          bulunmamalıdır. Rollback sonrasında kurulu dosya listesi, metadata ve
+          SHA-256 değerleri, uninstall kaydı ve `%APPDATA%` ağacı exact aynı
+          kalır. Teste ait engelleyici fixture PID'leri kontrollü kapatılır;
+          ardından sıfır süreç sızıntısı ölçülür.
+        - Exact kurulu Deno aktifken diğer hedef süreçler kapalı tutulur ve exact
+          yol/PID baseline'ı alınır. Restart Manager yalnız Deno'yu bulmalı;
+          kooperatif kapanış sonrasında kurulum başarıyla tamamlanmalı, exit 0
+          vermeli ve restart gerekmemelidir. Beş add-on payload'ı exact hashlerle
+          eşleşmeli; kullanıcı verisi ve ayarlar korunmalı; ana uninstall kaydı,
+          OpenWith ve kısayollar exact korunmalı ve sıfır süreç sızıntısı
+          ölçülmelidir. Normal Deno'nun kooperatif kapanması hata veya
+          eksik negatif kanıt sayılmaz. `suspended-Deno` fault injection ancak
+          ayrı risk/onay kararıyla yürütülür ve zorunlu B2 kapısı değildir.
+        - `yt-dlp` negatif güvenlik sonucu ile Deno graceful-upgrade sonucu ürün
+          URL oynatımına veya birbirine aktarılmaz; normal install/upgrade ve
+          gerçek ürün URL zincirleri ayrıca geçmelidir.
         - İki kaldırma sırası da denenir; yalnız boş kurulum dizinleri silinir.
         Bu kabul yeni artifact'in ad/boyut/SHA-256 değeriyle kaydedilir. Eski
         bir build'in fiziksel kabulü yeni artifact için kanıt SAYILMAZ.

@@ -121,19 +121,33 @@ def test_the_ledger_is_typed_complete_and_chronological():
     assert timestamps == sorted(timestamps)
 
 
-def test_ledger_commit_corrections_are_structured_later_and_unambiguous():
+def test_ledger_corrections_are_structured_later_and_unambiguous():
     entries = ledger()["entries"]
     positions = {entry["id"]: index for index, entry in enumerate(entries)}
     corrections = {}
+
+    def original_value(entry, field):
+        match = re.fullmatch(r"([^\[\]]+)\[(\d+)\]", field)
+        if match:
+            return entry[match.group(1)][int(match.group(2))]
+        return entry[field]
+
     for index, entry in enumerate(entries):
         for correction in entry.get("corrects", []):
             target_id = correction["entry_id"]
             key = (target_id, correction["field"])
             assert target_id in positions
             assert positions[target_id] < index
-            assert correction["field"] == "commit"
-            assert correction["incorrect"] == entries[positions[target_id]]["commit"]
-            assert SHA.fullmatch(correction["corrected"])
+            assert correction["incorrect"] == original_value(
+                entries[positions[target_id]], correction["field"])
+            assert correction["corrected"] != correction["incorrect"]
+            assert correction["corrected"] is not None
+            if isinstance(correction["corrected"], str):
+                assert correction["corrected"].strip()
+            elif isinstance(correction["corrected"], (list, dict)):
+                assert correction["corrected"]
+            if correction["field"] == "commit":
+                assert SHA.fullmatch(correction["corrected"])
             assert key not in corrections
             corrections[key] = correction
 
@@ -152,6 +166,7 @@ def test_every_ledger_commit_resolves_or_has_a_later_correction():
     corrections = {
         (item["entry_id"], item["field"]): item["corrected"]
         for entry in entries for item in entry.get("corrects", [])
+        if item["field"] == "commit"
     }
     hashes = {entry["commit"] for entry in entries} | set(corrections.values())
     completed = subprocess.run(

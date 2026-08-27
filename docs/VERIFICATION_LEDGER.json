@@ -8647,6 +8647,671 @@
         "The exact new main artifact has not completed mandatory B2 installed-artifact acceptance; tag and release remain blocked."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV028-EV029 evidence package; do not push, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-030",
+      "recorded_at_utc": "2026-08-27T18:27:09Z",
+      "proof_layer": "installed_artifact",
+      "result": "blocked",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "artifact_source_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "commands": [
+        "Start-Process -FilePath 'C:\\Program Files\\MLC Player\\MLC Player.exe' -PassThru",
+        "user action: Ctrl+U -> https://www.youtube.com/watch?v=aqz-KE-bpKQ -> accept",
+        "watch_product_runtime_and_start_addon.ps1 -EvidenceRoot <private> -MainArtifact MLCPlayer_Setup_v0.40.exe -AddonArtifact MLCPlayer_InternetVideo_v0.40.exe -RunId 37",
+        "run_finite_active_addon_upgrade.ps1 -EvidenceRoot <private> -MainArtifact MLCPlayer_Setup_v0.40.exe -AddonArtifact MLCPlayer_InternetVideo_v0.40.exe",
+        "C:\\Program Files\\MLC Player\\_internal\\bin\\deno.exe run --no-config finite_deno_wait.ts",
+        "C:\\Program Files\\MLC Player\\_internal\\bin\\yt-dlp.exe --ignore-config --no-plugin-dirs --no-remote-components --socket-timeout 15 --retries 0 --sleep-requests 180 --skip-download --dump-single-json -- https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+        "MLCPlayer_InternetVideo_v0.40.exe /LOG=42-addon-finite-active-upgrade.log",
+        "user action: Uygulamalar kapatılsın -> Sonraki -> Kurulum iptal edilsin",
+        "b2_capture.ps1 -OutputPath 43-addon-finite-active-post.json -MainArtifact MLCPlayer_Setup_v0.40.exe -AddonArtifact MLCPlayer_InternetVideo_v0.40.exe"
+      ],
+      "private_artifact_digests": [
+        {
+          "name": "MLCPlayer_Setup_v0.40.exe",
+          "size_bytes": 55914571,
+          "sha256": "B8001DAA3722D99A5E85313CFD417F80E8E405C6990859E81BE8C52D378FE2FC"
+        },
+        {
+          "name": "MLCPlayer_InternetVideo_v0.40.exe",
+          "size_bytes": 48909126,
+          "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"
+        },
+        {
+          "name": "37-addon-product-runtime-watch.jsonl",
+          "size_bytes": 3393,
+          "sha256": "79156B05AF939AE6A0CF3CBBA23FF5D9172EDD6C2FA8D890C54E2FA971B882B7"
+        },
+        {
+          "name": "41-addon-finite-active-pre.json",
+          "size_bytes": 34041,
+          "sha256": "9D7D9C3CDB0DC0437D3C61E69CB2155DA5E8CFC0D94691962853B5575181EABD"
+        },
+        {
+          "name": "42-addon-finite-active-upgrade.log",
+          "size_bytes": 2918,
+          "sha256": "6AC5F63641F59AC1A86FD74F763AE01A52D63C36390185215B8A0578E94F8AC3"
+        },
+        {
+          "name": "43-addon-finite-active-post.json",
+          "size_bytes": 32454,
+          "sha256": "A3BA411103A5F3A2A872C10A1BA63EC8E97D79D36876F72406D874C0C80FD161"
+        },
+        {
+          "name": "watch_product_runtime_and_start_addon.ps1",
+          "size_bytes": 2631,
+          "sha256": "3BBC7346D8226425B298AB68631D2F735C3AB7001B2218D7F77779E63663AC83"
+        },
+        {
+          "name": "run_finite_active_addon_upgrade.ps1",
+          "size_bytes": 3984,
+          "sha256": "4BB95AE5E6514D41579B0577DB7E485E17D0FF579B7215F5BEA83BB931D89A91"
+        },
+        {
+          "name": "finite_deno_wait.ts",
+          "size_bytes": 62,
+          "sha256": "42DDB4ECFB1F8751D0AAC29A045663D4E4CB2BCF30458150794B069534EBA577"
+        },
+        {
+          "name": "b2_capture.ps1",
+          "size_bytes": 3849,
+          "sha256": "9CDB8AF55C5D0B07C9C4EB652B22D1F98A70810A97671C71FCD0EA6655449559"
+        }
+      ],
+      "subject": "Exact v0.40 B2 product URL success and independent combined-blocker rollback",
+      "evidence": [
+        "the installed exact v0.40 Player loaded the verified Blender Big Buck Bunny URL through Ctrl+U and visibly advanced from 00:01 to 00:02 of 10:35",
+        "the persistent exact-path watcher observed the installed Player and its exact installed yt-dlp child command for the same URL, including the PyInstaller child; Deno was not spawned because this extraction did not require it",
+        "a separate negative scenario began from 103 installed files, two user files, main v0.40, add-on v0.39 and exact installed Player, yt-dlp and Deno blocker identities",
+        "Restart Manager listed two yt-dlp processes, Deno and MLC Player, then reported that some applications could not be shut down; Retry and Ignore were not selected",
+        "the user selected Abort, setup returned exit code 5, logged cancellation, rollback and successful rollback-uninstall, and emitted no successful-install completion",
+        "post-readback found zero installed-file differences, zero user-file differences, main v0.40 and add-on v0.39 unchanged, and zero target or setup process leaks",
+        "independent adversarial review found no installer defect in this negative scenario: the finite yt-dlp and Deno blockers were independently launched test fixtures rather than Player-owned children, so CloseApplications=yes stopping safely is expected and force-close is not justified"
+      ],
+      "summary": "The real product URL path passes with Player-owned yt-dlp and advancing playback, while independent finite runtime blockers produce an exact fail-closed abort and zero-difference rollback; final B2 remains blocked because the corrected contract requires isolated single-blocker scenarios and remaining final cleanup gates.",
+      "limitations": [
+        "Absolute private evidence and artifact paths are deliberately omitted under repository privacy policy; their safe filenames, sizes and SHA-256 values bind the path-redacted command forms above.",
+        "This record is deliberately scoped to the two exact current product-URL and combined-blocker scenarios; it does not independently bind earlier B2 commands or transfer their results.",
+        "The product URL did not spawn Deno, so no product-owned Deno behavior is claimed and its absence is not a playback failure.",
+        "The combined independent-blocker scenario cannot prove which blocker caused Restart Manager refusal and does not satisfy the corrected isolated yt-dlp and isolated Deno negative gates.",
+        "This record does not pass the complete final-artifact B2 gate; isolated blockers, remaining fault boundary, final clean silent cycle and documentation closure remain incomplete.",
+        "No tag, release, upload or publication action was performed."
+      ],
+      "next_action": "After the approved contract correction is verified, request separate approval for one isolated exact-installed yt-dlp refusing-blocker scenario; do not auto-retry, build, tag or release."
+    },
+    {
+      "id": "EV-20260827-031",
+      "recorded_at_utc": "2026-08-27T18:27:09Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_release_documentation_regressions.py::test_addon_process_gate_separates_real_usage_from_refusing_blockers",
+        "python -m pytest -q tests/test_release_documentation_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json > $null",
+        "python -c \"import json; e=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8'))['entries']; ids=[x['id'] for x in e]; assert len(ids)==len(set(ids)); print('LEDGER_IDS_UNIQUE',len(ids))\"",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "python -c \"import json,pathlib,subprocess,os,tempfile; norm=lambda s:s.replace(chr(92),'/').casefold(); needles=(norm(os.environ['USERPROFILE']),norm(tempfile.gettempdir()),'.'+'codex/visualizations','.'+'codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; blobs=[json.dumps(new),pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(norm(n) in norm(b) for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK',len(new))\"",
+        "git diff --check"
+      ],
+      "subject": "Regression-first split of optional-runtime product success and blocker safety gates",
+      "evidence": [
+        "the new focused regression first failed against the prior release contract because it required a simultaneous Player, yt-dlp and Deno success even when genuine extraction did not need Deno",
+        "the canonical release process now accepts only Player-started exact installed yt-dlp with PID-parent-command correlation and advancing position/duration for the real product URL path; artificial runtimes cannot satisfy that success gate",
+        "Deno is required in the success path only when genuine extraction spawns it, and Deno absence is explicitly not a failure",
+        "independent refusing yt-dlp and Deno fixtures must run as separate single-blocker scenarios with the other target processes closed, exact path/PID baselines, no force-close, no Ignore, user-controlled Abort, no setup success marker, exact rollback and cleanup-before-leak measurement",
+        "the focused red test passed after the minimal documentation change and the complete release-documentation family passed 206 tests",
+        "independent adversarial review of the final diff reported P0=0, P1=0 and P2=0; product and Inno sources were unchanged",
+        "the final four-file package passed 10 continuity regressions and 206 release-documentation tests; all 290 ledger IDs were unique, the committed ledger remained an exact prefix, two new entries passed private-path scanning, diff-check had no whitespace error and continuity was compacted to 186 lines without changing the historical archive"
+      ],
+      "summary": "The official B2 process contract now separates genuine optional-runtime product success from isolated fail-closed blocker safety without weakening rollback or user-data protections.",
+      "limitations": [
+        "This deterministic PASS validates the written release contract and regression only; it is not installed-artifact acceptance.",
+        "The two newly isolated blocker scenarios are not yet run and final B2 remains blocked.",
+        "The change is uncommitted and has no evidence_commit until separately approved, committed and read back."
+      ],
+      "next_action": "Request separate approval for the isolated exact-installed yt-dlp blocker scenario; commit, push, build, tag and release remain separate gates."
+    },
+    {
+      "id": "EV-20260827-032",
+      "recorded_at_utc": "2026-08-27T19:03:15Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "artifact_source_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "commands": [
+        "run_isolated_ytdlp_blocker.ps1 -EvidenceRoot <private> -MainArtifact MLCPlayer_Setup_v0.40.exe -AddonArtifact MLCPlayer_InternetVideo_v0.40.exe",
+        "C:\\Program Files\\MLC Player\\_internal\\bin\\yt-dlp.exe --ignore-config --no-plugin-dirs --no-remote-components --socket-timeout 15 --retries 0 --sleep-requests 600 --skip-download --dump-single-json -- https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+        "MLCPlayer_InternetVideo_v0.40.exe /LOG=45-addon-isolated-ytdlp-upgrade.log",
+        "user action: Uygulamalar kapatılsın -> Sonraki -> Kurulum iptal edilsin",
+        "evaluate_isolated_ytdlp_blocker.ps1 -EvidenceRoot <private> -> 48-addon-isolated-ytdlp-verdict.json (safe false-BLOCKED due schema mismatch)",
+        "evaluate_isolated_ytdlp_blocker.ps1 -EvidenceRoot <private> -> 49-addon-isolated-ytdlp-corrected-verdict.json"
+      ],
+      "private_artifact_digests": [
+        {
+          "name": "MLCPlayer_Setup_v0.40.exe",
+          "size_bytes": 55914571,
+          "sha256": "B8001DAA3722D99A5E85313CFD417F80E8E405C6990859E81BE8C52D378FE2FC"
+        },
+        {
+          "name": "MLCPlayer_InternetVideo_v0.40.exe",
+          "size_bytes": 48909126,
+          "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"
+        },
+        {
+          "name": "run_isolated_ytdlp_blocker.ps1",
+          "size_bytes": 8759,
+          "sha256": "ACA71CD8078EC133F654C1F663E47A9872283D7FA77D39235A3C02BC510376E3"
+        },
+        {
+          "name": "evaluate_isolated_ytdlp_blocker.ps1",
+          "size_bytes": 7079,
+          "sha256": "94072DE4F63A6C1444E0FF29A466BF305132BF11D284C691E7A0CA1F16746A6E"
+        },
+        {
+          "name": "44-addon-isolated-ytdlp-pre.json",
+          "size_bytes": 33399,
+          "sha256": "8BE0AD3314B9403D66F8680BBC838D8827DAC1D86003768DDD14AA8D85C3A64A"
+        },
+        {
+          "name": "44-addon-isolated-ytdlp-result.json",
+          "size_bytes": 2096,
+          "sha256": "AC4F0A454A44FA13D6609A3443E0D7B2455F1DF86CBA2B23477E7C748C045CE6"
+        },
+        {
+          "name": "45-addon-isolated-ytdlp-upgrade.log",
+          "size_bytes": 2681,
+          "sha256": "E3788CD168CA2BD2345539956E7C827AA3C807CF2FE6F73C87359CE9433DB0AA"
+        },
+        {
+          "name": "46-addon-isolated-ytdlp-return.json",
+          "size_bytes": 32454,
+          "sha256": "776750C2C9665E5A754965B9306C5EF5F48D274AD21BE39EB57E252FF4516852"
+        },
+        {
+          "name": "47-addon-isolated-ytdlp-leak.json",
+          "size_bytes": 32454,
+          "sha256": "8251D7D84664E39B8F10FF3291427BA8BBB6C1BB59B177D239045597B25E775A"
+        },
+        {
+          "name": "48-addon-isolated-ytdlp-verdict.json",
+          "size_bytes": 1240,
+          "sha256": "BEC6FDCA2DFF7541A18F2D02D42B96096DCAA4642470BA7CEA1DBD051C032D2E"
+        },
+        {
+          "name": "49-addon-isolated-ytdlp-corrected-verdict.json",
+          "size_bytes": 1147,
+          "sha256": "2890506F8D31709426381F40B242867321878F7929E153F8D907F48019724691"
+        }
+      ],
+      "subject": "Exact installed yt-dlp isolated fail-closed blocker acceptance",
+      "evidence": [
+        "the one-shot precondition contained only the exact installed v0.39 yt-dlp root and its PyInstaller child; Player and Deno were absent and the installed executable SHA-256 was 66674953FE251B89F4D08C5F0E35E0728679BD67AB3D7D05C0562AF101DD3E7A",
+        "Restart Manager listed exactly the two yt-dlp processes and logged that some applications could not be shut down",
+        "the user kept close-applications selected, did not choose Retry or Ignore, chose Abort, and setup returned exit code 5",
+        "the setup log contains cancellation, rollback and successful rollback-uninstall, contains no destination-copy marker and no installation-success marker",
+        "the setup-return comparison found no differences in installed files, user data, active settings, main or add-on uninstall registration, OpenWith registration or shortcuts",
+        "the final target-process leak check found zero Player, yt-dlp or Deno processes",
+        "the first evaluator result was conservatively BLOCKED because it compared a capture schema without CreationDate to the richer runner identity and incorrectly required the fixture to remain alive after setup returned; no physical retry was performed",
+        "independent adversarial review confirmed the contract does not require the PID to remain alive after Abort and approved comparison on the schemas' exact common fields while preserving CreationDate for cleanup ownership",
+        "the separate corrected verdict passed all 16 fail-closed checks with no failed check"
+      ],
+      "summary": "The exact installed yt-dlp isolated blocker gate passed: Restart Manager refusal led to user-controlled Abort before copying, exact rollback, unchanged user state and zero target-process leak; no physical retry was used.",
+      "limitations": [
+        "This PASS is limited to the exact installed yt-dlp single-blocker negative scenario and does not prove successful product URL playback, successful add-on upgrade, Deno behavior or Player fault behavior.",
+        "The exact yt-dlp processes were no longer alive when setup returned; the PASS relies on the exact pre-baseline, Restart Manager refusal log, Abort/no-copy result, exact rollback and zero leak, as permitted by the canonical contract.",
+        "The initial conservative evaluator verdict is preserved as private evidence and was not overwritten; its schema interpretation was corrected in a separately named verdict without rerunning the physical installer.",
+        "Absolute private evidence and artifact paths are deliberately omitted; safe filenames, sizes and SHA-256 values bind the path-redacted commands.",
+        "No commit, push, build, tag, upload or release action was performed."
+      ],
+      "next_action": "Request separate approval for one isolated exact-installed Deno blocker scenario; do not auto-retry, commit, push, build, tag or release."
+    },
+    {
+      "id": "EV-20260827-033",
+      "recorded_at_utc": "2026-08-27T19:14:37Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "artifact_source_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "commands": [
+        "run_isolated_deno_blocker.ps1 -EvidenceRoot <private> -MainArtifact MLCPlayer_Setup_v0.40.exe -AddonArtifact MLCPlayer_InternetVideo_v0.40.exe",
+        "C:\\Program Files\\MLC Player\\_internal\\bin\\deno.exe run --no-config finite_deno_wait.ts",
+        "MLCPlayer_InternetVideo_v0.40.exe /LOG=51-addon-isolated-deno-upgrade.log",
+        "user action: Sonraki -> Kur -> Bitti",
+        "evaluate_isolated_deno_blocker.ps1 -EvidenceRoot <private>"
+      ],
+      "private_artifact_digests": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55914571, "sha256": "B8001DAA3722D99A5E85313CFD417F80E8E405C6990859E81BE8C52D378FE2FC"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"},
+        {"name": "run_isolated_deno_blocker.ps1", "size_bytes": 6948, "sha256": "D8CFB236964F62D0DEC10D4461CEAA85A745B9B2F740AB2A226A1DCFA2D521C6"},
+        {"name": "evaluate_isolated_deno_blocker.ps1", "size_bytes": 7433, "sha256": "9FA1D94E14187181A658D0DE3A263438F0199F33320341447502C2CC42DE05E0"},
+        {"name": "finite_deno_wait.ts", "size_bytes": 62, "sha256": "42DDB4ECFB1F8751D0AAC29A045663D4E4CB2BCF30458150794B069534EBA577"},
+        {"name": "50-addon-isolated-deno-pre.json", "size_bytes": 32843, "sha256": "E9B5BD35B98458A78561E7629A3B30158E792A0BEFAF3CC2D07AF1CBEC29F705"},
+        {"name": "50-addon-isolated-deno-result.json", "size_bytes": 1540, "sha256": "4CE409331AE3648CEBEC46BAD29CB0EFCE769855205F96C73CB0946FD502D474"},
+        {"name": "51-addon-isolated-deno-upgrade.log", "size_bytes": 5793, "sha256": "D740B99FC2ACF36E019CE1224A5277265997307AA4FF001777D5DDC1EC43686F"},
+        {"name": "52-addon-isolated-deno-return.json", "size_bytes": 32445, "sha256": "4FF3031B8F6EB25D7EF2AB04A73CEE086F0ED92E32C80446B2C1B3F0A918978D"},
+        {"name": "53-addon-isolated-deno-leak.json", "size_bytes": 32445, "sha256": "988B7E9CB83EE18D7DB8D9B6C2E4748FDCE5274411F37A9F51BE858E83A3A679"},
+        {"name": "54-addon-isolated-deno-verdict.json", "size_bytes": 1488, "sha256": "8846086604C70268F3DA0A6460CA1A01D09B789B6FA83EF7CB28A79A31CD5A28"}
+      ],
+      "subject": "Exact v0.40 add-on upgrade with one active exact installed Deno",
+      "evidence": [
+        "the precondition contained one exact installed Deno 2.9.5 process with SHA-256 98F8C2A2D470E4CCB04C935C86FF8050817D877762AEC5EAEEB9E409CCB3B9FD and the exact finite fixture; Player and yt-dlp were absent",
+        "Restart Manager found exactly Deno: A secure runtime for JavaScript and TypeScript, shut it down cooperatively and continued without a refusal dialog",
+        "setup copied the add-on payload, logged Installation process succeeded, returned exit code 0 and reported no Windows restart requirement",
+        "the add-on uninstall registration changed from v0.39 to v0.40 while main v0.40 registration, user data, active settings, OpenWith and shortcuts remained exact",
+        "the five current add-on payloads have expected SHA-256 values: yt-dlp 66674953FE251B89F4D08C5F0E35E0728679BD67AB3D7D05C0562AF101DD3E7A, Deno 98F8C2A2D470E4CCB04C935C86FF8050817D877762AEC5EAEEB9E409CCB3B9FD, yt-dlp license 7E12E5DF4BAE12CB21581BA157CED20E1986A0508DD10D0E8A4AB9A4CF94E85C, third-party licenses 472AEFE951C7DB35E1657C1D13FD337140511ED6F2B329205105AD441C5A02B7 and Deno license F62497FFFECC0852960C8D3E6934B9DB86D16396E9B604072E923892CAE3A588",
+        "the final target-process check found zero Player, yt-dlp or Deno processes"
+      ],
+      "summary": "The exact v0.40 add-on artifact successfully upgraded v0.39 to v0.40 while one exact installed Deno was active; Restart Manager closed Deno gracefully, preserved user-facing state and left zero target-process leaks.",
+      "limitations": [
+        "This PASS proves only the active exact-Deno graceful Restart Manager upgrade path; it does not prove Deno refusal, rollback, product-owned Deno, product URL playback or Player fault behavior.",
+        "Installed-file metadata and add-on uninstall data changed as expected for a successful upgrade; this is not a rollback scenario.",
+        "No automatic downgrade or physical retry was performed after the successful installation.",
+        "Absolute private paths are omitted; safe names, sizes and SHA-256 values bind the path-redacted commands.",
+        "No commit, push, build, tag, upload or release action was performed."
+      ],
+      "next_action": "Record the same run's Deno-refusal gate as blocked, then request a separate user decision between a new suspended-Deno adversarial scenario and a measured-evidence contract revision."
+    },
+    {
+      "id": "EV-20260827-034",
+      "recorded_at_utc": "2026-08-27T19:14:37Z",
+      "proof_layer": "installed_artifact",
+      "result": "blocked",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "artifact_source_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "commands": [
+        "run_isolated_deno_blocker.ps1 -EvidenceRoot <private> -MainArtifact MLCPlayer_Setup_v0.40.exe -AddonArtifact MLCPlayer_InternetVideo_v0.40.exe",
+        "evaluate_isolated_deno_blocker.ps1 -EvidenceRoot <private> -> 54-addon-isolated-deno-verdict.json"
+      ],
+      "private_artifact_digests": [
+        {"name": "50-addon-isolated-deno-pre.json", "size_bytes": 32843, "sha256": "E9B5BD35B98458A78561E7629A3B30158E792A0BEFAF3CC2D07AF1CBEC29F705"},
+        {"name": "50-addon-isolated-deno-result.json", "size_bytes": 1540, "sha256": "4CE409331AE3648CEBEC46BAD29CB0EFCE769855205F96C73CB0946FD502D474"},
+        {"name": "51-addon-isolated-deno-upgrade.log", "size_bytes": 5793, "sha256": "D740B99FC2ACF36E019CE1224A5277265997307AA4FF001777D5DDC1EC43686F"},
+        {"name": "52-addon-isolated-deno-return.json", "size_bytes": 32445, "sha256": "4FF3031B8F6EB25D7EF2AB04A73CEE086F0ED92E32C80446B2C1B3F0A918978D"},
+        {"name": "53-addon-isolated-deno-leak.json", "size_bytes": 32445, "sha256": "988B7E9CB83EE18D7DB8D9B6C2E4748FDCE5274411F37A9F51BE858E83A3A679"},
+        {"name": "54-addon-isolated-deno-verdict.json", "size_bytes": 1488, "sha256": "8846086604C70268F3DA0A6460CA1A01D09B789B6FA83EF7CB28A79A31CD5A28"}
+      ],
+      "subject": "Deno isolated refusal gate not produced by normal finite Deno",
+      "evidence": [
+        "the exact isolated Deno precondition and Restart Manager attribution were valid",
+        "Deno exited cooperatively when Restart Manager requested shutdown, so no close-refusal dialog, Abort, cancellation or rollback occurred",
+        "the fail-closed evaluator correctly returned BLOCKED because setup exited 0, copied files and completed successfully rather than exercising the requested negative scenario",
+        "independent diagnosis found no installer defect and classified the installed/add-on-registry changes as the expected successful v0.39 to v0.40 upgrade outcome"
+      ],
+      "summary": "The normal finite Deno fixture cannot satisfy the canonical refusal gate because Restart Manager closes it cooperatively; the negative Deno gate remains blocked without implying a product failure.",
+      "limitations": [
+        "This BLOCKED result is not an installer failure and does not invalidate EV-20260827-033's graceful-upgrade PASS.",
+        "A refusal result would require a separately designed and approved adversarial suspended-Deno scenario, which may still be terminated successfully by Restart Manager.",
+        "No rollback was expected or claimed because installation completed successfully.",
+        "No downgrade, automatic retry, commit, push, build, tag, upload or release action was performed."
+      ],
+      "next_action": "Request an explicit user decision: authorize a new controlled suspended-Deno adversarial physical scenario, or revise the canonical contract to accept normal-Deno graceful PASS plus the exact yt-dlp refusal PASS as the measured process-safety coverage."
+    },
+    {
+      "id": "EV-20260827-035",
+      "recorded_at_utc": "2026-08-27T19:22:47Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_release_documentation_regressions.py::test_addon_process_gate_matches_measured_ytdlp_and_deno_behavior",
+        "python -m pytest -q tests/test_release_documentation_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json > $null",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "git diff --check"
+      ],
+      "subject": "Measured yt-dlp refusal and graceful Deno B2 process contract",
+      "evidence": [
+        "the focused regression first failed against the former contract because it still required an unmeasured Deno refusal outcome",
+        "the canonical B2 contract now keeps exact installed yt-dlp as the isolated fail-closed refusal gate proven by EV-20260827-032",
+        "the Deno gate now requires the measured EV-20260827-033 behavior: one exact active Deno, Restart Manager attribution to Deno only, cooperative shutdown, successful exit 0 upgrade, no restart, five exact payload hashes, preserved user data, settings, main uninstall registration, OpenWith and shortcuts, and zero target-process leak",
+        "suspended-Deno fault injection is explicitly outside mandatory B2 and remains separately risk-and-approval gated",
+        "the negative yt-dlp result, graceful Deno result and genuine product URL playback remain non-transferable evidence boundaries",
+        "the focused regression passed after the minimal documentation update and the full release-documentation family passed 206 tests",
+        "independent adversarial review of the final documentation and regression diff reported P0=0, P1=0 and P2=0"
+      ],
+      "summary": "The official B2 process contract now matches measured exact-artifact behavior without weakening yt-dlp fail-closed safety or user-state protections: yt-dlp supplies the refusal gate and Deno supplies the cooperative active-upgrade gate.",
+      "limitations": [
+        "This deterministic PASS validates the written release contract and regression only; it does not add new installed-artifact, product URL, Player fault or release acceptance.",
+        "EV-20260827-033 and EV-20260827-034 remain the installed-artifact truth for the Deno run; this record does not rewrite those results.",
+        "The change is uncommitted and has no evidence_commit until separately approved, committed and read back.",
+        "No commit, push, build, installation, downgrade, retry, tag, upload or release action was performed for this contract revision."
+      ],
+      "next_action": "Request separate approval for one installed Player close-refusal or suspended fault-boundary scenario; do not auto-retry, commit, push, build, tag or release."
+    },
+    {
+      "id": "EV-20260827-036",
+      "recorded_at_utc": "2026-08-27T20:22:11Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "artifact_source_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "commands": [
+        "run_suspended_player_fault.ps1 -EvidenceRoot <private> -MainArtifact MLCPlayer_Setup_v0.40.exe -AddonArtifact MLCPlayer_InternetVideo_v0.40.exe",
+        "evaluate_suspended_player_fault.ps1 -EvidenceRoot <private> -> 59-main-suspended-player-verdict.json"
+      ],
+      "artifacts": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55914571, "sha256": "B8001DAA3722D99A5E85313CFD417F80E8E405C6990859E81BE8C52D378FE2FC"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"},
+        {"name": "installed MLC Player.exe", "size_bytes": 3133269, "sha256": "14872D7DA2D924BD627D77A015EB32B1FB1B995D39A4E8BB6D95CF95A3230691"}
+      ],
+      "private_artifact_digests": [
+        {"name": "55-main-suspended-player-pre.json", "size_bytes": 32704, "sha256": "F3EF242BB8CAAAF5BAC3DD2116557A0875002250229DCA11B64E1D832C413932"},
+        {"name": "55-main-suspended-player-result.json", "size_bytes": 2661, "sha256": "131EBC8F3694FE3A50C9E286486F26079484334FF55DACCC8EEF22B0D24D5FF8"},
+        {"name": "56-main-suspended-player-upgrade.log", "size_bytes": 2513, "sha256": "AC79839E41B7AE542A398C9AA42B2E48DB0F1EE7BE37A6106B4C5D94BFCB208E"},
+        {"name": "57-main-suspended-player-return.json", "size_bytes": 32704, "sha256": "053EF35ADCBB44785F3AB01B0994A5F3DED2F402A273EC66E2D2219862BEB9C7"},
+        {"name": "58-main-suspended-player-leak.json", "size_bytes": 32445, "sha256": "BCB7C3C112C58F00E276D2B21A2A228C4C02BD13903CFABFCA89D6B8DB989CA9"},
+        {"name": "59-main-suspended-player-verdict.json", "size_bytes": 1381, "sha256": "920E44F9B2A3A622B0E951615319467797BCA18064AC738B7C800C8CF42BF4CD"},
+        {"name": "resume_player_watchdog.ps1", "size_bytes": 1966, "sha256": "4D5C8CBDCD8F9E6A22F9E3490C42E501A9652D5F4BB77743A211DC5912E8A191"},
+        {"name": "run_suspended_player_fault.ps1", "size_bytes": 10564, "sha256": "3ACD7855F238113FC28A4527C92E747A5F565D6531D2011CC0BCBF89359768E1"},
+        {"name": "evaluate_suspended_player_fault.ps1", "size_bytes": 6617, "sha256": "0B8A8FCB01CF94C31BE35DB90C26F16BD913E0F3931CF039CAB59A06951AE4BA"}
+      ],
+      "subject": "Suspended installed Player fail-closed main-installer fault boundary",
+      "evidence": [
+        "the precondition contained exactly one target process: the exact installed v0.40 Player; no yt-dlp or Deno target was active",
+        "the exact Player was suspended successfully and Restart Manager attributed the conflict only to MLC Player",
+        "after cooperative shutdown failed, the user selected Abort rather than Retry or Ignore; setup returned exit 5 and logged cancellation, rollback and successful rollback uninstallation",
+        "the setup log contained neither a destination-copy marker nor an installation-success marker",
+        "the same exact suspended Player PID, path, command and creation identity survived until setup returned",
+        "the pre/return snapshots matched exactly for 103 installed files, two user files, active settings, main/add-on uninstall registrations, OpenWith and shortcuts",
+        "the exact Player resumed with status 0, closed through its normal window path without forced cleanup, and the final target-process count was zero",
+        "the exact watchdog identity remained valid and did not fire; all recorded evidence hashes matched",
+        "the fail-closed evaluator passed all 23 checks and independent adversarial post-run review found no P0 or P1 contradiction"
+      ],
+      "summary": "The exact B2 v0.40 main installer safely stopped before copying when the exact installed v0.40 Player could not close: Abort and rollback preserved the complete measured state, then controlled resume and graceful cleanup left no target-process leak.",
+      "limitations": [
+        "This PASS is limited to the exact same-version interactive suspended-Player fault scenario and the named artifact/runtime identities.",
+        "It does not prove normal maintenance or upgrade success, silent behavior, add-on fault handling, another artifact or application-level user-data semantics.",
+        "Private evidence paths are intentionally omitted; only safe names, sizes and SHA-256 digests are recorded.",
+        "The documentation package remains uncommitted and has no evidence_commit until separately approved, committed and read back.",
+        "No automatic retry, build, uninstall, downgrade, commit, push, tag, upload or release action was performed."
+      ],
+      "next_action": "Run the final clean silent install, maintenance and uninstall cycle only with separate approval; then close documentation and request separate commit approval before any push, tag or release."
+    },
+    {
+      "id": "EV-20260827-037",
+      "recorded_at_utc": "2026-08-27T20:32:02Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_release_documentation_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json > $null",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "scoped private-path scan over uncommitted ledger suffix and four-file diff",
+        "git diff --check"
+      ],
+      "subject": "Final B2 process-evidence boundaries and continuity closure",
+      "evidence": [
+        "the historical EV031 Deno-refusal contract is explicitly marked as superseded by the measured EV035 cooperative-Deno decision",
+        "the EV036 continuity statement is restricted to the measured 103 installed files, two user files and named settings, uninstall, OpenWith and shortcut surfaces",
+        "application-level semantics, normal maintenance, silent behavior and add-on behavior are explicitly outside the EV036 transfer boundary",
+        "the release-documentation regression now requires the non-transfer rule and separate normal install or upgrade evidence",
+        "the full release-documentation family passed 206 tests and continuity passed 10 tests at exactly 200 lines",
+        "the ledger contained 296 unique entries, remained append-only against origin/master, and the scoped private-path scan and diff check were clean",
+        "independent final adversarial diff review reported P0=0, P1=0 and P2=0 after the three findings were closed"
+      ],
+      "summary": "The B2 documentation now states the current measured process contract without preserving a contradictory stale Deno-refusal rule or overstating the suspended-Player evidence boundary.",
+      "limitations": [
+        "This deterministic PASS validates documentation, regression and ledger integrity only; it adds no new installed-artifact or release acceptance.",
+        "EV-20260827-036 remains the installed-artifact evidence for the suspended-Player scenario and is not rewritten by this record.",
+        "The package is uncommitted and has no evidence_commit until separately approved, committed and read back.",
+        "No physical retry, build, install, uninstall, commit, push, tag, upload or release action was performed."
+      ],
+      "next_action": "Request separate approval for one final clean silent install, maintenance and uninstall cycle; do not auto-retry, commit, push, tag or release."
+    },
+    {
+      "id": "EV-20260827-038",
+      "recorded_at_utc": "2026-08-27T21:12:05Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "commands": [
+        "b2_capture.ps1 -OutputPath 61-final-clean-pre.json -MainArtifact MLCPlayer_Setup_v0.40.exe -AddonArtifact MLCPlayer_InternetVideo_v0.40.exe",
+        "concurrent command A: python -B packaging/verify_dependencies.py requirements-lock.txt; python -B packaging/verify_build.py --pre; python -B packaging/verify_build.py --post; python -B packaging/verify_build.py --final installer_output/MLCPlayer_Setup_v0.40.exe",
+        "concurrent command B: python packaging/verify_inno.py all; signature readback and dist identity readback",
+        "b2_capture.ps1 -OutputPath 62-artifact-provenance-failure-post.json -MainArtifact MLCPlayer_Setup_v0.40.exe -AddonArtifact MLCPlayer_InternetVideo_v0.40.exe"
+      ],
+      "artifacts_before_failure": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55914571, "sha256": "B8001DAA3722D99A5E85313CFD417F80E8E405C6990859E81BE8C52D378FE2FC"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"}
+      ],
+      "remaining_orphan_signature_digests": [
+        {"name": "MLCPlayer_Setup_v0.40.exe.sig", "size_bytes": 88, "sha256": "3C7165A3A70FFB3602436A70B7AED12D6072B77845240B3D9B09FC6E749CFEBA"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe.sig", "size_bytes": 88, "sha256": "516CA07EE797C06C8B0902CE16EB85E98BCC2713D277FFDC689D6C4D15E2DF73"}
+      ],
+      "private_artifact_digests": [
+        {"name": "61-final-clean-pre.json", "size_bytes": 32445, "sha256": "90B2A27EAB20C1973391ACD804DA0BE001D512E19EEE9CE8DE47F824C278A52F"},
+        {"name": "62-artifact-provenance-failure-post.json", "size_bytes": 32017, "sha256": "4C06DF3A0C8E49620B7FAF3B59A043502E5669C7CAB4C4B58610C2F02DE76806"}
+      ],
+      "subject": "Release-candidate provenance split and compile-preflight artifact loss",
+      "evidence": [
+        "the official EV029 source-build record identifies exact ebc628b main artifact 071183487940D5EAB79F641BB1D86F42D02AC0AF7E0E2FB5DFF635FC8B8CF6C5, while later B2 installed-artifact evidence used a different B8001DAA3722D99A5E85313CFD417F80E8E405C6990859E81BE8C52D378FE2FC main artifact without a contemporaneous source-build transcript",
+        "the only source changes from ebc628b to 994f0e2 were continuity and ledger documents, and the B800 artifact timestamp, dist and valid detached signature supported but did not prove exact-commit source-build provenance",
+        "the final clean silent cycle did not start because independent preflight classified the release-candidate identity split as P0",
+        "during provenance inspection, packaging/verify_inno.py all invoked the compile-preflight on the shared output directory and removed both ignored installer executables; only their detached signature files remained",
+        "the concurrently collected verify-build and signature outputs are invalidated by the output-directory race and are not used as PASS evidence",
+        "the pre/post snapshots proved exact equality for 103 installed files, two user files, active settings, both uninstall registrations, OpenWith and shortcuts; no target process was present after the event",
+        "the post snapshot independently recorded both installer artifact identities as absent; no restore, rebuild, install, maintenance, uninstall or retry followed",
+        "independent adversarial review classified the missing release executables as P0, the concurrent verification result as unusable P1 and shared-output compile-preflight as a deferred P2 hardening issue"
+      ],
+      "summary": "The final silent cycle was stopped before product mutation: the release-candidate identity was unresolved, then the compile-preflight removed both installer executables from the ignored output directory while leaving the installed product and measured user/system state unchanged.",
+      "limitations": [
+        "The two remaining .sig files cannot restore, identify or validate future installer bytes and are not publishable artifacts by themselves.",
+        "EV029 and EV030-EV036 remain valid historical evidence for their exact named bytes but do not prove that a current publishable installer exists.",
+        "The final clean install, maintenance and uninstall cycle is NOT_RUN and tag or release remains blocked.",
+        "The compile-preflight isolation defect is recorded for a later separately authorized code or governance fix; it does not authorize artifact restoration.",
+        "No automatic rebuild, restore, install, uninstall, commit, push, tag, upload or release action was performed after the failure."
+      ],
+      "next_action": "Request separate commit approval for this four-file evidence package; after exact clean commit readback, request separate build approval to generate one new isolated release-candidate artifact set before planning any new exact-artifact B2 acceptance."
+    },
+    {
+      "id": "EV-20260828-001",
+      "recorded_at_utc": "2026-08-27T21:14:28Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "corrects": [
+        {
+          "entry_id": "EV-20260827-038",
+          "field": "evidence[1]",
+          "incorrect": "the only source changes from ebc628b to 994f0e2 were continuity and ledger documents, and the B800 artifact timestamp, dist and valid detached signature supported but did not prove exact-commit source-build provenance",
+          "corrected": "the only source changes from ebc628b to 994f0e2 were continuity and ledger documents; the B800 artifact timestamp, dist and the presence of a detached signature file supported but did not prove exact-commit source-build provenance, and no race-independent signature-validity PASS is claimed"
+        },
+        {
+          "entry_id": "EV-20260827-038",
+          "field": "commands[2]",
+          "incorrect": "concurrent command B: python packaging/verify_inno.py all; signature readback and dist identity readback",
+          "corrected": "concurrent command B: python packaging/verify_inno.py all; python -B -c <signature_is_valid readback for both installer executables>; Get-Item/Get-FileHash readback for dist MLC Player.exe and packaged mpv-2.dll"
+        }
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_release_documentation_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json > $null",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "scoped private-path scan over uncommitted ledger suffix and four-file diff",
+        "git diff --check"
+      ],
+      "subject": "Correction of EV038 signature and concurrent-command evidence boundaries",
+      "evidence": [
+        "EV038 remains the immutable failure record; this new entry supplies machine-readable field corrections without rewriting it",
+        "the concurrent signature and dist readbacks overlapped the compile-preflight output deletion and therefore cannot establish a valid detached-signature PASS",
+        "the surviving detached signature files are orphan evidence only and cannot validate missing or future installer bytes",
+        "independent adversarial delta review found the installed-state, artifact-loss, NOT_RUN and separate-approval boundaries otherwise correct"
+      ],
+      "summary": "EV038 is corrected to remove the unsupported B800 signature-validity implication and to identify the concurrent readback command family explicitly.",
+      "limitations": [
+        "This correction adds no artifact, source-build, installed-artifact or release acceptance.",
+        "The exact readback expressions were not captured as an immutable standalone transcript; the known command family is recorded and all concurrent results remain invalidated.",
+        "The compile-preflight remains unsafe for auditing a shared artifact directory and requires a later separately authorized isolation fix.",
+        "No rebuild, restore, install, uninstall, commit, push, tag, upload or release action was performed."
+      ],
+      "next_action": "Request separate commit approval for the four-file evidence package; only after exact clean commit readback request separate isolated build approval."
+    },
+    {
+      "id": "EV-20260828-002",
+      "recorded_at_utc": "2026-08-27T21:17:16Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "baseline_commit": "994f0e25c7774b3bbdd5f961530a62137a847f16",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_continuity_regressions.py",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "corrects": [
+        {
+          "entry_id": "EV-20260828-001",
+          "field": "changed_files",
+          "incorrect": [
+            "docs/CONTINUITY.md",
+            "docs/RELEASE_PROCESS.md",
+            "docs/VERIFICATION_LEDGER.json",
+            "tests/test_release_documentation_regressions.py"
+          ],
+          "corrected": [
+            "docs/CONTINUITY.md",
+            "docs/RELEASE_PROCESS.md",
+            "docs/VERIFICATION_LEDGER.json",
+            "tests/test_continuity_regressions.py",
+            "tests/test_release_documentation_regressions.py"
+          ]
+        },
+        {
+          "entry_id": "EV-20260828-001",
+          "field": "corrects[1]",
+          "incorrect": {
+            "entry_id": "EV-20260827-038",
+            "field": "commands[2]",
+            "incorrect": "concurrent command B: python packaging/verify_inno.py all; signature readback and dist identity readback",
+            "corrected": "concurrent command B: python packaging/verify_inno.py all; python -B -c <signature_is_valid readback for both installer executables>; Get-Item/Get-FileHash readback for dist MLC Player.exe and packaged mpv-2.dll"
+          },
+          "corrected": {
+            "entry_id": "EV-20260827-038",
+            "field": "commands[2]",
+            "incorrect": "concurrent command B: python packaging/verify_inno.py all; signature readback and dist identity readback",
+            "corrected": "exact command transcript unrecorded; known concurrent family: packaging/verify_inno.py all plus signature_is_valid and dist identity readbacks; every concurrent result is invalidated"
+          }
+        },
+        {
+          "entry_id": "EV-20260828-001",
+          "field": "next_action",
+          "incorrect": "Request separate commit approval for the four-file evidence package; only after exact clean commit readback request separate isolated build approval.",
+          "corrected": "Request separate commit approval for the five-file evidence package; only after exact clean commit readback request separate isolated build approval."
+        }
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m pytest -q tests/test_release_documentation_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json > $null",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "scoped private-path scan over uncommitted ledger suffix and five-file diff",
+        "git diff --check"
+      ],
+      "subject": "General ledger-field correction schema and EV001 provenance correction",
+      "evidence": [
+        "the existing continuity regression first failed because it incorrectly restricted every corrects entry to the commit field despite the root agent contract allowing arbitrary field corrections",
+        "the generalized regression resolves a top-level field or one indexed list item, requires the incorrect value to equal the immutable target value, rejects unchanged, null and empty string/list/dict corrections, and retains SHA validation only for commit corrections",
+        "the downstream Git object check now consumes only corrected commit hashes rather than treating arbitrary corrected field values as hashes",
+        "EV001 is corrected to identify the actual five-file dirty package and to describe the unavailable exact concurrent transcript without a command-like placeholder",
+        "independent adversarial review found the indexed resolver fail-closed for the two current fields and preserved the four historical explicit commit-correction assertions"
+      ],
+      "summary": "The ledger regression now enforces the repository's general append-only field-correction contract without weakening historical commit correction or Git-object validation.",
+      "limitations": [
+        "The resolver supports top-level fields and one numeric list index; nested object paths are not claimed or currently required.",
+        "This deterministic record adds no artifact, build, installed-artifact or release acceptance.",
+        "The package remains uncommitted and has no evidence_commit until separately approved, committed and read back.",
+        "No rebuild, restore, install, uninstall, commit, push, tag, upload or release action was performed."
+      ],
+      "next_action": "Request separate commit approval for this five-file evidence package; only after clean commit readback request separate isolated build approval."
     }
   ]
 }
