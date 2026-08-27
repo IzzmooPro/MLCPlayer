@@ -9589,6 +9589,51 @@
         "The two-document EV009 record is uncommitted until separately approved; no install, physical retry, push, PR, merge, tag, upload or release followed the build."
       ],
       "next_action": "Request separate approval to commit this two-document source-build record; after clean readback request one exact-artifact physical fast-fail latency retry separately."
+    },
+    {
+      "id": "EV-20260828-010",
+      "recorded_at_utc": "2026-08-27T22:22:48Z",
+      "proof_layer": "installed_artifact",
+      "result": "blocked",
+      "commit": "703c12698f03c79dc301243eb28deaa5f72c8135",
+      "baseline_commit": "703c12698f03c79dc301243eb28deaa5f72c8135",
+      "working_tree_state": "clean before the approved physical attempt and before evidence recording",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Fresh ABBB fast-fail physical latency preflight blocked before setup",
+      "commands": [
+        "exact checkout, ABBB/D4 artifact, installed v0.40 registration, installed Player E30 hash and zero-target-process preflight readback",
+        "fresh private runner parse/hash validation with exact artifact, installed Player, registration, mutex, PID/path/time, watchdog, stale-evidence and leak guards",
+        "single approved run_fast_fail_latency.ps1 attempt; setup was never started because the post-launch target-isolation guard failed",
+        "read-only result, leak snapshot, application log and available Windows process-audit log inspection; no automatic retry"
+      ],
+      "artifacts": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55945176, "sha256": "ABBB01C337535DB989E4A36D61D4362604C448323A2D27506F155C84EA48DC34"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"}
+      ],
+      "private_artifact_digests": [
+        {"name": "run_fast_fail_latency.ps1", "size_bytes": 9079, "sha256": "0DA8BCE26D471C2BD405F1CE96C64F5B56A31B3A87101EB8080F783100D5842B"},
+        {"name": "04-fast-fail-leak.json", "size_bytes": 71876, "sha256": "9342A59CF43320FC8AF5C5C5347AA1DBB78D2B4E4FD0D33BDCF7F0BF545880EC"},
+        {"name": "05-fast-fail-result.json", "size_bytes": 1072, "sha256": "045B6F81ABF78821BAC66F6B255A9416F49BB89249929C715626787865DB92E0"},
+        {"name": "run_fast_fail_latency.ps1.prepared-next", "size_bytes": 9332, "sha256": "A2F5BFA7FF74CE1BB15A6BD88E2D79A15F78E2CE2611CA9E6423233A3CAF799C"}
+      ],
+      "evidence": [
+        "the approved attempt started from exact clean 703c126, exact ABBB/D4 artifacts, registered v0.40 main and add-on, exact installed Player E30 and zero pre-existing target processes",
+        "the fresh runner launched the exact installed Player and read back its PID, parent PID, executable path, command line and creation time, but the immediate target-isolation guard observed a non-single target set and failed closed before mutex verification, suspension or setup launch",
+        "SetupStartedUtc and SetupReturnedUtc are null, setup exit is null, no setup log or pre/return install snapshot exists, and no UAC or installer interaction occurred; the 5-10-second product scenario remains NOT_RUN",
+        "the exact Player was closed normally, forced Player/setup cleanup was false, watchdog did not fire, measured target-process count after cleanup was zero, and the final snapshot retained 103 installed plus two user files",
+        "available application and Windows audit logs did not preserve the transient second target identity, so the guard was not weakened and no automatic retry occurred",
+        "the prepared next runner only adds fail-closed recording of every observed target before the unchanged isolation decision; it parses cleanly but has not been executed"
+      ],
+      "summary": "The first ABBB physical attempt was safely blocked by its own process-isolation preflight before setup; it proves cleanup safety only and does not measure the installer fast-fail latency.",
+      "limitations": [
+        "The transient extra target identity was not captured by the original runner and cannot be reconstructed from available read-only logs.",
+        "No install, copy, rollback or fast-fail behavior was exercised; this is not a failed product result and cannot pass B2.",
+        "The next physical attempt requires separate approval; push, PR, merge, tag, upload and release remain blocked."
+      ],
+      "next_action": "Request separate approval for one fresh-runner retry that records the complete observed target set and still stops before setup unless exact single-target isolation and mutex verification pass."
     }
   ]
 }
