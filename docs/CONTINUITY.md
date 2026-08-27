@@ -6,10 +6,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `94912fbcab2b3f7e1f170c5fe2ff9d9d21ffb3af`
+- Kayıt hazırlanırken doğrulanan HEAD: `316c827793ef9998fe666d6a7dd0b61c3cc248c0`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/p0-tracks-menu-watchdog` (test-only hardening uncommitted)
-- Son kanıt: `EV-20260827-007`
+- Dal: `codex/p0-tracks-menu-watchdog` (hardening commit'i exact `316c827`;
+  yalnız commit-provenance belgeleri uncommitted)
+- Son kanıt: `EV-20260827-008`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -161,8 +162,8 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact beş dosyalı `EV-20260827-007` test-only hardening ve kanıt paketini
-ayrıca açık onayla commit et; push veya native retry başlatma.
+Exact iki belgeli `EV-20260827-008` commit-provenance paketini ayrıca açık
+onayla commit et; push veya native retry başlatma.
 
 ## Sonraki sıra
 
