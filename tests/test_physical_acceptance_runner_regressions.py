@@ -145,6 +145,34 @@ def test_empty_run_is_not_a_success(runner):
     assert runner.overall_exit_code([]) != 0
 
 
+def test_parent_cursor_restore_failure_fails_an_all_pass_run(
+        runner, tmp_path, monkeypatch):
+    """Runner'in kendi cursor restore hatasi exit 0 ile gizlenemez."""
+    video = tmp_path / "fixture.mkv"
+    video.write_bytes(b"fixture")
+    monkeypatch.setenv("MLC_NATIVE_SMOKE", "1")
+    monkeypatch.setenv("MLC_NATIVE_TEST_VIDEO", str(video))
+    monkeypatch.setattr(runner, "GROUPS", [("13", "tracks", 1)])
+    monkeypatch.setattr(runner, "LOG_DIR", str(tmp_path))
+    monkeypatch.setattr(runner, "cursor_pos", lambda: (10, 20))
+    monkeypatch.setattr(runner.user32, "GetForegroundWindow", lambda: 123)
+    monkeypatch.setattr(
+        runner, "restore", lambda cursor, hwnd: (False, (99, 99), 5))
+    monkeypatch.setattr(
+        runner, "run_group",
+        lambda number, name, timeout, env: {
+            "group": number,
+            "name": name,
+            "group_status": "PASS",
+            "counts": {"pass": 1, "fail": 0, "blocked": 0},
+            "timed_out": False,
+            "mark_done": True,
+        })
+    monkeypatch.setattr(sys, "argv", [RUNNER_PATH, "tracks"])
+
+    assert runner.main() != 0
+
+
 def test_importing_the_runner_does_not_execute_it(runner):
     """Modul ice aktarilinca gruplar KOSMAZ (guard mevcut)."""
     assert callable(runner.main)

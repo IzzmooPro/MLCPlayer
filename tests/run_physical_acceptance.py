@@ -282,6 +282,7 @@ def main():
         return 2
 
     summaries = []
+    parent_cursor_restored = False
     try:
         for number, name, timeout in GROUPS:
             if only and name not in only:
@@ -289,6 +290,7 @@ def main():
             summaries.append(run_group(number, name, timeout, env))
     finally:
         ok, now, attempts = restore(original_cursor, original_hwnd)
+        parent_cursor_restored = ok
         print(f"RUNNER_RESTORED cursor={now} target={original_cursor} "
               f"ok={ok} attempts={attempts}", flush=True)
         if not ok:
@@ -308,6 +310,8 @@ def main():
               f"blocked={entry['counts']['blocked']} "
               f"timeout={entry['timed_out']} done={entry['mark_done']}", flush=True)
     print(f"TOTALS {totals}", flush=True)
+    if not parent_cursor_restored:
+        return 1
     return overall_exit_code(entry["group_status"] for entry in summaries)
 
 
