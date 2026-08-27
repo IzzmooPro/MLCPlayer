@@ -8533,6 +8533,120 @@
         "No full CI-safe, native, build, installer, installed-artifact, tag or release evidence is added."
       ],
       "next_action": "Request separate approval to commit the exact two-document EV026-EV027 repair package; do not push, retry, merge, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-028",
+      "recorded_at_utc": "2026-08-27T13:51:06Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "ebc628bb82e468fefec047b3c779c28b5c765abc",
+      "baseline_commit": "ebc628bb82e468fefec047b3c779c28b5c765abc",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "gh pr view 65 --repo IzzmooPro/MLCPlayer --json state,mergedAt,mergeCommit,headRefOid,baseRefOid,url",
+        "git fetch origin master",
+        "git show -s --format=%H%n%P%n%s origin/master",
+        "gh workflow run 338540375 --repo IzzmooPro/MLCPlayer --ref master -f expected_sha=ebc628bb82e468fefec047b3c779c28b5c765abc",
+        "gh run view 33077939420 --repo IzzmooPro/MLCPlayer --json status,conclusion,headSha,event,headBranch,url,jobs",
+        "gh run view 33077939420 --repo IzzmooPro/MLCPlayer --job 98537021399 --log"
+      ],
+      "subject": "PR 65 merge provenance and exact-master v0.40 hosted release-candidate test",
+      "evidence": [
+        "PR 65 read-back reported MERGED at 2026-08-27T13:36:50Z as exact commit ebc628bb82e468fefec047b3c779c28b5c765abc with base parent 2e75fbd538ec2026ab30a2932c40767f74a5486e and head parent 2331cd4a0db8b088f0fee6bdd3ec6c8d02cbfb69",
+        "local origin/master independently returned the same merge commit and both parents",
+        "separately approved workflow_dispatch run 33077939420 job 98537021399 completed successfully on refs/heads/master at exact ebc628bb82e468fefec047b3c779c28b5c765abc",
+        "the fail-closed exact ref and expected SHA gate passed",
+        "the full CI-safe suite reported 5061 passed, 30 skipped and 0 failed in 151.44 seconds; locked dependencies, compilation, translations and whitespace checks passed"
+      ],
+      "summary": "The protected PR 65 merge commit passed its exact-master release-candidate hosted suite with 5061 passed, 30 skipped and no failures.",
+      "limitations": [
+        "Hosted CI does not prove native Windows playback, installer behavior, installed-artifact acceptance or human visual acceptance.",
+        "Thirty skipped tests remain skipped and are not promoted to PASS.",
+        "The workflow's ledger append-only step is intentionally skipped for a full exact-master dispatch and is not claimed."
+      ],
+      "next_action": "Build the official v0.40 artifacts once from clean exact ebc628b only after separate build approval; do not install, tag or release."
+    },
+    {
+      "id": "EV-20260827-029",
+      "recorded_at_utc": "2026-08-27T13:51:06Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "ebc628bb82e468fefec047b3c779c28b5c765abc",
+      "baseline_commit": "ebc628bb82e468fefec047b3c779c28b5c765abc",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -B packaging/verify_dependencies.py requirements-lock.txt",
+        "python -B packaging/verify_build.py --pre",
+        "python -B packaging/check_publishable.py",
+        "python packaging/verify_inno.py all",
+        "cmd.exe /d /c packaging\\build_release.bat",
+        "python -B packaging/verify_build.py --post",
+        "python -B packaging/verify_build.py --final installer_output/MLCPlayer_Setup_v0.40.exe",
+        "python -B -c \"import sys; sys.path.insert(0,'packaging'); from prepublish import signature_is_valid; files=['installer_output/MLCPlayer_Setup_v0.40.exe','installer_output/MLCPlayer_InternetVideo_v0.40.exe']; results=[signature_is_valid(f) for f in files]; print('SIGNATURES_VALID',results); raise SystemExit(0 if all(results) else 1)\"",
+        "Get-FileHash -Algorithm SHA256 installer_output\\MLCPlayer_Setup_v0.40.exe,installer_output\\MLCPlayer_Setup_v0.40.exe.sig,installer_output\\MLCPlayer_InternetVideo_v0.40.exe,installer_output\\MLCPlayer_InternetVideo_v0.40.exe.sig",
+        "Get-AuthenticodeSignature installer_output\\MLCPlayer_Setup_v0.40.exe,installer_output\\MLCPlayer_InternetVideo_v0.40.exe",
+        "$df=@(Get-ChildItem -LiteralPath 'dist\\MLC Player' -Recurse -File); 'DIST_FILES '+$df.Count; 'DIST_BYTES '+(($df|Measure-Object Length -Sum).Sum); $player=Get-Item -LiteralPath 'dist\\MLC Player\\MLC Player.exe'; 'PLAYER_BYTES '+$player.Length; 'PLAYER_SHA256 '+(Get-FileHash -LiteralPath $player.FullName -Algorithm SHA256).Hash; 'PLAYER_VERSION '+$player.VersionInfo.FileVersion; 'PACKAGED_MPV_SHA256 '+(Get-FileHash -LiteralPath 'dist\\MLC Player\\_internal\\bin\\mpv-2.dll' -Algorithm SHA256).Hash",
+        "$targets=@(Get-CimInstance Win32_Process|Where-Object{$_.Name -match '^(MLC Player|yt-dlp|deno|mpv|ffmpeg)\\.exe$'}|Select-Object ProcessId,Name,ExecutablePath); 'TARGET_PROCESS_COUNT '+$targets.Count",
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git rev-parse origin/master",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python -c \"import json; e=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8'))['entries']; ids=[x['id'] for x in e]; assert len(ids)==len(set(ids)); print('LEDGER_IDS_UNIQUE',len(ids))\"",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "python -c \"import json,pathlib,subprocess,os,tempfile; norm=lambda s:s.replace(chr(92),'/').casefold(); needles=(norm(os.environ['USERPROFILE']),norm(tempfile.gettempdir()),'.'+'codex/visualizations','.'+'codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; blobs=[json.dumps(new),pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(norm(n) in norm(b) for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK',len(new))\"",
+        "git diff --check"
+      ],
+      "subject": "Official v0.40 source build from exact ebc628b protected master",
+      "private_artifact_digests": [
+        {
+          "name": "MLCPlayer_Setup_v0.40.exe",
+          "size_bytes": 55930084,
+          "sha256": "071183487940D5EAB79F641BB1D86F42D02AC0AF7E0E2FB5DFF635FC8B8CF6C5"
+        },
+        {
+          "name": "MLCPlayer_Setup_v0.40.exe.sig",
+          "size_bytes": 88,
+          "sha256": "EE61187EB261811900DF1A4BAD97895450D872ECEB966E612D30F008E77200D9"
+        },
+        {
+          "name": "MLCPlayer_InternetVideo_v0.40.exe",
+          "size_bytes": 48909126,
+          "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"
+        },
+        {
+          "name": "MLCPlayer_InternetVideo_v0.40.exe.sig",
+          "size_bytes": 88,
+          "sha256": "516CA07EE797C06C8B0902CE16EB85E98BCC2713D277FFDC689D6C4D15E2DF73"
+        }
+      ],
+      "evidence": [
+        "the separately approved official build command completed once with exit code 0 and DONE from clean exact master ebc628bb82e468fefec047b3c779c28b5c765abc; no build retry was performed",
+        "both v0.40 installer executables and detached signatures matched the recorded safe names, byte sizes and SHA-256 values",
+        "both detached Ed25519 signatures verified against their exact installer bytes; both executable versions were 0.40.0.0 and Authenticode states were NotSigned with no signer",
+        "the main distribution contained 91 files and 188467894 bytes; packaged MLC Player.exe was 3133269 bytes with SHA-256 DBE0EB4BBF52FA35065F02489D2F1A47B8C90A7203DF8BB94D35FB4E9F3FD26F and version v0.40",
+        "packaged mpv-2.dll was 112772608 bytes with SHA-256 DE80329F5C019BA2EE48184B5DC1E1D0C2EE9EEBA3F1FB7959F20B4B0F684F4E, matching the verified runtime input",
+        "post-build read-back found zero measured MLC Player, yt-dlp, deno, mpv or ffmpeg target processes and the source checkout remained exact ebc628b at origin/master 0/0",
+        "the prior 2e75fbd build differs only in committed documentation source yet its main installer, main signature and packaged Player bytes differ; the add-on executable and signature are byte-identical, but no prior main-artifact identity or acceptance is transferred",
+        "the two-document decision package passed 10 continuity regressions and JSON parsing; all 288 ledger IDs were unique, the committed 286-entry ledger remained an exact prefix, private-path scan covered both full new entries plus continuity, diff-check passed and continuity remained 197 lines"
+      ],
+      "summary": "The official exact-ebc628b v0.40 source build produced two identified unsigned installers with valid detached Ed25519 signatures and a verified main distribution.",
+      "limitations": [
+        "The project has no add-on-specific payload-final gate; packaging/verify_build.py --final proves the main distribution only, so add-on evidence is limited to successful Inno compilation, artifact identity and detached-signature validity.",
+        "No aggregate dist tree SHA-256 is recorded because the project does not define a canonical tree-hash algorithm.",
+        "Source-build PASS does not prove interactive or silent install, upgrade, uninstall, Restart Manager, invalid-target, running-process, network, native playback or human visual behavior.",
+        "The exact new main artifact has not completed mandatory B2 installed-artifact acceptance; tag and release remain blocked."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV028-EV029 evidence package; do not push, install, tag or release."
     }
   ]
 }
