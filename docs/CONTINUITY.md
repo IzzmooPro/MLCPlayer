@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `d465ee2fa52fc478f6245d9ab174e54fd4da9611`
+- Kayıt hazırlanırken doğrulanan HEAD: `417877cb67b52d40ecba300400dfa9a6ceaab7d7`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/internet-video-format-fallback` (origin dalıyla `0/0`, `origin/master`dan 4 ileride; test-only CI düzeltmesi uncommitted)
-- Son kanıt: `EV-20260827-019`
+- Dal: `codex/internet-video-format-fallback` (origin dalından `1`, `origin/master`dan 5 ileride; EV020 provenance kaydı uncommitted)
+- Son kanıt: `EV-20260827-020`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -100,7 +100,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   URL önkoşulu da setup başlamadan FAILED; release bloklu (`EV-20260827-013`).
 - Internet Video düzeltmesi hedef **2/2**, aile **42 passed / 2 skipped** verdi; paket `3abdf13`, provenance `e64f8c2`, koruma `07df9c1` olarak bağlıdır (`EV-20260827-014/015/016`).
   PR #64 `07df9c1` head'i **5059 passed / 30 skipped / 0 failed** verdi (`EV-20260827-017`); yalnız belge commit'i `d465ee2` sonrasında yeni required run Qt testinde native AV ile FAILED (`EV-20260827-018`).
-  Regression-first test-only session `QApplication` sahipliği kırmızı **1 failed**, sonra **1 passed**; medya/aile **33/119 passed** ve karşıt P0/P1/P2=0 verdi (`EV-20260827-019`). Ağ/native NOT_RUN.
+  Regression-first test-only session `QApplication` sahipliği kırmızı **1 failed**, sonra **1 passed**; medya/aile **33/119 passed**, karşıt P0/P1/P2=0 ve exact commit `417877c` verdi (`EV-20260827-019/020`). Ağ/native NOT_RUN.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -164,7 +164,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact dört dosyalı `EV-20260827-018/019` test-only düzeltme ve kayıt paketini ayrıca açık onayla commit et; push, CI retry, merge, build, kurulum, tag veya release başlatma.
+Exact iki belgeli `EV-20260827-020` provenance kaydını ayrıca açık onayla commit et; push, CI retry, merge, build, kurulum, tag veya release başlatma.
 
 ## Sonraki sıra
 

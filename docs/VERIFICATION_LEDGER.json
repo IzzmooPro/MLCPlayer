@@ -8215,6 +8215,41 @@
         "This change does not prove network, native libmpv, build, installer, installed-artifact, merge, tag or release behavior."
       ],
       "next_action": "Request separate approval to commit the exact four-file EV018-EV019 package; do not push, retry CI, merge, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-020",
+      "recorded_at_utc": "2026-08-27T12:04:38Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+      "baseline_commit": "417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+      "evidence_commit": "417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git show --format=fuller --stat --oneline 417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+        "git show --format= --name-only 417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/codex/internet-video-format-fallback",
+        "git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Commit provenance for the pytest QApplication session-lifetime repair",
+      "evidence": [
+        "exact commit 417877cb67b52d40ecba300400dfa9a6ceaab7d7 was created with subject test: keep one QApplication for the pytest session",
+        "the commit contains exactly CONTINUITY.md, VERIFICATION_LEDGER.json, tests/conftest.py and the new test_qt_session_lifecycle_regressions.py",
+        "the commit read-back reports 112 insertions and 12 deletions across those four files and binds the EV018-EV019 failure, regression-first repair and evidence package",
+        "after commit creation the task worktree was clean, the branch was one commit ahead and zero behind its origin task branch, and five commits ahead and zero behind origin/master"
+      ],
+      "summary": "Exact commit read-back binds the test-only QApplication session ownership repair and EV018-EV019 evidence to 417877c.",
+      "limitations": [
+        "The two-document EV020 provenance append is uncommitted and requires separate commit approval.",
+        "The task branch has not been pushed; PR 64 still exposes the earlier failing d465ee2 head and required check.",
+        "Commit provenance does not add hosted CI, network, native libmpv, build, installer, installed-artifact, merge, tag or release evidence."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV020 provenance record; do not push, retry CI, merge, build, install, tag or release."
     }
   ]
 }
