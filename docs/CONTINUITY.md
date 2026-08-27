@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `50c60ee42835fe6304d55eb2a51c9547e9c9dd23`
+- Kayıt hazırlanırken doğrulanan HEAD: `ebc628bb82e468fefec047b3c779c28b5c765abc`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-build-evidence-2e75fbd` (uzak görev dalıyla `0/0`, `origin/master`dan `1/0`; PR #65 blocked, EV026-EV027 uncommitted)
-- Son kanıt: `EV-20260827-027`
+- Dal: `codex/v040-ebc-build-acceptance` (`origin/master` ile `0/0`; EV028-EV029 iki-belge kanıt paketi uncommitted)
+- Son kanıt: `EV-20260827-029`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -101,18 +101,15 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Internet Video düzeltmesi hedef **2/2**, aile **42 passed / 2 skipped** verdi; paket `3abdf13`, provenance `e64f8c2`, koruma `07df9c1` olarak bağlıdır (`EV-20260827-014/015/016`).
   PR #64 `07df9c1` head'i **5059 passed / 30 skipped / 0 failed** verdi (`EV-20260827-017`); yalnız belge commit'i `d465ee2` sonrasında yeni required run Qt testinde native AV ile FAILED (`EV-20260827-018`).
   Regression-first session sahipliği exact `417877c` oldu; `50c4928` hosted koşumu native AV olmadan **5059 passed / 30 skipped / 2 failed** verdi. İki geçici `QMenu` test ömrü kırmızı **2 failed**, sonra hedef/aile **2/32 passed**, karşıt P0/P1/P2=0 ve exact commit `f658fc1` ile test-only düzeltildi (`EV-20260827-019/020/021/022/023`). Ağ/native NOT_RUN.
-- PR #64 exact `2e75fbd` merge commit'iyle protected master'a alındı. Ayrı
-  exact-master dispatch **5061 passed / 30 skipped / 0 failed** verdi
-  (`EV-20260827-024`). Resmî build iki v0.40 setup ve doğrulanan detached
-  Ed25519 imzalarını üretti; ana/add-on EXE `7cdb6b58...533089d` /
-  `d4a4d799...f9e675`, Authenticode `NotSigned`; ölçülen build/ürün-hedef
-  süreçleri sıfır (`EV-20260827-025`). Add-on'a özgü payload-final kapısı
-  tanımlı/kanıtlı değil; exact-artifact B2 fiziksel kabulü **NOT_RUN**,
-  tag/release blokludur.
-- PR #65 run `33076170838`, continuity'de dört kalite yolunun `docs/` öneki
-  sıkıştırılırken düşürüldüğünü **248 passed / 1 failed** ile yakaladı; retry yok
-  (`EV-20260827-026`). Exact kırmızıdan sonra yalnız yollar düzeltildi; hedef
-  **1 passed**, CI-belge ailesi **249 passed** (`EV-20260827-027`).
+- PR #64 build kanıtı ve PR #65 path-contract düzeltmesi protected master'a
+  exact `ebc628b` olarak ulaştı; başarısız run retry edilmedi
+  (`EV-20260827-024`–`027`).
+  Exact-master dispatch `33077939420`, **5061 passed / 30 skipped / 0 failed**
+  verdi (`EV-20260827-028`). Yeni resmî build ana/add-on setup SHA-256 değerlerini
+  `07118348...cf6c5` / `d4a4d799...f9e675` olarak üretti; Ed25519 geçerli,
+  Authenticode `NotSigned`, main dist 91 dosya ve ölçülen hedef süreç 0
+  (`EV-20260827-029`). Add-on'a özgü payload-final kapısı yok; exact yeni ana
+  artifact için B2 **NOT_RUN**, eski kabul taşınmaz, tag/release blokludur.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -176,8 +173,8 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-026`–`027` CI-failure/path-fix paketini ayrıca
-açık onayla commit et; push, retry, merge, fiziksel kabul, tag veya release yok.
+Exact iki belgeli `EV-20260827-028`–`029` merge/CI/source-build paketini ayrıca
+açık onayla commit et; push, fiziksel kabul, tag veya release yok.
 
 ## Sonraki sıra
 
