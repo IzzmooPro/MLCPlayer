@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 28 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `315e83a5d6d1a0a5c97873356abb61ce1b0af39b`
+- Kayıt hazırlanırken doğrulanan HEAD: `1dafe1fc0149200a0f8cbbd81b6713431d785384`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `4/0`; EV008 iki-belge commit-readback kaydı uncommitted)
-- Son kanıt: `EV-20260828-008`
+- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `5/0`; EV009 iki-belge source-build kaydı uncommitted)
+- Son kanıt: `EV-20260828-009`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -113,7 +113,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   kullanıcı Retry/Ignore yerine Abort seçti, exit 5 ve rollback başarılıydı. Tüm
   ölçülen 103+2 dosya ile ayar/uninstall/OpenWith/kısayol yüzeyleri exact korundu; resume 0, normal kapanış, watchdog
   ateşlenmedi, sızıntı 0; evaluator **23/23 PASS**, karşıt P0/P1=0 (`EV-20260827-036`); app-level semantik/normal maintenance/silent/add-on'a aktarılmaz, belge kapanışı P0/P1/P2=0 (`EV-20260827-037`).
-- Ayrı onaylı izole build exact `dcfb343` üzerinde exit 0 ve `DONE` verdi; ana setup `B7EAA997...FC8119` / 55.928.017 bayt, add-on `D4A4D799...F9E675` / 48.909.126 bayt, iki detached Ed25519 geçerli, iki EXE Authenticode `NotSigned` ve süreç sızıntısı 0. Dal protected master'dan 2 commit ileride olduğundan bu yalnız `source_build` PASS'tir; publishable RC veya fiziksel B2 değildir (`EV-20260828-004`).
+- Ayrı onaylı izole build exact `1dafe1f` üzerinde tek çalıştırmada exit 0 ve `DONE` verdi; fast-fail ana setup `ABBB01C3...DC34` / 55.945.176 bayt, değişmeyen add-on `D4A4D799...F9E675` / 48.909.126 bayt, iki detached Ed25519 geçerli, iki EXE Authenticode `NotSigned` ve süreç sızıntısı 0. Bu yalnız `source_build` PASS'tir; 5–10 saniye fiziksel davranış ve B2 henüz kanıtlanmadı (`EV-20260828-009`).
 - Exact B7/D4 normal fiziksel döngüsü gerçek v0.39 yükseltmesi, iki kaldırma sırası, clean install, maintenance, payload/ayar koruması ve final restore ile geçti. Askıya alınmış Player yolu kopya öncesi Abort/exit 5, tam rollback ve sıfır sızıntıyla güvenliydi; fakat Restart Manager **66,715 saniye** bekledi. Kullanıcının 5–10 saniye UX sınırı nedeniyle tam B2 **FAILED** (`EV-20260828-006`).
 - Regression-first installer-only düzeltme maintenance/upgrade sırasında süreç-ömürlü `MLCPlayer-Running` mutex'ini `PrepareToInstall` içinde önce denetler ve çalışan Player varsa kopya/RM bekleyişinden önce sekiz dilde hızlı fail-closed durur. `CloseApplications` fallback'i korunur; force/taskkill/ürün kodu yoktur. Dil sözleşmesi ve yanlış aynı-sihirbaz talimatı kapatıldı; dar paket **60 passed** (`EV-20260828-007`).
 - Onaylı beş-dosya fast-fail/kayıt paketi exact `315e83a` olarak commit edildi; sole parent `a4a4ba2`, dosya sınırı doğru ve post-commit dar paket **266 passed**. EV008 iki-belge evidence-commit kaydı henüz uncommitted; build/fiziksel süre kanıtı yoktur (`EV-20260828-008`).
@@ -180,7 +180,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV008 iki-belge evidence-commit kaydını ayrı onayla commit et; sonra isolated build için ayrıca onay iste. Tek fiziksel süre retry'ı daha sonra ayrıca onaylanmadan yapılmaz. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
+EV009 iki-belge source-build kaydını ayrı onayla commit et; sonra exact ABBB/D4 artifact için tek fiziksel fast-fail süre retry'ı ayrıca onaylanmadan yapılmaz. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

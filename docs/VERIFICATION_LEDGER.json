@@ -9547,6 +9547,48 @@
         "No build, install, retry, push, PR, merge, tag, upload or release followed the commit."
       ],
       "next_action": "Request separate approval to commit this two-document evidence_commit record; then request isolated build approval separately."
+    },
+    {
+      "id": "EV-20260828-009",
+      "recorded_at_utc": "2026-08-27T22:14:21Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "1dafe1fc0149200a0f8cbbd81b6713431d785384",
+      "baseline_commit": "1dafe1fc0149200a0f8cbbd81b6713431d785384",
+      "working_tree_state": "clean before build and before evidence recording",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Isolated v0.40 build containing the running-Player setup fast-fail gate",
+      "commands": [
+        "git rev-parse --show-toplevel; git status --short --branch; git log -1 --oneline --decorate; git rev-list --left-right --count HEAD...origin/master; targeted installer regressions; old four-artifact identity and target-process readback",
+        "cmd.exe /d /c packaging\\build_release.bat",
+        "python packaging/verify_build.py --post; python packaging/verify_build.py --final installer_output\\MLCPlayer_Setup_v0.40.exe; python packaging/verify_build.py --final installer_output\\MLCPlayer_InternetVideo_v0.40.exe",
+        "first Ed25519 helper attempt failed because the external packaging module shadowed the repository directory; second file-loaded helper attempt failed because it received Path instead of its documented string input; neither changed artifacts and no build retry occurred",
+        "repository prepublish signature_is_valid with string paths and independent app.release_signature.verify readback; Get-Item, Get-FileHash SHA256, Get-AuthenticodeSignature, PE version, exact HEAD/tree/origin and process readback"
+      ],
+      "artifacts": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55945176, "sha256": "ABBB01C337535DB989E4A36D61D4362604C448323A2D27506F155C84EA48DC34"},
+        {"name": "MLCPlayer_Setup_v0.40.exe.sig", "size_bytes": 88, "sha256": "7D003B8CF705549111D54BDC8543D5E1B8D6C9651A6AA8A590020531E519CC3E"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe.sig", "size_bytes": 88, "sha256": "516CA07EE797C06C8B0902CE16EB85E98BCC2713D277FFDC689D6C4D15E2DF73"}
+      ],
+      "evidence": [
+        "the separately approved build started once from exact clean 1dafe1fc0149200a0f8cbbd81b6713431d785384, completed preflight, translation, PyInstaller, both Inno builds, signing and final verification with exit 0 and DONE",
+        "the new main installer is byte-distinct from the prior B7 artifact and is bound to the committed fast-fail Inno source; unchanged add-on inputs reproduced the exact prior D4 bytes with a new build timestamp",
+        "both detached Ed25519 signatures independently verified True against the corresponding exact EXE bytes; both PE files report FileVersion and ProductVersion 0.40.0.0",
+        "both installer EXEs remain Authenticode NotSigned; Ed25519 is not substituted for Authenticode",
+        "post-build HEAD remained exact 1dafe1f, tracked tree remained clean, branch was five ahead and zero behind origin/master, and measured target-process count was zero",
+        "independent adversarial post-build readback found P0/P1=0 and issued GO only for the bounded source_build claim"
+      ],
+      "summary": "Exact 1dafe1f produced a fresh fast-fail-capable v0.40 main installer and deterministic add-on with four bound artifact identities, two valid detached signatures and no source or process leakage.",
+      "limitations": [
+        "This source_build PASS does not prove compiled installer interaction, the 5-10-second fast-fail latency, install/rollback, installed payload, human acceptance, tag or release readiness.",
+        "Both EXEs are Authenticode NotSigned; SignPath and SmartScreen acceptance remain NOT_RUN.",
+        "The two-document EV009 record is uncommitted until separately approved; no install, physical retry, push, PR, merge, tag, upload or release followed the build."
+      ],
+      "next_action": "Request separate approval to commit this two-document source-build record; after clean readback request one exact-artifact physical fast-fail latency retry separately."
     }
   ]
 }
