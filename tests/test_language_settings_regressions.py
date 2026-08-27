@@ -169,8 +169,8 @@ def test_the_menu_marks_the_current_choice(qt_app_for_menu, isolated_settings):
     from app.menu_actions import build_language_menu
 
     i18n.store_language("de")
-    actions = [a for a in build_language_menu(None).actions()
-               if not a.isSeparator()]
+    menu = build_language_menu(None)
+    actions = [a for a in menu.actions() if not a.isSeparator()]
     checked = [a.text() for a in actions if a.isChecked()]
     assert checked == [i18n.language_name("de")]
 

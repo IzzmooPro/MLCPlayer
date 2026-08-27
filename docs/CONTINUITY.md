@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `ca4999de0c94e3cdcd4954ba600e50c210ad27f7`
+- Kayıt hazırlanırken doğrulanan HEAD: `f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-source-build-evidence` (source-build kaydı uncommitted)
-- Son kanıt: `EV-20260827-011`
+- Dal: `codex/internet-video-format-fallback` (origin dalından `1`, `origin/master`dan 7 ileride; EV023 provenance kaydı uncommitted)
+- Son kanıt: `EV-20260827-023`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -89,16 +89,18 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   48.909.130 baytlık `85b9b249...fcd3b51` artifact üretti; repo ve resmî
   çıktı konumu değişmedi (`EV-20260826-082`). Bu kaynak build sonucu henüz
   Türkçe Ready/Geri→İleri veya kurulu bakım kabulü değildir.
-- Exact `85b9b249...fcd3b51` artifact'ın insan kontrollü Türkçe same-version
-  akışında Ready, Önceki→Welcome→Sonraki→Ready, Progress ve Finish görselleri
-  geçti. Beş payload kaynakla exact eş; kullanıcı verisi ve ürün kayıtları
-  korundu, yalnız add-on uninstaller çifti ile `InstallDate` beklenen bakım
-  metadata'sı olarak değişti ve kayıtlı süreç envanteri sıfırdı
-  (`EV-20260826-083`). Log/exit code, silent, rollback ve uninstall ölçülmedi.
-- Exact `ca4999d` master dispatch'i **5058 passed / 30 skipped / 0 failed**
-  verdi. Aynı temiz commit'ten resmî zincir ana v0.40 setup, Internet Video
-  add-on ve iki doğrulanmış Ed25519 imzasını üretti (`EV-20260827-011`). İki
-  EXE Authenticode `NotSigned`; yeni artifact'lar fiziksel kabul edilmedi.
+- Exact `85b9b249...fcd3b51` insan kontrollü Türkçe same-version akışında tüm
+  ekranları ve beş exact payload'ı geçti; yalnız beklenen uninstaller/InstallDate
+  metadata'sı değişti (`EV-20260826-083`). Log/exit, silent ve uninstall ölçülmedi.
+- Exact `ca4999d` dispatch'i **5058 passed / 30 skipped / 0 failed** verdi ve
+  resmî zincir iki v0.40 setup ile doğrulanmış Ed25519 imzalarını üretti; iki
+  EXE Authenticode `NotSigned` (`EV-20260827-011`).
+- Ana v0.40 maintenance/upgrade 91/91 eşlik verdi; active add-on yt-dlp
+  kapanmayınca Abort/rollback ile v0.39 kaldı (`EV-20260827-012`). Corrected
+  URL önkoşulu da setup başlamadan FAILED; release bloklu (`EV-20260827-013`).
+- Internet Video düzeltmesi hedef **2/2**, aile **42 passed / 2 skipped** verdi; paket `3abdf13`, provenance `e64f8c2`, koruma `07df9c1` olarak bağlıdır (`EV-20260827-014/015/016`).
+  PR #64 `07df9c1` head'i **5059 passed / 30 skipped / 0 failed** verdi (`EV-20260827-017`); yalnız belge commit'i `d465ee2` sonrasında yeni required run Qt testinde native AV ile FAILED (`EV-20260827-018`).
+  Regression-first session sahipliği exact `417877c` oldu; `50c4928` hosted koşumu native AV olmadan **5059 passed / 30 skipped / 2 failed** verdi. İki geçici `QMenu` test ömrü kırmızı **2 failed**, sonra hedef/aile **2/32 passed**, karşıt P0/P1/P2=0 ve exact commit `f658fc1` ile test-only düzeltildi (`EV-20260827-019/020/021/022/023`). Ağ/native NOT_RUN.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -162,13 +164,12 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-011` source-build kayıt paketini ayrıca açık
-onayla commit et; kurulum, tag veya release başlatma.
+Exact iki belgeli `EV-20260827-023` provenance kaydını ayrıca açık onayla commit et; push, CI retry, merge, build, kurulum, tag veya release başlatma.
 
 ## Sonraki sıra
 
-1. Kayıt merge'inden sonra exact iki v0.40 artifact için final fiziksel kabul
-   paketini ayrı onayla uygula; kabul bitmeden tag/release yapma.
+1. Protected merge sonrası build ve fiziksel kabulü ayrı onaylarla sıfırdan
+   uygula; silent/ikinci uninstall/invalid-target bitmeden tag/release yapma.
 2. Kalan `P0-06`, `P0-07`, `P0-08` boşluklarını yayın sonrasına bırak.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.

@@ -47,10 +47,26 @@ INTERNET_VIDEO_MISSING_TITLE = tr_mark(
 YTDL_PATH_OPTION = "ytdl_hook-ytdl_path"
 
 # YouTube'un `android_vr` HTTPS URL'lerinde aralikli GVS PO Token zorlamasi
-# 403 uretiyor. `web_safari`, token olmadan HLS sunan dar istemcidir.
-# Deger `youtube:` kapsamlidir; yt-dlp'nin diger site cikaricilarina tasmaz.
+# 403 uretiyor. Ilk istemci bu nedenle token olmadan HLS sunan `web_safari`
+# olarak korunur. Tek istemcide format bulunamazsa exact paketli yt-dlp
+# 2026.08.19'un kimliksiz varsayilanlari olan `visionos` ve `web` ayni sonlu
+# cikarma denemesinde format saglayabilir. Acik allowlist runtime guncellemesi
+# sonrasinda `default` grubunun sessizce genislemesini engeller.
+# Player-client ve fetch_pot kararlari yalniz `youtube:` extractor'una aittir.
+# Ortamdan hesap/cookie/token veya eklenti alinmamasi icin config, plugin ve
+# uzak-bilesen kapilari bilincli olarak tum paketli yt-dlp calismasini izole
+# eder; PO Token provider fetch'i de fail-closed durur.
+YOUTUBE_PLAYER_CLIENTS = ("web_safari", "visionos", "web")
+
+# `ytdl-raw-options` bir mpv key/value listesidir. Icerideki istemci virgulu
+# yeni bir mpv anahtari sanilmasin diye extractor-args degeri `[...]` ile tek
+# deger olarak kacirilir.
 YOUTUBE_YTDL_RAW_OPTIONS = (
-    "extractor-args=youtube:player_client=web_safari")
+    "ignore-config=,no-plugin-dirs=,no-remote-components=,"
+    "extractor-args=[youtube:player_client="
+    + ",".join(YOUTUBE_PLAYER_CLIENTS)
+    + ";fetch_pot=never]"
+)
 
 
 def runtime_paths(bin_dir):

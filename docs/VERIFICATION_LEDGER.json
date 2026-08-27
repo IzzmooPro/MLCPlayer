@@ -7886,6 +7886,480 @@
         "The artifacts are private local outputs until separately accepted, tagged, uploaded, read back by name/size/SHA-256 and published."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV011 source-build record; after protected merge, request separate approval for final-artifact physical acceptance before any tag or release."
+    },
+    {
+      "id": "EV-20260827-012",
+      "recorded_at_utc": "2026-08-27T08:42:29Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "artifact_source_commit": "ca4999de0c94e3cdcd4954ba600e50c210ad27f7",
+      "baseline_commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "read-only Git, artifact, installed-tree, registry, user-data and process preflight",
+        "interactive exact-v0.40 main maintenance and v0.39-to-v0.40 upgrade with log and 91-file parity",
+        "interactive exact-v0.40 add-on active-process upgrade attempt; user selected Abort after Restart Manager refusal",
+        "exact spawned-PID cleanup and final registry, user-data, payload, log and process read-back"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.40.exe": "ea2e1c3e0ed935ce631b665829ef3423a5f62ec91683cb0e2fb3d08b411f7811",
+        "MLCPlayer_InternetVideo_v0.40.exe": "85b9b2494119fdf0599acd4e8fc0641e662ba307e0c355e8c19622f43fcd3b51",
+        "MLCPlayer_Setup_v0.39.exe": "00ed3ef67da44adf1f4d997426636ba7642413098c66bf08fade54dd44584915",
+        "MLCPlayer_InternetVideo_v0.39.exe": "07f69153e498e0537f7c9446b69db1dc36a43256142c03b91faa0efc16c5a491",
+        "main-interactive-maintenance-log": "571f87d6b6264f80071b502c4ee921103027295785afb0f589fd5cf9ca1d285f",
+        "interactive-v039-to-v040-main-upgrade-log": "2309051fe176c399df504705b4bd0b67980be5998696192d5fd36e6fb85aa781",
+        "interactive-v039-to-v040-addon-abort-log": "6311df7e388e5caf8dd3a59f262bfbce535c08f62b7b45fc28931dde4b524fbd"
+      },
+      "subject": "Exact v0.40 add-on active-process upgrade aborted on non-closing yt-dlp parent",
+      "evidence": [
+        "the exact main setup passed bounded maintenance and upgrade with success logs, no restart, exact 91-file parity and zero final target-process leak",
+        "public v0.39 seeds matched registered names, sizes and SHA-256 values before the exact main v0.40 upgrade",
+        "the add-on attempt began from add-on v0.39 with active installed Player, Deno and a bundled yt-dlp parent-child pair",
+        "Restart Manager closed Player, Deno and one yt-dlp process but the deliberately stdin-waiting yt-dlp parent refused shutdown",
+        "the user selected Abort; the log recorded cancellation and successful rollback-uninstall, setup exited and add-on registration remained v0.39",
+        "remaining exact test-owned processes were terminated by PID after read-back and final target-process inventory was empty"
+      ],
+      "summary": "The v0.40 final-artifact gate remained FAILED because the active-process add-on upgrade stopped and rolled back when the invalid stdin-waiting yt-dlp parent refused Restart Manager shutdown.",
+      "limitations": [
+        "This does not pass release-process B2; tag and release remain blocked.",
+        "No persistent full installed-tree manifest preceded the add-on abort; rollback proof is bounded to registry, five payload identities, log and process read-back.",
+        "The user-data aggregate changed by ninety-four bytes and exact causation was not isolated.",
+        "No automatic retry followed the failure; the refusal cause was inspected first."
+      ],
+      "next_action": "With separate approval preserve a full mixed-state manifest and attempt one corrected product-owned finite active workload; do not continue to release gates on failure."
+    },
+    {
+      "id": "EV-20260827-013",
+      "recorded_at_utc": "2026-08-27T09:05:15Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "artifact_source_commit": "ca4999de0c94e3cdcd4954ba600e50c210ad27f7",
+      "baseline_commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "persistent exact mixed-state installed-tree, user-data, registry, artifact and process manifest capture",
+        "read-only source inspection of build_ytdl_config and the historical web_safari decision",
+        "user-controlled Ctrl+U product URL submission and product log/runtime/setup/registry read-back"
+      ],
+      "private_artifact_digests": {
+        "corrected-addon-retry-pre.json": "9a8930985380e0bc7f211ca61a6c18d42deff1a4480a576f4718ac809a8ed545",
+        "installed-yt-dlp.exe": "66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a",
+        "installed-deno.exe": "98f8c2a2d470e4ccb04c935c86ff8050817d877762aec5eaeeb9e409ccb3b9fd",
+        "url-failure-application-log": "300ed0770b2c2dd87eff14e532229933b14ba6fee4c522ee6a4f05a06a6a8958"
+      },
+      "subject": "Installed v0.39 Internet Video product-runtime precondition failure before v0.40 add-on retry",
+      "evidence": [
+        "the corrected attempt began from a durable 103-installed-file, two-user-file mixed-state manifest with main v0.40 and add-on v0.39",
+        "the installed runtimes were yt-dlp 2026.08.19 and Deno 2.9.5 with recorded SHA-256 values",
+        "the user submitted the exact Blender URL through the installed main-v0.40 Ctrl+U product path without a terminal fixture",
+        "the product log recorded Requested format is not available, youtube-dl failed and Failed to recognize file format",
+        "the v0.40 add-on setup never started, setup process count was zero and add-on registration remained v0.39",
+        "source read-back showed the narrow forced web_safari decision was not a universal current-format guarantee"
+      ],
+      "summary": "The active-process upgrade could not begin because the installed main-v0.40 plus add-on-v0.39 Internet Video product path failed on the exact URL before setup; this is a release-blocking product-path result, not an installer result.",
+      "limitations": [
+        "One URL does not prove every site or YouTube format fails.",
+        "The bounded watcher not observing simultaneous yt-dlp and Deno does not prove that no short-lived child process started.",
+        "The log does not isolate web_safari, yt-dlp, Deno, mpv or service drift as the sole root cause.",
+        "No automatic second URL, client, add-on retry, tag or release action was performed."
+      ],
+      "next_action": "Treat release as blocked; after separate approval use a red-first isolated product-config regression and independent adversarial review before any new build."
+    },
+    {
+      "id": "EV-20260827-014",
+      "recorded_at_utc": "2026-08-27T09:22:20Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "baseline_commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "app/runtime_binaries.py",
+        "tests/test_runtime_binaries_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "official yt-dlp 2026.08.19 and mpv option-contract read-only review",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py -k \"youtube_extraction_preserves_web_safari_with_bounded_default_fallback or youtube_client_fallback_is_scoped_token_free_and_bounded\"",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py -k \"youtube_extraction_uses_an_explicit_bounded_client_allowlist or youtube_client_fallback_is_scoped_token_free_and_bounded\"",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py -k \"youtube_extraction_uses_an_explicit_bounded_client_allowlist or youtube_client_fallback_is_isolated_scoped_and_bounded\"",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py -k \"youtube_extraction_uses_an_explicit_bounded_client_allowlist or youtube_client_fallback_is_isolated_scoped_and_bounded\"",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py",
+        "python -m py_compile app/runtime_binaries.py app/player.py tests/test_runtime_binaries_regressions.py",
+        "git diff --check",
+        "independent read-only adversarial diff and test-contract review"
+      ],
+      "subject": "Bounded isolated YouTube client allowlist for Internet Video format availability",
+      "evidence": [
+        "the first red test required a second client path while preserving web_safari; independent review then found default was a drifting group and the stronger explicit-allowlist boundary failed red before the final source change",
+        "production now emits one mpv-escaped extractor-args value for the exact explicit client order web_safari,visionos,web",
+        "the allowlist preserves web_safari, excludes default, all and android_vr drift, and adds no account or cookie input; player-client and fetch_pot are YouTube-scoped while config, plugin and remote-component isolation intentionally covers all packaged yt-dlp extractors",
+        "ignore-config, no-plugin-dirs, no-remote-components and fetch_pot=never prevent ambient yt-dlp configuration, plugin, remote-component and PO-token-provider behavior from silently widening the product contract",
+        "the final target pair passed two of two and the related deterministic family passed forty-two with two existing skips; py_compile and diff checks passed",
+        "independent adversarial review's default-group P1 was fixed with the explicit allowlist and exact negative assertions; no final P0 or P1 remained"
+      ],
+      "summary": "A regression-first deterministic change replaces the single web_safari client with an isolated explicit three-client YouTube allowlist and correct mpv comma escaping without changing non-YouTube runtime selection or system-fallback policy.",
+      "limitations": [
+        "No network URL, native libmpv option roundtrip, packaged executable, build, installer or installed-artifact acceptance ran.",
+        "The deterministic PASS does not prove the previously failing URL now opens or that every selected format avoids HTTP 403.",
+        "The two skips belong to existing platform-conditional cases and were not promoted to PASS.",
+        "A native libmpv option-map roundtrip and exact URL acceptance require separate approval after protected merge and rebuild."
+      ],
+      "next_action": "Request separate approval to commit this exact four-file source and append-only evidence package; do not build, install, push, tag or release."
+    },
+    {
+      "id": "EV-20260827-015",
+      "recorded_at_utc": "2026-08-27T09:30:14Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "3abdf13dc3ce0a5d7cf07d1a4a3d656f2fe9e1ec",
+      "evidence_commit": "3abdf13dc3ce0a5d7cf07d1a4a3d656f2fe9e1ec",
+      "baseline_commit": "3abdf13dc3ce0a5d7cf07d1a4a3d656f2fe9e1ec",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git commit -m \"fix: harden Internet Video client fallback\"",
+        "git status --short --branch",
+        "git log -1 --format=\"%H%n%P%n%s\"",
+        "git show --stat --oneline --decorate --no-renames HEAD",
+        "git diff-tree --no-commit-id --name-only -r HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -c \"import json,pathlib,subprocess; cur=json.loads(pathlib.Path('docs/VERIFICATION_LEDGER.json').read_text(encoding='utf-8')); old=json.loads(subprocess.check_output(['git','show','origin/master:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); ids=[e['id'] for e in cur['entries']]; assert cur['entries'][:len(old['entries'])]==old['entries']; assert len(ids)==len(set(ids)); assert len(pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8').splitlines())==200; print('LEDGER_APPEND_ONLY_OK',len(old['entries']),len(cur['entries']))\"",
+        "git diff --check"
+      ],
+      "subject": "Internet Video bounded-isolation fix commit read-back",
+      "evidence": [
+        "the separately approved four-file package committed as exact 3abdf13dc3ce0a5d7cf07d1a4a3d656f2fe9e1ec with parent 9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+        "the commit subject is fix: harden Internet Video client fallback and its exact tree delta contains only app/runtime_binaries.py, tests/test_runtime_binaries_regressions.py, docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json",
+        "post-commit task worktree was clean before this provenance append and the branch measured one commit ahead and zero behind origin/master",
+        "the provenance package passed ten continuity regression tests; append-only read-back printed LEDGER_APPEND_ONLY_OK 270 274 with unique IDs and the continuity contract remained exactly two hundred lines"
+      ],
+      "summary": "Exact commit read-back binds the regression-first Internet Video client allowlist and isolation change plus EV012-EV014 evidence to commit 3abdf13.",
+      "limitations": [
+        "This commit read-back does not add hosted CI, network URL, native libmpv, build, installer, installed-artifact, push, PR, merge, tag or release evidence.",
+        "The two-document EV015 provenance append is uncommitted and requires a separate commit approval.",
+        "The task branch has not been pushed and origin/master is unchanged."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV015 provenance record; do not push, open a PR, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-016",
+      "recorded_at_utc": "2026-08-27T09:37:44Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "e64f8c2feea9300f621c8a74f4cf576c968eb71f",
+      "baseline_commit": "e64f8c2feea9300f621c8a74f4cf576c968eb71f",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "supplements": [
+        "EV-20260827-012",
+        "EV-20260827-013"
+      ],
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "read-only structural comparison of the protected main-checkout EV012/EV013 drafts against the committed task-branch records"
+      ],
+      "private_artifact_digests": {
+        "interactive-v039-main-install-log": "942848393a18b8834ff3d0f1f51ab0b34a929897ca44a86d59409c5be212e73e",
+        "interactive-v039-addon-install-log": "7fd71dcce42c651e41e037b53406e9ef72a85cc3e81758cf3ecf38094a4fee7a"
+      },
+      "subject": "Lossless preservation supplement for EV012 and EV013 physical-acceptance detail",
+      "evidence": [
+        "the protected main-checkout drafts and committed task-branch records were compared field by field without modifying either source; EV012 and EV013 were intentionally left append-only",
+        "EV012 additionally preserves the registry-derived interactive add-on-first then main uninstall order: both product registrations, payloads, shortcuts, Open With registration and the install directory were removed while the two-file user-data tree was preserved; the initially hung silent add-on uninstaller was stopped by exact PID before measured mutation",
+        "the two previously omitted v0.39 interactive install-log SHA-256 values are recorded in this supplement; main and add-on installs had success logs, no restart and zero recorded target-process leak",
+        "EV012 main maintenance proved Restart Manager closure separately; its v0.39-to-v0.40 upgrade log itself found no applications, so graceful closure cannot be transferred between those scenarios",
+        "EV012 rollback proof remains bounded to v0.39 registry read-back, five payload identities and the abort log; the ninety-four-byte user-data change included a temporally correlated application-log warning while the settings file retained its measured hash and metadata, so full user-data hash and metadata preservation did not pass",
+        "EV013 additionally preserves that the add-on installer never started and therefore proved neither upgrade failure nor installer mutation; its watcher result cannot exclude short-lived child processes"
+      ],
+      "summary": "Material physical-acceptance details and two private log digests omitted during branch consolidation are preserved append-only without rewriting EV012 or EV013.",
+      "limitations": [
+        "This supplement does not change the historical FAILED results, prove exact causation of the user-data delta or add a new runtime, network, installer or release PASS.",
+        "Silent install-upgrade-uninstall, the second uninstall order, invalid InstallLocation cases and successful active-process add-on upgrade remain unaccepted.",
+        "The earlier EV012 and EV013 retry actions are historical and are not promoted; the live next action is solely the separately approved EV016 commit below and no URL or installer retry is authorized.",
+        "The protected main checkout retains its original user-owned two-document draft until a later separately authorized reconciliation; no file was deleted or reset."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV016 preservation record; do not push, open a PR, build, install, retry a URL, tag or release."
+    },
+    {
+      "id": "EV-20260827-017",
+      "recorded_at_utc": "2026-08-27T09:53:25Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "07df9c1d33b51c45e677465c89b2cada4331ad8b",
+      "baseline_commit": "07df9c1d33b51c45e677465c89b2cada4331ad8b",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git rev-list --left-right --count HEAD...origin/codex/internet-video-format-fallback",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "gh pr view 64 --repo IzzmooPro/MLCPlayer --json state,baseRefName,headRefName,headRefOid,mergeable,mergeStateStatus,statusCheckRollup",
+        "gh run view 33060262828 --repo IzzmooPro/MLCPlayer --json event,headBranch,headSha,status,conclusion,url,jobs",
+        "gh run view 33060262828 --repo IzzmooPro/MLCPlayer --job 98476997901 --log"
+      ],
+      "subject": "PR 64 exact-head required hosted test success",
+      "evidence": [
+        "PR 64 remained open with base master, head codex/internet-video-format-fallback and exact head 07df9c1d33b51c45e677465c89b2cada4331ad8b",
+        "required GitHub Actions check test in pull-request run 33060262828 job 98476997901 completed successfully for that exact head",
+        "the CI-safe suite reported 5059 passed, 30 skipped and zero failed in 122.90 seconds",
+        "the hosted append-only gate printed LEDGER_APPEND_ONLY_OK; locked environment, Python compilation, translations and whitespace steps also passed",
+        "GitHub read-back reported the PR CLEAN and MERGEABLE; the local task branch equalled its origin branch at zero ahead and zero behind before this record"
+      ],
+      "summary": "The required PR test check passed on exact head 07df9c1 with 5059 passed, 30 skipped, zero failed and append-only ledger success.",
+      "limitations": [
+        "Hosted CI does not prove network URL behavior, native libmpv parsing, Windows desktop behavior, build, installer or installed-artifact acceptance.",
+        "Thirty skipped tests remain skipped and are not promoted to PASS.",
+        "The PR is not merged; CLEAN and MERGEABLE are read-back states, not merge evidence.",
+        "Committing this EV017 record will change the PR head and therefore requires a new required test check before any merge decision."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV017 hosted-CI record, then separately approve its push and wait for the new required PR check; do not merge, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-018",
+      "recorded_at_utc": "2026-08-27T11:59:09Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "d465ee2fa52fc478f6245d9ab174e54fd4da9611",
+      "baseline_commit": "d465ee2fa52fc478f6245d9ab174e54fd4da9611",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/conftest.py",
+        "tests/test_qt_session_lifecycle_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "gh pr view 64 --repo IzzmooPro/MLCPlayer --json url,state,headRefOid,mergeable,mergeStateStatus,statusCheckRollup",
+        "gh run view 33060937096 --repo IzzmooPro/MLCPlayer --json status,conclusion,headSha,url,jobs",
+        "gh run view 33060937096 --repo IzzmooPro/MLCPlayer --job 98479249649 --log"
+      ],
+      "subject": "PR 64 required hosted test native crash after the EV017 documentation commit",
+      "evidence": [
+        "PR 64 remained open and mergeable at exact head d465ee2fa52fc478f6245d9ab174e54fd4da9611, but required check test completed with failure and the PR merge state was BLOCKED",
+        "append-only ledger, locked dependencies, compilation, translations and whitespace checks passed before pytest started",
+        "pytest reached about twenty-five percent and then ended with Windows fatal exception access violation while every_widget_string read widget properties in test_the_url_secrets_are_absent_from_every_widget_string",
+        "run 33060937096 job 98479249649 ended with exit code 1; no automatic retry was requested",
+        "the previously successful exact 07df9c1 hosted run and failing d465ee2 run have identical product and test source; their committed diff contains only CONTINUITY.md and VERIFICATION_LEDGER.json"
+      ],
+      "summary": "The new required PR check failed on exact d465ee2 because the long-lived Windows pytest process crashed natively during a Qt widget-string regression test.",
+      "limitations": [
+        "The stack identifies the active Python helper but does not identify a specific Qt getter or wrapper as the native faulting instruction.",
+        "This failure does not establish an Internet Video product regression, network failure, native libmpv failure, build failure or installer failure.",
+        "The earlier 07df9c1 hosted success does not transfer to the changed d465ee2 PR head."
+      ],
+      "next_action": "Diagnose the test-harness QApplication lifetime without retrying the failed hosted run; keep PR merge blocked."
+    },
+    {
+      "id": "EV-20260827-019",
+      "recorded_at_utc": "2026-08-27T11:59:09Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "d465ee2fa52fc478f6245d9ab174e54fd4da9611",
+      "baseline_commit": "d465ee2fa52fc478f6245d9ab174e54fd4da9611",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/conftest.py",
+        "tests/test_qt_session_lifecycle_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_qt_session_lifecycle_regressions.py (before fix: 1 failed)",
+        "python -m pytest -q tests/test_qt_session_lifecycle_regressions.py (after fix: 1 passed)",
+        "python -m pytest -q tests/test_media_info_dialog_regressions.py",
+        "python -m pytest -q tests/test_qt_session_lifecycle_regressions.py tests/test_media_info_dialog_regressions.py tests/test_media_info_integration_regressions.py tests/test_physical_timeline_stale_widget_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_overlay_fade_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m py_compile tests/conftest.py tests/test_qt_session_lifecycle_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "git diff --check"
+      ],
+      "subject": "Regression-first strong session ownership for the pytest QApplication",
+      "evidence": [
+        "before the fix, deleting the only function-local QApplication reference and collecting garbage made QApplication.instance return None; the new regression failed one test exactly on that condition",
+        "the session autouse fixture now creates or adopts one QApplication before function fixtures and retains the Python reference in its generator frame until final teardown",
+        "the focused lifetime regression passed one test after the fix and the unchanged media-info security file passed all thirty-three tests",
+        "a representative Qt lifetime family spanning session ownership, media-info, deleted wrappers, title-bar and overlay behavior passed 119 tests",
+        "Python compilation and whitespace validation passed",
+        "an independent read-only adversarial review reported zero P0, zero P1 and zero P2 findings; the rejected widget-scanner narrowing was fully removed and product code is unchanged"
+      ],
+      "summary": "A test-only regression-first fix gives the pytest session one strongly owned QApplication and removes a measured repeated in-process Qt application destruction surface consistent with the hosted native crash.",
+      "limitations": [
+        "Deterministic local tests do not prove the full hosted suite; a new required PR check is needed only after a separately approved commit and push.",
+        "The local deterministic run used Python 3.14.3 with PyQt6 6.10.2 while the failed hosted run used Python 3.13.15 with PyQt6 6.10.2; causation remains bounded until a new hosted check passes.",
+        "This change does not prove network, native libmpv, build, installer, installed-artifact, merge, tag or release behavior."
+      ],
+      "next_action": "Request separate approval to commit the exact four-file EV018-EV019 package; do not push, retry CI, merge, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-020",
+      "recorded_at_utc": "2026-08-27T12:04:38Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+      "baseline_commit": "417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+      "evidence_commit": "417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git show --format=fuller --stat --oneline 417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+        "git show --format= --name-only 417877cb67b52d40ecba300400dfa9a6ceaab7d7",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/codex/internet-video-format-fallback",
+        "git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Commit provenance for the pytest QApplication session-lifetime repair",
+      "evidence": [
+        "exact commit 417877cb67b52d40ecba300400dfa9a6ceaab7d7 was created with subject test: keep one QApplication for the pytest session",
+        "the commit contains exactly CONTINUITY.md, VERIFICATION_LEDGER.json, tests/conftest.py and the new test_qt_session_lifecycle_regressions.py",
+        "the commit read-back reports 112 insertions and 12 deletions across those four files and binds the EV018-EV019 failure, regression-first repair and evidence package",
+        "after commit creation the task worktree was clean, the branch was one commit ahead and zero behind its origin task branch, and five commits ahead and zero behind origin/master"
+      ],
+      "summary": "Exact commit read-back binds the test-only QApplication session ownership repair and EV018-EV019 evidence to 417877c.",
+      "limitations": [
+        "The two-document EV020 provenance append is uncommitted and requires separate commit approval.",
+        "The task branch has not been pushed; PR 64 still exposes the earlier failing d465ee2 head and required check.",
+        "Commit provenance does not add hosted CI, network, native libmpv, build, installer, installed-artifact, merge, tag or release evidence."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV020 provenance record; do not push, retry CI, merge, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-021",
+      "recorded_at_utc": "2026-08-27T12:14:30Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "50c4928184107a8f4bfe611fde17b347857575a3",
+      "baseline_commit": "50c4928184107a8f4bfe611fde17b347857575a3",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/test_available_language_regressions.py",
+        "tests/test_language_settings_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "gh run view 33070400916 --repo IzzmooPro/MLCPlayer --json status,conclusion,headSha,url,jobs",
+        "gh pr view 64 --repo IzzmooPro/MLCPlayer --json url,state,headRefOid,mergeable,mergeStateStatus,statusCheckRollup",
+        "gh run view 33070400916 --repo IzzmooPro/MLCPlayer --job 98510844406 --log"
+      ],
+      "subject": "PR 64 required hosted test exposes two temporary QMenu lifetime failures",
+      "evidence": [
+        "required pull-request run 33070400916 job 98510844406 completed with failure on exact head 50c4928184107a8f4bfe611fde17b347857575a3; PR 64 remained OPEN and MERGEABLE but BLOCKED",
+        "the full CI-safe suite reached one hundred percent and reported 5059 passed, 30 skipped and 2 failed in 127.96 seconds; the earlier native access violation did not recur",
+        "both failures were RuntimeError deleted QAction reads in test_the_menu_only_offers_available_languages and test_the_menu_marks_the_current_choice",
+        "both tests collected actions from the temporary expression build_language_menu(None).actions and then accessed the menu-owned separator after the temporary QMenu was destroyed",
+        "append-only ledger, locked dependencies, Python compilation, translations and whitespace checks passed before pytest"
+      ],
+      "summary": "The exact 50c4928 hosted suite completed without the earlier native crash but failed two language-menu tests that did not retain their temporary QMenu owner.",
+      "limitations": [
+        "This is a failed hosted result; 5059 passing tests and the absent native crash do not promote the required check or PR to PASS.",
+        "The real product call parents the language QMenu to the player and adds it to the persistent Tools menu; the two failures do not establish a product menu-lifetime defect.",
+        "The failed run was not retried."
+      ],
+      "next_action": "Repair only the two test-owned temporary QMenu lifetimes regression-first; do not change product code or retry the failed hosted run."
+    },
+    {
+      "id": "EV-20260827-022",
+      "recorded_at_utc": "2026-08-27T12:14:30Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "50c4928184107a8f4bfe611fde17b347857575a3",
+      "baseline_commit": "50c4928184107a8f4bfe611fde17b347857575a3",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/test_available_language_regressions.py",
+        "tests/test_language_settings_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_available_language_regressions.py::test_the_menu_only_offers_available_languages tests/test_language_settings_regressions.py::test_the_menu_marks_the_current_choice (before fix: 2 failed)",
+        "python -m pytest -q tests/test_available_language_regressions.py::test_the_menu_only_offers_available_languages tests/test_language_settings_regressions.py::test_the_menu_marks_the_current_choice (after fix: 2 passed)",
+        "python -m pytest -q tests/test_available_language_regressions.py tests/test_language_settings_regressions.py tests/test_qt_session_lifecycle_regressions.py",
+        "python -m py_compile tests/test_available_language_regressions.py tests/test_language_settings_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "git diff --check"
+      ],
+      "subject": "Regression-first test ownership for temporary language QMenus",
+      "evidence": [
+        "the two exact hosted failures reproduced locally on the clean 50c4928 baseline as two RuntimeError deleted QAction failures",
+        "each affected test now keeps the QMenu in a local variable until its actions and menu-owned separator have been inspected; assertions and product implementation are unchanged",
+        "the exact two target nodes passed after the fix and the two language files plus QApplication session-lifetime regression passed 32 tests",
+        "Python compilation and whitespace validation passed",
+        "independent read-only source review confirmed the real product caller retains the player parent and Tools-menu ownership; product code remains unchanged"
+      ],
+      "summary": "Two test-only lifetime fixes retain temporary language QMenus while their QAction lists are inspected, with regression-first red and green evidence.",
+      "limitations": [
+        "Deterministic local tests do not prove the full hosted suite; a new required PR check is needed only after separately approved commit and push steps.",
+        "Thirty hosted skips remain skips and are not promoted.",
+        "This change adds no network, native libmpv, build, installer, installed-artifact, merge, tag or release evidence."
+      ],
+      "next_action": "Request separate approval to commit the exact four-file EV021-EV022 package; do not push, retry CI, merge, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-023",
+      "recorded_at_utc": "2026-08-27T12:18:36Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+      "baseline_commit": "f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+      "evidence_commit": "f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git show --format=fuller --stat --oneline f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+        "git show --format= --name-only f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/codex/internet-video-format-fallback",
+        "git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Commit provenance for temporary language-menu test ownership",
+      "evidence": [
+        "exact commit f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8 was created with subject test: retain temporary language menus",
+        "the commit contains exactly CONTINUITY.md, VERIFICATION_LEDGER.json, test_available_language_regressions.py and test_language_settings_regressions.py",
+        "the commit read-back reports 84 insertions and 9 deletions across those four files and binds the EV021 failed hosted result plus EV022 regression-first repair",
+        "after commit creation the task worktree was clean, the branch was one commit ahead and zero behind its origin task branch, and seven commits ahead and zero behind origin/master"
+      ],
+      "summary": "Exact commit read-back binds the two temporary QMenu test-ownership repairs and EV021-EV022 evidence to f658fc1.",
+      "limitations": [
+        "The two-document EV023 provenance append is uncommitted and requires separate commit approval.",
+        "The task branch has not been pushed; PR 64 still exposes the earlier failing 50c4928 head and required check.",
+        "Commit provenance does not add hosted CI, network, native libmpv, build, installer, installed-artifact, merge, tag or release evidence."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV023 provenance record; do not push, retry CI, merge, build, install, tag or release."
     }
   ]
 }
