@@ -7678,6 +7678,84 @@
         "No remote branch or hosted CI evidence exists for this commit, and no native retry occurred."
       ],
       "next_action": "Commit this exact two-document EV006 provenance record; then request separate approval before pushing the evidence branch."
+    },
+    {
+      "id": "EV-20260827-007",
+      "recorded_at_utc": "2026-08-27T07:04:38Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "94912fbcab2b3f7e1f170c5fe2ff9d9d21ffb3af",
+      "baseline_commit": "94912fbcab2b3f7e1f170c5fe2ff9d9d21ffb3af",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/native_physical_acceptance_child.py",
+        "tests/physical_menu_watchdog.py",
+        "tests/test_physical_menu_watchdog_regressions.py"
+      ],
+      "commands": [
+        "git status --short --branch; git rev-parse HEAD; git rev-parse origin/master; git rev-list --left-right --count HEAD...origin/master",
+        "red: python -m pytest -q tests/test_physical_menu_watchdog_regressions.py::test_three_level_exec_unwinds_with_bounded_physical_escapes (1 failed because the test-only watchdog capability did not yet exist)",
+        "python -m pytest -q tests/test_physical_menu_watchdog_regressions.py tests/test_physical_tracks_contract_regressions.py tests/test_physical_acceptance_runner_regressions.py tests/test_physical_child_contract_regressions.py tests/test_physical_buttons_preconditions_regressions.py tests/test_physical_audio_regressions.py tests/test_track_label_regressions.py (222 passed)",
+        "python -m py_compile tests/physical_menu_watchdog.py tests/native_physical_acceptance_child.py tests/test_physical_menu_watchdog_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py (15 passed before this append-only entry)",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json; git diff --check; private-path scan of the working-tree diff"
+      ],
+      "subject": "Fail-closed nested QMenu watchdog hardening for WIN-P0-03",
+      "evidence": [
+        "the task branch started clean from exact protected-master merge commit 94912fbcab2b3f7e1f170c5fe2ff9d9d21ffb3af with zero commits ahead and zero behind origin/master",
+        "the initial regression failed because the new test-only watchdog capability did not exist; this is a missing-capability red and is not claimed as a deterministic reproduction of the prior native hang",
+        "the internal QTimer watchdog is armed before the physical right-click that can enter the product's synchronous nested QMenu.exec event loop; flushed phase markers distinguish context opening, root and track submenu visibility, target visibility, physical click, checked read-back, timeout and cleanup",
+        "popup cleanup is bounded to five physical Escape attempts followed by programmatic closing only as last-resort cleanup; timeout, forced cleanup, an unclosed chain or a still-visible root popup all produce delivered false and cannot become acceptance",
+        "a pure completion policy is dynamically covered for timeout, forced cleanup, unclosed popup, visible root popup, clean physical click and clean inspect paths; an isolated Qt subprocess also proves nested-loop unwind and cancel-generation protection against stale callbacks touching a later popup",
+        "the related deterministic family completed with 222 passed; py_compile, JSON parsing and diff check passed",
+        "independent adversarial review first found a P1 where fail-closed acceptance was only statically asserted; exact dynamic policy tests closed it, and re-review found zero P0 and zero P1",
+        "no QAction.trigger, direct aid or sid assignment, product selection method, product source, private artifact, native retry, build, installation, commit, push, tag or release action was used"
+      ],
+      "summary": "The test-only WIN-P0-03 harness now bounds nested popup cleanup, emits diagnostic phases and fails closed unless the physical click or inspect path completes with the root popup closed.",
+      "limitations": [
+        "WIN-P0-03 remains FAILED from EV-20260827-005. No native retry was run, so no audio or subtitle track switch, checked menu read-back, overlay state, normal close or child restoration was newly proven.",
+        "The QTimer executes inside Qt nested event loops, but it cannot run while the GUI thread itself is blocked inside a synchronous product or libmpv setter; the parent 180-second timeout remains the external boundary for that distinct case.",
+        "The baseline red proves absence of the watchdog capability, not a deterministic reproduction of the prior native QMenu timeout.",
+        "This uncommitted deterministic evidence does not establish hosted CI, native-smoke, installed-artifact, audible, visual or release acceptance."
+      ],
+      "next_action": "Request separate approval to commit this exact five-file test-only hardening and EV007 evidence package; do not push or run a native retry under that approval."
+    },
+    {
+      "id": "EV-20260827-008",
+      "recorded_at_utc": "2026-08-27T07:09:51Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "316c827793ef9998fe666d6a7dd0b61c3cc248c0",
+      "evidence_commit": "316c827793ef9998fe666d6a7dd0b61c3cc248c0",
+      "baseline_commit": "316c827793ef9998fe666d6a7dd0b61c3cc248c0",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch; git rev-parse HEAD; git rev-parse origin/master; git rev-list --left-right --count HEAD...origin/master; git diff --check; python -m json.tool docs/VERIFICATION_LEDGER.json; python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json tests/native_physical_acceptance_child.py tests/physical_menu_watchdog.py tests/test_physical_menu_watchdog_regressions.py; git diff --cached --name-status; git diff --cached --check; git commit -m test: bound physical track menu cleanup",
+        "git show -s --format=%H%n%P%n%s HEAD; git show --stat --oneline --no-renames HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "WIN-P0-03 nested QMenu hardening commit provenance",
+      "evidence": [
+        "the exact five-file EV007 package was committed as 316c827793ef9998fe666d6a7dd0b61c3cc248c0 with sole parent 94912fbcab2b3f7e1f170c5fe2ff9d9d21ffb3af and subject test: bound physical track menu cleanup",
+        "commit read-back contained only continuity, append-only ledger, the native physical acceptance child and the two new test-only watchdog files; no product source or private artifact was included",
+        "the pre-commit continuity and append-only family completed with 15 passed, ledger JSON parsed and staged diff check passed",
+        "after commit the branch was clean and measured one commit ahead and zero behind origin/master",
+        "the exact 222-test deterministic family, py_compile, fail-closed policy coverage and independent zero-P0/zero-P1 re-review remain the evidence recorded by EV-20260827-007",
+        "no push, pull request, native retry, build, installation, tag or release action was performed"
+      ],
+      "summary": "Commit 316c827793ef9998fe666d6a7dd0b61c3cc248c0 is the exact durable source identity for the test-only nested QMenu watchdog hardening.",
+      "limitations": [
+        "This record binds source provenance only and does not alter the EV005 native FAILED result or prove a physical track switch.",
+        "The current two-document provenance record is uncommitted until separately approved.",
+        "No remote branch or hosted CI evidence exists for this commit, and no native retry occurred."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV008 provenance record; do not push or run a native retry under that approval."
     }
   ]
 }

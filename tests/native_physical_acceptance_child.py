@@ -57,6 +57,8 @@ from physical_tracks_contract import (StableSelection,  # noqa: E402
                                       normalise_track_id,
                                       unique_target_index,
                                       track_snapshot)
+from physical_menu_watchdog import (PopupChainWatchdog,  # noqa: E402
+                                    popup_completion_decision)
 from physical_layout import (resize_problems,  # noqa: E402
                              zorder_after_resize_problems)
 
@@ -517,16 +519,82 @@ def physical_menu_action(root_text, track_text, target_id, inspect_only=False):
     yapar ve menuyu gercek Esc ile kapatir.
     """
     state = {"done": False, "delivered": False, "checked": False,
-             "reason": "menu_sequence_incomplete"}
+             "reason": "menu_sequence_incomplete", "pending": None,
+             "timed_out": False, "root_popup": None}
     frame = PLAYER.video_frame
+
+    def phase(name, **fields):
+        details = " ".join(f"{key}={value}" for key, value in fields.items())
+        print(f"TRACK_MENU_PHASE name={name} inspect={int(inspect_only)} "
+              f"target={target_id} {details}".rstrip(), flush=True)
+
+    def active_popup():
+        popup = QApplication.activePopupWidget()
+        return popup if isinstance(popup, QMenu) and popup.isVisible() else None
+
+    def close_visible_menus():
+        """Last-resort cleanup only; it can never produce acceptance."""
+        menus = []
+        popup = active_popup()
+        if popup is not None:
+            menus.append(popup)
+        menus.extend(widget for widget in QApplication.topLevelWidgets()
+                     if isinstance(widget, QMenu) and widget.isVisible())
+        closed = 0
+        unique = []
+        seen = set()
+        for menu in menus:
+            if id(menu) not in seen:
+                unique.append(menu)
+                seen.add(id(menu))
+        for menu in reversed(unique):
+            try:
+                menu.close()
+                closed += 1
+            except RuntimeError:
+                pass
+        return closed
+
+    def root_popup_closed():
+        root = state.get("root_popup")
+        if root is None:
+            return False
+        try:
+            return not root.isVisible()
+        except RuntimeError:
+            return True
 
     def finish(reason, delivered=False, checked=False):
         state.update(done=True, reason=reason, delivered=delivered,
                      checked=checked)
 
     def abort(reason):
-        finish(reason)
-        tap(VK_ESCAPE)
+        state["pending"] = ("abort", reason, False)
+        phase("abort", reason=reason)
+        watchdog.dismiss()
+
+    def watchdog_timeout():
+        state["timed_out"] = True
+        phase("watchdog_timeout")
+
+    def popup_cleanup_complete(closed, forced):
+        root_closed = root_popup_closed()
+        phase("popup_cleanup_complete", closed=int(closed),
+              root_closed=int(root_closed), forced=int(forced))
+        decision = popup_completion_decision(
+            pending=state.get("pending"), timed_out=state["timed_out"],
+            closed=closed, forced=forced, root_closed=root_closed)
+        finish(decision["reason"], delivered=decision["delivered"],
+               checked=decision["checked"])
+
+    watchdog = PopupChainWatchdog(
+        active_popup=active_popup,
+        send_escape=lambda: tap(VK_ESCAPE),
+        close_visible=close_visible_menus,
+        marker=phase,
+        timeout_ms=4000,
+        escape_interval_ms=90,
+        max_escapes=5)
 
     def hover(action_menu, action, next_step):
         point = _menu_action_point(action_menu, action)
@@ -546,16 +614,19 @@ def physical_menu_action(root_text, track_text, target_id, inspect_only=False):
             abort("target_action_missing_or_ambiguous")
             return
         user32.SetCursorPos(*point)
+        phase("target_visible")
         if inspect_only:
             state["action"] = target
             checked = bool(target.isChecked())
-            finish("checked_readback", delivered=True, checked=checked)
-            tap(VK_ESCAPE)
+            state["pending"] = ("inspect", "checked_readback", checked)
+            phase("checked_read", checked=int(checked))
+            watchdog.dismiss()
             return
         mouse_button(True)
         mouse_button(False)
-        finish("physical_action_click", delivered=True,
-               checked=bool(target.isChecked()))
+        state["pending"] = (
+            "click", "physical_action_click", bool(target.isChecked()))
+        phase("target_click_sent")
 
     def track_step(root_action):
         root_menu = root_action.menu()
@@ -564,6 +635,7 @@ def physical_menu_action(root_text, track_text, target_id, inspect_only=False):
         if track_action is None or track_action.menu() is None:
             abort("track_submenu_missing_or_ambiguous")
             return
+        phase("track_submenu_visible")
         hover(root_menu, track_action,
               lambda: target_step(track_action))
 
@@ -572,6 +644,9 @@ def physical_menu_action(root_text, track_text, target_id, inspect_only=False):
         if not isinstance(root_menu, QMenu):
             abort("root_popup_not_visible")
             return
+        state["root_popup"] = root_menu
+        watchdog.note_popup_seen()
+        phase("root_popup_visible")
         root_action = _menu_action(root_menu, root_text)
         if root_action is None or root_action.menu() is None:
             abort("root_action_missing_or_ambiguous")
@@ -592,17 +667,27 @@ def physical_menu_action(root_text, track_text, target_id, inspect_only=False):
         state["reason"] = "video_surface_pid_mismatch"
         return state
 
+    # This timer is armed BEFORE input which can synchronously enter the
+    # product's nested QMenu.exec() loop.  The outer pump cannot bound that
+    # loop because APP.processEvents() itself may not return.
+    watchdog.arm(watchdog_timeout, popup_cleanup_complete)
+    phase("context_open_start")
     QTimer.singleShot(250, root_step)
     user32.SetCursorPos(int(point.x()), int(point.y()))
     mouse_button(True, right=True)
     mouse_button(False, right=True)
+    phase("context_open_sent")
     # Sag-tik QMenu.exec() nested loop'una girer. Yukaridaki timer zinciri
     # gorunen action'lari hedefleyip final click/Esc ile bu donguyu kapatir.
     pump(5000)
-    popup = QApplication.activePopupWidget()
-    state["menu_closed"] = not (isinstance(popup, QMenu) and popup.isVisible())
+    state["menu_closed"] = root_popup_closed()
     if not state["done"]:
-        tap(VK_ESCAPE)
+        if state["menu_closed"] and state.get("pending") is not None:
+            popup_cleanup_complete(True, False)
+        else:
+            watchdog.dismiss()
+            pump(800)
+    watchdog.cancel()
     return state
 
 

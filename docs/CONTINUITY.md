@@ -6,11 +6,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `504018740b1b61e5d0812027d526d662f6e5e21b`
+- Kayıt hazırlanırken doğrulanan HEAD: `316c827793ef9998fe666d6a7dd0b61c3cc248c0`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/p0-tracks-timeout-evidence` (başarısız native kayıt commit'i
-  exact `5040187`; yalnız commit-provenance belgeleri uncommitted)
-- Son kanıt: `EV-20260827-006`
+- Dal: `codex/p0-tracks-menu-watchdog` (hardening commit'i exact `316c827`;
+  yalnız commit-provenance belgeleri uncommitted)
+- Son kanıt: `EV-20260827-008`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -105,7 +105,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   oldu. Exit 1, eksik final marker'lar, Job Object active=0, parent cursor
   restore ve ölçülen ilgili süreç=0 kaydedildi (`EV-20260827-005`). Ses veya
   altyazı geçişi ve ürün bug'ı kanıtlanmadı; otomatik retry yapılmadı ve satır
-  **FAILED**.
+  **FAILED**. Sonraki test-only paket nested `QMenu.exec()` içinde çalışan iç
+  watchdog, bounded çoklu Escape/forced cleanup, fail-closed karar kapısı ve
+  faz marker'ları ekledi; 222 dar test geçti, karşıt inceleme P0/P1 bulmadı
+  (`EV-20260827-007`). Native retry yapılmadı; FAILED sonucu değişmedi.
 - C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
   merge edildi; exact commit/run/parent ayrıntıları append-only
   `EV-20260826-009`–`017` ve `EV-20260826-028` kayıtlarındadır.
@@ -159,14 +162,13 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-006` commit-provenance paketini ayrıca açık
-onayla commit et; kök neden hardening'i veya native retry başlatma.
+Exact iki belgeli `EV-20260827-008` commit-provenance paketini ayrıca açık
+onayla commit et; push veya native retry başlatma.
 
 ## Sonraki sıra
 
-1. Ayrı onayla test-only QMenu iç watchdog, bounded popup-chain cleanup ve faz
-   marker hardening'ini regression-first uygula; protected PR tamamlanmadan
-   native retry yapma.
+1. Commit sonrasında ayrı onaylarla push, PR, hosted check ve merge zincirini
+   tamamla; protected PR tamamlanmadan native retry yapma.
 2. Kalan `P0-06`, `P0-07`, `P0-08` boşlukları için aynı çift-süzgeçli dar
    kabul sırasını uygula.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
