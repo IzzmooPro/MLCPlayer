@@ -8250,6 +8250,81 @@
         "Commit provenance does not add hosted CI, network, native libmpv, build, installer, installed-artifact, merge, tag or release evidence."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV020 provenance record; do not push, retry CI, merge, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-021",
+      "recorded_at_utc": "2026-08-27T12:14:30Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "50c4928184107a8f4bfe611fde17b347857575a3",
+      "baseline_commit": "50c4928184107a8f4bfe611fde17b347857575a3",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/test_available_language_regressions.py",
+        "tests/test_language_settings_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "gh run view 33070400916 --repo IzzmooPro/MLCPlayer --json status,conclusion,headSha,url,jobs",
+        "gh pr view 64 --repo IzzmooPro/MLCPlayer --json url,state,headRefOid,mergeable,mergeStateStatus,statusCheckRollup",
+        "gh run view 33070400916 --repo IzzmooPro/MLCPlayer --job 98510844406 --log"
+      ],
+      "subject": "PR 64 required hosted test exposes two temporary QMenu lifetime failures",
+      "evidence": [
+        "required pull-request run 33070400916 job 98510844406 completed with failure on exact head 50c4928184107a8f4bfe611fde17b347857575a3; PR 64 remained OPEN and MERGEABLE but BLOCKED",
+        "the full CI-safe suite reached one hundred percent and reported 5059 passed, 30 skipped and 2 failed in 127.96 seconds; the earlier native access violation did not recur",
+        "both failures were RuntimeError deleted QAction reads in test_the_menu_only_offers_available_languages and test_the_menu_marks_the_current_choice",
+        "both tests collected actions from the temporary expression build_language_menu(None).actions and then accessed the menu-owned separator after the temporary QMenu was destroyed",
+        "append-only ledger, locked dependencies, Python compilation, translations and whitespace checks passed before pytest"
+      ],
+      "summary": "The exact 50c4928 hosted suite completed without the earlier native crash but failed two language-menu tests that did not retain their temporary QMenu owner.",
+      "limitations": [
+        "This is a failed hosted result; 5059 passing tests and the absent native crash do not promote the required check or PR to PASS.",
+        "The real product call parents the language QMenu to the player and adds it to the persistent Tools menu; the two failures do not establish a product menu-lifetime defect.",
+        "The failed run was not retried."
+      ],
+      "next_action": "Repair only the two test-owned temporary QMenu lifetimes regression-first; do not change product code or retry the failed hosted run."
+    },
+    {
+      "id": "EV-20260827-022",
+      "recorded_at_utc": "2026-08-27T12:14:30Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "50c4928184107a8f4bfe611fde17b347857575a3",
+      "baseline_commit": "50c4928184107a8f4bfe611fde17b347857575a3",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/test_available_language_regressions.py",
+        "tests/test_language_settings_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_available_language_regressions.py::test_the_menu_only_offers_available_languages tests/test_language_settings_regressions.py::test_the_menu_marks_the_current_choice (before fix: 2 failed)",
+        "python -m pytest -q tests/test_available_language_regressions.py::test_the_menu_only_offers_available_languages tests/test_language_settings_regressions.py::test_the_menu_marks_the_current_choice (after fix: 2 passed)",
+        "python -m pytest -q tests/test_available_language_regressions.py tests/test_language_settings_regressions.py tests/test_qt_session_lifecycle_regressions.py",
+        "python -m py_compile tests/test_available_language_regressions.py tests/test_language_settings_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "git diff --check"
+      ],
+      "subject": "Regression-first test ownership for temporary language QMenus",
+      "evidence": [
+        "the two exact hosted failures reproduced locally on the clean 50c4928 baseline as two RuntimeError deleted QAction failures",
+        "each affected test now keeps the QMenu in a local variable until its actions and menu-owned separator have been inspected; assertions and product implementation are unchanged",
+        "the exact two target nodes passed after the fix and the two language files plus QApplication session-lifetime regression passed 32 tests",
+        "Python compilation and whitespace validation passed",
+        "independent read-only source review confirmed the real product caller retains the player parent and Tools-menu ownership; product code remains unchanged"
+      ],
+      "summary": "Two test-only lifetime fixes retain temporary language QMenus while their QAction lists are inspected, with regression-first red and green evidence.",
+      "limitations": [
+        "Deterministic local tests do not prove the full hosted suite; a new required PR check is needed only after separately approved commit and push steps.",
+        "Thirty hosted skips remain skips and are not promoted.",
+        "This change adds no network, native libmpv, build, installer, installed-artifact, merge, tag or release evidence."
+      ],
+      "next_action": "Request separate approval to commit the exact four-file EV021-EV022 package; do not push, retry CI, merge, build, install, tag or release."
     }
   ]
 }

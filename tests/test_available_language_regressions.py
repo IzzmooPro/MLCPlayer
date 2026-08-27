@@ -138,8 +138,8 @@ def test_the_installer_set_is_not_narrowed():
 def test_the_menu_only_offers_available_languages(qt_app, only_english):
     from app.menu_actions import build_language_menu
 
-    actions = [a for a in build_language_menu(None).actions()
-               if not a.isSeparator()]
+    menu = build_language_menu(None)
+    actions = [a for a in menu.actions() if not a.isSeparator()]
     codes = [a.data() for a in actions if a.data()]
     assert codes == ["tr", "en"]
     assert actions[0].text().startswith("Sistem dili")
