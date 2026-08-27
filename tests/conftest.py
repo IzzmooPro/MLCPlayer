@@ -138,13 +138,16 @@ def qt_session_shutdown():
     yıkım sırası garanti altına alınır. Tek noktadan, davranış değiştirmeyen
     bir düzeltmedir.
     """
-    yield
-
     from PyQt6.QtWidgets import QApplication
 
-    app = QApplication.instance()
-    if app is None:
-        return
+    # PyQt, QApplication icin Python tarafinda guclu sahiplik tutmaz. Yalniz
+    # function fixture'larinin yerel referansina birakilirsa GC uygulamayi
+    # testlerin ortasinda yok eder ve sonraki test yeniden QApplication kurar.
+    # Qt ayni surecte bu kur/yik dongusunu guvenli desteklemez; uygulamayi
+    # session boyunca bu generator frame'i sahiplenir.
+    app = QApplication.instance() or QApplication([])
+    yield
+
     for widget in list(app.topLevelWidgets()):
         try:
             widget.close()

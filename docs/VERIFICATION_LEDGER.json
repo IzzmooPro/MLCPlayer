@@ -8138,6 +8138,83 @@
         "Committing this EV017 record will change the PR head and therefore requires a new required test check before any merge decision."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV017 hosted-CI record, then separately approve its push and wait for the new required PR check; do not merge, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-018",
+      "recorded_at_utc": "2026-08-27T11:59:09Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "d465ee2fa52fc478f6245d9ab174e54fd4da9611",
+      "baseline_commit": "d465ee2fa52fc478f6245d9ab174e54fd4da9611",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/conftest.py",
+        "tests/test_qt_session_lifecycle_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "gh pr view 64 --repo IzzmooPro/MLCPlayer --json url,state,headRefOid,mergeable,mergeStateStatus,statusCheckRollup",
+        "gh run view 33060937096 --repo IzzmooPro/MLCPlayer --json status,conclusion,headSha,url,jobs",
+        "gh run view 33060937096 --repo IzzmooPro/MLCPlayer --job 98479249649 --log"
+      ],
+      "subject": "PR 64 required hosted test native crash after the EV017 documentation commit",
+      "evidence": [
+        "PR 64 remained open and mergeable at exact head d465ee2fa52fc478f6245d9ab174e54fd4da9611, but required check test completed with failure and the PR merge state was BLOCKED",
+        "append-only ledger, locked dependencies, compilation, translations and whitespace checks passed before pytest started",
+        "pytest reached about twenty-five percent and then ended with Windows fatal exception access violation while every_widget_string read widget properties in test_the_url_secrets_are_absent_from_every_widget_string",
+        "run 33060937096 job 98479249649 ended with exit code 1; no automatic retry was requested",
+        "the previously successful exact 07df9c1 hosted run and failing d465ee2 run have identical product and test source; their committed diff contains only CONTINUITY.md and VERIFICATION_LEDGER.json"
+      ],
+      "summary": "The new required PR check failed on exact d465ee2 because the long-lived Windows pytest process crashed natively during a Qt widget-string regression test.",
+      "limitations": [
+        "The stack identifies the active Python helper but does not identify a specific Qt getter or wrapper as the native faulting instruction.",
+        "This failure does not establish an Internet Video product regression, network failure, native libmpv failure, build failure or installer failure.",
+        "The earlier 07df9c1 hosted success does not transfer to the changed d465ee2 PR head."
+      ],
+      "next_action": "Diagnose the test-harness QApplication lifetime without retrying the failed hosted run; keep PR merge blocked."
+    },
+    {
+      "id": "EV-20260827-019",
+      "recorded_at_utc": "2026-08-27T11:59:09Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "d465ee2fa52fc478f6245d9ab174e54fd4da9611",
+      "baseline_commit": "d465ee2fa52fc478f6245d9ab174e54fd4da9611",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/conftest.py",
+        "tests/test_qt_session_lifecycle_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q tests/test_qt_session_lifecycle_regressions.py (before fix: 1 failed)",
+        "python -m pytest -q tests/test_qt_session_lifecycle_regressions.py (after fix: 1 passed)",
+        "python -m pytest -q tests/test_media_info_dialog_regressions.py",
+        "python -m pytest -q tests/test_qt_session_lifecycle_regressions.py tests/test_media_info_dialog_regressions.py tests/test_media_info_integration_regressions.py tests/test_physical_timeline_stale_widget_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_overlay_fade_regressions.py",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m py_compile tests/conftest.py tests/test_qt_session_lifecycle_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "git diff --check"
+      ],
+      "subject": "Regression-first strong session ownership for the pytest QApplication",
+      "evidence": [
+        "before the fix, deleting the only function-local QApplication reference and collecting garbage made QApplication.instance return None; the new regression failed one test exactly on that condition",
+        "the session autouse fixture now creates or adopts one QApplication before function fixtures and retains the Python reference in its generator frame until final teardown",
+        "the focused lifetime regression passed one test after the fix and the unchanged media-info security file passed all thirty-three tests",
+        "a representative Qt lifetime family spanning session ownership, media-info, deleted wrappers, title-bar and overlay behavior passed 119 tests",
+        "Python compilation and whitespace validation passed",
+        "an independent read-only adversarial review reported zero P0, zero P1 and zero P2 findings; the rejected widget-scanner narrowing was fully removed and product code is unchanged"
+      ],
+      "summary": "A test-only regression-first fix gives the pytest session one strongly owned QApplication and removes a measured repeated in-process Qt application destruction surface consistent with the hosted native crash.",
+      "limitations": [
+        "Deterministic local tests do not prove the full hosted suite; a new required PR check is needed only after a separately approved commit and push.",
+        "The local deterministic run used Python 3.14.3 with PyQt6 6.10.2 while the failed hosted run used Python 3.13.15 with PyQt6 6.10.2; causation remains bounded until a new hosted check passes.",
+        "This change does not prove network, native libmpv, build, installer, installed-artifact, merge, tag or release behavior."
+      ],
+      "next_action": "Request separate approval to commit the exact four-file EV018-EV019 package; do not push, retry CI, merge, build, install, tag or release."
     }
   ]
 }

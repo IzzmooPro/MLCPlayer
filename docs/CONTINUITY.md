@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `07df9c1d33b51c45e677465c89b2cada4331ad8b`
+- Kayıt hazırlanırken doğrulanan HEAD: `d465ee2fa52fc478f6245d9ab174e54fd4da9611`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/internet-video-format-fallback` (origin dalıyla `0/0`, `origin/master`dan 3 ileride; CI kaydı uncommitted)
-- Son kanıt: `EV-20260827-017`
+- Dal: `codex/internet-video-format-fallback` (origin dalıyla `0/0`, `origin/master`dan 4 ileride; test-only CI düzeltmesi uncommitted)
+- Son kanıt: `EV-20260827-019`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -98,9 +98,9 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Ana v0.40 maintenance/upgrade 91/91 eşlik verdi; active add-on yt-dlp
   kapanmayınca Abort/rollback ile v0.39 kaldı (`EV-20260827-012`). Corrected
   URL önkoşulu da setup başlamadan FAILED; release bloklu (`EV-20260827-013`).
-- Regression-first düzeltme izole `web_safari,visionos,web` allowlist ve mpv
-  kaçışı getirdi; hedef **2/2**, aile **42 passed / 2 skipped**, py_compile/diff
-  ve bağımsız inceleme temiz (`EV-20260827-014`); paket `3abdf13`, provenance `e64f8c2`, koruma `07df9c1` olarak bağlıdır (`EV-20260827-015/016`). PR #64 exact head'de **5059 passed / 30 skipped / 0 failed**, append-only OK verdi (`EV-20260827-017`); ağ/native NOT_RUN.
+- Internet Video düzeltmesi hedef **2/2**, aile **42 passed / 2 skipped** verdi; paket `3abdf13`, provenance `e64f8c2`, koruma `07df9c1` olarak bağlıdır (`EV-20260827-014/015/016`).
+  PR #64 `07df9c1` head'i **5059 passed / 30 skipped / 0 failed** verdi (`EV-20260827-017`); yalnız belge commit'i `d465ee2` sonrasında yeni required run Qt testinde native AV ile FAILED (`EV-20260827-018`).
+  Regression-first test-only session `QApplication` sahipliği kırmızı **1 failed**, sonra **1 passed**; medya/aile **33/119 passed** ve karşıt P0/P1/P2=0 verdi (`EV-20260827-019`). Ağ/native NOT_RUN.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -164,7 +164,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-017` hosted-CI kaydını ayrıca açık onayla commit et; push, merge, build, kurulum, tag veya release başlatma.
+Exact dört dosyalı `EV-20260827-018/019` test-only düzeltme ve kayıt paketini ayrıca açık onayla commit et; push, CI retry, merge, build, kurulum, tag veya release başlatma.
 
 ## Sonraki sıra
 
