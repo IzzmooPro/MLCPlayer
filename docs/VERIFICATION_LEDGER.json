@@ -7464,6 +7464,41 @@
         "This deterministic PASS does not establish native smoke, installed artifact, hosted CI, build, release or user acceptance."
       ],
       "next_action": "Commit the exact P0-03 test-only and EV001 record package; after commit read-back, request separate approval for one exact tracks native run and do not auto-retry a failure or BLOCKED result."
+    },
+    {
+      "id": "EV-20260827-002",
+      "recorded_at_utc": "2026-08-26T22:15:05Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "11b4f47958626b7a5547576b2be0455ad601145a",
+      "evidence_commit": "11b4f47958626b7a5547576b2be0455ad601145a",
+      "baseline_commit": "11b4f47958626b7a5547576b2be0455ad601145a",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git show -s --format=%H%n%P%n%s HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git show --stat --oneline --decorate --no-renames HEAD"
+      ],
+      "subject": "P0-03 physical track-switch runner commit provenance",
+      "evidence": [
+        "the exact eight-file P0-03 package was committed as 11b4f47958626b7a5547576b2be0455ad601145a with sole parent 5e3a027b940acd5bb6c22be7b8f9d6699742aa93 and subject test: add fail-closed physical track switching",
+        "the commit read-back contained only the three canonical documentation files and five test-infrastructure files recorded by EV-20260827-001; no product source file was included",
+        "after commit the task branch was clean and measured one commit ahead and zero behind origin/master",
+        "the deterministic red/green, 210 focused tests, fifteen continuity/ledger tests, py_compile, diff check, private-path scan and independent review remain the exact pre-commit evidence recorded by EV-20260827-001",
+        "no push, pull request, native run, build, installation, tag or release action was performed"
+      ],
+      "summary": "Commit 11b4f47958626b7a5547576b2be0455ad601145a is the exact durable source identity for the fail-closed test-only WIN-P0-03 track-switch runner.",
+      "limitations": [
+        "This record binds source provenance only and does not upgrade WIN-P0-03 from NOT_RUN.",
+        "The current two-document provenance record is uncommitted until separately approved.",
+        "No remote branch or hosted CI evidence exists for this commit."
+      ],
+      "next_action": "Commit this exact two-document EV002 provenance record; then request separate approval before pushing the task branch."
     }
   ]
 }

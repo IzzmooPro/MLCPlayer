@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `5e3a027b940acd5bb6c22be7b8f9d6699742aa93`
+- Kayıt hazırlanırken doğrulanan HEAD: `11b4f47958626b7a5547576b2be0455ad601145a`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/p0-tracks-runner` (exact `5e3a027` tabanı; yalnız P0-03 test altyapısı ve kayıt belgeleri kirli)
-- Son kanıt: `EV-20260827-001`
+- Dal: `codex/p0-tracks-runner` (P0-03 kaynak commit'i exact `11b4f47`; yalnız commit-provenance kayıt belgeleri kirli)
+- Son kanıt: `EV-20260827-002`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -155,8 +155,8 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact P0-03 test-only koşucu ve `EV-20260827-001` kayıt paketini commit et;
-commit geri okunmadan native `tracks` koşumu başlatma.
+Exact iki belgeli `EV-20260827-002` commit-provenance kaydını commit et;
+protected görev dalı provenance'ı tamamlanmadan push/native başlatma.
 
 ## Sonraki sıra
 
