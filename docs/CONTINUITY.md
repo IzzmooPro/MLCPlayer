@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `33d2a18d2ff5d13f1e5df1a39234115bc5f65b19`
+- Kayıt hazırlanırken doğrulanan HEAD: `11b4f47958626b7a5547576b2be0455ad601145a`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/record-addon-ready-acceptance` (exact `33d2a18` tabanı; yalnız EV083 kayıt belgeleri kirli)
-- Son kanıt: `EV-20260826-083`
+- Dal: `codex/p0-tracks-runner` (P0-03 kaynak commit'i exact `11b4f47`; yalnız commit-provenance kayıt belgeleri kirli)
+- Son kanıt: `EV-20260827-002`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -96,6 +96,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   korundu, yalnız add-on uninstaller çifti ile `InstallDate` beklenen bakım
   metadata'sı olarak değişti ve kayıtlı süreç envanteri sıfırdı
   (`EV-20260826-083`). Log/exit code, silent, rollback ve uninstall ölçülmedi.
+- `WIN-P0-03` için regression-first test-only `tracks` grubu hazırlandı.
+  Dört kırmızı sözleşmeden sonra ilgili aile **210 passed** verdi. Dinamik ses
+  A→B ve altyazı S1→S2→S1; gerçek sağ-tık `SendInput`, stabil libmpv/menu
+  read-back, exact marker/summary/cursor ve Job Object süreç kapısıyla korunur
+  (`EV-20260827-001`). Ürün kodu değişmedi, native koşum yapılmadı ve satır
+  hâlâ **NOT_RUN**.
 - C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
   merge edildi; exact commit/run/parent ayrıntıları append-only
   `EV-20260826-009`–`017` ve `EV-20260826-028` kayıtlarındadır.
@@ -114,21 +120,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Kullanıcı gösterilen iki private C akış görselini hedef kompozisyon ve metin
   olarak açıkça kabul etti (`EV-20260826-022`). Bu, compiled Inno pikseli,
   handler, build, kurulum veya Windows action/readback kabulü değildir.
-- C ekran-sözleşmesinin commit/push provenance'ı `EV-20260826-023`–`025`
-  kayıtlarında korunur; continuity meta-kayıt döngüsü başlatmaz.
-- Installer C kaynağı `6fe453f`, kayıt commit'i `5c04c2d`dir
-  (`EV-20260826-028`, `-029`). İki syntax hatası regression-first kapandı (`-030`);
-  build exit 0, 56,344,277 byte, `c65a5fbc...3c3bb39`, NotSigned (`-031`). Pre-install
-  görseli reddedildi; `Kur` çalışmadı ve süreç sızıntısı yoktu (`-032`).
-- C v2 `326f9be`ye bağlı; ilk build durdu, fix `f96482a`, rebuild `7dcf8e0`/
-  `30ce2986...f9a69c` oldu (`-033`–`-038`). Kullanıcı v2'yi görmeden iptal etti;
-  önceki ekran beş compiler fix'iyle exact `d1dc658`e bağlandı, **58 passed**
-  (`-039`, `-040`). Eski `c65...` EXE yoktur; v2 EXE restore kaynağını temsil etmez.
-- Restore build'inde Welcome döndü, ilk Summary reddedildi (`-041`, `-042`); `ReadyMemo` düzeltmesi
-  `5611c0c`e bağlandı (`-043`, `-044`), exact `da6c21e` build'i `cc1021...a274d` verdi (`-045`).
-- Dist PASS'ti; reinstall yeni EXE'yi kopyaladı ama eski 47 root DLL'yi bırakarak FAILED oldu.
-  Fix `83a0fef`; full gate **5023/19**; `89e2395` build'i setup `90e8ccd1...0698ffb`, Player `9a5fc567...a037d60` verdi (`-059`–`-066`).
-  Exact 49 cleanup `ddeac9c`/setup `c480...`; residual/missing/mismatch `0`, Progress ve installed Launch geçti (`-067`–`-074`).
+- C ekran-sözleşmesinin commit/build/reddedilen ara artifact/restore ve exact
+  cleanup zinciri append-only `EV-20260826-023`–`074` kayıtlarında korunur;
+  canlı kararlar yukarıdaki v0.40 kabul özetindedir ve meta-kayıt döngüsü
+  başlatılmaz.
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
@@ -160,14 +155,17 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli EV083 kayıt paketini commit et; protected task-branch
-provenance'ı kalıcı olmadan başka fiziksel installer senaryosu başlatma.
+Exact iki belgeli `EV-20260827-002` commit-provenance kaydını commit et;
+protected görev dalı provenance'ı tamamlanmadan push/native başlatma.
 
 ## Sonraki sıra
 
-1. Kalan `P0-03`, `P0-06`, `P0-07`, `P0-08` boşlukları için mevcut runner'ı
-   yeniden kullanarak dar kabul sırasını belirle.
-2. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
+1. P0-03 commit provenance'ından sonra ayrıca açık onayla exact çok-parçalı
+   fixture üzerinde yalnız `tracks` native grubunu bir kez çalıştır; hata veya
+   BLOCKED sonucunda incelemeden otomatik retry yapma.
+2. Kalan `P0-06`, `P0-07`, `P0-08` boşlukları için aynı çift-süzgeçli dar
+   kabul sırasını uygula.
+3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
 
 ## Dokunulmayacaklar ve ayrı onaylar

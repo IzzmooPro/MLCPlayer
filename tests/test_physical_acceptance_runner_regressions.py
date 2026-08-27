@@ -15,6 +15,7 @@ ise exit 0 verilir.
 import importlib.util
 import os
 import sys
+import textwrap
 
 import pytest
 
@@ -149,3 +150,80 @@ def test_importing_the_runner_does_not_execute_it(runner):
     assert callable(runner.main)
     assert callable(runner.classify_group)
     assert callable(runner.overall_exit_code)
+
+
+def valid_protocol_text(group="tracks"):
+    return "\n".join([
+        f"RESULT|{group}|one|m|e|x|PASS|safe",
+        "CHILD_RESTORED cursor=(1, 2) ok=True",
+        f"MARK_APP_EXEC_RETURNED group={group} code=0",
+        f"GROUP_SUMMARY group={group} total=1 pass=1 fail=0 blocked=0",
+        f"MARK_DONE group={group}",
+    ])
+
+
+def test_child_protocol_requires_exact_markers_summary_and_order(runner):
+    parsed = runner.parse_result_line(
+        "RESULT|tracks|one|m|e|x|PASS|safe", "tracks")
+    assert runner.protocol_problems(valid_protocol_text(), "tracks", [parsed]) == []
+
+    duplicate_done = valid_protocol_text() + "\nMARK_DONE group=tracks"
+    assert "mark_done_count=2" in runner.protocol_problems(
+        duplicate_done, "tracks", [parsed])
+
+    missing_restore = valid_protocol_text().replace(
+        "CHILD_RESTORED cursor=(1, 2) ok=True\n", "")
+    assert "restored_count=0" in runner.protocol_problems(
+        missing_restore, "tracks", [parsed])
+
+
+def test_result_parser_rejects_pipe_injection_and_wrong_group(runner):
+    assert runner.parse_result_line(
+        "RESULT|tracks|one|m|e|x|PASS|safe", "tracks")["status"] == "PASS"
+    assert runner.parse_result_line(
+        "RESULT|tracks|one|m|e|x|PASS|unsafe|tail", "tracks") is None
+    assert runner.parse_result_line(
+        "RESULT|buttons|one|m|e|x|PASS|safe", "tracks") is None
+
+
+def test_protocol_failure_is_never_a_pass(runner):
+    status = runner.classify_group(
+        [row("PASS")], timed_out=False, mark_done=True, exit_code=0,
+        protocol_ok=False)
+    assert status == "INCOMPLETE"
+
+
+def test_leaked_job_process_is_never_a_pass(runner):
+    status = runner.classify_group(
+        [row("PASS")], timed_out=False, mark_done=True, exit_code=0,
+        protocol_ok=True, leak_free=False)
+    assert status == "INCOMPLETE"
+
+
+def test_runner_owns_each_child_tree_with_a_job_guard(runner):
+    source = open(RUNNER_PATH, encoding="utf-8").read()
+    assert "guard = create_job_guard(proc)" in source
+    assert "active_after = guard.active_processes()" in source
+    assert 'protocol_errors.append(f"leaked_job_processes={active_after}")' in source
+
+
+def test_run_group_accepts_only_a_complete_guarded_child_contract(
+        runner, tmp_path, monkeypatch):
+    child = tmp_path / "fake_child.py"
+    child.write_text(textwrap.dedent(
+        """
+        print("RESULT|tracks|one|m|e|x|PASS|safe", flush=True)
+        print("CHILD_RESTORED cursor=(1, 2) ok=True", flush=True)
+        print("MARK_APP_EXEC_RETURNED group=tracks code=0", flush=True)
+        print("GROUP_SUMMARY group=tracks total=1 pass=1 fail=0 blocked=0",
+              flush=True)
+        print("MARK_DONE group=tracks", flush=True)
+        """), encoding="utf-8")
+    monkeypatch.setattr(runner, "CHILD", str(child))
+    monkeypatch.setattr(runner, "LOG_DIR", str(tmp_path))
+
+    summary = runner.run_group("13", "tracks", 30, dict(os.environ))
+
+    assert summary["group_status"] == "PASS"
+    assert summary["protocol_problems"] == []
+    assert summary["active_job_processes_after"] == 0

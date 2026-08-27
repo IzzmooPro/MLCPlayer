@@ -7413,6 +7413,92 @@
         "The process result is limited to the recorded exact name/path filters and launcher PID; it is not a claim that every unrelated Windows setup process was absent."
       ],
       "next_action": "Commit the exact EV083 record package through the protected task-branch workflow; do not start uninstall, rollback, active-process upgrade or another physical scenario without a separate user decision."
+    },
+    {
+      "id": "EV-20260827-001",
+      "recorded_at_utc": "2026-08-26T22:10:10Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "5e3a027b940acd5bb6c22be7b8f9d6699742aa93",
+      "baseline_commit": "5e3a027b940acd5bb6c22be7b8f9d6699742aa93",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/native_physical_acceptance_child.py",
+        "tests/run_physical_acceptance.py",
+        "tests/physical_tracks_contract.py",
+        "tests/test_physical_tracks_contract_regressions.py",
+        "tests/test_physical_acceptance_runner_regressions.py",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git rev-parse --show-toplevel; git status --short --branch; git log -1 --oneline --decorate; git rev-list --left-right --count HEAD...origin/master",
+        "red: python -m pytest -q tests/test_physical_tracks_contract_regressions.py (4 failed)",
+        "green: python -m pytest -q tests/test_physical_tracks_contract_regressions.py",
+        "python -m pytest -q tests/test_physical_tracks_contract_regressions.py tests/test_physical_acceptance_runner_regressions.py tests/test_physical_child_contract_regressions.py tests/test_physical_buttons_preconditions_regressions.py tests/test_physical_audio_regressions.py tests/test_track_label_regressions.py",
+        "python -m py_compile tests/physical_tracks_contract.py tests/native_physical_acceptance_child.py tests/run_physical_acceptance.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json; python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "git diff --check"
+      ],
+      "subject": "Fail-closed WIN-P0-03 physical track-switch runner",
+      "evidence": [
+        "the task branch started from exact protected master 5e3a027b940acd5bb6c22be7b8f9d6699742aa93 with zero ahead and zero behind; product source was not changed",
+        "four new group integration contracts first failed on the unchanged source while four pure ID and fixture expectations passed, establishing the intended regression-first boundary",
+        "the new tracks group is group 13 with a bounded 180-second parent timeout and uses runtime-discovered, canonical unique IDs rather than fixed ordinals, labels or hard-coded track identifiers",
+        "fixture admission requires positive duration, a real video track, at least two unique valid audio and subtitle IDs, exact current/selected agreement, three identical full inventory snapshots and a verified null audio output",
+        "the physical path opens the visible video context menu with Win32 right-click input, traverses visible translated submenus by hit-tested action geometry and selects the exact unique QAction data ID with Win32 left-click input; QAction.trigger, direct player selection calls and direct aid/sid writes are forbidden by regression",
+        "audio A-to-B and subtitle S1-to-S2-to-S1 require distinct before/target IDs, the unchanged initial ID set, three stable aid or sid plus exact selected read-backs, subtitle visibility and overlay state where applicable, and a second physical menu opening whose target action is checked",
+        "valid-fixture product menu or action-data absence is FAIL while foreground, popup, PID or hit-test inaccessibility is BLOCKED; fixture block codes preserve media, audio-isolation, inventory-stability and ID/selected root causes",
+        "the shared parent now strictly parses eight RESULT fields, reconciles exact group summary counts, requires one ordered CHILD_RESTORED, APP-exec, GROUP_SUMMARY and MARK_DONE chain, and refuses PASS on missing protocol evidence, nonzero exit, timeout or nonzero Job Object process count",
+        "the related deterministic family completed with 210 passed; py_compile and diff check passed",
+        "the continuity and append-only ledger family completed with fifteen passed; the ledger parsed with 260 entries and EV-20260827-001 last while continuity remained within its 200-line compactness contract",
+        "independent positive and adversarial reviews found and closed the no-op first subtitle selection, product-error-as-BLOCKED, helper bypass, missing fixture negatives, unstable ID-set and parent marker/process fail-open gaps; the final review found no P0 and only the bounded Popen-to-Job-assignment race described in limitations"
+      ],
+      "summary": "The test-only WIN-P0-03 runner is deterministically ready: it drives real visible track-menu actions without product-method bypass and fails closed on fixture, state, protocol, timeout and measured child-tree process conditions.",
+      "limitations": [
+        "No native group was run. Real QMenu popup timing, exact multi-track fixture suitability, libmpv switching and Windows input delivery remain unmeasured; WIN-P0-03 stays NOT_RUN.",
+        "The subtitle result proves selection and state read-back, not a human visual comparison of rendered S1 versus rendered S2 text.",
+        "Audio uses ao=null and therefore does not prove audible output or speaker routing.",
+        "The trusted child is started by Popen immediately before assignment to the kill-on-close Windows Job Object. The child performs substantial Python, Qt and player imports before it can create helpers, so no practical pre-assignment descendant path was found, but the launch-to-assignment interval is not an atomic suspended-process guarantee; the zero-process assertion is bounded to the assigned job tree.",
+        "This deterministic PASS does not establish native smoke, installed artifact, hosted CI, build, release or user acceptance."
+      ],
+      "next_action": "Commit the exact P0-03 test-only and EV001 record package; after commit read-back, request separate approval for one exact tracks native run and do not auto-retry a failure or BLOCKED result."
+    },
+    {
+      "id": "EV-20260827-002",
+      "recorded_at_utc": "2026-08-26T22:15:05Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "11b4f47958626b7a5547576b2be0455ad601145a",
+      "evidence_commit": "11b4f47958626b7a5547576b2be0455ad601145a",
+      "baseline_commit": "11b4f47958626b7a5547576b2be0455ad601145a",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git show -s --format=%H%n%P%n%s HEAD",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "git show --stat --oneline --decorate --no-renames HEAD"
+      ],
+      "subject": "P0-03 physical track-switch runner commit provenance",
+      "evidence": [
+        "the exact eight-file P0-03 package was committed as 11b4f47958626b7a5547576b2be0455ad601145a with sole parent 5e3a027b940acd5bb6c22be7b8f9d6699742aa93 and subject test: add fail-closed physical track switching",
+        "the commit read-back contained only the three canonical documentation files and five test-infrastructure files recorded by EV-20260827-001; no product source file was included",
+        "after commit the task branch was clean and measured one commit ahead and zero behind origin/master",
+        "the deterministic red/green, 210 focused tests, fifteen continuity/ledger tests, py_compile, diff check, private-path scan and independent review remain the exact pre-commit evidence recorded by EV-20260827-001",
+        "no push, pull request, native run, build, installation, tag or release action was performed"
+      ],
+      "summary": "Commit 11b4f47958626b7a5547576b2be0455ad601145a is the exact durable source identity for the fail-closed test-only WIN-P0-03 track-switch runner.",
+      "limitations": [
+        "This record binds source provenance only and does not upgrade WIN-P0-03 from NOT_RUN.",
+        "The current two-document provenance record is uncommitted until separately approved.",
+        "No remote branch or hosted CI evidence exists for this commit."
+      ],
+      "next_action": "Commit this exact two-document EV002 provenance record; then request separate approval before pushing the task branch."
     }
   ]
 }
