@@ -8100,6 +8100,44 @@
         "The protected main checkout retains its original user-owned two-document draft until a later separately authorized reconciliation; no file was deleted or reset."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV016 preservation record; do not push, open a PR, build, install, retry a URL, tag or release."
+    },
+    {
+      "id": "EV-20260827-017",
+      "recorded_at_utc": "2026-08-27T09:53:25Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "07df9c1d33b51c45e677465c89b2cada4331ad8b",
+      "baseline_commit": "07df9c1d33b51c45e677465c89b2cada4331ad8b",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git rev-list --left-right --count HEAD...origin/codex/internet-video-format-fallback",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "gh pr view 64 --repo IzzmooPro/MLCPlayer --json state,baseRefName,headRefName,headRefOid,mergeable,mergeStateStatus,statusCheckRollup",
+        "gh run view 33060262828 --repo IzzmooPro/MLCPlayer --json event,headBranch,headSha,status,conclusion,url,jobs",
+        "gh run view 33060262828 --repo IzzmooPro/MLCPlayer --job 98476997901 --log"
+      ],
+      "subject": "PR 64 exact-head required hosted test success",
+      "evidence": [
+        "PR 64 remained open with base master, head codex/internet-video-format-fallback and exact head 07df9c1d33b51c45e677465c89b2cada4331ad8b",
+        "required GitHub Actions check test in pull-request run 33060262828 job 98476997901 completed successfully for that exact head",
+        "the CI-safe suite reported 5059 passed, 30 skipped and zero failed in 122.90 seconds",
+        "the hosted append-only gate printed LEDGER_APPEND_ONLY_OK; locked environment, Python compilation, translations and whitespace steps also passed",
+        "GitHub read-back reported the PR CLEAN and MERGEABLE; the local task branch equalled its origin branch at zero ahead and zero behind before this record"
+      ],
+      "summary": "The required PR test check passed on exact head 07df9c1 with 5059 passed, 30 skipped, zero failed and append-only ledger success.",
+      "limitations": [
+        "Hosted CI does not prove network URL behavior, native libmpv parsing, Windows desktop behavior, build, installer or installed-artifact acceptance.",
+        "Thirty skipped tests remain skipped and are not promoted to PASS.",
+        "The PR is not merged; CLEAN and MERGEABLE are read-back states, not merge evidence.",
+        "Committing this EV017 record will change the PR head and therefore requires a new required test check before any merge decision."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV017 hosted-CI record, then separately approve its push and wait for the new required PR check; do not merge, build, install, tag or release."
     }
   ]
 }

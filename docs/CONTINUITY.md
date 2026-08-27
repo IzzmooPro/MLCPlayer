@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `e64f8c2feea9300f621c8a74f4cf576c968eb71f`
+- Kayıt hazırlanırken doğrulanan HEAD: `07df9c1d33b51c45e677465c89b2cada4331ad8b`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/internet-video-format-fallback` (`origin/master`dan 2 ileride; preservation kaydı uncommitted)
-- Son kanıt: `EV-20260827-016`
+- Dal: `codex/internet-video-format-fallback` (origin dalıyla `0/0`, `origin/master`dan 3 ileride; CI kaydı uncommitted)
+- Son kanıt: `EV-20260827-017`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -100,7 +100,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   URL önkoşulu da setup başlamadan FAILED; release bloklu (`EV-20260827-013`).
 - Regression-first düzeltme izole `web_safari,visionos,web` allowlist ve mpv
   kaçışı getirdi; hedef **2/2**, aile **42 passed / 2 skipped**, py_compile/diff
-  ve bağımsız inceleme temiz (`EV-20260827-014`); paket `3abdf13`, provenance kaydı `e64f8c2` (`EV-20260827-015`), EV016 ayrı ve uncommitted bir koruma kaydıdır. Eski URL FAILED; yeni kaynak ağ/native NOT_RUN.
+  ve bağımsız inceleme temiz (`EV-20260827-014`); paket `3abdf13`, provenance `e64f8c2`, koruma `07df9c1` olarak bağlıdır (`EV-20260827-015/016`). PR #64 exact head'de **5059 passed / 30 skipped / 0 failed**, append-only OK verdi (`EV-20260827-017`); ağ/native NOT_RUN.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -164,7 +164,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-016` preservation kaydını ayrıca açık onayla commit et; push, build, kurulum, tag veya release başlatma.
+Exact iki belgeli `EV-20260827-017` hosted-CI kaydını ayrıca açık onayla commit et; push, merge, build, kurulum, tag veya release başlatma.
 
 ## Sonraki sıra
 
