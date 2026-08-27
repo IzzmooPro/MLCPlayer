@@ -7843,6 +7843,49 @@
         "No remote branch or hosted CI evidence exists for this commit."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV010 provenance record; then request separate approval to push the task branch."
+    },
+    {
+      "id": "EV-20260827-011",
+      "recorded_at_utc": "2026-08-27T07:54:46Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "ca4999de0c94e3cdcd4954ba600e50c210ad27f7",
+      "artifact_source_commit": "ca4999de0c94e3cdcd4954ba600e50c210ad27f7",
+      "baseline_commit": "ca4999de0c94e3cdcd4954ba600e50c210ad27f7",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "gh workflow run ci.yml --ref master -f expected_sha=ca4999de0c94e3cdcd4954ba600e50c210ad27f7; gh run view 33051252323 --json status,conclusion,headSha,event,url,jobs",
+        "python packaging/check_publishable.py; python packaging/verify_build.py --pre; python packaging/verify_dependencies.py requirements-lock.txt; python packaging/verify_inno.py all",
+        "cmd.exe /d /c packaging\\build_release.bat",
+        "python packaging/verify_build.py --final installer_output/MLCPlayer_Setup_v0.40.exe; embedded Ed25519 public-key verification for both installer signatures; Authenticode read-back; artifact and dist SHA-256 inventory"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.40.exe": "ea2e1c3e0ed935ce631b665829ef3423a5f62ec91683cb0e2fb3d08b411f7811",
+        "MLCPlayer_Setup_v0.40.exe.sig": "da568314b32ca5e0519d961e39e5eda04be98fbade7f3f45d9306f23b50808d4",
+        "MLCPlayer_InternetVideo_v0.40.exe": "85b9b2494119fdf0599acd4e8fc0641e662ba307e0c355e8c19622f43fcd3b51",
+        "MLCPlayer_InternetVideo_v0.40.exe.sig": "3962fce955b2ba9032f813506a103759aec2cff69d1c9d5a2f6d4d8e6294cb78",
+        "dist-MLC-Player.exe": "413365b559ea70103429e0e76deffbc0350ae75b6a80275db74c982b2747d8bb"
+      },
+      "subject": "Exact merged-master v0.40 release source build",
+      "evidence": [
+        "manual exact-master CI run 33051252323 verified expected SHA ca4999de0c94e3cdcd4954ba600e50c210ad27f7 and completed with 5058 passed, 30 skipped and zero failed",
+        "the build started from clean local master equal to origin/master with zero ahead and zero behind; v0.40 was publishable over live v0.39 and runtime, dependency and both Inno compile-only gates passed",
+        "the official eight-step build chain removed stale build/dist and only exact v0.40 outputs, compiled translations, produced a 91-file 188467762-byte dist tree, built both installers, created both Ed25519 signatures and passed final main-installer verification",
+        "main setup is 55919136 bytes with SHA-256 ea2e1c3e0ed935ce631b665829ef3423a5f62ec91683cb0e2fb3d08b411f7811; Internet Video setup is 48909130 bytes with SHA-256 85b9b2494119fdf0599acd4e8fc0641e662ba307e0c355e8c19622f43fcd3b51",
+        "both detached signatures verified against the public key embedded in the exact source; build-related process inventory returned zero and the tracked working tree remained clean",
+        "Windows Authenticode read-back is NotSigned for both EXEs, consistent with the documented inactive SignPath boundary"
+      ],
+      "summary": "Exact merged master ca4999d produced the complete v0.40 main and Internet Video source-build artifact pair with valid detached Ed25519 signatures.",
+      "limitations": [
+        "This source_build PASS does not establish final-artifact installation, upgrade, maintenance, silent, rollback, uninstall, Windows action, SmartScreen or release acceptance.",
+        "Both installers are unsigned at the Windows Authenticode layer and may show Unknown Publisher; Ed25519 updater verification does not replace Authenticode.",
+        "The artifacts are private local outputs until separately accepted, tagged, uploaded, read back by name/size/SHA-256 and published."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV011 source-build record; after protected merge, request separate approval for final-artifact physical acceptance before any tag or release."
     }
   ]
 }

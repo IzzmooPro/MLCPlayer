@@ -6,11 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `66b4584d1aa51121bec4c4892f4d409446fc1ad8`
+- Kayıt hazırlanırken doğrulanan HEAD: `ca4999de0c94e3cdcd4954ba600e50c210ad27f7`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/p0-tracks-native-pass` (native kanıt commit'i exact `66b4584`;
-  yalnız commit-provenance belgeleri uncommitted)
-- Son kanıt: `EV-20260827-010`
+- Dal: `codex/v040-source-build-evidence` (source-build kaydı uncommitted)
+- Son kanıt: `EV-20260827-011`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -96,6 +95,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   korundu, yalnız add-on uninstaller çifti ile `InstallDate` beklenen bakım
   metadata'sı olarak değişti ve kayıtlı süreç envanteri sıfırdı
   (`EV-20260826-083`). Log/exit code, silent, rollback ve uninstall ölçülmedi.
+- Exact `ca4999d` master dispatch'i **5058 passed / 30 skipped / 0 failed**
+  verdi. Aynı temiz commit'ten resmî zincir ana v0.40 setup, Internet Video
+  add-on ve iki doğrulanmış Ed25519 imzasını üretti (`EV-20260827-011`). İki
+  EXE Authenticode `NotSigned`; yeni artifact'lar fiziksel kabul edilmedi.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -159,15 +162,14 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-010` commit-provenance paketini ayrıca açık
-onayla commit et; build, kurulum veya başka native senaryo başlatma.
+Exact iki belgeli `EV-20260827-011` source-build kayıt paketini ayrıca açık
+onayla commit et; kurulum, tag veya release başlatma.
 
 ## Sonraki sıra
 
-1. Commit sonrasında ayrı onaylarla push, PR, hosted check ve merge zincirini
-   tamamla; başka native senaryo başlatma.
-2. Kalan `P0-06`, `P0-07`, `P0-08` boşlukları için aynı çift-süzgeçli dar
-   kabul sırasını uygula.
+1. Kayıt merge'inden sonra exact iki v0.40 artifact için final fiziksel kabul
+   paketini ayrı onayla uygula; kabul bitmeden tag/release yapma.
+2. Kalan `P0-06`, `P0-07`, `P0-08` boşluklarını yayın sonrasına bırak.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
    politikasını ürün kararı olarak ele al.
 
