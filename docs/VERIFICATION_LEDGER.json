@@ -8056,6 +8056,50 @@
         "The task branch has not been pushed and origin/master is unchanged."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV015 provenance record; do not push, open a PR, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-016",
+      "recorded_at_utc": "2026-08-27T09:37:44Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "e64f8c2feea9300f621c8a74f4cf576c968eb71f",
+      "baseline_commit": "e64f8c2feea9300f621c8a74f4cf576c968eb71f",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "supplements": [
+        "EV-20260827-012",
+        "EV-20260827-013"
+      ],
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "read-only structural comparison of the protected main-checkout EV012/EV013 drafts against the committed task-branch records"
+      ],
+      "private_artifact_digests": {
+        "interactive-v039-main-install-log": "942848393a18b8834ff3d0f1f51ab0b34a929897ca44a86d59409c5be212e73e",
+        "interactive-v039-addon-install-log": "7fd71dcce42c651e41e037b53406e9ef72a85cc3e81758cf3ecf38094a4fee7a"
+      },
+      "subject": "Lossless preservation supplement for EV012 and EV013 physical-acceptance detail",
+      "evidence": [
+        "the protected main-checkout drafts and committed task-branch records were compared field by field without modifying either source; EV012 and EV013 were intentionally left append-only",
+        "EV012 additionally preserves the registry-derived interactive add-on-first then main uninstall order: both product registrations, payloads, shortcuts, Open With registration and the install directory were removed while the two-file user-data tree was preserved; the initially hung silent add-on uninstaller was stopped by exact PID before measured mutation",
+        "the two previously omitted v0.39 interactive install-log SHA-256 values are recorded in this supplement; main and add-on installs had success logs, no restart and zero recorded target-process leak",
+        "EV012 main maintenance proved Restart Manager closure separately; its v0.39-to-v0.40 upgrade log itself found no applications, so graceful closure cannot be transferred between those scenarios",
+        "EV012 rollback proof remains bounded to v0.39 registry read-back, five payload identities and the abort log; the ninety-four-byte user-data change included a temporally correlated application-log warning while the settings file retained its measured hash and metadata, so full user-data hash and metadata preservation did not pass",
+        "EV013 additionally preserves that the add-on installer never started and therefore proved neither upgrade failure nor installer mutation; its watcher result cannot exclude short-lived child processes"
+      ],
+      "summary": "Material physical-acceptance details and two private log digests omitted during branch consolidation are preserved append-only without rewriting EV012 or EV013.",
+      "limitations": [
+        "This supplement does not change the historical FAILED results, prove exact causation of the user-data delta or add a new runtime, network, installer or release PASS.",
+        "Silent install-upgrade-uninstall, the second uninstall order, invalid InstallLocation cases and successful active-process add-on upgrade remain unaccepted.",
+        "The earlier EV012 and EV013 retry actions are historical and are not promoted; the live next action is solely the separately approved EV016 commit below and no URL or installer retry is authorized.",
+        "The protected main checkout retains its original user-owned two-document draft until a later separately authorized reconciliation; no file was deleted or reset."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV016 preservation record; do not push, open a PR, build, install, retry a URL, tag or release."
     }
   ]
 }
