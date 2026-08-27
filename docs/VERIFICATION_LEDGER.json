@@ -7756,6 +7756,58 @@
         "No remote branch or hosted CI evidence exists for this commit, and no native retry occurred."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV008 provenance record; do not push or run a native retry under that approval."
+    },
+    {
+      "id": "EV-20260827-009",
+      "recorded_at_utc": "2026-08-27T07:30:57Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "18a88b82478d381568c83dda4522e4445836a911",
+      "artifact_source_commit": "18a88b82478d381568c83dda4522e4445836a911",
+      "baseline_commit": "18a88b82478d381568c83dda4522e4445836a911",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/QUALITY_EVOLUTION_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md",
+        "tests/test_quality_evolution_plan_regressions.py"
+      ],
+      "commands": [
+        "git status --short --branch; git rev-parse HEAD; git rev-parse origin/master; git rev-list --left-right --count HEAD...origin/master; fixture, probe, mpv-2.dll and target-process preflight",
+        "MLC_NATIVE_SMOKE=1 with private isolated TEMP/settings and exact fixture; python tests/run_physical_acceptance.py tracks",
+        "read exact private summary/log markers and hashes; verify parent console exit, cursor restore, aggregate totals, Job Object count and immediate target-process-after inventory",
+        "red: python -m pytest -q tests/test_quality_evolution_plan_regressions.py::test_every_p0_row_has_an_honest_execution_mapping_and_exact_status (1 failed because the matrix still recorded WIN-P0-03 FAILED)",
+        "green: python -m pytest -q tests/test_hdr_acceptance_contract_regressions.py tests/test_physical_playback_seek_regressions.py tests/test_quality_evolution_plan_regressions.py tests/test_video_format_acceptance_plan_regressions.py (27 passed)",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py (first 1 failed and 14 passed because continuity reached 204 lines; after lossless compaction 15 passed)",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json; git diff --check; private-path scan of the working-tree diff"
+      ],
+      "private_artifact_digests": {
+        "WIN-P0-03-tracks.mkv": "704f985b606d6c3dbd4335c5e6e19778cc076a96c7f6e80eb3c46408f271a2bb",
+        "WIN-P0-03-tracks.ffprobe.json": "3e39269a4631cc8cffda64963263fb9cdf7df6b5fc34b7c2ce39b206065f6263",
+        "group13-tracks.log": "936e1ea7271c2002d5c43c7cc49ca4680beeb47a8c43956402862d4735a054ed",
+        "summary.json": "4c4333af48b772f51e970b78f08d16f4b7a1947be73a8ba791bc2f04ee61d17d",
+        "MLCPlayer.ini": "72a8eca56c66ffe51a217df95cd30c0be58375910fdb0fbefa550ef059bfb7bc"
+      },
+      "subject": "WIN-P0-03 exact merged-master native track-switch retry",
+      "evidence": [
+        "PR 61 exact head 8b1471da1c108b1a725933329ede08c769d398a2 passed required run 33049025889 with 5058 passed, 30 skipped and zero failed, then merged as two-parent commit 18a88b82478d381568c83dda4522e4445836a911; local and origin master read back clean and zero ahead/zero behind",
+        "independent preflight confirmed exact fixture size 1446726 and SHA-256, five-stream one-video/two-audio/two-subtitle structure, exact mpv-2.dll size 112772608 and SHA-256, and zero target processes before the separately approved single retry",
+        "the sole tracks run completed in 35.6 seconds with child and parent exit zero, timeout false, five PASS, zero FAIL/BLOCKED, no protocol problems and exactly one aggregate PASS",
+        "audio changed from ID 1 to 2; subtitles changed from ID 1 to 2 and back to 1; every transition had exact current/selected state and the reopened target menu action was checked, while subtitle visibility and overlay icon remained true",
+        "all six physical menu sessions reached root, track and target visibility and closed the root popup; the three read-back sessions used three bounded physical Escape presses each, with no watchdog timeout or forced programmatic cleanup",
+        "product shutdown recorded exactly one stop then one terminate, accepted close and released mpv; child cursor and parent cursor restored, APP exec returned, GROUP_SUMMARY and MARK_DONE appeared in order",
+        "the assigned Job Object reported zero active processes; the first immediate target-executable-only post-run snapshot also reported zero and no second native run occurred",
+        "independent adversarial audit initially identified missing parent-console evidence in the private artifacts; the captured unified-exec exit zero, RUNNER_RESTORED, aggregate TOTALS and immediate process snapshot closed that P1, after which final audit found zero P0 and zero P1"
+      ],
+      "summary": "WIN-P0-03 passed on exact merged master: physical audio A-to-B and subtitle S1-to-S2-to-S1 menu actions, checked read-back, shutdown, final protocol and measured cleanup all completed without timeout or forced cleanup.",
+      "limitations": [
+        "This PASS belongs only to exact commit 18a88b82478d381568c83dda4522e4445836a911, the fingerprinted private fixture, exact mpv-2.dll and the single tracks scenario; it does not transfer to another source, runtime or artifact.",
+        "Audio used ao=null, so audible output and device routing were not tested. Subtitle evidence is libmpv/menu/icon state read-back, not human acceptance of rendered text or visual quality.",
+        "The process claim is bounded to Job Object assigned-tree active zero and the immediate target-executable filter; it is not an absolute system-wide no-process claim.",
+        "This is source-checkout native-smoke evidence, not installed-artifact, build, hosted CI, release or acceptance for WIN-P0-06/07/08."
+      ],
+      "next_action": "Request separate approval to commit this exact five-file EV009 native evidence package; do not build, install or start another native scenario under that approval."
     }
   ]
 }

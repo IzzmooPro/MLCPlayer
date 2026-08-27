@@ -81,7 +81,7 @@ göre seçilmiş ve kapsam kullanıcıya sunulmuş olmalıdır.
 
 ## Faz 2 — Gerçek Windows başlangıç kabulü
 
-**Durum:** AKTİF — P0 EŞLEMESİ TAMAM, 4 PASS / 1 FAIL / 3 NOT_RUN
+**Durum:** AKTİF — P0 EŞLEMESİ TAMAM, 5 PASS / 0 FAIL / 3 NOT_RUN
 
 `docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindeki P0 senaryoları exact commit,
 runtime ve mümkünse artifact SHA-256 kimliğiyle çalıştırılır. Var olan native
@@ -108,6 +108,14 @@ verdi. O aşamada native retry yapılmadığı için P0-02 **FAILED** kaldı.
 Exact `9ef4935` üzerindeki ayrı onaylı tek retry gerçek oynatma, tam marker,
 exit `0` ve sıfır süreç sızıntısıyla geçti (`EV-20260823-024`). P0-02 artık
 **PASSED**; bu sonuç diğer fiziksel P0 senaryolarına aktarılmaz.
+
+P0-03'ün ilk native koşumu exact `06cebc4` üzerinde QMenu sınırında TIMEOUT
+oldu ve FAILED kaydedildi (`EV-20260827-005`). Test-only nested-loop watchdog
+PR #61 ile exact `18a88b8` master'a alındı. Ayrı onaylı tek retry ses 1→2 ve
+altyazı 1→2→1 fiziksel seçimlerini exact libmpv/menu read-back, tam marker,
+exit 0, `stop→terminate` ve ölçülen sıfır süreçle geçti
+(`EV-20260827-009`). P0-03 artık **PASSED**; audible/visual/installed kapsamı
+bu dar kaynak-native kanıta dahil değildir.
 
 Çıkış kapısı: P0 satırlarının her biri PASSED, FAILED veya gerekçeli BLOCKED;
 çocuk süreç exit kodu, final marker, stderr ve süreç sızıntısı sınırları açık;
