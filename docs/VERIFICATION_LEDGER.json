@@ -7499,6 +7499,59 @@
         "No remote branch or hosted CI evidence exists for this commit."
       ],
       "next_action": "Commit this exact two-document EV002 provenance record; then request separate approval before pushing the task branch."
+    },
+    {
+      "id": "EV-20260827-003",
+      "recorded_at_utc": "2026-08-27T05:20:58Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "896465fb28d8f2f1016d0a783cfff10bb7939e54",
+      "baseline_commit": "896465fb28d8f2f1016d0a783cfff10bb7939e54",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "tests/run_physical_acceptance.py",
+        "tests/test_physical_acceptance_runner_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "gh pr view 58 --json state,headRefOid,baseRefOid,mergeable,mergeStateStatus,statusCheckRollup; gh pr merge 58 --merge; gh pr view 58 --json state,mergedAt,mergeCommit,headRefOid,baseRefOid,url",
+        "git fetch origin; git show -s --format=%H%n%P%n%s origin/master; git switch master; git merge --ff-only origin/master; git rev-list --left-right --count HEAD...origin/master",
+        "red: python -m pytest -q tests/test_physical_acceptance_runner_regressions.py::test_parent_cursor_restore_failure_fails_an_all_pass_run (1 failed)",
+        "green: python -m pytest -q tests/test_physical_acceptance_runner_regressions.py::test_parent_cursor_restore_failure_fails_an_all_pass_run; python -m pytest -q tests/test_physical_acceptance_runner_regressions.py (30 passed)",
+        "python -m pytest -q tests/test_physical_tracks_contract_regressions.py tests/test_physical_acceptance_runner_regressions.py tests/test_physical_child_contract_regressions.py tests/test_physical_buttons_preconditions_regressions.py tests/test_physical_audio_regressions.py tests/test_track_label_regressions.py",
+        "python -m py_compile tests/physical_tracks_contract.py tests/native_physical_acceptance_child.py tests/run_physical_acceptance.py",
+        "approved private ffmpeg 9.0.1 generated WIN-P0-03-tracks.mkv from lavfi testsrc2, two sine audio inputs and two private SRT inputs; approved private ffprobe 9.0.1 measured the exact stream/default inventory",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json; python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py; git diff --check"
+      ],
+      "private_artifact_digests": {
+        "WIN-P0-03-tracks.mkv": "704f985b606d6c3dbd4335c5e6e19778cc076a96c7f6e80eb3c46408f271a2bb",
+        "WIN-P0-03-tracks.ffprobe.json": "3e39269a4631cc8cffda64963263fb9cdf7df6b5fc34b7c2ce39b206065f6263",
+        "fixture-manifest.json": "e8a6363516d295e01a6c0332f4bfb903f910125d0b5735c86cfdce4825cde181",
+        "sub-eng.srt": "114be2dcf97ffaa8073e26fa9b64a2c945e0b8c7be78addd306a5d450c8a4436",
+        "sub-tur.srt": "d1bcc29136a3586efbe966e38fce39f06d98db60a8f5036f8e9963c69839533a"
+      },
+      "subject": "Merged P0-03 provenance, parent cursor fail-closed hardening and private fixture preflight",
+      "evidence": [
+        "PR 58 exact head 1f568ffe84fa854fb1030ace9d66dc465fa53c7c passed required run 33041446396 with 5044 passed, 30 skipped and zero failed, then merged to protected master as two-parent commit 896465fb28d8f2f1016d0a783cfff10bb7939e54; local and origin master read back clean and zero ahead/zero behind",
+        "the native preflight found no existing media meeting the two-audio and two-subtitle contract, so no native player or window was started and WIN-P0-03 remained NOT_RUN",
+        "independent adversarial source review found that a failed parent cursor restore only printed HARNESS_FAILURE while all-PASS group results could still return exit zero",
+        "the new regression first failed once on exact baseline 896465f, proving the fail-open, and the minimal test-only change now stores the parent restore result and forces exit one when it is false",
+        "the target runner file completed with 30 passed and the related deterministic family completed with 211 passed; py_compile and diff check passed",
+        "the private 1446726-byte fixture has SHA-256 704f985b606d6c3dbd4335c5e6e19778cc076a96c7f6e80eb3c46408f271a2bb and ffprobe measured duration 8.021 seconds, one H.264 video, two AAC audio streams and two SubRip subtitle streams",
+        "exactly one audio and one subtitle stream carry default disposition; the alternate English and Turkish tracks are structurally distinguishable, and the private normalized probe artifact identity is recorded without a private path",
+        "the approved generator and probe were exact 9.0.1 essentials binaries with recorded prior hashes; runtime import passed only after reproducing the child PATH order and repo mpv-2.dll remained 112772608 bytes with SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "independent implementation and counter-review found no remaining code P0/P1 after the continuity drift was corrected; product source was not changed"
+      ],
+      "summary": "The merged WIN-P0-03 runner now fails closed on parent cursor-restore failure, and a private fingerprinted two-audio/two-subtitle structural fixture candidate is ready for a separately approved single native run.",
+      "limitations": [
+        "No native group was run. ffprobe structure and default dispositions do not prove libmpv IDs, exact current/selected state, three stable inventory snapshots, ao=null, QMenu delivery, overlay state, cursor restoration or process cleanup.",
+        "The fixture is private test evidence and is not a repository asset, product build, installed artifact or release asset; its private path is intentionally absent from this record.",
+        "Audio will use ao=null in the native runner and therefore cannot prove audible output or device routing; subtitle evidence will remain state read-back rather than human comparison of rendered text.",
+        "The trusted child is still launched immediately before Job Object assignment rather than atomically suspended; the accepted bounded pre-assignment race from EV-20260827-001 remains and requires global before/after process read-back in the native turn.",
+        "This uncommitted deterministic package does not upgrade WIN-P0-03 from NOT_RUN and cannot inherit hosted, native, installed-artifact or release acceptance."
+      ],
+      "next_action": "Request separate approval to commit the exact test-only hardening and EV003 record package; after commit provenance is durable, request a new separate approval for one exact tracks native run with no automatic retry."
     }
   ]
 }

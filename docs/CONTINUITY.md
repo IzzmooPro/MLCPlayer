@@ -6,10 +6,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `11b4f47958626b7a5547576b2be0455ad601145a`
+- Kayıt hazırlanırken doğrulanan HEAD: `896465fb28d8f2f1016d0a783cfff10bb7939e54`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/p0-tracks-runner` (P0-03 kaynak commit'i exact `11b4f47`; yalnız commit-provenance kayıt belgeleri kirli)
-- Son kanıt: `EV-20260827-002`
+- Dal: `codex/p0-tracks-preflight-hardening` (exact merged-master tabanı
+  `896465f`; test-only fail-closed düzeltme ve kayıt paketi uncommitted)
+- Son kanıt: `EV-20260827-003`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -96,11 +97,13 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   korundu, yalnız add-on uninstaller çifti ile `InstallDate` beklenen bakım
   metadata'sı olarak değişti ve kayıtlı süreç envanteri sıfırdı
   (`EV-20260826-083`). Log/exit code, silent, rollback ve uninstall ölçülmedi.
-- `WIN-P0-03` için regression-first test-only `tracks` grubu hazırlandı.
-  Dört kırmızı sözleşmeden sonra ilgili aile **210 passed** verdi. Dinamik ses
-  A→B ve altyazı S1→S2→S1; gerçek sağ-tık `SendInput`, stabil libmpv/menu
-  read-back, exact marker/summary/cursor ve Job Object süreç kapısıyla korunur
-  (`EV-20260827-001`). Ürün kodu değişmedi, native koşum yapılmadı ve satır
+- `WIN-P0-03` test-only runner'ı PR #58 ile exact iki ebeveynli `896465f`
+  merge commit'ine ulaştı; exact-head CI **5044 passed / 30 skipped / 0
+  failed** verdi. Native öncesi karşıt inceleme parent imleç restore hatasının
+  all-PASS koşumda exit 0 kalabildiğini buldu; regression-first minimal
+  düzeltmeden sonra ilgili aile **211 passed** verdi. Repo dışındaki sentetik
+  fixture 1 video, 2 ses ve 2 altyazı ile fingerprint/ffprobe kapısını geçti
+  (`EV-20260827-003`). Ürün kodu değişmedi, native koşum yapılmadı ve satır
   hâlâ **NOT_RUN**.
 - C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
   merge edildi; exact commit/run/parent ayrıntıları append-only
@@ -155,14 +158,15 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-002` commit-provenance kaydını commit et;
-protected görev dalı provenance'ı tamamlanmadan push/native başlatma.
+Exact test-only hardening ve `EV-20260827-003` kayıt paketini ayrıca açık
+onayla commit et; commit provenance'ı tamamlanmadan native başlatma.
 
 ## Sonraki sıra
 
-1. P0-03 commit provenance'ından sonra ayrıca açık onayla exact çok-parçalı
-   fixture üzerinde yalnız `tracks` native grubunu bir kez çalıştır; hata veya
-   BLOCKED sonucunda incelemeden otomatik retry yapma.
+1. P0-03 hardening commit provenance'ından sonra ayrıca açık onayla exact
+   fingerprint'li çok-parçalı fixture üzerinde yalnız `tracks` native grubunu
+   bir kez çalıştır; hata veya BLOCKED sonucunda incelemeden otomatik retry
+   yapma.
 2. Kalan `P0-06`, `P0-07`, `P0-08` boşlukları için aynı çift-süzgeçli dar
    kabul sırasını uygula.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
