@@ -353,14 +353,33 @@ def test_a_complete_bundle_enables_site_extraction(bundle):
         f"ytdl_hook-ytdl_path={os.path.join(bin_dir, 'yt-dlp.exe')}")
 
 
-def test_youtube_extraction_avoids_the_android_vr_403_path(bundle):
-    """YouTube VOD uses the token-free HLS-capable client measured live."""
+def test_youtube_extraction_uses_an_explicit_bounded_client_allowlist(
+        bundle):
+    """Keep Safari HLS plus the exact credential-free 2026.08.19 defaults."""
     bin_dir = bundle("yt-dlp.exe", "deno.exe")
 
     config = mpv_config(bin_dir)
 
     assert config["ytdl_raw_options"] == (
-        "extractor-args=youtube:player_client=web_safari")
+        "ignore-config=,no-plugin-dirs=,no-remote-components=,"
+        "extractor-args=[youtube:player_client=web_safari,visionos,web;"
+        "fetch_pot=never]")
+
+
+def test_youtube_client_fallback_is_isolated_scoped_and_bounded():
+    """Ignore ambient config/plugins/tokens and keep an exact client set."""
+    from app.runtime_binaries import (YOUTUBE_PLAYER_CLIENTS,
+                                      YOUTUBE_YTDL_RAW_OPTIONS)
+
+    assert YOUTUBE_PLAYER_CLIENTS == ("web_safari", "visionos", "web")
+    assert YOUTUBE_YTDL_RAW_OPTIONS.startswith(
+        "ignore-config=,no-plugin-dirs=,no-remote-components=,")
+    assert "extractor-args=[youtube:" in YOUTUBE_YTDL_RAW_OPTIONS
+    assert ";fetch_pot=never]" in YOUTUBE_YTDL_RAW_OPTIONS
+    assert YOUTUBE_YTDL_RAW_OPTIONS.endswith("]")
+    for forbidden in ("cookies", "po_token=", "default", "android_vr",
+                      "player_client=all", "remote-components=ejs"):
+        assert forbidden not in YOUTUBE_YTDL_RAW_OPTIONS
 
 
 def test_a_missing_bundled_ytdlp_disables_site_extraction(bundle, tmp_path,

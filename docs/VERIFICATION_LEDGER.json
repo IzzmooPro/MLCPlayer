@@ -7886,6 +7886,137 @@
         "The artifacts are private local outputs until separately accepted, tagged, uploaded, read back by name/size/SHA-256 and published."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV011 source-build record; after protected merge, request separate approval for final-artifact physical acceptance before any tag or release."
+    },
+    {
+      "id": "EV-20260827-012",
+      "recorded_at_utc": "2026-08-27T08:42:29Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "artifact_source_commit": "ca4999de0c94e3cdcd4954ba600e50c210ad27f7",
+      "baseline_commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "read-only Git, artifact, installed-tree, registry, user-data and process preflight",
+        "interactive exact-v0.40 main maintenance and v0.39-to-v0.40 upgrade with log and 91-file parity",
+        "interactive exact-v0.40 add-on active-process upgrade attempt; user selected Abort after Restart Manager refusal",
+        "exact spawned-PID cleanup and final registry, user-data, payload, log and process read-back"
+      ],
+      "private_artifact_digests": {
+        "MLCPlayer_Setup_v0.40.exe": "ea2e1c3e0ed935ce631b665829ef3423a5f62ec91683cb0e2fb3d08b411f7811",
+        "MLCPlayer_InternetVideo_v0.40.exe": "85b9b2494119fdf0599acd4e8fc0641e662ba307e0c355e8c19622f43fcd3b51",
+        "MLCPlayer_Setup_v0.39.exe": "00ed3ef67da44adf1f4d997426636ba7642413098c66bf08fade54dd44584915",
+        "MLCPlayer_InternetVideo_v0.39.exe": "07f69153e498e0537f7c9446b69db1dc36a43256142c03b91faa0efc16c5a491",
+        "main-interactive-maintenance-log": "571f87d6b6264f80071b502c4ee921103027295785afb0f589fd5cf9ca1d285f",
+        "interactive-v039-to-v040-main-upgrade-log": "2309051fe176c399df504705b4bd0b67980be5998696192d5fd36e6fb85aa781",
+        "interactive-v039-to-v040-addon-abort-log": "6311df7e388e5caf8dd3a59f262bfbce535c08f62b7b45fc28931dde4b524fbd"
+      },
+      "subject": "Exact v0.40 add-on active-process upgrade aborted on non-closing yt-dlp parent",
+      "evidence": [
+        "the exact main setup passed bounded maintenance and upgrade with success logs, no restart, exact 91-file parity and zero final target-process leak",
+        "public v0.39 seeds matched registered names, sizes and SHA-256 values before the exact main v0.40 upgrade",
+        "the add-on attempt began from add-on v0.39 with active installed Player, Deno and a bundled yt-dlp parent-child pair",
+        "Restart Manager closed Player, Deno and one yt-dlp process but the deliberately stdin-waiting yt-dlp parent refused shutdown",
+        "the user selected Abort; the log recorded cancellation and successful rollback-uninstall, setup exited and add-on registration remained v0.39",
+        "remaining exact test-owned processes were terminated by PID after read-back and final target-process inventory was empty"
+      ],
+      "summary": "The v0.40 final-artifact gate remained FAILED because the active-process add-on upgrade stopped and rolled back when the invalid stdin-waiting yt-dlp parent refused Restart Manager shutdown.",
+      "limitations": [
+        "This does not pass release-process B2; tag and release remain blocked.",
+        "No persistent full installed-tree manifest preceded the add-on abort; rollback proof is bounded to registry, five payload identities, log and process read-back.",
+        "The user-data aggregate changed by ninety-four bytes and exact causation was not isolated.",
+        "No automatic retry followed the failure; the refusal cause was inspected first."
+      ],
+      "next_action": "With separate approval preserve a full mixed-state manifest and attempt one corrected product-owned finite active workload; do not continue to release gates on failure."
+    },
+    {
+      "id": "EV-20260827-013",
+      "recorded_at_utc": "2026-08-27T09:05:15Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "artifact_source_commit": "ca4999de0c94e3cdcd4954ba600e50c210ad27f7",
+      "baseline_commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "persistent exact mixed-state installed-tree, user-data, registry, artifact and process manifest capture",
+        "read-only source inspection of build_ytdl_config and the historical web_safari decision",
+        "user-controlled Ctrl+U product URL submission and product log/runtime/setup/registry read-back"
+      ],
+      "private_artifact_digests": {
+        "corrected-addon-retry-pre.json": "9a8930985380e0bc7f211ca61a6c18d42deff1a4480a576f4718ac809a8ed545",
+        "installed-yt-dlp.exe": "66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a",
+        "installed-deno.exe": "98f8c2a2d470e4ccb04c935c86ff8050817d877762aec5eaeeb9e409ccb3b9fd",
+        "url-failure-application-log": "300ed0770b2c2dd87eff14e532229933b14ba6fee4c522ee6a4f05a06a6a8958"
+      },
+      "subject": "Installed v0.39 Internet Video product-runtime precondition failure before v0.40 add-on retry",
+      "evidence": [
+        "the corrected attempt began from a durable 103-installed-file, two-user-file mixed-state manifest with main v0.40 and add-on v0.39",
+        "the installed runtimes were yt-dlp 2026.08.19 and Deno 2.9.5 with recorded SHA-256 values",
+        "the user submitted the exact Blender URL through the installed main-v0.40 Ctrl+U product path without a terminal fixture",
+        "the product log recorded Requested format is not available, youtube-dl failed and Failed to recognize file format",
+        "the v0.40 add-on setup never started, setup process count was zero and add-on registration remained v0.39",
+        "source read-back showed the narrow forced web_safari decision was not a universal current-format guarantee"
+      ],
+      "summary": "The active-process upgrade could not begin because the installed main-v0.40 plus add-on-v0.39 Internet Video product path failed on the exact URL before setup; this is a release-blocking product-path result, not an installer result.",
+      "limitations": [
+        "One URL does not prove every site or YouTube format fails.",
+        "The bounded watcher not observing simultaneous yt-dlp and Deno does not prove that no short-lived child process started.",
+        "The log does not isolate web_safari, yt-dlp, Deno, mpv or service drift as the sole root cause.",
+        "No automatic second URL, client, add-on retry, tag or release action was performed."
+      ],
+      "next_action": "Treat release as blocked; after separate approval use a red-first isolated product-config regression and independent adversarial review before any new build."
+    },
+    {
+      "id": "EV-20260827-014",
+      "recorded_at_utc": "2026-08-27T09:22:20Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "baseline_commit": "9090cafaf9dea52c0aa0422fa8f00c6aa9795680",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "app/runtime_binaries.py",
+        "tests/test_runtime_binaries_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "official yt-dlp 2026.08.19 and mpv option-contract read-only review",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py -k \"youtube_extraction_preserves_web_safari_with_bounded_default_fallback or youtube_client_fallback_is_scoped_token_free_and_bounded\"",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py -k \"youtube_extraction_uses_an_explicit_bounded_client_allowlist or youtube_client_fallback_is_scoped_token_free_and_bounded\"",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py -k \"youtube_extraction_uses_an_explicit_bounded_client_allowlist or youtube_client_fallback_is_isolated_scoped_and_bounded\"",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py -k \"youtube_extraction_uses_an_explicit_bounded_client_allowlist or youtube_client_fallback_is_isolated_scoped_and_bounded\"",
+        "$env:MLC_CI='1'; python -m pytest -q tests/test_runtime_binaries_regressions.py",
+        "python -m py_compile app/runtime_binaries.py app/player.py tests/test_runtime_binaries_regressions.py",
+        "git diff --check",
+        "independent read-only adversarial diff and test-contract review"
+      ],
+      "subject": "Bounded isolated YouTube client allowlist for Internet Video format availability",
+      "evidence": [
+        "the first red test required a second client path while preserving web_safari; independent review then found default was a drifting group and the stronger explicit-allowlist boundary failed red before the final source change",
+        "production now emits one mpv-escaped extractor-args value for the exact explicit client order web_safari,visionos,web",
+        "the allowlist preserves web_safari, excludes default, all and android_vr drift, and adds no account or cookie input; player-client and fetch_pot are YouTube-scoped while config, plugin and remote-component isolation intentionally covers all packaged yt-dlp extractors",
+        "ignore-config, no-plugin-dirs, no-remote-components and fetch_pot=never prevent ambient yt-dlp configuration, plugin, remote-component and PO-token-provider behavior from silently widening the product contract",
+        "the final target pair passed two of two and the related deterministic family passed forty-two with two existing skips; py_compile and diff checks passed",
+        "independent adversarial review's default-group P1 was fixed with the explicit allowlist and exact negative assertions; no final P0 or P1 remained"
+      ],
+      "summary": "A regression-first deterministic change replaces the single web_safari client with an isolated explicit three-client YouTube allowlist and correct mpv comma escaping without changing non-YouTube runtime selection or system-fallback policy.",
+      "limitations": [
+        "No network URL, native libmpv option roundtrip, packaged executable, build, installer or installed-artifact acceptance ran.",
+        "The deterministic PASS does not prove the previously failing URL now opens or that every selected format avoids HTTP 403.",
+        "The two skips belong to existing platform-conditional cases and were not promoted to PASS.",
+        "A native libmpv option-map roundtrip and exact URL acceptance require separate approval after protected merge and rebuild."
+      ],
+      "next_action": "Request separate approval to commit this exact four-file source and append-only evidence package; do not build, install, push, tag or release."
     }
   ]
 }
