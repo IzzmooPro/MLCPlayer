@@ -9433,6 +9433,91 @@
         "No build retry, install, uninstall, push, tag, upload or release action was performed."
       ],
       "next_action": "Request separate approval to commit the two-document EV004/EV005 package; after clean readback request separate exact-artifact B2 physical acceptance approval."
+    },
+    {
+      "id": "EV-20260828-006",
+      "recorded_at_utc": "2026-08-27T22:03:47Z",
+      "proof_layer": "installed_artifact",
+      "result": "failed",
+      "commit": "a4a4ba207e8f233eea07680486f6ffb7a5e24b77",
+      "baseline_commit": "a4a4ba207e8f233eea07680486f6ffb7a5e24b77",
+      "working_tree_state": "clean before the physical cycle and before evidence recording",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_language_regressions.py",
+        "tests/test_installer_process_safety_regressions.py"
+      ],
+      "subject": "Exact B7/D4 physical B2 cycle and rejected suspended-Player close latency",
+      "commands": [
+        "read-only artifact, installed-state, registry, shortcut, user-data and target-process snapshots before and after each approved physical step",
+        "separately approved elevated silent v0.39 seed install, exact v0.39-to-v0.40 upgrade, both uninstall orders, clean install, same-version maintenance and final restore",
+        "single approved suspended exact installed Player fault run with an exact B7 artifact-hash guard, bounded watchdog and no automatic retry",
+        "read-only setup-log timestamp comparison for Starting installation process, Shutting down applications, Some applications could not be shut down, user Abort and log close"
+      ],
+      "artifacts": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55928017, "sha256": "B7EAA9972B347F2546BDC72B1B198917C6B7DDE4B5FE35D902EDC826C2FC8119"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"}
+      ],
+      "private_artifact_digests": [
+        {"name": "29-final-restored.json", "size_bytes": 32444, "sha256": "181092C38ECB17906F824BEA7C275F1D7AC1447C767A952C45BA78DC8B5A8C18"},
+        {"name": "55-main-suspended-player-pre.json", "size_bytes": 32704, "sha256": "BF4164DBEEE6C5495BE5D27EAC3DCF2258EF380A401BD92A659F559CB696B97F"},
+        {"name": "56-main-suspended-player-upgrade.log", "size_bytes": 2524, "sha256": "64163DA0549E0A75735A3FBE191E5538E5D003AF47FEB68524AF90F7DB65FA84"},
+        {"name": "57-main-suspended-player-return.json", "size_bytes": 32704, "sha256": "E90EDB4111E8B0FBD060D023F6DB003CF46B49F66EA6166884FD5E4D65208ECC"},
+        {"name": "58-main-suspended-player-leak.json", "size_bytes": 32444, "sha256": "649FFFF5DBC1FD8231E5FF3331C38F18D0F9C09EB7DFD122876043F4E0458176"}
+      ],
+      "evidence": [
+        "the normal exact B7/D4 path passed real v0.39-to-v0.40 main and add-on upgrades, two opposite uninstall orders, clean silent install, same-version maintenance, exact payload readback, preserved two-file user data and zero target-process leakage",
+        "the final restore left exact v0.40 main and add-on installed with 103 files, both uninstall records, Open-with registration, three shortcuts, exact two-file user data and zero target processes",
+        "the exact suspended-Player negative run stopped before copying; user selected Abort, setup exited 5, rollback restored all measured 103 installed plus two user files and controlled resume then normal close left zero target-process leakage",
+        "the same log measured 66.715 seconds from Restart Manager shutdown start at 00:53:58.252 to inability report at 00:55:04.967; the user explicitly rejected this latency and required a maximum near 5-10 seconds",
+        "no automatic physical retry followed the failed human UX boundary"
+      ],
+      "summary": "The exact artifacts passed the normal physical lifecycle and the suspended fault remained technically fail-closed, but complete B2 acceptance failed because the visible application-closing wait was 66.715 seconds and violated the user's 5-10-second UX ceiling.",
+      "limitations": [
+        "Technical Abort, rollback and leak safety do not override the failed human latency acceptance.",
+        "This result is bound to exact a4a4ba2 source, B7/D4 installer bytes, the measured Windows host and the suspended-Player scenario.",
+        "B2, tag and release remain blocked; no push, PR, merge, tag, upload or release was performed."
+      ],
+      "next_action": "Validate and commit only after separate approval the regression-first installer fast-fail source package; build and a single exact physical latency retry each require later separate approval."
+    },
+    {
+      "id": "EV-20260828-007",
+      "recorded_at_utc": "2026-08-27T22:03:47Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "a4a4ba207e8f233eea07680486f6ffb7a5e24b77",
+      "baseline_commit": "a4a4ba207e8f233eea07680486f6ffb7a5e24b77",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "packaging/MLCPlayer.iss",
+        "tests/test_installer_language_regressions.py",
+        "tests/test_installer_process_safety_regressions.py"
+      ],
+      "subject": "Regression-first maintenance fast-fail gate for a running Player",
+      "commands": [
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py -k rejects_a_running_player_before_restart_manager_waits (red: 1 failed)",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py (green: 9 passed)",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py tests/test_installer_language_regressions.py tests/test_installer_branding_regressions.py tests/test_inno_compile_preflight_regressions.py tests/test_continuity_regressions.py (first impact run: 1 failed, 59 passed; final: 60 passed)",
+        "git diff --check"
+      ],
+      "evidence": [
+        "the new process-safety regression first failed on the unchanged source because PrepareToInstall did not reject the running lifecycle mutex before Restart Manager",
+        "PrepareToInstall now validates the target first and only for reinstall or upgrade returns a localized error immediately when the process-lifetime MLCPlayer-Running mutex exists",
+        "CloseApplications=yes and the exact resource filter remain as a safety fallback; no force, taskkill, process-name kill, polling sleep or product-code change was added",
+        "the first impact run exposed a real eight-language contract omission; all eight supported languages now define the new message and the final bounded package passed 60 tests",
+        "the strengthened regression binds the Result assignment inside the maintenance-only mutex condition rather than checking loose token order; adversarial review also corrected the user instruction to close Player and restart Setup because Inno cannot continue in the same wizard after this error"
+      ],
+      "summary": "The minimal installer-only source change deterministically bypasses the long Restart Manager path for a running MLC Player by failing fast before copy while retaining safe fallback behavior.",
+      "limitations": [
+        "Deterministic source tests do not prove compiled Inno behavior or the 5-10-second physical latency target.",
+        "The new behavior asks the user to close MLC Player and restart Setup; it does not automatically force or remotely close the application.",
+        "The five-file package is uncommitted; no build, install, retry, push, PR, merge, tag, upload or release followed."
+      ],
+      "next_action": "Complete independent adversarial readback and required JSON, append-only, continuity and private-path checks; then request separate commit approval."
     }
   ]
 }
