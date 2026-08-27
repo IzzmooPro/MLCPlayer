@@ -8465,6 +8465,74 @@
         "The exact artifacts have not completed mandatory release-process step B2 installed-artifact acceptance; tag and release remain blocked."
       ],
       "next_action": "Request separate approval to commit this exact two-document EV024-EV025 evidence package; do not push, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-026",
+      "recorded_at_utc": "2026-08-27T13:21:30Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "50c60ee42835fe6304d55eb2a51c9547e9c9dd23",
+      "baseline_commit": "50c60ee42835fe6304d55eb2a51c9547e9c9dd23",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "gh run watch 33076170838 --repo IzzmooPro/MLCPlayer --exit-status",
+        "gh run view 33076170838 --repo IzzmooPro/MLCPlayer --job 98530815065 --log-failed",
+        "gh pr view 65 --repo IzzmooPro/MLCPlayer --json state,headRefOid,mergeable,mergeStateStatus,statusCheckRollup"
+      ],
+      "subject": "PR 65 documentation check rejects shortened canonical quality paths",
+      "evidence": [
+        "required pull-request run 33076170838 job 98530815065 failed on exact head 50c60ee42835fe6304d55eb2a51c9547e9c9dd23; PR 65 remained OPEN, MERGEABLE and BLOCKED",
+        "the documentation and continuity family reported 248 passed and 1 failed before the full CI-safe suite was skipped",
+        "the single failure was test_quality_documents_are_wired_into_the_current_handoff because docs/QUALITY_EVOLUTION_PLAN.md was no longer an exact substring of CONTINUITY.md",
+        "ledger append-only verification passed before the documentation family failed"
+      ],
+      "summary": "PR 65 failed one documentation-contract test after continuity compaction removed the docs prefix from canonical quality-document paths.",
+      "limitations": [
+        "This is a failed hosted result; 248 passing documentation tests do not promote the required check or PR to PASS.",
+        "The full CI-safe test suite did not run and is not claimed.",
+        "The failed run was not retried."
+      ],
+      "next_action": "Reproduce the exact contract failure locally and restore only the four canonical docs-prefixed quality paths; do not change product code or retry the failed run."
+    },
+    {
+      "id": "EV-20260827-027",
+      "recorded_at_utc": "2026-08-27T13:21:30Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "50c60ee42835fe6304d55eb2a51c9547e9c9dd23",
+      "baseline_commit": "50c60ee42835fe6304d55eb2a51c9547e9c9dd23",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "python -m pytest -q --noconftest tests/test_quality_evolution_plan_regressions.py::test_quality_documents_are_wired_into_the_current_handoff (before fix: 1 failed)",
+        "python -m pytest -q --noconftest tests/test_quality_evolution_plan_regressions.py::test_quality_documents_are_wired_into_the_current_handoff (after fix: 1 passed)",
+        "python -m pytest -q --noconftest tests/test_continuity_regressions.py tests/test_change_workflow_regressions.py tests/test_quality_evolution_plan_regressions.py tests/test_readme_user_guidance_regressions.py tests/test_release_documentation_regressions.py tests/test_signpath_readiness_regressions.py tests/test_video_format_acceptance_plan_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python scripts/verify_ledger_append_only.py --base-ref origin/master",
+        "python -c \"import json,pathlib,subprocess,os,tempfile; norm=lambda s:s.replace(chr(92),'/').casefold(); needles=(norm(os.environ['USERPROFILE']),norm(tempfile.gettempdir()),'.'+'codex/visualizations','.'+'codex/generated_images'); base=json.loads(subprocess.check_output(['git','show','HEAD:docs/VERIFICATION_LEDGER.json'],text=True,encoding='utf-8')); cur=json.load(open('docs/VERIFICATION_LEDGER.json',encoding='utf-8')); new=cur['entries'][len(base['entries']):]; blobs=[json.dumps(new),pathlib.Path('docs/CONTINUITY.md').read_text(encoding='utf-8')]; assert not any(norm(n) in norm(b) for n in needles for b in blobs); print('PRIVATE_PATH_SCAN_OK',len(new))\"",
+        "git diff --check"
+      ],
+      "subject": "Restore canonical docs-prefixed quality-document paths in continuity",
+      "evidence": [
+        "the exact hosted assertion reproduced locally as one failure on the committed 50c60ee baseline",
+        "only the four canonical quality-document references in CONTINUITY.md regained their docs prefixes; product code and tests are unchanged",
+        "the exact target passed once after the fix and the same seven-file CI documentation family passed all 249 tests",
+        "continuity remained within its two-hundred-line contract",
+        "JSON parsing passed and ledger verification reported LEDGER_APPEND_ONLY_OK with the exact 284-entry committed prefix and two unique appended IDs; an initial self-referential privacy scan was rejected because its own literal needles matched, then the corrected runtime-derived scan covered commands plus all new entry content and continuity and reported PRIVATE_PATH_SCAN_OK for both entries"
+      ],
+      "summary": "A minimal continuity-only path correction restores the four exact quality-document links and passes the complete CI documentation family.",
+      "limitations": [
+        "Deterministic documentation tests do not repair the failed hosted run; a new required PR run is needed only after separately approved commit and push.",
+        "No full CI-safe, native, build, installer, installed-artifact, tag or release evidence is added."
+      ],
+      "next_action": "Request separate approval to commit the exact two-document EV026-EV027 repair package; do not push, retry, merge, install, tag or release."
     }
   ]
 }

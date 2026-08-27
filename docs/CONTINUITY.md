@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `2e75fbd538ec2026ab30a2932c40767f74a5486e`
+- Kayıt hazırlanırken doğrulanan HEAD: `50c60ee42835fe6304d55eb2a51c9547e9c9dd23`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-build-evidence-2e75fbd` (`origin/master` ile `0/0`; EV024-EV025 iki-belge kanıt paketi uncommitted)
-- Son kanıt: `EV-20260827-025`
+- Dal: `codex/v040-build-evidence-2e75fbd` (uzak görev dalıyla `0/0`, `origin/master`dan `1/0`; PR #65 blocked, EV026-EV027 uncommitted)
+- Son kanıt: `EV-20260827-027`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -109,6 +109,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   süreçleri sıfır (`EV-20260827-025`). Add-on'a özgü payload-final kapısı
   tanımlı/kanıtlı değil; exact-artifact B2 fiziksel kabulü **NOT_RUN**,
   tag/release blokludur.
+- PR #65 run `33076170838`, continuity'de dört kalite yolunun `docs/` öneki
+  sıkıştırılırken düşürüldüğünü **248 passed / 1 failed** ile yakaladı; retry yok
+  (`EV-20260827-026`). Exact kırmızıdan sonra yalnız yollar düzeltildi; hedef
+  **1 passed**, CI-belge ailesi **249 passed** (`EV-20260827-027`).
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -172,9 +176,8 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-024`–`025` hosted/source-build kanıt paketini
-ayrıca açık onayla commit et; push, fiziksel kurulum kabulü, tag veya release
-başlatma.
+Exact iki belgeli `EV-20260827-026`–`027` CI-failure/path-fix paketini ayrıca
+açık onayla commit et; push, retry, merge, fiziksel kabul, tag veya release yok.
 
 ## Sonraki sıra
 
@@ -192,8 +195,6 @@ başlatma.
 
 ## Kanonik kayıt kaynakları
 
-- Canlı durum: `CONTINUITY.md`; kronoloji: `CONTINUITY_HISTORY.md`; kanıt:
-  `VERIFICATION_LEDGER.json`; tarihçe: `PROJECT_STATUS.md`, `ROADMAP.md`, `ENGINEERING_AUDIT.md`.
+- Canlı durum: `CONTINUITY.md`; kronoloji: `CONTINUITY_HISTORY.md`; kanıt: `VERIFICATION_LEDGER.json`; tarihçe: `PROJECT_STATUS.md`, `ROADMAP.md`, `ENGINEERING_AUDIT.md`.
 - Paketleme/akış/yayın: `PACKAGING_PLAN.md`, `CHANGE_WORKFLOW.md`, `RELEASE_PROCESS.md`.
-- Kalite/mimari/Windows: `QUALITY_EVOLUTION_PLAN.md`, `ARCHITECTURE_INVENTORY.md` /
-  `.json`, `WINDOWS_ACCEPTANCE_MATRIX.md` ve video formatı kabul dosyaları.
+- Kalite/mimari/Windows: `docs/QUALITY_EVOLUTION_PLAN.md`, `docs/ARCHITECTURE_INVENTORY.md`, `docs/ARCHITECTURE_INVENTORY.json`, `docs/WINDOWS_ACCEPTANCE_MATRIX.md` ve video formatı kabul dosyaları.
