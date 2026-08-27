@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8`
+- Kayıt hazırlanırken doğrulanan HEAD: `2e75fbd538ec2026ab30a2932c40767f74a5486e`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/internet-video-format-fallback` (origin dalından `1`, `origin/master`dan 7 ileride; EV023 provenance kaydı uncommitted)
-- Son kanıt: `EV-20260827-023`
+- Dal: `codex/v040-build-evidence-2e75fbd` (`origin/master` ile `0/0`; EV024-EV025 iki-belge kanıt paketi uncommitted)
+- Son kanıt: `EV-20260827-025`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -101,6 +101,14 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Internet Video düzeltmesi hedef **2/2**, aile **42 passed / 2 skipped** verdi; paket `3abdf13`, provenance `e64f8c2`, koruma `07df9c1` olarak bağlıdır (`EV-20260827-014/015/016`).
   PR #64 `07df9c1` head'i **5059 passed / 30 skipped / 0 failed** verdi (`EV-20260827-017`); yalnız belge commit'i `d465ee2` sonrasında yeni required run Qt testinde native AV ile FAILED (`EV-20260827-018`).
   Regression-first session sahipliği exact `417877c` oldu; `50c4928` hosted koşumu native AV olmadan **5059 passed / 30 skipped / 2 failed** verdi. İki geçici `QMenu` test ömrü kırmızı **2 failed**, sonra hedef/aile **2/32 passed**, karşıt P0/P1/P2=0 ve exact commit `f658fc1` ile test-only düzeltildi (`EV-20260827-019/020/021/022/023`). Ağ/native NOT_RUN.
+- PR #64 exact `2e75fbd` merge commit'iyle protected master'a alındı. Ayrı
+  exact-master dispatch **5061 passed / 30 skipped / 0 failed** verdi
+  (`EV-20260827-024`). Resmî build iki v0.40 setup ve doğrulanan detached
+  Ed25519 imzalarını üretti; ana/add-on EXE `7cdb6b58...533089d` /
+  `d4a4d799...f9e675`, Authenticode `NotSigned`; ölçülen build/ürün-hedef
+  süreçleri sıfır (`EV-20260827-025`). Add-on'a özgü payload-final kapısı
+  tanımlı/kanıtlı değil; exact-artifact B2 fiziksel kabulü **NOT_RUN**,
+  tag/release blokludur.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -164,15 +172,14 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-023` provenance kaydını ayrıca açık onayla commit et; push, CI retry, merge, build, kurulum, tag veya release başlatma.
+Exact iki belgeli `EV-20260827-024`–`025` hosted/source-build kanıt paketini
+ayrıca açık onayla commit et; push, fiziksel kurulum kabulü, tag veya release
+başlatma.
 
 ## Sonraki sıra
 
-1. Protected merge sonrası build ve fiziksel kabulü ayrı onaylarla sıfırdan
-   uygula; silent/ikinci uninstall/invalid-target bitmeden tag/release yapma.
-2. Kalan `P0-06`, `P0-07`, `P0-08` boşluklarını yayın sonrasına bırak.
-3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme
-   politikasını ürün kararı olarak ele al.
+1. B2 fiziksel kabulünde silent/ikinci uninstall/invalid-target bitmeden tag/release yapma.
+2. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 
@@ -185,16 +192,8 @@ Exact iki belgeli `EV-20260827-023` provenance kaydını ayrıca açık onayla c
 
 ## Kanonik kayıt kaynakları
 
-- Canlı durum ve tek sonraki adım: `docs/CONTINUITY.md`.
-- Ayrılmış continuity kronolojisi: `docs/CONTINUITY_HISTORY.md`.
-- Makinece kanıt: `docs/VERIFICATION_LEDGER.json`.
-- Tarihsel ayrıntı: `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`,
-  `docs/ENGINEERING_AUDIT.md`.
-- Paketleme ve installer kararları: `docs/PACKAGING_PLAN.md`.
-- Değişiklik akışı: `docs/CHANGE_WORKFLOW.md`.
-- Yayın sırası: `docs/RELEASE_PROCESS.md`.
-- Mimari kalite programı: `docs/QUALITY_EVOLUTION_PLAN.md`.
-- Güncel mimari envanter: `docs/ARCHITECTURE_INVENTORY.md` ve
-  `docs/ARCHITECTURE_INVENTORY.json`.
-- Gerçek Windows senaryoları: `docs/WINDOWS_ACCEPTANCE_MATRIX.md` ve video
-  formatı kabul dosyaları.
+- Canlı durum: `CONTINUITY.md`; kronoloji: `CONTINUITY_HISTORY.md`; kanıt:
+  `VERIFICATION_LEDGER.json`; tarihçe: `PROJECT_STATUS.md`, `ROADMAP.md`, `ENGINEERING_AUDIT.md`.
+- Paketleme/akış/yayın: `PACKAGING_PLAN.md`, `CHANGE_WORKFLOW.md`, `RELEASE_PROCESS.md`.
+- Kalite/mimari/Windows: `QUALITY_EVOLUTION_PLAN.md`, `ARCHITECTURE_INVENTORY.md` /
+  `.json`, `WINDOWS_ACCEPTANCE_MATRIX.md` ve video formatı kabul dosyaları.
