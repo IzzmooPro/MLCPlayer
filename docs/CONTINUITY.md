@@ -6,11 +6,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `34b22e2986ff0fe82aa014ac866691f9f980cf5b`
+- Kayıt hazırlanırken doğrulanan HEAD: `06cebc4a7d6e94cdda76d518fe91dbfcb2c5a830`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/p0-tracks-preflight-hardening` (test-only hardening exact
-  `34b22e2`; yalnız commit-provenance belgeleri uncommitted)
-- Son kanıt: `EV-20260827-004`
+- Dal: `codex/p0-tracks-timeout-evidence` (exact merged-master tabanı
+  `06cebc4`; yalnız başarısız native kayıt belgeleri uncommitted)
+- Son kanıt: `EV-20260827-005`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -43,8 +43,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 ## Kalite kabul özeti
 
 - Windows P0 matrisi: `WIN-P0-01`, `WIN-P0-02`, `WIN-P0-04` ve `WIN-P0-05`
-  PASSED; track değiştirme, drag/drop, playlist sınırları ve IPC için
-  `P0-03`, `P0-06`, `P0-07`, `P0-08` NOT_RUN.
+  PASSED; track değiştirme `P0-03` FAILED; drag/drop, playlist sınırları ve
+  IPC için `P0-06`, `P0-07`, `P0-08` NOT_RUN.
 - Video biçimi matrisi: SDR ekranda `VF-CORE-01` ve HDR ekranda SDR-on-HDR
   `VF-CORE-02` exact native ve kontrollü insan ramp kabulüyle PASSED. Kalan
   14 biçim satırı ve genel `WIN-P2-01` BLOCKED; bu iki PASS genel HDR/format
@@ -97,15 +97,15 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   korundu, yalnız add-on uninstaller çifti ile `InstallDate` beklenen bakım
   metadata'sı olarak değişti ve kayıtlı süreç envanteri sıfırdı
   (`EV-20260826-083`). Log/exit code, silent, rollback ve uninstall ölçülmedi.
-- `WIN-P0-03` test-only runner'ı PR #58 ile exact iki ebeveynli `896465f`
-  merge commit'ine ulaştı; exact-head CI **5044 passed / 30 skipped / 0
-  failed** verdi. Native öncesi karşıt inceleme parent imleç restore hatasının
-  all-PASS koşumda exit 0 kalabildiğini buldu; regression-first minimal
-  düzeltmeden sonra ilgili aile **211 passed** verdi. Repo dışındaki sentetik
-  fixture 1 video, 2 ses ve 2 altyazı ile fingerprint/ffprobe kapısını geçti;
-  exact hardening kaynak commit'i `34b22e2` olarak geri okundu
-  (`EV-20260827-003/004`). Ürün kodu değişmedi, native koşum yapılmadı ve
-  satır hâlâ **NOT_RUN**.
+- `WIN-P0-03` hardening'i PR #59 ile exact iki ebeveynli `06cebc4` merge
+  commit'ine ulaştı; exact-head CI **5045 passed / 30 skipped / 0 failed**
+  verdi. Ayrı onaylı tek native `tracks` koşumunda fixture kapısı 1 video,
+  2 ses, 2 altyazı, stabil ID/current-selected ve `ao=null` ile geçti; ilk
+  audio sonuç satırından önce senkron QMenu sınırında 180.2 saniye TIMEOUT
+  oldu. Exit 1, eksik final marker'lar, Job Object active=0, parent cursor
+  restore ve ölçülen ilgili süreç=0 kaydedildi (`EV-20260827-005`). Ses veya
+  altyazı geçişi ve ürün bug'ı kanıtlanmadı; otomatik retry yapılmadı ve satır
+  **FAILED**.
 - C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
   merge edildi; exact commit/run/parent ayrıntıları append-only
   `EV-20260826-009`–`017` ve `EV-20260826-028` kayıtlarındadır.
@@ -159,15 +159,14 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-004` commit-provenance paketini ayrıca açık
-onayla commit et; provenance tamamlanmadan push/native başlatma.
+Exact beş dosyalı başarısız `EV-20260827-005` native kayıt paketini ayrıca
+açık onayla commit et; kök neden hardening'i veya native retry başlatma.
 
 ## Sonraki sıra
 
-1. P0-03 hardening commit provenance'ından sonra ayrıca açık onayla exact
-   fingerprint'li çok-parçalı fixture üzerinde yalnız `tracks` native grubunu
-   bir kez çalıştır; hata veya BLOCKED sonucunda incelemeden otomatik retry
-   yapma.
+1. Ayrı onayla test-only QMenu iç watchdog, bounded popup-chain cleanup ve faz
+   marker hardening'ini regression-first uygula; protected PR tamamlanmadan
+   native retry yapma.
 2. Kalan `P0-06`, `P0-07`, `P0-08` boşlukları için aynı çift-süzgeçli dar
    kabul sırasını uygula.
 3. Thumbnail timeline genişlemesinden önce kalıcı cache boyut/yaş temizleme

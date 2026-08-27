@@ -7587,6 +7587,62 @@
         "No remote branch or hosted CI evidence exists for this commit, and no native player was launched."
       ],
       "next_action": "Commit this exact two-document EV004 provenance record; then request separate approval before pushing the task branch."
+    },
+    {
+      "id": "EV-20260827-005",
+      "recorded_at_utc": "2026-08-27T05:41:00Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "06cebc4a7d6e94cdda76d518fe91dbfcb2c5a830",
+      "artifact_source_commit": "06cebc4a7d6e94cdda76d518fe91dbfcb2c5a830",
+      "baseline_commit": "06cebc4a7d6e94cdda76d518fe91dbfcb2c5a830",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/QUALITY_EVOLUTION_PLAN.md",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_quality_evolution_plan_regressions.py"
+      ],
+      "commands": [
+        "gh pr view 59 --json state,headRefOid,baseRefOid,mergeable,mergeStateStatus,statusCheckRollup; gh pr merge 59 --merge; gh pr view 59 --json state,mergedAt,mergeCommit,headRefOid,baseRefOid,url",
+        "git fetch origin; git show -s --format=%H%n%P%n%s origin/master; git switch master; git merge --ff-only origin/master; git rev-list --left-right --count HEAD...origin/master",
+        "preflight: exact HEAD/origin, clean tree, fixture/probe/DLL SHA-256, live ffprobe stream/default inventory and corrected relevant-process baseline zero",
+        "MLC_NATIVE_SMOKE=1, MLC_NATIVE_TEST_VIDEO=<private fixture>, isolated private TEMP/settings followed by python tests/run_physical_acceptance.py tracks",
+        "read private summary/log; inspect exact markers, exit, timeout, Job Object active count, parent cursor restore and global relevant-process-after inventory",
+        "red: python -m pytest -q tests/test_hdr_acceptance_contract_regressions.py tests/test_physical_playback_seek_regressions.py tests/test_quality_evolution_plan_regressions.py tests/test_video_format_acceptance_plan_regressions.py (1 failed, 26 passed because the prior contract required four NOT_RUN P0 rows)",
+        "green: python -m pytest -q tests/test_hdr_acceptance_contract_regressions.py tests/test_physical_playback_seek_regressions.py tests/test_quality_evolution_plan_regressions.py tests/test_video_format_acceptance_plan_regressions.py (27 passed)",
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py (15 passed)",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json; git diff --check; private-path scan of the working-tree diff"
+      ],
+      "private_artifact_digests": {
+        "WIN-P0-03-tracks.mkv": "704f985b606d6c3dbd4335c5e6e19778cc076a96c7f6e80eb3c46408f271a2bb",
+        "WIN-P0-03-tracks.ffprobe.json": "3e39269a4631cc8cffda64963263fb9cdf7df6b5fc34b7c2ce39b206065f6263",
+        "group13-tracks.log": "cac50d638e3d8848dd2b4253ee6719b0cd36a1c6179ccc8897eb02a6ebf0f651",
+        "summary.json": "b93249888a28d62e55074ec1801b5bc316215206f155b10145cd178184b672da",
+        "MLCPlayer.ini": "5de7876877f9a646d38d4183bbf13c6a16f40bac7884df19c30b61e9e542cc90"
+      },
+      "subject": "WIN-P0-03 exact native track-switch TIMEOUT",
+      "evidence": [
+        "PR 59 exact head fec293b418b835a88bb16325251eefcc651e51fc passed required run 33042480519 with 5045 passed, 30 skipped and zero failed, then merged as two-parent protected-master commit 06cebc4a7d6e94cdda76d518fe91dbfcb2c5a830; local and origin master read back clean and zero ahead/zero behind",
+        "the exact preflight revalidated the 1446726-byte fixture SHA-256 704f985b606d6c3dbd4335c5e6e19778cc076a96c7f6e80eb3c46408f271a2bb, private probe identity, one video/two audio/two subtitle streams, one default audio and subtitle, and mpv-2.dll SHA-256 de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e",
+        "an initial preflight process filter stopped before native launch because its own PowerShell command line caused a false positive; the corrected filter was restricted to target executables and Python native-runner commands and read a true zero baseline",
+        "the separately approved single native tracks run started once on exact 06cebc4 with private isolated TEMP and settings and no automatic retry",
+        "libmpv admitted the fixture with duration 8.021, one video, audio IDs 1 and 2, subtitle IDs 1 and 2, stable exact selected/current state and ao=null; this sole fixture-contract RESULT passed",
+        "no audio-switch or subtitle-switch RESULT followed; after 180.2 seconds the parent classified TIMEOUT, child exit was 1 and MARK_DONE, APP-exec-return, child-restore and group-summary markers were all absent",
+        "timeout cleanup measured zero active processes in the assigned Job Object; the parent restored the saved cursor on its first attempt and a separate post-run target-name/command-line inventory found zero relevant process",
+        "independent source and adversarial reviews bounded the silence to one of the first two physical_menu_action calls inside the synchronous QMenu path; the 5-second pump cannot bound a nested QMenu.exec loop, but current evidence cannot distinguish popup-chain failure, synchronous subtitle rescan, aid setter blocking or prove a product track-switch defect",
+        "the prior quality contract then failed red because it required four NOT_RUN P0 rows; matrix, quality-plan and regression expectations were updated together to the exact four PASSED, one FAILED and three NOT_RUN state, after which the quality family completed with 27 passed and continuity/append-only tests completed with 15 passed"
+      ],
+      "summary": "The exact first WIN-P0-03 native tracks run failed by TIMEOUT after fixture admission and before any audio or subtitle selection result; cleanup succeeded within the measured boundaries and no retry occurred.",
+      "limitations": [
+        "WIN-P0-03 is FAILED, not PASS or NOT_RUN. No audio A-to-B, subtitle S1-to-S2-to-S1, menu checked read-back, overlay state, normal product close, stop-to-terminate sequence or child cursor restore was proven.",
+        "The last fixture RESULT does not identify a product bug. The hang may be in QMenu popup cleanup, synchronous rescan-external-files, a libmpv aid setter or another uninstrumented menu phase.",
+        "Job Object active zero covers the assigned job tree at read-back; the existing Popen-to-job-assignment race and short-lived or differently named global processes remain outside an absolute no-leak claim.",
+        "Parent RUNNER_RESTORED ok=True verifies cursor position only; foreground restoration was attempted but not independently read back.",
+        "Private evidence paths are intentionally omitted; this failed native evidence does not establish installed-artifact, build, hosted, visual, audible or release acceptance."
+      ],
+      "next_action": "Commit the exact failed native record package; then request separate approval for regression-first test-only QMenu phase markers, an inner watchdog and bounded popup-chain cleanup before any new native retry."
     }
   ]
 }

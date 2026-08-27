@@ -1,6 +1,6 @@
 # MLC Player gerçek Windows kabul matrisi
 
-**Durum:** P0 4 PASSED / 4 NOT_RUN; P1 6 NOT_RUN; P2 3 BLOCKED
+**Durum:** P0 4 PASSED / 1 FAILED / 3 NOT_RUN; P1 6 NOT_RUN; P2 3 BLOCKED
 
 **Plan tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`
 
@@ -37,7 +37,7 @@ yazılır.
 | --- | --- | --- | --- |
 | WIN-P0-01 | Uygulama açılışı ve normal kapanış | Exit 0, final marker, stderr sınıflaması, süreç sızıntısı yok | PASSED |
 | WIN-P0-02 | Gerçek yerel video oynatma | Süre ilerler, kare/oynatma kanıtı vardır, medya değişmez | PASSED |
-| WIN-P0-03 | Ses ve yerel altyazı parçası değiştirme | Seçim libmpv read-back ile doğrulanır | NOT_RUN |
+| WIN-P0-03 | Ses ve yerel altyazı parçası değiştirme | Seçim libmpv read-back ile doğrulanır | FAILED |
 | WIN-P0-04 | Seek, duraklatma ve devam | Zaman/state read-back beklenen aralıkta | PASSED |
 | WIN-P0-05 | Tam ekran, native resize ve geri dönüş | Boyut/state doğru, donma ve kontrol kaybı yok | PASSED |
 | WIN-P0-06 | Dosya/altyazı sürükle-bırak | Doğru medya veya altyazı uygulanır | NOT_RUN |
@@ -88,12 +88,15 @@ değiştirmez.
   aktif süreç şartını fail-closed uygular (`EV-20260827-001`).
 - **Exact girdiler:** en az iki ses ve iki altyazı parçası içeren gerçek medya;
   ayrıca `MLC_NO_SUB_VIDEO` için altyazısız gerçek medya ve runtime kimliği.
-- **Açık boşluk:** `tracks` grubu deterministik olarak hazırdır fakat henüz
-  native çalıştırılmadı. Gerçek QMenu popup koordinasyonu, exact fixture ve
-  runtime davranışı UNMEASURED olduğundan satır **NOT_RUN** kalır. İlk native
-  koşum ayrı onay ister; hata/BLOCKED sonrası otomatik retry yapılmaz. Bütün
-  fiziksel child grupları gerçek hoparlörü korumak için `ao=null` kullanır;
-  bu nedenle duyulan ses kabulü iddia edilmez.
+- **Son native sonuç:** exact `06cebc4` ve fingerprint'li sentetik fixture ile
+  tek `tracks` koşumu fixture/state/`ao=null` kapısını geçti, fakat ilk audio
+  sonuç satırından önce senkron QMenu sınırında 180.2 saniye TIMEOUT oldu.
+  Exit 1 ve final marker'ların yokluğu nedeniyle satır **FAILED**; audio veya
+  subtitle seçim sonucu ve normal ürün kapanışı kanıtlanmadı
+  (`EV-20260827-005`). Job Object active=0, parent cursor restore ve ölçülen
+  ilgili süreç=0 yalnız cleanup sınırını destekler. Otomatik retry yapılmaz;
+  önce test-only iç watchdog/faz-marker hardening'i gerekir. `ao=null`
+  nedeniyle duyulan ses kabulü ayrıca iddia edilmez.
 
 ### WIN-P0-04 — Seek, duraklatma ve devam
 
@@ -491,7 +494,8 @@ boşluk belgelenirse eklenir.
 
 ## Kalan kabul boşlukları
 
-P0 eşlemesi tamamlandı. Açık `WIN-P0-03/06/07/08` satırları `NOT_RUN` kalır;
+P0 eşlemesi tamamlandı. `WIN-P0-03` FAILED; açık `WIN-P0-06/07/08` satırları
+`NOT_RUN` kalır;
 P1 ve P2 satırları tabloda yazan sınırların dışına taşınmaz. Gerçek yürütme
 sırası yalnız `docs/CONTINUITY.md` içindeki sıradaki tek adımdır. Hiçbir native
 koşumu veya kurulum açık kullanıcı onayı olmadan başlatılmaz.

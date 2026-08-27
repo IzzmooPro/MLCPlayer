@@ -81,7 +81,7 @@ göre seçilmiş ve kapsam kullanıcıya sunulmuş olmalıdır.
 
 ## Faz 2 — Gerçek Windows başlangıç kabulü
 
-**Durum:** AKTİF — P0 EŞLEMESİ TAMAM, 4 PASS / 0 FAIL / 4 NOT_RUN
+**Durum:** AKTİF — P0 EŞLEMESİ TAMAM, 4 PASS / 1 FAIL / 3 NOT_RUN
 
 `docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindeki P0 senaryoları exact commit,
 runtime ve mümkünse artifact SHA-256 kimliğiyle çalıştırılır. Var olan native
