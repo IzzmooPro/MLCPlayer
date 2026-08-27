@@ -6,11 +6,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `896465fb28d8f2f1016d0a783cfff10bb7939e54`
+- Kayıt hazırlanırken doğrulanan HEAD: `34b22e2986ff0fe82aa014ac866691f9f980cf5b`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/p0-tracks-preflight-hardening` (exact merged-master tabanı
-  `896465f`; test-only fail-closed düzeltme ve kayıt paketi uncommitted)
-- Son kanıt: `EV-20260827-003`
+- Dal: `codex/p0-tracks-preflight-hardening` (test-only hardening exact
+  `34b22e2`; yalnız commit-provenance belgeleri uncommitted)
+- Son kanıt: `EV-20260827-004`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -102,9 +102,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   failed** verdi. Native öncesi karşıt inceleme parent imleç restore hatasının
   all-PASS koşumda exit 0 kalabildiğini buldu; regression-first minimal
   düzeltmeden sonra ilgili aile **211 passed** verdi. Repo dışındaki sentetik
-  fixture 1 video, 2 ses ve 2 altyazı ile fingerprint/ffprobe kapısını geçti
-  (`EV-20260827-003`). Ürün kodu değişmedi, native koşum yapılmadı ve satır
-  hâlâ **NOT_RUN**.
+  fixture 1 video, 2 ses ve 2 altyazı ile fingerprint/ffprobe kapısını geçti;
+  exact hardening kaynak commit'i `34b22e2` olarak geri okundu
+  (`EV-20260827-003/004`). Ürün kodu değişmedi, native koşum yapılmadı ve
+  satır hâlâ **NOT_RUN**.
 - C yönü seçim, continuity ve protected-master kayıt zinciri PR #50–#52 ile
   merge edildi; exact commit/run/parent ayrıntıları append-only
   `EV-20260826-009`–`017` ve `EV-20260826-028` kayıtlarındadır.
@@ -158,8 +159,8 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact test-only hardening ve `EV-20260827-003` kayıt paketini ayrıca açık
-onayla commit et; commit provenance'ı tamamlanmadan native başlatma.
+Exact iki belgeli `EV-20260827-004` commit-provenance paketini ayrıca açık
+onayla commit et; provenance tamamlanmadan push/native başlatma.
 
 ## Sonraki sıra
 

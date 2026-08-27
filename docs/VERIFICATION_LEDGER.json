@@ -7552,6 +7552,41 @@
         "This uncommitted deterministic package does not upgrade WIN-P0-03 from NOT_RUN and cannot inherit hosted, native, installed-artifact or release acceptance."
       ],
       "next_action": "Request separate approval to commit the exact test-only hardening and EV003 record package; after commit provenance is durable, request a new separate approval for one exact tracks native run with no automatic retry."
+    },
+    {
+      "id": "EV-20260827-004",
+      "recorded_at_utc": "2026-08-27T05:24:30Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "34b22e2986ff0fe82aa014ac866691f9f980cf5b",
+      "evidence_commit": "34b22e2986ff0fe82aa014ac866691f9f980cf5b",
+      "baseline_commit": "34b22e2986ff0fe82aa014ac866691f9f980cf5b",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch; git diff --name-only; git diff --check; python -m json.tool docs/VERIFICATION_LEDGER.json; python -m pytest -q tests/test_physical_acceptance_runner_regressions.py tests/test_continuity_regressions.py tests/test_ledger_append_only_regressions.py",
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json tests/run_physical_acceptance.py tests/test_physical_acceptance_runner_regressions.py; git commit -m test: fail closed on parent cursor restore",
+        "git show -s --format=%H%n%P%n%s HEAD; git show --stat --oneline --no-renames HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "P0-03 parent cursor hardening commit provenance",
+      "evidence": [
+        "the exact four-file test-only hardening and EV003 record package was committed as 34b22e2986ff0fe82aa014ac866691f9f980cf5b with sole parent 896465fb28d8f2f1016d0a783cfff10bb7939e54 and subject test: fail closed on parent cursor restore",
+        "the commit read-back contained only tests/run_physical_acceptance.py, its runner regression, docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json; no product source or private fixture file was included",
+        "the pre-commit closure completed with 45 passed across the runner, continuity and append-only ledger tests, valid ledger JSON and clean diff check",
+        "after commit the task branch was clean and measured one commit ahead and zero behind origin/master",
+        "the deterministic red/green, 211-test impact family, private fixture fingerprint, zero target-process read-back and independent counter-review remain the exact pre-commit evidence recorded by EV-20260827-003",
+        "no push, pull request, native run, build, installation, tag or release action was performed"
+      ],
+      "summary": "Commit 34b22e2986ff0fe82aa014ac866691f9f980cf5b is the exact durable source identity for the parent cursor fail-closed hardening and private fixture preflight record.",
+      "limitations": [
+        "This record binds source provenance only and does not upgrade WIN-P0-03 from NOT_RUN.",
+        "The current two-document provenance record is uncommitted until separately approved.",
+        "No remote branch or hosted CI evidence exists for this commit, and no native player was launched."
+      ],
+      "next_action": "Commit this exact two-document EV004 provenance record; then request separate approval before pushing the task branch."
     }
   ]
 }
