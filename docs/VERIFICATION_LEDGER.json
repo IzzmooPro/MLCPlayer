@@ -7808,6 +7808,41 @@
         "This is source-checkout native-smoke evidence, not installed-artifact, build, hosted CI, release or acceptance for WIN-P0-06/07/08."
       ],
       "next_action": "Request separate approval to commit this exact five-file EV009 native evidence package; do not build, install or start another native scenario under that approval."
+    },
+    {
+      "id": "EV-20260827-010",
+      "recorded_at_utc": "2026-08-27T07:36:20Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "66b4584d1aa51121bec4c4892f4d409446fc1ad8",
+      "evidence_commit": "66b4584d1aa51121bec4c4892f4d409446fc1ad8",
+      "baseline_commit": "66b4584d1aa51121bec4c4892f4d409446fc1ad8",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git status --short --branch; git rev-parse HEAD; git rev-parse origin/master; git rev-list --left-right --count HEAD...origin/master; git diff --name-only; git diff --check; git switch -c codex/p0-tracks-native-pass",
+        "git add -- docs/CONTINUITY.md docs/QUALITY_EVOLUTION_PLAN.md docs/VERIFICATION_LEDGER.json docs/WINDOWS_ACCEPTANCE_MATRIX.md tests/test_quality_evolution_plan_regressions.py; git diff --cached --name-status; git diff --cached --check; git commit -m docs: record physical track native pass",
+        "git show -s --format=%H%n%P%n%s HEAD; git show --stat --oneline --no-renames HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "WIN-P0-03 native PASS evidence commit provenance",
+      "evidence": [
+        "the exact five-file EV009 native record package was committed as 66b4584d1aa51121bec4c4892f4d409446fc1ad8 with sole parent 18a88b82478d381568c83dda4522e4445836a911 and subject docs: record physical track native pass",
+        "commit read-back contained only continuity, quality plan, append-only ledger, Windows acceptance matrix and the exact-status regression; no product source or private artifact was included",
+        "the pre-commit package retained 27 passing quality tests, 15 passing continuity/append-only tests, valid JSON, clean diff and private-path scan, plus independent zero-P0/zero-P1 review",
+        "after commit the task branch was clean and measured one commit ahead and zero behind origin/master",
+        "the exact native runtime, marker, selection, cleanup and acceptance boundaries remain the PASS recorded by EV-20260827-009",
+        "no push, pull request, build, installation, additional native run, tag or release action was performed"
+      ],
+      "summary": "Commit 66b4584d1aa51121bec4c4892f4d409446fc1ad8 is the exact durable source identity for the EV009 WIN-P0-03 native PASS record package.",
+      "limitations": [
+        "This record binds documentation/test provenance only and does not broaden the exact EV009 native PASS boundary.",
+        "The current two-document provenance record is uncommitted until separately approved.",
+        "No remote branch or hosted CI evidence exists for this commit."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV010 provenance record; then request separate approval to push the task branch."
     }
   ]
 }
