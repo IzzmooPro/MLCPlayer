@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `50c4928184107a8f4bfe611fde17b347857575a3`
+- Kayıt hazırlanırken doğrulanan HEAD: `f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/internet-video-format-fallback` (origin dalıyla `0/0`, `origin/master`dan 6 ileride; iki dil-menüsü test düzeltmesi ve EV021/022 uncommitted)
-- Son kanıt: `EV-20260827-022`
+- Dal: `codex/internet-video-format-fallback` (origin dalından `1`, `origin/master`dan 7 ileride; EV023 provenance kaydı uncommitted)
+- Son kanıt: `EV-20260827-023`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -100,7 +100,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   URL önkoşulu da setup başlamadan FAILED; release bloklu (`EV-20260827-013`).
 - Internet Video düzeltmesi hedef **2/2**, aile **42 passed / 2 skipped** verdi; paket `3abdf13`, provenance `e64f8c2`, koruma `07df9c1` olarak bağlıdır (`EV-20260827-014/015/016`).
   PR #64 `07df9c1` head'i **5059 passed / 30 skipped / 0 failed** verdi (`EV-20260827-017`); yalnız belge commit'i `d465ee2` sonrasında yeni required run Qt testinde native AV ile FAILED (`EV-20260827-018`).
-  Regression-first session sahipliği exact `417877c` oldu; `50c4928` hosted koşumu native AV olmadan **5059 passed / 30 skipped / 2 failed** verdi. İki geçici `QMenu` test ömrü kırmızı **2 failed**, sonra hedef/aile **2/32 passed** ve karşıt P0/P1/P2=0 ile test-only düzeltildi (`EV-20260827-019/020/021/022`). Ağ/native NOT_RUN.
+  Regression-first session sahipliği exact `417877c` oldu; `50c4928` hosted koşumu native AV olmadan **5059 passed / 30 skipped / 2 failed** verdi. İki geçici `QMenu` test ömrü kırmızı **2 failed**, sonra hedef/aile **2/32 passed**, karşıt P0/P1/P2=0 ve exact commit `f658fc1` ile test-only düzeltildi (`EV-20260827-019/020/021/022/023`). Ağ/native NOT_RUN.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -164,7 +164,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact dört dosyalı `EV-20260827-021/022` test-only düzeltme ve kayıt paketini ayrıca açık onayla commit et; push, CI retry, merge, build, kurulum, tag veya release başlatma.
+Exact iki belgeli `EV-20260827-023` provenance kaydını ayrıca açık onayla commit et; push, CI retry, merge, build, kurulum, tag veya release başlatma.
 
 ## Sonraki sıra
 

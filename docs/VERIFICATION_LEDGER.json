@@ -8325,6 +8325,41 @@
         "This change adds no network, native libmpv, build, installer, installed-artifact, merge, tag or release evidence."
       ],
       "next_action": "Request separate approval to commit the exact four-file EV021-EV022 package; do not push, retry CI, merge, build, install, tag or release."
+    },
+    {
+      "id": "EV-20260827-023",
+      "recorded_at_utc": "2026-08-27T12:18:36Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+      "baseline_commit": "f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+      "evidence_commit": "f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+      "working_tree_state": "uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "commands": [
+        "git show --format=fuller --stat --oneline f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+        "git show --format= --name-only f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/codex/internet-video-format-fallback",
+        "git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "subject": "Commit provenance for temporary language-menu test ownership",
+      "evidence": [
+        "exact commit f658fc1bcde6f6b13d16e4bea22e581a0b0e88a8 was created with subject test: retain temporary language menus",
+        "the commit contains exactly CONTINUITY.md, VERIFICATION_LEDGER.json, test_available_language_regressions.py and test_language_settings_regressions.py",
+        "the commit read-back reports 84 insertions and 9 deletions across those four files and binds the EV021 failed hosted result plus EV022 regression-first repair",
+        "after commit creation the task worktree was clean, the branch was one commit ahead and zero behind its origin task branch, and seven commits ahead and zero behind origin/master"
+      ],
+      "summary": "Exact commit read-back binds the two temporary QMenu test-ownership repairs and EV021-EV022 evidence to f658fc1.",
+      "limitations": [
+        "The two-document EV023 provenance append is uncommitted and requires separate commit approval.",
+        "The task branch has not been pushed; PR 64 still exposes the earlier failing 50c4928 head and required check.",
+        "Commit provenance does not add hosted CI, network, native libmpv, build, installer, installed-artifact, merge, tag or release evidence."
+      ],
+      "next_action": "Request separate approval to commit this exact two-document EV023 provenance record; do not push, retry CI, merge, build, install, tag or release."
     }
   ]
 }
