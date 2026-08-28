@@ -10031,6 +10031,35 @@
         "This registry/public-download PASS does not add visual-layout acceptance or numeric position/duration samples beyond EV017."
       ],
       "next_action": "Commit and merge this append-only release record through the normal protected documentation PR; then return to post-release backlog without altering v0.40 assets or tag."
+    },
+    {
+      "id": "EV-20260828-021",
+      "recorded_at_utc": "2026-08-28T08:36:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "23eca2a5e4983bd80d0d194e26d53dc850d4418a",
+      "evidence_commit": "23eca2a5e4983bd80d0d194e26d53dc850d4418a",
+      "baseline_commit": "e702dd8c4bd95aedcccd49cfec103a5564be0dca",
+      "working_tree_state": "clean after exact EV019-EV020 release-record commit readback and before this append-only binding record",
+      "changed_files": ["docs/CONTINUITY.md", "docs/VERIFICATION_LEDGER.json"],
+      "subject": "Evidence-commit binding for v0.40 public release record",
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json; git diff --cached --check; git commit -m \"docs: record v0.40 release\"",
+        "git show -s --format=%H%n%P%n%s HEAD; git show --stat --oneline HEAD",
+        "python -m pytest -q tests/test_continuity_regressions.py; JSON EV019-EV020 readback; git status --short --branch; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "evidence": [
+        "the separately approved EV019-EV020 two-document release package committed as exact 23eca2a5e4983bd80d0d194e26d53dc850d4418a with sole parent e702dd8c4bd95aedcccd49cfec103a5564be0dca",
+        "commit readback contains only docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json with 83 insertions and eleven deletions",
+        "post-commit working tree was clean, branch was one ahead and zero behind origin/master, continuity regressions passed 10 tests and EV019-EV020 parsed as the final two ledger entries",
+        "the public v0.40 tag and 87 release assets were not modified by this documentation commit; no push or PR followed yet"
+      ],
+      "summary": "The v0.40 protected-merge, exact-master CI, tag, remote parity, publication and public-download evidence in EV019-EV020 is immutably bound to evidence commit 23eca2a with clean post-commit readback.",
+      "limitations": [
+        "This deterministic binding adds no new hosted, registry, download or installed-artifact evidence.",
+        "This EV021 append and continuity update remain uncommitted until separately approved."
+      ],
+      "next_action": "Request separate approval to commit this terminal binding, then push and merge the release-record branch through the protected documentation PR without altering v0.40 assets or tag."
     }
   ]
 }

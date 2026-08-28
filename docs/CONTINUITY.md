@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 28 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `e702dd8c4bd95aedcccd49cfec103a5564be0dca`
+- Kayıt hazırlanırken doğrulanan HEAD: `23eca2a5e4983bd80d0d194e26d53dc850d4418a`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-release-record` (`origin/master` ile `0/0`; EV019–020 iki-belge yayın kaydı uncommitted)
-- Son kanıt: `EV-20260828-020`
+- Dal: `codex/v040-release-record` (`origin/master` ile `1/0`; EV021 iki-belge evidence-commit bağı uncommitted)
+- Son kanıt: `EV-20260828-021`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV019–020 iki-belge yayın kaydını ayrı onayla commit et; ardından normal PR kapısıyla master'a taşı. `P0-06`–`08` yayın sonrası, thumbnail cache politikası ürün kararıdır.
+EV021 iki-belge evidence-commit bağını ayrı onayla commit et; ardından kayıt dalını normal PR kapısıyla master'a taşı. `P0-06`–`08` yayın sonrası, thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 
