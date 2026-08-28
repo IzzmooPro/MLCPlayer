@@ -9929,6 +9929,36 @@
         "This EV017 record remains uncommitted until separately approved."
       ],
       "next_action": "Request separate approval to commit this two-document EV017 B2 closure; keep push, PR, merge, tag and release separately gated."
+    },
+    {
+      "id": "EV-20260828-018",
+      "recorded_at_utc": "2026-08-28T08:11:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "abdf71c8229eb6f12f9e52b6d982f1073f17641f",
+      "evidence_commit": "abdf71c8229eb6f12f9e52b6d982f1073f17641f",
+      "baseline_commit": "fd7fbdc80cd3ac49d562a54bd5216ed8661b204b",
+      "working_tree_state": "clean after exact EV017 commit readback and before this append-only binding record",
+      "changed_files": ["docs/CONTINUITY.md", "docs/VERIFICATION_LEDGER.json"],
+      "subject": "Evidence-commit binding for exact product-URL B2 closure",
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json; git diff --cached --check; git commit -m \"docs: record product URL B2 closure\"",
+        "git show -s --format=%H%n%P%n%s HEAD; git show --stat --oneline HEAD; git diff-tree --no-commit-id --name-only -r HEAD",
+        "python -m pytest -q tests/test_continuity_regressions.py; JSON EV017 readback; git status --porcelain=v1; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "evidence": [
+        "the separately approved EV017 two-document package committed as exact abdf71c8229eb6f12f9e52b6d982f1073f17641f with sole parent fd7fbdc80cd3ac49d562a54bd5216ed8661b204b",
+        "commit readback contains only docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json with 50 insertions and four deletions",
+        "post-commit working tree was clean, branch was fourteen ahead and zero behind origin/master, continuity regressions passed 10 tests and EV017 parsed as the final ledger entry",
+        "no push, PR, merge, build, installation, uninstall, tag, upload or release followed the commit"
+      ],
+      "summary": "The exact product-URL installed-artifact evidence in EV017 and completed ABBB/D4 B2 closure are immutably bound to evidence commit abdf71c with clean post-commit readback.",
+      "limitations": [
+        "This deterministic binding adds no new physical product evidence and does not extend EV017.",
+        "The numeric position/duration transcription limitation stated in EV017 remains unchanged.",
+        "This EV018 append and continuity update remain uncommitted until separately approved; no push was performed."
+      ],
+      "next_action": "Request separate approval to commit this terminal two-document evidence-commit binding; keep push, PR, merge, tag and release separately gated."
     }
   ]
 }
