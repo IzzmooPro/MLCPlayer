@@ -10852,6 +10852,41 @@
         "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
       ],
       "next_action": "Keep the 40 px title strip and cursor behavior unchanged; request separate approval before canonical-folder consolidation or commit workflow."
+    },
+    {
+      "id": "EV-20260828-038",
+      "recorded_at_utc": "2026-08-28T16:31:11Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "1abd9059a8b047dc06ea03f89c2643bb567cab70",
+      "evidence_commit": "1abd9059a8b047dc06ea03f89c2643bb567cab70",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "clean after the separately approved UX source, test, translation and evidence commit readback and before this append-only binding record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Evidence-commit binding for the v0.40 player-control and window-interaction hardening package",
+      "commands": [
+        "git switch -c codex/v040-ux-hardening from exact 59f6980d6be88d5c66ab55aeb235a1e07518e212",
+        "git add -- app docs tests translations; git diff --cached --check; staged scope and zero unstaged/untracked readback",
+        "git commit -m \"fix: harden player controls and window interactions\"",
+        "git status --short --branch; git log -1 --format=%H%n%s%n%P; git diff-tree --no-commit-id --name-status -r HEAD"
+      ],
+      "evidence": [
+        "the separately approved package committed as exact 1abd9059a8b047dc06ea03f89c2643bb567cab70 with sole parent 59f6980d6be88d5c66ab55aeb235a1e07518e212 on codex/v040-ux-hardening",
+        "commit readback contains the exact previously reviewed scope: seven app modules, architecture/continuity/ledger records, twenty-one modified regression files, three new regression files and seven translation catalogs, for 38 files with 4699 insertions and 2234 deletions",
+        "the staged package passed git diff --cached --check and had zero unstaged and zero untracked paths immediately before commit; the worktree was clean immediately after commit",
+        "the committed tree is byte-identical to the exact working-tree package whose final deterministic run collected 5171 tests and completed 5160 passed, 11 skipped, 0 failed, and whose 40 px title strip and title-cursor ownership were accepted by the user in EV036-EV037",
+        "the protected canonical-folder evidence draft was preserved separately at local commit c18680b6ad85cfb40aa249f13eb2241e79228ab7 before the UX branch was created"
+      ],
+      "summary": "The complete v0.40 control, playback-lifecycle, playlist, window-interaction and title-cursor hardening package is immutably bound to exact local evidence commit 1abd905 with clean readback.",
+      "limitations": [
+        "The deterministic and bounded user-visual evidence does not prove a built or installed artifact, controlled native_smoke, hosted CI or release behavior; the 11 skipped tests remain not PASS.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN, so this record is not an independent formal GO.",
+        "No push, PR, merge, build, installation, uninstall, tag or release was performed."
+      ],
+      "next_action": "Commit this separately approved two-document terminal binding, then request push approval separately; do not build, install, merge, tag or release."
     }
   ]
 }
