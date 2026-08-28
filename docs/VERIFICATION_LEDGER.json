@@ -9770,6 +9770,39 @@
         "The runner corrections are private evidence tooling, not committed product source; no commit, push, PR, merge, tag, upload or release was performed."
       ],
       "next_action": "After separate commit approval for this two-document evidence record, run InteractiveMain and the new exact installed Player product-URL gate only under their explicit scenario approvals."
+    },
+    {
+      "id": "EV-20260828-014",
+      "recorded_at_utc": "2026-08-28T07:51:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "8ae5fca37492b95ae43291eb1f4f2456581f01fb",
+      "evidence_commit": "8ae5fca37492b95ae43291eb1f4f2456581f01fb",
+      "baseline_commit": "11bb2b01bf180c61d802717ead6f7a2f72558ca8",
+      "working_tree_state": "clean after exact commit readback and before this append-only binding record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Evidence-commit binding for exact ABBB/D4 silent B2 lifecycle",
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json; git diff --cached --check; git commit -m \"docs: record silent B2 lifecycle\"",
+        "git show -s --format=%H%n%P%n%s HEAD; git show --stat --oneline --decorate HEAD; git status --short --branch; git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_continuity_regressions.py; JSON parse readback"
+      ],
+      "evidence": [
+        "the separately approved two-document EV013 package committed as exact 8ae5fca37492b95ae43291eb1f4f2456581f01fb with sole parent 11bb2b01bf180c61d802717ead6f7a2f72558ca8",
+        "commit readback contains only docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json with 57 insertions and four deletions",
+        "post-commit working tree was clean, branch was ten ahead and zero behind origin/master, continuity regressions passed 10 tests and the ledger parsed as valid JSON",
+        "no push, PR, merge, build, installation, tag, upload or release followed the commit"
+      ],
+      "summary": "The exact installed-artifact evidence in EV013 is now immutably bound to evidence commit 8ae5fca with clean post-commit readback.",
+      "limitations": [
+        "This deterministic binding adds no new physical product evidence and does not extend the EV013 silent scope.",
+        "InteractiveMain and exact installed Player product-URL gates remain NOT_RUN.",
+        "This EV014 append and continuity update remain uncommitted until separately approved; no push was performed."
+      ],
+      "next_action": "Request separate approval to commit this two-document evidence-commit binding; then request InteractiveMain physical lifecycle approval separately."
     }
   ]
 }

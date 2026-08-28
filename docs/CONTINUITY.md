@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 28 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `11bb2b01bf180c61d802717ead6f7a2f72558ca8`
+- Kayıt hazırlanırken doğrulanan HEAD: `8ae5fca37492b95ae43291eb1f4f2456581f01fb`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `9/0`; EV013 iki-belge fiziksel kanıt kaydı uncommitted)
-- Son kanıt: `EV-20260828-013`
+- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `10/0`; EV014 iki-belge evidence-commit bağı uncommitted)
+- Son kanıt: `EV-20260828-014`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -118,6 +118,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Ayrı onaylı tek fresh-runner denemesinde exact ABBB setup askıya alınmış tek exact Player ve doğrulanmış mutex karşısında **6,983 saniyede** exit 7 ile hızlı fail-closed durdu; setup içi süre yaklaşık 0,131 saniyeydi. Restart Manager, kopya ve başarı marker'ı yok; 103 kurulu dosya, iki kullanıcı dosyası, ayarlar, kayıtlar, OpenWith ve üç kısayol exact korundu. Suspend/resume 0/0, normal kapanış, force/watchdog yok ve süreç sızıntısı 0; karşıt P0/P1=0 (`EV-20260828-011`). Bu PASS yalnız fast-fail senaryosudur; exact ABBB normal install/upgrade/uninstall B2 zincirinin yerine geçmez.
 - Resmî B2 metnindeki eski “Player'ı Restart Manager kapatır” şartı committed ABBB davranışıyla çeliştiği için regression-first hizalandı: yalnız bakım/yükseltmede `MLCPlayer-Running` mutex'i `PrepareToInstall` içinde RM'den önce denetlenir; responsive/asılı Player'da 10 saniye içinde kopya öncesi nonzero fail-closed, mesaj, değişmeyen durum ve sıfır sızıntı zorunludur. İlk kurulum etkilenmez; RM mutex dışındaki kilitler için fallback kalır. İlk hedef test kırmızı, son etki paketi **226 passed**, karşıt P0/P1/P2=0 (`EV-20260828-012`). Ürün kodu veya artifact değişmedi.
 - Exact `11bb2b0` ve ABBB/D4 artifact'larıyla silent fiziksel B2 zinciri immutable checkpoint resume ile tamamlandı: gerçek v0.39 seed/yükseltme, iki maintenance, iki kaldırma sırası, iki temiz durum, clean install ve final restore geçti. Final exact 103 dosya, iki uninstall kaydı, OpenWith, üç kısayol, korunmuş iki kullanıcı dosyası ve sıfır hedef süreçle `phase_passed` verdi (`EV-20260828-013`). Bu yalnız silent installed-artifact PASS'tir; `InteractiveMain` ve yeni exact Player product URL NOT_RUN kaldı.
+- Ayrı onaylanan EV013 iki-belge paketi exact `8ae5fca` commit'ine bağlandı; tek ebeveyn `11bb2b0`, post-commit ağaç temiz, dal `10/0`, continuity **10 passed** ve ledger JSON geçerliydi (`EV-20260828-014`). Push veya yeni fiziksel işlem yapılmadı.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -181,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV013 iki-belge silent fiziksel kanıt kaydını ayrı onayla commit et; ardından `InteractiveMain` lifecycle ve yeni exact kurulu Player product-URL kapıları yalnız kendi açık senaryo onaylarıyla yürütülür. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
+EV014 iki-belge evidence-commit bağını ayrı onayla commit et; ardından `InteractiveMain` lifecycle ve yeni exact kurulu Player product-URL kapıları yalnız kendi açık senaryo onaylarıyla yürütülür. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 
