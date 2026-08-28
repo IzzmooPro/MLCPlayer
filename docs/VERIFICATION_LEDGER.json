@@ -9959,6 +9959,107 @@
         "This EV018 append and continuity update remain uncommitted until separately approved; no push was performed."
       ],
       "next_action": "Request separate approval to commit this terminal two-document evidence-commit binding; keep push, PR, merge, tag and release separately gated."
+    },
+    {
+      "id": "EV-20260828-019",
+      "recorded_at_utc": "2026-08-28T08:22:25Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "e702dd8c4bd95aedcccd49cfec103a5564be0dca",
+      "baseline_commit": "e702dd8c4bd95aedcccd49cfec103a5564be0dca",
+      "working_tree_state": "clean local master equal to origin/master after protected PR merge and before release mutations",
+      "changed_files": ["docs/CONTINUITY.md", "docs/VERIFICATION_LEDGER.json"],
+      "subject": "v0.40 protected merge and exact-master hosted release-candidate CI",
+      "commands": [
+        "GitHub PR #67 exact head 0a4f34cf601961a2d9c8fe361241ed82562f5f1c with required test run 33154530018",
+        "separately authorized merge-commit operation and local clean master fast-forward to origin/master",
+        "gh workflow run ci.yml --ref master -f expected_sha=e702dd8c4bd95aedcccd49cfec103a5564be0dca",
+        "single readback of GitHub Actions run 33154878976 after user reported completion"
+      ],
+      "evidence": [
+        "PR #67 required test passed in 3m31s for exact head 0a4f34cf601961a2d9c8fe361241ed82562f5f1c",
+        "GitHub created two-parent merge commit e702dd8c4bd95aedcccd49cfec103a5564be0dca from origin/master 994f0e25c7774b3bbdd5f961530a62137a847f16 and the exact PR head",
+        "local master fast-forwarded cleanly and matched origin/master at e702dd8c with 0/0 divergence",
+        "manual run 33154878976 passed the fail-closed refs/heads/master and expected_sha check, then completed 5064 passed / 30 skipped in 123.27 seconds",
+        "no workflow retry, protection bypass, force-push or additional build occurred"
+      ],
+      "summary": "The protected v0.40 B2 branch merged as exact e702dd8c and the required exact-master release-candidate dispatch passed the full hosted package.",
+      "limitations": [
+        "Hosted CI does not replace the exact ABBB/D4 installed-artifact evidence recorded in EV013, EV015 and EV017.",
+        "This record alone does not prove tag, remote assets, public download bytes or publication state."
+      ],
+      "next_action": "Use the already accepted unchanged ABBB/D4 artifact set only if tag, prepublish, source mirror, remote parity and public readback all pass separately."
+    },
+    {
+      "id": "EV-20260828-020",
+      "recorded_at_utc": "2026-08-28T08:31:30Z",
+      "proof_layer": "registry_artifact",
+      "result": "passed",
+      "commit": "e702dd8c4bd95aedcccd49cfec103a5564be0dca",
+      "baseline_commit": "e702dd8c4bd95aedcccd49cfec103a5564be0dca",
+      "working_tree_state": "clean master equal to origin/master throughout tag, draft parity, publication and public-download readback; release record branch created clean afterward",
+      "changed_files": ["docs/CONTINUITY.md", "docs/VERIFICATION_LEDGER.json"],
+      "subject": "v0.40 annotated tag, 87-asset public latest release and updater-visible byte acceptance",
+      "commands": [
+        "python packaging/fetch_sources.py; 83-source presence readback; git tag -a v0.40 -m \"MLC Player v0.40\"; python packaging/prepublish.py --tag v0.40",
+        "git push origin v0.40; git ls-remote origin refs/tags/v0.40 and refs/tags/v0.40^{}",
+        "gh release create v0.40 --verify-tag --draft with four installer/signature files and 83 source assets",
+        "fresh 87-asset local name/byte/SHA-256 versus GitHub digest comparison; gh release edit v0.40 --draft=false --latest",
+        "product app.updater.fetch_latest_release and select_update_asset path; streamed public main/add-on downloads, final-host allowlist, SHA-256 and embedded-key Ed25519 verification"
+      ],
+      "artifacts": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55945176, "sha256": "ABBB01C337535DB989E4A36D61D4362604C448323A2D27506F155C84EA48DC34"},
+        {"name": "MLCPlayer_Setup_v0.40.exe.sig", "size_bytes": 88, "sha256": "7D003B8CF705549111D54BDC8543D5E1B8D6C9651A6AA8A590020531E519CC3E"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe.sig", "size_bytes": 88, "sha256": "516CA07EE797C06C8B0902CE16EB85E98BCC2713D277FFDC689D6C4D15E2DF73"}
+      ],
+      "private_artifact_digests": [
+        {"name": "verify_public_v040.py", "size_bytes": 2614, "sha256": "86D257F3B13B2003CC09CB66D5C33BD305CCD7CC12F53DEFE2ED181F2DA15B99"}
+      ],
+      "evidence": [
+        "product and packaging build inputs under app, packaging, bin, requirements.lock and pyproject.toml were unchanged from accepted source-build commit 1dafe1f through merge e702dd8c, so the exact accepted ABBB/D4 bytes were reused without another costly build or non-transferable B2 rerun",
+        "prepublish passed tag/source/installer/signature/source-mirror gates and enumerated exactly 87 ready assets; local annotated tag object 4337834ef900a7d74e6084ae831a7b216011add4 peeled to e702dd8c",
+        "remote refs/tags/v0.40^{} peeled to exact e702dd8c, matching HEAD and origin/master",
+        "the draft contained exactly 87 uploaded assets totaling 1019336941 bytes; every remote name, byte size, uploaded state and GitHub sha256 digest matched the exact local upload set",
+        "publication readback reported draft=false, prerelease=false, published_at 2026-08-28T08:30:41Z and the unauthenticated latest endpoint returned v0.40",
+        "the product updater path selected MLCPlayer_Setup_v0.40.exe; streamed public downloads of both installer EXEs followed only allowed hosts, reproduced exact accepted sizes and SHA-256 values, and both public signature files verified with the embedded Ed25519 key"
+      ],
+      "summary": "v0.40 is public/latest with an exact e702dd8c annotated tag, complete 87-asset remote parity, updater-visible main artifact and publicly re-downloaded main/add-on bytes matching the installed-artifact acceptance set.",
+      "limitations": [
+        "The installers remain Authenticode NotSigned; valid detached Ed25519 signatures protect the product updater path but do not suppress Windows unknown-publisher warnings.",
+        "The public files were not installed again because their full downloaded hashes exactly match the already installed and physically accepted ABBB/D4 bytes; no different artifact inherits that acceptance.",
+        "This registry/public-download PASS does not add visual-layout acceptance or numeric position/duration samples beyond EV017."
+      ],
+      "next_action": "Commit and merge this append-only release record through the normal protected documentation PR; then return to post-release backlog without altering v0.40 assets or tag."
+    },
+    {
+      "id": "EV-20260828-021",
+      "recorded_at_utc": "2026-08-28T08:36:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "23eca2a5e4983bd80d0d194e26d53dc850d4418a",
+      "evidence_commit": "23eca2a5e4983bd80d0d194e26d53dc850d4418a",
+      "baseline_commit": "e702dd8c4bd95aedcccd49cfec103a5564be0dca",
+      "working_tree_state": "clean after exact EV019-EV020 release-record commit readback and before this append-only binding record",
+      "changed_files": ["docs/CONTINUITY.md", "docs/VERIFICATION_LEDGER.json"],
+      "subject": "Evidence-commit binding for v0.40 public release record",
+      "commands": [
+        "git add -- docs/CONTINUITY.md docs/VERIFICATION_LEDGER.json; git diff --cached --check; git commit -m \"docs: record v0.40 release\"",
+        "git show -s --format=%H%n%P%n%s HEAD; git show --stat --oneline HEAD",
+        "python -m pytest -q tests/test_continuity_regressions.py; JSON EV019-EV020 readback; git status --short --branch; git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "evidence": [
+        "the separately approved EV019-EV020 two-document release package committed as exact 23eca2a5e4983bd80d0d194e26d53dc850d4418a with sole parent e702dd8c4bd95aedcccd49cfec103a5564be0dca",
+        "commit readback contains only docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json with 83 insertions and eleven deletions",
+        "post-commit working tree was clean, branch was one ahead and zero behind origin/master, continuity regressions passed 10 tests and EV019-EV020 parsed as the final two ledger entries",
+        "the public v0.40 tag and 87 release assets were not modified by this documentation commit; no push or PR followed yet"
+      ],
+      "summary": "The v0.40 protected-merge, exact-master CI, tag, remote parity, publication and public-download evidence in EV019-EV020 is immutably bound to evidence commit 23eca2a with clean post-commit readback.",
+      "limitations": [
+        "This deterministic binding adds no new hosted, registry, download or installed-artifact evidence.",
+        "This EV021 append and continuity update remain uncommitted until separately approved."
+      ],
+      "next_action": "Request separate approval to commit this terminal binding, then push and merge the release-record branch through the protected documentation PR without altering v0.40 assets or tag."
     }
   ]
 }
