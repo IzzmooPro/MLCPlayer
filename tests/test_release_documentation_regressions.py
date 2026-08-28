@@ -159,6 +159,29 @@ def test_final_artifact_process_safety_is_a_pre_tag_gate():
         assert phrase in text, f"final-artifact kabulunde eksik: {phrase}"
 
 
+def test_final_artifact_gate_matches_the_running_player_fast_fail_policy():
+    """The release gate must require the compiled mutex-first behavior."""
+    text = fold(read(RELEASE_DOC)).lower()
+    start = text.index("b2) tag'den once")
+    end = text.index("c) python packaging/fetch_sources.py", start)
+    gate = " ".join(text[start:end].replace("`", "").split())
+
+    for phrase in (
+            "bakim/yukseltme sirasinda", "mlcplayer-running", "preparetoinstall",
+            "restart manager'dan once", "10 saniye icinde",
+            "responsive/asili ayrimi yapilmadan",
+            "kopya oncesi fail-closed", "ilk kurulum etkilenmez",
+            "player'i kapatip setup'i yeniden baslatir",
+            "mutex disindaki kilitler icin fallback", "nonzero exit",
+            "kullanici mesaji", "degismeyen urun/kullanici durumu",
+            "sifir yardimci surec sizintisi", "baska klasorde calisan",
+            "ayni adli", "hayatta", "kapanmayi reddeden/asili player",
+            "tek bir byte bile degismemeli"):
+        assert phrase in gate, f"player fast-fail kapisinda eksik: {phrase}"
+
+    assert "gercek kurulu player, restart manager ile nazikce kapanir" not in gate
+
+
 def test_addon_process_gate_matches_measured_ytdlp_and_deno_behavior():
     """Require measured yt-dlp refusal and cooperative Deno upgrade outcomes."""
     text = fold(read(RELEASE_DOC)).lower()

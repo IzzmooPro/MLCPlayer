@@ -96,11 +96,17 @@ doğrular. Bu koşum yeşil olmadan build başlamaz. Yerel
         ÇIKIŞ  : ana paket ve add-on için install -> upgrade -> uninstall
                  zinciri, interaktif ve silent yollar ayrı ayrı geçti
         KORUMA :
-        - Gerçek kurulu Player, Restart Manager ile nazikçe kapanır; kapanış
-          marker'ı/exit durumu doğrulanır ve yardımcı süreç sızmaz.
+        - Bakım/yükseltme sırasında gerçek kurulu Player açıksa süreç-ömürlü
+          `MLCPlayer-Running` mutex'i `PrepareToInstall` içinde Restart
+          Manager'dan önce doğrulanır. Responsive/asılı ayrımı yapılmadan
+          10 saniye içinde kopya öncesi fail-closed durmalı; kullanıcı
+          Player'ı kapatıp Setup'ı yeniden başlatır. İlk kurulum etkilenmez.
+          Restart Manager yalnız mutex dışındaki kilitler için fallback kalır;
+          nonzero exit, kullanıcı mesajı, değişmeyen ürün/kullanıcı durumu ve
+          sıfır yardımcı süreç sızıntısı doğrulanır.
         - Başka klasörde çalışan aynı adlı `MLC Player.exe` hayatta kalır.
-        - Kapanmayı reddeden/asılı süreçte kurulum DURUR; kurulu program
-          ağacında tek bir byte bile değişmemeli.
+        - Kapanmayı reddeden/asılı Player'da aynı hızlı mutex kapısı geçerlidir;
+          kurulu program ağacında tek bir byte bile değişmemeli.
         - Test medyası ile `%APPDATA%\MLCPlayer` ayar/log ağacı önce/sonra
           dosya listesi, metadata ve SHA-256 hash ile aynı kalır.
         - Add-on, boş/relative/root/UNC/eski/wrong-product InstallLocation

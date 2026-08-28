@@ -9681,6 +9681,43 @@
         "Both EXEs remain Authenticode NotSigned; no push, PR, merge, tag, upload or release followed."
       ],
       "next_action": "Request separate approval to commit this two-document PASS record; then request the remaining exact ABBB normal B2 physical lifecycle as a separately approved bounded cycle."
+    },
+    {
+      "id": "EV-20260828-012",
+      "recorded_at_utc": "2026-08-28T05:58:01Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "d9aa143cb95f2add841639641e5f5b96fca61885",
+      "baseline_commit": "d9aa143cb95f2add841639641e5f5b96fca61885",
+      "working_tree_state": "clean before the regression-first governance change",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/RELEASE_PROCESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_release_documentation_regressions.py"
+      ],
+      "subject": "Official B2 process contract aligned with the committed running-Player fast-fail policy",
+      "commands": [
+        "python -m pytest -q tests/test_release_documentation_regressions.py -k running_player_fast_fail_policy (red: 1 failed)",
+        "python -m pytest -q tests/test_release_documentation_regressions.py -k running_player_fast_fail_policy (green: 1 passed, 206 deselected)",
+        "python -m pytest -q tests/test_installer_process_safety_regressions.py tests/test_release_documentation_regressions.py tests/test_continuity_regressions.py (226 passed)",
+        "git diff --check and independent adversarial readback"
+      ],
+      "evidence": [
+        "read-only preflight found a P0 contradiction: RELEASE_PROCESS required Restart Manager to close the real Player while the committed and physically accepted ABBB policy rejects any running Player from PrepareToInstall before Restart Manager",
+        "the new B2-slice regression first failed because the official gate did not mention the MLCPlayer-Running mutex or the compiled fast-fail behavior",
+        "the minimal documentation change now requires maintenance or upgrade with a responsive or suspended Player to stop within 10 seconds before copy with nonzero exit, user message, unchanged product and user state and zero helper-process leakage",
+        "first install remains unaffected and Restart Manager remains a fallback only for locks outside the Player lifecycle mutex; external same-name survival and every Deno, yt-dlp, rollback, force prohibition and payload guard remain unchanged",
+        "the first adversarial pass found a fail-open regression test; the strengthened B2-slice test now directly binds scope, responsive and suspended states, timing, copy boundary, first install, fallback, exit, message, state, leak, external same-name and byte-preservation requirements",
+        "the final bounded package passed 226 tests, git diff --check was clean and independent adversarial review reported P0/P1/P2=0"
+      ],
+      "summary": "The single official release contract now matches the already committed and exact-artifact-tested Player mutex-first policy without weakening any other B2 acceptance surface.",
+      "limitations": [
+        "This deterministic PASS changes only release documentation and its regression; it does not execute or pass the remaining exact ABBB normal physical lifecycle.",
+        "No product or installer source, artifact, build, installation, push, PR, merge, tag, upload or release changed in this step.",
+        "The four-file package remains uncommitted until separately approved."
+      ],
+      "next_action": "Request separate approval to commit this four-file B2 contract package; then continue the already approved exact ABBB/D4 normal B2 lifecycle with a fresh bounded orchestrator."
     }
   ]
 }
