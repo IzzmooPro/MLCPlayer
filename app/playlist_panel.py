@@ -632,7 +632,7 @@ class PlaylistPanel(QWidget):
         self.close_button.setIcon(
             make_media_icon("close", TITLE_BUTTON_ICON_SIZE, "#FFFFFF"))
         self.close_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.close_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.close_button.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         self.close_button.setStyleSheet(
             "QPushButton#playlistClose { background: transparent; border: none; "
             "padding: 0; border-radius: 4px; } "
@@ -649,7 +649,7 @@ class PlaylistPanel(QWidget):
         root.addWidget(self.search_field)
 
         self.playlist_view = PlaylistListWidget(self)
-        self.playlist_view.itemDoubleClicked.connect(self._play_item)
+        self.playlist_view.itemClicked.connect(self._play_item)
         root.addWidget(self.playlist_view, 1)
 
         self.empty_label = QLabel(tr("Oynatma listesi boş\nDosyaları buraya sürükleyin"), self)
@@ -889,7 +889,7 @@ class PlaylistPanel(QWidget):
             item = QListWidgetItem()
             item.setData(PATH_ROLE, path)
             item.setData(PLAYING_ROLE, index == current)
-            item.setToolTip(tr("Sürükleyerek sırala • Oynatmak için çift tıkla"))
+            item.setToolTip(tr("Sürükleyerek sırala • Oynatmak için tıkla"))
             item.setSizeHint(QSize(0, ROW_HEIGHT))
             self.playlist_view.addItem(item)
             row_widget = PlaylistRow(path, index == current, self.playlist_view)
@@ -987,12 +987,11 @@ class PlaylistPanel(QWidget):
                  if os.path.isfile(path)
                  and os.path.splitext(path)[1].lower() in allowed]
         if not media:
-            return
-        was_empty = not self.player.playlist
-        self.player.playlist.extend(media)
-        if was_empty and not getattr(self.player, "current_file", ""):
-            self.player.play_from_playlist(0)
-        self.refresh()
+            return False
+        # İletişim kutusu ve ana video yüzeyiyle aynı atomik ekleme yolunu
+        # kullan: ilk native yükleme reddedilirse panelde hayalet sıra kalmaz.
+        from app.media_controls import append_media_paths
+        return bool(append_media_paths(self.player, media))
 
     def move_playlist_item(self, source, destination):
         count = self.playlist_view.count()

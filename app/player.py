@@ -706,18 +706,18 @@ class MPVPlayer(QMainWindow):
                   and self.video_frame.playlist_panel.is_open):
                 # Playlist açıkken video yüzeyine bırakılan tek dosya da kuyruğa
                 # eklenir; listeyi tek öğeye sıfırlamaz.
-                append_media_paths(self, media_paths)
-                self._pending_subs = list(subtitle_paths)
+                if append_media_paths(self, media_paths):
+                    self._pending_subs = list(subtitle_paths)
             else:
                 # Yeni medya açılacak: mpv yükleme sırasında önceden eklenen dış
                 # altyazıları sildiği için altyazıları yükleme tamamlanınca ekle
-                open_path(self, media_paths[0])
-                self._pending_subs = list(subtitle_paths)
+                if open_path(self, media_paths[0]):
+                    self._pending_subs = list(subtitle_paths)
         elif len(media_paths) > 1:
             # Çoklu bırakma mevcut listeyi silmez. Oynatma yoksa ilk yeni öğe
             # başlatılır; oynatma sürüyorsa yalnızca kuyruğa eklenir.
-            append_media_paths(self, media_paths)
-            self._pending_subs = list(subtitle_paths)
+            if append_media_paths(self, media_paths):
+                self._pending_subs = list(subtitle_paths)
         else:
             # Sürükle-bırak ile altyazı: video oynarken anında ekle (canlı)
             for s in subtitle_paths:
@@ -786,11 +786,16 @@ class MPVPlayer(QMainWindow):
 
     # --- Döngü ve karışık modlar ---
     def set_loop_file(self, enabled):
-        self.loop_file = enabled
+        target = "inf" if enabled else "no"
         try:
-            self.mpv_player.loop_file = "inf" if enabled else "no"
+            self.mpv_player.loop_file = target
+            if str(self.mpv_player.loop_file).strip().lower() != target:
+                raise RuntimeError("loop write was ignored")
         except Exception as e:
             safe_console(f"Loop setting error: {e}")
+            return False
+        self.loop_file = bool(enabled)
+        return True
 
     def set_loop_playlist(self, enabled):
         self.loop_playlist = enabled
@@ -991,23 +996,9 @@ class MPVPlayer(QMainWindow):
             # Sol ok - 5 saniye geri
             seek_relative(self, -5)
         elif key == Qt.Key.Key_Up:
-            # Ses arttır
-            try:
-                current_volume = min(MAX_VOLUME, max(0, float(self.mpv_player.volume)))
-                new_volume = min(MAX_VOLUME, current_volume + 5)
-                self.mpv_player.volume = new_volume
-                self.volume_slider.setValue(int(new_volume))
-            except Exception as e:
-                safe_console(f"Volume up error: {e}")
+            change_volume(self, 5)
         elif key == Qt.Key.Key_Down:
-            # Ses azalt - negatif değerleri önle
-            try:
-                current_volume = min(MAX_VOLUME, max(0, float(self.mpv_player.volume)))
-                new_volume = max(0, current_volume - 5)  # 0'dan küçük olamaz
-                self.mpv_player.volume = new_volume
-                self.volume_slider.setValue(int(new_volume))
-            except Exception as e:
-                safe_console(f"Volume down error: {e}")
+            change_volume(self, -5)
         elif key == Qt.Key.Key_M:
             # Sessiz modunu aç/kapat
             toggle_mute(self)

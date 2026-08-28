@@ -13,6 +13,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 import pytest
 from PyQt6.QtCore import QEvent, QPoint, QRect, Qt
 from PyQt6.QtGui import QMouseEvent
+from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QMenu, QPushButton, QVBoxLayout, QWidget)
 
@@ -104,15 +105,15 @@ def press_event(widget, point, button_type=Qt.MouseButton.LeftButton):
 
 def test_title_bar_has_fixed_reference_height(title_bar):
     app, window, bar = title_bar()
-    assert TITLE_BAR_HEIGHT == 32
-    assert bar.height() == 32
-    assert bar.minimumHeight() == 32
-    assert bar.maximumHeight() == 32
+    assert TITLE_BAR_HEIGHT == 40
+    assert bar.height() == 40
+    assert bar.minimumHeight() == 40
+    assert bar.maximumHeight() == 40
 
 
 def test_title_bar_uses_the_approved_reference_scale(title_bar):
     app, window, bar = title_bar()
-    assert TITLE_BAR_HEIGHT == 32
+    assert TITLE_BAR_HEIGHT == 40
     assert "font-size: 14px" in bar.title_label.styleSheet()
     for name in LEFT_ORDER + RIGHT_ORDER:
         widget = button(bar, name)
@@ -153,6 +154,12 @@ def test_all_title_bar_buttons_carry_non_null_icons(title_bar):
         widget = button(bar, name)
         assert not widget.icon().isNull()
         assert not widget.icon().pixmap(widget.iconSize()).isNull()
+
+
+def test_all_title_bar_buttons_are_keyboard_reachable(title_bar):
+    app, window, bar = title_bar()
+    for name in LEFT_ORDER + RIGHT_ORDER:
+        assert button(bar, name).focusPolicy() == Qt.FocusPolicy.TabFocus
 
 
 def test_title_bar_buttons_expose_tooltip_and_accessible_name(title_bar):
@@ -422,3 +429,36 @@ def test_title_bar_buttons_do_not_overlap_at_minimum_width(title_bar):
         rects.append(QRect(widget.mapToGlobal(QPoint(0, 0)), widget.size()))
     for first, second in zip(rects, rects[1:]):
         assert not first.intersects(second)
+
+
+def test_repeated_resize_keeps_title_commands_clickable(title_bar):
+    app, window, bar = title_bar(size=(480, 300))
+    sizes = ((480, 300), (760, 430), (1280, 720), (560, 340),
+             (1600, 900), (480, 300))
+    commands = {
+        "titleOpenFile": "open_file",
+        "titlePlaylist": "show_playlist",
+        "titlePictureInPicture": "toggle_picture_in_picture",
+    }
+
+    for width, height in sizes:
+        window.resize(width, height)
+        window.showNormal()
+        app.processEvents()
+        for name, expected in commands.items():
+            widget = button(bar, name)
+            point = widget.rect().center()
+            assert bar.childAt(widget.mapTo(bar, point)) is widget
+            window.calls.clear()
+            QTest.mouseClick(widget, Qt.MouseButton.LeftButton,
+                             Qt.KeyboardModifier.NoModifier, point)
+            app.processEvents()
+            assert window.calls == [expected]
+
+        maximize = button(bar, "titleMaximize")
+        QTest.mouseClick(maximize, Qt.MouseButton.LeftButton)
+        app.processEvents()
+        assert window.isMaximized()
+        QTest.mouseClick(maximize, Qt.MouseButton.LeftButton)
+        app.processEvents()
+        assert not window.isMaximized()

@@ -76,6 +76,25 @@ def test_fullscreen_command_is_ignored_while_pip_is_active(mode_window):
     assert MPVPlayer.toggle_fullscreen(window) is False
 
 
+def test_repeated_fullscreen_toggles_return_to_windowed_state(mode_window):
+    app, window = mode_window
+
+    def enter():
+        window.video_frame.is_video_fullscreen = True
+
+    def exit_():
+        window.video_frame.is_video_fullscreen = False
+
+    window.video_frame.enter_fullscreen = enter
+    window.video_frame.exit_fullscreen = exit_
+
+    for _index in range(3):
+        assert MPVPlayer.toggle_fullscreen(window) is True
+        assert window.video_frame.is_video_fullscreen is True
+        assert MPVPlayer.toggle_fullscreen(window) is True
+        assert window.video_frame.is_video_fullscreen is False
+
+
 def test_resized_pip_stays_inside_available_screen():
     available = QRect(0, 0, 2560, 1392)
 
@@ -109,6 +128,70 @@ def test_pip_is_small_resizable_topmost_and_restores_geometry(
     assert window.minimumSize() == QSize(400, 300)
     assert window.title_bar.isVisible() is True
     assert window.mode_calls == [True, False]
+
+
+def test_repeated_pip_cycles_restore_the_same_geometry(mode_window,
+                                                       monkeypatch):
+    app, window = mode_window
+    monkeypatch.setattr("app.player.set_native_topmost",
+                        lambda _window, _enabled: True)
+    original = QRect(window.geometry())
+
+    for _index in range(3):
+        assert MPVPlayer.toggle_picture_in_picture(window, True) is True
+        assert MPVPlayer.toggle_picture_in_picture(window, False) is False
+        assert window.geometry() == original
+        assert window.minimumSize() == QSize(400, 300)
+
+
+def test_failed_native_loop_toggle_keeps_the_previous_local_state():
+    class RejectLoop:
+        @property
+        def loop_file(self):
+            return "no"
+
+        @loop_file.setter
+        def loop_file(self, _value):
+            raise RuntimeError("loop write rejected")
+
+    player = SimpleNamespace(loop_file=False, mpv_player=RejectLoop())
+
+    assert MPVPlayer.set_loop_file(player, True) is False
+    assert player.loop_file is False
+
+
+def test_repeated_native_loop_toggles_return_to_disabled_state():
+    player = SimpleNamespace(
+        loop_file=False, mpv_player=SimpleNamespace(loop_file="no"))
+
+    for _index in range(3):
+        assert MPVPlayer.set_loop_file(player, True) is True
+        assert player.loop_file is True
+        assert player.mpv_player.loop_file == "inf"
+        assert MPVPlayer.set_loop_file(player, False) is True
+
+    assert player.loop_file is False
+    assert player.mpv_player.loop_file == "no"
+
+
+def test_silently_ignored_native_loop_write_keeps_local_state():
+    class SilentLoop:
+        def __init__(self):
+            self._value = "no"
+
+        @property
+        def loop_file(self):
+            return self._value
+
+        @loop_file.setter
+        def loop_file(self, _value):
+            pass
+
+    player = SimpleNamespace(loop_file=False, mpv_player=SilentLoop())
+
+    assert MPVPlayer.set_loop_file(player, True) is False
+    assert player.loop_file is False
+    assert player.mpv_player.loop_file == "no"
 
 
 def test_pip_stays_enabled_if_windows_cannot_release_topmost(

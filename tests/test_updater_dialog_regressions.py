@@ -117,7 +117,7 @@ def test_real_update_action_enters_and_updates_download_state(
     monkeypatch.setattr(updater, "UpdateDownloader", FakeDownloader)
     monkeypatch.setattr(updater.tempfile, "mkdtemp", lambda **_: str(tmp_path))
 
-    dialog.start_update()
+    dialog._update_button.click()
     worker = FakeDownloader.created
 
     assert worker is not None and worker.started
@@ -140,7 +140,7 @@ def test_download_failure_returns_the_dialog_to_a_retryable_state(
     shown_errors = []
     monkeypatch.setattr(dialog, "show_error", shown_errors.append)
 
-    dialog.start_update()
+    dialog._update_button.click()
     FakeDownloader.created.failed.emit("İndirme başarısız")
 
     assert dialog._update_button.isEnabled()
@@ -148,5 +148,20 @@ def test_download_failure_returns_the_dialog_to_a_retryable_state(
     assert dialog._progress.isHidden()
     assert dialog._status.isHidden()
     assert shown_errors == ["İndirme başarısız"]
+    dialog._update_button.click()
+    assert FakeDownloader.created is not None
+    assert FakeDownloader.created.started is True
     dialog._downloader = None
     FakeDownloader.created = None
+
+
+def test_close_controls_work_after_repeated_reopen(qt_app):
+    for use_corner in (False, True, False):
+        dialog = updater.UpdateDialog("v0.38", "unused")
+        dialog.show()
+        qt_app.processEvents()
+        assert dialog.isVisible()
+        (dialog._close_button if use_corner else dialog._later_button).click()
+        qt_app.processEvents()
+        assert not dialog.isVisible()
+        dialog.deleteLater()

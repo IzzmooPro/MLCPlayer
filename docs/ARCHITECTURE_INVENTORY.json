@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
   "status": "analyzed",
-  "measured_product_commit": "78518dd67e882e35da69ea7bb6bfc74e3cafc1c7",
-  "measured_at_utc": "2026-08-23T20:37:22Z",
+  "measured_product_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+  "working_tree_state": "modified",
+  "measured_at_utc": "2026-08-28T14:28:54Z",
   "hash_contract": "sha256 of UTF-8 source normalized to LF",
   "modules": [
     {
       "path": "app/video_frame.py",
-      "sha256": "12e26f6a15456afe960d324291dc6e57774ddcc48c5216b36256cfff5c90b51f",
-      "lines": 2623,
+      "sha256": "53f3381cafaec032b8dae765ab84eb4028e3d3459e71a4bac7cba854a61ec80a",
+      "lines": 2640,
       "classes": 3,
       "top_functions": 3,
       "indented_functions": 110,
@@ -16,17 +17,17 @@
     },
     {
       "path": "app/media_controls.py",
-      "sha256": "c06701a0505602e2883a41f921c65126924e36a38240113d5fb9f12382a1b2d7",
-      "lines": 1288,
+      "sha256": "bf34ca19841601d4ba155e396413f12777c7cc812b0546faf5148a22e7e90cfe",
+      "lines": 1488,
       "classes": 0,
-      "top_functions": 61,
+      "top_functions": 64,
       "indented_functions": 2,
       "self_state": 0
     },
     {
       "path": "app/player.py",
-      "sha256": "c14ceea19b6a3a5924f14ed8a0d195900b203735ae3e71d4f1aa50ea648ae12f",
-      "lines": 1209,
+      "sha256": "ab4a7623cae2fba369f8acc1b0756644eec9ad896e9bd419113dc4c17a4f5b73",
+      "lines": 1200,
       "classes": 1,
       "top_functions": 1,
       "indented_functions": 78,
@@ -34,8 +35,8 @@
     },
     {
       "path": "app/playlist_panel.py",
-      "sha256": "c659bbf09377ea5aeac427902985787adac20d5a9c3ed5928395210d95fc9913",
-      "lines": 1102,
+      "sha256": "89853219be169c7708a388d6ec474053fad9bfae4348248c9fdf087c74ef3aa1",
+      "lines": 1101,
       "classes": 5,
       "top_functions": 0,
       "indented_functions": 72,
@@ -43,10 +44,10 @@
     },
     {
       "path": "app/menu_actions.py",
-      "sha256": "2efc6bd175778de5fad3113a8a115fef5cfd2ef0d4e17d48d84bc7c98a9603d8",
-      "lines": 1082,
+      "sha256": "b15451b24c6bfda368db3564689f9158cd3a6eb49daed101104ee907eb925ac0",
+      "lines": 1138,
       "classes": 0,
-      "top_functions": 35,
+      "top_functions": 38,
       "indented_functions": 5,
       "self_state": 0
     },

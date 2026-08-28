@@ -11,7 +11,9 @@ from types import SimpleNamespace
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import QAbstractAnimation, QPoint, QRect, QSettings, Qt
+from PyQt6.QtCore import (QAbstractAnimation, QEvent, QPoint, QRect, QSettings,
+                          Qt)
+from PyQt6.QtGui import QContextMenuEvent, QMouseEvent
 from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import (
     QApplication, QLabel, QMainWindow, QPushButton, QSlider, QVBoxLayout,
@@ -133,6 +135,21 @@ def hit_points(button, inset=3):
     }
 
 
+def product_surface_widget_at(frame, global_point):
+    """Platformun desteklediği en güçlü hit-test sonucunu döndürür.
+
+    Gerçek Qt/Windows oturumunda sistem çapındaki ``widgetAt`` kullanılır.
+    Offscreen eklentisi onu uygulamadığından aynı global nokta overlay'in
+    koordinatına çevrilip Qt çocuk ağacında çözülür. İkinci yol geometri,
+    görünürlük ve kardeş-widget örtüşmesini kanıtlar; native HWND z-order
+    kanıtı değildir.
+    """
+    if os.environ.get("QT_QPA_PLATFORM") != "offscreen":
+        return QApplication.widgetAt(global_point)
+    overlay = frame.control_overlay
+    return overlay.childAt(overlay.mapFromGlobal(global_point))
+
+
 def test_fullscreen_and_other_overlay_buttons_use_pointing_hand_cursor(
         product_window):
     app, window, frame = product_window()
@@ -140,6 +157,42 @@ def test_fullscreen_and_other_overlay_buttons_use_pointing_hand_cursor(
     for name in BUTTON_METHODS:
         assert button_by_name(frame, name).cursor().shape() == (
             Qt.CursorShape.PointingHandCursor), name
+
+
+def test_double_click_on_noninteractive_overlay_surface_toggles_fullscreen(
+        product_window):
+    app, window, frame = product_window()
+    overlay = frame.control_overlay
+    point = QPoint(overlay.width() // 2, 4)
+    event = QMouseEvent(
+        QEvent.Type.MouseButtonDblClick, point.toPointF(),
+        overlay.mapToGlobal(point).toPointF(), Qt.MouseButton.LeftButton,
+        Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+
+    QApplication.sendEvent(overlay, event)
+    app.processEvents()
+
+    assert window.calls == ["toggle_fullscreen"]
+    assert event.isAccepted()
+
+
+def test_right_click_on_noninteractive_overlay_surface_opens_video_menu(
+        product_window):
+    app, window, frame = product_window()
+    overlay = frame.control_overlay
+    opened = []
+    fake_menu = SimpleNamespace(exec=lambda point: opened.append(QPoint(point)))
+    frame.build_context_menu = lambda: fake_menu
+    point = QPoint(overlay.width() // 2, 4)
+    global_point = overlay.mapToGlobal(point)
+    event = QContextMenuEvent(QContextMenuEvent.Reason.Mouse, point,
+                              global_point)
+
+    QApplication.sendEvent(overlay, event)
+    app.processEvents()
+
+    assert opened == [global_point]
+    assert event.isAccepted()
 
 
 # --- A. Görünür overlay üzerinde hit alanı ---
@@ -159,23 +212,49 @@ def test_every_corner_click_reaches_the_player_method(product_window, name):
             f"{name} {label} noktası: {window.calls}")
 
 
-@pytest.mark.skipif(
-    os.environ.get("QT_QPA_PLATFORM") == "offscreen",
-    reason="QApplication.widgetAt() offscreen platformda daima None döner; "
-           "gerçek hit-test Windows smoke'unda ölçülür")
 @pytest.mark.parametrize("name", list(BUTTON_METHODS))
-def test_global_hit_test_resolves_to_the_button(product_window, name):
+def test_product_surface_hit_test_resolves_to_the_button(product_window, name):
     app, window, frame = product_window()
     button = button_by_name(frame, name)
 
     for label, point in hit_points(button).items():
-        target = QApplication.widgetAt(button.mapToGlobal(point))
-        assert target is not None, f"{name} {label}: widgetAt boş"
+        target = product_surface_widget_at(frame, button.mapToGlobal(point))
+        assert target is not None, f"{name} {label}: hit-test boş"
         assert target is button or target.isAncestorOf(button) is False, (
             f"{name} {label}: {target.objectName() or type(target).__name__}")
         assert target is button, (
             f"{name} {label} tıklaması {target.objectName() or type(target).__name__} "
             "üzerine düşüyor")
+
+
+def test_repeated_resize_keeps_visible_button_hits_and_clicks(product_window):
+    app, window, frame = product_window()
+    sizes = ((480, 300), (760, 430), (1280, 720), (560, 340),
+             (1600, 900), (480, 300), (1280, 720))
+
+    for width, height in sizes:
+        window.resize(width, height)
+        app.processEvents()
+        frame.update_overlay_geometry()
+        frame.show_overlay_for_interaction()
+        finish_fade(app, frame)
+        app.processEvents()
+
+        visible = [button_by_name(frame, name) for name in BUTTON_METHODS
+                   if button_by_name(frame, name).isVisible()]
+        assert button_by_name(frame, "overlayPlayPause").isVisible()
+        assert visible
+        for button in visible:
+            expected = BUTTON_METHODS[button.objectName()]
+            point = button.rect().center()
+            assert product_surface_widget_at(
+                frame, button.mapToGlobal(point)) is button
+            window.calls.clear()
+            QTest.mouseClick(button, Qt.MouseButton.LeftButton,
+                             Qt.KeyboardModifier(0), point)
+            app.processEvents()
+            assert window.calls == [expected], (
+                width, height, button.objectName(), window.calls)
 
 
 @pytest.mark.parametrize("name", ("overlaySubtitles", "overlayVolume",

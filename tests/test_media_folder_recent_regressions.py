@@ -472,6 +472,9 @@ class PlayFailurePlayer:
         self._chapter_menu_file = "C:/old.mkv"
         self._load_started_at = 1000.0
         self._title_bar_raise_pending = True
+        self._eof_rewound = True
+        self._url_loading_active = True
+        self._url_loading_started_at = 999.0
         self.stored = {"subtitle/sub_delay": 2.5,
                        "recent_files": ["C:/old.mkv"]}
         self.play_icon = object()
@@ -526,6 +529,9 @@ class PlayFailurePlayer:
             "_chapter_menu_file": self._chapter_menu_file,
             "_load_started_at": self._load_started_at,
             "_title_bar_raise_pending": self._title_bar_raise_pending,
+            "_eof_rewound": self._eof_rewound,
+            "_url_loading_active": self._url_loading_active,
+            "_url_loading_started_at": self._url_loading_started_at,
             "mpv.sub_delay": self.mpv_player.sub_delay,
             "mpv.sub_visibility": self.mpv_player.sub_visibility,
             "settings": dict(self.stored),
@@ -625,10 +631,13 @@ def test_play_from_playlist_reports_false_on_sync_play_error(monkeypatch):
     from app import media_controls
 
     player = PlayFailurePlayer()
+    before = player.state()
+    before["_title_bar_raise_pending"] = False
     monkeypatch.setattr(media_controls, "show_user_error",
                         lambda *a, **k: None)
 
     assert media_controls.play_from_playlist(player, 0) is False
+    assert player.state() == before
 
 
 # ---------------------------------------------------------------------

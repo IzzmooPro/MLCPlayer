@@ -21,6 +21,29 @@ from app.subtitle_style import (atomic_apply, mpv_argb_to_qcolor,
                                 qcolor_to_mpv_argb)
 from app.utils import format_time
 
+
+def _set_checked_without_signal(action, checked):
+    previous = action.blockSignals(True)
+    try:
+        action.setChecked(bool(checked))
+    finally:
+        action.blockSignals(previous)
+
+
+def _set_slider_without_signal(slider, value):
+    previous = slider.blockSignals(True)
+    try:
+        slider.setValue(int(value))
+    finally:
+        slider.blockSignals(previous)
+
+
+def _toggle_loop_file_action(player, action, enabled):
+    if player.set_loop_file(enabled) is False:
+        _set_checked_without_signal(
+            action, bool(getattr(player, "loop_file", False)))
+
+
 def setup_menu(player):
     menu_bar = player.menuBar()
 
@@ -149,8 +172,11 @@ def setup_menu(player):
     loop_file_action = QAction(tr("Tek Dosyayı Tekrarla"), player)
     loop_file_action.setCheckable(True)
     loop_file_action.setChecked(player.loop_file)
-    loop_file_action.toggled.connect(player.set_loop_file)
+    loop_file_action.toggled.connect(
+        lambda enabled: _toggle_loop_file_action(
+            player, loop_file_action, enabled))
     play_menu.addAction(loop_file_action)
+    player.loop_file_action = loop_file_action
 
     loop_playlist_action = QAction(tr("Listeyi Tekrarla"), player)
     loop_playlist_action.setCheckable(True)
@@ -170,9 +196,12 @@ def setup_menu(player):
     speed_menu = play_menu.addMenu(tr("Oynatma Hızı"))
 
     speed_actions = {}
+    speed_group = QActionGroup(player)
+    speed_group.setExclusive(True)
     for speed in [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]:
         speed_action = QAction(f"{speed}x", player)
         speed_action.setCheckable(True)
+        speed_group.addAction(speed_action)
         if speed == 1.0:
             speed_action.setChecked(True)
         speed_action.triggered.connect(lambda checked, s=speed: player.set_playback_speed(s))
@@ -180,6 +209,7 @@ def setup_menu(player):
         speed_actions[speed] = speed_action
 
     player.speed_actions = speed_actions  # Oynatıcıda saklıyoruz
+    player.speed_action_group = speed_group
 
     # Ses menüsü
     audio_menu = menu_bar.addMenu(tr("Ses"))
@@ -448,21 +478,43 @@ def setup_video_adjustments(player):
         except Exception:
             return 0
 
-    def set_setting(name, value):
+    def set_setting(name, value, slider):
         try:
             setattr(player.mpv_player, name, value)
+            if read_setting(name) != int(value):
+                raise RuntimeError("setting write was ignored")
+            return True
         except Exception as e:
             safe_console(f"{name} setting could not be applied: {e}")
+            _set_slider_without_signal(slider, read_setting(name))
+            return False
 
     def reset_settings():
-        # valueChanged sinyaline güvenme: slayt zaten 0 ise sinyal tetiklenmez,
-        # bu yüzden mpv özelliğini her zaman doğrudan 0 yap
-        for name in ("brightness", "contrast", "saturation", "gamma"):
-            set_setting(name, 0)
-        brightness_slider.setValue(0)
-        contrast_slider.setValue(0)
-        saturation_slider.setValue(0)
-        gamma_slider.setValue(0)
+        sliders = {
+            "brightness": brightness_slider,
+            "contrast": contrast_slider,
+            "saturation": saturation_slider,
+            "gamma": gamma_slider,
+        }
+        previous = {name: read_setting(name) for name in sliders}
+        try:
+            for name in sliders:
+                setattr(player.mpv_player, name, 0)
+                if read_setting(name) != 0:
+                    raise RuntimeError(f"{name} reset was ignored")
+        except Exception as e:
+            safe_console(f"Video settings reset failed: {e}")
+            for name in reversed(tuple(sliders)):
+                try:
+                    setattr(player.mpv_player, name, previous[name])
+                except Exception as rollback_error:
+                    safe_console(f"{name} rollback failed: {rollback_error}")
+            for name, slider in sliders.items():
+                _set_slider_without_signal(slider, read_setting(name))
+            return False
+        for slider in sliders.values():
+            _set_slider_without_signal(slider, 0)
+        return True
 
     # Parlaklık
     brightness_layout = QHBoxLayout()
@@ -470,7 +522,8 @@ def setup_video_adjustments(player):
     brightness_slider = QSlider(Qt.Orientation.Horizontal)
     brightness_slider.setRange(-100, 100)
     brightness_slider.setValue(read_setting("brightness"))
-    brightness_slider.valueChanged.connect(lambda v: set_setting("brightness", v))
+    brightness_slider.valueChanged.connect(
+        lambda v: set_setting("brightness", v, brightness_slider))
     brightness_layout.addWidget(brightness_label)
     brightness_layout.addWidget(brightness_slider)
 
@@ -480,7 +533,8 @@ def setup_video_adjustments(player):
     contrast_slider = QSlider(Qt.Orientation.Horizontal)
     contrast_slider.setRange(-100, 100)
     contrast_slider.setValue(read_setting("contrast"))
-    contrast_slider.valueChanged.connect(lambda v: set_setting("contrast", v))
+    contrast_slider.valueChanged.connect(
+        lambda v: set_setting("contrast", v, contrast_slider))
     contrast_layout.addWidget(contrast_label)
     contrast_layout.addWidget(contrast_slider)
 
@@ -490,7 +544,8 @@ def setup_video_adjustments(player):
     saturation_slider = QSlider(Qt.Orientation.Horizontal)
     saturation_slider.setRange(-100, 100)
     saturation_slider.setValue(read_setting("saturation"))
-    saturation_slider.valueChanged.connect(lambda v: set_setting("saturation", v))
+    saturation_slider.valueChanged.connect(
+        lambda v: set_setting("saturation", v, saturation_slider))
     saturation_layout.addWidget(saturation_label)
     saturation_layout.addWidget(saturation_slider)
 
@@ -500,7 +555,8 @@ def setup_video_adjustments(player):
     gamma_slider = QSlider(Qt.Orientation.Horizontal)
     gamma_slider.setRange(-100, 100)
     gamma_slider.setValue(read_setting("gamma"))
-    gamma_slider.valueChanged.connect(lambda v: set_setting("gamma", v))
+    gamma_slider.valueChanged.connect(
+        lambda v: set_setting("gamma", v, gamma_slider))
     gamma_layout.addWidget(gamma_label)
     gamma_layout.addWidget(gamma_slider)
 

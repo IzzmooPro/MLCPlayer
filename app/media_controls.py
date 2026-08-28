@@ -24,29 +24,18 @@ def toggle_mute(player):
         current_volume = player.mpv_player.volume
     except Exception as e:
         safe_console(f"Could not read the volume: {e}")
-        current_volume = 0
+        return False
 
     if current_volume > 0:
-        # Sessize al
+        if not set_volume(player, 0):
+            return False
         player.last_volume = current_volume
-        player.mpv_player.volume = 0
-        player.volume_slider.setValue(0)
-        player.volume_label.setText("%0")
-        player.volume_icon.setIcon(player.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolumeMuted))
-        player.is_muted = True
-        if getattr(player, '_ui_ready', False):
-            player.video_frame.show_osd(tr("Sessiz"))
     else:
-        # Sessizden çık - last_volume 0 ise varsayılan ses seviyesine dön
         restore = player.last_volume if player.last_volume > 0 else DEFAULT_VOLUME
         restore = min(MAX_VOLUME, max(0, float(restore)))
-        player.mpv_player.volume = restore
-        player.volume_slider.setValue(int(restore))
-        player.volume_label.setText(f"%{int(restore)}")
-        player.volume_icon.setIcon(player.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolume))
-        player.is_muted = False
-        if getattr(player, '_ui_ready', False):
-            player.video_frame.show_osd(f"{tr('Ses')}: %{int(restore)}")
+        if not set_volume(player, restore):
+            return False
+    return True
 
 def _refresh_overlay_subtitle_state(player):
     """Altyazı durumu değiştikten sonra overlay CC göstergesini tazeler."""
@@ -97,13 +86,17 @@ def append_media_paths(player, paths):
     """Bırakılan medyaları mevcut sırayı bozmadan oynatma listesine ekler."""
     additions = [path for path in paths if path]
     if not additions:
-        return
+        return False
+    snapshot = _capture_playback_state(player)
     start_index = len(player.playlist)
     player.playlist.extend(additions)
     if not getattr(player, "current_file", ""):
-        play_from_playlist(player, start_index)
+        if not play_from_playlist(player, start_index):
+            _restore_failed_media_selection(player, snapshot)
+            return False
     else:
         _refresh_playlist_panel(player)
+    return True
 
 
 def open_file(player):
@@ -244,7 +237,8 @@ _PLAYBACK_STATE_FIELDS = (
     "playlist", "current_playlist_index", "current_file", "last_dir",
     "duration", "position", "is_paused", "_core_idle", "_audio_menu_file",
     "_chapter_menu_file", "_pending_subs", "_load_started_at",
-    "_title_bar_raise_pending",
+    "_title_bar_raise_pending", "_eof_rewound", "_url_loading_active",
+    "_url_loading_started_at",
 )
 _MPV_STATE_FIELDS = ("sub_delay", "sub_visibility")
 _SUB_DELAY_KEY = "subtitle/sub_delay"
@@ -327,9 +321,43 @@ def _restore_playback_state(player, state):
         remove = getattr(settings, "remove", None)
         if callable(remove):
             try:
+                contains = getattr(settings, "contains", None)
+                if callable(contains) and not contains(_SUB_DELAY_KEY):
+                    return
                 remove(_SUB_DELAY_KEY)
             except Exception as e:
                 safe_console(f"Could not remove the subtitle delay setting: {e}")
+
+
+def _restore_failed_media_selection(player, state):
+    """Senkron yükleme reddinde önceki oturumu ve görünür UI'ı geri kurar."""
+    _restore_playback_state(player, state)
+    # Yeni yükleme girişimi eski tek-kullanımlık z-order işini tüketmiştir.
+    # Onu geri koymak, daha sonraki ilgisiz pencere olayını etkiler.
+    _clear_title_bar_raise(player)
+    if getattr(player, "_url_loading_active", False):
+        _set_placeholder_text(
+            player, translate_marked(URL_LOADING_TEXT), True)
+    else:
+        _set_placeholder_text(
+            player, PLACEHOLDER_DEFAULT_TEXT,
+            not bool(getattr(player, "current_file", "")))
+    play_button = getattr(player, "play_button", None)
+    set_icon = getattr(play_button, "setIcon", None)
+    if callable(set_icon):
+        icon = (getattr(player, "play_icon", None)
+                if getattr(player, "is_paused", True)
+                else getattr(player, "pause_icon", None))
+        set_icon(icon)
+    frame = getattr(player, "video_frame", None)
+    overlay = getattr(frame, "control_overlay", None)
+    refresh_overlay = getattr(overlay, "update_overlay_play_state", None)
+    if callable(refresh_overlay):
+        refresh_overlay()
+    set_title = getattr(player, "set_title", None)
+    if callable(set_title):
+        set_title()
+    _refresh_playlist_panel(player)
 
 
 def _folder_warning(player, title, message):
@@ -367,7 +395,15 @@ def open_recent(player, path):
 def open_path(player, path):
     """Belirli bir dosya yolunu doğrudan açar (dosya iletişim kutusu, sürükle-bırak veya komut satırı)."""
     if not path:
-        return
+        return False
+    snapshot = _capture_playback_state(player)
+    if snapshot["settings_status"] == SETTING_UNREADABLE:
+        show_user_error(
+            player, tr("Dosya Açılamadı"),
+            tr("Oynatıcı ayarları okunamadığı için dosya güvenli biçimde "
+               "açılamadı. Lütfen tekrar deneyin."))
+        return False
+    load_submitted = False
     try:
         # Yeni medya yüklenirken eski dosyanın süre/konum bilgisi kullanılmasın.
         player.duration = 0
@@ -385,6 +421,7 @@ def open_path(player, path):
         _reset_subtitle_timing_for_new_media(player)
         _hide_subtitles_for_new_media(player)
         _load_media_without_blocking_ui(player.mpv_player, path)
+        load_submitted = True
         # Başarıyla doğrudan açılan yerel medya da görünür playlist'in tek
         # öğesidir. Böylece ekranda oynayan dosya ile sağ panel aynı modeli taşır.
         player.playlist = [path]
@@ -399,19 +436,18 @@ def open_path(player, path):
         player.add_recent_file(path)
         _refresh_playlist_panel(player)
         safe_console(f"Playing file: {path}")
+        return True
     except Exception as e:
+        if load_submitted:
+            safe_console(f"Post-load file update error: {e}")
+            return True
         safe_console(f"Open file error: {e}")
-        player.current_file = ""
-        player.duration = 0
-        player.position = 0
-        player._load_started_at = 0
-        player._pending_subs = []
-        _set_placeholder_text(player, PLACEHOLDER_DEFAULT_TEXT, True)
-        player.set_title()
+        _restore_failed_media_selection(player, snapshot)
         show_user_error(player, tr("Dosya Açılamadı"),
                         tr("Dosya açılamadı. Dosya silinmiş, taşınmış veya "
                            "desteklenmeyen bir format olabilir."),
                         exc=e)
+        return False
 
 # Bu sabitler import anında hesaplanır; o an çevirmen henüz YOKTUR. Bu
 # yüzden `tr()` DEĞİL `tr_mark()` kullanılır (yalnız işaretler) ve çeviri
@@ -520,8 +556,7 @@ def open_external_target(player, target):
     if kind == "url":
         return open_media_url(player, value)
     if kind == "file":
-        open_path(player, value)
-        return True
+        return bool(open_path(player, value))
     show_user_error(player, translate_marked(URL_INVALID_TITLE),
                     translate_marked(URL_INVALID_MESSAGE))
     return False
@@ -627,6 +662,14 @@ def open_media_url(player, raw):
         show_user_error(player, translate_marked(URL_INVALID_TITLE),
                         translate_marked(URL_INVALID_MESSAGE))
         return False
+    snapshot = _capture_playback_state(player)
+    if snapshot["settings_status"] == SETTING_UNREADABLE:
+        show_user_error(
+            player, translate_marked(URL_FAILED_TITLE),
+            tr("Oynatıcı ayarları okunamadığı için bağlantı güvenli biçimde "
+               "açılamadı. Lütfen tekrar deneyin."))
+        return False
+    load_submitted = False
     try:
         clear_url_loading(player)
         player.duration = 0
@@ -646,6 +689,7 @@ def open_media_url(player, raw):
         _hide_subtitles_for_new_media(player)
         player._eof_rewound = False
         _load_media_without_blocking_ui(player.mpv_player, url)
+        load_submitted = True
         _mark_title_bar_raise(player)
         player.play_button.setIcon(player.pause_icon)
         player.is_paused = False
@@ -657,7 +701,10 @@ def open_media_url(player, raw):
         safe_console(f"Opening link: {sanitize_media_url(url)}")
         return True
     except Exception as e:
-        clear_url_loading(player)
+        if load_submitted:
+            safe_console(f"Post-load link update error: {type(e).__name__}")
+            return True
+        _restore_failed_media_selection(player, snapshot)
         safe_console(f"Link open error: {type(e).__name__}")
         show_user_error(player, translate_marked(URL_FAILED_TITLE),
                         translate_marked(URL_FAILED_MESSAGE), exc=e)
@@ -726,6 +773,8 @@ def select_subtitle_language(player, sid):
                         exc=e)
 
 def toggle_subtitles(player):
+    previous_sid = None
+    sid_changed = False
     try:
         try:
             tracks = list(player.mpv_player.track_list or [])
@@ -740,8 +789,9 @@ def toggle_subtitles(player):
             return False
 
         current_visibility = player.mpv_player.sub_visibility
+        previous_sid = getattr(player.mpv_player, "sid", None)
         if not current_visibility:
-            sid = getattr(player.mpv_player, "sid", None)
+            sid = previous_sid
             disabled = sid is None or sid is False or str(sid).strip().lower() in {
                 "", "0", "no", "none", "false"
             }
@@ -750,27 +800,50 @@ def toggle_subtitles(player):
                                  if track.get("selected")), subtitle_tracks[0])
                 if selected.get("id") is not None:
                     player.mpv_player.sid = selected["id"]
+                    sid_changed = True
         player.mpv_player.sub_visibility = not current_visibility
         _refresh_overlay_subtitle_state(player)
         safe_console(f"Subtitles visibility set to: {not current_visibility}")
         return True
     except Exception as e:
+        if sid_changed:
+            try:
+                player.mpv_player.sid = previous_sid
+            except Exception:
+                pass
+        _refresh_overlay_subtitle_state(player)
         safe_console(f"Subtitle visibility toggle error: {e}")
         show_user_error(player, tr("Altyazı Değiştirilemedi"),
                         tr("Altyazılar açılıp kapatılamadı. Lütfen tekrar "
                            "deneyin."),
                         exc=e)
+        return False
 
 def seek_position(player, position):
     # Konum slider'ının programatik güncellemesinden gelen sinyalleri yoksay
     if getattr(player, '_updating_position_slider', False):
-        return
-    if player.duration > 0:
-        try:
-            seek_time = (position * player.duration) / 1000.0
-            player.mpv_player.time_pos = float(seek_time)
-        except Exception as e:
-            safe_console(f"Seeking error: {e}")
+        return True
+    if player.duration <= 0:
+        return False
+    try:
+        previous_time = float(player.mpv_player.time_pos or 0)
+    except Exception as e:
+        safe_console(f"Seeking state error: {e}")
+        return False
+    try:
+        seek_time = (position * player.duration) / 1000.0
+        player.mpv_player.time_pos = float(seek_time)
+    except Exception as e:
+        safe_console(f"Seeking error: {e}")
+        previous_value = int(max(0, min(
+            1000, (previous_time * 1000.0) / player.duration)))
+        _restore_slider(getattr(player, "position_slider", None),
+                        previous_value)
+        frame = getattr(player, "video_frame", None)
+        _restore_slider(getattr(frame, "overlay_timeline", None),
+                        previous_value)
+        return False
+    return True
 
 def seek_relative(player, seconds):
     try:
@@ -812,16 +885,50 @@ def play_pause(player):
         open_file(player)
         return
 
-    if not player.is_paused:
-        player.mpv_player.pause = True
+    # keep-open ile doğal sona ulaşan mpv core-idle durumunda kalabilir.
+    # Yalnız pause=False yapmak düğmeyi "oynatıyor" gösterse de akışı
+    # yeniden başlatmaz; önce oynatma konumunu gerçek mpv kuyruğunda başa al.
+    if (player.is_paused
+            and getattr(player, "_eof_rewound", False)
+            and getattr(player, "_core_idle", False)):
+        try:
+            command_async = getattr(player.mpv_player, "command_async", None)
+            if callable(command_async):
+                command_async("seek", 0, "absolute+exact")
+            else:
+                player.mpv_player.command("seek", 0, "absolute+exact")
+            player.mpv_player.pause = False
+        except Exception as e:
+            safe_console(f"Could not restart finished media: {type(e).__name__}")
+            return
+        player.position = 0
+        # Komut kabul edildiğinde yerel state yeni oynatma girişimini temsil
+        # eder. Aksi halde hızlı Play-Pause-Play ikinci kez EOF koluna girip
+        # videoyu tekrar başa sarar.
+        player._core_idle = False
+        player._eof_rewound = False
+        player.play_button.setIcon(player.pause_icon)
+        player.is_paused = False
+        if player.video_frame.control_overlay is not None:
+            player.video_frame.update_overlay_play_state()
+        return
+
+    target_paused = not player.is_paused
+    try:
+        player.mpv_player.pause = target_paused
+    except Exception as e:
+        safe_console(f"Could not change pause state: {type(e).__name__}")
+        return False
+
+    if target_paused:
         player.play_button.setIcon(player.play_icon)
         player.is_paused = True
     else:
-        player.mpv_player.pause = False
         player.play_button.setIcon(player.pause_icon)
         player.is_paused = False
     if player.video_frame.control_overlay is not None:
         player.video_frame.update_overlay_play_state()
+    return True
 
 def stop(player):
     try:
@@ -832,6 +939,7 @@ def stop(player):
             player.mpv_player.stop()
     except Exception as e:
         safe_console(f"MPV stop error: {e}")
+        return False
     player.play_button.setIcon(player.play_icon)
     player.is_paused = True
     player.duration = 0
@@ -855,6 +963,7 @@ def stop(player):
     if hasattr(player, 'total_time_label'):
         player.total_time_label.setText("00:00")
     _set_placeholder_text(player, PLACEHOLDER_DEFAULT_TEXT, True)
+    return True
 
 
 def _load_media_without_blocking_ui(mpv_player, path):
@@ -905,7 +1014,35 @@ def natural_end_should_rewind(player):
             and duration > 0
             and position >= duration - 0.2)
 
+def _restore_slider(slider, value):
+    """Kontrolü yeni ürün işlemi üretmeden ölçülen değere döndürür."""
+    if slider is None:
+        return
+    block = getattr(slider, "blockSignals", None)
+    if not callable(block):
+        slider.setValue(int(round(value)))
+        return
+    previous = block(True)
+    try:
+        slider.setValue(int(round(value)))
+    finally:
+        block(previous)
+
+
+def _restore_volume_sliders(player, value):
+    _restore_slider(getattr(player, "volume_slider", None), value)
+    frame = getattr(player, "video_frame", None)
+    _restore_slider(getattr(frame, "overlay_volume_slider", None), value)
+
+
 def set_volume(player, volume):
+    try:
+        previous_volume = min(
+            MAX_VOLUME, max(0, float(player.mpv_player.volume)))
+    except Exception as e:
+        safe_console(f"Could not read volume before write: {e}")
+        _restore_volume_sliders(player, getattr(player, "last_volume", 0))
+        return False
     try:
         # Üst/alt sınır: mpv volume 1000'e kadar izin verir; burada MAX_VOLUME ile sınırla
         volume = min(MAX_VOLUME, max(0, float(volume)))
@@ -913,8 +1050,22 @@ def set_volume(player, volume):
         # 100 üstü amplifikasyon için mpv'nin üst sınırını yükselt (varsayılan 130)
         if volume > 100:
             player.mpv_player.volume_max = MAX_VOLUME
-
         player.mpv_player.volume = volume
+        actual_volume = float(player.mpv_player.volume)
+        if not math.isclose(actual_volume, volume, abs_tol=0.01):
+            raise RuntimeError("volume write was ignored")
+    except Exception as e:
+        safe_console(f"Set volume error: {e}")
+        try:
+            actual_volume = min(
+                MAX_VOLUME, max(0, float(player.mpv_player.volume)))
+        except Exception:
+            actual_volume = previous_volume
+        _restore_volume_sliders(player, actual_volume)
+        return False
+
+    _restore_volume_sliders(player, volume)
+    try:
         player.volume_label.setText(f"%{int(volume)}")
         if volume == 0:
             player.volume_icon.setIcon(player.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolumeMuted))
@@ -928,33 +1079,31 @@ def set_volume(player, volume):
         if getattr(player, '_ui_ready', False):
             player.video_frame.show_osd(osd_text)
     except Exception as e:
-        safe_console(f"Set volume error: {e}")
+        safe_console(f"Volume UI update error: {e}")
+    return True
 
 
 def change_volume(player, delta):
     """Ses seviyesini mevcut değere göre değiştirir."""
     try:
         current = min(MAX_VOLUME, max(0, float(player.mpv_player.volume)))
-        player.volume_slider.setValue(int(current + delta))
+        return set_volume(player, current + delta)
     except Exception as e:
         safe_console(f"Volume change error: {e}")
+        return False
 
 def add_to_playlist(player):
     files, _ = QFileDialog.getOpenFileNames(
         player, tr("Oynatma Listesine Dosya Ekle"), "",
         f"{tr('Medya Dosyaları')} ({MEDIA_EXTENSIONS})"
     )
-    if files:
-        for file in files:
-            player.playlist.append(file)
-            safe_console(f"Oynatma listesine eklendi: {file}")
-
-        # Eğer şu an bir dosya oynatılmıyorsa, ilk dosyayı oynat
-        if not player.current_file and player.playlist:
-            player.current_playlist_index = 0
-            play_from_playlist(player, player.current_playlist_index)
-
-        _refresh_playlist_panel(player)
+    if not files:
+        return False
+    if not append_media_paths(player, files):
+        return False
+    for file in files:
+        safe_console(f"Oynatma listesine eklendi: {file}")
+    return True
 
 
 def _refresh_playlist_panel(player):
@@ -1028,11 +1177,19 @@ def sync_playlist_view(player, list_widget):
 def play_from_playlist(player, index):
     """Listedeki `index` girdisini oynatır.
 
-    Dönüş değeri çağıranın GERİ ALMA kararı içindir: geçersiz index veya
-    yükleme komutu gönderim hatasında `False`, başarıda `True`. Mevcut çağıranlar
-    dönüşü yok sayar; davranışları değişmez.
+    Geçersiz index veya yükleme komutu gönderim hatasında `False`, başarıda
+    `True` döner. Komut mpv'ye teslim edilmeden önceki hata bütün yerel oynatma
+    durumunu geri alır; seçili satır oynatılmayan dosyaya kaymaz.
     """
     if 0 <= index < len(player.playlist):
+        snapshot = _capture_playback_state(player)
+        if snapshot["settings_status"] == SETTING_UNREADABLE:
+            show_user_error(
+                player, tr("Dosya Açılamadı"),
+                tr("Oynatıcı ayarları okunamadığı için dosya güvenli biçimde "
+                   "açılamadı. Lütfen tekrar deneyin."))
+            return False
+        load_submitted = False
         try:
             player.current_playlist_index = index
             file_path = player.playlist[index]
@@ -1050,6 +1207,7 @@ def play_from_playlist(player, index):
             _reset_subtitle_timing_for_new_media(player)
             _hide_subtitles_for_new_media(player)
             _load_media_without_blocking_ui(player.mpv_player, file_path)
+            load_submitted = True
             _mark_title_bar_raise(player)
             player.play_button.setIcon(player.pause_icon)
             player.is_paused = False
@@ -1062,6 +1220,19 @@ def play_from_playlist(player, index):
             safe_console(f"Playing: {file_path}")
             return True
         except Exception as e:
+            if load_submitted:
+                # Native yükleme çoktan kabul edildi; eski state'e dönmek yeni
+                # oynayan medya ile UI'ı birbirinden koparır.
+                safe_console(f"Post-load playlist update error: {e}")
+                return True
+            _restore_playback_state(player, snapshot)
+            # Önceki medyadan kalan tek-kullanımlık z-order işi yeni yükleme
+            # girişiminde tüketilmiştir; geri yüklenirse daha sonra ilgisiz
+            # bir pencere olayında başlık çubuğunu yanlışlıkla öne çıkarır.
+            _clear_title_bar_raise(player)
+            if getattr(player, "_url_loading_active", False):
+                _set_placeholder_text(
+                    player, translate_marked(URL_LOADING_TEXT), True)
             safe_console(f"Play-from-playlist error: {e}")
             show_user_error(player, tr("Dosya Açılamadı"),
                             tr("Oynatma listesindeki dosya açılamadı. Dosya "
@@ -1072,28 +1243,36 @@ def play_from_playlist(player, index):
 
 def remove_from_playlist(player, index):
     if 0 <= index < len(player.playlist):
+        snapshot = _capture_playback_state(player)
         player.playlist.pop(index)
         if index == player.current_playlist_index:
             # Eğer oynatılan dosya kaldırıldıysa
             if player.playlist:
                 # Listede başka dosyalar varsa, sıradakini oynat
                 new_index = min(index, len(player.playlist) - 1)
-                play_from_playlist(player, new_index)
+                if not play_from_playlist(player, new_index):
+                    _restore_failed_media_selection(player, snapshot)
+                    return False
             else:
                 # Liste boşaldıysa oynatmayı durdur
-                stop(player)
+                if not stop(player):
+                    _restore_failed_media_selection(player, snapshot)
+                    return False
                 player.current_playlist_index = -1
         elif index < player.current_playlist_index:
             # Eğer oynatılan dosyadan önceki bir dosya kaldırıldıysa, indeksi güncelle
             player.current_playlist_index -= 1
         _refresh_playlist_panel(player)
+        return True
+    return False
 
 def clear_playlist(player):
-    if player.current_file:
-        stop(player)
+    if player.current_file and not stop(player):
+        return False
     player.playlist = []
     player.current_playlist_index = -1
     _refresh_playlist_panel(player)
+    return True
 
 def save_playlist(player):
     if not player.playlist:
@@ -1128,7 +1307,7 @@ def load_playlist(player):
         f"{tr('Oynatma Listesi')} (*.m3u)"
     )
     if not file_path:
-        return
+        return False
     try:
         entries = []
         with open(file_path, "r", encoding="utf-8") as f:
@@ -1144,20 +1323,29 @@ def load_playlist(player):
             QMessageBox.warning(
                 player, tr("Uyarı"),
                 tr("Oynatma listesinde geçerli dosya bulunamadı."))
-            return
-        if player.current_file:
-            stop(player)
+            return False
+        snapshot = _capture_playback_state(player)
+        if snapshot["settings_status"] == SETTING_UNREADABLE:
+            show_user_error(
+                player, tr("Açılamadı"),
+                tr("Oynatıcı ayarları okunamadığı için oynatma listesi "
+                   "güvenli biçimde açılamadı. Lütfen tekrar deneyin."))
+            return False
         player.playlist = entries
         player.current_playlist_index = -1
-        play_from_playlist(player, 0)
+        if not play_from_playlist(player, 0):
+            _restore_failed_media_selection(player, snapshot)
+            return False
         _refresh_playlist_panel(player)
         safe_console(f"Playlist loaded ({len(entries)} files): {file_path}")
+        return True
     except Exception as e:
         safe_console(f"Playlist open error: {e}")
         show_user_error(player, tr("Açılamadı"),
                         tr("Oynatma listesi açılamadı. Dosya bozuk veya "
                            "okunamıyor olabilir."),
                         exc=e)
+        return False
 
 def take_screenshot(player):
     if not player.current_file:
@@ -1197,12 +1385,10 @@ def take_screenshot(player):
 def play_next(player):
     if player.playlist:
         if player.current_playlist_index < len(player.playlist) - 1:
-            player.current_playlist_index += 1
-            play_from_playlist(player, player.current_playlist_index)
+            play_from_playlist(player, player.current_playlist_index + 1)
         elif player.loop_playlist:
-            # SARMA: son parçadan ilk parçaya. İndeks de güncellenir; aksi
-            # halde menü ve sonraki adım bayat indeksle çalışırdı.
-            player.current_playlist_index = 0
+            # Aktif indeks yalnız yükleme komutu kabul edilince
+            # `play_from_playlist` içinde değişir.
             play_from_playlist(player, 0)
         else:
             show_information(player, tr("Oynatma listesi"),
@@ -1213,8 +1399,7 @@ def play_next(player):
 
 def play_previous(player):
     if player.playlist and player.current_playlist_index > 0:
-        player.current_playlist_index -= 1
-        play_from_playlist(player, player.current_playlist_index)
+        play_from_playlist(player, player.current_playlist_index - 1)
     elif (player.playlist and player.loop_playlist
             and player.current_playlist_index == 0):
         # SARMA: YALNIZCA ilk parçadan son parçaya. `play_next` zaten
@@ -1223,8 +1408,7 @@ def play_previous(player):
         #
         # `index == 0` koşulu şarttır: liste henüz başlamamışsa (-1)
         # "önceki" son parçayı AÇMAMALIDIR.
-        player.current_playlist_index = len(player.playlist) - 1
-        play_from_playlist(player, player.current_playlist_index)
+        play_from_playlist(player, len(player.playlist) - 1)
     else:
         show_information(player, tr("Oynatma listesi"),
                          tr("Listenin başındasınız."))
@@ -1271,18 +1455,34 @@ def goto_time(player):
                             exc=e)
 
 def set_playback_speed(player, speed):
+    actions = getattr(player, "speed_actions", {})
     try:
-        if player.mpv_player:
-            player.mpv_player.speed = float(speed)
-            # Hız etiketini güncelle
-            if hasattr(player, 'speed_label'):
-                player.speed_label.setText(f"{speed}x")
-            # Menü öğelerini güncelle
-            for s, action in player.speed_actions.items():
-                action.setChecked(s == speed)
+        previous_speed = float(
+            getattr(player.mpv_player, "speed", 1.0) or 1.0)
+    except Exception:
+        previous_speed = 1.0
+    try:
+        if not player.mpv_player:
+            raise RuntimeError("player core is unavailable")
+        player.mpv_player.speed = float(speed)
+        actual_speed = float(player.mpv_player.speed)
+        if not math.isclose(actual_speed, float(speed), abs_tol=0.001):
+            raise RuntimeError("speed write was ignored")
     except Exception as e:
+        try:
+            actual_speed = float(player.mpv_player.speed)
+        except Exception:
+            actual_speed = previous_speed
+        for value, action in actions.items():
+            action.setChecked(float(value) == actual_speed)
         safe_console(f"Playback speed change error: {e}")
         show_user_error(player, tr("Oynatma Hızı Değiştirilemedi"),
                         tr("Oynatma hızı değiştirilemedi. Lütfen başka bir "
                            "hız deneyin."),
                         exc=e)
+        return False
+    if hasattr(player, 'speed_label'):
+        player.speed_label.setText(f"{speed}x")
+    for value, action in actions.items():
+        action.setChecked(float(value) == float(speed))
+    return True

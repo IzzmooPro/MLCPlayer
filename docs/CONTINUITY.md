@@ -6,14 +6,13 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 28 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `23eca2a5e4983bd80d0d194e26d53dc850d4418a`
+- Kayıt hazırlanırken doğrulanan HEAD: `1abd9059a8b047dc06ea03f89c2643bb567cab70`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-release-record` (`origin/master` ile `1/0`; EV021 iki-belge evidence-commit bağı uncommitted)
-- Son kanıt: `EV-20260828-021`
+- Dal: `codex/v040-ux-hardening` (exact `59f6980` tabanındaki UX/lifecycle paketi local `1abd905` commit'ine bağlandı; push edilmedi)
+- Son kanıt: `EV-20260828-038`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
-
 - Belge/yönetişim paketi ve semantik sahiplik düzeltmesi PR #48 üzerinden
   iki ebeveynli exact `5a94d4e` merge commit'iyle master'a alındı. Yerel ve
   uzak master, PR #49 kayıt merge'i sonrasında exact `b7e7cdd` üzerinde temiz,
@@ -40,7 +39,6 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   gelecekteki build'e taşınmaz.
 
 ## Kalite kabul özeti
-
 - Windows P0 matrisi: `WIN-P0-01`–`WIN-P0-05` PASSED; drag/drop, playlist
   sınırları ve IPC için `P0-06`, `P0-07`, `P0-08` NOT_RUN.
 - Video biçimi matrisi: SDR ekranda `VF-CORE-01` ve HDR ekranda SDR-on-HDR
@@ -54,6 +52,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   skipped senaryoları PASS yapmaz.
 
 ## Açık çalışma ve korunan kapılar
+
+- Yayın sonrası oynatma/kontrol UX denetimi exact `59f6980` tabanında regression-first yürütüldü. Playlist/EOF ve görünür durum rollback'lerine ek olarak ses, seek exception, hız, loop ve görüntü ayarı başarısızlıkları; klavye yönlendirmeleri; tekrarlı title-bar, updater, panel ve pencere boyutu tıklamaları sertleştirildi. Yapışık playlist sınırındaki çift resize alanı, PiP/dar pencere kontrol-hit çakışması, mod geçişinde takılı resize imleci ve overlay'in yuttuğu çift/sağ tık kapatıldı. Derin kontrol-yolu taraması ayrıca dosya/URL/M3U seçimi, aktif öğe kaldırma, liste temizleme ve üç dosya-ekleme yolunu native ret halinde atomik geri almaya bağladı; klasik ses çubuğunda yatay ve yüksek çözünürlüklü teker davranışı düzeltildi. EV029 ve EV030 uygulamaları kaynak/test ağacından çıkarıldı; ilk görüntülerin eski `9090caf` checkout'undan geldiği ayrıca kaydedildi. Doğru ağaç yeniden açıldıktan sonraki görüntü klasör, playlist/menü ve sağ pencere ikonlarının tümünde hover aktifken dikey okun kaldığını doğruladı ve EV031 child-event teşhisini çürüttü; o uygulama/test de çıkarıldı. Kök neden, ayrı top-level overlay için gerekli `QApplication` override'ının ana pencere başlığında da açılmasıydı: Qt sözleşmesine göre bu cursor bütün uygulama widget'larını ezdiğinden ikonların kendi el cursor'ı görünemiyordu. Ana pencere ağacı artık yalnız widget cursor'ı kullanıyor; global override yalnız farklı top-level overlay ile sınırlı. Etki paketi **302 passed**, son tam deterministik paket **5160 passed / 11 skipped / 0 failed** verdi (`EV-20260828-033`). Değişiklik sonrası kullanıcı görüntülerinde bütün ikonlar doğru el cursor'ını, yalnız boş gerçek üst kenar dikey resize cursor'ını gösterdi; normal kapanıştan sonra player/launcher child süreçleri sıfırdı (`EV-20260828-034`). Kullanıcı tercihiyle başlık şeridi önce 36 px'e, ardından ikon/düğme ölçüleri korunarak güncel 40 px'e çıkarıldı; 40 px hedef paket **278 passed**, tam paket **5160 passed / 11 skipped / 0 failed** verdi (`EV-20260828-036`) ve kullanıcı güncel görünümü açıkça kabul etti (`EV-20260828-037`). Exact paket local `1abd905` commit'ine temiz readback ile bağlandı (`EV-20260828-038`). Bu görsel source-tree kabulüdür; captured exit-marker olmadığı için formal native smoke veya kurulu artifact kabulü değildir. İngilizce 456/456 tamam; 0/456 olan diğer altı katalog derlenmez ve menüde sunulmaz.
 
 - Installer UX kararları `PACKAGING_PLAN.md` içinde tutulur. Üç private bitmap
   yönü karşılaştırıldı; kullanıcı **C — Dengeli Hibrit** yönünü açıkça seçti
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV021 iki-belge evidence-commit bağını ayrı onayla commit et; ardından kayıt dalını normal PR kapısıyla master'a taşı. `P0-06`–`08` yayın sonrası, thumbnail cache politikası ürün kararıdır.
+Kullanıcının ayrı onayıyla `EV-20260828-038` terminal evidence-binding belge commit'ini tamamla; ardından push onayını ayrıca iste. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur. Build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

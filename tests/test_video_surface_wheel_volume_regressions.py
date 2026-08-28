@@ -230,6 +230,44 @@ def test_the_volume_slider_keeps_its_own_wheel_behaviour():
     assert slider.value() == 55
 
 
+def test_horizontal_wheel_over_volume_slider_does_not_lower_volume():
+    app = QApplication.instance() or QApplication([])
+    slider = VolumeSlider(Qt.Orientation.Horizontal)
+    slider.setRange(0, MAX_VOLUME)
+    slider.setValue(50)
+
+    slider.wheelEvent(QWheelEvent(
+        QPointF(1.0, 1.0), QPointF(1.0, 1.0), QPoint(0, 0),
+        QPoint(WHEEL_STEP, 0), Qt.MouseButton.NoButton,
+        Qt.KeyboardModifier.NoModifier, Qt.ScrollPhase.NoScrollPhase, False))
+    app.processEvents()
+
+    assert slider.value() == 50
+
+
+def test_small_volume_slider_wheel_deltas_accumulate_one_step():
+    app = QApplication.instance() or QApplication([])
+    slider = VolumeSlider(Qt.Orientation.Horizontal)
+    slider.setRange(0, MAX_VOLUME)
+    slider.setValue(50)
+
+    for _ in range(2):
+        slider.wheelEvent(QWheelEvent(
+            QPointF(1.0, 1.0), QPointF(1.0, 1.0), QPoint(0, 0),
+            QPoint(0, 40), Qt.MouseButton.NoButton,
+            Qt.KeyboardModifier.NoModifier, Qt.ScrollPhase.NoScrollPhase,
+            False))
+    assert slider.value() == 50
+
+    slider.wheelEvent(QWheelEvent(
+        QPointF(1.0, 1.0), QPointF(1.0, 1.0), QPoint(0, 0),
+        QPoint(0, 40), Qt.MouseButton.NoButton,
+        Qt.KeyboardModifier.NoModifier, Qt.ScrollPhase.NoScrollPhase, False))
+    app.processEvents()
+
+    assert slider.value() == 55
+
+
 # =====================================================================
 # 4. Overlay durumu ve hata guvenligi
 # =====================================================================
