@@ -10887,6 +10887,42 @@
         "No push, PR, merge, build, installation, uninstall, tag or release was performed."
       ],
       "next_action": "Commit this separately approved two-document terminal binding, then request push approval separately; do not build, install, merge, tag or release."
+    },
+    {
+      "id": "EV-20260829-001",
+      "recorded_at_utc": "2026-08-28T22:56:49Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "63b770498b8c8eff70b5270d5cff4159a62ccc4a",
+      "baseline_commit": "63b770498b8c8eff70b5270d5cff4159a62ccc4a",
+      "tested_commit": "b244a7fecf853cbfd3cb8b5d1351fec004105cb6",
+      "working_tree_state": "clean canonical master equal to origin/master after protected PR merge and before this append-only record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "PR 69 required hosted PASS, protected merge and canonical-master consolidation",
+      "commands": [
+        "gh pr view 69 --json state, mergeability, head, merge commit and status checks; gh pr checks 69",
+        "gh run view 33190838567 --json metadata and jobs; bounded log readback for ledger and pytest summaries",
+        "separately authorized gh pr merge 69 --merge followed by merge-commit parent and origin/master ancestry readback",
+        "canonical checkout cleanliness and protection-branch readback; git switch master; git merge --ff-only origin/master; final HEAD and 0/0 divergence readback"
+      ],
+      "evidence": [
+        "PR #69 required test run 33190838567 job 98915572791 completed SUCCESS for exact head b244a7fecf853cbfd3cb8b5d1351fec004105cb6 and emitted LEDGER_APPEND_ONLY_OK",
+        "the hosted CI-safe package completed 5149 passed and 22 skipped in 134.11 seconds; skipped tests are not promoted to PASS",
+        "pre-merge PR readback was OPEN, MERGEABLE and CLEAN with exact required test SUCCESS; the separately authorized merge produced exact two-parent commit 63b770498b8c8eff70b5270d5cff4159a62ccc4a from parents 59f6980d6be88d5c66ab55aeb235a1e07518e212 and b244a7fecf853cbfd3cb8b5d1351fec004105cb6",
+        "the exact PR head is an ancestor of origin/master and PR #69 read back MERGED at 2026-08-28T16:43:44Z",
+        "the canonical MLC Player checkout preserved the separate c18680b evidence branch, switched cleanly to master and fast-forwarded only to exact 63b7704; final local master matched origin/master at 0/0 with a clean tree"
+      ],
+      "summary": "The complete v0.40 UX hardening package passed the required hosted PR gate, merged through protected two-parent commit 63b7704 and is now the clean canonical master at exact remote parity.",
+      "limitations": [
+        "Hosted CI and source-tree visual acceptance do not prove a newly built or installed artifact, controlled native_smoke, tag or release behavior.",
+        "The 22 hosted skips are not PASS.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN, so this result is not an independent formal GO.",
+        "No build, installation, uninstall, tag or release was performed."
+      ],
+      "next_action": "Commit this two-document merge record through the normal protected documentation workflow; keep build, installed-artifact acceptance, tag and release behind separate explicit approvals."
     }
   ]
 }
