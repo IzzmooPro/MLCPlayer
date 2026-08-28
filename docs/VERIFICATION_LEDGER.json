@@ -9718,6 +9718,58 @@
         "The four-file package remains uncommitted until separately approved."
       ],
       "next_action": "Request separate approval to commit this four-file B2 contract package; then continue the already approved exact ABBB/D4 normal B2 lifecycle with a fresh bounded orchestrator."
+    },
+    {
+      "id": "EV-20260828-013",
+      "recorded_at_utc": "2026-08-28T07:43:42Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "11bb2b01bf180c61d802717ead6f7a2f72558ca8",
+      "baseline_commit": "11bb2b01bf180c61d802717ead6f7a2f72558ca8",
+      "working_tree_state": "clean before every physical segment and before evidence recording",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Exact ABBB/D4 silent B2 lifecycle with immutable checkpoint resume",
+      "commands": [
+        "exact HEAD, clean tree, artifact name/size/SHA-256, baseline, prior immutable evidence, zero-stale-evidence and zero-target-process preflight",
+        "private runner parser, stale/create-only, forged handoff, TOCTOU held-lock, concurrent single-writer, resume mutation, unique physical-label and remaining-state assertion tests",
+        "separately approved elevated silent lifecycle segments: preparation, v0.39 seed, v0.40 upgrade, maintenance, both uninstall orders, clean install and final restore",
+        "read-only result, progress, installer logs, snapshots, registry, payload, user-state and target-process inspection after each nonzero runner return; no blind automatic retry",
+        "python -m pytest -q tests/test_continuity_regressions.py"
+      ],
+      "artifacts": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55945176, "sha256": "ABBB01C337535DB989E4A36D61D4362604C448323A2D27506F155C84EA48DC34"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"},
+        {"name": "MLCPlayer_Setup_v0.39.exe", "size_bytes": 56329783, "sha256": "00ED3EF67DA44ADF1F4D997426636BA7642413098C66BF08FADE54DD44584915"},
+        {"name": "MLCPlayer_InternetVideo_v0.39.exe", "size_bytes": 48896196, "sha256": "07F69153E498E0537F7C9446B69DB1DC36A43256142C03B91FAA0EFC16C5A491"}
+      ],
+      "private_artifact_digests": [
+        {"name": "retry-01-S-result.json", "size_bytes": 1128, "sha256": "5C32D45BE40B8416D72C8091D304E57A99EAC90FB564636F2D52850BCDCF7742"},
+        {"name": "resume-01-S-result.json", "size_bytes": 1015, "sha256": "613729C0131A2DE2B843953E0500627DFF340F2FBE9D36C90143302C37A16061"},
+        {"name": "resume-02-clean-S-result.json", "size_bytes": 2076, "sha256": "CDA27B191C9596ABD10126678AEC2A9BAE2C4D5DAD61E8A5A94AC47BF1D964E5"},
+        {"name": "resume-03-upgraded-S-result.json", "size_bytes": 3282, "sha256": "0E5BF84295A2822DB28D41243E59EC0342FD968366AB35950FF92FC01FD700A4"},
+        {"name": "resume-04-tail-S-result.json", "size_bytes": 5495, "sha256": "AD25EF48D2AE6CE2F3D253FF58C6A989C2C32C2D2D82C562A3CFE4911EF60C25"},
+        {"name": "resume-04-tail-S-28-final-restored.json", "size_bytes": 32638, "sha256": "6E1459582A81B38D4D4BB8E9C5FF7E1BA82BC9B5553484F3E9B5B6794A531A4F"},
+        {"name": "resume-04-tail-run_b2_lifecycle.ps1", "size_bytes": 29727, "sha256": "14A78E2C19B4F143EBFDB99957C7E0DED9678A49EF9656466029C0180D6FAAA0"},
+        {"name": "resume-04-tail-test_tail_contract.ps1", "size_bytes": 4237, "sha256": "1FF19CEB9A0A077F67EAB462C66DDF29C4F27DADAC1D5C048160AEF9A2839B21"}
+      ],
+      "evidence": [
+        "the private runner stale-evidence overwrite P0 was closed with create-only result/snapshot writes, a create-new run lock, prerequisite identity locks and stale preflight outside the catch path",
+        "four nonzero orchestration segments were preserved rather than overwritten: premature second-phase log read, null clean-collection cardinality, source-path versus installed-destination manifest mapping, and duplicate maintenance log label; each cause was inspected before a checkpoint-bound continuation",
+        "the corrected manifest maps the three add-on licence source paths to the installer-declared _internal\\licenses destinations; the final installed set is exactly 99 static plus four generated uninstaller files",
+        "the exact silent chain passed v0.39 seed, v0.39-to-v0.40 main and add-on upgrade, two same-version maintenance cycles, main-first and add-on-first uninstall boundaries, two complete clean states, clean install and final restore",
+        "every executed setup and uninstaller returned exit 0 with its success marker and explicit restart No; final result is immutable phase_passed and binds the final snapshot digest",
+        "final state contains exact v0.40 main and add-on payload, both uninstall registrations, OpenWith, three shortcuts and preserved two-file user data; target-process count is zero"
+      ],
+      "summary": "The exact ABBB/D4 artifacts passed the silent physical B2 lifecycle on exact 11bb2b0 with immutable checkpoint evidence, exact payload and user-state readback, final restore and zero process leakage.",
+      "limitations": [
+        "This PASS is limited to the silent installed-artifact lifecycle and the exact artifact, commit, host and private evidence chain recorded here.",
+        "InteractiveMain lifecycle and the new exact installed Player product-URL scenario remain NOT_RUN; complete B2, tag and release are not passed.",
+        "The runner corrections are private evidence tooling, not committed product source; no commit, push, PR, merge, tag, upload or release was performed."
+      ],
+      "next_action": "After separate commit approval for this two-document evidence record, run InteractiveMain and the new exact installed Player product-URL gate only under their explicit scenario approvals."
     }
   ]
 }
