@@ -175,7 +175,10 @@ değiştirmez.
 ### WIN-P0-08 — İkinci örnek ve IPC
 
 - **Deterministik sınır:** `tests/test_single_instance_regressions.py` mutex,
-  dosya/URL iletimi ve güvenli mesaj sözleşmesini korur.
+  dosya/URL iletimi ve güvenli mesaj sözleşmesini korur. Exact `2c68648`
+  tabanındaki offscreen çok-süreç kapsamı dosya, güvenli URL ve yalnız
+  aktivasyon isteklerinin her birinde gerçek secondary PID'i, exit `0` ve
+  terminal süreç kapanışını ayrıca ölçer (`EV-20260829-002`).
 - **Native ölçüm:** exact commit için fail-closed ikinci-örnek/IPC runner'ı
   yoktur. Eski kullanıcı kabulü yeni başlangıç çizgisine aktarılmaz.
 - **Exact girdiler:** temiz ilk kaynak örneği, gerçek yerel video, güvenli URL,
@@ -183,6 +186,9 @@ değiştirmez.
   kimliği.
 - **Açık boşluk:** dosya ve URL iki ayrı gerçek koşumda ilk örneğe geçmeden,
   ikinci süreç çıkmadan ve artık süreç olmadığı kaydedilmeden PASSED yazılmaz.
+  Offscreen secondary süreç kanıtı, gerçek ürün penceresinin foreground
+  dönüşünü veya hedef medyanın yüklendiğini ölçmediğinden bu satır `NOT_RUN`
+  kalır.
 
 ## Önerilen yürütme sırası
 

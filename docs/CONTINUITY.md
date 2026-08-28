@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 29 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `63b770498b8c8eff70b5270d5cff4159a62ccc4a`
+- Kayıt hazırlanırken doğrulanan HEAD: `2c68648c82cbc3a6b56fc03b1317f07c322da1bd`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-ux-merge-record` (temiz canonical `master` ve `origin/master` exact `63b7704`, `0/0`; yalnız bu merge kaydı uncommitted)
-- Son kanıt: `EV-20260829-001`
+- Dal: `codex/ipc-offscreen-acceptance` (temiz canonical `master` ve `origin/master` exact `2c68648`, `0/0` tabanında source/test/docs değişiklikleri uncommitted)
+- Son kanıt: `EV-20260829-002`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -41,6 +41,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 ## Kalite kabul özeti
 - Windows P0 matrisi: `WIN-P0-01`–`WIN-P0-05` PASSED; drag/drop, playlist
   sınırları ve IPC için `P0-06`, `P0-07`, `P0-08` NOT_RUN.
+- `WIN-P0-08` deterministik offscreen çok-süreç kapsamı gerçek secondary PID, dosya/URL/aktivasyon devri, exit `0` ve terminal kapanış ölçümüyle genişletildi; dar etki paketi **93 passed** verdi. Gerçek ürün penceresi foreground ve hedef-yükleme sonucu ölçülmediği için fiziksel satır hâlâ `NOT_RUN` (`EV-20260829-002`).
 - Video biçimi matrisi: SDR ekranda `VF-CORE-01` ve HDR ekranda SDR-on-HDR
   `VF-CORE-02` exact native ve kontrollü insan ramp kabulüyle PASSED. Kalan
   14 biçim satırı ve genel `WIN-P2-01` BLOCKED; bu iki PASS genel HDR/format
@@ -54,7 +55,6 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 ## Açık çalışma ve korunan kapılar
 
 - Yayın sonrası oynatma/kontrol UX denetimi exact `59f6980` tabanında regression-first yürütüldü. Playlist/EOF ve görünür durum rollback'lerine ek olarak ses, seek exception, hız, loop ve görüntü ayarı başarısızlıkları; klavye yönlendirmeleri; tekrarlı title-bar, updater, panel ve pencere boyutu tıklamaları sertleştirildi. Yapışık playlist sınırındaki çift resize alanı, PiP/dar pencere kontrol-hit çakışması, mod geçişinde takılı resize imleci ve overlay'in yuttuğu çift/sağ tık kapatıldı. Derin kontrol-yolu taraması ayrıca dosya/URL/M3U seçimi, aktif öğe kaldırma, liste temizleme ve üç dosya-ekleme yolunu native ret halinde atomik geri almaya bağladı; klasik ses çubuğunda yatay ve yüksek çözünürlüklü teker davranışı düzeltildi. EV029 ve EV030 uygulamaları kaynak/test ağacından çıkarıldı; ilk görüntülerin eski `9090caf` checkout'undan geldiği ayrıca kaydedildi. Doğru ağaç yeniden açıldıktan sonraki görüntü klasör, playlist/menü ve sağ pencere ikonlarının tümünde hover aktifken dikey okun kaldığını doğruladı ve EV031 child-event teşhisini çürüttü; o uygulama/test de çıkarıldı. Kök neden, ayrı top-level overlay için gerekli `QApplication` override'ının ana pencere başlığında da açılmasıydı: Qt sözleşmesine göre bu cursor bütün uygulama widget'larını ezdiğinden ikonların kendi el cursor'ı görünemiyordu. Ana pencere ağacı artık yalnız widget cursor'ı kullanıyor; global override yalnız farklı top-level overlay ile sınırlı. Etki paketi **302 passed**, son tam deterministik paket **5160 passed / 11 skipped / 0 failed** verdi (`EV-20260828-033`). Değişiklik sonrası kullanıcı görüntülerinde bütün ikonlar doğru el cursor'ını, yalnız boş gerçek üst kenar dikey resize cursor'ını gösterdi; normal kapanıştan sonra player/launcher child süreçleri sıfırdı (`EV-20260828-034`). Kullanıcı tercihiyle başlık şeridi önce 36 px'e, ardından ikon/düğme ölçüleri korunarak güncel 40 px'e çıkarıldı; 40 px hedef paket **278 passed**, tam paket **5160 passed / 11 skipped / 0 failed** verdi (`EV-20260828-036`) ve kullanıcı güncel görünümü açıkça kabul etti (`EV-20260828-037`). Exact paket local `1abd905` commit'ine temiz readback ile bağlandı (`EV-20260828-038`). PR #69 exact `b244a7f` head'i required hosted `test` koşumunda **5149 passed / 22 skipped**, `LEDGER_APPEND_ONLY_OK` verdi ve iki ebeveynli exact `63b7704` merge commit'iyle protected `master`a alındı; canonical klasör clean `0/0` ile aynı commit'e fast-forward edildi (`EV-20260829-001`). Bu görsel source-tree ve hosted CI kabulüdür; captured exit-marker olmadığı için formal native smoke veya kurulu artifact kabulü değildir. İngilizce 456/456 tamam; 0/456 olan diğer altı katalog derlenmez ve menüde sunulmaz.
-
 - Installer UX kararları `PACKAGING_PLAN.md` içinde tutulur. Üç private bitmap
   yönü karşılaştırıldı; kullanıcı **C — Dengeli Hibrit** yönünü açıkça seçti
   ve seçim kayıt paketi exact `f432c73` commit'iyle bağlandı
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Kullanıcının ayrı onayıyla `EV-20260829-001` iki-belge merge kaydını commit et; push ve PR onaylarını ayrıca iste. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur. Build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır.
+Mevcut toplu Git onayı kapsamında `EV-20260829-002` offscreen IPC kapsamını commit/push/PR kapılarından geçir; hosted test sonucunu kullanıcı bildirsin. Gerçek `WIN-P0-08` ürün-penceresi koşumu, build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

@@ -18,6 +18,7 @@ import textwrap
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket
@@ -62,8 +63,23 @@ def _second_launch(name, payload, tmp_path):
     """)
     path = tmp_path / "second_launch.py"
     path.write_text(script, encoding="utf-8")
-    return subprocess.run([sys.executable, str(path)], capture_output=True,
-                          text=True, timeout=60)
+    process = subprocess.Popen(
+        [sys.executable, str(path)], stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE, text=True)
+    try:
+        stdout, stderr = process.communicate(timeout=60)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.communicate()
+        raise
+    return SimpleNamespace(
+        args=process.args,
+        returncode=process.returncode,
+        stdout=stdout,
+        stderr=stderr,
+        pid=process.pid,
+        alive_after=process.poll() is None,
+    )
 
 
 def _pump(qt_app, received, seconds=20):
@@ -217,8 +233,35 @@ def test_second_launch_is_refused_and_hands_over_the_file(qt_app, name,
             _pump(qt_app, received)
             result = future.result(timeout=60)
 
+        assert result.pid > 0
         assert result.stdout.strip() == "SECONDARY", result.stderr
+        assert result.returncode == 0
+        assert result.alive_after is False
         assert received == [r"I:\film.mkv"]
+    finally:
+        primary.release()
+
+
+def test_second_launch_hands_over_safe_url_and_exits_without_leak(
+        qt_app, name, tmp_path):
+    """URL devri gercek secondary PID'i ve terminal cikisi ile olculur."""
+    primary = SingleInstanceGuard(name)
+    received = []
+    url = "https://example.com/watch?v=mlc-ipc-probe"
+    try:
+        assert primary.acquire() is True
+        primary.activation_requested.connect(received.append)
+
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(_second_launch, name, url, tmp_path)
+            _pump(qt_app, received)
+            result = future.result(timeout=60)
+
+        assert result.pid > 0
+        assert result.stdout.strip() == "SECONDARY", result.stderr
+        assert result.returncode == 0
+        assert result.alive_after is False
+        assert received == [url]
     finally:
         primary.release()
 
@@ -237,7 +280,10 @@ def test_launch_without_a_file_only_asks_for_activation(qt_app, name,
             _pump(qt_app, received)
             result = future.result(timeout=60)
 
+        assert result.pid > 0
         assert result.stdout.strip() == "SECONDARY", result.stderr
+        assert result.returncode == 0
+        assert result.alive_after is False
         assert received == [""], "boş yük = yalnız pencereyi öne getir"
     finally:
         primary.release()
