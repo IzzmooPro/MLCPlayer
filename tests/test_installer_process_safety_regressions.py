@@ -148,6 +148,37 @@ def test_main_installer_revalidates_the_effective_target_before_install():
     assert "Result := ValidateInstallTarget" in prepare
 
 
+def test_main_installer_rejects_a_running_player_before_restart_manager_waits():
+    """Maintenance must fail fast before Inno enters its long RM shutdown."""
+    iss = read(MAIN_ISS)
+    code = executable_lines(iss).split("[Code]", 1)[1]
+    prepare = code.split("function PrepareToInstall", 1)[1]
+    prepare = prepare.split("procedure SetInstallPhase", 1)[0]
+
+    validation = prepare.index("Result := ValidateInstallTarget")
+    early_exit = prepare.index("if Result <> '' then", validation)
+    maintenance = prepare.index(
+        "CurrentInstallMode <> InstallModeFirst", early_exit)
+    mutex = prepare.index(
+        "CheckForMutexes('{#PlayerLifecycleMutex}')", maintenance)
+    message = prepare.index("CustomMessage('CClosePlayerBeforeInstall')", mutex)
+
+    assert validation < early_exit < maintenance < mutex < message
+    assert re.search(
+        r"if\s*\(CurrentInstallMode\s*<>\s*InstallModeFirst\)\s*and\s*"
+        r"CheckForMutexes\s*\(\s*'\{#PlayerLifecycleMutex\}'\s*\)\s*then\s*"
+        r"Result\s*:=\s*CustomMessage\s*\(\s*"
+        r"'CClosePlayerBeforeInstall'\s*\)\s*;",
+        prepare,
+        re.IGNORECASE,
+    ), "running-player rejection must remain scoped to maintenance/upgrade"
+    assert "CloseApplications=yes" in iss
+    assert 'CloseApplicationsFilter="MLC Player.exe,*.dll"' in iss
+    assert "force" not in prepare.lower()
+    assert "taskkill" not in prepare.lower()
+    assert "Sleep(" not in prepare
+
+
 def test_target_directory_enumeration_fails_closed():
     iss = read(MAIN_ISS)
     code = executable_lines(iss).split("[Code]", 1)[1]

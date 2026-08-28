@@ -28,7 +28,8 @@ EXPECTED = ("english", "turkish", "german", "spanish", "french", "italian",
 REQUIRED_C_KEYS = (
     "CWelcomeTitle", "CWelcomeInstallBody", "CWelcomeReinstallBody",
     "CWelcomeUpgradeBody", "CWelcomeLicenseInfo", "CDowngradeBlocked",
-    "CVersionStateUnknown", "CTargetLocationMismatch",
+    "CVersionStateUnknown", "CClosePlayerBeforeInstall",
+    "CTargetLocationMismatch",
     "CTargetAlreadyOccupied", "CTargetNotEmpty", "CPreferencesTitle",
     "CPreferencesBody",
     "CInstallLocation", "COpenWithInfo", "CPrivacyInfo", "CAddonInfo",
@@ -119,6 +120,9 @@ def test_c_screen_contract_strings_exist_for_every_language():
     used_c_keys = set(re.findall(r"CustomMessage\('(C[^']+)'\)", code))
     assert used_c_keys <= set(REQUIRED_C_KEYS), sorted(used_c_keys - set(REQUIRED_C_KEYS))
     assert set(REQUIRED_C_KEYS) - {"OpenDefaultApps"} == used_c_keys
+
+    assert "select Install again" not in section
+    assert "yeniden Kur'u seçin" not in section
 
 
 def test_the_addon_error_is_translated():

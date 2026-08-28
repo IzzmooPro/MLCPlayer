@@ -127,6 +127,7 @@ english.CWelcomeUpgradeBody=This wizard will update MLC Player from %1 to %2.
 english.CWelcomeLicenseInfo=MLC Player is an open-source media player distributed under GPLv3. You do not need to accept the licence to install or run it. The Internet Video add-on is not included in this package.
 english.CDowngradeBlocked=A newer version of MLC Player is installed on this computer. An older version cannot be installed automatically.
 english.CVersionStateUnknown=The installed MLC Player version could not be verified. Setup stopped without making changes.
+english.CClosePlayerBeforeInstall=MLC Player is still running. Close it completely, then restart Setup.
 english.CTargetLocationMismatch=The selected folder does not match the registered MLC Player installation location. Use the registered folder or uninstall the existing version first.
 english.CTargetAlreadyOccupied=The selected folder already contains an unregistered MLC Player executable. Setup stopped without overwriting it.
 english.CTargetNotEmpty=The selected folder is not empty and is not a registered MLC Player installation. Choose an empty folder or remove the leftover files first.
@@ -163,6 +164,7 @@ turkish.CWelcomeUpgradeBody=Bu sihirbaz MLC Player'ı %1 sürümünden %2 sürü
 turkish.CWelcomeLicenseInfo=MLC Player, GPLv3 kapsamında dağıtılan açık kaynaklı bir medya oynatıcıdır. Kurmak veya çalıştırmak için lisansı kabul etmeniz gerekmez. Internet Video eklentisi bu pakete dahil değildir.
 turkish.CDowngradeBlocked=Bu bilgisayarda daha yeni bir MLC Player sürümü yüklü. Daha eski bir sürüm otomatik olarak kurulamaz.
 turkish.CVersionStateUnknown=Yüklü MLC Player sürümü doğrulanamadı. Kurulum değişiklik yapmadan durduruldu.
+turkish.CClosePlayerBeforeInstall=MLC Player hâlâ çalışıyor. Programı tamamen kapatıp kurulumu yeniden başlatın.
 turkish.CTargetLocationMismatch=Seçilen klasör kayıtlı MLC Player kurulum konumuyla eşleşmiyor. Kayıtlı klasörü kullanın veya önce mevcut sürümü kaldırın.
 turkish.CTargetAlreadyOccupied=Seçilen klasörde kayıtlı olmayan bir MLC Player çalıştırılabilir dosyası var. Kurulum bu dosyanın üzerine yazmadan durduruldu.
 turkish.CTargetNotEmpty=Seçilen klasör boş değil ve kayıtlı bir MLC Player kurulumu değil. Boş bir klasör seçin veya önce kalan dosyaları kaldırın.
@@ -199,6 +201,7 @@ german.CWelcomeUpgradeBody=Dieser Assistent aktualisiert MLC Player von %1 auf %
 german.CWelcomeLicenseInfo=MLC Player ist ein unter GPLv3 vertriebener Open-Source-Mediaplayer. Für die Installation oder Ausführung müssen Sie die Lizenz nicht akzeptieren. Die Internet Video-Erweiterung ist in diesem Paket nicht enthalten.
 german.CDowngradeBlocked=Auf diesem Computer ist eine neuere Version von MLC Player installiert. Eine ältere Version kann nicht automatisch installiert werden.
 german.CVersionStateUnknown=Die installierte MLC Player-Version konnte nicht überprüft werden. Das Setup wurde ohne Änderungen beendet.
+german.CClosePlayerBeforeInstall=MLC Player wird noch ausgeführt. Schließen Sie das Programm vollständig und starten Sie dann das Setup erneut.
 german.CTargetLocationMismatch=Der ausgewählte Ordner stimmt nicht mit dem registrierten Installationsordner von MLC Player überein. Verwenden Sie den registrierten Ordner oder deinstallieren Sie zuerst die vorhandene Version.
 german.CTargetAlreadyOccupied=Der ausgewählte Ordner enthält bereits eine nicht registrierte ausführbare MLC Player-Datei. Das Setup wurde beendet, ohne sie zu überschreiben.
 german.CTargetNotEmpty=Der ausgewählte Ordner ist nicht leer und keine registrierte MLC Player-Installation. Wählen Sie einen leeren Ordner oder entfernen Sie zuerst die verbliebenen Dateien.
@@ -235,6 +238,7 @@ spanish.CWelcomeUpgradeBody=Este asistente actualizará MLC Player de %1 a %2.
 spanish.CWelcomeLicenseInfo=MLC Player es un reproductor multimedia de código abierto distribuido bajo la GPLv3. No necesita aceptar la licencia para instalarlo o ejecutarlo. El complemento Internet Video no está incluido en este paquete.
 spanish.CDowngradeBlocked=Hay una versión más reciente de MLC Player instalada en este equipo. No se puede instalar automáticamente una versión anterior.
 spanish.CVersionStateUnknown=No se pudo verificar la versión instalada de MLC Player. La instalación se detuvo sin realizar cambios.
+spanish.CClosePlayerBeforeInstall=MLC Player aún se está ejecutando. Ciérrelo por completo y reinicie el programa de instalación.
 spanish.CTargetLocationMismatch=La carpeta seleccionada no coincide con la ubicación de instalación registrada de MLC Player. Use la carpeta registrada o desinstale primero la versión existente.
 spanish.CTargetAlreadyOccupied=La carpeta seleccionada ya contiene un ejecutable de MLC Player no registrado. La instalación se detuvo sin sobrescribirlo.
 spanish.CTargetNotEmpty=La carpeta seleccionada no está vacía y no es una instalación registrada de MLC Player. Elija una carpeta vacía o elimine primero los archivos restantes.
@@ -271,6 +275,7 @@ french.CWelcomeUpgradeBody=Cet assistant va mettre à jour MLC Player de %1 vers
 french.CWelcomeLicenseInfo=MLC Player est un lecteur multimédia open source distribué sous GPLv3. Vous n'avez pas besoin d'accepter la licence pour l'installer ou l'exécuter. L'extension Internet Video n'est pas incluse dans ce paquet.
 french.CDowngradeBlocked=Une version plus récente de MLC Player est installée sur cet ordinateur. Une version antérieure ne peut pas être installée automatiquement.
 french.CVersionStateUnknown=La version installée de MLC Player n'a pas pu être vérifiée. L'installation s'est arrêtée sans apporter de modifications.
+french.CClosePlayerBeforeInstall=MLC Player est toujours en cours d'exécution. Fermez-le complètement, puis redémarrez le programme d'installation.
 french.CTargetLocationMismatch=Le dossier sélectionné ne correspond pas à l'emplacement d'installation enregistré de MLC Player. Utilisez le dossier enregistré ou désinstallez d'abord la version existante.
 french.CTargetAlreadyOccupied=Le dossier sélectionné contient déjà un exécutable MLC Player non enregistré. L'installation s'est arrêtée sans l'écraser.
 french.CTargetNotEmpty=Le dossier sélectionné n'est pas vide et ne correspond pas à une installation enregistrée de MLC Player. Choisissez un dossier vide ou supprimez d'abord les fichiers restants.
@@ -307,6 +312,7 @@ italian.CWelcomeUpgradeBody=Questa procedura guidata aggiornerà MLC Player dall
 italian.CWelcomeLicenseInfo=MLC Player è un lettore multimediale open source distribuito sotto GPLv3. Non è necessario accettare la licenza per installarlo o eseguirlo. Il componente aggiuntivo Internet Video non è incluso in questo pacchetto.
 italian.CDowngradeBlocked=In questo computer è installata una versione più recente di MLC Player. Non è possibile installare automaticamente una versione precedente.
 italian.CVersionStateUnknown=Non è stato possibile verificare la versione installata di MLC Player. L'installazione è stata interrotta senza apportare modifiche.
+italian.CClosePlayerBeforeInstall=MLC Player è ancora in esecuzione. Chiudilo completamente, quindi riavvia il programma di installazione.
 italian.CTargetLocationMismatch=La cartella selezionata non corrisponde al percorso di installazione registrato di MLC Player. Usa la cartella registrata o disinstalla prima la versione esistente.
 italian.CTargetAlreadyOccupied=La cartella selezionata contiene già un eseguibile MLC Player non registrato. L'installazione è stata interrotta senza sovrascriverlo.
 italian.CTargetNotEmpty=La cartella selezionata non è vuota e non è un'installazione registrata di MLC Player. Scegli una cartella vuota o rimuovi prima i file rimasti.
@@ -343,6 +349,7 @@ russian.CWelcomeUpgradeBody=Этот мастер обновит MLC Player с �
 russian.CWelcomeLicenseInfo=MLC Player — медиаплеер с открытым исходным кодом, распространяемый по лицензии GPLv3. Для установки или запуска принимать лицензию не требуется. Дополнение Internet Video не входит в этот пакет.
 russian.CDowngradeBlocked=На этом компьютере установлена более новая версия MLC Player. Автоматическая установка более старой версии невозможна.
 russian.CVersionStateUnknown=Не удалось проверить установленную версию MLC Player. Установка остановлена без внесения изменений.
+russian.CClosePlayerBeforeInstall=MLC Player всё ещё работает. Полностью закройте программу, затем перезапустите программу установки.
 russian.CTargetLocationMismatch=Выбранная папка не совпадает с зарегистрированным расположением MLC Player. Используйте зарегистрированную папку или сначала удалите существующую версию.
 russian.CTargetAlreadyOccupied=В выбранной папке уже находится незарегистрированный исполняемый файл MLC Player. Установка остановлена без его перезаписи.
 russian.CTargetNotEmpty=Выбранная папка не пуста и не является зарегистрированной установкой MLC Player. Выберите пустую папку или сначала удалите оставшиеся файлы.
@@ -379,6 +386,7 @@ brazilianportuguese.CWelcomeUpgradeBody=Este assistente atualizará o MLC Player
 brazilianportuguese.CWelcomeLicenseInfo=O MLC Player é um reprodutor de mídia de código aberto distribuído sob a GPLv3. Você não precisa aceitar a licença para instalá-lo ou executá-lo. O complemento Internet Video não está incluído neste pacote.
 brazilianportuguese.CDowngradeBlocked=Há uma versão mais recente do MLC Player instalada neste computador. Uma versão anterior não pode ser instalada automaticamente.
 brazilianportuguese.CVersionStateUnknown=Não foi possível verificar a versão instalada do MLC Player. A instalação foi interrompida sem fazer alterações.
+brazilianportuguese.CClosePlayerBeforeInstall=O MLC Player ainda está em execução. Feche-o completamente e reinicie o instalador.
 brazilianportuguese.CTargetLocationMismatch=A pasta selecionada não corresponde ao local de instalação registrado do MLC Player. Use a pasta registrada ou desinstale primeiro a versão existente.
 brazilianportuguese.CTargetAlreadyOccupied=A pasta selecionada já contém um executável não registrado do MLC Player. A instalação foi interrompida sem substituí-lo.
 brazilianportuguese.CTargetNotEmpty=A pasta selecionada não está vazia e não é uma instalação registrada do MLC Player. Escolha uma pasta vazia ou remova primeiro os arquivos restantes.
@@ -767,6 +775,17 @@ end;
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   Result := ValidateInstallTarget;
+  if Result <> '' then
+    Exit;
+
+  // Restart Manager yanıt vermeyen bir uygulamada yaklaşık bir dakika
+  // bekleyebilir. Bakım/yükseltme sırasında ürünün süreç-ömürlü mutex'ini
+  // önce denetleyerek kopyalama başlamadan hızlı ve güvenli biçimde dururuz.
+  // CloseApplications, mutex kurulamadığında veya başka yüklü kaynaklar kilitli
+  // olduğunda güvenlik fallback'i olarak korunur; zorla kapatma yapılmaz.
+  if (CurrentInstallMode <> InstallModeFirst) and
+     CheckForMutexes('{#PlayerLifecycleMutex}') then
+    Result := CustomMessage('CClosePlayerBeforeInstall');
 end;
 
 procedure SetInstallPhase(Phase: String);

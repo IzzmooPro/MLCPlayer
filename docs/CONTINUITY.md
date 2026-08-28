@@ -5,11 +5,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `VERIFICATION_LEDGER.json`, diğer tarihsel anlatı `PROJECT_STATUS.md`,
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
-- Güncelleme: 27 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `ebc628bb82e468fefec047b3c779c28b5c765abc`
+- Güncelleme: 28 Ağustos 2026
+- Kayıt hazırlanırken doğrulanan HEAD: `abdf71c8229eb6f12f9e52b6d982f1073f17641f`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-ebc-build-acceptance` (`origin/master` ile `0/0`; EV028-EV029 iki-belge kanıt paketi uncommitted)
-- Son kanıt: `EV-20260827-029`
+- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `14/0`; EV018 iki-belge evidence-commit bağı uncommitted)
+- Son kanıt: `EV-20260828-018`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -60,56 +60,65 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   ve seçim kayıt paketi exact `f432c73` commit'iyle bağlandı
   (`EV-20260826-008`). A ve B yalnız karşılaştırma referansıdır. Bitmap'ler
   Git'e alınmaz ve seçim gerçek Inno Setup davranışı sayılmaz.
-- v0.40/Inno paketi PR #53 ile `3dc9dde` master'a alındı; exact-master run tek flaky
-  reentry testinde durdu, timer kök nedeni test-only kapatıldı (`EV-20260826-077/078`).
-- Test-only reentry düzeltmesi PR #54 ile exact `98c9511` protected master'a
-  alındı. PR run'ı ve yeni exact-master dispatch sırasıyla **5025 passed / 30
-  skipped / 0 failed** verdi; eski başarısız run retry edilmedi.
-- Exact `98c9511` kaynak build'inin 55,934,004 baytlık ana v0.40 setup'ı önce
-  kurulu v0.39'u kullanıcı kontrollü interaktif akışta v0.40'a yükseltti;
-  kurulu Player build EXE'siyle exact eş, 91 dist dosyasında eksik/uyuşmazlık
-  sıfır ve normal kullanıcı kapanışı sonrasında süreç sızıntısı sıfırdı.
-- Ayrı aynı-sürüm maintenance senaryosunda kurulu Player açık bırakıldı;
-  Restart Manager uygulamayı listeledi ve kullanıcı close-applications yolunu
-  seçti. Eski PID kopya başlamadan kapandı, kurulum logu başarı ve restart yok
-  sonucu verdi, 91 dist dosyası yine exact eş kaldı ve üç Finish eylemi kapalıyken
-  yeni Player/Settings/tarayıcı süreci açılmadı (`EV-20260826-079`). Setup launcher
-  exit code'u tutulmadığından ve aktif ayar baseline'ı Player açılmadan önce
-  alındığından genel exit-code veya kullanıcı-ayar-koruma PASS'i yazılmadı.
-- Exact v0.40 add-on maintenance, Ready ekranı görünmeyen `Sonraki` eylemine
-  yönlendirirken gerçek düğme `Kur` olduğu için kopya başlamadan iptal edildi;
-  103 dosya, ayarlar, kayıtlar ve süreçler değişmeden kaldı (`EV-20260826-080`).
-  Regression-first düzeltme yalnız Inno'nun iki hatalı Türkçe Ready mesajını
-  override eder; hedef/aile **1/14 passed**, ilgili aile **33 passed**, gerçek
-  main+add-on compile preflight PASS ve çift-süzgeç temizdir (`EV-20260826-081`).
-- Düzeltme PR #55 ile iki ebeveynli exact `6dacfd5` merge commit'i olarak
-  protected master'a ulaştı. PR koşumu `33013632094` ve zorunlu exact-master
-  dispatch `33014038693` ayrı ayrı **5026 passed / 30 skipped / 0 failed** verdi.
-  Yalnız add-on'u hedefleyen private build exact `6dacfd5`ten tek, unsigned
-  48.909.130 baytlık `85b9b249...fcd3b51` artifact üretti; repo ve resmî
-  çıktı konumu değişmedi (`EV-20260826-082`). Bu kaynak build sonucu henüz
-  Türkçe Ready/Geri→İleri veya kurulu bakım kabulü değildir.
-- Exact `85b9b249...fcd3b51` insan kontrollü Türkçe same-version akışında tüm
-  ekranları ve beş exact payload'ı geçti; yalnız beklenen uninstaller/InstallDate
-  metadata'sı değişti (`EV-20260826-083`). Log/exit, silent ve uninstall ölçülmedi.
-- Exact `ca4999d` dispatch'i **5058 passed / 30 skipped / 0 failed** verdi ve
-  resmî zincir iki v0.40 setup ile doğrulanmış Ed25519 imzalarını üretti; iki
-  EXE Authenticode `NotSigned` (`EV-20260827-011`).
-- Ana v0.40 maintenance/upgrade 91/91 eşlik verdi; active add-on yt-dlp
-  kapanmayınca Abort/rollback ile v0.39 kaldı (`EV-20260827-012`). Corrected
-  URL önkoşulu da setup başlamadan FAILED; release bloklu (`EV-20260827-013`).
-- Internet Video düzeltmesi hedef **2/2**, aile **42 passed / 2 skipped** verdi; paket `3abdf13`, provenance `e64f8c2`, koruma `07df9c1` olarak bağlıdır (`EV-20260827-014/015/016`).
-  PR #64 `07df9c1` head'i **5059 passed / 30 skipped / 0 failed** verdi (`EV-20260827-017`); yalnız belge commit'i `d465ee2` sonrasında yeni required run Qt testinde native AV ile FAILED (`EV-20260827-018`).
-  Regression-first session sahipliği exact `417877c` oldu; `50c4928` hosted koşumu native AV olmadan **5059 passed / 30 skipped / 2 failed** verdi. İki geçici `QMenu` test ömrü kırmızı **2 failed**, sonra hedef/aile **2/32 passed**, karşıt P0/P1/P2=0 ve exact commit `f658fc1` ile test-only düzeltildi (`EV-20260827-019/020/021/022/023`). Ağ/native NOT_RUN.
+- v0.40/Inno, reentry ve Türkçe Ready düzeltme zinciri PR #53–#55 üzerinden
+  protected master'a alındı; exact hosted koşumlar yeşil, insan kontrollü
+  ana/add-on ekran ve payload sınırları kabul edildi. Tam tarih ve ara kusurlar
+  append-only `EV-20260826-077`–`083` kayıtlarındadır.
+- İlk resmî v0.40 artifact zinciri hosted **5058 passed / 30 skipped** ve geçerli
+  Ed25519 verdi; Authenticode `NotSigned`. Active add-on kapanış ve ürün URL
+  önkoşulları fail-closed durdu (`EV-20260827-011`–`013`).
+- Internet Video fallback ve geçici `QMenu` test ömrü regression-first kapatıldı;
+  protected PR #64 head'i **5059 passed / 30 skipped / 0 failed** verdi. Ara
+  hosted başarısızlıklar retry edilmedi; kaynak/test/provenance ayrıntıları
+  `EV-20260827-014`–`023` içindedir.
 - PR #64 build kanıtı ve PR #65 path-contract düzeltmesi protected master'a
   exact `ebc628b` olarak ulaştı; başarısız run retry edilmedi
   (`EV-20260827-024`–`027`).
-  Exact-master dispatch `33077939420`, **5061 passed / 30 skipped / 0 failed**
-  verdi (`EV-20260827-028`). Yeni resmî build ana/add-on setup SHA-256 değerlerini
-  `07118348...cf6c5` / `d4a4d799...f9e675` olarak üretti; Ed25519 geçerli,
-  Authenticode `NotSigned`, main dist 91 dosya ve ölçülen hedef süreç 0
-  (`EV-20260827-029`). Add-on'a özgü payload-final kapısı yok; exact yeni ana
-  artifact için B2 **NOT_RUN**, eski kabul taşınmaz, tag/release blokludur.
+  Exact-master dispatch **5061 passed / 30 skipped / 0 failed** verdi (`EV-20260827-028`);
+  EV029 exact ebc build'i ana/add-on `07118348...cf6c5` / `d4a4d799...f9e675` üretti.
+  Son B2 farklı `B8001DAA...fe2fc` ana artifact ile yürüdü fakat çağdaş source-build
+  transcript'i yoktu. Provenance preflight'ı shared output'taki iki installer EXE'yi
+  kaldırdı; imzalar ve kurulu v0.40 kaldı, ölçülen ürün/kullanıcı/kayıt durumu exact
+  aynı ve süreç 0 (`EV-20260827-038`, imza sınırı düzeltmesi `EV-20260828-001`). Final cycle NOT_RUN; tag/release blokludur.
+- Exact `994f0e2` artifact'larıyla yürütülen B2 zincirinde silent/interaktif
+  kurulumlar, gerçek v0.39 yükseltmeleri, iki kaldırma sırası, altı geçersiz
+  add-on hedefi, payload/ayar/süreç okumaları geçti. Gerçek Blender URL'si
+  Player-owned exact `yt-dlp` ile 00:01→00:02 / 10:35 ilerledi; çıkarım Deno
+  gerektirmedi. Bağımsız birlikte çalıştırılan finite `yt-dlp`/Deno engelleyici
+  denemesi Restart Manager'da fail-closed durdu; kullanıcı Abort seçti, exit 5,
+  rollback sonrası 103 kurulu ve iki kullanıcı dosyasında fark sıfır, süreç
+  sızıntısı sıfırdı (`EV-20260827-030`). Karşıt inceleme bunun installer kusuru
+  değil güvenli negatif davranış olduğunu doğruladı; `force` eklenmedi.
+- EV031'deki o tarihteki B2 sözleşmesi regression-first olarak gerçek ürün URL başarısını
+  yapay engelleyicilerden ayırdı. Product-success yalnız Player'ın başlattığı
+  exact `yt-dlp`, PID/ebeveyn/komut ve ilerleyen position/duration ile geçer;
+  Deno yalnız gerçek çıkarım kullanırsa gerekir. Refusing `yt-dlp` ve Deno
+  diğer hedefler kapalıyken ayrı tek-engelleyici senaryolarında ölçülür; Ignore
+  ve force yasak, Abort/rollback/hash/AppData/süreç sınırları fail-closed kalır.
+  Hedef kırmızıdan sonra belge ailesi **206 passed**, karşıt P0/P1/P2=0 verdi;
+  ürün ve Inno kaynakları değişmedi (`EV-20260827-031`); bu Deno refusal şartı
+  daha sonra EV035 ile ölçülen cooperative-Deno kuralıyla değiştirildi.
+- Exact kurulu v0.39 `yt-dlp` root+child diğer hedefler kapalı tek engelleyici
+  olarak sınandı. Restart Manager yalnız iki `yt-dlp` sürecini buldu, kapanışın
+  tamamlanamadığını kaydetti; kullanıcı Ignore/Retry yerine Abort seçti. Setup
+  exit 5, kopya/başarı marker'ı yok, rollback sonrası 103 kurulu dosya, iki
+  kullanıcı dosyası, kayıtlar ve hashler exact aynı, hedef süreç sızıntısı
+  sıfırdı. İlk evaluator şema-kesişimini yanlış yorumlayarak güvenli BLOCKED
+  verdi; fiziksel retry yapılmadan ayrı düzeltilmiş verdict **16/16 PASS** oldu
+  (`EV-20260827-032`). Bu PASS yalnız yt-dlp fail-closed negatif kapısına aittir.
+- Restart Manager exact Deno'yu kooperatif kapattı; v0.39→v0.40 add-on upgrade
+  sızıntısız PASS (`EV-20260827-033`), normal fixture refusal BLOCKED (`EV-20260827-034`).
+  Sözleşme graceful Deno + exact yt-dlp fail-closed oldu; belge **206 passed**, P0/P1/P2=0 (`EV-20260827-035`).
+- Askıya alınmış tek exact v0.40 Player kapanmayınca ana setup kopya öncesi durdu; kullanıcı Retry/Ignore yerine Abort seçti, exit 5 ve rollback başarılıydı. Tüm ölçülen 103+2 dosya ile ayar/uninstall/OpenWith/kısayol yüzeyleri exact korundu; resume 0, normal kapanış, watchdog ateşlenmedi, sızıntı 0; evaluator **23/23 PASS**, karşıt P0/P1=0 (`EV-20260827-036`); app-level semantik/normal maintenance/silent/add-on'a aktarılmaz, belge kapanışı P0/P1/P2=0 (`EV-20260827-037`).
+- Ayrı onaylı izole build exact `1dafe1f` üzerinde tek çalıştırmada exit 0 ve `DONE` verdi; fast-fail ana setup `ABBB01C3...DC34` / 55.945.176 bayt, değişmeyen add-on `D4A4D799...F9E675` / 48.909.126 bayt, iki detached Ed25519 geçerli, iki EXE Authenticode `NotSigned` ve süreç sızıntısı 0. Bu yalnız `source_build` PASS'tir; 5–10 saniye fiziksel davranış daha sonra EV011 ile geçti fakat tam B2 hâlâ tamamlanmadı (`EV-20260828-009`).
+- Exact B7/D4 normal fiziksel döngüsü gerçek v0.39 yükseltmesi, iki kaldırma sırası, clean install, maintenance, payload/ayar koruması ve final restore ile geçti. Askıya alınmış Player yolu kopya öncesi Abort/exit 5, tam rollback ve sıfır sızıntıyla güvenliydi; fakat Restart Manager **66,715 saniye** bekledi. Kullanıcının 5–10 saniye UX sınırı nedeniyle tam B2 **FAILED** (`EV-20260828-006`).
+- Regression-first installer-only düzeltme maintenance/upgrade sırasında süreç-ömürlü `MLCPlayer-Running` mutex'ini `PrepareToInstall` içinde önce denetler ve çalışan Player varsa kopya/RM bekleyişinden önce sekiz dilde hızlı fail-closed durur. `CloseApplications` fallback'i korunur; force/taskkill/ürün kodu yoktur. Dil sözleşmesi ve yanlış aynı-sihirbaz talimatı kapatıldı; dar paket **60 passed** (`EV-20260828-007`).
+- Onaylı beş-dosya fast-fail/kayıt paketi exact `315e83a`, EV008 iki-belge evidence-commit kaydı exact `1dafe1f` olarak bağlandı; dosya sınırları ve post-commit dar paket **266 passed** (`EV-20260828-008`).
+- Exact ABBB tek fiziksel denemesi setup başlamadan runner izolasyon kapısında **BLOCKED** oldu: başlangıç hedef süreç 0 ve başlatılan Player kimliği doğruydu, fakat üç saniye sonra hedef küme tek değildi. UAC/setup/suspend/kopya yok; Player normal kapandı, force/watchdog/sızıntı 0, 103+2 final durum korundu. Eski runner geçici hedef kimliğini kaydetmediğinden guard gevşetilmedi; prepared fresh runner sonraki ayrı onaylı denemede tam kümeyi kaydedecek (`EV-20260828-010`).
+- Ayrı onaylı tek fresh-runner denemesinde exact ABBB setup askıya alınmış tek exact Player ve doğrulanmış mutex karşısında **6,983 saniyede** exit 7 ile hızlı fail-closed durdu; setup içi süre yaklaşık 0,131 saniyeydi. Restart Manager, kopya ve başarı marker'ı yok; 103 kurulu dosya, iki kullanıcı dosyası, ayarlar, kayıtlar, OpenWith ve üç kısayol exact korundu. Suspend/resume 0/0, normal kapanış, force/watchdog yok ve süreç sızıntısı 0; karşıt P0/P1=0 (`EV-20260828-011`). Bu PASS yalnız fast-fail senaryosudur; exact ABBB normal install/upgrade/uninstall B2 zincirinin yerine geçmez.
+- Resmî B2 metnindeki eski “Player'ı Restart Manager kapatır” şartı committed ABBB davranışıyla çeliştiği için regression-first hizalandı: yalnız bakım/yükseltmede `MLCPlayer-Running` mutex'i `PrepareToInstall` içinde RM'den önce denetlenir; responsive/asılı Player'da 10 saniye içinde kopya öncesi nonzero fail-closed, mesaj, değişmeyen durum ve sıfır sızıntı zorunludur. İlk kurulum etkilenmez; RM mutex dışındaki kilitler için fallback kalır. İlk hedef test kırmızı, son etki paketi **226 passed**, karşıt P0/P1/P2=0 (`EV-20260828-012`). Ürün kodu veya artifact değişmedi.
+- Exact `11bb2b0` ve ABBB/D4 artifact'larıyla silent fiziksel B2 zinciri immutable checkpoint resume ile tamamlandı: gerçek v0.39 seed/yükseltme, iki maintenance, iki kaldırma sırası, iki temiz durum, clean install ve final restore geçti. Final exact 103 dosya, iki uninstall kaydı, OpenWith, üç kısayol, korunmuş iki kullanıcı dosyası ve sıfır hedef süreçle `phase_passed` verdi (`EV-20260828-013`). Bu yalnız silent installed-artifact PASS'tir; `InteractiveMain` ve yeni exact Player product URL NOT_RUN kaldı.
+- EV013 paketi exact `8ae5fca` commit'ine bağlandı (`EV-20260828-014`). Exact ABBB/D4 `InteractiveMain` zinciri final 103+2 durum ve sıfır süreç verdi (`EV-20260828-015`); kayıt exact `4c5dbd2` commit'ine bağlandı (`EV-20260828-016`). Son exact Player ürün-URL kapısında Player PID 37340 exact kurulu yt-dlp root 54132 ve child 41648'i aynı URL ile başlattı; Deno gerekmedi, kullanıcı oynatmayı “SORUN YOK” diye kabul etti, normal kapanış sonrası 103+2 durum ve sıfır süreç korundu (`EV-20260828-017`). Sayısal position/duration kullanıcı tarafından yazıya geçirilmedi ve bu sınır açıkça kayıtlıdır; Computer Use kullanılmadı. Exact ABBB/D4 B2 ürün kapıları tamamlandı.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -173,13 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Exact iki belgeli `EV-20260827-028`–`029` merge/CI/source-build paketini ayrıca
-açık onayla commit et; push, fiziksel kabul, tag veya release yok.
-
-## Sonraki sıra
-
-1. B2 fiziksel kabulünde silent/ikinci uninstall/invalid-target bitmeden tag/release yapma.
-2. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
+EV018 iki-belge evidence-commit bağını ayrı onayla commit et. Push/PR/merge/tag/release ayrı kapılardır; `P0-06`–`08` yayın sonrası, thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 
