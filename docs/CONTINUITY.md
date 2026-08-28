@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 28 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `703c12698f03c79dc301243eb28deaa5f72c8135`
+- Kayıt hazırlanırken doğrulanan HEAD: `e35ee2a5ea1dc1961220a2f80a32be6e2a6fe7a4`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `6/0`; EV010 iki-belge BLOCKED kaydı uncommitted)
-- Son kanıt: `EV-20260828-010`
+- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `7/0`; EV011 iki-belge PASS kaydı uncommitted)
+- Son kanıt: `EV-20260828-011`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -113,11 +113,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   kullanıcı Retry/Ignore yerine Abort seçti, exit 5 ve rollback başarılıydı. Tüm
   ölçülen 103+2 dosya ile ayar/uninstall/OpenWith/kısayol yüzeyleri exact korundu; resume 0, normal kapanış, watchdog
   ateşlenmedi, sızıntı 0; evaluator **23/23 PASS**, karşıt P0/P1=0 (`EV-20260827-036`); app-level semantik/normal maintenance/silent/add-on'a aktarılmaz, belge kapanışı P0/P1/P2=0 (`EV-20260827-037`).
-- Ayrı onaylı izole build exact `1dafe1f` üzerinde tek çalıştırmada exit 0 ve `DONE` verdi; fast-fail ana setup `ABBB01C3...DC34` / 55.945.176 bayt, değişmeyen add-on `D4A4D799...F9E675` / 48.909.126 bayt, iki detached Ed25519 geçerli, iki EXE Authenticode `NotSigned` ve süreç sızıntısı 0. Bu yalnız `source_build` PASS'tir; 5–10 saniye fiziksel davranış ve B2 henüz kanıtlanmadı (`EV-20260828-009`).
+- Ayrı onaylı izole build exact `1dafe1f` üzerinde tek çalıştırmada exit 0 ve `DONE` verdi; fast-fail ana setup `ABBB01C3...DC34` / 55.945.176 bayt, değişmeyen add-on `D4A4D799...F9E675` / 48.909.126 bayt, iki detached Ed25519 geçerli, iki EXE Authenticode `NotSigned` ve süreç sızıntısı 0. Bu yalnız `source_build` PASS'tir; 5–10 saniye fiziksel davranış daha sonra EV011 ile geçti fakat tam B2 hâlâ tamamlanmadı (`EV-20260828-009`).
 - Exact B7/D4 normal fiziksel döngüsü gerçek v0.39 yükseltmesi, iki kaldırma sırası, clean install, maintenance, payload/ayar koruması ve final restore ile geçti. Askıya alınmış Player yolu kopya öncesi Abort/exit 5, tam rollback ve sıfır sızıntıyla güvenliydi; fakat Restart Manager **66,715 saniye** bekledi. Kullanıcının 5–10 saniye UX sınırı nedeniyle tam B2 **FAILED** (`EV-20260828-006`).
 - Regression-first installer-only düzeltme maintenance/upgrade sırasında süreç-ömürlü `MLCPlayer-Running` mutex'ini `PrepareToInstall` içinde önce denetler ve çalışan Player varsa kopya/RM bekleyişinden önce sekiz dilde hızlı fail-closed durur. `CloseApplications` fallback'i korunur; force/taskkill/ürün kodu yoktur. Dil sözleşmesi ve yanlış aynı-sihirbaz talimatı kapatıldı; dar paket **60 passed** (`EV-20260828-007`).
 - Onaylı beş-dosya fast-fail/kayıt paketi exact `315e83a`, EV008 iki-belge evidence-commit kaydı exact `1dafe1f` olarak bağlandı; dosya sınırları ve post-commit dar paket **266 passed** (`EV-20260828-008`).
 - Exact ABBB tek fiziksel denemesi setup başlamadan runner izolasyon kapısında **BLOCKED** oldu: başlangıç hedef süreç 0 ve başlatılan Player kimliği doğruydu, fakat üç saniye sonra hedef küme tek değildi. UAC/setup/suspend/kopya yok; Player normal kapandı, force/watchdog/sızıntı 0, 103+2 final durum korundu. Eski runner geçici hedef kimliğini kaydetmediğinden guard gevşetilmedi; prepared fresh runner sonraki ayrı onaylı denemede tam kümeyi kaydedecek (`EV-20260828-010`).
+- Ayrı onaylı tek fresh-runner denemesinde exact ABBB setup askıya alınmış tek exact Player ve doğrulanmış mutex karşısında **6,983 saniyede** exit 7 ile hızlı fail-closed durdu; setup içi süre yaklaşık 0,131 saniyeydi. Restart Manager, kopya ve başarı marker'ı yok; 103 kurulu dosya, iki kullanıcı dosyası, ayarlar, kayıtlar, OpenWith ve üç kısayol exact korundu. Suspend/resume 0/0, normal kapanış, force/watchdog yok ve süreç sızıntısı 0; karşıt P0/P1=0 (`EV-20260828-011`). Bu PASS yalnız fast-fail senaryosudur; exact ABBB normal install/upgrade/uninstall B2 zincirinin yerine geçmez.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -181,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV010 iki-belge BLOCKED kaydını ayrı onayla commit et; sonra tam hedef kümesini kaydeden tek fresh-runner retry'ı ayrıca onaylanmadan yapılmaz. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
+EV011 iki-belge fast-fail PASS kaydını ayrı onayla commit et; sonra exact ABBB artifact'ı için kalan normal B2 install/upgrade/uninstall zinciri ayrıca onaylanmadan çalıştırılmaz. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

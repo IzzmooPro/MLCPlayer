@@ -9634,6 +9634,53 @@
         "The next physical attempt requires separate approval; push, PR, merge, tag, upload and release remain blocked."
       ],
       "next_action": "Request separate approval for one fresh-runner retry that records the complete observed target set and still stops before setup unless exact single-target isolation and mutex verification pass."
+    },
+    {
+      "id": "EV-20260828-011",
+      "recorded_at_utc": "2026-08-28T05:44:02Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "e35ee2a5ea1dc1961220a2f80a32be6e2a6fe7a4",
+      "baseline_commit": "e35ee2a5ea1dc1961220a2f80a32be6e2a6fe7a4",
+      "working_tree_state": "clean before the separately approved single physical retry and before evidence recording",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Exact ABBB suspended-Player installer fast-fail latency acceptance",
+      "commands": [
+        "exact checkout, ABBB/D4 artifact, installed E30 Player, v0.40 registration and zero-target-process preflight readback",
+        "fresh private evidence root with exact A2F5 runner, 9CDB capture helper, 4D5C watchdog and zero stale evidence targets",
+        "single separately approved run_fast_fail_latency.ps1 execution with exact artifact, PID/path/time, mutex, suspend/resume, 30-second setup timeout and cleanup guards",
+        "read-only setup log, pre/return/leak/result, live process and independent adversarial readback; no automatic retry"
+      ],
+      "artifacts": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55945176, "sha256": "ABBB01C337535DB989E4A36D61D4362604C448323A2D27506F155C84EA48DC34"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"}
+      ],
+      "private_artifact_digests": [
+        {"name": "run_fast_fail_latency.ps1", "size_bytes": 9332, "sha256": "A2F5BFA7FF74CE1BB15A6BD88E2D79A15F78E2CE2611CA9E6423233A3CAF799C"},
+        {"name": "01-fast-fail-pre.json", "size_bytes": 32704, "sha256": "D64DB9C000720E148342D19A36AF0491EFEBC5134E5D993567434059A7F58EA1"},
+        {"name": "02-fast-fail-setup.log", "size_bytes": 1923, "sha256": "52118AD44541FFEF90683BF9B564A3D172C77528F8BC476772A8840CEB25C0F9"},
+        {"name": "03-fast-fail-return.json", "size_bytes": 32704, "sha256": "3D7B4AC8B5F74C70589AD442D08FFE77CEF67B822532B46254E9503E2C59E67E"},
+        {"name": "04-fast-fail-leak.json", "size_bytes": 32444, "sha256": "7464B8993512CD4BAA775F4D5CC590D15F2E640C5DF7EC5D7415E5F84F21BF74"},
+        {"name": "05-fast-fail-result.json", "size_bytes": 1476, "sha256": "6D661C4393851DB3152FBDE2A910D071418135511694C4CC70E8D297FC4F4925"}
+      ],
+      "evidence": [
+        "the single approved retry started from exact clean e35ee2a, exact ABBB/D4 artifacts, registered v0.40 main and add-on, exact installed E30 Player and zero pre-existing target processes",
+        "the fresh runner recorded one exact Player target with matching PID, path, command line and creation time, verified the MLCPlayer-Running mutex, and suspended then resumed the same process with status 0/0",
+        "setup returned exit 7 in 6.983 seconds wall-clock; its own log opened and closed in about 0.131 seconds and recorded the localized PrepareToInstall fast-fail message before Restart Manager, file copy or any success marker",
+        "pre and return snapshots differed only by capture timestamp; 103 installed files, two user files, active settings, main and add-on registrations, OpenWith, three shortcuts and ABBB/D4 artifact identities were exact equal",
+        "the exact Player resumed and closed normally; setup and Player force cleanup were false, the watchdog did not fire, remaining and live target-process counts were zero, and no automatic retry occurred",
+        "independent adversarial readback found P0/P1=0 and issued GO only for this exact suspended-Player fast-fail latency, no-copy, state-preservation and leak scenario"
+      ],
+      "summary": "The exact ABBB installer replaced the prior 66.715-second suspended-Player wait with a bounded 6.983-second fail-closed result while preserving every measured product and user state surface and leaving zero process leakage.",
+      "limitations": [
+        "This PASS is bound to exact ABBB/D4 artifact bytes, e35ee2a baseline, the measured Windows host and the suspended exact Player scenario.",
+        "It does not prove the exact ABBB normal install, v0.39 upgrade, maintenance, add-on, uninstall-order or product-URL B2 paths; older B7 normal-cycle evidence cannot be transferred to new artifact bytes.",
+        "Both EXEs remain Authenticode NotSigned; no push, PR, merge, tag, upload or release followed."
+      ],
+      "next_action": "Request separate approval to commit this two-document PASS record; then request the remaining exact ABBB normal B2 physical lifecycle as a separately approved bounded cycle."
     }
   ]
 }
