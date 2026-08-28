@@ -10060,6 +10060,798 @@
         "This EV021 append and continuity update remain uncommitted until separately approved."
       ],
       "next_action": "Request separate approval to commit this terminal binding, then push and merge the release-record branch through the protected documentation PR without altering v0.40 assets or tag."
+    },
+    {
+      "id": "EV-20260828-022",
+      "recorded_at_utc": "2026-08-28T10:36:58Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree on clean master equal to origin/master at measurement start; changes remain uncommitted",
+      "changed_files": [
+        "app/media_controls.py",
+        "app/player.py",
+        "app/playlist_panel.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_media_folder_recent_regressions.py",
+        "tests/test_overlay_button_hit_regressions.py",
+        "tests/test_overlay_hit_alpha_regressions.py",
+        "tests/test_overlay_subtitle_state_regressions.py",
+        "tests/test_playback_lifecycle_regressions.py",
+        "tests/test_playlist_panel_regressions.py",
+        "tests/test_playlist_wrap_regressions.py",
+        "tests/test_subtitle_search_controller_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "subject": "Playback controls, playlist lifecycle and repeated offscreen interaction UX hardening",
+      "commands": [
+        "targeted regression-first pytest families for playback lifecycle, playlist, overlay hit targets and window modes",
+        "python -m pytest --collect-only -q",
+        "python -m pytest -q",
+        "python packaging/extract_translations.py",
+        "python packaging/extract_translations.py --check",
+        "python -m pytest -q tests/test_available_language_regressions.py tests/test_language_settings_regressions.py tests/test_translation_pipeline_regressions.py tests/test_translation_fallback_regressions.py",
+        "git diff --check",
+        "python -m pytest -q tests/test_continuity_regressions.py"
+      ],
+      "evidence": [
+        "playlist item single-click now starts the selected item while drag/reorder does not accidentally play it; next and previous no longer pre-shift the active index before a load succeeds",
+        "EOF replay and ordinary Play/Pause, Stop, mute, subtitle visibility and file-loop operations preserve or roll back visible state when the native write/load fails",
+        "offscreen interaction tests exercise visible hit targets, QTest clicks, repeated playlist-panel open/close and repeated resize cycles from 480x300 through 1600x900 without claiming native HWND coverage",
+        "the first complete deterministic run found three non-product green blockers: stale architecture hashes, a timing-based subtitle worker-close fixture and stale translation extraction; each root cause was inspected and corrected without blind retry",
+        "the final complete deterministic run collected 5113 tests and completed 5102 passed, 11 skipped, 0 failed in 87.25 seconds",
+        "language UX is fail-closed: English is 454/454 translated; German, Spanish, French, Italian, Brazilian Portuguese and Russian are 0/454 and therefore not compiled or offered by the application language menu; the focused language contract completed 62 passed"
+      ],
+      "summary": "The measured deterministic UX surface is green after playback-state, playlist selection and repeated offscreen interaction hardening, with incomplete product languages kept unavailable rather than exposed as mixed-language UI.",
+      "limitations": [
+        "The 11 skipped tests are not PASS and this deterministic result does not prove real libmpv behavior, native Windows hit-testing, installed-artifact behavior or human visual acceptance.",
+        "No Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag, upload or release was performed.",
+        "The user required single-agent work, so this material diff has not received the independent adversarial second filter required before a final GO.",
+        "This record and its working-tree changes remain uncommitted; the required commit field identifies the exact committed baseline, not an evidence commit containing the changes."
+      ],
+      "next_action": "Obtain an independent read-only adversarial review of the exact diff; if no blocking findings remain, request separate approval for commit and then use the protected PR workflow."
+    },
+    {
+      "id": "EV-20260828-023",
+      "recorded_at_utc": "2026-08-28T11:29:58Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-022 on master equal to origin/master at measurement start; changes remain uncommitted",
+      "changed_files": [
+        "app/media_controls.py",
+        "app/menu_actions.py",
+        "app/player.py",
+        "app/playlist_panel.py",
+        "app/title_bar.py",
+        "app/video_frame.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_keyboard_control_dispatch_regressions.py",
+        "tests/test_media_folder_recent_regressions.py",
+        "tests/test_menu_order_translation_regressions.py",
+        "tests/test_overlay_autohide_regressions.py",
+        "tests/test_overlay_button_hit_regressions.py",
+        "tests/test_overlay_hit_alpha_regressions.py",
+        "tests/test_overlay_subtitle_state_regressions.py",
+        "tests/test_playback_lifecycle_regressions.py",
+        "tests/test_playlist_panel_regressions.py",
+        "tests/test_playlist_wrap_regressions.py",
+        "tests/test_subtitle_search_controller_regressions.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_updater_dialog_regressions.py",
+        "tests/test_video_adjustment_rollback_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "subject": "Transactional control rollback, keyboard dispatch and repeated clickable UX hardening",
+      "commands": [
+        "targeted red-green pytest for volume, playback speed, loop-file and video-adjustment rejected-write rollback",
+        "python -m pytest -q tests/test_keyboard_control_dispatch_regressions.py and repeated QTest click families",
+        "python -m pytest -q selected control, overlay, playlist, updater, title-bar and window-mode families; 672 passed",
+        "python packaging/extract_translations.py; python packaging/extract_translations.py --check",
+        "python -m pytest -q tests/test_quality_evolution_plan_regressions.py tests/test_translation_pipeline_regressions.py tests/test_available_language_regressions.py; 39 passed",
+        "python -m pytest -q; 5138 passed, 11 skipped in 88.75 seconds"
+      ],
+      "evidence": [
+        "volume, mute, playback-speed, loop-file and video-adjustment controls now update visible state only after successful native write/readback and restore the actual prior state after rejected or silently ignored synchronous writes",
+        "seek exception handling restores both timelines; immediate seek readback was deliberately not imposed because libmpv seek observation may be asynchronous and would reject valid seeks",
+        "all 18 documented keyboard routes dispatch exactly once, volume keys use the shared transactional path and modified keys are not swallowed",
+        "actual QTest clicks cover repeated title-bar maximize/restore, open, playlist and PiP actions across 480x300 through 1600x900, updater failure/retry and repeated dialog close paths, plus playlist close focusability",
+        "title-bar and playlist controls are keyboard-focusable; the non-activating overlay intentionally retains NoFocus with global shortcut access because forcing focus contradicts its WindowDoesNotAcceptFocus contract",
+        "the final complete deterministic run collected 5149 tests and completed 5138 passed, 11 skipped, 0 failed with exit code 0"
+      ],
+      "summary": "The remaining deterministic control-state and repeated clickable UX gaps found in the single-agent audit are regression-covered and green on the exact uncommitted working tree.",
+      "limitations": [
+        "The 11 skipped tests are not PASS; deterministic offscreen/QTest evidence does not prove real libmpv timing, native Windows hit-testing, installed-artifact behavior or human visual acceptance.",
+        "No Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag, upload or release was performed.",
+        "The user required single-agent work, so the independent adversarial second filter required for formal GO remains NOT_RUN.",
+        "This record and its changes remain uncommitted; commit identifies the exact committed baseline, not an evidence commit containing the changes."
+      ],
+      "next_action": "With separate user approval, run real Windows clickable UX acceptance on this exact diff; obtain an independent read-only adversarial review if the single-agent restriction is lifted before formal GO or commit."
+    },
+    {
+      "id": "EV-20260828-024",
+      "recorded_at_utc": "2026-08-28T11:39:52Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-023; changes remain uncommitted",
+      "changed_files": [
+        "app/title_bar.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_title_bar_hardening_regressions.py"
+      ],
+      "subject": "Remove the duplicate horizontal resize cursor from the video side of a snapped playlist boundary",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py -k snapped_playlist_owns; expected red before implementation",
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py -k 'snapped_playlist_owns or real_edge_press'; 9 passed",
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py tests/test_frameless_resize_edge_delivery_regressions.py tests/test_frameless_resize_fallback_regressions.py tests/test_window_edge_margin_regressions.py tests/test_playlist_window_regressions.py tests/test_playlist_panel_regressions.py; 191 passed",
+        "python packaging/extract_translations.py --check; git diff --check",
+        "python -m pytest -q; 5139 passed, 11 skipped in 87.09 seconds"
+      ],
+      "evidence": [
+        "the user-visible cursor came from two adjacent resize owners: the playlist handle on the panel side and the frameless main-window edge on the video side",
+        "when an open snapped playlist is geometrically attached to the right or left owner edge, the matching horizontal main-window edge is removed while any top or bottom corner component remains active",
+        "closing or detaching the playlist restores the ordinary main-window horizontal resize edge",
+        "the focused six-family interaction run completed 191 passed and the final complete deterministic package completed 5139 passed, 11 skipped, 0 failed with exit code 0"
+      ],
+      "summary": "A snapped playlist now exclusively owns its shared horizontal resize boundary, so hovering the adjacent video edge no longer shows a second left-right resize cursor.",
+      "limitations": [
+        "Offscreen QTest and geometry evidence does not replace real Windows cursor/hit-test or human visual acceptance.",
+        "No Computer Use, build, installation, native smoke, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves the independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Confirm this cursor boundary in the separately approved real Windows clickable UX acceptance, then obtain independent review if the single-agent restriction is lifted before formal GO or commit."
+    },
+    {
+      "id": "EV-20260828-025",
+      "recorded_at_utc": "2026-08-28T12:03:06Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-024; changes remain uncommitted",
+      "changed_files": [
+        "app/title_bar.py",
+        "app/video_frame.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_frameless_resize_fallback_regressions.py",
+        "tests/test_overlay_button_hit_regressions.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "subject": "Adversarial single-agent cursor ownership and interactive overlay hit-surface sweep",
+      "commands": [
+        "source search across cursor writes, override ownership, mouse transparency, top-level geometry and event filters",
+        "regression-first focused pytest for overlay button/slider resize-band ownership, non-resizable window-state cleanup and overlay double/right click forwarding",
+        "python -m pytest -q selected title-bar, resize, playlist, overlay, window-mode, architecture and translation families; 344 passed",
+        "python packaging/extract_translations.py; python packaging/extract_translations.py --check",
+        "python -m pytest -q; 5146 passed, 11 skipped in 88.01 seconds"
+      ],
+      "evidence": [
+        "real QPushButton and QSlider regressions first showed that the frameless resize filter stole edge pixels from interactive overlay controls in narrow and PiP layouts; controls now own their full hit rectangles while surrounding blank surface retains resize",
+        "a live resize cursor and application override are now cleared immediately on maximize, fullscreen or minimize transitions instead of remaining until a later mouse movement",
+        "the separate top-level overlay now forwards left double-click on noninteractive gradient/label surfaces to the existing fullscreen command and right-click to the existing video context menu; buttons and sliders retain their own input ownership",
+        "the broader cursor, hit-test, playlist, overlay, window-mode, architecture and translation family completed 344 passed",
+        "the final complete deterministic run collected 5157 tests and completed 5146 passed, 11 skipped, 0 failed with exit code 0"
+      ],
+      "summary": "The cursor/hit ownership sweep found and closed three additional deterministic UX defects beyond EV024 without changing native artifacts or starting physical acceptance.",
+      "limitations": [
+        "Offscreen event delivery and geometry do not replace real Windows cursor rendering, native HWND hit-testing or human visual acceptance.",
+        "No Computer Use, build, installation, native smoke, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves the independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Run the separately approved real Windows clickable UX acceptance on this exact diff; keep formal GO and commit blocked until that result and any required independent review are resolved."
+    },
+    {
+      "id": "EV-20260828-026",
+      "recorded_at_utc": "2026-08-28T12:23:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-025; changes remain uncommitted",
+      "changed_files": [
+        "app/media_controls.py",
+        "app/player.py",
+        "app/playlist_panel.py",
+        "app/ui_components.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_media_selection_atomic_regressions.py",
+        "tests/test_playlist_panel_regressions.py",
+        "tests/test_subtitle_drop_activation_regressions.py",
+        "tests/test_video_surface_wheel_volume_regressions.py",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "subject": "Deep control-path audit for atomic media selection and precision wheel input",
+      "commands": [
+        "source inventory of clicked, triggered, toggled, valueChanged, mouse, wheel, drag/drop, close and resize paths with test-reference mapping",
+        "python -m pytest -q tests/test_media_selection_atomic_regressions.py; expected red baseline: 6 failed",
+        "python -m pytest -q tests/test_media_selection_atomic_regressions.py tests/test_video_surface_wheel_volume_regressions.py; additional expected red baseline: 3 failed",
+        "python -m pytest -q selected media-selection, playback, playlist, subtitle-drop, wheel, keyboard and lifecycle families; 318 passed",
+        "python packaging/extract_translations.py; python packaging/extract_translations.py --check",
+        "python -m pytest -q; first complete run: 5158 passed, 11 skipped, 1 failed because two new English translations were unfinished",
+        "python -m pytest -q tests/test_translation_pipeline_regressions.py tests/test_translation_fallback_regressions.py tests/test_menu_order_translation_regressions.py tests/test_quality_evolution_plan_regressions.py; 42 passed",
+        "python -m pytest -q; final complete run: 5159 passed, 11 skipped in 87.14 seconds"
+      ],
+      "evidence": [
+        "direct file, URL and M3U selection now snapshot the previous session and restore playlist, active index, media identity, timing, subtitle and loading state when the native load command is synchronously rejected",
+        "external local-target handling now propagates a rejected open instead of reporting success, and loading an M3U no longer sends an irreversible stop before the replacement load is accepted",
+        "removing the active playlist item and clearing the playlist preserve the visible list and prior playback state when replacement or stop is rejected",
+        "video-surface drop, add-files dialog and playlist-panel external add share one atomic append path; a rejected first load no longer leaves a non-playing ghost queue or overwrites previously pending subtitles",
+        "the classic volume slider ignores horizontal wheel input and accumulates high-resolution vertical deltas to the standard 120-unit notch instead of changing by five units for every tiny event",
+        "the first full run's sole failure was inspected rather than blindly retried; two new English messages were completed and the official extractor produced a current 456-string catalog before the final green run",
+        "the final complete deterministic run collected 5170 tests and completed 5159 passed, 11 skipped, 0 failed with exit code 0"
+      ],
+      "summary": "The deeper single-agent control-path audit found and closed atomic media-selection, playlist mutation, drop-state and precision-wheel defects beyond the earlier cursor sweep; all deterministic tests are green.",
+      "limitations": [
+        "The 11 skipped tests are not PASS; offscreen and deterministic evidence does not prove real libmpv timing, native Windows cursor or HWND hit-testing, installed-artifact behavior or human visual acceptance.",
+        "No Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves the independent adversarial second filter required for formal GO NOT_RUN.",
+        "This record and its changes remain uncommitted; commit identifies the exact committed baseline, not an evidence commit containing the changes."
+      ],
+      "next_action": "Run the separately approved real Windows clickable UX acceptance on this exact diff; obtain independent read-only adversarial review only if the single-agent restriction is lifted before formal GO or commit."
+    },
+    {
+      "id": "EV-20260828-027",
+      "recorded_at_utc": "2026-08-28T12:31:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree unchanged in product and test sources since EV-20260828-026; this append-only audit record remains uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Final single-agent read-only adversarial scan of the uncommitted UX diff",
+      "commands": [
+        "git rev-parse --show-toplevel; git status --short --branch; git log -1 --oneline --decorate; git rev-list --left-right --count HEAD...origin/master",
+        "git diff --check; git diff --numstat; raw diff review of changed product, regression, architecture, continuity and ledger files",
+        "source search for all playlist, current-file and active-index mutations plus play, open, append, remove and clear call sites",
+        "source search for exception, return, debug and unfinished-work markers across changed control modules",
+        "AST parse of seven changed product modules and three new regression files",
+        "EV-20260828-026 exact-tree reuse: python -m pytest -q; 5159 passed, 11 skipped, 0 failed in 87.14 seconds"
+      ],
+      "evidence": [
+        "the exact checkout is the intended MLC worktree at baseline 59f6980, master equals origin/master at 0/0 and all accumulated UX changes remain uncommitted",
+        "the final raw-diff review found no additional P0 or P1 defect, stale debug hook, syntax issue, unguarded media-selection mutation or duplicate load/stop path outside the tested atomic lifecycle",
+        "the remaining direct playlist mutations are initialization, view-order synchronization or shuffle model updates rather than native media replacement paths",
+        "all ten selected changed Python files parse successfully and git diff --check reports no whitespace error",
+        "product and test sources were unchanged after EV026, so its exact-tree 5159 passed result was reused rather than rerunning the same costly package without a changed input"
+      ],
+      "summary": "The final read-only source and diff sweep found no new deterministic blocker beyond the defects already closed and verified in EV026.",
+      "limitations": [
+        "This is a single-agent static adversarial scan, not the independent second filter required for formal GO.",
+        "It does not replace real Windows cursor rendering, DPI/native HWND hit-testing, real libmpv timing, installed-artifact behavior or human visual acceptance.",
+        "No Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Run separately approved real Windows clickable UX acceptance on this exact diff; obtain independent read-only review only if the user lifts the single-agent restriction before formal GO or commit."
+    },
+    {
+      "id": "EV-20260828-028",
+      "recorded_at_utc": "2026-08-28T12:34:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-027; product and test sources unchanged, documentation remains uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Compact-continuity validation after the final scan record",
+      "commands": [
+        "python -m pytest -q tests/test_continuity_regressions.py tests/test_quality_evolution_plan_regressions.py tests/test_translation_pipeline_regressions.py; initial result 39 passed, 1 failed because CONTINUITY.md had 201 lines",
+        "root-cause inspection of CONTINUITY.md physical lines around the newly added EV027 summary",
+        "python -m pytest -q tests/test_continuity_regressions.py; final result 10 passed",
+        "Python splitlines readback; CONTINUITY_SPLITLINES 200"
+      ],
+      "evidence": [
+        "the first governance check was not retried blindly: the only failure was the explicit compactness bound of at most 200 physical lines after adding a separate EV027 summary line",
+        "the EV027 summary was losslessly merged into the existing live UX paragraph without changing product claims, evidence boundaries or next action",
+        "the focused continuity package then passed all 10 tests and exact UTF-8 splitlines readback reported 200"
+      ],
+      "summary": "The final-scan documentation is compact and valid after recording and correcting the single 201-line continuity failure.",
+      "limitations": [
+        "This documentation correction adds no new product, native, installed-artifact or human acceptance evidence.",
+        "The single-agent and physical Windows limitations in EV027 remain unchanged."
+      ],
+      "next_action": "Run separately approved real Windows clickable UX acceptance on this exact diff; obtain independent read-only review only if the user lifts the single-agent restriction before formal GO or commit."
+    },
+    {
+      "id": "EV-20260828-029",
+      "recorded_at_utc": "2026-08-28T14:35:21Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-028 after user source-tree acceptance feedback; changes remain uncommitted",
+      "changed_files": [
+        "app/playlist_panel.py",
+        "app/title_bar.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_playlist_panel_regressions.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "subject": "Release stale vertical resize cursor ownership during repeated playlist show and hide",
+      "commands": [
+        "source inspection of playlist top-level opacity animation, show/hide lifecycle, placement geometry and frameless resize cursor ownership",
+        "python -m pytest -q focused topology-change and playlist cursor notification tests; expected red: missing FramelessResizeFilter.window_topology_changed and no playlist notification",
+        "python -m pytest -q seven title-bar, resize, playlist-window and animation families; intermediate 196 passed, 3 failed because delayed cursor refresh raced non-resizable window modes",
+        "remove delayed refresh and retain immediate ownership release; same seven-family package 199 passed",
+        "python -m pytest -q; first full run 5160 passed, 11 skipped, 1 failed only because translation source locations were stale",
+        "python packaging/extract_translations.py; python packaging/extract_translations.py --check; focused architecture, translation, cursor, playlist and animation package 161 passed",
+        "python -m pytest -q; one run reached at least 79 percent but its tool session closed without final marker or exit code and was not accepted as PASS",
+        "post-loss inspection found no pytest process, no unexpected tree change and clean git diff --check",
+        "python -m pytest -q; final verified run 5161 passed, 11 skipped in 89.26 seconds"
+      ],
+      "evidence": [
+        "the user's first two manual source-tree checks passed; repeated playlist open and close exposed a transient vertical resize cursor that appeared mispositioned",
+        "the root cause was missing ownership release when the playlist's separate top-level window changed visibility; an already-owned global frameless resize cursor could survive the show/hide topology transition",
+        "playlist opening, closing start and final hide now notify the owner resize filter, which immediately ends any manual resize and restores only its own widget and application override cursor",
+        "the initial delayed global refresh was rejected after three existing window-mode regressions proved it could re-acquire a cursor during maximize, fullscreen or minimize; the final implementation waits for the next real MouseMove or Enter event instead",
+        "the official extractor updated unchanged 456-string catalog source locations after the playlist module line shift",
+        "the final complete deterministic run collected 5172 tests and completed 5161 passed, 11 skipped, 0 failed with exit code 0"
+      ],
+      "summary": "Repeated playlist show and hide now releases stale frameless resize cursor ownership at every top-level visibility transition, eliminating the transient vertical resize arrow in deterministic lifecycle coverage.",
+      "limitations": [
+        "The user's observation is real Windows source-tree feedback, but the repaired behavior still requires the user to repeat that exact visual cursor scenario before human acceptance.",
+        "The deterministic result does not prove installed-artifact behavior and the 11 skipped tests are not PASS.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Ask the user to restart through start.bat and repeat rapid playlist open/close at the same cursor location; record the human result without extending it to installed-artifact acceptance."
+    },
+    {
+      "id": "EV-20260828-030",
+      "recorded_at_utc": "2026-08-28T14:51:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-029 after the user disproved its visible cursor diagnosis; the replacement remains uncommitted",
+      "changed_files": [
+        "app/playlist_panel.py",
+        "app/title_bar.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_playlist_panel_regressions.py",
+        "tests/test_playlist_window_regressions.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "corrects": [
+        {
+          "entry_id": "EV-20260828-029",
+          "field": "evidence[1]",
+          "incorrect": "the root cause was missing ownership release when the playlist's separate top-level window changed visibility; an already-owned global frameless resize cursor could survive the show/hide topology transition",
+          "corrected": "the user repeated the visible scenario and the defect continued; source and a red contract test instead found that the height-following playlist top-level had not disabled native vertical and corner resizing despite exposing only a custom horizontal width handle"
+        },
+        {
+          "entry_id": "EV-20260828-029",
+          "field": "summary",
+          "incorrect": "Repeated playlist show and hide now releases stale frameless resize cursor ownership at every top-level visibility transition, eliminating the transient vertical resize arrow in deterministic lifecycle coverage.",
+          "corrected": "The cursor-ownership implementation and its tests were removed after the user disproved them; the replacement disables the playlist top-level's native resize frame while preserving its tested custom horizontal width handle, with visible Windows confirmation still pending."
+        }
+      ],
+      "subject": "Disable unintended native vertical and corner resizing on the height-following playlist window",
+      "commands": [
+        "user visible source-tree retest: EV-20260828-029 behavior continued",
+        "source inspection of PlaylistPanel top-level flags, owner-height placement and PlaylistResizeHandle width-only behavior",
+        "python -m pytest -q tests/test_playlist_window_regressions.py::<fixed-size contract>; expected red because MSWindowsFixedSizeDialogHint was absent",
+        "remove the disproved owner cursor-release source and regression tests; add MSWindowsFixedSizeDialogHint while retaining the custom horizontal handle",
+        "python -m pytest -q three fixed-size/custom-handle tests; 3 passed",
+        "python -m pytest -q eight playlist, title-bar, resize, animation and window-mode families; 213 passed",
+        "python packaging/extract_translations.py; python packaging/extract_translations.py --check; 456 strings current",
+        "python -m pytest -q expanded eight-family package; 277 passed",
+        "python -m pytest -q; first run 5159 passed, 11 skipped, 1 failed only because the inventory hash was computed from raw CRLF bytes instead of the contract's normalized LF bytes",
+        "inspect the failed inventory assertion, write the normalized SHA-256 and run its focused package; 6 passed",
+        "python -m pytest -q; final 5160 passed, 11 skipped in 88.49 seconds"
+      ],
+      "evidence": [
+        "the user's repeated visible test directly disproved EV029's stale owner-cursor conclusion, so its implementation and dedicated tests were removed rather than layered with another workaround",
+        "PlaylistPanel is a separate frameless top-level whose height is continuously derived from the owner and whose only product resize affordance is PlaylistResizeHandle with SizeHorCursor and width-only geometry updates",
+        "the red regression proved that this contract did not disable the top-level native resize frame; the repaired constructor adds MSWindowsFixedSizeDialogHint while the existing custom horizontal drag tests remain green",
+        "the first full-suite failure was an evidence-metadata calculation error, not a product failure; inspection identified raw CRLF versus normalized LF hashing and the focused architecture gate passed after correction",
+        "the final complete deterministic run collected 5171 tests and completed 5160 passed, 11 skipped, 0 failed with exit code 0"
+      ],
+      "summary": "The disproved cursor-ownership workaround is gone; the playlist now declares its actual fixed-height native window contract and retains only the tested custom horizontal width interaction.",
+      "limitations": [
+        "Qt hidden-window Win32 hit-test probes did not reproduce visible non-client handling and are not accepted as evidence.",
+        "The deterministic source contract does not prove the user's visible Windows cursor result; the same rapid open and close scenario must be repeated after a full source-tree restart.",
+        "The result does not prove installed-artifact behavior and the 11 skipped tests are not PASS.",
+        "No Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Ask the user to close every source-tree player process, restart through start.bat and repeat rapid playlist open and close at the same pointer position; record the visible result without extending it to installed-artifact acceptance."
+    },
+    {
+      "id": "EV-20260828-031",
+      "recorded_at_utc": "2026-08-28T15:29:36Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-030 after the user reported its visible result unchanged; the replacement remains uncommitted",
+      "changed_files": [
+        "app/playlist_panel.py",
+        "app/title_bar.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_playlist_window_regressions.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "corrects": [
+        {
+          "entry_id": "EV-20260828-030",
+          "field": "evidence[2]",
+          "incorrect": "the red regression proved that this contract did not disable the top-level native resize frame; the repaired constructor adds MSWindowsFixedSizeDialogHint while the existing custom horizontal drag tests remain green",
+          "corrected": "the user reported no visible change after a full restart; the fixed-size flag and its contract test were removed, and no native playlist-frame root-cause claim remains"
+        },
+        {
+          "entry_id": "EV-20260828-030",
+          "field": "summary",
+          "incorrect": "The disproved cursor-ownership workaround is gone; the playlist now declares its actual fixed-height native window contract and retains only the tested custom horizontal width interaction.",
+          "corrected": "The EV030 fixed-size playlist change was ineffective and removed; the reproduced cause is a main-title-bar cursor override surviving entry from its top resize gap into an unfiltered child icon."
+        }
+      ],
+      "subject": "Release the main title-bar top-edge cursor override when entering the playlist icon",
+      "commands": [
+        "user visible source-tree retest after EV-20260828-030: behavior unchanged",
+        "source inspection of TITLE_BAR_HEIGHT, TITLE_BUTTON_SIZE, RESIZE_MARGIN, button geometry, FramelessResizeFilter targets and QApplication override ownership",
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py::test_entering_playlist_button_clears_top_edge_cursor_override; expected red because the child button was not a filter target and SizeVerCursor remained active",
+        "extend only title-bar interactive child targets through the existing filter and existing QAbstractButton/QAbstractSlider no-resize guard",
+        "same focused regression; 1 passed",
+        "python -m pytest -q seven title-bar, resize, edge and playlist families; 256 passed",
+        "remove the user-disproved MSWindowsFixedSizeDialogHint implementation and its dedicated test",
+        "python packaging/extract_translations.py; python packaging/extract_translations.py --check; 456 strings current",
+        "python -m pytest -q eight title-bar, resize, edge, playlist and architecture families; 261 passed",
+        "python -m pytest -q; final 5160 passed, 11 skipped in 87.95 seconds"
+      ],
+      "evidence": [
+        "the user's suggestion about vertical proximity was treated as a coordinate hypothesis, not a conclusion; the product constants prove that a centered 26 px button leaves 3 px above it inside the 12 px top resize band of the 32 px title bar",
+        "FramelessResizeFilter installed on the title bar but not its child icon buttons; after the bar acquired QApplication SizeVerCursor in the top gap, the playlist button's Enter event was rejected by the watched-target guard and the global override continued to eclipse its PointingHandCursor",
+        "the focused regression constructed that owned top-edge override and failed because entering the actual playlist button left SizeVerCursor active",
+        "the final filter target set includes interactive title-bar children; their Enter and Move events use the existing effective-edge guard, produce no resize edge, restore only the filter-owned override and return without consuming the click",
+        "the user-disproved playlist fixed-size flag and test were removed rather than retained as an unrelated workaround",
+        "the final complete deterministic run collected 5171 tests and completed 5160 passed, 11 skipped, 0 failed with exit code 0"
+      ],
+      "summary": "The intermittent vertical cursor is now reproduced as a main-title-bar top-gap to child-icon ownership bug; interactive title controls clear the owned resize override on entry without losing their clicks.",
+      "limitations": [
+        "The deterministic event-path reproduction establishes the source mechanism but does not replace the user's visible Windows confirmation after a full source-tree restart.",
+        "The result does not prove installed-artifact behavior and the 11 skipped tests are not PASS.",
+        "No Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Ask the user to close every source-tree player process, restart through start.bat, move from just above the playlist icon onto it and repeat rapid playlist open and close; record the visible result without extending it to installed-artifact acceptance."
+    },
+    {
+      "id": "EV-20260828-032",
+      "recorded_at_utc": "2026-08-28T15:34:22Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "product and test sources unchanged since EV-20260828-031; this provenance correction remains uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "corrects": [
+        {
+          "entry_id": "EV-20260828-030",
+          "field": "working_tree_state",
+          "incorrect": "modified working tree continuing EV-20260828-029 after the user disproved its visible cursor diagnosis; the replacement remains uncommitted",
+          "corrected": "modified working tree continuing EV-20260828-029 after the user reported unchanged behavior; later process identity proved that visible run used old checkout 9090caf and therefore did not evaluate EV029 or EV030"
+        },
+        {
+          "entry_id": "EV-20260828-031",
+          "field": "working_tree_state",
+          "incorrect": "modified working tree continuing EV-20260828-030 after the user reported its visible result unchanged; the replacement remains uncommitted",
+          "corrected": "modified working tree continuing EV-20260828-030 after screenshots showed the common title-bar symptom; later process identity proved the visible run used old checkout 9090caf and did not evaluate the 59f6980 working tree"
+        },
+        {
+          "entry_id": "EV-20260828-031",
+          "field": "commands[0]",
+          "incorrect": "user visible source-tree retest after EV-20260828-030: behavior unchanged",
+          "corrected": "user visible run showed unchanged behavior, but Win32 process command lines later bound it to old checkout 9090caf rather than the EV030 or EV031 working tree"
+        }
+      ],
+      "subject": "Reject cursor screenshots as current-tree acceptance after exact running-process checkout readback",
+      "commands": [
+        "visual inspection of four user photographs showing SizeVerCursor over multiple left and right title-bar controls while each control hover state was active",
+        "read-only comparison of both local MLC checkouts: branch, exact HEAD, origin/master divergence, start.bat SHA-256 and title_bar.py SHA-256",
+        "git worktree list --porcelain and exact branch divergence readback",
+        "Get-CimInstance Win32_Process with executable and command-line readback for the active launcher, bootstrap, py.exe and python.exe process chain"
+      ],
+      "evidence": [
+        "the screenshots establish that the vertical cursor appears across folder, playlist or menu and right-side window controls rather than only the playlist panel",
+        "the active process chain was cmd.exe start.bat to bootstrap.ps1 to py.exe and python.exe main.py, all under the checkout named MLC Player at exact 9090caf",
+        "that running checkout is branch codex/prebuild-main-preservation-20260827 and is 33 commits behind origin/master 59f6980; its title_bar.py does not contain EV031's interactive-child filter change",
+        "the modified master working tree containing EV031 is the separate checkout named MLC Player-build-2e75fbd at exact 59f6980 and was not running",
+        "therefore the screenshots are valid evidence of the old general title-bar defect but neither PASS nor FAIL evidence for EV029, EV030 or EV031"
+      ],
+      "summary": "Repeated unchanged cursor observations came from an old checkout; the current 59f6980 working-tree fix has not yet received a visible Windows run.",
+      "limitations": [
+        "This provenance readback does not prove that EV031 visually fixes the cursor; it only rejects the stale-checkout screenshots as a current-tree result.",
+        "No process was terminated and no Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Close the old 9090caf player manually, launch start.bat from the exact 59f6980 modified worktree and repeat top-gap-to-icon movement across both left and right title controls."
+    },
+    {
+      "id": "EV-20260828-033",
+      "recorded_at_utc": "2026-08-28T15:42:16Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-032 after a fresh visible run still showed the general title-bar cursor defect; the replacement remains uncommitted",
+      "changed_files": [
+        "app/title_bar.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_title_bar_hardening_regressions.py"
+      ],
+      "corrects": [
+        {
+          "entry_id": "EV-20260828-031",
+          "field": "evidence[1]",
+          "incorrect": "FramelessResizeFilter installed on the title bar but not its child icon buttons; after the bar acquired QApplication SizeVerCursor in the top gap, the playlist button's Enter event was rejected by the watched-target guard and the global override continued to eclipse its PointingHandCursor",
+          "corrected": "the fresh visible run showed the cursor over every title control despite active hover; the direct cause was that QApplication SizeVerCursor was opened for the main title bar at all, because an application override eclipses every child widget cursor regardless of its hover or PointingHandCursor state"
+        },
+        {
+          "entry_id": "EV-20260828-031",
+          "field": "summary",
+          "incorrect": "The intermittent vertical cursor is now reproduced as a main-title-bar top-gap to child-icon ownership bug; interactive title controls clear the owned resize override on entry without losing their clicks.",
+          "corrected": "The child-target change was ineffective and removed; the reproduced source defect is application-global override scope, which is now restricted to separate top-level overlay surfaces while the main window uses widget-local cursors."
+        }
+      ],
+      "subject": "Restrict application-global resize cursor override to separate top-level overlay surfaces",
+      "commands": [
+        "user fresh visible run and photograph: SizeVerCursor remained over multiple title controls while each hover state was active",
+        "official Qt documentation research for QGuiApplication.setOverrideCursor, QWidget.cursor and QCursor scope",
+        "source inspection of FramelessResizeFilter cursor state, widget cursor restoration, application override ownership and separate control_overlay topology",
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py::test_main_title_edge_uses_widget_cursor_without_global_override; expected red because QApplication.overrideCursor remained SizeVerCursor",
+        "restrict _apply_override_cursor to watched.window() different from the player; remove the user-disproved child-target implementation and test",
+        "focused main-title and separate-overlay override tests; 5 passed",
+        "python -m pytest -q eight title-bar, resize, window-mode and overlay-hit families; 302 passed",
+        "python packaging/extract_translations.py; no changes; python packaging/extract_translations.py --check; 456 strings current",
+        "python -m pytest -q; final 5160 passed, 11 skipped in 87.54 seconds"
+      ],
+      "evidence": [
+        "the photograph shows SizeVerCursor over a title button whose hover background is active, proving that the button receives pointer state while a higher-scope cursor continues to win",
+        "Qt documents that an application override cursor is displayed in all application widgets until restored, whereas QWidget.setCursor applies to the widget and unsetCursor restores parent inheritance",
+        "the red regression applied the top-edge cursor to the main title widget and proved that the previous implementation simultaneously opened QApplication.overrideCursor",
+        "the corrected implementation retains the widget-local SizeVerCursor on the main title edge without an application override, so child buttons keep their explicit PointingHandCursor",
+        "separate top-level control_overlay targets still use the application override required by the existing physical-topology design; focused plain-enter and stack-balance tests remain green",
+        "the final complete deterministic run collected 5171 tests and completed 5160 passed, 11 skipped, 0 failed with exit code 0"
+      ],
+      "summary": "Main-window resize cursors no longer use application-global override; only separate top-level overlay surfaces do, preserving every title control's own pointer cursor.",
+      "limitations": [
+        "The active player was started before this source change and cannot validate it without a full restart from the same modified worktree.",
+        "The deterministic result and Qt contract do not replace the user's visible Windows confirmation after restart.",
+        "The elevated process hid its exact command line from the non-elevated readback; the old process was absent and the new process chain matched the instructed launch time, but this is supporting rather than cryptographic worktree identity.",
+        "The result does not prove installed-artifact behavior and the 11 skipped tests are not PASS.",
+        "No Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Fully close the active player, relaunch the exact modified 59f6980 worktree and repeat top-edge-to-icon movement across left and right title controls."
+    },
+    {
+      "id": "EV-20260828-034",
+      "recorded_at_utc": "2026-08-28T15:53:47Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "product and test sources unchanged since EV-20260828-033; this bounded human-visual and post-close process record remains uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "User visual acceptance of title-control cursor ownership and post-close player-process absence",
+      "commands": [
+        "user-provided post-restart photographs of left title controls, right title controls and empty top-edge hover positions",
+        "Get-Item app/title_bar.py LastWriteTime readback and Get-CimInstance process CreationDate readback",
+        "user normal application close",
+        "post-close Get-CimInstance and Get-Process readback for the observed PowerShell, cmd.exe, bootstrap PowerShell, py.exe and python.exe process IDs",
+        "git rev-parse HEAD; git rev-list --left-right --count HEAD...origin/master; git status --short --branch"
+      ],
+      "evidence": [
+        "the final photographs show PointingHandCursor over the menu and transparency title controls while their hover backgrounds and tooltips are active",
+        "the same photograph set shows SizeVerCursor only on empty top-edge title-bar surface, which is the intended frameless height-resize affordance",
+        "app/title_bar.py was last modified at 18:40:18 local time and the tested player process chain started at 18:43:46 through 18:43:49, supporting that the run began after the EV033 source change",
+        "after the user closed normally, the observed cmd.exe, bootstrap PowerShell, py.exe and python.exe child process IDs were absent; only the independently open Administrator PowerShell shell remained",
+        "the source baseline readback remained exact 59f6980 and local master equaled origin/master at 0/0 while the accumulated UX diff remained uncommitted"
+      ],
+      "summary": "The repaired source-tree UI visually preserves hand cursors on title controls, keeps vertical resize only on the real empty top edge and leaves zero player or launcher child processes after normal close.",
+      "limitations": [
+        "This deterministic provenance record binds user visual evidence and post-close process absence but is not promoted to native_smoke because no controlled exit code, final marker or immutable command transcript was captured.",
+        "The elevated launcher hid its exact command line from non-elevated readback; source modification and process creation ordering support but do not cryptographically prove worktree identity.",
+        "This source-tree result does not prove installed-artifact behavior, and the 11 skipped deterministic tests remain not PASS.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Keep the cursor defect closed at source-tree visual scope; request separate approval before consolidating the modified master worktree back into the canonical MLC Player folder or starting commit workflow."
+    },
+    {
+      "id": "EV-20260828-035",
+      "recorded_at_utc": "2026-08-28T16:00:21Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-034 after the user requested a slightly roomier title strip; changes remain uncommitted",
+      "changed_files": [
+        "app/title_bar.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_app_icon_regressions.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_title_bar_shell_regressions.py"
+      ],
+      "subject": "Increase the title strip height without changing control or cursor ownership geometry",
+      "commands": [
+        "source and regression search for TITLE_BAR_HEIGHT, literal 32 px contracts and shared title-button dimensions",
+        "python -m pytest -q two 36 px title-height contracts; expected red because product remained 32 px",
+        "change TITLE_BAR_HEIGHT from 32 to 36 while retaining 26 px buttons, 18 px icons and the existing cursor-scope fix",
+        "python -m pytest -q nine title-bar, icon, window, playlist and default-shell families; 257 passed",
+        "python packaging/extract_translations.py --check; 456 strings current",
+        "python -m pytest -q; first full run 5159 passed, 11 skipped, 1 failed only because title-bar shell snapshot still expected 32 px",
+        "inspect the sole stale shell assertion and update its intentional reference height to 36 px",
+        "python -m pytest -q tests/test_title_bar_shell_regressions.py; 21 passed",
+        "python -m pytest -q; final 5160 passed, 11 skipped in 89.90 seconds"
+      ],
+      "evidence": [
+        "the approved title strip grows by four pixels from 32 to 36 while all title buttons remain 26 px and their icons remain 18 px, so only vertical breathing room changes",
+        "the logo remains 22 px and gains seven pixels of top and bottom breathing room in the 36 px strip",
+        "the application-global cursor override fix is unchanged: title controls retain widget-local hand cursors and empty top-edge resize remains independently scoped",
+        "the first complete run's only failure was an explicit stale shell height snapshot; it was inspected and updated rather than retried blindly",
+        "the final complete deterministic run collected 5171 tests and completed 5160 passed, 11 skipped, 0 failed with exit code 0"
+      ],
+      "summary": "The title strip is four pixels roomier with unchanged icon, button and cursor behavior, and all deterministic tests pass.",
+      "limitations": [
+        "The 36 px geometry requires user visual confirmation after a fresh source-tree restart.",
+        "This deterministic result does not prove installed-artifact behavior and the 11 skipped tests remain not PASS.",
+        "No Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Restart the exact modified worktree and confirm that the 36 px strip is visually balanced while title controls retain hand cursors and empty top edge retains vertical resize."
+    },
+    {
+      "id": "EV-20260828-036",
+      "recorded_at_utc": "2026-08-28T16:04:29Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "modified working tree continuing EV-20260828-035 after the user requested one additional title-strip height increment; changes remain uncommitted",
+      "changed_files": [
+        "app/title_bar.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_app_icon_regressions.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_title_bar_shell_regressions.py"
+      ],
+      "subject": "Increase the title strip from 36 to 40 pixels while preserving control dimensions",
+      "commands": [
+        "change three title-height contracts from 36 to 40 pixels",
+        "python -m pytest -q three focused 40 px contracts; expected red because the product remained 36 px",
+        "change TITLE_BAR_HEIGHT from 36 to 40 and update its measured breathing-room comments",
+        "python -m pytest -q ten title-bar, icon, shell, window and playlist families; 278 passed",
+        "python packaging/extract_translations.py --check; 456 strings current",
+        "python -m pytest -q; final 5160 passed, 11 skipped in 87.24 seconds"
+      ],
+      "evidence": [
+        "the current title strip is 40 px; its 26 px buttons now have seven pixels of vertical breathing room on each side",
+        "the 22 px logo has nine pixels of top and bottom breathing room and the 18 px icons remain unchanged",
+        "title control hit areas, playlist shared button dimensions and the EV033 cursor ownership implementation remain unchanged",
+        "the affected geometry and shell package completed 278 passed and the final complete deterministic run collected 5171 tests with 5160 passed, 11 skipped, 0 failed"
+      ],
+      "summary": "The current title strip is 40 pixels high with unchanged controls, icons and cursor ownership, and all deterministic tests pass.",
+      "limitations": [
+        "The 40 px geometry requires user visual confirmation after a fresh source-tree restart.",
+        "This deterministic result does not prove installed-artifact behavior and the 11 skipped tests remain not PASS.",
+        "No Computer Use, build, installation, uninstall, native smoke, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Restart the exact modified worktree and confirm the 40 px strip is visually balanced while cursor ownership remains correct."
+    },
+    {
+      "id": "EV-20260828-037",
+      "recorded_at_utc": "2026-08-28T16:09:41Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "baseline_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
+      "working_tree_state": "product and test sources unchanged since EV-20260828-036; this bounded user visual acceptance record remains uncommitted",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "User visual acceptance of the 40 pixel title strip",
+      "commands": [
+        "user restart and direct visual inspection of the current 40 px source-tree title strip",
+        "Get-Item app/title_bar.py LastWriteTime readback",
+        "post-feedback Get-CimInstance readback for recent python, pythonw and py processes"
+      ],
+      "evidence": [
+        "the user explicitly reported that the current 40 px title-strip appearance is now correct",
+        "the accepted geometry retains the previously verified hand cursors on title controls and vertical resize only on the empty top edge",
+        "no recent player python, pythonw or py process remained at the post-feedback readback"
+      ],
+      "summary": "The user accepted the current 40 pixel title-strip appearance and no player process remained afterward.",
+      "limitations": [
+        "This record captures bounded source-tree visual acceptance, not a controlled native_smoke with immutable command transcript, exit code and final marker.",
+        "It does not prove installed-artifact behavior or extend acceptance to unrelated UX scenarios.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN."
+      ],
+      "next_action": "Keep the 40 px title strip and cursor behavior unchanged; request separate approval before canonical-folder consolidation or commit workflow."
     }
   ]
 }

@@ -199,15 +199,18 @@ def test_overlay_does_not_steal_focus(frame_env):
 
 
 def test_hidden_overlay_produces_no_action(frame_env):
-    """Gizli overlay kontrolleri islem uretmemeli (mevcut kapi korunur)."""
+    """Görünürlük kapısı offscreen'da platform penceresine bağlı değildir."""
+    from app.video_frame import VideoFrame
+
     env = frame_env()
     calls = []
-    env.frame.control_overlay.hide()
-    env.app.processEvents()
-    if env.frame.control_overlay.isVisible():
-        pytest.skip("offscreen platformda gizleme gorunurlugu dusurmedi")
+    probe = SimpleNamespace(
+        control_overlay=SimpleNamespace(isVisible=lambda: False),
+        show_overlay_for_interaction=lambda: calls.append("shown"))
+    probe._overlay_action_allowed = lambda: VideoFrame._overlay_action_allowed(
+        probe)
 
-    env.frame._run_overlay_action(lambda: calls.append("ran"))
+    VideoFrame._run_overlay_action(probe, lambda: calls.append("ran"))
 
     assert calls == []
 

@@ -266,7 +266,7 @@ def test_a_video_and_its_subtitle_dropped_together(errors, srt, monkeypatch, tmp
     video.write_bytes(b"0")
     opened = []
     monkeypatch.setattr(player_module, "open_path",
-                        lambda player, path: opened.append(path))
+                        lambda player, path: opened.append(path) or True)
     mpv = FakeMpv()
     player = FakePlayer(mpv, current_file=None, duration=0.0)
 
@@ -282,6 +282,20 @@ def test_a_video_and_its_subtitle_dropped_together(errors, srt, monkeypatch, tmp
 
     assert mpv.sid == external_tracks(mpv, srt)[0]["id"]
     assert mpv.sub_visibility is True
+
+
+def test_failed_video_drop_does_not_replace_existing_pending_subtitles(
+        errors, srt, monkeypatch, tmp_path):
+    video = tmp_path / "rejected.mkv"
+    video.write_bytes(b"0")
+    monkeypatch.setattr(player_module, "open_path",
+                        lambda _player, _path: False)
+    player = FakePlayer(FakeMpv(), current_file=None, duration=0.0)
+    player._pending_subs = ["already-pending.srt"]
+
+    MPVPlayer.dropEvent(player, FakeDropEvent([str(video), srt]))
+
+    assert player._pending_subs == ["already-pending.srt"]
 
 
 def test_the_pending_drain_waits_for_a_real_track_list(errors, srt):

@@ -8,17 +8,18 @@ nesnelerini yeniden kullanır, kopya davranış üretmez.
 """
 from PyQt6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, QTimer
 from PyQt6.QtGui import QCursor
-from PyQt6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel, QMenu,
-                             QPushButton, QSizePolicy, QSlider, QWidget)
+from PyQt6.QtWidgets import (QAbstractButton, QAbstractSlider, QApplication,
+                             QFrame, QHBoxLayout, QLabel, QMenu, QPushButton,
+                             QSizePolicy, QSlider, QWidget)
 
 from app.app_icon import application_icon
 from app.ui_icons import make_media_icon
 from app.i18n import tr
 
-TITLE_BAR_HEIGHT = 32
+TITLE_BAR_HEIGHT = 40
 # Baslik cubugu yuksekligini BUYUTMEYEN logo olcusu.
 # Kullanici istegi (17 Agustos 2026): 20 px kucuk kaliyordu, buyutuldu.
-# Onaylanan kompakt olcu: 22 px logo, 32 px cubukta ustte/altta 5 px
+# Onaylanan ferah olcu: 22 px logo, 40 px cubukta ustte/altta 9 px
 # nefes payi birakir ve 26 px dugme alanini asmaz.
 TITLE_LOGO_SIZE = 22
 #: Baslik cubugu dugme olculeri ve yan pay -- URUNUN TEK kaynagi.
@@ -68,7 +69,7 @@ def cursor_for_edges(edges):
 
 
 class TitleBar(QWidget):
-    """32 px modern başlık çubuğu: sol komutlar, sağ pencere düğmeleri."""
+    """40 px modern başlık çubuğu: sol komutlar, sağ pencere düğmeleri."""
 
     def __init__(self, player):
         super().__init__(player)
@@ -202,7 +203,7 @@ class TitleBar(QWidget):
         button.setIconSize(QSize(icon_size, icon_size))
         button.setIcon(make_media_icon(icon_kind, icon_size))
         button.setCursor(Qt.CursorShape.PointingHandCursor)
-        button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        button.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         return button
 
     # --- Menü ---
@@ -561,6 +562,9 @@ class FramelessResizeFilter(QObject):
         if event_type in (QEvent.Type.WindowStateChange,
                           QEvent.Type.WindowActivate, QEvent.Type.Show):
             self.title_bar.update_maximize_state()
+            if not self.title_bar.can_resize_window():
+                self._end_manual_resize()
+                self._restore_resize_cursor()
             ensure = getattr(self.player, "ensure_title_bar_on_top", None)
             if callable(ensure):
                 ensure()
@@ -600,8 +604,8 @@ class FramelessResizeFilter(QObject):
         if event_type == QEvent.Type.MouseMove:
             self._update_resize_cursor(watched, event)
             return False
-        edges = resize_edges_at(self.player.rect(),
-                               self._window_position(watched, event))
+        edges = self._effective_resize_edges(
+            self._window_position(watched, event), watched)
         if event.button() != Qt.MouseButton.LeftButton or not edges:
             return False
         # Basış anında da görünür imleç uygulanır; yalnız önceki MouseMove
@@ -651,8 +655,51 @@ class FramelessResizeFilter(QObject):
             local = self.player.mapFromGlobal(point)
         except (AttributeError, RuntimeError):
             return
-        self._apply_resize_cursor(watched,
-                                  resize_edges_at(self.player.rect(), local))
+        self._apply_resize_cursor(
+            watched, self._effective_resize_edges(local, watched))
+
+    def _effective_resize_edges(self, local, watched=None):
+        """Ana pencerenin o anda gerçekten sahip olduğu resize kenarları.
+
+        Açık ve yapışık playlist, ana pencereyle ortak yatay sınırın kendi
+        tarafında gerçek bir genişlik tutamacı sunar. Aynı sınırın video
+        tarafını ayrıca ana-pencere resize alanı yapmak iki yatay imleci yan
+        yana üretir ve kullanıcıya video üzerinde playlist'i genişletiyormuş
+        hissi verir. Ortak kenarda yatay sahiplik playlist'e bırakılır;
+        köşenin dikey bileşeni korunur.
+        """
+        edges = resize_edges_at(self.player.rect(), local)
+        if not edges:
+            return edges
+        # Dar pencere ve PiP'de gerçek overlay kontrolleri 12 px'lik dış
+        # resize bandına yaklaşabilir. Düğme/slider pikseli kullanıcı
+        # komutunundur; kenar resize'ı yalnız çevresindeki boş yüzeyden
+        # çalışır. Aksi halde düğmenin alt/yan kısmına basmak komut yerine
+        # pencereyi sürüklüyordu.
+        if isinstance(watched, (QAbstractButton, QAbstractSlider)):
+            return Qt.Edge(0)
+        video_frame = getattr(self.player, "video_frame", None)
+        panel = getattr(video_frame, "playlist_panel", None)
+        if panel is None:
+            return edges
+        is_open = bool(getattr(panel, "is_open",
+                               getattr(panel, "_target_open", False)))
+        placement = getattr(panel, "_placement", None)
+        if (not is_open or not panel.isVisible()
+                or not bool(getattr(placement, "snapped", False))):
+            return edges
+        try:
+            owner_rect = QRect(self.player.mapToGlobal(QPoint(0, 0)),
+                               self.player.size())
+            panel_rect = panel.frameGeometry()
+        except (AttributeError, RuntimeError):
+            return edges
+        tolerance = 2
+        if abs(panel_rect.left() - (owner_rect.right() + 1)) <= tolerance:
+            edges &= ~Qt.Edge.RightEdge
+        elif abs((panel_rect.right() + 1) - owner_rect.left()) <= tolerance:
+            edges &= ~Qt.Edge.LeftEdge
+        return edges
 
     def _refresh_resize_cursor_from_global(self):
         """Leave sonrasında gerçek hedef/konumla kenar imlecini tazeler."""
@@ -666,7 +713,7 @@ class FramelessResizeFilter(QObject):
         except (AttributeError, RuntimeError):
             self._restore_resize_cursor()
             return
-        edges = resize_edges_at(self.player.rect(), local)
+        edges = self._effective_resize_edges(local, watched)
         if not edges:
             self._restore_resize_cursor()
             return
@@ -699,7 +746,7 @@ class FramelessResizeFilter(QObject):
         if state is not None and state[0] is watched and state[3] == shape:
             # Widget'a tekrar yazılmaz; görünür override zaten bu şekilde
             # olduğu için `_apply_override_cursor` da hiçbir şey yapmaz.
-            self._apply_override_cursor(shape)
+            self._apply_override_cursor(watched, shape)
             return
         if state is not None and state[0] is not watched:
             self._restore_resize_cursor()
@@ -711,7 +758,7 @@ class FramelessResizeFilter(QObject):
                 self._cursor_state = None
                 return
             self._cursor_state = (state[0], state[1], state[2], shape)
-            self._apply_override_cursor(shape)
+            self._apply_override_cursor(watched, shape)
             return
         try:
             # Widget'ın AÇIKÇA kendi imleci var mı? Yoksa temizlerken
@@ -722,22 +769,34 @@ class FramelessResizeFilter(QObject):
             watched.setCursor(shape)
         except (AttributeError, RuntimeError):
             self._cursor_state = None
-            self._apply_override_cursor(shape)
+            self._apply_override_cursor(watched, shape)
             return
         self._cursor_state = (watched, had_cursor, original, shape)
-        self._apply_override_cursor(shape)
+        self._apply_override_cursor(watched, shape)
 
-    def _apply_override_cursor(self, shape):
+    def _apply_override_cursor(self, watched, shape):
         """GÖRÜNÜR imleç: ayrı top-level yüzeyde tek güvenilir yol.
 
         ÖLÇÜLEN KUSUR: pencere alt kenardan gerçekten boyutlanıyordu ama
         imleç normal ok / el işareti kalıyordu; ayrı top-level
         `control_overlay` üzerinde widget imleci ekranda görünmüyor.
 
+        Ana pencere ağacında widget cursor'ı yeterlidir ve child düğmelerin
+        kendi PointingHandCursor değerini korur. QApplication override bütün
+        uygulamayı ezdiği için yalnız olayın geldiği widget ana pencereden
+        FARKLI bir top-level yüzeydeyse kullanılır (control_overlay).
+
         Override YALNIZ bu filtre açtıysa yönetilir. Başka bir bileşenin
         override'ı varsa stack'ine DOKUNULMAZ: ne sahiplenilir, ne
         değiştirilir, ne de restore edilir.
         """
+        try:
+            separate_top_level = watched.window() is not self.player
+        except (AttributeError, RuntimeError):
+            separate_top_level = False
+        if not separate_top_level:
+            self._restore_override_cursor()
+            return
         if self._owns_override:
             if shape != self._override_shape:
                 try:

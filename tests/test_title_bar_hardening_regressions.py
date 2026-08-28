@@ -6,6 +6,7 @@
    çağırması, 2) overflow menüsünün birikmemesi.
 """
 import os
+from types import SimpleNamespace
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -74,6 +75,51 @@ def spy_on_resize(resize_filter):
     resize_filter._start_system_resize = (
         lambda edges: started.append(edges) or True)
     return started
+
+
+def test_main_title_edge_uses_widget_cursor_without_global_override(
+        frameless_window):
+    """Başlık resize oku ikonların cursor'ını uygulama genelinde ezmemeli."""
+    app, window, bar, resize_filter = frameless_window()
+
+    resize_filter._apply_resize_cursor(bar, Qt.Edge.TopEdge)
+
+    assert bar.cursor().shape() == Qt.CursorShape.SizeVerCursor
+    assert QApplication.overrideCursor() is None
+    assert (bar.playlist_button.cursor().shape()
+            == Qt.CursorShape.PointingHandCursor)
+
+
+def test_snapped_playlist_owns_the_shared_horizontal_resize_boundary(
+        frameless_window):
+    """Playlist açıkken video tarafında ikinci yatay resize oku çıkmamalı."""
+    app, window, bar, resize_filter = frameless_window()
+    owner_rect = window.frameGeometry()
+    panel = QWidget(window, Qt.WindowType.Window
+                    | Qt.WindowType.FramelessWindowHint)
+    panel._target_open = True
+    panel._placement = SimpleNamespace(snapped=True)
+    panel.setGeometry(owner_rect.right() + 1, owner_rect.top(),
+                      420, owner_rect.height())
+    panel.show()
+    app.processEvents()
+    window.video_frame = SimpleNamespace(playlist_panel=panel)
+
+    middle_right = QPoint(window.width() - 1, window.height() // 2)
+    top_right = QPoint(window.width() - 1, 0)
+
+    assert resize_filter._effective_resize_edges(middle_right) == Qt.Edge(0)
+    assert resize_filter._effective_resize_edges(top_right) == Qt.Edge.TopEdge
+
+    panel.setGeometry(owner_rect.left() - panel.width(), owner_rect.top(),
+                      panel.width(), owner_rect.height())
+    app.processEvents()
+    middle_left = QPoint(0, window.height() // 2)
+    assert resize_filter._effective_resize_edges(middle_left) == Qt.Edge(0)
+
+    panel._target_open = False
+    assert (resize_filter._effective_resize_edges(middle_left)
+            == Qt.Edge.LeftEdge)
 
 
 def press_on(widget, local_point):
@@ -287,6 +333,25 @@ def test_resize_works_again_after_returning_to_normal_state(frameless_window):
     app.processEvents()
 
     assert started == [Qt.Edge.LeftEdge]
+
+
+@pytest.mark.parametrize("state", ("maximized", "fullscreen", "minimized"))
+def test_entering_a_non_resizable_state_clears_a_live_resize_cursor(
+        frameless_window, state):
+    app, window, bar, resize_filter = frameless_window()
+    target = window.central_widget
+    resize_filter._apply_resize_cursor(target, Qt.Edge.RightEdge)
+    assert resize_filter._cursor_state is not None
+
+    getattr(window, {"maximized": "showMaximized",
+                     "fullscreen": "showFullScreen",
+                     "minimized": "showMinimized"}[state])()
+    app.processEvents()
+
+    assert resize_filter._cursor_state is None
+    assert QApplication.overrideCursor() is None
+    window.showNormal()
+    app.processEvents()
 
 
 def test_filter_tracks_its_installed_targets(frameless_window):

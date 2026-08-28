@@ -354,7 +354,7 @@ def test_the_custom_title_bar_shows_exactly_one_logo(title_bar):
 
 
 def test_the_logo_matches_the_approved_compact_scale(title_bar):
-    """32 px çubukta logo okunur kalır ve düğmelerin dışına taşmaz."""
+    """40 px çubukta logo okunur kalır ve düğmelerin dışına taşmaz."""
     from app.title_bar import TITLE_LOGO_SIZE
 
     logo = title_bar.findChild(QLabel, "titleLogo")
@@ -401,10 +401,10 @@ def test_the_logo_never_blocks_dragging_or_the_buttons(title_bar):
     assert title_bar._child_at(logo.geometry().center()) is None
 
 
-def test_the_title_bar_height_did_not_grow(title_bar):
+def test_the_title_bar_uses_the_roomier_approved_height(title_bar):
     from app.title_bar import TITLE_BAR_HEIGHT
 
-    assert TITLE_BAR_HEIGHT == 32
+    assert TITLE_BAR_HEIGHT == 40
     assert title_bar.height() == TITLE_BAR_HEIGHT
 
 

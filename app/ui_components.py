@@ -9,6 +9,9 @@ from app.utils import create_colored_icon, format_time
 from app.config import cinematic_ui_enabled, DEFAULT_VOLUME, MAX_VOLUME
 from app.i18n import tr
 
+WHEEL_ANGLE_PER_STEP = 120
+WHEEL_VOLUME_STEP = 5
+
 # Özel QSlider sınıfı - tıklama ve sürükleme olaylarını yakalayabilmek için
 class ClickableSlider(QSlider):
     def __init__(self, orientation):
@@ -51,10 +54,21 @@ class ClickableSlider(QSlider):
 # Ses çubuğu: 0-100 arası normal (mavi), 100-MAX_VOLUME arası
 # amplifikasyon bölgesi (turuncu). Fare tekerleği ile de ses değiştirir.
 class VolumeSlider(ClickableSlider):
+    def __init__(self, orientation):
+        super().__init__(orientation)
+        self._wheel_angle_remainder = 0
+
     def wheelEvent(self, event):
-        delta = event.angleDelta().y()
-        step = 5 if delta > 0 else -5
-        self.setValue(self.value() + step)
+        angle = event.angleDelta()
+        if angle.y() == 0 or abs(angle.y()) <= abs(angle.x()):
+            self._wheel_angle_remainder = 0
+            event.ignore()
+            return
+        self._wheel_angle_remainder += angle.y()
+        steps = int(self._wheel_angle_remainder / WHEEL_ANGLE_PER_STEP)
+        if steps:
+            self._wheel_angle_remainder -= steps * WHEEL_ANGLE_PER_STEP
+            self.setValue(self.value() + steps * WHEEL_VOLUME_STEP)
         event.accept()
 
     def paintEvent(self, event):

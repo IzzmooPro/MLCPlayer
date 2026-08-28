@@ -25,7 +25,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 import pytest
 from PyQt6.QtCore import QEvent, QPoint, QPointF, Qt
 from PyQt6.QtGui import QCursor, QEnterEvent, QMouseEvent
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QPushButton, QSlider,
+                             QVBoxLayout, QWidget)
 
 from app import title_bar as title_bar_module
 from app.title_bar import FramelessResizeFilter
@@ -210,6 +211,52 @@ def test_the_side_edges_work_inside_the_overlay_area(scene, local_x, delta,
         assert left == before[0] - 60 and right == before[2]
     else:
         assert right == before[2] + 60 and left == before[0]
+
+
+def test_overlay_button_keeps_click_ownership_inside_the_resize_band(scene):
+    """Dar/PiP katmanında düğmenin kenar pikseli resize'a dönüşmemeli."""
+    window, overlay, _corner_child, filt, native = scene(native_ok=False)
+    button = QPushButton("action", overlay)
+    button.setCursor(Qt.CursorShape.PointingHandCursor)
+    button.setGeometry(overlay.width() - 40, overlay.height() - 40, 40, 40)
+    button.show()
+    filt.install()
+    clicked = []
+    button.clicked.connect(lambda: clicked.append(True))
+    before = rect_of(window)
+
+    local = QPoint(button.width() - 2, button.height() - 2)
+    QApplication.sendEvent(
+        button, mouse(QEvent.Type.MouseButtonPress, button, local))
+    QApplication.sendEvent(
+        button, mouse(QEvent.Type.MouseButtonRelease, button, local,
+                      buttons=Qt.MouseButton.NoButton))
+
+    assert clicked == [True]
+    assert rect_of(window) == before
+    assert native == []
+    assert not filt.manual_resize_active()
+    assert button.cursor().shape() == Qt.CursorShape.PointingHandCursor
+
+
+def test_overlay_slider_keeps_drag_ownership_inside_the_resize_band(scene):
+    window, overlay, _corner_child, filt, native = scene(native_ok=False)
+    slider = QSlider(Qt.Orientation.Horizontal, overlay)
+    slider.setCursor(Qt.CursorShape.PointingHandCursor)
+    slider.setGeometry(0, overlay.height() - 20, 160, 20)
+    slider.show()
+    filt.install()
+    before = rect_of(window)
+    local = QPoint(2, slider.height() - 2)
+
+    handled = filt.eventFilter(
+        slider, mouse(QEvent.Type.MouseButtonPress, slider, local))
+
+    assert handled is False
+    assert rect_of(window) == before
+    assert native == []
+    assert not filt.manual_resize_active()
+    assert slider.cursor().shape() == Qt.CursorShape.PointingHandCursor
 
 
 # --- Durum temizliği -----------------------------------------------------

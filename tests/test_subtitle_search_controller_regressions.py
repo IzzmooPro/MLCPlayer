@@ -642,10 +642,21 @@ def test_file_id_is_none_in_transient_states(bench, state):
 # --- Denetim 4: GUI kapanisi bloklamamali ---
 
 def test_close_path_does_not_wait_on_the_thread(bench):
-    client = FakeClient(delay=0.5)
+    started = threading.Event()
+    release = threading.Event()
+
+    class BlockingClient(FakeClient):
+        def search(self, **params):
+            self.calls.append(dict(params))
+            self.threads.append(threading.get_ident())
+            started.set()
+            release.wait(timeout=3.0)
+            return self.responses[0]
+
+    client = BlockingClient()
     app, dialog, controller = bench(client=client)
     controller.start_search()
-    app.processEvents()
+    assert pump_until(app, started.is_set), "worker gerçekten başlamadı"
 
     started = time.perf_counter()
     dialog.close()
@@ -656,6 +667,7 @@ def test_close_path_does_not_wait_on_the_thread(bench):
     assert controller.is_cancelled() is True
     assert controller.thread_is_running() is True, (
         "kapatma thread'i senkron bekledi")
+    release.set()
     pump_until(app, lambda: controller.is_idle())
 
 

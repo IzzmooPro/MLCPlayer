@@ -181,6 +181,19 @@ def test_clicking_cc_button_again_returns_to_inactive(product_window):
     assert cc_button(frame).accessibleName() == INACTIVE_LABEL
 
 
+def test_repeated_cc_clicks_round_trip_without_state_drift(product_window):
+    app, window, frame = product_window(sub_visibility=False, sid=1)
+    frame.update_overlay_state()
+
+    for _index in range(6):
+        QTest.mouseClick(cc_button(frame), Qt.MouseButton.LeftButton)
+        app.processEvents()
+
+    assert window.mpv_player.sub_visibility is False
+    assert frame.overlay_subtitles_active is False
+    assert cc_button(frame).accessibleName() == INACTIVE_LABEL
+
+
 def test_clicking_cc_without_any_subtitle_shows_bottom_centre_osd(
         product_window):
     app, window, frame = product_window(

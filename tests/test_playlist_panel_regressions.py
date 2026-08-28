@@ -265,6 +265,13 @@ def test_split_handle_stays_visible_and_hit_testable_after_owner_restore(
     assert panel.childAt(handle.geometry().center()) is handle
 
 
+def test_playlist_close_button_is_keyboard_reachable(playlist_window):
+    app, window, frame = playlist_window
+    panel = _open(app, window, frame)
+
+    assert panel.close_button.focusPolicy() == Qt.FocusPolicy.TabFocus
+
+
 def test_transient_owner_deactivate_does_not_hide_panel_before_it_activates(
         playlist_window):
     app, window, frame = playlist_window
@@ -466,17 +473,28 @@ def test_reorder_around_current_item_updates_index_without_playing(playlist_wind
     assert window.played == []
 
 
-def test_click_or_drag_does_not_play_but_double_click_does(playlist_window):
+def test_single_click_plays_selected_item(playlist_window):
     app, window, frame = playlist_window
     panel = _open(app, window, frame)
     view = panel.playlist_view
     point = view.visualItemRect(view.item(1)).center()
 
     QTest.mouseClick(view.viewport(), Qt.MouseButton.LeftButton, pos=point)
-    assert window.played == []
-
-    QTest.mouseDClick(view.viewport(), Qt.MouseButton.LeftButton, pos=point)
     assert window.played == [1]
+
+
+def test_drag_reorder_does_not_play_selected_item(playlist_window):
+    app, window, frame = playlist_window
+    panel = _open(app, window, frame)
+    view = panel.playlist_view
+    source = view.visualItemRect(view.item(0)).center()
+    target = view.visualItemRect(view.item(2)).center()
+
+    QTest.mousePress(view.viewport(), Qt.MouseButton.LeftButton, pos=source)
+    QTest.mouseMove(view.viewport(), target, delay=20)
+    QTest.mouseRelease(view.viewport(), Qt.MouseButton.LeftButton, pos=target)
+
+    assert window.played == []
 
 
 def test_search_filters_without_mutating_playlist(playlist_window):
@@ -527,6 +545,32 @@ def test_playlist_toggle_and_escape_close_the_panel(playlist_window):
     assert frame.isVisible()
 
 
+def test_repeated_panel_toggle_survives_owner_resize_cycles(playlist_window):
+    app, window, frame = playlist_window
+    sizes = ((400, 300), (760, 480), (1200, 800), (520, 340),
+             (1000, 700), (400, 300), (1000, 700))
+
+    for width, height in sizes:
+        window.resize(width, height)
+        app.processEvents()
+
+        panel = _open(app, window, frame)
+        frame.update_playlist_panel_geometry()
+        panel.finish_animation()
+        app.processEvents()
+        assert panel.is_open
+        assert panel.isVisible()
+        assert panel.resize_handle.isVisible()
+        assert frame.isVisible()
+
+        show_playlist(window)
+        panel.finish_animation()
+        app.processEvents()
+        assert not panel.is_open
+        assert not panel.isVisible()
+        assert frame.isVisible()
+
+
 def test_closing_panel_resumes_overlay_autohide(playlist_window):
     app, window, frame = playlist_window
     window.current_file = r"C:\media\same.mkv"
@@ -541,7 +585,7 @@ def test_closing_panel_resumes_overlay_autohide(playlist_window):
 
 
 def test_external_media_drop_appends_and_starts_empty_playlist(
-        playlist_window, tmp_path):
+        playlist_window, tmp_path, monkeypatch):
     app, window, frame = playlist_window
     panel = _open(app, window, frame)
     video = tmp_path / "dropped.mkv"
@@ -552,6 +596,13 @@ def test_external_media_drop_appends_and_starts_empty_playlist(
     window.current_playlist_index = -1
     window.current_file = ""
     window.played.clear()
+    def successful_play(owner, index):
+        owner.play_from_playlist(index)
+        owner.video_frame.refresh_playlist_panel()
+        return True
+
+    monkeypatch.setattr("app.media_controls.play_from_playlist",
+                        successful_play)
 
     panel.add_external_files([str(video), str(ignored)])
 
@@ -699,7 +750,16 @@ def test_directly_opened_local_video_becomes_the_single_playlist_item():
     refreshed = []
 
     class Settings:
+        def contains(self, key):
+            return False
+
+        def value(self, key, default=None):
+            return default
+
         def setValue(self, key, value):
+            pass
+
+        def remove(self, key):
             pass
 
     player = SimpleNamespace(

@@ -1943,6 +1943,23 @@ class VideoFrame(QWidget):
     def eventFilter(self, watched, event):
         if (self.control_overlay is not None
                 and watched in self._overlay_event_targets):
+            if (event.type() == QEvent.Type.ContextMenu
+                    and not isinstance(watched, (QPushButton, QSlider))
+                    and self._overlay_action_allowed()):
+                self.build_context_menu().exec(event.globalPos())
+                event.accept()
+                return True
+            if (event.type() == QEvent.Type.MouseButtonDblClick
+                    and not isinstance(watched, (QPushButton, QSlider))
+                    and event.button() == Qt.MouseButton.LeftButton
+                    and self._overlay_action_allowed()):
+                # Katman ayrı bir top-level penceredir; etkileşimsiz gradient
+                # veya süre etiketi üstündeki çift tık VideoFrame'e kendiliğinden
+                # ulaşmaz. Düğme/slider kendi hareketini korur, boş yüzey ise
+                # videonun standart tam-ekran komutuna yönlenir.
+                self.main_window.toggle_fullscreen()
+                event.accept()
+                return True
             self._handle_overlay_interaction_event(watched, event.type())
             return super().eventFilter(watched, event)
 

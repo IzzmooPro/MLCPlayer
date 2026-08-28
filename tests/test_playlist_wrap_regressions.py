@@ -30,8 +30,12 @@ def player_stub(monkeypatch):
     played = []
     boxes = []
 
-    monkeypatch.setattr(media_controls, "play_from_playlist",
-                        lambda player, index: played.append(index))
+    def play(player, index):
+        played.append(index)
+        player.current_playlist_index = index
+        return True
+
+    monkeypatch.setattr(media_controls, "play_from_playlist", play)
     monkeypatch.setattr(
         media_controls, "show_information",
         lambda *args, **kwargs: boxes.append(args[1:3]))
@@ -105,6 +109,20 @@ def test_empty_playlist_is_safe(player_stub):
     media_controls.play_next(env.player)
 
     assert env.played == []
+
+
+@pytest.mark.parametrize("direction,index", [("next", 0), ("previous", 2)])
+def test_failed_step_keeps_the_current_playlist_index(monkeypatch, direction,
+                                                      index):
+    monkeypatch.setattr(media_controls, "play_from_playlist",
+                        lambda _player, _target: False)
+    player = SimpleNamespace(
+        playlist=list(PLAYLIST), current_playlist_index=index,
+        loop_playlist=False)
+
+    getattr(media_controls, f"play_{direction}")(player)
+
+    assert player.current_playlist_index == index
 
 
 # --- BAŞLATILMAMIŞ liste: index = -1 ---

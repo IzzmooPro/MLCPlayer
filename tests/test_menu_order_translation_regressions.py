@@ -117,6 +117,29 @@ def test_picture_in_picture_is_available_from_video_menu(qt_app):
         window.deleteLater()
 
 
+def test_failed_loop_file_toggle_restores_the_menu_check(qt_app):
+    from app.menu_actions import setup_menu
+
+    class RejectLoopPlayer(MenuPlayer):
+        def set_loop_file(self, _enabled):
+            return False
+
+    window = RejectLoopPlayer()
+    try:
+        setup_menu(window)
+        playback = _menu(window, "Oynatma")
+        action = next(item for item in playback.actions()
+                      if item.text() == "Tek Dosyayı Tekrarla")
+
+        action.trigger()
+
+        assert window.loop_file is False
+        assert action.isChecked() is False
+    finally:
+        window.close()
+        window.deleteLater()
+
+
 def test_the_menu_order_survives_translation(qt_app, english):
     """İNGİLİZCE arayüzde de sıra aynı olmalıdır (etiketler çevrilir)."""
     from app import i18n
