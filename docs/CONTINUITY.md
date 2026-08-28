@@ -6,11 +6,11 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 28 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `abdf71c8229eb6f12f9e52b6d982f1073f17641f`
+- Kayıt hazırlanırken doğrulanan HEAD: `e702dd8c4bd95aedcccd49cfec103a5564be0dca`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `14/0`; EV018 iki-belge evidence-commit bağı uncommitted)
-- Son kanıt: `EV-20260828-018`
-- Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
+- Dal: `codex/v040-release-record` (`origin/master` ile `0/0`; EV019–020 iki-belge yayın kaydı uncommitted)
+- Son kanıt: `EV-20260828-020`
+- Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
 
@@ -30,12 +30,12 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - `master` için PR ve GitHub Actions `test` kapısı aktiftir. GitHub approving
   review sayısı `0` olsa da bağımsız çift-süzgeç süreci uygulanır; force-push,
   protection bypass ve doğrudan master değişikliği yapılmaz.
-- v0.39 zinciri kaynak build `EV-20260822-023`, tag/prepublish
-  `EV-20260822-027`, uzak tag eşliği `EV-20260822-028`, draft asset eşliği
-  `EV-20260822-029`, public latest/updater metadata `EV-20260822-032` ve
-  public indirme/kurulum/açılış/gerçek medya kullanıcı kabulü
-  `EV-20260822-033` kayıtlarına dayanır. Yeni build veya farklı artifact bu
-  kabulü devralmaz.
+- v0.40 PR #67 exact `0a4f34c` head'i required `test` ile geçti ve merge commit
+  `e702dd8c` exact-master dispatch'te **5064 passed / 30 skipped** verdi
+  (`EV-20260828-019`). Annotated `v0.40` aynı commit'e peel eder; prepublish
+  87/87, draft ad/boyut/SHA eşliği ve public/latest readback geçti. Ürünün
+  updater yolu exact ABBB ana paketi seçti; public ana/add-on dosyaları yeniden
+  indirilip accepted hash ve Ed25519 imzalarıyla eşleşti (`EV-20260828-020`).
 - Kurulu v0.37 veya başka eski artifact için alınan sonuçlar v0.39'a ya da
   gelecekteki build'e taşınmaz.
 
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV018 iki-belge evidence-commit bağını ayrı onayla commit et. Push/PR/merge/tag/release ayrı kapılardır; `P0-06`–`08` yayın sonrası, thumbnail cache politikası ürün kararıdır.
+EV019–020 iki-belge yayın kaydını ayrı onayla commit et; ardından normal PR kapısıyla master'a taşı. `P0-06`–`08` yayın sonrası, thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 
