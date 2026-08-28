@@ -9803,6 +9803,56 @@
         "This EV014 append and continuity update remain uncommitted until separately approved; no push was performed."
       ],
       "next_action": "Request separate approval to commit this two-document evidence-commit binding; then request InteractiveMain physical lifecycle approval separately."
+    },
+    {
+      "id": "EV-20260828-015",
+      "recorded_at_utc": "2026-08-28T07:53:55Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "11bb2b01bf180c61d802717ead6f7a2f72558ca8",
+      "baseline_commit": "11bb2b01bf180c61d802717ead6f7a2f72558ca8",
+      "evidence_checkout_commit": "8edd6a91fb58e647a3f1839d02894d27ae35d387",
+      "working_tree_state": "clean detached exact scenario checkout and clean evidence branch before the approved physical run",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Exact ABBB/D4 InteractiveMain B2 lifecycle",
+      "commands": [
+        "fresh private interactive root, exact silent-handoff contract, parser, unique-label, artifact identity, zero-target-process and detached 11bb2b0 clean-checkout preflight",
+        "separately approved elevated InteractiveMain lifecycle; user controlled the visible main-installer wizard actions without Computer Use while add-on and preparation steps remained bounded silent operations",
+        "read-only immutable result, all Inno logs, final snapshot digest, installed payload, registry, shortcuts, user data and live target-process readback",
+        "python -m pytest -q tests/test_continuity_regressions.py"
+      ],
+      "artifacts": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55945176, "sha256": "ABBB01C337535DB989E4A36D61D4362604C448323A2D27506F155C84EA48DC34"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"},
+        {"name": "MLCPlayer_Setup_v0.39.exe", "size_bytes": 56329783, "sha256": "00ED3EF67DA44ADF1F4D997426636BA7642413098C66BF08FADE54DD44584915"},
+        {"name": "MLCPlayer_InternetVideo_v0.39.exe", "size_bytes": 48896196, "sha256": "07F69153E498E0537F7C9446B69DB1DC36A43256142C03B91FAA0EFC16C5A491"}
+      ],
+      "private_artifact_digests": [
+        {"name": "I-result.json", "size_bytes": 6503, "sha256": "0ED90D3D9B0B9117C592D71B98BF69A919EDCADDD76B3CC6CAF00A4D702423A4"},
+        {"name": "I-19-interactive-final-restored.json", "size_bytes": 32638, "sha256": "684071C0E2E0B509B3F3EF49457203D15785D1C75857D6BAC2F2565D597C41B7"},
+        {"name": "run_b2_lifecycle.ps1", "size_bytes": 29727, "sha256": "14A78E2C19B4F143EBFDB99957C7E0DED9678A49EF9656466029C0180D6FAAA0"},
+        {"name": "test_interactive_contract.ps1", "size_bytes": 4546, "sha256": "517F28D1C0628B42908CBD58D310A3A97E022FB0FBF4F777024A09B5C5317C63"},
+        {"name": "launch_interactive.ps1", "size_bytes": 1458, "sha256": "2AF4CA03745332144824CB0CA54435AB74D53B12E882B22A8034CD1019F46156"}
+      ],
+      "evidence": [
+        "the exact EV013 silent phase result and final snapshot passed the actual handoff function before any interactive mutation; the scenario checkout was detached at exact clean 11bb2b0 and both ABBB/D4 artifact hashes matched",
+        "the 102.695-second run completed 20 checkpoints including real v0.39 seed, human-controlled v0.40 main upgrade, same-version maintenance, interactive main uninstall and interactive clean install; paired add-on operations also completed",
+        "every setup and uninstaller returned exit 0; all twelve logs contained the applicable installation or uninstallation success marker, explicit restart No and Log closed",
+        "the immutable result is phase_passed, binds final snapshot SHA-256 684071C0E2E0B509B3F3EF49457203D15785D1C75857D6BAC2F2565D597C41B7 and leaves only the new exact installed Player product-URL gate",
+        "final readback contains exact 103 installed files, two preserved user files, v0.40 main and add-on registrations, OpenWith, three shortcuts and zero snapshot or live target processes",
+        "Computer Use was not used; no automated visual-content or injected-input claim is made"
+      ],
+      "summary": "The exact ABBB/D4 artifacts passed the bounded InteractiveMain install, v0.39 upgrade, maintenance, uninstall and final-restore lifecycle with user-controlled wizard actions, exact final state and zero process leakage.",
+      "limitations": [
+        "This installed-artifact PASS is bound to the exact artifacts, 11bb2b0 scenario checkout, measured host and retained private evidence.",
+        "No screenshots or independent visual-layout acceptance were captured; the claim is limited to completed human-controlled actions plus installer and exact-state evidence.",
+        "The new exact installed Player product-URL scenario remains NOT_RUN, so complete B2, tag and release remain blocked.",
+        "This EV015 record is uncommitted until separately approved; no push, PR, merge, tag, upload or release was performed."
+      ],
+      "next_action": "Request separate approval to commit this two-document InteractiveMain record; then request the exact installed Player product-URL scenario separately."
     }
   ]
 }
