@@ -9883,6 +9883,52 @@
         "This EV016 append and continuity update remain uncommitted until separately approved; no push was performed."
       ],
       "next_action": "Request separate approval to commit this two-document evidence-commit binding; then request the exact installed Player product-URL scenario separately."
+    },
+    {
+      "id": "EV-20260828-017",
+      "recorded_at_utc": "2026-08-28T08:08:00Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "11bb2b01bf180c61d802717ead6f7a2f72558ca8",
+      "baseline_commit": "11bb2b01bf180c61d802717ead6f7a2f72558ca8",
+      "evidence_checkout_commit": "fd7fbdc80cd3ac49d562a54bd5216ed8661b204b",
+      "working_tree_state": "clean detached exact scenario checkout and clean evidence branch before the separately approved physical product-URL run",
+      "changed_files": ["docs/CONTINUITY.md", "docs/VERIFICATION_LEDGER.json"],
+      "subject": "Exact installed Player product-URL B2 gate and final restore",
+      "commands": [
+        "fresh private create-only watcher preflight: 14 assertions, exact clean 11bb2b0 checkout, exact artifact/runtime identities and zero initial target processes",
+        "separately approved visible installed Player run; user manually opened https://www.youtube.com/watch?v=aqz-KE-bpKQ without Computer Use while the watcher recorded exact process identity, PID, parent and command-line transitions",
+        "read-only recovery after the post-observation watcher hash sharing violation; no physical retry, normal Player close, immutable final snapshot and live zero-process readback",
+        "python -m pytest -q tests/test_continuity_regressions.py"
+      ],
+      "artifacts": [
+        {"name": "MLCPlayer_Setup_v0.40.exe", "size_bytes": 55945176, "sha256": "ABBB01C337535DB989E4A36D61D4362604C448323A2D27506F155C84EA48DC34"},
+        {"name": "MLCPlayer_InternetVideo_v0.40.exe", "size_bytes": 48909126, "sha256": "D4A4D79995B23228231B8D16091AB85D4805862FDBDDEC415842CE9DFDF9E675"},
+        {"name": "MLC Player.exe", "size_bytes": 3133269, "sha256": "82F77C0FBDAC0655B91534E33EED15F60A6D8ADA930854EF96BDB79396BBCA03"},
+        {"name": "yt-dlp.exe", "size_bytes": 17840399, "sha256": "66674953FE251B89F4D08C5F0E35E0728679BD67AB3D7D05C0562AF101DD3E7A"},
+        {"name": "deno.exe", "size_bytes": 97408288, "sha256": "98F8C2A2D470E4CCB04C935C86FF8050817D877762AEC5EAEEB9E409CCB3B9FD"}
+      ],
+      "private_artifact_digests": [
+        {"name": "P-result.json", "size_bytes": 1016, "sha256": "88B38B3B6B88BFF18990315124F89288E46018E61BB36642AF5186A3B8375AFC"},
+        {"name": "P-events.jsonl", "size_bytes": 3323, "sha256": "486C0F49F91204BDDB8B2878EE17536A52A139650452429632EEBE76B9A10A68"},
+        {"name": "P-00-pre.json", "size_bytes": 32444, "sha256": "73D65386F4B7CCD297E41F77A04E67B05713B78B333D96F2EB9228E8DBD5E2DF"},
+        {"name": "P-01-final.json", "size_bytes": 32444, "sha256": "3939A2FCF6A9A513F8CB7BF52729E9C04AF6324B393B2AF4D05810DCB6A20920"}
+      ],
+      "evidence": [
+        "the exact installed Player PID 37340 started exact installed yt-dlp root PID 54132, which started same-path child PID 41648; both command lines contained the exact requested Blender URL",
+        "Deno was not observed and was not artificially launched; the acceptance contract permits absence when extraction does not require it",
+        "the user explicitly answered SORUN YOK to the requested visible playback check; this is recorded as successful/progressing human playback acceptance without inventing numeric position or duration values",
+        "the watcher completed physical observation but failed only while hashing its still-open event file; root cause was inspected, the writer-disposal order was repaired and the already immutable events were recovered without repeating the physical scenario",
+        "Player closed through CloseMainWindow without force; final snapshot retained exact 103 installed files, two user files and zero target processes"
+      ],
+      "summary": "The last exact ABBB/D4 B2 product gate passed with Player-owned exact yt-dlp root/child URL correlation, explicit user playback acceptance, normal close, unchanged final state and zero leakage.",
+      "limitations": [
+        "The user confirmed successful/progressing playback qualitatively but did not transcribe numeric position/duration values; the record does not claim such numeric samples.",
+        "This PASS is bound to exact 11bb2b0, ABBB/D4 artifacts, installed runtime hashes, the requested URL, measured host and retained private evidence.",
+        "No Computer Use, build, installation, uninstall, push, PR, merge, tag, upload or release was performed in this gate.",
+        "This EV017 record remains uncommitted until separately approved."
+      ],
+      "next_action": "Request separate approval to commit this two-document EV017 B2 closure; keep push, PR, merge, tag and release separately gated."
     }
   ]
 }

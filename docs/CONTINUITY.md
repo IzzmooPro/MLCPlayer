@@ -8,8 +8,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Güncelleme: 28 Ağustos 2026
 - Kayıt hazırlanırken doğrulanan HEAD: `4c5dbd29d47d35e65eb998976989c8ccc8734dfe`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `12/0`; EV016 iki-belge evidence-commit bağı uncommitted)
-- Son kanıt: `EV-20260828-016`
+- Dal: `codex/v040-b2-process-contract` (`origin/master` ile `13/0`; EV017 iki-belge ürün-URL kaydı uncommitted)
+- Son kanıt: `EV-20260828-017`
 - Yayın kararı: **v0.39 canlı/latest; 87 varlık eş, public indirme/kurulum/açılış/medya kabulü geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -118,7 +118,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Ayrı onaylı tek fresh-runner denemesinde exact ABBB setup askıya alınmış tek exact Player ve doğrulanmış mutex karşısında **6,983 saniyede** exit 7 ile hızlı fail-closed durdu; setup içi süre yaklaşık 0,131 saniyeydi. Restart Manager, kopya ve başarı marker'ı yok; 103 kurulu dosya, iki kullanıcı dosyası, ayarlar, kayıtlar, OpenWith ve üç kısayol exact korundu. Suspend/resume 0/0, normal kapanış, force/watchdog yok ve süreç sızıntısı 0; karşıt P0/P1=0 (`EV-20260828-011`). Bu PASS yalnız fast-fail senaryosudur; exact ABBB normal install/upgrade/uninstall B2 zincirinin yerine geçmez.
 - Resmî B2 metnindeki eski “Player'ı Restart Manager kapatır” şartı committed ABBB davranışıyla çeliştiği için regression-first hizalandı: yalnız bakım/yükseltmede `MLCPlayer-Running` mutex'i `PrepareToInstall` içinde RM'den önce denetlenir; responsive/asılı Player'da 10 saniye içinde kopya öncesi nonzero fail-closed, mesaj, değişmeyen durum ve sıfır sızıntı zorunludur. İlk kurulum etkilenmez; RM mutex dışındaki kilitler için fallback kalır. İlk hedef test kırmızı, son etki paketi **226 passed**, karşıt P0/P1/P2=0 (`EV-20260828-012`). Ürün kodu veya artifact değişmedi.
 - Exact `11bb2b0` ve ABBB/D4 artifact'larıyla silent fiziksel B2 zinciri immutable checkpoint resume ile tamamlandı: gerçek v0.39 seed/yükseltme, iki maintenance, iki kaldırma sırası, iki temiz durum, clean install ve final restore geçti. Final exact 103 dosya, iki uninstall kaydı, OpenWith, üç kısayol, korunmuş iki kullanıcı dosyası ve sıfır hedef süreçle `phase_passed` verdi (`EV-20260828-013`). Bu yalnız silent installed-artifact PASS'tir; `InteractiveMain` ve yeni exact Player product URL NOT_RUN kaldı.
-- EV013 paketi exact `8ae5fca` commit'ine bağlandı (`EV-20260828-014`). Ardından exact ABBB/D4 `InteractiveMain` zinciri kullanıcı kontrollü ana yükseltme/maintenance/uninstall/clean install ve eşlik eden add-on adımlarıyla exit 0/restart No, final exact 103+2 durum ve sıfır süreç verdi (`EV-20260828-015`); kayıt exact `4c5dbd2` commit'ine temiz readback ile bağlandı (`EV-20260828-016`). Computer Use kullanılmadı; görsel düzen kabulü iddia edilmez. Yalnız yeni exact Player product URL NOT_RUN kaldı.
+- EV013 paketi exact `8ae5fca` commit'ine bağlandı (`EV-20260828-014`). Exact ABBB/D4 `InteractiveMain` zinciri final 103+2 durum ve sıfır süreç verdi (`EV-20260828-015`); kayıt exact `4c5dbd2` commit'ine bağlandı (`EV-20260828-016`). Son exact Player ürün-URL kapısında Player PID 37340 exact kurulu yt-dlp root 54132 ve child 41648'i aynı URL ile başlattı; Deno gerekmedi, kullanıcı oynatmayı “SORUN YOK” diye kabul etti, normal kapanış sonrası 103+2 durum ve sıfır süreç korundu (`EV-20260828-017`). Sayısal position/duration kullanıcı tarafından yazıya geçirilmedi ve bu sınır açıkça kayıtlıdır; Computer Use kullanılmadı. Exact ABBB/D4 B2 ürün kapıları tamamlandı.
 - `WIN-P0-03` ilk native koşumu exact `06cebc4` üzerinde fixture kapısını
   geçtikten sonra QMenu sınırında TIMEOUT oldu; exit 1 ve eksik final marker
   nedeniyle **FAILED** kaydedildi, seçim/ürün bug'ı iddia edilmedi
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-EV016 iki-belge evidence-commit bağını ayrı onayla commit et; ardından yeni exact kurulu Player product-URL kapısı yalnız kendi açık senaryo onayıyla yürütülür. `P0-06`–`08` yayın sonrası; thumbnail cache politikası ürün kararıdır.
+EV017 iki-belge ürün-URL/B2 kapanış kaydını ayrı onayla commit et. Push/PR/merge/tag/release ayrı kapılardır; `P0-06`–`08` yayın sonrası, thumbnail cache politikası ürün kararıdır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 
