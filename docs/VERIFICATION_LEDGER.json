@@ -11203,6 +11203,39 @@
         "No Computer Use, physical/native run, build, installation, uninstall, commit, push, merge, tag or release was performed."
       ],
       "next_action": "Commit the three-file test/evidence correction only after separate approval; evidence binding and push remain separate gates."
+    },
+    {
+      "id": "EV-20260829-010",
+      "recorded_at_utc": "2026-08-29T17:57:02Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "5b4a59dd1f5f2681cd316f325833227f190c01c3",
+      "evidence_commit": "5b4a59dd1f5f2681cd316f325833227f190c01c3",
+      "baseline_commit": "9d940e195fdb3ff86295248f0b09d579c58a0ffe",
+      "working_tree_state": "clean after the separately approved timing-test and EV008-EV009 evidence commit and before this append-only binding record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Evidence-commit binding for the deterministic subtitle wait-budget test correction",
+      "commands": [
+        "git add for docs/CONTINUITY.md, docs/VERIFICATION_LEDGER.json and tests/test_subtitle_apply_wait_regressions.py",
+        "git diff --cached --check and exact three-file staged-stat readback",
+        "git commit -m test: stabilize subtitle wait budget assertion",
+        "git status --short --branch; git log -1 exact hash, subject and parent; git diff-tree name-status readback"
+      ],
+      "evidence": [
+        "the approved correction committed locally as exact 5b4a59dd1f5f2681cd316f325833227f190c01c3 with sole parent 9d940e195fdb3ff86295248f0b09d579c58a0ffe",
+        "commit readback contains only the subtitle apply wait regression plus the required continuity and append-only evidence documents",
+        "the local task branch is exactly one commit ahead of the unchanged PR 72 remote head",
+        "the committed tree is the exact package whose corrected target passed five consecutive isolated runs, full timing family passed 12 tests and combined impact package passed 28 tests"
+      ],
+      "summary": "The deterministic subtitle wait-budget assertion repair is immutably bound to exact local commit 5b4a59d without changing product behavior.",
+      "limitations": [
+        "The correction has not been pushed and no new hosted check exists for this commit.",
+        "No product change, Computer Use, physical/native run, build, installation, uninstall, push, merge, tag or release was performed."
+      ],
+      "next_action": "Commit this two-document binding record under separate approval, then request a separate push approval; do not manually retry either failed run."
     }
   ]
 }
