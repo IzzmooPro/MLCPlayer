@@ -11137,6 +11137,72 @@
         "No product change, Computer Use, physical/native run, build, installation, uninstall, push, merge, tag or release was performed."
       ],
       "next_action": "Commit this two-document binding record under separate approval, then request a separate push approval; do not manually retry the failed run."
+    },
+    {
+      "id": "EV-20260829-008",
+      "recorded_at_utc": "2026-08-29T17:51:46Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "9d940e195fdb3ff86295248f0b09d579c58a0ffe",
+      "tested_commit": "9d940e195fdb3ff86295248f0b09d579c58a0ffe",
+      "working_tree_state": "clean local and remote PR 72 head at exact parity when the user-reported completed hosted result was read",
+      "changed_files": [],
+      "subject": "PR 72 hosted timing-test failure after the architecture inventory repair",
+      "commands": [
+        "user reported the new PR test complete; gh pr view 72 and gh pr checks 72 single readback",
+        "gh run view 33266596701 metadata and failed log for job 99137632318",
+        "read-only subtitle apply wait test, controller, service and PR file-scope inspection"
+      ],
+      "evidence": [
+        "required test run 33266596701 completed FAILURE for exact PR head 9d940e195fdb3ff86295248f0b09d579c58a0ffe",
+        "ledger append-only, locked environment, Python compilation and translation/whitespace steps passed",
+        "the CI-safe suite completed 5151 passed, 22 skipped and 1 failed; the sole failure was test_apply_spends_real_time_when_the_track_never_arrives",
+        "the test measured 0.832 seconds against a fixed 0.800 second wall-clock upper limit although the designed polling budget is 40 times 10 milliseconds",
+        "the PR does not change app/subtitle_service.py, app/subtitle_download_controller.py or the failing test; the assertion included worker dispatch, Qt scheduling, apply polling and settlement overhead in one runner-sensitive duration"
+      ],
+      "summary": "PR 72 remains NO-GO because its sole hosted failure is a runner-sensitive wall-clock upper-bound assertion unrelated to the queued-media product change.",
+      "limitations": [
+        "The 5151 hosted passes do not override the required failing check and the 22 skips remain not PASS.",
+        "The failure cannot be dismissed by retry; the test contract must measure finite polling directly before a new commit is submitted.",
+        "No retry, merge, product change, Computer Use, physical/native run, build, installation, uninstall, tag or release was performed."
+      ],
+      "next_action": "Replace the loaded-runner wall-clock upper bound with an exact TRACK_WAIT_ATTEMPTS wait-call assertion while retaining the real-time lower bound and bounded pump timeout."
+    },
+    {
+      "id": "EV-20260829-009",
+      "recorded_at_utc": "2026-08-29T17:55:29Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "9d940e195fdb3ff86295248f0b09d579c58a0ffe",
+      "baseline_commit": "9d940e195fdb3ff86295248f0b09d579c58a0ffe",
+      "working_tree_state": "uncommitted test-only timing-contract and append-only evidence correction on the exact failed PR 72 head",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_subtitle_apply_wait_regressions.py"
+      ],
+      "subject": "Measure subtitle apply polling boundedness by exact wait calls instead of loaded-runner wall time",
+      "commands": [
+        "instrument the real SubtitleDownloadController._qt_wait path inside the never-arrives regression and count completed calls",
+        "retain the 0.25 second real-time lower bound and the existing eight-second pump fail-safe; replace only elapsed <= 0.8 with exact TRACK_WAIT_ATTEMPTS equality",
+        "run the corrected target five independent local times; each passed",
+        "python -m pytest -q tests/test_subtitle_apply_wait_regressions.py; 12 passed",
+        "python -m pytest -q subtitle-apply-wait, architecture-quality and continuity families; 28 passed; git diff --check"
+      ],
+      "evidence": [
+        "the corrected test still proves that Qt polling consumes real time rather than collapsing into immediate processEvents calls",
+        "finite work is now proven directly: the never-arrives path must complete exactly 40 real _qt_wait calls, so one extra or missing polling step fails deterministically",
+        "the unchanged eight-second pump timeout still fails closed on a stuck controller without treating hosted scheduler overhead as product polling work",
+        "the target passed five consecutive isolated runs and the complete subtitle apply wait family passed all 12 tests",
+        "the combined timing, architecture and continuity package passed 28 tests and continuity remained at 200 lines"
+      ],
+      "summary": "Subtitle apply wait boundedness is now measured by the exact product polling count while real waiting and stuck-controller fail-safe coverage remain intact.",
+      "limitations": [
+        "This is a test-only deterministic correction and does not change subtitle product behavior.",
+        "A new required hosted check is necessary after commit and push; the prior failed run is not retried.",
+        "No Computer Use, physical/native run, build, installation, uninstall, commit, push, merge, tag or release was performed."
+      ],
+      "next_action": "Commit the three-file test/evidence correction only after separate approval; evidence binding and push remain separate gates."
     }
   ]
 }
