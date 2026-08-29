@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 29 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `3b400ed8fefd0945248dfe7bde766df7f67267c3`
+- Kayıt hazırlanırken doğrulanan HEAD: `32bbf126345f2def4906b4d7e3c5a831e4606176`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/deferred-drop-subtitle-binding` (PR #71 exact head `3b400ed` tabanında subtitle-drop source/test/translation/docs değişiklikleri uncommitted; PR #71 remote head değiştirilmedi)
-- Son kanıt: `EV-20260829-003`
+- Dal: `codex/deferred-drop-subtitle-binding` (PR #71 exact head `3b400ed` üzerinde exact yerel ürün/evidence commit `32bbf12`; PR #71 remote head değiştirilmedi)
+- Son kanıt: `EV-20260829-004`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-`EV-20260829-003` subtitle-drop düzeltmesini yerel commit'e bağla; PR #71 sonucunu kullanıcı bildirdikten sonra stacked dalı protected PR akışına taşı. Gerçek `WIN-P0-06`–`08`, build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur.
+`EV-20260829-004` iki-belge bağlama kaydını commit et; PR #71 sonucunu kullanıcı bildirdikten ve yeni Git onayı alındıktan sonra stacked dalı push/PR akışına taşı. Gerçek `WIN-P0-06`–`08`, build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

@@ -11007,6 +11007,39 @@
         "No Computer Use, physical/native run, build, installation, uninstall, push, PR, merge, tag or release was performed."
       ],
       "next_action": "Commit this bounded local fix and preserve PR 71 exact head; after the user reports PR 71 completion, submit the stacked fix through a separate protected PR."
+    },
+    {
+      "id": "EV-20260829-004",
+      "recorded_at_utc": "2026-08-29T17:26:14Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "32bbf126345f2def4906b4d7e3c5a831e4606176",
+      "evidence_commit": "32bbf126345f2def4906b4d7e3c5a831e4606176",
+      "baseline_commit": "3b400ed8fefd0945248dfe7bde766df7f67267c3",
+      "working_tree_state": "clean after the approved local product, regression, translation and EV003 evidence commit readback and before this append-only binding record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Evidence-commit binding for queued-media subtitle isolation",
+      "commands": [
+        "git add for the exact eleven-file reviewed scope; git diff --cached --check and staged-stat readback",
+        "git commit -m fix: isolate subtitles for queued media",
+        "git status --short --branch; git log -1 exact hash, subject and parent readback; git diff-tree name-status readback",
+        "git rev-parse origin/codex/ipc-offscreen-acceptance"
+      ],
+      "evidence": [
+        "the approved package committed locally as exact 32bbf126345f2def4906b4d7e3c5a831e4606176 with sole parent 3b400ed8fefd0945248dfe7bde766df7f67267c3",
+        "commit readback contains only app/player.py, the subtitle-drop regression, seven translation catalogs and the two required evidence documents",
+        "the worktree was clean immediately after commit and the parent PR 71 remote tracking head remained exact 3b400ed8fefd0945248dfe7bde766df7f67267c3",
+        "the committed tree is the exact package whose continuity-inclusive affected deterministic run passed 97 tests and whose 457-string translation catalog check was current"
+      ],
+      "summary": "The queued-media subtitle isolation package and its regression evidence are immutably bound to exact local commit 32bbf12 without changing PR 71's remote head.",
+      "limitations": [
+        "This evidence commit does not add independent adversarial review, hosted CI, Explorer OLE drag/drop, physical/native behavior or installed-artifact proof.",
+        "No Computer Use, push, PR, merge, build, installation, uninstall, tag or release was performed."
+      ],
+      "next_action": "Commit this two-document binding record; wait for the user-reported PR 71 result and a fresh Git authorization before pushing or opening the separate stacked fix PR."
     }
   ]
 }
