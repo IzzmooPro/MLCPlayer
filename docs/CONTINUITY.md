@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 29 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `32bbf126345f2def4906b4d7e3c5a831e4606176`
+- Kayıt hazırlanırken doğrulanan HEAD: `9711982b0e3f4b6928f7a6dc8b6b2b173cefae62`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/deferred-drop-subtitle-binding` (PR #72 exact head `b54a9c3`; hosted envanter drift düzeltmesi source değiştirmeden uncommitted)
-- Son kanıt: `EV-20260829-006`
+- Dal: `codex/deferred-drop-subtitle-binding` (PR #72 remote head `b54a9c3`; exact yerel envanter/evidence commit `9711982`, dal uzak ref'in bir commit önünde)
+- Son kanıt: `EV-20260829-007`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-`EV-20260829-006` envanter/kanıt düzeltmesini ayrı onayla commit ve push et; yeni hosted run sonucunu kullanıcı bildirsin. Gerçek `WIN-P0-06`–`08`, build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur.
+`EV-20260829-007` iki-belge bağlama kaydını ayrı onayla commit et; ardından ayrı push onayıyla PR #72 head'ini ilerlet ve yeni hosted sonucu kullanıcı bildirsin. Gerçek `WIN-P0-06`–`08`, build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

@@ -11104,6 +11104,39 @@
         "No hosted retry, merge, product change, Computer Use, physical/native run, build, installation, uninstall, commit, push, tag or release was performed."
       ],
       "next_action": "Commit and push the three-document repair only after separate approval; do not manually retry the failed hosted run."
+    },
+    {
+      "id": "EV-20260829-007",
+      "recorded_at_utc": "2026-08-29T17:47:28Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "9711982b0e3f4b6928f7a6dc8b6b2b173cefae62",
+      "evidence_commit": "9711982b0e3f4b6928f7a6dc8b6b2b173cefae62",
+      "baseline_commit": "b54a9c3d5c87472f47acab6155c5d6325d24dc45",
+      "working_tree_state": "clean after the separately approved three-document inventory correction commit and before this append-only binding record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Evidence-commit binding for the PR 72 architecture inventory correction",
+      "commands": [
+        "git add for docs/ARCHITECTURE_INVENTORY.json, docs/CONTINUITY.md and docs/VERIFICATION_LEDGER.json",
+        "git diff --cached --check and exact three-file staged-stat readback",
+        "git commit -m docs: refresh player architecture inventory",
+        "git status --short --branch; git log -1 exact hash, subject and parent; git diff-tree name-status readback"
+      ],
+      "evidence": [
+        "the approved correction committed locally as exact 9711982b0e3f4b6928f7a6dc8b6b2b173cefae62 with sole parent b54a9c3d5c87472f47acab6155c5d6325d24dc45",
+        "commit readback contains only the machine architecture inventory plus the required continuity and append-only evidence documents",
+        "the local task branch is exactly one commit ahead of the unchanged PR 72 remote head",
+        "the committed tree is the exact metadata package whose architecture-quality and continuity validation passed 16 tests"
+      ],
+      "summary": "The PR 72 stale architecture inventory repair is immutably bound to exact local commit 9711982 without changing product source bytes.",
+      "limitations": [
+        "The correction has not been pushed and no new hosted check exists for this commit.",
+        "No product change, Computer Use, physical/native run, build, installation, uninstall, push, merge, tag or release was performed."
+      ],
+      "next_action": "Commit this two-document binding record under separate approval, then request a separate push approval; do not manually retry the failed run."
     }
   ]
 }
