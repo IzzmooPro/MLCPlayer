@@ -8,8 +8,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - Güncelleme: 29 Ağustos 2026
 - Kayıt hazırlanırken doğrulanan HEAD: `32bbf126345f2def4906b4d7e3c5a831e4606176`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/deferred-drop-subtitle-binding` (PR #71 exact head `3b400ed` üzerinde exact yerel ürün/evidence commit `32bbf12`; PR #71 remote head değiştirilmedi)
-- Son kanıt: `EV-20260829-004`
+- Dal: `codex/deferred-drop-subtitle-binding` (PR #72 exact head `b54a9c3`; hosted envanter drift düzeltmesi source değiştirmeden uncommitted)
+- Son kanıt: `EV-20260829-006`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -41,7 +41,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 ## Kalite kabul özeti
 - Windows P0 matrisi: `WIN-P0-01`–`WIN-P0-05` PASSED; drag/drop, playlist
   sınırları ve IPC için `P0-06`, `P0-07`, `P0-08` NOT_RUN.
-- `WIN-P0-08` deterministik offscreen çok-süreç kapsamı gerçek secondary PID, dosya/URL/aktivasyon devri, exit `0` ve terminal kapanış ölçümüyle genişletildi; dar etki paketi **93 passed** verdi. Gerçek ürün penceresi foreground ve hedef-yükleme sonucu ölçülmediği için fiziksel satır hâlâ `NOT_RUN` (`EV-20260829-002`). Aktif oynatma sırasında kuyruğa eklenen yeni video(lar)la birlikte bırakılan altyazının global pending kuyruğuyla yanlışlıkla mevcut videoya uygulanması kırmızı testte doğrulandı; hedef medya başlatılmadığında pending durum artık korunuyor ve kullanıcı açıkça yönlendiriliyor. Subtitle/playlist/atomiklik/çeviri etki paketi **87 passed** verdi (`EV-20260829-003`).
+- `WIN-P0-08` deterministik offscreen çok-süreç kapsamı gerçek secondary PID, dosya/URL/aktivasyon devri, exit `0` ve terminal kapanış ölçümüyle genişletildi; dar etki paketi **93 passed** verdi. Gerçek ürün penceresi foreground ve hedef-yükleme sonucu ölçülmediği için fiziksel satır hâlâ `NOT_RUN` (`EV-20260829-002`). Aktif oynatma sırasında kuyruğa eklenen yeni video(lar)la birlikte bırakılan altyazının global pending kuyruğuyla yanlışlıkla mevcut videoya uygulanması kırmızı testte doğrulandı; hedef medya başlatılmadığında pending durum artık korunuyor ve kullanıcı açıkça yönlendiriliyor. Subtitle/playlist/atomiklik/çeviri etki paketi **87 passed** verdi (`EV-20260829-003`). PR #72 hosted run `33266269968`, **5151 passed / 22 skipped / 1 failed** ile yalnız stale `app/player.py` mimari hash/satır kapısında durdu; diğer beş modül exact eşti. Envanter exact `b54a9c3` kaynağına güncellendi (`EV-20260829-005`–`006`); retry yapılmadı.
 - Video biçimi matrisi: SDR ekranda `VF-CORE-01` ve HDR ekranda SDR-on-HDR
   `VF-CORE-02` exact native ve kontrollü insan ramp kabulüyle PASSED. Kalan
   14 biçim satırı ve genel `WIN-P2-01` BLOCKED; bu iki PASS genel HDR/format
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-`EV-20260829-004` iki-belge bağlama kaydını commit et; PR #71 sonucunu kullanıcı bildirdikten ve yeni Git onayı alındıktan sonra stacked dalı push/PR akışına taşı. Gerçek `WIN-P0-06`–`08`, build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur.
+`EV-20260829-006` envanter/kanıt düzeltmesini ayrı onayla commit ve push et; yeni hosted run sonucunu kullanıcı bildirsin. Gerçek `WIN-P0-06`–`08`, build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

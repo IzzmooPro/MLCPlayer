@@ -11040,6 +11040,70 @@
         "No Computer Use, push, PR, merge, build, installation, uninstall, tag or release was performed."
       ],
       "next_action": "Commit this two-document binding record; wait for the user-reported PR 71 result and a fresh Git authorization before pushing or opening the separate stacked fix PR."
+    },
+    {
+      "id": "EV-20260829-005",
+      "recorded_at_utc": "2026-08-29T17:44:10Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "b54a9c3d5c87472f47acab6155c5d6325d24dc45",
+      "tested_commit": "b54a9c3d5c87472f47acab6155c5d6325d24dc45",
+      "working_tree_state": "clean local and remote PR 72 head at exact parity when the completed hosted result was read",
+      "changed_files": [],
+      "subject": "PR 72 hosted failure caused by stale app.player architecture inventory metadata",
+      "commands": [
+        "user reported the PR test complete; gh pr view 72 and gh pr checks 72 single readback",
+        "gh run view 33266269968 metadata and failed log for job 99136769957",
+        "read-only normalized SHA-256 and structure comparison for all six architecture inventory sources"
+      ],
+      "evidence": [
+        "required test run 33266269968 completed FAILURE for exact PR head b54a9c3d5c87472f47acab6155c5d6325d24dc45",
+        "ledger append-only, locked environment, Python compilation and translation/whitespace steps passed",
+        "the CI-safe suite completed 5151 passed, 22 skipped and 1 failed; the sole failure was test_machine_inventory_matches_the_exact_six_sources",
+        "app/player.py normalized SHA-256 was 8162463bd06777b6544af5f46d5579e2a1644041b2cee6f7c4946bad27602c24 while the inventory retained ab4a7623cae2fba369f8acc1b0756644eec9ad896e9bd419113dc4c17a4f5b73",
+        "read-only full inventory comparison found the other five source hashes and all their structure metrics exact"
+      ],
+      "summary": "PR 72 is NO-GO because its sole hosted failure is a stale machine architecture inventory entry for the intentionally changed app/player.py source.",
+      "limitations": [
+        "The 5151 hosted passes do not override the required failing check; merge and retry remain prohibited until the root cause is repaired.",
+        "The 22 skipped tests remain not PASS.",
+        "No retry, merge, product change, Computer Use, physical/native run, build, installation, uninstall, tag or release was performed."
+      ],
+      "next_action": "Refresh only the app/player.py machine inventory hash and structural line count from exact b54a9c3, run the inventory and continuity regressions, then request separate commit and push approval."
+    },
+    {
+      "id": "EV-20260829-006",
+      "recorded_at_utc": "2026-08-29T17:45:44Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "b54a9c3d5c87472f47acab6155c5d6325d24dc45",
+      "baseline_commit": "b54a9c3d5c87472f47acab6155c5d6325d24dc45",
+      "working_tree_state": "uncommitted architecture inventory, continuity and append-only evidence correction on the exact failed PR 72 head",
+      "changed_files": [
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Refresh the machine architecture inventory for the exact queued-subtitle fix source",
+      "commands": [
+        "local red reproduction of test_machine_inventory_matches_the_exact_six_sources on exact b54a9c3",
+        "read-only normalized hash and regex structure measurement across all six inventory modules",
+        "update only inventory provenance plus app/player.py normalized SHA-256 and line count from 1200 to 1220",
+        "python -m pytest -q tests/test_quality_evolution_plan_regressions.py tests/test_continuity_regressions.py; 16 passed",
+        "python -m json.tool for both machine JSON records; git diff --check; continuity remained at 200 lines"
+      ],
+      "evidence": [
+        "the local target reproduced the hosted failure before modification with the same old and actual app/player.py hashes",
+        "app/player.py product bytes remain unchanged; the corrected inventory records normalized SHA-256 8162463bd06777b6544af5f46d5579e2a1644041b2cee6f7c4946bad27602c24 and 1220 lines",
+        "all five other module entries were already exact and were not altered",
+        "the complete architecture-quality and continuity package passed 16 tests after the metadata correction"
+      ],
+      "summary": "The stale machine inventory metadata now matches the exact PR 72 app/player.py source without changing product behavior.",
+      "limitations": [
+        "This deterministic metadata repair is not hosted CI and requires a new required check after push.",
+        "No hosted retry, merge, product change, Computer Use, physical/native run, build, installation, uninstall, commit, push, tag or release was performed."
+      ],
+      "next_action": "Commit and push the three-document repair only after separate approval; do not manually retry the failed hosted run."
     }
   ]
 }

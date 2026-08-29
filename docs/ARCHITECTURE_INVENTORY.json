@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "status": "analyzed",
-  "measured_product_commit": "59f6980d6be88d5c66ab55aeb235a1e07518e212",
-  "working_tree_state": "modified",
-  "measured_at_utc": "2026-08-28T14:28:54Z",
+  "measured_product_commit": "b54a9c3d5c87472f47acab6155c5d6325d24dc45",
+  "working_tree_state": "clean product sources; inventory refresh uncommitted",
+  "measured_at_utc": "2026-08-29T17:45:44Z",
   "hash_contract": "sha256 of UTF-8 source normalized to LF",
   "modules": [
     {
@@ -26,8 +26,8 @@
     },
     {
       "path": "app/player.py",
-      "sha256": "ab4a7623cae2fba369f8acc1b0756644eec9ad896e9bd419113dc4c17a4f5b73",
-      "lines": 1200,
+      "sha256": "8162463bd06777b6544af5f46d5579e2a1644041b2cee6f7c4946bad27602c24",
+      "lines": 1220,
       "classes": 1,
       "top_functions": 1,
       "indented_functions": 78,
