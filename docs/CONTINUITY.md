@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 29 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `3451aef5fedefa354203ed3d44c96cf2c5a67105`
+- Kayıt hazırlanırken doğrulanan HEAD: `888c7ecd692c91110a95cd29713652f9d46c18a3`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/subtitle-shutdown-timing` (temiz canonical `master`/`origin/master` exact `3451aef` tabanından açılmış test/evidence çalışma dalı)
-- Son kanıt: `EV-20260829-011`
+- Dal: `codex/subtitle-shutdown-timing` (exact `888c7ec` test/evidence commit'i; `origin/master` exact `3451aef` tabanından bir commit ileride)
+- Son kanıt: `EV-20260829-012`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-`EV-20260829-011` test/evidence paketini ayrı onayla commit et. Sonra `WIN-P0-07` fiziksel playlist satır taşıma kabulü için ayrıca onay iste; push/PR, `WIN-P0-08`, build ve kurulu artifact birbirinden ayrı kapılardır. Kullanıcının tek-agent kısıtı nedeniyle agent-karşıt inceleme `NOT_RUN` kalır.
+`EV-20260829-012` iki-belge evidence-commit bağlama kaydını ayrı onayla commit et. Sonra push/PR veya `WIN-P0-07` fiziksel playlist satır taşıma kabulü için ayrı yön seç; `WIN-P0-08`, build ve kurulu artifact ayrıca onaylıdır. Tek-agent kısıtı nedeniyle agent-karşıt inceleme `NOT_RUN` kalır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

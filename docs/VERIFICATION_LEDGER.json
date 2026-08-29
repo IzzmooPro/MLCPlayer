@@ -11286,6 +11286,40 @@
         "Test/evidence changes are uncommitted. No product code, Computer Use, build, installation, uninstall, push, PR, merge, tag or release was performed; agent adversarial review is NOT_RUN under the user's single-agent constraint."
       ],
       "next_action": "Commit the exact eight-file test/evidence package only after separate approval; then request separate approval for WIN-P0-07 physical playlist-row reorder acceptance."
+    },
+    {
+      "id": "EV-20260829-012",
+      "recorded_at_utc": "2026-08-29T20:22:02Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "888c7ecd692c91110a95cd29713652f9d46c18a3",
+      "evidence_commit": "888c7ecd692c91110a95cd29713652f9d46c18a3",
+      "baseline_commit": "3451aef5fedefa354203ed3d44c96cf2c5a67105",
+      "working_tree_state": "clean after the separately approved exact eight-file WIN-P0-06 test/evidence commit readback and before this append-only binding record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Evidence-commit binding for WIN-P0-06 drag-drop and external-subtitle shutdown acceptance",
+      "commands": [
+        "git add of the exact eight approved test, matrix, plan, continuity and append-only evidence files",
+        "git diff --cached --check plus exact staged name/status and stat readback",
+        "git commit -m test: measure external subtitle shutdown",
+        "git status, exact HEAD hash/parent/subject, diff-tree file list and HEAD versus origin/master count readback"
+      ],
+      "evidence": [
+        "the approved package committed locally as exact 888c7ecd692c91110a95cd29713652f9d46c18a3 with sole parent 3451aef5fedefa354203ed3d44c96cf2c5a67105",
+        "commit readback contains exactly the three shutdown/subtitle test files, one quality-plan regression and the four required matrix, quality-plan, continuity and append-only evidence documents",
+        "the task branch was clean immediately after commit and exactly one commit ahead of unchanged origin/master",
+        "the committed tree is the exact package whose combined impact/governance verification passed 342 tests with 1 skipped, valid ledger JSON, clean diff check, zero private-path diff hits and continuity at 200 lines"
+      ],
+      "summary": "The WIN-P0-06 acceptance and external-subtitle shutdown instrumentation are immutably bound to exact local commit 888c7ec without any product-code change.",
+      "limitations": [
+        "This binding record is uncommitted and requires a separate documentation commit before push or PR.",
+        "The commit has not been pushed and has no hosted check; its native and human evidence remains bounded by EV-20260829-011.",
+        "No product code, Computer Use, new native run, build, installation, uninstall, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Commit this exact two-document binding record only after separate approval; then choose push/PR or WIN-P0-07 under separate authorization."
     }
   ]
 }
