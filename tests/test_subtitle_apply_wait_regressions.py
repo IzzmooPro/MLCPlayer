@@ -186,9 +186,17 @@ def test_slower_delayed_track_is_still_inside_the_budget(bench):
 
 # --- 2. Track hiç gelmezse GERÇEK süre harcanmalı ---
 
-def test_apply_spends_real_time_when_the_track_never_arrives(bench):
+def test_apply_spends_real_time_and_uses_exact_wait_budget(bench):
     mpv = DelayedTrackMPV(never=True)
     app, dialog, controller, mpv, tmp = bench(mpv=mpv)
+    wait_calls = []
+    real_wait = controller._qt_wait
+
+    def measured_wait():
+        real_wait()
+        wait_calls.append(True)
+
+    controller._qt_wait = measured_wait
 
     started = time.monotonic()
     controller.download_and_apply()
@@ -198,8 +206,10 @@ def test_apply_spends_real_time_when_the_track_never_arrives(bench):
     assert elapsed >= 0.25, (
         f"apply beklemesi gercek zaman harcamadi: {elapsed:.3f}s "
         f"(beklenen butce ~{EXPECTED_BUDGET_S:.2f}s)")
-    # Windows zamanlayici cozunurlugu icin genis tolerans.
-    assert elapsed <= 0.8, f"apply beklemesi butceyi asti: {elapsed:.3f}s"
+    # Duvar saati üst sınırı yüklü CI runner zamanlayıcısını da ölçer ve ürün
+    # bütçesini kanıtlamaz. Sonluluk doğrudan gerçek polling adımı sayısıyla
+    # doğrulanır; tek bir fazla/eksik bekleme de regresyondur.
+    assert len(wait_calls) == service.TRACK_WAIT_ATTEMPTS
     assert dialog.status_text() == STATUS_PARTIAL
     assert (tmp / TARGET_NAME).exists(), "kismi basarida dosya silinmemeli"
 

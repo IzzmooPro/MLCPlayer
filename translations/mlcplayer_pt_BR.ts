@@ -138,7 +138,8 @@
             <location filename="app/media_controls.py" line="758" />
             <location filename="app/player.py" line="618" />
             <location filename="app/player.py" line="631" />
-            <location filename="app/player.py" line="687" />
+            <location filename="app/player.py" line="697" />
+            <location filename="app/player.py" line="707" />
             <source>Altyazı Eklenemedi</source>
             <translation type="unfinished" />
         </message>
@@ -297,16 +298,21 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <location filename="app/player.py" line="698" />
+            <source>Altyazı sıradaki videoya otomatik bağlanamadı. Videoyu oynatın ve altyazıyı yeniden bırakın.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <location filename="app/media_controls.py" line="740" />
             <location filename="app/player.py" line="608" />
             <location filename="app/player.py" line="635" />
-            <location filename="app/player.py" line="690" />
+            <location filename="app/player.py" line="710" />
             <source>Altyazı yolu:</source>
             <translation type="unfinished" />
         </message>
         <message>
             <location filename="app/media_controls.py" line="748" />
-            <location filename="app/player.py" line="695" />
+            <location filename="app/player.py" line="715" />
             <source>Altyazı yükleniyor...</source>
             <translation type="unfinished" />
         </message>
@@ -2363,7 +2369,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/player.py" line="688" />
+            <location filename="app/player.py" line="708" />
             <source>Önce bir video açın, sonra altyazıyı ekleyin.</source>
             <translation type="unfinished" />
         </message>
