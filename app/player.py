@@ -679,6 +679,26 @@ class MPVPlayer(QMainWindow):
             if (os.path.isfile(p) and p not in subtitle_paths
                 and os.path.splitext(p)[1].lower() in allowed_media)
         ]
+        had_current_media = bool(self.current_file)
+
+        def finish_appended_subtitles():
+            """Yalnız gerçekten başlatılan yeni medyaya altyazı bağlar.
+
+            Aktif oynatma varken `append_media_paths` bırakılan videoları
+            başlatmadan kuyruğa ekler. Global pending kuyruğuna bu videoların
+            altyazısını yazmak, onu mevcut medyanın sonraki UI turunda
+            tüketmesine yol açar. Hedef belirsizken yanlış medyaya bağlamak
+            yerine mevcut pending durumunu koruyup kullanıcıyı yönlendiririz.
+            """
+            if not subtitle_paths:
+                return
+            if had_current_media:
+                show_user_error(
+                    self, tr("Altyazı Eklenemedi"),
+                    tr("Altyazı sıradaki videoya otomatik bağlanamadı. "
+                       "Videoyu oynatın ve altyazıyı yeniden bırakın."))
+                return
+            self._pending_subs = list(subtitle_paths)
 
         def add_sub(s):
             # mpv, video yüklü değilken sub_add'i -12 (command) ile reddeder.
@@ -707,7 +727,7 @@ class MPVPlayer(QMainWindow):
                 # Playlist açıkken video yüzeyine bırakılan tek dosya da kuyruğa
                 # eklenir; listeyi tek öğeye sıfırlamaz.
                 if append_media_paths(self, media_paths):
-                    self._pending_subs = list(subtitle_paths)
+                    finish_appended_subtitles()
             else:
                 # Yeni medya açılacak: mpv yükleme sırasında önceden eklenen dış
                 # altyazıları sildiği için altyazıları yükleme tamamlanınca ekle
@@ -717,7 +737,7 @@ class MPVPlayer(QMainWindow):
             # Çoklu bırakma mevcut listeyi silmez. Oynatma yoksa ilk yeni öğe
             # başlatılır; oynatma sürüyorsa yalnızca kuyruğa eklenir.
             if append_media_paths(self, media_paths):
-                self._pending_subs = list(subtitle_paths)
+                finish_appended_subtitles()
         else:
             # Sürükle-bırak ile altyazı: video oynarken anında ekle (canlı)
             for s in subtitle_paths:

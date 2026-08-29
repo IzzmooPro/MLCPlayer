@@ -10962,6 +10962,51 @@
         "No Computer Use, physical/native run, build, installation, uninstall, tag or release was performed."
       ],
       "next_action": "Commit and submit this bounded offscreen IPC package through the protected PR workflow; after merge, require a separately approved exact real-window IPC runner before changing WIN-P0-08 from NOT_RUN."
+    },
+    {
+      "id": "EV-20260829-003",
+      "recorded_at_utc": "2026-08-29T17:24:56Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "3b400ed8fefd0945248dfe7bde766df7f67267c3",
+      "baseline_commit": "3b400ed8fefd0945248dfe7bde766df7f67267c3",
+      "working_tree_state": "uncommitted source, regression, translation and evidence changes on codex/deferred-drop-subtitle-binding stacked locally from the unchanged PR 71 exact head",
+      "changed_files": [
+        "app/player.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_subtitle_drop_activation_regressions.py",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "subject": "Prevent queued-media subtitles from being consumed by the currently playing media",
+      "commands": [
+        "read-only dropEvent, append_media_paths, play_from_playlist and existing subtitle-drop regression audit from exact 3b400ed",
+        "two focused red regressions for active-playback multi-file drop and open-playlist single-file drop; expected 2 failed because the dropped subtitle replaced the existing global pending list",
+        "route subtitle completion according to whether append_media_paths starts a new media or only queues it; preserve existing pending state and show a safe user instruction for queued-only targets",
+        "python packaging/extract_translations.py; 457 strings extracted; add the complete English translation and regenerate the canonical catalogs",
+        "python -m pytest -q subtitle-drop, playlist-panel, media-selection-atomic and translation-pipeline families; 87 passed",
+        "python packaging/extract_translations.py --check; translation files up to date; git diff --check"
+      ],
+      "evidence": [
+        "both red regressions reproduced the same source defect: append_media_paths accepted the new video paths without starting them, then dropEvent overwrote _pending_subs with their subtitle while the old current_file remained active",
+        "when playback is already active, successful append now keeps all new media queued, leaves the existing pending subtitle state unchanged and reports that the target video must be played before the subtitle is dropped again",
+        "when no media is active, append_media_paths still starts the first dropped media and the accompanying subtitle remains pending for that newly loading media",
+        "the complete affected deterministic package passed 87 tests and the translation extractor reports all 457 source strings current"
+      ],
+      "summary": "Queued video subtitles can no longer leak into the currently playing media; ambiguous queued-only attachment fails closed with an explicit user instruction while the start-new-media path is preserved.",
+      "limitations": [
+        "The fix intentionally does not invent a persistent subtitle-to-playlist-item association when several queued media are dropped; the user must play the intended video and drop its subtitle again.",
+        "This deterministic result does not prove Explorer OLE drag/drop, physical pointer behavior, native playback or an installed artifact.",
+        "The user-required single-agent constraint leaves independent adversarial review NOT_RUN, so this is not an independent formal GO.",
+        "No Computer Use, physical/native run, build, installation, uninstall, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Commit this bounded local fix and preserve PR 71 exact head; after the user reports PR 71 completion, submit the stacked fix through a separate protected PR."
     }
   ]
 }

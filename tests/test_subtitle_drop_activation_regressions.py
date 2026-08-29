@@ -298,6 +298,53 @@ def test_failed_video_drop_does_not_replace_existing_pending_subtitles(
     assert player._pending_subs == ["already-pending.srt"]
 
 
+def test_subtitle_for_multiple_queued_videos_is_not_applied_to_current_media(
+        errors, srt, monkeypatch, tmp_path):
+    """Aktif oynatmada yeni videolar yalnız kuyruğa girer.
+
+    Onlarla birlikte bırakılan altyazı mevcut videonun pending kuyruğunu
+    değiştiremez; ilişki belirsiz olduğu için kullanıcı açıkça uyarılır.
+    """
+    first = tmp_path / "queued-one.mkv"
+    second = tmp_path / "queued-two.mkv"
+    first.write_bytes(b"one")
+    second.write_bytes(b"two")
+    appended = []
+    monkeypatch.setattr(
+        player_module, "append_media_paths",
+        lambda _player, paths: appended.extend(paths) or True)
+    player = FakePlayer(FakeMpv(), current_file="D:/playing.mkv")
+    player._pending_subs = ["already-pending.srt"]
+
+    MPVPlayer.dropEvent(
+        player, FakeDropEvent([str(first), str(second), srt]))
+
+    assert appended == [str(first), str(second)]
+    assert player._pending_subs == ["already-pending.srt"]
+    assert errors == ["Altyazı Eklenemedi"]
+
+
+def test_subtitle_for_single_panel_queued_video_is_not_applied_to_current_media(
+        errors, srt, monkeypatch, tmp_path):
+    """Panel açıkken tek video da aktif medyayı değiştirmeden kuyruğa girer."""
+    video = tmp_path / "queued.mkv"
+    video.write_bytes(b"queued")
+    appended = []
+    monkeypatch.setattr(
+        player_module, "append_media_paths",
+        lambda _player, paths: appended.extend(paths) or True)
+    player = FakePlayer(FakeMpv(), current_file="D:/playing.mkv")
+    player.video_frame.playlist_panel = type(
+        "OpenPanel", (), {"is_open": True})()
+    player._pending_subs = ["already-pending.srt"]
+
+    MPVPlayer.dropEvent(player, FakeDropEvent([str(video), srt]))
+
+    assert appended == [str(video)]
+    assert player._pending_subs == ["already-pending.srt"]
+    assert errors == ["Altyazı Eklenemedi"]
+
+
 def test_the_pending_drain_waits_for_a_real_track_list(errors, srt):
     """`track_list` bos oldugu surece kuyruk BOSALTILMAZ."""
     mpv = FakeMpv()
