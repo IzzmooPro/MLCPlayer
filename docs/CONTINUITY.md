@@ -6,10 +6,10 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
 - Güncelleme: 29 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `5b4a59dd1f5f2681cd316f325833227f190c01c3`
+- Kayıt hazırlanırken doğrulanan HEAD: `3451aef5fedefa354203ed3d44c96cf2c5a67105`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/deferred-drop-subtitle-binding` (PR #72 remote head `9d940e1`; exact yerel timing-test/evidence commit `5b4a59d`, dal uzak ref'in bir commit önünde)
-- Son kanıt: `EV-20260829-010`
+- Dal: `codex/subtitle-shutdown-timing` (temiz canonical `master`/`origin/master` exact `3451aef` tabanından açılmış test/evidence çalışma dalı)
+- Son kanıt: `EV-20260829-011`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -39,8 +39,8 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   gelecekteki build'e taşınmaz.
 
 ## Kalite kabul özeti
-- Windows P0 matrisi: `WIN-P0-01`–`WIN-P0-05` PASSED; drag/drop, playlist
-  sınırları ve IPC için `P0-06`, `P0-07`, `P0-08` NOT_RUN.
+- Windows P0 matrisi: `WIN-P0-01`–`WIN-P0-06` PASSED; playlist fiziksel taşıma ve gerçek pencere IPC için `P0-07`, `P0-08` NOT_RUN.
+- `WIN-P0-06` exact `3451aef` kaynak ağacında manuel Explorer video+SRT bırakmayla doğru oynatma, ilerleyen süre ve görünür/doğru bağlı altyazı verdi. İlk kapanış gecikmesi ayrı onaylı tek dış-SRT native ölçümünde yeniden oluşmadı: apply/track/watcher doğrulandı, `stop→terminate` kapanışı yaklaşık 0,08 sn, exit 0, stderr boş, süreç sızıntısı 0 ve test sözleşmesi **321 passed / 1 skipped** (`EV-20260829-011`).
 - `WIN-P0-08` deterministik offscreen çok-süreç kapsamı gerçek secondary PID, dosya/URL/aktivasyon devri, exit `0` ve terminal kapanış ölçümüyle genişletildi; dar etki paketi **93 passed** verdi. Gerçek ürün penceresi foreground ve hedef-yükleme sonucu ölçülmediği için fiziksel satır hâlâ `NOT_RUN` (`EV-20260829-002`). Aktif oynatma sırasında kuyruğa eklenen yeni video(lar)la birlikte bırakılan altyazının global pending kuyruğuyla yanlışlıkla mevcut videoya uygulanması kırmızı testte doğrulandı; hedef medya başlatılmadığında pending durum artık korunuyor ve kullanıcı açıkça yönlendiriliyor. Subtitle/playlist/atomiklik/çeviri etki paketi **87 passed** verdi (`EV-20260829-003`). PR #72 ilk hosted run `33266269968`, **5151 passed / 22 skipped / 1 failed** ile stale `app/player.py` mimari hash/satır kapısında durdu; diğer beş modül exact eşti ve envanter düzeltildi (`EV-20260829-005`–`007`). Yeni push koşumu `33266596701` yine **5151/22/1** verdi; tek hata ürün bütçesi yerine runner/UI overhead'ini de kapsayan `elapsed <= 0.8` testiydi. Test sonluluğu artık duvar-saati üst sınırı yerine exact 40 Qt wait çağrısıyla ölçülüyor; hedef 5/5 ve dosya paketi **12 passed** (`EV-20260829-008`–`009`). Hiçbir başarısız run retry edilmedi.
 - Video biçimi matrisi: SDR ekranda `VF-CORE-01` ve HDR ekranda SDR-on-HDR
   `VF-CORE-02` exact native ve kontrollü insan ramp kabulüyle PASSED. Kalan
@@ -182,7 +182,7 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-`EV-20260829-010` iki-belge bağlama kaydını ayrı onayla commit et; ardından ayrı push onayıyla PR #72 head'ini ilerlet ve yeni hosted sonucu kullanıcı bildirsin. Gerçek `WIN-P0-06`–`08`, build, native/kurulu artifact ve fiziksel kurulum ayrı onaylıdır. Tek-agent kısıtı nedeniyle bağımsız karşıt inceleme `NOT_RUN` ve formal bağımsız GO yoktur.
+`EV-20260829-011` test/evidence paketini ayrı onayla commit et. Sonra `WIN-P0-07` fiziksel playlist satır taşıma kabulü için ayrıca onay iste; push/PR, `WIN-P0-08`, build ve kurulu artifact birbirinden ayrı kapılardır. Kullanıcının tek-agent kısıtı nedeniyle agent-karşıt inceleme `NOT_RUN` kalır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

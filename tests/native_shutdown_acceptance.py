@@ -81,6 +81,7 @@ EXPECTED_RESULTS = "RESULTS: failures=none stop=1 terminate=1"
 #: yanlislikla calismasina yol acardi.
 OPT_IN_VARIABLE = "MLC_NATIVE_SHUTDOWN_ACCEPTANCE"
 OPT_IN_VALUE = "1"
+EXTERNAL_SUBTITLE_VARIABLE = "MLC_NATIVE_SHUTDOWN_EXTERNAL_SUBTITLE"
 
 DEFAULT_TIMEOUT_S = 180
 
@@ -306,7 +307,8 @@ MEDIA_MARKERS = ("MARK_PLAYER_CREATED", "MARK_MEDIA_OPEN_REQUESTED")
 
 
 def evaluate_shutdown_result(returncode, stdout, stderr,
-                             expected_basename=None):
+                             expected_basename=None,
+                             require_external_subtitle=False):
     """Child sonucunu degerlendirir. Doner: sorun listesi (bos = TAMAM).
 
     SAF fonksiyondur: dosya okumaz, surec calistirmaz, urun kodu veya
@@ -366,6 +368,27 @@ def evaluate_shutdown_result(returncode, stdout, stderr,
             problems.extend(timestamp_problems)
             continue
         problems.extend(validator(marker, tail[1:], context))
+
+    if require_external_subtitle:
+        subtitle_lines = [line.strip() for line in stdout.splitlines()
+                          if line.strip().startswith(
+                              "MARK_SUBTITLE_APPLIED ")]
+        required_fields = ("applied=True", "external_tracks=1",
+                           "sid_is_ours=True", "visibility=True")
+        if len(subtitle_lines) != 1:
+            problems.append(
+                "MARK_SUBTITLE_APPLIED tam bir kez bulunmali; "
+                f"bulunan={len(subtitle_lines)}")
+        else:
+            parts = subtitle_lines[0].split()
+            if (len(parts) != 6 or
+                    _finite_non_negative(parts[1][2:]
+                                         if parts[1].startswith("t=")
+                                         else None) is None or
+                    tuple(parts[2:]) != required_fields):
+                problems.append(
+                    "MARK_SUBTITLE_APPLIED dis altyazinin secili ve "
+                    f"gorunur oldugunu kanitlamiyor: {subtitle_lines[0]!r}")
 
     # 4. Iki medya marker'i AYNI dosyayi bildirmeli.
     reported = {}
@@ -434,7 +457,8 @@ def _first_index(stdout, marker):
     return None
 
 
-def run_native_shutdown(video, timeout=DEFAULT_TIMEOUT_S, env=None):
+def run_native_shutdown(video, timeout=DEFAULT_TIMEOUT_S, env=None,
+                        require_external_subtitle=False):
     """Child'i **BIR KEZ** calistirir. Doner: (problems, ayrinti sozlugu).
 
     OPT-IN KAPISI BURADADIR, pytest dugumunde DEGIL. Onceki surumde izin
@@ -480,6 +504,10 @@ def run_native_shutdown(video, timeout=DEFAULT_TIMEOUT_S, env=None):
                  "media_before": None, "media_after": None})
 
     environment["MLC_NATIVE_TEST_VIDEO"] = os.path.abspath(video)
+    if require_external_subtitle:
+        environment[EXTERNAL_SUBTITLE_VARIABLE] = "1"
+    else:
+        environment.pop(EXTERNAL_SUBTITLE_VARIABLE, None)
     environment.pop("QT_QPA_PLATFORM", None)
 
     try:
@@ -505,7 +533,8 @@ def run_native_shutdown(video, timeout=DEFAULT_TIMEOUT_S, env=None):
     raw_stderr = bytes(result.stderr or b"")
     problems = evaluate_shutdown_result(
         result.returncode, raw_stdout, raw_stderr,
-        expected_basename=os.path.basename(video))
+        expected_basename=os.path.basename(video),
+        require_external_subtitle=require_external_subtitle)
     problems.extend(media_stat_problems(before, after))
     return problems, {"returncode": result.returncode,
                       "stdout": decode_stream(raw_stdout),

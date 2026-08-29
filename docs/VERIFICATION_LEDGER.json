@@ -11236,6 +11236,56 @@
         "No product change, Computer Use, physical/native run, build, installation, uninstall, push, merge, tag or release was performed."
       ],
       "next_action": "Commit this two-document binding record under separate approval, then request a separate push approval; do not manually retry either failed run."
+    },
+    {
+      "id": "EV-20260829-011",
+      "recorded_at_utc": "2026-08-29T20:11:45Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "3451aef5fedefa354203ed3d44c96cf2c5a67105",
+      "baseline_commit": "3451aef5fedefa354203ed3d44c96cf2c5a67105",
+      "working_tree_state": "uncommitted test-only shutdown instrumentation and evidence changes on codex/subtitle-shutdown-timing from clean canonical master equal to origin/master",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/QUALITY_EVOLUTION_PLAN.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md",
+        "tests/native_player_shutdown_child.py",
+        "tests/native_shutdown_acceptance.py",
+        "tests/test_native_shutdown_acceptance_regressions.py",
+        "tests/test_quality_evolution_plan_regressions.py"
+      ],
+      "subject": "WIN-P0-06 manual Explorer drag-drop acceptance and bounded external-subtitle shutdown diagnostic",
+      "commands": [
+        "git checkout, status, exact HEAD/origin parity and protected-workflow readback",
+        "python -m pytest -q tests/test_native_shutdown_acceptance_regressions.py tests/test_subtitle_integration_gate_regressions.py",
+        "single approved run_native_shutdown call with require_external_subtitle=True, explicit native opt-in, the first existing recent real video and a 60-second fail-closed timeout",
+        "post-run Python-child and MLC Player target-process readback",
+        "read-only runtime manifest, mpv-2.dll size/SHA-256, Python/Qt/PyQt identity and streaming SHA-256 of the private real video"
+      ],
+      "private_artifact_digests": {
+        "Resident.Alien.S01E01.Pilot.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb.mkv": "e15ed2d5b73b759f8854ff6b2b137241d70c2bf9727b328a17cd8989d38b1312",
+        "mpv-2.dll": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "evidence": [
+        "the user manually dragged the real video and its matching SRT from Explorer into the source-tree Player on exact 3451aef; playback started, duration advanced, the subtitle appeared and it was not bound to the wrong media",
+        "the user perceived a delay on that manual close, but all launcher/Python/Player processes were absent afterward and the application log contained no new close error; this observation was retained rather than silently called a clean close",
+        "the existing video-only controlled shutdown completed in about 0.07 seconds, so a test-only extension was prepared to require an actually selected and visible external subtitle before the unchanged product player.close path",
+        "the deterministic shutdown/subtitle gate completed with 321 passed and 1 skipped; missing, duplicated, false, unselected, invisible or non-exact external-subtitle markers fail closed and the runner cannot inherit an unrequested scenario flag",
+        "the separately approved single external-subtitle native run used the same SubtitleSession.apply and product SubtitleTrackWatcher lifecycle; MARK_SUBTITLE_APPLIED reported applied=True, external_tracks=1, sid_is_ours=True and visibility=True",
+        "MARK_CLOSE_REQUESTED and MARK_STOP_CALLED were both t=4.32; MARK_TERMINATE_CALLED was t=4.32 and MARK_CLOSE_ACCEPTED visible=False was t=4.40, bounding measured close work to about 0.08 seconds",
+        "the child returned exit 0 with empty evaluator problems, empty stderr, exact stop=1 then terminate=1, event-loop return, zero MPV threads, final marker and zero remaining native child/Player processes",
+        "after the matrix, quality-plan, continuity and append-only record update, the combined impact/governance package completed with 342 passed and 1 skipped; continuity remained at its exact 200-line limit and JSON/diff checks passed",
+        "the private real video was 2651661814 bytes with the recorded SHA-256; runtime was Python 3.14.3, Qt 6.10.0, PyQt 6.10.2 and manifest-matching 112772608-byte mpv-2.dll"
+      ],
+      "summary": "WIN-P0-06 passed through combined manual Explorer drag-drop acceptance and one fail-closed external-subtitle native shutdown measurement; the reported one-off close delay was not reproduced and no product shutdown defect was established.",
+      "limitations": [
+        "The automated half applies a private temporary SRT through the same product session/watcher path but does not synthesize Explorer OLE input; the actual Explorer drag-drop result is the user's manual acceptance.",
+        "The approximately 0.08-second close result is one exact source-tree, machine, runtime, media and scenario result. It does not prove installed-artifact behavior or a universal latency bound.",
+        "The user's initial perceived close delay remains a non-reproduced observation; this evidence does not claim that perception was false or identify a root cause that was not measured.",
+        "Test/evidence changes are uncommitted. No product code, Computer Use, build, installation, uninstall, push, PR, merge, tag or release was performed; agent adversarial review is NOT_RUN under the user's single-agent constraint."
+      ],
+      "next_action": "Commit the exact eight-file test/evidence package only after separate approval; then request separate approval for WIN-P0-07 physical playlist-row reorder acceptance."
     }
   ]
 }

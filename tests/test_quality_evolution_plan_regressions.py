@@ -125,13 +125,14 @@ def test_every_p0_row_has_an_honest_execution_mapping_and_exact_status():
     assert rows["WIN-P0-03"] == "PASSED"
     assert rows["WIN-P0-04"] == "PASSED"
     assert rows["WIN-P0-05"] == "PASSED"
-    assert p0_table.count("NOT_RUN") == 3
-    assert ("**Durum:** P0 5 PASSED / 0 FAILED / 3 NOT_RUN; P1 6 NOT_RUN; "
+    assert rows["WIN-P0-06"] == "PASSED"
+    assert p0_table.count("NOT_RUN") == 2
+    assert ("**Durum:** P0 6 PASSED / 0 FAILED / 2 NOT_RUN; P1 6 NOT_RUN; "
             "P2 3 BLOCKED" in matrix)
     assert "## İlk sıradaki çalışma" not in matrix
-    assert "WIN-P0-06/07/08" in matrix
+    assert "WIN-P0-07/08" in matrix
     assert "docs/CONTINUITY.md" in matrix
-    assert "5 PASS / 0 FAIL / 3 NOT_RUN" in plan
+    assert "6 PASS / 0 FAIL / 2 NOT_RUN" in plan
     assert "EV-20260823-019" in p0_section
     assert "EV-20260823-020" in p0_section
     assert "EV-20260823-022" in p0_section

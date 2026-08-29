@@ -1,6 +1,6 @@
 # MLC Player gerçek Windows kabul matrisi
 
-**Durum:** P0 5 PASSED / 0 FAILED / 3 NOT_RUN; P1 6 NOT_RUN; P2 3 BLOCKED
+**Durum:** P0 6 PASSED / 0 FAILED / 2 NOT_RUN; P1 6 NOT_RUN; P2 3 BLOCKED
 
 **Plan tabanı:** `78518dd67e882e35da69ea7bb6bfc74e3cafc1c7`
 
@@ -40,7 +40,7 @@ yazılır.
 | WIN-P0-03 | Ses ve yerel altyazı parçası değiştirme | Seçim libmpv read-back ile doğrulanır | PASSED |
 | WIN-P0-04 | Seek, duraklatma ve devam | Zaman/state read-back beklenen aralıkta | PASSED |
 | WIN-P0-05 | Tam ekran, native resize ve geri dönüş | Boyut/state doğru, donma ve kontrol kaybı yok | PASSED |
-| WIN-P0-06 | Dosya/altyazı sürükle-bırak | Doğru medya veya altyazı uygulanır | NOT_RUN |
+| WIN-P0-06 | Dosya/altyazı sürükle-bırak | Doğru medya veya altyazı uygulanır | PASSED |
 | WIN-P0-07 | Oynatma listesi ekleme, taşıma ve sınırlar | Sıra ve seçim korunur, son satır hedeflenebilir | NOT_RUN |
 | WIN-P0-08 | İkinci uygulama örneği/IPC | Dosya veya URL ilk örneğe geçer, artık süreç yok | NOT_RUN |
 
@@ -154,8 +154,17 @@ değiştirmez.
   doğrudan `add_external_files()` çağrısını fiziksel PASS saymaz.
 - **Exact girdiler:** Explorer'dan sürüklenecek gerçek video ve ona ait yerel
   altyazı; başlangıç playlist/track durumu; ekran ve runtime kimliği.
-- **Açık boşluk:** gerçek Explorer dosya bırakma ve ayrı altyazı bırakma için
-  kayıtlı manuel kabul veya güvenilir yeni native otomasyon gerekir.
+- **Son native/insan sonucu:** exact `3451aef` kaynak ağacında kullanıcı
+  Explorer'dan gerçek videoyu ve eşleşen SRT'yi bıraktı; video oynadı, süre
+  ilerledi, altyazı göründü ve yanlış medyaya bağlanmadı. Ayrı onaylı tek
+  fail-closed kapanış ölçümü aynı gerçek video, gerçek `SubtitleSession.apply`
+  ve `SubtitleTrackWatcher` yolunda dış geçici SRT'nin seçili/görünür olduğunu,
+  `stop→terminate`, exit `0`, boş stderr ve sıfır child süreçle doğruladı
+  (`EV-20260829-011`). Satır **PASSED**.
+- **Açık boşluk:** kullanıcının ilk manuel kapanışta algıladığı tek gecikme
+  ölçümlü dış-altyazı koşumunda yeniden oluşmadı; yaklaşık 0,08 saniyelik
+  kapanış sonucu tek cihaz/medya ve source-tree ile sınırlıdır, kurulu artifact
+  veya genel performans kanıtı değildir.
 
 ### WIN-P0-07 — Oynatma listesi ekleme, taşıma ve sınırlar
 
@@ -513,7 +522,7 @@ boşluk belgelenirse eklenir.
 
 ## Kalan kabul boşlukları
 
-P0 eşlemesi tamamlandı. Açık `WIN-P0-06/07/08` satırları `NOT_RUN` kalır;
+P0 eşlemesi tamamlandı. Açık `WIN-P0-07/08` satırları `NOT_RUN` kalır;
 P1 ve P2 satırları tabloda yazan sınırların dışına taşınmaz. Gerçek yürütme
 sırası yalnız `docs/CONTINUITY.md` içindeki sıradaki tek adımdır. Hiçbir native
 koşumu veya kurulum açık kullanıcı onayı olmadan başlatılmaz.

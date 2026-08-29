@@ -12,6 +12,7 @@ Marker'lar:
     MARK_PLAYER_CREATED
     MARK_MEDIA_OPEN_REQUESTED
     MARK_MEDIA_READY
+    MARK_SUBTITLE_APPLIED (yalniz dis altyazi senaryosunda)
     MARK_CLOSE_REQUESTED
     MARK_STOP_CALLED
     MARK_TERMINATE_CALLED
@@ -97,8 +98,15 @@ from PyQt6.QtCore import QSettings, QTimer  # noqa: E402
 from PyQt6.QtWidgets import QApplication  # noqa: E402
 
 import app.player as player_module  # noqa: E402
+from app import subtitle_service  # noqa: E402
 
 MPVPlayer = player_module.MPVPlayer
+
+EXTERNAL_SUBTITLE_REQUESTED = (
+    os.environ.get("MLC_NATIVE_SHUTDOWN_EXTERNAL_SUBTITLE") == "1")
+SUBTITLE_PATH = os.path.join(WORKSPACE, "shutdown-external-subtitle.srt")
+SUBTITLE_BYTES = (
+    b"1\n00:00:01,000 --> 00:00:05,000\nMLC shutdown timing\n")
 
 
 def install_call_recorder():
@@ -125,6 +133,20 @@ def install_call_recorder():
 
     mpv_module.MPV.stop = recording_stop
     mpv_module.MPV.terminate = recording_terminate
+
+
+def external_subtitle_tracks(mpv_player):
+    """Return tracks backed by this child's private temporary SRT."""
+    wanted = os.path.normcase(os.path.abspath(SUBTITLE_PATH))
+    matches = []
+    for track in (mpv_player.track_list or []):
+        if not isinstance(track, dict) or track.get("type") != "sub":
+            continue
+        filename = track.get("external-filename")
+        if (filename and
+                os.path.normcase(os.path.abspath(str(filename))) == wanted):
+            matches.append(track)
+    return matches
 
 
 def resolve_video():
@@ -229,13 +251,53 @@ def main():
             state["ready"] = True
             mark("MARK_MEDIA_READY",
                  f"duration={duration:.2f} position={position:.2f}")
-            QTimer.singleShot(400, close_player)
+            QTimer.singleShot(0, prepare_close_scenario)
             return
         if time.time() > state["deadline"]:
             poll.stop()
             failures.append("media_not_ready")
             mark("MARK_MEDIA_READY", "TIMEOUT")
             QTimer.singleShot(0, close_player)
+
+    def prepare_close_scenario():
+        """Optionally reproduce the user's external-subtitle close path."""
+        if not EXTERNAL_SUBTITLE_REQUESTED:
+            QTimer.singleShot(400, close_player)
+            return
+
+        applied = False
+        tracks = []
+        chosen = []
+        visible = False
+        try:
+            store = subtitle_service.SubtitleStore()
+            store.save(SUBTITLE_PATH, SUBTITLE_BYTES)
+            session = subtitle_service.SubtitleSession(store=store)
+            applied = session.apply(
+                player, SUBTITLE_PATH,
+                wait=lambda: (app.processEvents(), time.sleep(0.02)))
+            app.processEvents()
+            tracks = external_subtitle_tracks(player.mpv_player)
+            selected = player.mpv_player.sid
+            chosen = [track for track in tracks
+                      if track.get("id") == selected]
+            visible = bool(player.mpv_player.sub_visibility)
+        except Exception as exc:
+            failures.append(
+                f"subtitle_apply_exception={type(exc).__name__}")
+
+        mark("MARK_SUBTITLE_APPLIED",
+             f"applied={bool(applied)} external_tracks={len(tracks)} "
+             f"sid_is_ours={bool(chosen)} visibility={visible}")
+        if not applied:
+            failures.append("subtitle_not_applied")
+        if len(tracks) != 1:
+            failures.append(f"subtitle_track_count={len(tracks)}")
+        if not chosen:
+            failures.append("subtitle_wrong_track_selected")
+        if not visible:
+            failures.append("subtitle_not_visible")
+        QTimer.singleShot(400, close_player)
 
     def close_player():
         # KAPANIS URUN YOLUNDAN baslar: stop/terminate burada CAGRILMAZ.

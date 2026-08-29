@@ -100,6 +100,40 @@ def test_a_completely_healthy_shutdown_is_accepted():
     assert evaluate_shutdown_result(0, GOOD_STDOUT, "") == []
 
 
+def test_external_subtitle_scenario_requires_its_exact_marker():
+    problems = evaluate_shutdown_result(
+        0, GOOD_STDOUT, "", require_external_subtitle=True)
+
+    assert any("MARK_SUBTITLE_APPLIED" in problem for problem in problems)
+
+
+def test_external_subtitle_scenario_accepts_selected_visible_track():
+    stdout = GOOD_STDOUT.replace(
+        "MARK_CLOSE_REQUESTED",
+        "MARK_SUBTITLE_APPLIED t=1.20 applied=True external_tracks=1 "
+        "sid_is_ours=True visibility=True\nMARK_CLOSE_REQUESTED")
+
+    assert evaluate_shutdown_result(
+        0, stdout, "", require_external_subtitle=True) == []
+
+
+@pytest.mark.parametrize("broken", [
+    "applied=False external_tracks=1 sid_is_ours=True visibility=True",
+    "applied=True external_tracks=0 sid_is_ours=False visibility=True",
+    "applied=True external_tracks=1 sid_is_ours=True visibility=False",
+    "applied=True external_tracks=1 sid_is_ours=True visibility=True extra",
+])
+def test_external_subtitle_scenario_rejects_incomplete_proof(broken):
+    stdout = GOOD_STDOUT.replace(
+        "MARK_CLOSE_REQUESTED",
+        f"MARK_SUBTITLE_APPLIED t=1.20 {broken}\nMARK_CLOSE_REQUESTED")
+
+    problems = evaluate_shutdown_result(
+        0, stdout, "", require_external_subtitle=True)
+
+    assert any("MARK_SUBTITLE_APPLIED" in problem for problem in problems)
+
+
 def test_exit_zero_with_a_fatal_stderr_is_rejected():
     """Eksik/truncated `fatal` metni yakalanmis SEH kaniti sayilamaz."""
     problems = evaluate_shutdown_result(0, GOOD_STDOUT, FATAL_STDERR)
@@ -855,6 +889,59 @@ def test_opt_in_with_valid_media_does_reach_subprocess(tmp_path, monkeypatch):
     assert child_env[OPT_IN_VARIABLE] == "1"
     assert child_env["MLC_NATIVE_TEST_VIDEO"] == os.path.abspath(video)
     assert "QT_QPA_PLATFORM" not in child_env
+
+
+def test_external_subtitle_request_is_injected_and_evaluated(tmp_path,
+                                                              monkeypatch):
+    video = valid_video(tmp_path)
+    calls = []
+    stdout = GOOD_STDOUT.replace(
+        "MARK_CLOSE_REQUESTED",
+        "MARK_SUBTITLE_APPLIED t=1.20 applied=True external_tracks=1 "
+        "sid_is_ours=True visibility=True\nMARK_CLOSE_REQUESTED")
+
+    class FakeCompleted:
+        returncode = 0
+        stderr = b""
+
+        def __init__(self):
+            self.stdout = stdout.encode("utf-8")
+
+    def fake_run(*args, **kwargs):
+        calls.append((args, kwargs))
+        return FakeCompleted()
+
+    monkeypatch.setattr(acceptance.subprocess, "run", fake_run)
+
+    problems, _ = run_native_shutdown(
+        video, env={OPT_IN_VARIABLE: "1"},
+        require_external_subtitle=True)
+
+    assert problems == [], problems
+    assert calls[0][1]["env"][acceptance.EXTERNAL_SUBTITLE_VARIABLE] == "1"
+
+
+def test_unrequested_external_subtitle_flag_is_removed(tmp_path, monkeypatch):
+    video = valid_video(tmp_path)
+    calls = []
+
+    class FakeCompleted:
+        returncode = 0
+        stdout = GOOD_STDOUT.encode("utf-8")
+        stderr = b""
+
+    def fake_run(*args, **kwargs):
+        calls.append((args, kwargs))
+        return FakeCompleted()
+
+    monkeypatch.setattr(acceptance.subprocess, "run", fake_run)
+    env = {OPT_IN_VARIABLE: "1",
+           acceptance.EXTERNAL_SUBTITLE_VARIABLE: "1"}
+
+    problems, _ = run_native_shutdown(video, env=env)
+
+    assert problems == [], problems
+    assert acceptance.EXTERNAL_SUBTITLE_VARIABLE not in calls[0][1]["env"]
 
 
 def test_the_injected_environment_does_not_leak_into_the_process(tmp_path,
