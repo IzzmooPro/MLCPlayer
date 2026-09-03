@@ -12510,6 +12510,33 @@
         "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
       ],
       "next_action": "Obtain separate approval before staging and committing the current working-tree package."
+    },
+    {
+      "id": "EV-20260903-036",
+      "recorded_at_utc": "2026-09-03T21:40:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "eaf4ab8404b88637d84dc1191a2f12f12c5a8b12",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "evidence_commit": "eaf4ab8404b88637d84dc1191a2f12f12c5a8b12",
+      "working_tree_state": "committed UX, title-bar, playlist, visual-theme, icon and acceptance-runner package",
+      "changed_files": [],
+      "subject": "Bind full deterministic evidence to the exact implementation commit",
+      "commands": [
+        "git show --stat --oneline --summary eaf4ab8404b88637d84dc1191a2f12f12c5a8b12",
+        "git status --short --branch",
+        "git rev-list --left-right --count HEAD...origin/master"
+      ],
+      "evidence": [
+        "The implementation commit contains exactly 58 files, including the six new acceptance/regression tests, source, assets, generated catalogs and governing documentation.",
+        "Its source-tree verification is EV-20260903-035: 5234 passed, 11 skipped; the prior three maintenance failures remain preserved in EV-20260903-034."
+      ],
+      "summary": "The completed local package is now bound to its exact implementation commit instead of relying only on a pre-commit working-tree baseline.",
+      "limitations": [
+        "No push, PR, hosted CI, build, installation, uninstall, tag or release was performed.",
+        "Deterministic evidence does not replace native, installed-artifact or broader Windows acceptance evidence."
+      ],
+      "next_action": "Commit this documentation-only evidence binding, then obtain separate approval before any push or PR action."
     }
   ]
 }
