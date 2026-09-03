@@ -876,11 +876,18 @@ class MPVPlayer(QMainWindow):
         """Gerçek libmpv'de canonical OSD string'i, double'da attribute'u oku."""
         getter = getattr(mpv_player, "_get_property", None)
         if callable(getter):
-            try:
-                return getter("loop-file", fmt=mpv.MpvFormat.OSD_STRING)
-            except TypeError:
-                # Basit test double'ları ``fmt`` kabul etmeyebilir.
-                return getter("loop-file")
+            mpv_format = getattr(mpv, "MpvFormat", None)
+            osd_string = getattr(mpv_format, "OSD_STRING", None)
+            if osd_string is not None:
+                try:
+                    return getter("loop-file", fmt=osd_string)
+                except TypeError:
+                    # Basit test double'ları ``fmt`` kabul etmeyebilir.
+                    pass
+            # CI'nin python-mpv yüzeyinde ``MpvFormat`` bulunmayabilir.
+            # Bu durumda native değer yine okunur; canonical dönüştürücü
+            # ``False``/``0`` gibi NODE dönüşlerini güvenle ``no`` yapar.
+            return getter("loop-file")
         return mpv_player.loop_file
 
     def set_loop_file(self, enabled):

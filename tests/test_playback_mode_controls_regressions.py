@@ -11,6 +11,7 @@ import pytest
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 
 from app import media_controls
+from app import player as player_module
 from app.player import MPVPlayer
 from app.video_frame import VideoFrame
 
@@ -79,6 +80,34 @@ def test_native_false_node_readback_is_canonical_no_not_a_failed_write():
             assert name == "loop-file"
             return self._value
 
+    player = _mode_player(loop_file=True)
+    player.mpv_player = NativeLikeLoop()
+
+    assert MPVPlayer.set_loop_file(player, False) is True
+    assert player.loop_file is False
+    assert player.mpv_player._value == "no"
+
+
+def test_native_loop_readback_does_not_require_mpv_format_enum(monkeypatch):
+    """GitHub CI'deki python-mpv yüzeyinde ``MpvFormat`` yoktur."""
+    class NativeLikeLoop:
+        def __init__(self):
+            self._value = "inf"
+
+        @property
+        def loop_file(self):
+            return False if self._value == "no" else self._value
+
+        @loop_file.setter
+        def loop_file(self, value):
+            self._value = value
+
+        def _get_property(self, name, fmt=None):
+            assert name == "loop-file"
+            assert fmt is None
+            return self._value
+
+    monkeypatch.delattr(player_module.mpv, "MpvFormat", raising=False)
     player = _mode_player(loop_file=True)
     player.mpv_player = NativeLikeLoop()
 

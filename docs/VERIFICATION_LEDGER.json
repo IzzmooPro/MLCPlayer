@@ -12537,6 +12537,123 @@
         "Deterministic evidence does not replace native, installed-artifact or broader Windows acceptance evidence."
       ],
       "next_action": "Commit this documentation-only evidence binding, then obtain separate approval before any push or PR action."
+    },
+    {
+      "id": "EV-20260903-037",
+      "recorded_at_utc": "2026-09-03T21:48:51Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "3b92bdbc0f3edcdbd50d829bafbe8f185ce1f8fa",
+      "evidence_commit": "3b92bdbc0f3edcdbd50d829bafbe8f185ce1f8fa",
+      "working_tree_state": "committed PR #73 head",
+      "changed_files": [],
+      "subject": "PR test exposes python-mpv compatibility failure in loop readback",
+      "commands": [
+        "gh pr checks 73",
+        "gh run view 33809616721 --log-failed"
+      ],
+      "evidence": [
+        "GitHub Actions run 33809616721 failed on Windows/Python 3.13 with 1 failed, 5222 passed, 22 skipped in 150.52s.",
+        "tests/test_playback_mode_controls_regressions.py::test_native_false_node_readback_is_canonical_no_not_a_failed_write failed because app/player.py directly accessed mpv.MpvFormat.OSD_STRING, while that python-mpv module has no MpvFormat attribute."
+      ],
+      "summary": "The loop-file write did not fail; its readback verification incorrectly required an optional python-mpv enum surface unavailable on the hosted runner.",
+      "limitations": [
+        "This is hosted CI evidence for the exact PR head only; it does not replace local native or installed-artifact acceptance.",
+        "The failed run was not retried."
+      ],
+      "next_action": "Make the native readback tolerate a missing MpvFormat enum, add a regression reproducing that environment, run the affected family and then the full local package before a separately approved commit."
+    },
+    {
+      "id": "EV-20260903-038",
+      "recorded_at_utc": "2026-09-03T21:54:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "3b92bdbc0f3edcdbd50d829bafbe8f185ce1f8fa",
+      "baseline_commit": "3b92bdbc0f3edcdbd50d829bafbe8f185ce1f8fa",
+      "working_tree_state": "uncommitted loop readback compatibility fix and regression",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_playback_mode_controls_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Loop readback remains canonical when python-mpv omits MpvFormat",
+      "commands": [
+        "python -m pytest -q tests/test_playback_mode_controls_regressions.py (14 passed)",
+        "git diff --check"
+      ],
+      "evidence": [
+        "The new regression removes mpv.MpvFormat from the imported module, writes loop-file=no, and proves the direct native property readback is canonical and succeeds.",
+        "When MpvFormat.OSD_STRING exists, the prior OSD-string readback is retained; only the unsupported-enum path falls back to the no-format property read."
+      ],
+      "summary": "The CI-specific compatibility condition is covered by a deterministic regression without weakening ignored-write detection.",
+      "limitations": [
+        "Only the affected playback-mode family has run after this change; full local and hosted suites are still required.",
+        "No build, installation, commit, push, PR, merge, tag or release was performed after this fix."
+      ],
+      "next_action": "Run the full local deterministic package, then obtain separate approval before committing the CI compatibility fix."
+    },
+    {
+      "id": "EV-20260903-039",
+      "recorded_at_utc": "2026-09-03T21:57:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "3b92bdbc0f3edcdbd50d829bafbe8f185ce1f8fa",
+      "baseline_commit": "3b92bdbc0f3edcdbd50d829bafbe8f185ce1f8fa",
+      "working_tree_state": "uncommitted loop readback compatibility fix and regression",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_playback_mode_controls_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Full deterministic package detects stale player inventory after compatibility fix",
+      "commands": [
+        "python -m pytest -q (1 failed, 5234 passed, 11 skipped, 96.54s)"
+      ],
+      "evidence": [
+        "The only failure was tests/test_quality_evolution_plan_regressions.py::test_machine_inventory_matches_the_exact_six_sources.",
+        "The changed app/player.py normalized SHA-256 was d22cb6a41989e559dfe4c23268754868f718e4c305b6096b99d3c3d3b43524ec while the inventory retained c5e1adee6cf08b87a50ad68b93b2158fbc69ca5480727af375c3b9989278e677."
+      ],
+      "summary": "The source change is covered, but the machine-readable architecture inventory must be refreshed before the full deterministic gate can pass.",
+      "limitations": [
+        "No product-behavior regression was reported by this run.",
+        "The failed run was not retried before its root cause was measured."
+      ],
+      "next_action": "Refresh only the measured app/player.py inventory fields, run the inventory/continuity gates, then perform one complete local rerun."
+    },
+    {
+      "id": "EV-20260903-040",
+      "recorded_at_utc": "2026-09-03T22:02:24Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "3b92bdbc0f3edcdbd50d829bafbe8f185ce1f8fa",
+      "baseline_commit": "3b92bdbc0f3edcdbd50d829bafbe8f185ce1f8fa",
+      "working_tree_state": "uncommitted loop readback compatibility fix, regression, refreshed player inventory and evidence updates",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_playback_mode_controls_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Full deterministic package passes after python-mpv compatibility remediation",
+      "commands": [
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python -m pytest -q tests/test_quality_evolution_plan_regressions.py tests/test_continuity_regressions.py tests/test_playback_mode_controls_regressions.py (30 passed)",
+        "python -m pytest -q (5235 passed, 11 skipped, 95.76s)",
+        "git diff --check"
+      ],
+      "evidence": [
+        "The CI-specific missing-MpvFormat regression is included in the complete package and passes.",
+        "The measured app/player.py inventory now matches its current normalized SHA-256 and structural metrics."
+      ],
+      "summary": "The working tree has a fully green deterministic package after correcting the actual hosted CI incompatibility and its maintenance metadata.",
+      "limitations": [
+        "The prior GitHub Actions run remains failed because it predates this uncommitted correction; a later push is required to create a new PR check.",
+        "No native, installed-artifact, build, installation, commit, push, PR, merge, tag or release was performed after this fix."
+      ],
+      "next_action": "Obtain separate approval before staging and committing this CI compatibility fix."
     }
   ]
 }

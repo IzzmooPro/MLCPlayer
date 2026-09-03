@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "status": "analyzed",
-  "measured_product_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
-  "working_tree_state": "uncommitted playlist UX, playback-mode controls, compact overlay scaling, focus-safe overlay z-order, extended timeline, and unified visual theme on exact committed baseline",
-  "measured_at_utc": "2026-09-03T21:30:45Z",
+  "measured_product_commit": "3b92bdbc0f3edcdbd50d829bafbe8f185ce1f8fa",
+  "working_tree_state": "uncommitted loop readback compatibility fix and regression on the exact committed PR head",
+  "measured_at_utc": "2026-09-03T21:58:56Z",
   "hash_contract": "sha256 of UTF-8 source normalized to LF",
   "modules": [
     {
@@ -26,8 +26,8 @@
     },
     {
       "path": "app/player.py",
-      "sha256": "c5e1adee6cf08b87a50ad68b93b2158fbc69ca5480727af375c3b9989278e677",
-      "lines": 1339,
+      "sha256": "d22cb6a41989e559dfe4c23268754868f718e4c305b6096b99d3c3d3b43524ec",
+      "lines": 1346,
       "classes": 1,
       "top_functions": 1,
       "indented_functions": 83,
