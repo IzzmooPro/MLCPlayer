@@ -4,7 +4,7 @@
 APP_NAME = "MLC Player"
 # Sürümün TEK kaynağı. Hakkında penceresi, installer betiği ve yayın
 # etiketi buradan türer; `tests/test_version_consistency.py` bağı korur.
-APP_VERSION = "v0.40"
+APP_VERSION = "v0.41"
 # Windows sürüm alanları dört sayılı olmak zorundadır; elle yazılmaz.
 WINDOWS_VERSION = ".".join((APP_VERSION.lstrip("v").split(".") + ["0", "0", "0"])[:4])
 # Telif yılının TEK kaynağı. README ve Hakkında penceresi ayrı ayrı

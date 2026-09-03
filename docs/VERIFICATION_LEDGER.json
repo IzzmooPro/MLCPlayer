@@ -12654,6 +12654,37 @@
         "No native, installed-artifact, build, installation, commit, push, PR, merge, tag or release was performed after this fix."
       ],
       "next_action": "Obtain separate approval before staging and committing this CI compatibility fix."
+    },
+    {
+      "id": "EV-20260903-041",
+      "recorded_at_utc": "2026-09-03T22:13:25Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "260b2a90c3e3d98a3853b65237b2f0742a548ddd",
+      "baseline_commit": "260b2a90c3e3d98a3853b65237b2f0742a548ddd",
+      "working_tree_state": "uncommitted v0.41 application and installer version-field update",
+      "changed_files": [
+        "app/config.py",
+        "packaging/MLCPlayer.iss",
+        "tests/test_version_consistency.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "v0.41 candidate version fields are internally consistent",
+      "commands": [
+        "python -m pytest -q tests/test_version_consistency.py tests/test_release_documentation_regressions.py (214 passed)",
+        "git diff --check"
+      ],
+      "evidence": [
+        "APP_VERSION is v0.41, derived WINDOWS_VERSION is 0.41.0.0, and the Inno Setup defines match both values.",
+        "The release documentation contract remains green with the v0.41 candidate fields."
+      ],
+      "summary": "The v0.41 source candidate has a single consistent version across application and installer metadata; no artifact has been produced.",
+      "limitations": [
+        "This is deterministic source-tree evidence only; it does not prove a built, installed, physically accepted, tagged or released v0.41 artifact.",
+        "No commit, push, PR, merge, dispatch, build, installation, tag or release was performed for this version update."
+      ],
+      "next_action": "Obtain separate approval before committing the v0.41 version-field update."
     }
   ]
 }

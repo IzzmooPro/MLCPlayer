@@ -3,11 +3,11 @@
 Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi `CONTINUITY_HISTORY.md`, makinece doğrulanmış olaylar `VERIFICATION_LEDGER.json`, diğer tarihsel anlatı `PROJECT_STATUS.md`,
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
-- Güncelleme: 30 Ağustos 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `04197efc56cf31c40c8081dcc9cbb8c7265292c5`
+- Güncelleme: 4 Eylül 2026
+- Kayıt hazırlanırken doğrulanan HEAD: `260b2a90c3e3d98a3853b65237b2f0742a548ddd`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/subtitle-shutdown-timing` (exact `04197ef`; `origin/master` exact `3451aef` tabanından iki commit ileride ve uzak görev dalıyla eş)
-- Son kanıt: `EV-20260903-040`
+- Dal: `master` (exact `260b2a9`; `origin/master` ile temiz ve `0/0` eş)
+- Son kanıt: `EV-20260903-041`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -184,7 +184,7 @@ Merge-kayıt PR'ı protected master'a ulaştığında yeni meta-PR zinciri başl
 merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağla.
 ## Sıradaki tek adım
 
-Şeffaflık sonrası başlık imleci konusu kullanıcı tarafından yeniden açıldı. Canlı gözlem kök nedeni üst şeritle sınırladı: video yüzeyine tıklama ilk seferde toparlanırken boş üst şerit tıklaması ikinci etkileşimi gerektiriyordu. `TitleBar` her boş basışta `startSystemMove()` çağırarak Windows modal taşıma döngüsüne giriyordu; artık yalnız `QApplication.startDragDistance()` aşılmış gerçek sürüklemede taşıma başlar. Basit üst-şerit tıklamasının native taşıma döngüsünü hiç başlatmadığını ve gerçek sürüklemenin devam ettiğini koruyan regresyon hedef paketi **114/114 PASS** verdi (`EV-20260830-032`); kullanıcı güncel canonical uygulamada sorunun düzeldiğini doğruladı (`EV-20260830-033`). Tam paket denetimi önce dört stale mimari hash/metrik, bir SPDX satırı ve İngilizce katalogdaki yeni tooltip çevirisini açığa çıkardı (**3 failed / 5231 passed / 11 skipped**, `EV-20260903-034`); bunlar kaynak davranışı değiştirilmeden düzeltildi. Katalog üretimi ve hedef kapılar **377 passed**, son tam deterministik paket **5234 passed / 11 skipped** verdi (`EV-20260903-035`). Bu tam paketi taşıyan exact yerel commit `eaf4ab8404b88637d84dc1191a2f12f12c5a8b12` olarak geri okundu ve kanıtla bağlandı (`EV-20260903-036`). PR #73'ün hosted `test` koşumu CI'de `mpv.MpvFormat` bulunmadığı için loop readback yolunda kırmızı bitti (`EV-20260903-037`); yeni uyumluluk sınır testi bu enum olmadan aynı native readback'i doğruladı (**14/14 PASS**, `EV-20260903-038`). Tam yerel paket bu değişiklikten sonra yalnız `app/player.py` envanter hash'inin eski kaldığını buldu (**1 failed / 5234 passed / 11 skipped**, `EV-20260903-039`); hash/metrik kaynaktan yenilendi ve son tam deterministik paket **5235 passed / 11 skipped** verdi (`EV-20260903-040`). PiP medya yokken kapalıdır; doğrudan veya playlistten başarılı video açılışında başlık modları tazelenerek yeniden etkinleşir. Resize politikası genişletilmiş fiziksel matrisle **17/17 PASS** kaldı (`EV-20260830-011`, `014`). Sıradaki işlem yalnız bu CI uyumluluk düzeltmesi için ayrı commit onayıdır; push/PR/merge için ayrıca onay gerekir.
+PR #73, oynatma kontrolü ve CI uyumluluk düzeltmesini merge commit `260b2a90c3e3d98a3853b65237b2f0742a548ddd` ile `master`a taşıdı; zorunlu hosted `test` geçti. CI uyumluluk düzeltmesinin tam yerel paketi **5235 passed / 11 skipped** verdi (`EV-20260903-040`). Yeni yayın adayı `v0.41` için uygulama ve installer sürüm alanları `v0.41` / `0.41.0.0` olarak eşlendi; sürüm ve yayın dokümantasyonu sözleşmesi **214/214 PASS** verdi (`EV-20260903-041`). Canlı/latest yayın hâlâ v0.40'tır; v0.41 artifact'i henüz üretilmedi. Sıradaki işlem yalnız v0.41 sürüm alanları ve kanıt kaydı için ayrı commit onayıdır; ardından PR/hosted CI, exact-master dispatch, build ve fiziksel kabul kendi ayrı kapılarından geçer.
 ## Dokunulmayacaklar ve ayrı onaylar
 
 - Private görsel/native artifact yolları Git'e eklenmez.
