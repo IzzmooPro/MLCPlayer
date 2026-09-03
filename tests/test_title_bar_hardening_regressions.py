@@ -90,9 +90,9 @@ def test_main_title_edge_uses_widget_cursor_without_global_override(
             == Qt.CursorShape.PointingHandCursor)
 
 
-def test_snapped_playlist_owns_the_shared_horizontal_resize_boundary(
+def test_snapped_playlist_owns_middle_boundary_but_keeps_corner_resize(
         frameless_window):
-    """Playlist açıkken video tarafında ikinci yatay resize oku çıkmamalı."""
+    """Ortak orta sınır playlist'e ait, köşeler ana pencereye aittir."""
     app, window, bar, resize_filter = frameless_window()
     owner_rect = window.frameGeometry()
     panel = QWidget(window, Qt.WindowType.Window
@@ -109,7 +109,8 @@ def test_snapped_playlist_owns_the_shared_horizontal_resize_boundary(
     top_right = QPoint(window.width() - 1, 0)
 
     assert resize_filter._effective_resize_edges(middle_right) == Qt.Edge(0)
-    assert resize_filter._effective_resize_edges(top_right) == Qt.Edge.TopEdge
+    assert resize_filter._effective_resize_edges(top_right) == (
+        Qt.Edge.RightEdge | Qt.Edge.TopEdge)
 
     panel.setGeometry(owner_rect.left() - panel.width(), owner_rect.top(),
                       panel.width(), owner_rect.height())
@@ -180,10 +181,10 @@ def test_press_inside_content_area_does_not_start_resize(frameless_window):
     assert started == []
 
 
-def test_generous_corner_zone_resolves_to_diagonal_resize(frameless_window):
+def test_edge_center_corner_resolves_to_diagonal_resize(frameless_window):
     app, window, bar, resize_filter = frameless_window()
     started = spy_on_resize(resize_filter)
-    point = QPoint(window.width() - 9, window.height() - 9)
+    point = QPoint(window.width() - 2, window.height() - 2)
 
     app.sendEvent(window, press_on(window, (point.x(), point.y())))
     app.processEvents()

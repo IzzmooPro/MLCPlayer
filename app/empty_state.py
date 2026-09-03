@@ -6,6 +6,8 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from app.app_icon import application_icon
+from app.config import (UI_ACCENT, UI_ACCENT_HOVER, UI_ACCENT_PRESSED,
+                        UI_FONT_FAMILY)
 from app.i18n import tr
 
 
@@ -30,7 +32,9 @@ class EmptyStateOverlay(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_NativeWindow, True)
         self.winId()
         self.setAcceptDrops(True)
-        self.setStyleSheet("QWidget#emptyStateOverlay { background: #11161B; }")
+        self.setStyleSheet(
+            f"QWidget#emptyStateOverlay {{ background: #11161B; "
+            f"font-family: {UI_FONT_FAMILY}; }}")
 
         root = QVBoxLayout(self)
         root.setContentsMargins(20, 24, 20, 24)
@@ -68,12 +72,16 @@ class EmptyStateOverlay(QWidget):
 
         self.open_file_button = QPushButton(tr("Dosya Aç"), self)
         self.open_file_button.setObjectName("emptyStateOpenFile")
-        self.open_file_button.setFixedSize(150, 46)
+        self.open_file_button.setFixedSize(124, 42)
         self.open_file_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.open_file_button.setStyleSheet(
-            "QPushButton { color: white; background: #FF5A1F; border: none; "
-            "border-radius: 7px; font-size: 16px; font-weight: 600; } "
-            "QPushButton:hover { background: #FF6A32; }")
+            f"QPushButton {{ color: white; background: {UI_ACCENT}; border: none; "
+            "border-radius: 7px; "
+            f"font-family: {UI_FONT_FAMILY}; "
+            "font-size: 14px; font-weight: 600; } "
+            f"QPushButton:hover {{ background: {UI_ACCENT_HOVER}; }} "
+            f"QPushButton:pressed {{ background: {UI_ACCENT_PRESSED}; }} "
+            "QPushButton:focus { border: 1px solid #FFB092; }")
         self.open_file_button.clicked.connect(
             lambda: self._run_player_action("open_file"))
         root.addWidget(self.open_file_button, 0,
@@ -82,12 +90,17 @@ class EmptyStateOverlay(QWidget):
 
         self.open_folder_button = QPushButton(tr("Klasör Aç"), self)
         self.open_folder_button.setObjectName("emptyStateOpenFolder")
-        self.open_folder_button.setFixedSize(120, 38)
+        self.open_folder_button.setFixedSize(124, 40)
         self.open_folder_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.open_folder_button.setStyleSheet(
-            "QPushButton { color: #C5CBD0; background: transparent; "
-            "border: none; font-size: 16px; } "
-            "QPushButton:hover { color: white; }")
+            "QPushButton { color: #E7EAED; background: #252B31; "
+            "border: 1px solid #414950; border-radius: 7px; "
+            f"font-family: {UI_FONT_FAMILY}; "
+            "font-size: 14px; font-weight: 600; } "
+            "QPushButton:hover { color: white; background: #30373E; "
+            "border-color: #59636C; } "
+            "QPushButton:pressed { background: #1D2227; } "
+            "QPushButton:focus { border-color: #707A84; }")
         self.open_folder_button.clicked.connect(
             lambda: self._run_player_action("open_folder"))
         root.addWidget(self.open_folder_button, 0,

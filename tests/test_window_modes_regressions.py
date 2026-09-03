@@ -23,6 +23,7 @@ def mode_window():
     window.window_opacity_percent = 100
     window.window_transparency_enabled = False
     window.picture_in_picture_enabled = False
+    window.current_file = "fixture.mp4"
     window._pip_restore_geometry = None
     window._pip_restore_maximized = False
     title_bar = QWidget(window)
@@ -128,6 +129,16 @@ def test_pip_is_small_resizable_topmost_and_restores_geometry(
     assert window.minimumSize() == QSize(400, 300)
     assert window.title_bar.isVisible() is True
     assert window.mode_calls == [True, False]
+
+
+def test_pip_does_not_open_without_loaded_media(mode_window, monkeypatch):
+    app, window = mode_window
+    window.current_file = ""
+    monkeypatch.setattr("app.player.set_native_topmost",
+                        lambda *_args: pytest.fail("PiP must not enter"))
+
+    assert MPVPlayer.toggle_picture_in_picture(window, True) is False
+    assert window.picture_in_picture_enabled is False
 
 
 def test_repeated_pip_cycles_restore_the_same_geometry(mode_window,

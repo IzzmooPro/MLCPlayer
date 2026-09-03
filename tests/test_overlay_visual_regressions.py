@@ -104,11 +104,11 @@ def test_overlay_height_is_in_cinematic_range(video_window):
     assert 100 <= frame.control_overlay.height() <= 120
 
 
-def test_overlay_content_has_side_padding(video_window):
+def test_timeline_keeps_a_visible_but_reduced_side_padding(video_window):
     app, window, frame = video_window()
     margins = frame.control_overlay.layout().contentsMargins()
-    assert 24 <= margins.left() <= 32
-    assert 24 <= margins.right() <= 32
+    assert margins.left() == 20
+    assert margins.right() == 20
 
 
 def test_overlay_stays_inside_minimum_video_frame(video_window):
@@ -144,10 +144,22 @@ def test_timeline_spans_the_padded_width(video_window):
     margins = overlay.layout().contentsMargins()
     expected = overlay.width() - margins.left() - margins.right()
 
+    assert margins.left() == 20
+    assert margins.right() == 20
     assert abs(frame.overlay_timeline.width() - expected) <= 2
     # NOT: Görsel groove 3 px kalır; widget yüksekliği gerçek kullanıcı
     # tıklamaları için genişletildi (bkz. test_overlay_timeline_hit_regressions).
     assert frame.overlay_timeline.height() <= 48
+
+
+def test_longer_timeline_does_not_move_the_bottom_controls(video_window):
+    app, window, frame = video_window()
+    overlay = frame.control_overlay
+    controls = frame._overlay_controls_row.contentsMargins()
+    time_left = frame.overlay_time_container.mapTo(overlay, QPoint(0, 0)).x()
+
+    assert controls.left() == 8 and controls.right() == 8
+    assert time_left == 28
 
 
 def test_center_play_button_is_larger_than_other_media_buttons(video_window):
@@ -158,7 +170,7 @@ def test_center_play_button_is_larger_than_other_media_buttons(video_window):
     next_button = button_by_name(overlay, "overlayNext")
     fullscreen = button_by_name(overlay, "overlayFullscreen")
 
-    assert 40 <= play.width() <= 48 and 40 <= play.height() <= 48
+    assert play.width() == 50 and play.height() == 50
     assert play.width() > previous.width()
     assert play.width() > next_button.width()
     assert play.width() > fullscreen.width()
@@ -172,13 +184,13 @@ def test_overlay_icons_and_time_text_use_the_approved_reference_scale(
         video_window):
     app, window, frame = video_window()
     overlay = frame.control_overlay
-    assert button_by_name(overlay, "overlayPrevious").iconSize().width() == 25
-    assert button_by_name(overlay, "overlayNext").iconSize().width() == 25
-    assert button_by_name(overlay, "overlayPlayPause").iconSize().width() == 27
+    assert button_by_name(overlay, "overlayPrevious").iconSize().width() == 30
+    assert button_by_name(overlay, "overlayNext").iconSize().width() == 30
+    assert button_by_name(overlay, "overlayPlayPause").iconSize().width() == 32
     for name in ("overlaySubtitles", "overlayVolume", "overlaySettings",
                  "overlayFullscreen"):
-        assert button_by_name(overlay, name).iconSize().width() == 22, name
-    assert frame._overlay_controls_row.spacing() == 8
+        assert button_by_name(overlay, name).iconSize().width() == 28, name
+    assert frame._overlay_controls_row.spacing() == 0
     for label in (frame.overlay_current_time_label,
                   frame.overlay_time_separator,
                   frame.overlay_total_time_label):
@@ -192,6 +204,17 @@ def test_media_buttons_are_horizontally_centred_in_overlay(video_window):
     play_centre = play.mapTo(overlay, play.rect().center()).x()
 
     assert abs(play_centre - overlay.width() // 2) <= 6
+
+
+def test_previous_and_next_buttons_sit_directly_beside_play(video_window):
+    app, window, frame = video_window()
+    overlay = frame.control_overlay
+    previous = button_by_name(overlay, "overlayPrevious")
+    play = button_by_name(overlay, "overlayPlayPause")
+    next_button = button_by_name(overlay, "overlayNext")
+
+    assert play.geometry().left() - previous.geometry().right() == 1
+    assert next_button.geometry().left() - play.geometry().right() == 1
 
 
 # --- İkonlar, metin ve erişilebilirlik ---
@@ -284,7 +307,7 @@ def test_picture_in_picture_uses_only_a_compact_control_strip(video_window):
 
     frame.set_picture_in_picture_mode(False)
     assert frame.overlay_timeline.height() == 48
-    assert frame.overlay_play_pause_button.size() == QSize(44, 44)
+    assert frame.overlay_play_pause_button.size() == QSize(50, 50)
     assert frame.overlay_previous_button.isVisible() is True
     assert frame.overlay_next_button.isVisible() is True
     assert frame.overlay_pip_exit_button.isVisible() is False

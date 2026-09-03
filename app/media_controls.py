@@ -4,6 +4,7 @@ import os
 import re
 import time
 import math
+import random
 from urllib.parse import urlsplit
 from PyQt6.QtWidgets import QFileDialog, QMessageBox, QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem, QInputDialog, QLineEdit, QStyle
 from PyQt6.QtCore import QDateTime, QStandardPaths
@@ -72,6 +73,21 @@ def _mark_title_bar_raise(player):
     mark = getattr(player, "mark_title_bar_raise_pending", None)
     if callable(mark):
         mark()
+
+
+def _focus_video_surface_after_open(player):
+    """Dosya/klasör seçicisinden dönünce geçici düğme focus'unu bırakır."""
+    surface = getattr(player, "video_frame", None)
+    focus = getattr(surface, "setFocus", None)
+    if callable(focus):
+        try:
+            focus()
+        except RuntimeError:
+            pass
+    title_bar = getattr(player, "title_bar", None)
+    refresh_modes = getattr(title_bar, "update_window_mode_state", None)
+    if callable(refresh_modes):
+        refresh_modes()
 
 
 def _hide_subtitles_for_new_media(player):
@@ -435,6 +451,7 @@ def open_path(player, path):
         player.set_title()
         player.add_recent_file(path)
         _refresh_playlist_panel(player)
+        _focus_video_surface_after_open(player)
         safe_console(f"Playing file: {path}")
         return True
     except Exception as e:
@@ -1014,6 +1031,17 @@ def natural_end_should_rewind(player):
             and duration > 0
             and position >= duration - 0.2)
 
+
+def handle_natural_end(player):
+    """Doğal bitişte sıradaki öğeye geç, sar veya mevcut öğeyi başta tut."""
+    if (getattr(player, "_eof_rewound", False)
+            or not natural_end_should_rewind(player)):
+        return False
+    if getattr(player, "playlist", None):
+        if _play_playlist_step(player, 1, notify=False):
+            return True
+    return finish_media_at_start(player)
+
 def _restore_slider(slider, value):
     """Kontrolü yeni ürün işlemi üretmeden ölçülen değere döndürür."""
     if slider is None:
@@ -1216,7 +1244,9 @@ def play_from_playlist(player, index):
             _set_placeholder_text(player, PLACEHOLDER_DEFAULT_TEXT, False)
             player.set_title()
             player.add_recent_file(file_path)
+            _align_shuffle_cursor(player, index)
             _refresh_playlist_panel(player)
+            _focus_video_surface_after_open(player)
             safe_console(f"Playing: {file_path}")
             return True
         except Exception as e:
@@ -1265,6 +1295,60 @@ def remove_from_playlist(player, index):
         _refresh_playlist_panel(player)
         return True
     return False
+
+
+def remove_many_from_playlist(player, indexes):
+    """Birden çok playlist satırını tek atomik kullanıcı işlemiyle kaldırır.
+
+    İndeksler önce doğrulanır ve tekilleştirilir. Aktif medya seçiliyse kalan
+    listedeki en yakın ardıl (yoksa önceki) yalnız BİR KEZ yüklenir. Yükleme
+    veya son öğeyi durdurma reddedilirse bütün liste ve oynatma durumu geri
+    alınır; art arda ``remove_from_playlist`` çağrılarının indeks kayması ve
+    birden fazla ara video oynatması böylece oluşmaz.
+    """
+    try:
+        selected = sorted({int(index) for index in indexes
+                           if 0 <= int(index) < len(player.playlist)})
+    except (TypeError, ValueError):
+        return False
+    if not selected:
+        return False
+
+    snapshot = _capture_playback_state(player)
+    if snapshot["settings_status"] == SETTING_UNREADABLE:
+        return False
+
+    selected_set = set(selected)
+    old_playlist = list(player.playlist)
+    old_current = int(getattr(player, "current_playlist_index", -1))
+    survivors = [path for index, path in enumerate(old_playlist)
+                 if index not in selected_set]
+
+    if old_current not in selected_set:
+        player.playlist = survivors
+        if old_current >= 0:
+            player.current_playlist_index = (
+                old_current
+                - sum(index < old_current for index in selected))
+        _refresh_playlist_panel(player)
+        return True
+
+    player.playlist = survivors
+    if survivors:
+        replacement = min(
+            sum(index < old_current for index in range(len(old_playlist))
+                if index not in selected_set),
+            len(survivors) - 1)
+        if not play_from_playlist(player, replacement):
+            _restore_failed_media_selection(player, snapshot)
+            return False
+    else:
+        if not stop(player):
+            _restore_failed_media_selection(player, snapshot)
+            return False
+        player.current_playlist_index = -1
+    _refresh_playlist_panel(player)
+    return True
 
 def clear_playlist(player):
     if player.current_file and not stop(player):
@@ -1382,36 +1466,108 @@ def take_screenshot(player):
                            "iznini ve boş alanı kontrol edin."),
                         exc=e)
 
-def play_next(player):
-    if player.playlist:
-        if player.current_playlist_index < len(player.playlist) - 1:
-            play_from_playlist(player, player.current_playlist_index + 1)
-        elif player.loop_playlist:
-            # Aktif indeks yalnız yükleme komutu kabul edilince
-            # `play_from_playlist` içinde değişir.
-            play_from_playlist(player, 0)
-        else:
-            show_information(player, tr("Oynatma listesi"),
-                             tr("Listenin sonuna ulaştınız."))
+def _shuffle_signature(player):
+    return tuple(getattr(player, "playlist", ()) or ())
+
+
+def _build_shuffle_order(player):
+    """Görünür listeye dokunmadan her öğeyi bir kez içeren sıra üretir."""
+    playlist = list(getattr(player, "playlist", ()) or ())
+    current = getattr(player, "current_playlist_index", -1)
+    indexes = list(range(len(playlist)))
+    if isinstance(current, int) and 0 <= current < len(indexes):
+        indexes.remove(current)
+        random.shuffle(indexes)
+        order = [current] + indexes
+        cursor = 0
     else:
-        show_information(player, tr("Oynatma listesi"),
-                         tr("Oynatma listesi boş."))
+        random.shuffle(indexes)
+        order = indexes
+        cursor = -1
+    player._shuffle_signature = tuple(playlist)
+    player._shuffle_order = order
+    player._shuffle_cursor = cursor
+    return order
+
+
+def _ensure_shuffle_order(player):
+    order = list(getattr(player, "_shuffle_order", ()) or ())
+    signature = getattr(player, "_shuffle_signature", None)
+    if signature != _shuffle_signature(player) or len(order) != len(
+            getattr(player, "playlist", ()) or ()):
+        return _build_shuffle_order(player)
+    return order
+
+
+def _align_shuffle_cursor(player, index):
+    """Başarılı manuel/otomatik seçimden sonra dahili sırayı hizalar."""
+    if not bool(getattr(player, "shuffle", False)):
+        return
+    order = _ensure_shuffle_order(player)
+    try:
+        player._shuffle_cursor = order.index(index)
+    except ValueError:
+        _build_shuffle_order(player)
+
+
+def _playlist_step_target(player, delta):
+    playlist = list(getattr(player, "playlist", ()) or ())
+    if not playlist:
+        return None
+    current = getattr(player, "current_playlist_index", -1)
+    loop = bool(getattr(player, "loop_playlist", False))
+
+    if bool(getattr(player, "shuffle", False)):
+        order = _ensure_shuffle_order(player)
+        if not order:
+            return None
+        if not isinstance(current, int) or current < 0:
+            return order[0] if delta > 0 else None
+        try:
+            cursor = order.index(current)
+        except ValueError:
+            order = _build_shuffle_order(player)
+            cursor = order.index(current)
+        target_cursor = cursor + delta
+        if 0 <= target_cursor < len(order):
+            return order[target_cursor]
+        if loop:
+            return order[0] if delta > 0 else order[-1]
+        return None
+
+    if not isinstance(current, int) or current < 0:
+        return 0 if delta > 0 else None
+    target = current + delta
+    if 0 <= target < len(playlist):
+        return target
+    if loop:
+        return 0 if delta > 0 else len(playlist) - 1
+    return None
+
+
+def _play_playlist_step(player, delta, notify=True):
+    playlist = getattr(player, "playlist", None) or []
+    if not playlist:
+        if notify:
+            show_information(player, tr("Oynatma listesi"),
+                             tr("Oynatma listesi boş."))
+        return False
+    target = _playlist_step_target(player, delta)
+    if target is None:
+        if notify:
+            message = (tr("Listenin sonuna ulaştınız.") if delta > 0
+                       else tr("Listenin başındasınız."))
+            show_information(player, tr("Oynatma listesi"), message)
+        return False
+    return bool(play_from_playlist(player, target))
+
+
+def play_next(player):
+    return _play_playlist_step(player, 1)
+
 
 def play_previous(player):
-    if player.playlist and player.current_playlist_index > 0:
-        play_from_playlist(player, player.current_playlist_index - 1)
-    elif (player.playlist and player.loop_playlist
-            and player.current_playlist_index == 0):
-        # SARMA: YALNIZCA ilk parçadan son parçaya. `play_next` zaten
-        # sarıyordu; `play_previous` sarmıyordu ve menü durumu ürün
-        # davranışıyla çelişiyordu.
-        #
-        # `index == 0` koşulu şarttır: liste henüz başlamamışsa (-1)
-        # "önceki" son parçayı AÇMAMALIDIR.
-        play_from_playlist(player, len(player.playlist) - 1)
-    else:
-        show_information(player, tr("Oynatma listesi"),
-                         tr("Listenin başındasınız."))
+    return _play_playlist_step(player, -1)
 
 def toggle_fullscreen(player):
     video_frame = player.video_frame

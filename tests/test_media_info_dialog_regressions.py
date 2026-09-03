@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
-"""Sekmeli Medya Bilgisi penceresi (2. uygulama turu).
+"""Sekmeli ve kompakt Medya Bilgisi penceresi.
 
 Dialog YALNIZ hazir `MediaInfoSnapshot` alir ve cizer: player veya mpv
 nesnesi okumaz, ham MPV anahtari veya metadata yorumlamaz. Menu, QAction,
@@ -8,8 +8,7 @@ singleton sahipligi, `update_ui` ve `closeEvent` bagi bu turda YOKTUR.
 
 Kilitlenen sozlesmeler
 ----------------------
-- Modeless (`exec()` yok). SEKME YOKTUR: tek kaydirilabilir sayfada
-  yukaridan asagiya Genel -> Video -> Ses -> Altyazi bolumleri.
+- Modeless (`exec()` yok). Genel, Video, Ses ve Altyazi dort gercek sekmedir.
 - Satirlar snapshot'in hazir `InfoRow.label/value` degerlerinden birebir cizilir.
 - Bos bolumde builder'in `empty_message` metni gorunur.
 - Her sekme kaydirilabilir; cok sayida track pencereyi buyutmez.
@@ -95,17 +94,21 @@ def make_dialog(qt_app):
 
 # --- olcum yardimcilari: gercek widget agacini gezer ---
 
-def body_of(dialog):
-    """Tek kaydırma alanının gövdesi."""
-    area = dialog.findChild(QScrollArea)
-    assert area is not None, "kaydırma alanı yok"
+def tabs_of(dialog):
+    tabs = dialog.findChild(QTabWidget, "mediaInfoTabs")
+    assert tabs is not None, "sekme widget'i yok"
+    return tabs
+
+
+def tab_titles(dialog):
+    tabs = tabs_of(dialog)
+    return [tabs.tabText(index) for index in range(tabs.count())]
+
+
+def body_of(dialog, index=0):
+    area = tabs_of(dialog).widget(index)
+    assert isinstance(area, QScrollArea), "sekmede kaydırma alanı yok"
     return area.widget()
-
-
-def section_titles(dialog):
-    """Sayfadaki bölüm başlıkları, GÖRÜNÜM sırasıyla."""
-    return [label.text() for label in labels_in(dialog)
-            if label.objectName() == "mediaInfoSectionTitle"]
 
 
 def labels_in(widget):
@@ -147,28 +150,28 @@ def test_the_dialog_is_modeless(local_snapshot, make_dialog):
     assert dialog.windowModality() == Qt.WindowModality.NonModal
 
 
-def test_there_are_no_tabs_at_all(local_snapshot, make_dialog):
-    """KULLANICI KARARI: sekmeli görünüm kaldırıldı."""
+def test_the_dialog_has_four_named_tabs(local_snapshot, make_dialog):
     snapshot, _path = local_snapshot
     dialog = make_dialog(snapshot)
 
-    assert dialog.findChild(QTabWidget) is None, "sekme widget'ı hâlâ var"
+    assert tab_titles(dialog) == SECTION_TITLES
 
 
-def test_a_single_scroll_area_holds_the_whole_page(local_snapshot,
-                                                   make_dialog):
+def test_each_tab_has_its_own_scroll_area(local_snapshot, make_dialog):
     snapshot, _path = local_snapshot
     dialog = make_dialog(snapshot)
 
-    assert len(dialog.findChildren(QScrollArea)) == 1
+    tabs = tabs_of(dialog)
+    assert tabs.count() == 4
+    assert all(isinstance(tabs.widget(index), QScrollArea)
+               for index in range(tabs.count()))
 
 
-def test_the_sections_follow_one_top_to_bottom_order(local_snapshot,
-                                                     make_dialog):
+def test_tabs_follow_the_snapshot_section_order(local_snapshot, make_dialog):
     snapshot, _path = local_snapshot
     dialog = make_dialog(snapshot)
 
-    assert section_titles(dialog) == SECTION_TITLES
+    assert tab_titles(dialog) == [section.title for section in snapshot.sections]
 
 
 def test_the_window_title_names_the_media(local_snapshot, make_dialog):
@@ -232,12 +235,14 @@ def test_empty_sections_show_the_builder_message(qt_app, tmp_path,
 # 3. Kaydirma: cok track pencereyi buyutmez
 # =====================================================================
 
-def test_the_page_is_scrollable(local_snapshot, make_dialog):
+def test_every_tab_is_scrollable(local_snapshot, make_dialog):
     snapshot, _path = local_snapshot
     dialog = make_dialog(snapshot)
 
-    assert dialog.findChild(QScrollArea) is not None
-    assert body_of(dialog) is not None
+    tabs = tabs_of(dialog)
+    for index in range(tabs.count()):
+        assert isinstance(tabs.widget(index), QScrollArea)
+        assert body_of(dialog, index) is not None
 
 
 def test_many_tracks_do_not_grow_the_window(qt_app, tmp_path, make_dialog):
@@ -260,10 +265,10 @@ def test_the_default_and_minimum_sizes_are_reasonable(local_snapshot,
     snapshot, _path = local_snapshot
     dialog = make_dialog(snapshot)
 
-    assert dialog.width() == 600
-    assert 380 <= dialog.height() <= 700
-    assert dialog.minimumWidth() == 520
-    assert dialog.minimumHeight() >= 360
+    assert dialog.width() == 520
+    assert dialog.height() == 420
+    assert dialog.minimumWidth() == 460
+    assert dialog.minimumHeight() == 320
 
 
 # =====================================================================
@@ -400,11 +405,16 @@ def test_set_snapshot_replaces_every_trace_of_the_old_media(qt_app, tmp_path,
                               track_list=tracks(audio=1))
 
     dialog = make_dialog(first)
-    area = dialog.findChild(QScrollArea)
+    tabs = tabs_of(dialog)
+    tabs.setCurrentIndex(2)
+    old_bodies = [body_of(dialog, index) for index in range(tabs.count())]
     dialog.set_snapshot(second)
     qt_app.processEvents()
 
-    assert dialog.findChild(QScrollArea) is area, "yeni kaydırma alanı üretildi"
+    assert tabs_of(dialog) is tabs, "yeni sekme widget'i üretildi"
+    assert tabs.currentIndex() == 2, "seçili sekme yenilemede kayboldu"
+    assert all(body_of(dialog, index) is not old_bodies[index]
+               for index in range(tabs.count()))
     assert dialog.windowTitle() == "Medya Bilgisi — Yeni Film.mkv"
     strings = every_widget_string(dialog)
     for value in strings:
@@ -413,7 +423,7 @@ def test_set_snapshot_replaces_every_trace_of_the_old_media(qt_app, tmp_path,
     assert len(second.section("audio").groups) == 1
     assert sum(1 for text in texts_in(dialog)
                if text.startswith("2. Ses Parçası")) == 0
-    assert section_titles(dialog) == SECTION_TITLES
+    assert tab_titles(dialog) == SECTION_TITLES
 
 
 def test_set_snapshot_replaces_the_copy_target(qt_app, tmp_path, make_dialog):
@@ -432,13 +442,14 @@ def test_set_snapshot_replaces_the_copy_target(qt_app, tmp_path, make_dialog):
     assert str(first_path) not in copied
 
 
-def test_set_snapshot_keeps_the_scroll_position_contract(
+def test_set_snapshot_keeps_the_tab_shell_contract(
         qt_app, local_snapshot, make_dialog, tmp_path):
-    """Sekme yok; yenileme aynı kaydırma alanını yeniden kullanır."""
+    """Yenileme aynı sekme kabuğunu kullanır ve gövdeleri değiştirir."""
     snapshot, _path = local_snapshot
     dialog = make_dialog(snapshot)
-    area = dialog.findChild(QScrollArea)
-    old_body = body_of(dialog)
+    tabs = tabs_of(dialog)
+    areas = [tabs.widget(index) for index in range(tabs.count())]
+    old_bodies = [body_of(dialog, index) for index in range(tabs.count())]
 
     other = tmp_path / "Baska.mkv"
     other.write_bytes(b"0")
@@ -446,8 +457,10 @@ def test_set_snapshot_keeps_the_scroll_position_contract(
                                          track_list=tracks()))
     qt_app.processEvents()
 
-    assert dialog.findChild(QScrollArea) is area
-    assert body_of(dialog) is not old_body, "gövde yenilenmedi"
+    assert tabs_of(dialog) is tabs
+    assert [tabs.widget(index) for index in range(tabs.count())] == areas
+    assert all(body_of(dialog, index) is not old_bodies[index]
+               for index in range(tabs.count())), "gövdeler yenilenmedi"
 
 
 # =====================================================================
@@ -459,12 +472,12 @@ def test_the_action_buttons_stay_outside_the_scroll_area(local_snapshot,
     """Kopyalama ve Kapat kaydırmayla kaybolmamalı."""
     snapshot, _path = local_snapshot
     dialog = make_dialog(snapshot)
-    area = dialog.findChild(QScrollArea)
+    areas = dialog.findChildren(QScrollArea)
 
     for text in (snapshot.copy_label, "Kapat"):
         button = button_named(dialog, text)
         assert button.isVisible() is True
-        assert area.isAncestorOf(button) is False, (
+        assert all(area.isAncestorOf(button) is False for area in areas), (
             f"{text} kaydırma alanının içinde")
 
 

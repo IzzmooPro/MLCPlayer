@@ -29,12 +29,12 @@ SOURCE = os.path.join(ROOT, "assets", "mlc-player-icon.png")
 TRANSPARENT_PNG = os.path.join(ROOT, "assets", "mlc-player-icon-transparent.png")
 TRANSPARENT_ICO = os.path.join(ROOT, "assets", "mlc-player-icon-transparent.ico")
 
-#: The plate colour to remove and the mark colours to keep (measured).
+#: The legacy plate colour to remove and the approved mark colours to keep.
 PLATE = (20, 25, 32)
-FOREGROUNDS = ((252, 88, 33), (240, 245, 250))
+FOREGROUNDS = ((255, 90, 31), (255, 255, 255))
 
 #: A Windows shortcut uses every size from 16 pixels up to 256.
-ICO_SIZES = [(size, size) for size in (16, 24, 32, 48, 64, 128, 256)]
+ICO_SIZES = [(size, size) for size in (16, 20, 24, 32, 40, 48, 64, 128, 256)]
 
 
 def _distance(first, second):

@@ -95,10 +95,12 @@ def test_the_close_button_uses_the_product_accent(rendered_stylesheet):
 
 def test_the_accent_matches_the_rest_of_the_product(title_bar_source):
     """Başlık çubuğu AYRI bir vurgu rengi icat etmez."""
+    from app.title_bar import TITLE_BAR_ACCENT
     from app.video_frame import OVERLAY_ACCENT
 
     assert OVERLAY_ACCENT.lower() == PRODUCT_ACCENT.lower()
-    assert PRODUCT_ACCENT.lower() in title_bar_source.lower()
+    assert TITLE_BAR_ACCENT.lower() == PRODUCT_ACCENT.lower()
+    assert "TITLE_BAR_ACCENT = UI_ACCENT" in title_bar_source
 
 
 # ── Görünürlük ───────────────────────────────────────────────────────────

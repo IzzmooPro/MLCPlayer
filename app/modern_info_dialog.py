@@ -6,6 +6,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget)
 
+from app.config import UI_ACCENT, UI_FONT_FAMILY
 from app.i18n import tr
 
 
@@ -38,7 +39,8 @@ class ModernInfoDialog(QDialog):
         accent = QWidget(card)
         accent.setObjectName("modernInfoAccent")
         accent.setFixedWidth(4)
-        accent.setStyleSheet("background: #FF5A1F; border-radius: 2px;")
+        accent.setStyleSheet(
+            f"background: {UI_ACCENT}; border-radius: 2px;")
         row.addWidget(accent)
 
         icon = QLabel("ⓘ", card)
@@ -47,7 +49,7 @@ class ModernInfoDialog(QDialog):
         icon.setAlignment(Qt.AlignmentFlag.AlignTop |
                           Qt.AlignmentFlag.AlignHCenter)
         icon.setStyleSheet(
-            "color: #FF5A1F; background: transparent; border: none; "
+            f"color: {UI_ACCENT}; background: transparent; border: none; "
             "font-size: 29px;")
         row.addWidget(icon)
 
@@ -93,8 +95,10 @@ class ModernInfoDialog(QDialog):
         ok_button.setStyleSheet(
             "QPushButton { color: #F4F4F4; background: #1B2229; "
             "border: 1px solid #505B65; border-radius: 6px; "
+            f"font-family: {UI_FONT_FAMILY}; "
             "font-size: 12px; font-weight: 600; } "
-            "QPushButton:hover { border-color: #FF5A1F; }")
+            f"QPushButton:hover {{ border-color: {UI_ACCENT}; }} "
+            "QPushButton:focus { border-color: #707A84; }")
         ok_button.clicked.connect(self.accept)
         buttons.addWidget(ok_button)
         body.addLayout(buttons)

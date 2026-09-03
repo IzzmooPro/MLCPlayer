@@ -26,7 +26,70 @@ from PyQt6.QtWidgets import (
     QWidget)
 
 from app.config import MAX_VOLUME
+import app.video_frame as video_frame_module
 from app.video_frame import VideoFrame
+
+
+class _SetWindowPosRecorder:
+    def __init__(self, result=1):
+        self.result = result
+        self.calls = []
+
+    def SetWindowPos(self, *args):
+        self.calls.append(args)
+        return self.result
+
+
+class _NativeOverlaySurface:
+    def __init__(self):
+        self.qt_raise_calls = 0
+
+    def winId(self):
+        return 1234
+
+    def raise_(self):
+        self.qt_raise_calls += 1
+
+
+def test_native_overlay_zorder_update_never_requests_qt_activation(monkeypatch):
+    """Windows z-order guncellemesi NOACTIVATE ile yapilmali.
+
+    ``QWidget.raise_()`` odak kabul etmeyen top-level Tool yuzeyinde Qt'nin
+    ``requestActivate()`` uyarisini ve gereksiz aktivasyon istegini uretiyor.
+    """
+    user32 = _SetWindowPosRecorder()
+    surface = _NativeOverlaySurface()
+    monkeypatch.setattr(video_frame_module, "_user32", user32)
+    monkeypatch.setattr(video_frame_module,
+                        "_native_overlay_zorder_supported", lambda: True)
+
+    assert video_frame_module._raise_overlay_without_activation(surface)
+    assert surface.qt_raise_calls == 0
+    assert len(user32.calls) == 1
+    flags = user32.calls[0][-1]
+    assert flags & 0x0010, "SetWindowPos SWP_NOACTIVATE icermiyor"
+
+
+def test_failed_native_overlay_zorder_does_not_fall_back_to_qt_raise(
+        monkeypatch):
+    """Gercek Windows'ta hata, ayni aktivasyon kusuruna geri dusmemeli."""
+    user32 = _SetWindowPosRecorder(result=0)
+    surface = _NativeOverlaySurface()
+    monkeypatch.setattr(video_frame_module, "_user32", user32)
+    monkeypatch.setattr(video_frame_module,
+                        "_native_overlay_zorder_supported", lambda: True)
+
+    assert not video_frame_module._raise_overlay_without_activation(surface)
+    assert surface.qt_raise_calls == 0
+
+
+def test_offscreen_overlay_zorder_keeps_qt_layout_fallback(monkeypatch):
+    surface = _NativeOverlaySurface()
+    monkeypatch.setattr(video_frame_module,
+                        "_native_overlay_zorder_supported", lambda: False)
+
+    assert video_frame_module._raise_overlay_without_activation(surface)
+    assert surface.qt_raise_calls == 1
 
 
 @pytest.fixture

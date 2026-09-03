@@ -9,6 +9,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow, QWidget
 
 from app.empty_state import EMPTY_STATE_HINT, EMPTY_STATE_TITLE, EmptyStateOverlay
+from app.config import UI_ACCENT
 from app.modern_info_dialog import INFO_DIALOG_SIZE, ModernInfoDialog
 from app.video_frame import VideoFrame
 
@@ -26,11 +27,23 @@ def test_empty_state_matches_the_approved_layout():
     assert surface.title_label.text() == EMPTY_STATE_TITLE
     assert surface.hint_label.text() == EMPTY_STATE_HINT
     assert surface.open_file_button.text() == "Dosya Aç"
-    assert surface.open_file_button.size().width() == 150
-    assert surface.open_file_button.size().height() == 46
+    assert surface.open_file_button.size().width() == 124
+    assert surface.open_file_button.size().height() == 42
     assert surface.open_folder_button.text() == "Klasör Aç"
-    assert surface.open_folder_button.size().width() == 120
-    assert surface.open_folder_button.size().height() == 38
+    assert surface.open_folder_button.size().width() == 124
+    assert surface.open_folder_button.size().height() == 40
+    assert f"background: {UI_ACCENT}" in surface.open_file_button.styleSheet()
+    assert "background: #252B31" in surface.open_folder_button.styleSheet()
+    for button in (surface.open_file_button, surface.open_folder_button):
+        style = button.styleSheet()
+        assert 'font-family: "Segoe UI Variable Text", "Segoe UI"' in style
+        assert "font-size: 14px" in style
+        assert "font-weight: 600" in style
+    assert "border: 1px solid #414950" in \
+        surface.open_folder_button.styleSheet()
+    assert "#FF6A32" not in surface.open_folder_button.styleSheet()
+    assert "QPushButton:focus { border-color: #707A84; }" in \
+        surface.open_folder_button.styleSheet()
     assert surface.open_file_button.icon().isNull()
     assert surface.open_folder_button.icon().isNull()
     assert surface.parentWidget() is frame

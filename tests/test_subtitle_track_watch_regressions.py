@@ -105,8 +105,8 @@ def test_the_watcher_observes_track_and_render_area_changes(bench):
     # marj ölçek değişiminde yeniden hesaplanmalı. Ayrıca değer SENKRON
     # okunmamalı: boyutlandırma sırasında libmpv okuması core lock'u
     # bekleyip GUI'yi 80 ms'ye kadar donduruyordu.
-    assert sorted(names) == ["osd-dimensions", "sid", "sub-scale",
-                             "track-list"]
+    assert sorted(names) == ["aid", "chapter-list", "osd-dimensions", "sid",
+                             "sub-scale", "track-list"]
 
 
 def test_a_render_area_change_recomputes_the_band(bench):
@@ -277,7 +277,8 @@ def test_the_player_attaches_the_watcher_to_real_mpv():
 
     # `sub-scale` için gerekçe: bkz. yukarıdaki gözlem listesi testi.
     assert sorted(name for name, _ in mpv.observed) == [
-        "osd-dimensions", "sid", "sub-scale", "track-list"]
+        "aid", "chapter-list", "osd-dimensions", "sid", "sub-scale",
+        "track-list"]
     assert player._subtitle_watcher is watcher
 
     app = QApplication.instance() or QApplication([])
@@ -285,6 +286,18 @@ def test_the_player_attaches_the_watcher_to_real_mpv():
     app.processEvents()
 
     assert calls == [1]
+
+
+def test_watcher_caches_audio_and_chapter_snapshots_without_sync_reads(bench):
+    app, frame, mpv, watcher = bench()
+    chapters = [{"title": "Intro", "time": 0.0}]
+
+    callbacks = dict(mpv.observed)
+    callbacks["aid"]("aid", 2)
+    callbacks["chapter-list"]("chapter-list", chapters)
+
+    assert watcher.latest("aid") == 2
+    assert watcher.latest("chapter-list") == chapters
 
 
 def test_mpv_initialisation_wires_the_watcher():

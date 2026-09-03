@@ -393,12 +393,12 @@ def test_the_logo_sits_left_of_the_title_text(title_bar):
     assert logo.x() < title_bar.title_label.x()
 
 
-def test_the_logo_never_blocks_dragging_or_the_buttons(title_bar):
+def test_the_logo_is_a_safe_click_zone_not_a_native_drag_trigger(title_bar):
     logo = title_bar.findChild(QLabel, "titleLogo")
 
     assert logo.testAttribute(
         Qt.WidgetAttribute.WA_TransparentForMouseEvents) is True
-    assert title_bar._child_at(logo.geometry().center()) is None
+    assert title_bar._child_at(logo.geometry().center()) is logo
 
 
 def test_the_title_bar_uses_the_roomier_approved_height(title_bar):

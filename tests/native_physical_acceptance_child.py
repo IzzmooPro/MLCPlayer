@@ -890,6 +890,16 @@ def group_buttons():
         wait_for(lambda: (mpv.duration or 0) > 0, 8000)
         subtitle_tracks_ready = wait_for(
             lambda: has_subtitle_track(mpv.track_list), 8000)
+        # Fixture'ın gömülü altyazısı başlangıçta açık kalabilir. Testin
+        # "cc_on" başlangıç sözleşmesini varsaymak yerine önce gerçek native
+        # durumu kapalıya getir ve readback ile doğrula.
+        if subtitle_tracks_ready and bool(mpv.sub_visibility):
+            try:
+                mpv.sub_visibility = False
+            except Exception:
+                pass
+            wait_for(lambda: bool(mpv.sub_visibility) is False, 3000)
+            frame._update_overlay_subtitle_state()
         if not subtitle_tracks_ready:
             record(f"cc_on[{phase}]", "on kosul",
                    "en az bir gercek altyazi track'i",
@@ -1808,7 +1818,11 @@ def group_window_resize():
 
     toggle_playlist_physical()
     wait_for(lambda: frame.playlist_panel.is_open, 4000)
-    for name in ("right", "bottom", "bottom_right"):
+    # Playlist açıkken de ana pencerenin tüm dış kenar/köşelerini ölç. Sağ
+    # orta ortak sınır playlist'e ait kalır; sağ köşelerde çapraz bileşen
+    # korunur. Sol/üst/alt yüzeyler ana pencerenin bağımsız sınırlarıdır.
+    for name in ("left", "right", "top", "bottom", "top_left",
+                 "top_right", "bottom_left", "bottom_right"):
         if not reset_window():
             record(f"resize_{name}_playlist_open", "on kosul",
                    "olcum oncesi geometri sifirlanir",
@@ -1816,6 +1830,19 @@ def group_window_resize():
                    "BLOCKED: baslangic geometrisi kurulamadi")
             continue
         point_fn, delta, expectations = directions[name]
+        # Yapışık playlist ana pencerenin sağ orta sınırını sahiplenir. Ana
+        # pencerenin gerçek köşesinde ise çapraz resize korunur; sağ köşeler
+        # hem sağ hem dikey bileşeni uygular. Deterministik title-bar
+        # sözleşmesi (`_effective_resize_edges`) ile fiziksel ölçüm aynı
+        # politikayı taşır.
+        if name == "right":
+            expectations = {"right": 0, "left": 0}
+        elif name == "top_right":
+            expectations = {"right": delta[0], "top": delta[1],
+                            "left": 0, "bottom": 0}
+        elif name == "bottom_right":
+            expectations = {"right": delta[0], "bottom": delta[1],
+                            "left": 0, "top": 0}
         before = PLAYER.frameGeometry().getRect()
         rect = PLAYER.frameGeometry()
         px, py = point_fn(rect)

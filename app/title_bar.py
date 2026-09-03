@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (QAbstractButton, QAbstractSlider, QApplication,
                              QSizePolicy, QSlider, QWidget)
 
 from app.app_icon import application_icon
+from app.config import UI_ACCENT, UI_FONT_FAMILY
 from app.ui_icons import make_media_icon
 from app.i18n import tr
 
@@ -29,13 +30,15 @@ TITLE_LOGO_SIZE = 22
 TITLE_BUTTON_SIZE = 26
 TITLE_BUTTON_ICON_SIZE = 18
 TITLE_BAR_SIDE_MARGIN = 16
-RESIZE_MARGIN = 12
+# Resize yalnızca imleç merkezi gerçek pencere sınırına çok yakınken
+# etkinleşir; geniş iç bant, içerideyken yanlışlıkla resize başlatmaz.
+RESIZE_MARGIN = 6
 TITLE_BAR_BACKGROUND = "#11151A"
 # Urunun vurgu rengi. Overlay (`video_frame.OVERLAY_ACCENT`) ve altyazi
 # pencereleriyle AYNI deger; baslik cubugu ayri bir kimlik kurmaz.
 # KULLANICI KARARI (17 Agustos 2026): kapatma dugmesi Windows
 # kirmizisina (#E81123) DONMEZ, bu renge doner.
-TITLE_BAR_ACCENT = "#F26A3D"
+TITLE_BAR_ACCENT = UI_ACCENT
 
 # Kenar/köşe bölgelerinde imleç şekilleri
 _EDGE_CURSORS = {
@@ -78,17 +81,26 @@ class TitleBar(QWidget):
         self.transparency_popup = None
         self.transparency_slider = None
         self.transparency_value_label = None
+        self._title_cursor_refresh_pending = False
+        self._pending_system_move_start = None
         self.setObjectName("modernTitleBar")
         self.setFixedHeight(TITLE_BAR_HEIGHT)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setStyleSheet(
             f"QWidget#modernTitleBar {{ background-color: {TITLE_BAR_BACKGROUND}; "
-            "border-bottom: 1px solid rgba(255, 255, 255, 18); } "
+            f"border-bottom: 1px solid rgba(255, 255, 255, 18); "
+            f"font-family: {UI_FONT_FAMILY}; }} "
             "QPushButton { background: transparent; border: none; padding: 0; "
             "border-radius: 4px; } "
             # OLCULEN SORUN: 26/255 (~%10) koyu cubukta fark
             # edilmiyordu; kullanici dugmeye geldigini anlamiyordu.
             "QPushButton:hover { background: rgba(255, 255, 255, 48); } "
+            # Genel uygulama stilindeki `background-color` odak kuralını
+            # hem özgüllük hem de aynı özellikle ezer. Aksi halde Windows'ta
+            # popup kapandıktan sonra başlık düğmesi gri seçili kalıyordu.
+            "QWidget#modernTitleBar QPushButton:focus { "
+            "background: transparent; background-color: transparent; "
+            "border: 1px solid #707A84; } "
             f"QPushButton#titleClose:hover {{ background: {TITLE_BAR_ACCENT}; }} "
             # Menü AÇIKKEN aktif görünüm meşrudur.
             "QPushButton#titleMore[menuOpen=\"true\"] { "
@@ -204,14 +216,26 @@ class TitleBar(QWidget):
         button.setIcon(make_media_icon(icon_kind, icon_size))
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+        # Uygulamanın genel QPushButton:focus kuralı gri arka plan çizer.
+        # Başlık komutları için odak, kalıcı seçili kutu değil klavye
+        # erişilebilirliği olmalı; kuralı düğmenin KENDİ stilinde ezmek
+        # parent stylesheet öncelik sırası farkını ortadan kaldırır.
+        button.setStyleSheet(
+            "QPushButton:focus { background: transparent; "
+            "background-color: transparent; border: none; }")
         return button
 
     # --- Menü ---
 
     def _build_transparency_control(self):
-        popup = QFrame(self, Qt.WindowType.Popup |
-                       Qt.WindowType.FramelessWindowHint)
+        # Qt.Popup Windows'ta fareyi yakalar ve dış tıklamada odağı açan
+        # düğmeye geri verebilir. Bu, şeffaflık sonrasında başlık
+        # düğmelerinde takılı gri/ok imleci üretiyordu. Panel aynı ana
+        # pencerenin çocuğudur; dış tıklamayı `eventFilter` kontrollü kapatır.
+        popup = QFrame(self.player)
         popup.setObjectName("transparencyPopup")
+        popup.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        popup.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         popup.setStyleSheet(
             "QFrame#transparencyPopup { background: #1E252C; "
             "border: 1px solid #36414C; border-radius: 7px; } "
@@ -240,6 +264,12 @@ class TitleBar(QWidget):
         layout.addWidget(slider)
         layout.addWidget(label)
         popup.adjustSize()
+        # Dış tıklama app düzeyinde izlenir; Hide olayı ayrıca her kapanış
+        # yolunun aynı temizliğe ulaştığını garanti eder.
+        popup.installEventFilter(self)
+        application = QApplication.instance()
+        if application is not None:
+            application.installEventFilter(self)
         self.transparency_popup = popup
         self.transparency_slider = slider
         self.transparency_value_label = label
@@ -261,16 +291,52 @@ class TitleBar(QWidget):
         self.transparency_slider.blockSignals(False)
         self.transparency_value_label.setText(f"%{value}")
         popup.adjustSize()
-        origin = self.transparency_button.mapToGlobal(
+        origin_global = self.transparency_button.mapToGlobal(
             QPoint(self.transparency_button.width() - popup.width(),
                    self.transparency_button.height() + 4))
-        popup.move(origin)
+        popup.move(self.player.mapFromGlobal(origin_global))
         popup.show()
         popup.raise_()
 
     def hide_transparency_control(self):
         if self.transparency_popup is not None:
             self.transparency_popup.hide()
+            resize_filter = getattr(self.player, "resize_filter", None)
+            if resize_filter is not None:
+                resize_filter._restore_resize_cursor()
+
+    def _after_transparency_popup_hidden(self):
+        """Popup hangi yolla kapanırsa kapansın başlık durumunu nötrle."""
+        try:
+            self.transparency_button.setDown(False)
+            self.transparency_button.clearFocus()
+        except RuntimeError:
+            return
+        resize_filter = getattr(self.player, "resize_filter", None)
+        if resize_filter is not None:
+            resize_filter._restore_resize_cursor()
+        # Panel fare altından kalkınca Qt, alttaki başlık düğmesine her zaman
+        # yeni Enter olayı göndermez. Windows imleci o ana kadar eski Arrow
+        # şeklinde kalır ve ancak ikinci tıklama/hareketle düzelir. Sonraki
+        # olay turunda gerçek imleç altındaki düğmenin cursor'ını yeniden
+        # yazarak bu boşluğu kapat.
+        self._title_cursor_refresh_pending = True
+        QTimer.singleShot(0, self._refresh_title_cursor_under_pointer)
+
+    def _refresh_title_cursor_under_pointer(self):
+        """Panel kapandıktan sonra alttaki başlık düğmesi cursor'ını tazeler."""
+        try:
+            local = self.mapFromGlobal(QCursor.pos())
+            button = self._child_at(local)
+            if (button is None or not callable(getattr(button, "isEnabled", None))
+                    or not button.isEnabled()):
+                return
+            # Önce mirası bırakıp sonra yeniden yazmak, mouse hareketi
+            # olmadan Windows'un mevcut cursor'u tazelemesini sağlar.
+            button.unsetCursor()
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+        except RuntimeError:
+            return
 
     def build_overflow_menu(self):
         """Kalıcı tek kök menüyü tazeler.
@@ -351,6 +417,33 @@ class TitleBar(QWidget):
 
         Hiçbir olay yutulmaz; her durumda `False` döner.
         """
+        popup = self.transparency_popup
+        if (self._title_cursor_refresh_pending
+                and event.type() in (QEvent.Type.MouseMove,
+                                     QEvent.Type.MouseButtonPress)):
+            # Popup kapanışındaki 0 ms callback imleç hâlâ açan düğmedeyken
+            # çalışabilir. Kullanıcının ilk gerçek hareketi/tıklaması artık
+            # yeni hedefteki cursor'u kesin olarak günceller.
+            self._title_cursor_refresh_pending = False
+            self._refresh_title_cursor_under_pointer()
+        if (popup is not None and popup.isVisible()
+                and event.type() == QEvent.Type.MouseButtonPress):
+            try:
+                global_position = event.globalPosition().toPoint()
+                in_popup = popup.rect().contains(
+                    popup.mapFromGlobal(global_position))
+                in_opener = self.transparency_button.rect().contains(
+                    self.transparency_button.mapFromGlobal(global_position))
+            except (AttributeError, RuntimeError):
+                in_popup = in_opener = True
+            if not in_popup and not in_opener:
+                # Olayı yutma: kapandıktan sonra kullanıcının tıkladığı
+                # gerçek düğme/yüzey aynı ilk tıklamada çalışmaya devam eder.
+                popup.hide()
+        if watched is popup:
+            if event.type() == QEvent.Type.Hide:
+                self._after_transparency_popup_hidden()
+            return False
         if watched is self.more_button:
             if event.type() == QEvent.Type.Leave:
                 # GERÇEK ayrılma: bastırma biter, sonraki Enter'da normal
@@ -390,8 +483,12 @@ class TitleBar(QWidget):
         self.transparency_button.setToolTip(transparency_label)
 
         pip = bool(getattr(self.player, "picture_in_picture_enabled", False))
+        has_media = bool(getattr(self.player, "current_file", ""))
+        pip_available = pip or has_media
         pip_label = (tr("Resim İçinde Resimden Çık") if pip
-                     else tr("Resim İçinde Resim"))
+                     else (tr("Resim İçinde Resim") if has_media
+                           else tr("Önce video açın")))
+        self.picture_in_picture_button.setEnabled(pip_available)
         self.picture_in_picture_button.setAccessibleName(pip_label)
         self.picture_in_picture_button.setToolTip(pip_label)
 
@@ -401,7 +498,19 @@ class TitleBar(QWidget):
 
     # --- Taşıma ---
 
+    def _logo_contains(self, position):
+        """Logo görseli taşıma/resize başlatmayan güvenli bölgedir."""
+        try:
+            return self.logo_label.geometry().contains(position)
+        except (AttributeError, RuntimeError):
+            return False
+
     def _child_at(self, position):
+        # Logo fare olaylarını görsel olarak geçirse de bu koordinat başlık
+        # sürükleme alanı değildir. Basit logo tıklamasının Windows native
+        # taşıma döngüsünü başlatıp sonraki tıklamaları yutmasını engeller.
+        if self._logo_contains(position):
+            return self.logo_label
         child = self.childAt(position)
         return child if isinstance(child, QPushButton) else None
 
@@ -414,17 +523,30 @@ class TitleBar(QWidget):
     def mousePressEvent(self, event):
         if (event.button() == Qt.MouseButton.LeftButton
                 and self._child_at(event.position().toPoint()) is None):
-            if self._start_system_move():
-                event.accept()
-                return
-            # Güvenli fallback: yalnızca startSystemMove yoksa kullanılır.
-            self._manual_move_origin = (
-                event.globalPosition().toPoint() - self.player.pos())
+            # Basit üst-şerit tıklaması pencere taşıma döngüsünü başlatmaz.
+            # Native startSystemMove() ilk basışta çağrılırsa Windows o
+            # tıklamayı modal taşıma döngüsüne verir; popup kapatma sonrası
+            # ilk üst-şerit tıklamasının yutulmasının kök nedeni buydu.
+            self._pending_system_move_start = event.globalPosition().toPoint()
             event.accept()
             return
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
+        pending = getattr(self, "_pending_system_move_start", None)
+        if (pending is not None
+                and event.buttons() & Qt.MouseButton.LeftButton):
+            current = event.globalPosition().toPoint()
+            if (current - pending).manhattanLength() >= QApplication.startDragDistance():
+                self._pending_system_move_start = None
+                if self._start_system_move():
+                    event.accept()
+                    return
+                # Güvenli fallback yalnız gerçek sürüklemede devreye girer.
+                self._manual_move_origin = pending - self.player.pos()
+                self.player.move(current - self._manual_move_origin)
+                event.accept()
+                return
         origin = getattr(self, "_manual_move_origin", None)
         if origin is not None and event.buttons() & Qt.MouseButton.LeftButton:
             self.player.move(event.globalPosition().toPoint() - origin)
@@ -433,6 +555,7 @@ class TitleBar(QWidget):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
+        self._pending_system_move_start = None
         self._manual_move_origin = None
         super().mouseReleaseEvent(event)
 
@@ -659,19 +782,22 @@ class FramelessResizeFilter(QObject):
             watched, self._effective_resize_edges(local, watched))
 
     def _effective_resize_edges(self, local, watched=None):
-        """Ana pencerenin o anda gerçekten sahip olduğu resize kenarları.
+        """Ana pencerenin o anda gerçekten sahip olduğu resize kenarları."""
+        # Logonun üst kısmı dar üst resize bandına fiziksel olarak
+        # girer. Oradaki basış ikon etkileşimi olarak kalmalı; native resize
+        # döngüsü başlatmamalıdır.
+        try:
+            global_point = self.player.mapToGlobal(local)
+            title_local = self.title_bar.mapFromGlobal(global_point)
+            if self.title_bar._logo_contains(title_local):
+                return Qt.Edge(0)
+        except (AttributeError, RuntimeError):
+            pass
 
-        Açık ve yapışık playlist, ana pencereyle ortak yatay sınırın kendi
-        tarafında gerçek bir genişlik tutamacı sunar. Aynı sınırın video
-        tarafını ayrıca ana-pencere resize alanı yapmak iki yatay imleci yan
-        yana üretir ve kullanıcıya video üzerinde playlist'i genişletiyormuş
-        hissi verir. Ortak kenarda yatay sahiplik playlist'e bırakılır;
-        köşenin dikey bileşeni korunur.
-        """
         edges = resize_edges_at(self.player.rect(), local)
         if not edges:
             return edges
-        # Dar pencere ve PiP'de gerçek overlay kontrolleri 12 px'lik dış
+        # Dar pencere ve PiP'de gerçek overlay kontrolleri dış
         # resize bandına yaklaşabilir. Düğme/slider pikseli kullanıcı
         # komutunundur; kenar resize'ı yalnız çevresindeki boş yüzeyden
         # çalışır. Aksi halde düğmenin alt/yan kısmına basmak komut yerine
@@ -696,9 +822,11 @@ class FramelessResizeFilter(QObject):
             return edges
         tolerance = 2
         if abs(panel_rect.left() - (owner_rect.right() + 1)) <= tolerance:
-            edges &= ~Qt.Edge.RightEdge
+            if not (edges & (Qt.Edge.TopEdge | Qt.Edge.BottomEdge)):
+                edges &= ~Qt.Edge.RightEdge
         elif abs((panel_rect.right() + 1) - owner_rect.left()) <= tolerance:
-            edges &= ~Qt.Edge.LeftEdge
+            if not (edges & (Qt.Edge.TopEdge | Qt.Edge.BottomEdge)):
+                edges &= ~Qt.Edge.LeftEdge
         return edges
 
     def _refresh_resize_cursor_from_global(self):
@@ -790,8 +918,15 @@ class FramelessResizeFilter(QObject):
         override'ı varsa stack'ine DOKUNULMAZ: ne sahiplenilir, ne
         değiştirilir, ne de restore edilir.
         """
+        # Şeffaflık gibi geçici popup'lar da ayrı Qt top-level olabilir; onlar
+        # resize override'ı sahiplenmemeli. Global override yalnız gerçek
+        # video kontrol overlay'inde (ana pencereden ayrı yüzey) gereklidir.
         try:
-            separate_top_level = watched.window() is not self.player
+            control_overlay = self.player.video_frame.control_overlay
+            separate_top_level = (
+                control_overlay is not None
+                and (watched is control_overlay
+                     or watched.window() is control_overlay))
         except (AttributeError, RuntimeError):
             separate_top_level = False
         if not separate_top_level:

@@ -1,8 +1,9 @@
 # MLC Player uygulama ikonu: kaynak ve turetilen asset manifesti.
-# Kaynak gorsel KULLANICI tarafindan saglandi ve degistirilmeden
-# projeye alindi (yeniden uretim, kirpma, renklendirme veya kayipli
-# sikistirma YAPILMADI). Gecici kaynak yolu bilerek KAYDEDILMEZ.
+# Kaynak gorsel kullanicinin onayladigi turuncu daire, beyaz play ve iki
+# kirikli medya halkasi tasarimidir. Gecici pano veya uretim yolu kaydedilmez.
 # Bicim: dosya | olcu | ayrinti | SHA-256
 
-mlc-player-icon.png | 1254x1254 | RGBA, dort kose alfa=0 | 34a0cbd03f0a2365877e74337f62c6343d7974cd66fef80df6d7664871824c6c
-mlc-player-icon.ico | 16x16,20x20,24x24,32x32,40x40,48x48,64x64,128x128,256x256 | LANCZOS, alfa korundu | 0003dca928562083a3748befcdc7b69e4bffd4d2352b432f13b26a384ad0523c
+mlc-player-icon.png | 1254x1254 | RGBA, seffaf dis zemin | 5521388e88083c49cdffe01981a014aee75de67a54ddde0fd50e4e83d58220df
+mlc-player-icon.ico | 16x16,20x20,24x24,32x32,40x40,48x48,64x64,128x128,256x256 | LANCZOS, alfa korundu | a78c04515858be0a852f7fc63de4161109c85405909a2b2dd79a8144b5f16395
+mlc-player-icon-transparent.png | 1254x1254 | RGBA, seffaf dis zemin | d38e801c7ab0c12c429973d6a65df539561bacd85f8ff7fa9059ad76617e01c1
+mlc-player-icon-transparent.ico | 16x16,20x20,24x24,32x32,40x40,48x48,64x64,128x128,256x256 | LANCZOS, alfa korundu | 22f4722728651052bf92d797fd7fcd877cc99988dfdf1ef6790ca64e5f11bf93

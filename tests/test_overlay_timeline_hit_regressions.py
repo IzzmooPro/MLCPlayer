@@ -355,7 +355,7 @@ def test_bottom_control_row_does_not_move(product_window):
     play = next(w for w in overlay.findChildren(QWidget)
                 if w.objectName() == "overlayPlayPause")
     centre_y = play.mapTo(overlay, QPoint(0, 0)).y() + play.height() // 2
-    assert abs(centre_y - 66) <= 4, f"kontrol satırı kaydı: {centre_y}"
+    assert centre_y == 73, f"kontrol satırı kaydı: {centre_y}"
 
 
 def test_timeline_hit_area_does_not_cover_the_buttons(product_window):
