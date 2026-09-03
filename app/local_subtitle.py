@@ -178,7 +178,10 @@ def _reset_state_for(player, path):
         STATE_PENDING if player._auto_local_subtitle_target else STATE_DONE)
 
 
-def activate_local_subtitle(player):
+_TRACK_LIST_MISSING = object()
+
+
+def activate_local_subtitle(player, track_list=_TRACK_LIST_MISSING):
     """Yüklenen medyanın yerel SRT'sini SESSİZCE seçer ve görünür yapar.
 
     Durum modeli medya başınadır: aday yoksa `done`, aday var ama doğrulanmış
@@ -201,7 +204,9 @@ def activate_local_subtitle(player):
         if getattr(player, "_auto_local_subtitle_state", None) != STATE_PENDING:
             return False
         target = getattr(player, "_auto_local_subtitle_target", None)
-        sid = verified_track_id(getattr(mpv, "track_list", None), target)
+        if track_list is _TRACK_LIST_MISSING:
+            track_list = getattr(mpv, "track_list", None)
+        sid = verified_track_id(track_list, target)
         if sid is None:
             # Track GEÇ gelebilir; karar tamamlanmaz, durum `pending` kalır.
             return False

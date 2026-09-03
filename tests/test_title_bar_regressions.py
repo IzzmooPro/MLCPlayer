@@ -11,13 +11,14 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import QEvent, QPoint, QRect, Qt
+from PyQt6.QtCore import QEvent, QPoint, QPointF, QRect, Qt
 from PyQt6.QtGui import QMouseEvent
 from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QMenu, QPushButton, QVBoxLayout, QWidget)
 
-from app.title_bar import (RESIZE_MARGIN, TITLE_BAR_HEIGHT, TitleBar,
+from app.title_bar import (FramelessResizeFilter, RESIZE_MARGIN,
+                           TITLE_BAR_HEIGHT, TitleBar,
                            resize_edges_at)
 from app.ui_icons import make_media_pixmap
 
@@ -52,6 +53,7 @@ def title_bar():
         app = qt_app()
         window = QMainWindow()
         window.calls = []
+        window.current_file = "fixture.mp4"
         window.central_widget = QWidget(window)
         window.setCentralWidget(window.central_widget)
         window.main_layout = QVBoxLayout(window.central_widget)
@@ -101,6 +103,13 @@ def press_event(widget, point, button_type=Qt.MouseButton.LeftButton):
                        button_type, button_type, Qt.KeyboardModifier.NoModifier)
 
 
+def move_event(widget, point):
+    return QMouseEvent(QEvent.Type.MouseMove, QPoint(*point).toPointF(),
+                       widget.mapToGlobal(QPoint(*point)).toPointF(),
+                       Qt.MouseButton.NoButton, Qt.MouseButton.LeftButton,
+                       Qt.KeyboardModifier.NoModifier)
+
+
 # --- Görsel yapı ---
 
 def test_title_bar_has_fixed_reference_height(title_bar):
@@ -126,6 +135,31 @@ def test_title_bar_uses_the_approved_reference_scale(title_bar):
 def test_title_bar_shows_product_name(title_bar):
     app, window, bar = title_bar()
     assert bar.title_label.text() == "MLC Player"
+
+
+def test_logo_click_does_not_start_move_and_next_button_still_works(title_bar):
+    app, window, bar = title_bar()
+    move_calls = []
+    bar._start_system_move = lambda: move_calls.append(True) or True
+    logo_point = bar.logo_label.geometry().center()
+
+    bar.mousePressEvent(press_event(bar, (logo_point.x(), logo_point.y())))
+    button(bar, "titleOpenFile").click()
+
+    assert move_calls == []
+    assert "open_file" in window.calls
+    assert button(bar, "titleOpenFile").cursor().shape() == (
+        Qt.CursorShape.PointingHandCursor)
+
+
+def test_logo_area_never_starts_top_edge_resize(title_bar):
+    app, window, bar = title_bar()
+    filt = FramelessResizeFilter(window, bar)
+    logo_top = bar.logo_label.geometry().topLeft() + QPoint(2, 1)
+    global_point = bar.mapToGlobal(logo_top)
+    window_local = window.mapFromGlobal(global_point)
+
+    assert filt._effective_resize_edges(window_local, bar) == Qt.Edge(0)
 
 
 def test_left_controls_are_in_reference_order(title_bar):
@@ -160,6 +194,14 @@ def test_all_title_bar_buttons_are_keyboard_reachable(title_bar):
     app, window, bar = title_bar()
     for name in LEFT_ORDER + RIGHT_ORDER:
         assert button(bar, name).focusPolicy() == Qt.FocusPolicy.TabFocus
+
+
+def test_title_buttons_override_global_focus_fill_on_the_button_itself(title_bar):
+    app, window, bar = title_bar()
+    for name in LEFT_ORDER + RIGHT_ORDER:
+        style = button(bar, name).styleSheet()
+        assert "QPushButton:focus" in style
+        assert "background-color: transparent" in style
 
 
 def test_title_bar_buttons_expose_tooltip_and_accessible_name(title_bar):
@@ -259,14 +301,101 @@ def test_transparency_button_opens_adjustable_slider(title_bar):
     app, window, bar = title_bar()
     window.window_opacity_percent = 100
 
+    assert bar.transparency_button.focusPolicy() == Qt.FocusPolicy.TabFocus
+
     button(bar, "titleTransparency").click()
     app.processEvents()
 
     assert bar.transparency_popup.isVisible()
+    assert bar.transparency_popup.parentWidget() is window
+    assert not bool(bar.transparency_popup.windowFlags()
+                    & Qt.WindowType.Popup)
     assert bar.transparency_slider.minimum() == 35
     assert bar.transparency_slider.maximum() == 100
     bar.transparency_slider.setValue(58)
     assert window.calls[-2:] == ["set_window_opacity_percent", 58]
+
+
+def test_hiding_transparency_panel_never_forces_native_video_focus(title_bar):
+    app, window, bar = title_bar()
+    class NativeFocusMustNotBeForced:
+        def setFocus(self, *_args):
+            raise AssertionError("panel close must not redirect native focus")
+
+    window.video_frame = NativeFocusMustNotBeForced()
+    bar.show_transparency_control()
+    app.processEvents()
+    bar.hide_transparency_control()
+    assert not bar.transparency_button.hasFocus()
+    assert not bar.transparency_button.isDown()
+
+
+def test_transparency_popup_direct_hide_uses_the_same_focus_cleanup(title_bar):
+    app, window, bar = title_bar()
+    class NativeFocusMustNotBeForced:
+        def setFocus(self, *_args):
+            raise AssertionError("panel close must not redirect native focus")
+
+    window.video_frame = NativeFocusMustNotBeForced()
+    bar.show_transparency_control()
+    bar.transparency_button.setFocus()
+    bar.transparency_button.setDown(True)
+
+    # Qt.Popup dışarı tıklanırken filtreye bu Hide olayı gelir; fixture'da
+    # native bir top-level gösterilmediği için olayı doğrudan gönderiyoruz.
+    bar.eventFilter(bar.transparency_popup, QEvent(QEvent.Type.Hide))
+    QTest.qWait(1)
+
+    assert not bar.transparency_button.hasFocus()
+    assert not bar.transparency_button.isDown()
+
+
+def test_click_outside_transparency_panel_hides_without_consuming_event(title_bar):
+    app, window, bar = title_bar()
+    bar.show_transparency_control()
+    outside = bar.close_button.mapToGlobal(bar.close_button.rect().center())
+    event = QMouseEvent(
+        QEvent.Type.MouseButtonPress, QPointF(1, 1), QPointF(outside),
+        Qt.MouseButton.LeftButton, Qt.MouseButton.LeftButton,
+        Qt.KeyboardModifier.NoModifier)
+
+    assert bar.eventFilter(bar.close_button, event) is False
+    assert not bar.transparency_popup.isVisible()
+
+
+def test_transparency_close_refreshes_cursor_for_button_under_pointer(
+        title_bar, monkeypatch):
+    app, window, bar = title_bar()
+    calls = []
+
+    class CursorProbe:
+        def isEnabled(self):
+            return True
+
+        def unsetCursor(self):
+            calls.append("unset")
+
+        def setCursor(self, shape):
+            calls.append(shape)
+
+    probe = CursorProbe()
+    monkeypatch.setattr(bar, "_child_at", lambda _position: probe)
+    bar._refresh_title_cursor_under_pointer()
+
+    assert calls == ["unset", Qt.CursorShape.PointingHandCursor]
+
+
+def test_first_mouse_move_after_transparency_close_refreshes_cursor(
+        title_bar, monkeypatch):
+    app, window, bar = title_bar()
+    calls = []
+    bar._title_cursor_refresh_pending = True
+    monkeypatch.setattr(bar, "_refresh_title_cursor_under_pointer",
+                        lambda: calls.append("refresh"))
+
+    assert bar.eventFilter(bar.open_button, QEvent(QEvent.Type.MouseMove)) is False
+    assert calls == ["refresh"]
+    assert not bar._title_cursor_refresh_pending
 
 
 def test_picture_in_picture_button_calls_product_method(title_bar):
@@ -275,6 +404,24 @@ def test_picture_in_picture_button_calls_product_method(title_bar):
     button(bar, "titlePictureInPicture").click()
 
     assert window.calls[-1] == "toggle_picture_in_picture"
+
+
+def test_picture_in_picture_is_disabled_without_loaded_media(title_bar):
+    app, window, bar = title_bar()
+    window.current_file = ""
+
+    bar.update_window_mode_state()
+
+    assert not bar.picture_in_picture_button.isEnabled()
+    assert bar.picture_in_picture_button.toolTip() == "Önce video açın"
+
+
+def test_title_button_focus_has_no_selected_background(title_bar):
+    app, window, bar = title_bar()
+
+    style = bar.styleSheet()
+    assert "QWidget#modernTitleBar QPushButton:focus" in style
+    assert "background-color: transparent;" in style
 
 
 def test_maximize_button_toggles_and_updates_state(title_bar):
@@ -309,9 +456,23 @@ def test_drag_on_empty_area_starts_system_move(title_bar):
     calls = []
     bar._start_system_move = lambda: calls.append("move") or True
 
-    bar.mousePressEvent(press_event(bar, (bar.width() // 2, 20)))
+    x, y = bar.width() // 2, 20
+    bar.mousePressEvent(press_event(bar, (x, y)))
+    bar.mouseMoveEvent(move_event(bar, (x + QApplication.startDragDistance() + 2,
+                                        y)))
 
     assert calls == ["move"]
+
+
+def test_click_on_empty_title_area_does_not_start_system_move(title_bar):
+    app, window, bar = title_bar()
+    calls = []
+    bar._start_system_move = lambda: calls.append("move") or True
+
+    bar.mousePressEvent(press_event(bar, (bar.width() // 2, 20)))
+    bar.mouseReleaseEvent(press_event(bar, (bar.width() // 2, 20)))
+
+    assert calls == []
 
 
 def test_drag_on_a_button_does_not_start_system_move(title_bar):
@@ -360,7 +521,7 @@ def test_double_click_toggles_maximized_state(title_bar):
 # --- Frameless resize bölgeleri ---
 
 def test_resize_margin_is_in_reference_range():
-    assert 10 <= RESIZE_MARGIN <= 14
+    assert 5 <= RESIZE_MARGIN <= 7
 
 
 @pytest.mark.parametrize("point,expected", [

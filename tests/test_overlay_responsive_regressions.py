@@ -107,13 +107,16 @@ def test_time_block_is_fully_hidden_at_minimum_width(video_window):
         assert not widget.isVisible()
 
 
-def test_right_controls_stay_visible_at_minimum_width(video_window):
+def test_primary_right_controls_stay_visible_at_minimum_width(video_window):
     app, window, frame = video_window(size=(400, 300))
     overlay = frame.control_overlay
-    for name in RIGHT_CONTROLS:
+    for name in ("overlayRepeat", "overlayShuffle", "overlayVolume",
+                 "overlayVolumeSlider", "overlayFullscreen"):
         widget = widget_by_name(overlay, name)
         assert widget.isVisible(), f"{name} gizlendi"
         assert widget.width() > 0 and widget.height() > 0
+    for name in ("overlaySubtitles", "overlaySettings"):
+        assert not widget_by_name(overlay, name).isVisible(), name
 
 
 def test_timeline_and_media_buttons_stay_visible_at_minimum_width(video_window):

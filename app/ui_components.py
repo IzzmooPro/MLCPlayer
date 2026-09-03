@@ -6,7 +6,8 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLab
 from PyQt6.QtCore import Qt, QSize, QRectF
 from PyQt6.QtGui import QColor, QPainter
 from app.utils import create_colored_icon, format_time
-from app.config import cinematic_ui_enabled, DEFAULT_VOLUME, MAX_VOLUME
+from app.config import (UI_ACCENT, cinematic_ui_enabled, DEFAULT_VOLUME,
+                        MAX_VOLUME)
 from app.i18n import tr
 
 WHEEL_ANGLE_PER_STEP = 120
@@ -96,7 +97,7 @@ class VolumeSlider(ClickableSlider):
         # Normal bölge (0-100): mavi
         normal_w = min(fill_w, groove_w * ratio100)
         if normal_w > 0:
-            painter.setBrush(QColor("#2E9BD8"))
+            painter.setBrush(QColor(UI_ACCENT))
             painter.drawRoundedRect(QRectF(left, groove_y, normal_w, groove_h), 2, 2)
 
         # Amplifikasyon bölgesi (100-MAX_VOLUME): turuncu
@@ -298,7 +299,7 @@ def setup_controls(player):
             background: #FFFFFF;
         }
         QSlider#positionSlider::sub-page:horizontal {
-            background: #2E9BD8;
+            background: #F26A3D;
             border-radius: 2px;
         }
         QSlider#volumeSlider::groove:horizontal {
@@ -317,7 +318,7 @@ def setup_controls(player):
             background: #FFFFFF;
         }
         QSlider#volumeSlider::sub-page:horizontal {
-            background: #2E9BD8;
+            background: #F26A3D;
             border-radius: 1px;
         }
         QPushButton#controlButton, QPushButton#playButton {

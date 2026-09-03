@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
-"""Tek sayfa Medya Bilgisi penceresi: INCE cizim katmani.
+"""Sekmeli Medya Bilgisi penceresi: INCE cizim katmani.
 
 Bu pencere YALNIZ hazir bir `MediaInfoSnapshot` alir ve cizer. Oynatici veya
 libmpv nesnesi okumaz, ham anahtar veya metadata YORUMLAMAZ; butun
@@ -17,39 +17,58 @@ Guvenlik sozlesmesi
   kullanici kopyalama dugmesine bastiginda disari verilir.
 - Timer, thread, ag, child process ve `exec()` YOKTUR.
 
-KULLANICI KARARI: sekmeli gorunum KALDIRILDI. Tek kaydirilabilir sayfada
-yukaridan asagiya `Genel -> Video -> Ses -> Altyazi` bolumleri; her ses ve
-altyazi parcasi kendi karti. Pencere icerikle sinirsiz buyumez: buyuyen tek
-sey kaydirmadir ve dugmeler kaydirma alaninin DISINDA, altta sabittir.
+KULLANICI KARARI: `Genel -> Video -> Ses -> Altyazi` dort gercek sekmedir.
+Her sekmenin kendi kaydirma alani vardir; her ses ve altyazi parcasi kendi
+karti olarak kalir. Pencere icerikle sinirsiz buyumez ve dugmeler sekmelerin
+DISINDA, altta sabittir.
 """
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
                              QHBoxLayout, QLabel, QPushButton, QScrollArea,
-                             QSizePolicy, QVBoxLayout, QWidget)
+                             QSizePolicy, QTabWidget, QVBoxLayout, QWidget)
+
+from app.config import UI_ACCENT, UI_FONT_FAMILY
 
 WINDOW_TITLE_PREFIX = "Medya Bilgisi"
 CLOSE_BUTTON_TEXT = "Kapat"
 
-DEFAULT_SIZE = (600, 520)
-MINIMUM_SIZE = (520, 380)
+DEFAULT_SIZE = (520, 420)
+MINIMUM_SIZE = (460, 320)
 
 STYLE = """
-QDialog#mediaInfo { background-color: #151A1F; }
+QDialog#mediaInfo { background-color: #151A1F;
+                    font-family: __UI_FONT_FAMILY__; }
 QLabel { color: #E6EAF0; background: transparent; }
 QLabel#mediaInfoRowLabel { color: #9AA6B2; }
 QLabel#mediaInfoGroupTitle { color: #E6EAF0; font-weight: 600; }
 QLabel#mediaInfoEmpty { color: #9AA6B2; }
 QFrame#mediaInfoGroup { background-color: #1A2027; border-radius: 6px; }
-QLabel#mediaInfoSectionTitle { color: #E6EAF0; font-size: 15px;
-                              font-weight: 700; padding-top: 4px; }
-QFrame#mediaInfoSectionRule { background-color: rgba(255, 255, 255, 28);
-                              max-height: 1px; min-height: 1px; }
 QWidget#mediaInfoBody { background-color: #11151A; }
 QScrollArea { border: none; background: transparent; }
+QTabWidget#mediaInfoTabs::pane { border: 1px solid #2A323A;
+                                 border-radius: 6px;
+                                 background-color: #11151A; }
+QTabBar::tab { color: #AEB7C0; background-color: #1A2027;
+               border: none; border-bottom: 2px solid transparent;
+               min-width: 72px; padding: 7px 10px; }
+QTabBar::tab:selected { color: #FFFFFF; background-color: #202832;
+                        border-bottom-color: __UI_ACCENT__; }
+QTabBar::tab:hover:!selected { color: #E6EAF0; background-color: #20262E; }
+QTabBar::tab:focus { color: #FFFFFF; background-color: #29323A; }
 QPushButton { background-color: #232B33; color: #E6EAF0; border: none;
-              border-radius: 4px; padding: 6px 14px; }
+              border-radius: 4px; padding: 5px 12px; }
 QPushButton:hover { background-color: #2C353F; }
-"""
+QPushButton:focus { border: 1px solid #707A84; }
+QPushButton#mediaInfoCopyButton { background: transparent;
+                                  border: 1px solid #414950; }
+QPushButton#mediaInfoCopyButton:hover { background: #252D35;
+                                        border-color: #59636C; }
+QPushButton#mediaInfoCloseButton { background: #303840;
+                                   border: 1px solid #46515B;
+                                   font-weight: 600; }
+QPushButton#mediaInfoCloseButton:hover { background: #39434C; }
+""".replace("__UI_ACCENT__", UI_ACCENT).replace(
+    "__UI_FONT_FAMILY__", UI_FONT_FAMILY)
 
 
 class _BoundedScrollArea(QScrollArea):
@@ -60,7 +79,7 @@ class _BoundedScrollArea(QScrollArea):
     buyutuyordu. Sabit tercih, kaydirmayi tek buyume yolu birakir.
     """
 
-    HINT = QSize(460, 320)
+    HINT = QSize(400, 260)
 
     def sizeHint(self):
         return QSize(self.HINT)
@@ -100,15 +119,16 @@ class MediaInfoDialog(QDialog):
         self._copy_text = copy_text
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(14, 12, 14, 12)
-        root.setSpacing(10)
+        root.setContentsMargins(12, 10, 12, 10)
+        root.setSpacing(8)
 
-        # TEK kaydırma alanı; gövde her yenilemede baştan kurulur.
-        self.scroll_area = _BoundedScrollArea(self)
-        self.scroll_area.setObjectName("mediaInfoScroll")
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
-        root.addWidget(self.scroll_area, 1)
+        # Sekme kabugu ve her sekmenin kaydirma alani yenilemede korunur;
+        # yalniz hazir snapshot'tan cizilen govdeler degisir.
+        self.tabs = QTabWidget(self)
+        self.tabs.setObjectName("mediaInfoTabs")
+        self.tabs.setDocumentMode(True)
+        self._section_areas = {}
+        root.addWidget(self.tabs, 1)
 
         actions = QHBoxLayout()
         actions.setSpacing(8)
@@ -137,49 +157,68 @@ class MediaInfoDialog(QDialog):
         Gövde baştan kurulur: eski medya metni, eski kartlar ve eski
         kopyalama hedefi kalmaz. Kaydırma alanı ve düğmeler korunur.
         """
-        body = QWidget()
-        body.setObjectName("mediaInfoBody")
-        layout = QVBoxLayout(body)
-        layout.setContentsMargins(14, 12, 14, 12)
-        layout.setSpacing(10)
-        if snapshot is not None:
-            for section in snapshot.sections:
-                self._add_section(layout, section)
-        layout.addStretch(1)
-        # `setWidget()` eski gövdeyi sahiplenip siler; artık widget kalmaz.
-        self.scroll_area.setWidget(body)
         if snapshot is None:
+            self._replace_sections(())
             self.setWindowTitle(WINDOW_TITLE_PREFIX)
             self._copy_value = ""
             self.copy_button.setText("")
             self.copy_button.setEnabled(False)
             return
+        self._replace_sections(snapshot.sections)
         self.setWindowTitle(f"{WINDOW_TITLE_PREFIX} — {snapshot.title}")
         self._copy_value = snapshot.copy_value or ""
         self.copy_button.setText(snapshot.copy_label or "")
         self.copy_button.setEnabled(bool(self._copy_value))
 
-    def _add_section(self, layout, section):
-        """Belirgin başlık + ince ayraç + kartlar (veya boş mesaj)."""
-        title = _plain_label(section.title, "mediaInfoSectionTitle")
-        layout.addWidget(title)
-        rule = QFrame()
-        rule.setObjectName("mediaInfoSectionRule")
-        rule.setFrameShape(QFrame.Shape.NoFrame)
-        layout.addWidget(rule)
+    def _replace_sections(self, sections):
+        """Sekme kabugunu koruyup her sekmenin govdesini atomik yeniler."""
+        current = self.tabs.currentWidget()
+        current_key = (current.property("mediaInfoSectionKey")
+                       if current is not None else None)
+        wanted = {section.key for section in sections}
+        self.tabs.clear()
+        for key in tuple(self._section_areas):
+            if key not in wanted:
+                self._section_areas.pop(key).deleteLater()
+        restore_index = 0
+        for index, section in enumerate(sections):
+            area = self._section_areas.get(section.key)
+            if area is None:
+                area = _BoundedScrollArea(self.tabs)
+                area.setObjectName(f"mediaInfoScroll_{section.key}")
+                area.setWidgetResizable(True)
+                area.setFrameShape(QFrame.Shape.NoFrame)
+                area.setProperty("mediaInfoSectionKey", section.key)
+                self._section_areas[section.key] = area
+            area.setWidget(self._build_section_body(section))
+            area.verticalScrollBar().setValue(0)
+            self.tabs.addTab(area, section.title)
+            if section.key == current_key:
+                restore_index = index
+        if self.tabs.count():
+            self.tabs.setCurrentIndex(restore_index)
+
+    def _build_section_body(self, section):
+        body = QWidget()
+        body.setObjectName("mediaInfoBody")
+        layout = QVBoxLayout(body)
+        layout.setContentsMargins(10, 8, 10, 8)
+        layout.setSpacing(8)
         if section.is_empty:
             layout.addWidget(_plain_label(section.empty_message,
                                           "mediaInfoEmpty"))
-            return
-        for group in section.groups:
-            layout.addWidget(self._build_group(group))
+        else:
+            for group in section.groups:
+                layout.addWidget(self._build_group(group))
+        layout.addStretch(1)
+        return body
 
     def _build_group(self, group):
         frame = QFrame()
         frame.setObjectName("mediaInfoGroup")
         layout = QGridLayout(frame)
-        layout.setContentsMargins(12, 10, 12, 10)
-        layout.setHorizontalSpacing(14)
+        layout.setContentsMargins(10, 8, 10, 8)
+        layout.setHorizontalSpacing(12)
         layout.setVerticalSpacing(4)
         row_index = 0
         if group.title:

@@ -9,8 +9,8 @@ from PyQt6.QtWidgets import (QAbstractItemView, QHBoxLayout,
                              QLabel, QLayout, QLineEdit, QListWidget, QListWidgetItem,
                              QApplication, QPushButton, QSizePolicy, QVBoxLayout,
                              QWidget)
-from app.config import (MEDIA_EXTENSIONS, TOOLTIP_STYLE,
-                        WINDOW_BACKGROUND)
+from app.config import (MEDIA_EXTENSIONS, TOOLTIP_STYLE, UI_ACCENT,
+                        UI_FONT_FAMILY, WINDOW_BACKGROUND)
 from app.title_bar import (TITLE_BAR_ACCENT, TITLE_BAR_SIDE_MARGIN,
                            TITLE_BUTTON_ICON_SIZE, TITLE_BUTTON_SIZE)
 from app.ui_icons import make_media_icon
@@ -18,7 +18,7 @@ from app.thumbnail_service import ThumbnailService
 from app.i18n import tr
 
 
-PLAYLIST_ACCENT = "#F26A3D"
+PLAYLIST_ACCENT = UI_ACCENT
 PATH_ROLE = int(Qt.ItemDataRole.UserRole)
 PLAYING_ROLE = PATH_ROLE + 1
 ROW_HEIGHT = 74
@@ -81,7 +81,9 @@ class PlaylistListWidget(QListWidget):
         super().__init__(panel)
         self.panel = panel
         self.setObjectName("playlistView")
-        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        # Windows liste davranışı: normal tık tek seçim, Ctrl+tık seçim
+        # ekle/çıkar, Shift+tık aralık seçer. Oynatma yine çift tıktadır.
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         self.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.setDragEnabled(True)
@@ -89,6 +91,13 @@ class PlaylistListWidget(QListWidget):
         self.setDropIndicatorShown(True)
         self.setAlternatingRowColors(False)
         self.setSpacing(2)
+        # Frameless top-level panelin sol 14 px resize fallback'i cursor'ı
+        # panel üzerinde tutabilir. Satırlar fare olaylarını bilerek bu
+        # viewport'a geçirir; açık cursor sahibi olmazsa parent'taki yatay
+        # resize oku bütün video satırlarına miras kalır. Gerçek satır hover
+        # yüzeyi normal oku sahiplenir, ayrı resize_handle ise SizeHor kalır.
+        self.setCursor(Qt.CursorShape.ArrowCursor)
+        self.viewport().setCursor(Qt.CursorShape.ArrowCursor)
         self._drag_source = -1
         self._drag_target = -1
         self._drag_after_last = False
@@ -232,6 +241,7 @@ class PlaylistRow(QWidget):
         super().__init__(parent)
         self.setObjectName("playlistRow")
         self.setProperty("playing", bool(playing))
+        self.setProperty("selected", False)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         self.setAccessibleName(os.path.basename(path))
         self.setToolTip(path)
@@ -243,6 +253,15 @@ class PlaylistRow(QWidget):
             "border-left: 3px solid transparent; border-radius: 4px; } "
             "QWidget#playlistRow[playing=\"true\"] { "
             "background: rgba(242, 106, 61, 28); "
+            f"border-left: 3px solid {PLAYLIST_ACCENT}; }} "
+            # Seçim, oynayan satırdan ayrı ve daha belirgin bir durumdur:
+            # tema vurgusunun yumuşak dolgusu + dört yanda ince çerçeve.
+            "QWidget#playlistRow[selected=\"true\"] { "
+            "background: rgba(242, 106, 61, 52); "
+            "border: 1px solid rgba(242, 106, 61, 165); } "
+            "QWidget#playlistRow[playing=\"true\"][selected=\"true\"] { "
+            "background: rgba(242, 106, 61, 62); "
+            "border: 1px solid rgba(242, 106, 61, 180); "
             f"border-left: 3px solid {PLAYLIST_ACCENT}; }} "
             "QWidget#playlistRow[dragTarget=\"true\"] { "
             f"border-top: 2px solid {PLAYLIST_ACCENT}; }} "
@@ -566,7 +585,8 @@ class PlaylistPanel(QWidget):
             # pencere olunca ana pencerenin yanina gelip farkli tonda
             # durmaya basladi. Saydamlik da kalkti; bu artik bir penceredir.
             f"QWidget#playlistPanel {{ background: {WINDOW_BACKGROUND}; "
-            "border: 1px solid rgba(255,255,255,20); } "
+            f"border: 1px solid rgba(255,255,255,20); "
+            f"font-family: {UI_FONT_FAMILY}; }} "
             "QLabel { background: transparent; } "
             "QLineEdit#playlistSearch { color: #E9EDF1; "
             "background: rgba(255,255,255,12); border: 1px solid "
@@ -584,6 +604,8 @@ class PlaylistPanel(QWidget):
             "QPushButton { color: #DDE2E7; background: transparent; border: none; "
             "border-radius: 4px; padding: 7px 9px; font-size: 12px; } "
             "QPushButton:hover { background: rgba(255,255,255,20); color: white; } "
+            "QPushButton:focus { background: rgba(255,255,255,14); "
+            "border: 1px solid #707A84; } "
             f"QPushButton#playlistAdd {{ color: {PLAYLIST_ACCENT}; }} "
             # Ayri top-level pencere ANA PENCERENIN stilini almaz;
             # ipucu kurali urunun tek kaynagindan eklenir.
@@ -636,7 +658,9 @@ class PlaylistPanel(QWidget):
         self.close_button.setStyleSheet(
             "QPushButton#playlistClose { background: transparent; border: none; "
             "padding: 0; border-radius: 4px; } "
-            f"QPushButton#playlistClose:hover {{ background: {TITLE_BAR_ACCENT}; }}")
+            f"QPushButton#playlistClose:hover {{ background: {TITLE_BAR_ACCENT}; }} "
+            "QPushButton#playlistClose:focus { background: rgba(255,255,255,28); "
+            "border: 1px solid #707A84; }")
         self.close_button.clicked.connect(self.close_animated)
         header.addWidget(self.close_button, 0, Qt.AlignmentFlag.AlignTop)
         root.addLayout(header)
@@ -649,7 +673,11 @@ class PlaylistPanel(QWidget):
         root.addWidget(self.search_field)
 
         self.playlist_view = PlaylistListWidget(self)
-        self.playlist_view.itemClicked.connect(self._play_item)
+        # Tek tık yalnız seçimdir; kullanıcı seçili satırı Kaldır düğmesiyle
+        # yönetebilmelidir. Oynatma bilinçli çift tıkla başlar.
+        self.playlist_view.itemDoubleClicked.connect(self._play_item)
+        self.playlist_view.itemSelectionChanged.connect(
+            self._sync_selected_row_style)
         root.addWidget(self.playlist_view, 1)
 
         self.empty_label = QLabel(tr("Oynatma listesi boş\nDosyaları buraya sürükleyin"), self)
@@ -889,7 +917,8 @@ class PlaylistPanel(QWidget):
             item = QListWidgetItem()
             item.setData(PATH_ROLE, path)
             item.setData(PLAYING_ROLE, index == current)
-            item.setToolTip(tr("Sürükleyerek sırala • Oynatmak için tıkla"))
+            item.setToolTip(
+                tr("Sürükleyerek sırala • Oynatmak için çift tıkla"))
             item.setSizeHint(QSize(0, ROW_HEIGHT))
             self.playlist_view.addItem(item)
             row_widget = PlaylistRow(path, index == current, self.playlist_view)
@@ -908,10 +937,12 @@ class PlaylistPanel(QWidget):
                                                            state)
         if playlist and selected >= 0:
             self.playlist_view.setCurrentRow(min(selected, len(playlist) - 1))
+        self._sync_selected_row_style(self.playlist_view.currentRow())
         self.count_label.setText(f"{len(playlist)} {tr('öğe')}")
         self.empty_label.setVisible(not playlist)
         self.playlist_view.setVisible(bool(playlist))
-        self.remove_button.setEnabled(bool(playlist))
+        self.remove_button.setEnabled(
+            bool(playlist) and self.playlist_view.currentRow() >= 0)
         self.clear_button.setEnabled(bool(playlist))
         self.apply_filter(self.search_field.text())
 
@@ -951,6 +982,27 @@ class PlaylistPanel(QWidget):
         item = self.playlist_view.item(row)
         return self.playlist_view.itemWidget(item) if item is not None else None
 
+    def _sync_selected_row_style(self, *_args):
+        """Bütün seçili item'ları widget yüzeyine görünür biçimde taşır."""
+        selected_rows = {
+            self.playlist_view.row(item)
+            for item in self.playlist_view.selectedItems()
+        }
+        for row in range(self.playlist_view.count()):
+            widget = self.row_widget(row)
+            if widget is None:
+                continue
+            selected = row in selected_rows
+            if bool(widget.property("selected")) == selected:
+                continue
+            widget.setProperty("selected", selected)
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+            widget.update()
+        remove_button = getattr(self, "remove_button", None)
+        if remove_button is not None:
+            remove_button.setEnabled(bool(selected_rows))
+
     def apply_filter(self, text):
         needle = (text or "").strip().casefold()
         for row in range(self.playlist_view.count()):
@@ -971,9 +1023,10 @@ class PlaylistPanel(QWidget):
         self.refresh()
 
     def _remove_selected(self):
-        row = self.playlist_view.currentRow()
-        if row >= 0:
-            self.player.remove_from_playlist(row)
+        rows = sorted({self.playlist_view.row(item)
+                       for item in self.playlist_view.selectedItems()})
+        if rows:
+            self.player.remove_many_from_playlist(rows)
             self.refresh()
 
     def _clear(self):
@@ -1031,7 +1084,6 @@ class PlaylistPanel(QWidget):
                 and event.position().x() <= PANEL_RESIZE_HANDLE_WIDTH):
             self._split_press_global_x = int(event.globalPosition().x())
             self._split_press_width = self.width()
-            self.setCursor(Qt.CursorShape.SizeHorCursor)
             event.accept()
             return
         if (event.button() == Qt.MouseButton.LeftButton
@@ -1053,10 +1105,6 @@ class PlaylistPanel(QWidget):
             self.continue_header_drag(event.globalPosition().toPoint())
             event.accept()
             return
-        if event.position().x() <= PANEL_RESIZE_HANDLE_WIDTH:
-            self.setCursor(Qt.CursorShape.SizeHorCursor)
-        else:
-            self.unsetCursor()
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
@@ -1071,11 +1119,6 @@ class PlaylistPanel(QWidget):
             event.accept()
             return
         super().mouseReleaseEvent(event)
-
-    def leaveEvent(self, event):
-        if self._split_press_global_x is None:
-            self.unsetCursor()
-        super().leaveEvent(event)
 
     #: Ana pencerenin panelin KONUMUNU etkileyen olayları.
     _OWNER_FOLLOW_EVENTS = (QEvent.Type.Resize, QEvent.Type.Move,

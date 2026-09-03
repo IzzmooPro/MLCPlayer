@@ -16,6 +16,19 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QApplication, QLabel, QPushButton, QSlider
 
 
+def test_update_ui_never_reads_mpv_track_or_chapter_properties_synchronously():
+    """The 100 ms GUI timer must consume observer snapshots only."""
+    import inspect
+
+    from app.player import MPVPlayer
+
+    source = inspect.getsource(MPVPlayer.update_ui)
+
+    assert "self.mpv_player.track_list" not in source
+    assert "self.mpv_player.chapter_list" not in source
+    assert "watcher.latest" in source
+
+
 class AsyncMpv:
     def __init__(self):
         self.calls = []

@@ -11320,6 +11320,1196 @@
         "No product code, Computer Use, new native run, build, installation, uninstall, push, PR, merge, tag or release was performed."
       ],
       "next_action": "Commit this exact two-document binding record only after separate approval; then choose push/PR or WIN-P0-07 under separate authorization."
+    },
+    {
+      "id": "EV-20260829-013",
+      "recorded_at_utc": "2026-08-29T20:57:30Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted product, regression, machine-inventory and evidence changes on codex/subtitle-shutdown-timing",
+      "changed_files": [
+        "app/local_subtitle.py",
+        "app/media_controls.py",
+        "app/menu_actions.py",
+        "app/player.py",
+        "app/playlist_panel.py",
+        "app/video_frame.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_media_selection_atomic_regressions.py",
+        "tests/test_playback_lifecycle_regressions.py",
+        "tests/test_playlist_panel_regressions.py",
+        "tests/test_subtitle_track_watch_regressions.py",
+        "tests/test_track_label_regressions.py"
+      ],
+      "subject": "Source-tree playlist responsiveness, cursor ownership, visible selection and atomic multi-remove acceptance",
+      "commands": [
+        "read-only live PID, Responding, CPU, working-set, thread, handle, top-level-window and application-log inspection after the user's lag report",
+        "regression-first focused pytest runs for audio menu refresh, observed MPV snapshots, playlist cursor ownership, single/double click, visible selection and bulk removal rollback",
+        "separately approved canonical start.bat source-tree launches followed by user-driven physical interaction without Computer Use",
+        "python -m pytest -q across the final 16-file affected behavior and governance package"
+      ],
+      "evidence": [
+        "the reported lag was reproduced as a low-CPU non-responding source-tree Player with enabled visible windows and no native modal dialog; the user observation was treated as real rather than dismissed",
+        "the 100 ms GUI timer previously invoked synchronous rescan-external-files and read track-list, aid and chapter-list during new-media handling; the timer now consumes observer snapshots and menu rendering no longer starts that external-file scan",
+        "the user confirmed playlist video changes became immediate on one click before requesting the later deliberate double-click policy",
+        "an interim viewport-only cursor repair was explicitly rejected after the user still saw the horizontal cursor; the final repair removes SizeHorCursor ownership from the top-level playlist and leaves it only on the dedicated 14 px resize handle",
+        "single click now selects without playback, double click plays, selected rows use a theme-consistent accent fill and border distinct from the playing-row marker, and Ctrl/Shift extended selection is enabled",
+        "bulk removal validates and deduplicates indexes, computes survivors atomically, loads at most one replacement when the active row is removed, and restores the full prior playback/list state if that load or final stop is rejected",
+        "the final combined affected package completed with 606 passed; subsequent bulk-removal boundary additions completed with 54 passed and the final broader playlist/media/governance package completed with 243 passed",
+        "on the final approved canonical source-tree launch the target was a single Python process and Responding=True; after manual checks for multi-selection, removal, double-click playback and cursor behavior the user reported 'Oldu', and the target process was later absent"
+      ],
+      "summary": "The exact uncommitted source tree passed deterministic and user-driven source-tree acceptance for playlist transition responsiveness, exclusive resize-cursor ownership, visible single/multiple selection, double-click playback and atomic multi-row removal.",
+      "limitations": [
+        "This is uncommitted working-tree and human source-run evidence based on exact baseline 04197ef; it is not yet bound to an evidence commit or hosted check.",
+        "No instrumented final marker was emitted by the manual GUI session. Process absence after the user finished is not promoted to a formal shutdown timing measurement.",
+        "The formal WIN-P0-07 matrix row remains NOT_RUN because this acceptance did not re-execute and record every prescribed reorder step as one exact bounded matrix scenario.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR update, merge, tag or release was performed; independent agent review remains NOT_RUN under the user's single-agent instruction."
+      ],
+      "next_action": "Commit the exact product, regression, inventory and evidence package only after separate approval; then request a separate push approval and allow the existing PR required check to run without agent polling."
+    },
+    {
+      "id": "EV-20260830-001",
+      "recorded_at_utc": "2026-08-29T21:19:34Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted playback-mode product, regression, machine-inventory and evidence changes layered on the EV-20260829-013 working tree",
+      "changed_files": [
+        "app/media_controls.py",
+        "app/menu_actions.py",
+        "app/player.py",
+        "app/ui_icons.py",
+        "app/video_frame.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_playback_mode_controls_regressions.py"
+      ],
+      "subject": "Visible option-B repeat and shuffle controls with coherent playlist progression",
+      "commands": [
+        "read-only exact checkout, dirty-tree boundary, continuity and protected workflow inspection",
+        "python -m pytest -q tests/test_playback_mode_controls_regressions.py (initial red: 7 failed)",
+        "focused inspection of the three wider-family failures before correction; no blind retry",
+        "python -m pytest -q for the corrected three boundary tests",
+        "python -m pytest -q across playback modes, loop/window modes, playlist wrap, context menus, playback lifecycle, overlay visual/right/hit/integration/sync and general regressions",
+        "python -m pytest -q across the final playback, overlay, menu, playlist-panel and machine-inventory impact package"
+      ],
+      "evidence": [
+        "the user selected option B: repeat and shuffle are placed at the beginning of the overlay right-tools group before subtitles, settings, volume and fullscreen",
+        "one repeat button now cycles off to playlist repeat to current-file repeat to off; native file repeat and playlist repeat cannot remain enabled together and a rejected native write preserves the prior state",
+        "playlist repeat now advances automatically at natural EOF and wraps the final item to the first; with repeat off the final item rewinds once and remains paused",
+        "shuffle keeps the visible playlist unchanged and maintains a duplicate-safe internal index order for next, previous and natural EOF traversal",
+        "active repeat and shuffle states are exposed through icon, accent, tooltip, accessible name and synchronized main-menu check state",
+        "at widths below 560 px repeat and shuffle remain visible while the secondary subtitle and video-settings overlay buttons defer to their existing menus; the 400 px containment regression passed",
+        "the initial seven focused regressions all failed for the intended missing behaviors; after implementation the expanded target file completed with 11 passed",
+        "the final inventory-bound impact package completed with 323 passed and git diff --check reported no whitespace error"
+      ],
+      "summary": "The exact uncommitted source tree now provides the user-selected option-B visible repeat and shuffle controls with mutually exclusive repeat modes, true playlist EOF progression and non-destructive shuffled traversal.",
+      "limitations": [
+        "This is deterministic/offscreen source-tree evidence only; no real Windows click, media EOF, native runtime or installed-artifact acceptance was executed for these new controls.",
+        "The feature remains uncommitted and is layered on the pre-existing EV-20260829-013 working tree; a future commit must preserve and bind the complete combined diff.",
+        "No Computer Use, physical/native run, build, installation, uninstall, commit, push, PR update, merge, tag or release was performed; independent agent review remains NOT_RUN under the user's single-agent instruction."
+      ],
+      "next_action": "Run one separately approved canonical start.bat user acceptance for option-B placement, repeat cycle, playlist EOF wrap and non-destructive shuffle before requesting a separate commit approval."
+    },
+    {
+      "id": "EV-20260830-002",
+      "recorded_at_utc": "2026-08-29T21:22:40Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted EV-20260830-001 playback-mode implementation launched from canonical start.bat",
+      "changed_files": [],
+      "subject": "User-driven repeat cycle exposed false native loop disable rejection",
+      "commands": [
+        "separately approved canonical start.bat launch without Computer Use",
+        "read-only live process and installed python-mpv property implementation inspection after the user supplied the terminal transcript",
+        "bounded no-media libmpv property probe for loop-file NODE and OSD string readback"
+      ],
+      "evidence": [
+        "canonical start.bat launched exact source-tree main.py as PID 41524 and the user exercised the visible repeat control",
+        "the terminal emitted 'Loop setting error: loop write was ignored' nine times, so the repeat cycle did not complete reliably and user acceptance failed",
+        "the first diagnostic probe stopped before MPV construction because the non-ASCII checkout path was corrupted in python -c; after inspecting that cause, the corrected cwd-derived probe was run once",
+        "the corrected real libmpv probe measured loop-file initial NODE=False and OSD='no', enabled NODE='inf' and OSD='inf', then disabled NODE=False and OSD='no'",
+        "the product compared str(False) with 'no', misclassified a successful native disable as ignored, retained local loop_file=True while native loop-file was already disabled and repeated the same failing local transition on later clicks"
+      ],
+      "summary": "The first canonical source-tree acceptance of the new repeat control failed because python-mpv represents the disabled loop-file NODE as False while the product expected the literal string 'no'.",
+      "limitations": [
+        "The click sequence is user-observed terminal evidence without automated input or a final marker; the independent property probe establishes the conversion mismatch but does not reproduce the full UI click path.",
+        "The spacing concern in the supplied screenshot is a separate visual acceptance finding and is not the cause of the loop error.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR update, merge, tag or release was performed."
+      ],
+      "next_action": "Add a red regression for False/no canonicalization and compact option-B spacing without reducing hit targets; do not relaunch until deterministic correction passes."
+    },
+    {
+      "id": "EV-20260830-003",
+      "recorded_at_utc": "2026-08-29T21:26:24Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted loop readback and option-B spacing correction layered on EV-20260830-001",
+      "changed_files": [
+        "app/player.py",
+        "app/video_frame.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_playback_mode_controls_regressions.py"
+      ],
+      "subject": "Canonical loop-file readback with rollback and compact right-tool spacing",
+      "commands": [
+        "python -m pytest -q for the two new False/no and compact-spacing regressions (initial red: 2 failed)",
+        "python -m pytest -q for the corrected two focused regressions",
+        "python -m pytest -q across playback modes, loop/window modes, playlist wrap, context menus, playback lifecycle, overlay visual/right/hit/integration/sync, general regressions, menu order and playlist panel"
+      ],
+      "evidence": [
+        "loop-file readback now prefers the real libmpv OSD string and canonicalizes bool, numeric and string fallback forms to 'inf' or 'no'",
+        "a post-write mismatch rolls native loop-file back to the prior local mode before returning failure, preventing native/local split state",
+        "the regression reproducing python-mpv NODE False with canonical OSD 'no' now accepts the successful disable and clears local loop_file",
+        "normal right-tool spacing changed from 10 px to 4 px and narrow spacing from 4 px to 2 px; every repeat, shuffle, subtitle, settings, volume and fullscreen hit target remains exactly 40 by 40 px",
+        "the two focused red regressions passed after correction and the final affected behavior package completed with 324 passed",
+        "the machine architecture inventory was refreshed against the exact six tracked source modules"
+      ],
+      "summary": "The deterministic correction closes the measured False/no loop readback defect and moves the option-B icon group closer together and farther right without shrinking click targets.",
+      "limitations": [
+        "The still-open PID 41524 loaded the pre-correction Python source and cannot validate this correction; it must be closed normally before a fresh canonical launch.",
+        "No post-correction Windows click or media EOF acceptance has run yet, so EV-20260830-002 remains the latest native result and is not overwritten by this deterministic PASS.",
+        "The correction remains uncommitted and independent agent review remains NOT_RUN under the user's single-agent instruction.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR update, merge, tag or release was performed."
+      ],
+      "next_action": "After the user closes PID 41524 normally, launch canonical start.bat once and repeat the visual spacing, off-list-file-off cycle, EOF wrap and shuffle-order acceptance."
+    },
+    {
+      "id": "EV-20260830-004",
+      "recorded_at_utc": "2026-08-29T23:04:14Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted unified visual-theme package layered on the post-EV-20260830-003 UX working tree",
+      "changed_files": [
+        "app/config.py",
+        "app/empty_state.py",
+        "app/media_info_dialog.py",
+        "app/modern_info_dialog.py",
+        "app/playlist_panel.py",
+        "app/subtitle_appearance_dialog.py",
+        "app/subtitle_center.py",
+        "app/title_bar.py",
+        "app/ui_components.py",
+        "app/updater.py",
+        "app/video_frame.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_empty_state_info_dialog_regressions.py",
+        "tests/test_title_bar_hover_regressions.py",
+        "tests/test_visual_theme_regressions.py",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "subject": "One visual identity for accent, typography, keyboard focus and Media Info action hierarchy",
+      "commands": [
+        "python -m pytest -q tests/test_visual_theme_regressions.py (initial red: 5 failed)",
+        "python -m py_compile for the changed theme-bearing product modules",
+        "python -m pytest -q across visual-theme, empty-state, Media Info, title-bar, playlist and overlay families; 192 passed",
+        "python -m pytest -q across context-menu, subtitle appearance/center, updater and default-cinematic families; 561 passed",
+        "python packaging/extract_translations.py and --check",
+        "python -m pytest -q quality, theme and translation gates; 51 passed",
+        "python -m pytest -q; 5210 passed, 11 skipped, exit 0",
+        "git diff --check and read-only stale-accent source scan"
+      ],
+      "evidence": [
+        "app.config now owns UI_ACCENT #F26A3D, UI_ACCENT_HOVER #FF7A48, UI_ACCENT_PRESSED #DD5930 and the Segoe UI Variable Text to Segoe UI font fallback",
+        "the old blue selection and slider accents plus the second #FF5A1F orange were removed from Python product sources",
+        "the title bar, playlist, empty state, Media Info, short info dialog, overlay, subtitle windows, updater and compatibility controls consume the same visual identity",
+        "keyboard-reachable title, playlist and Media Info controls now have explicit neutral focus states; the previously rejected orange focus on the secondary Folder button was not restored",
+        "Media Info Copy and Close actions now have distinct secondary and primary neutral surfaces while the selected tab retains the product accent",
+        "the five new contracts failed before implementation and passed afterward; the complete deterministic package finished with 5210 passed and 11 skipped"
+      ],
+      "summary": "The exact uncommitted source tree now uses one central orange accent and font family across visible surfaces, with coherent keyboard focus and compact Media Info action hierarchy.",
+      "limitations": [
+        "This is deterministic/offscreen source-tree evidence; no fresh Windows human visual acceptance has run for the unified theme.",
+        "The user's single-agent instruction prevents an independent adversarial agent GO; this agent's source review and full deterministic PASS are not substituted for that independent gate.",
+        "The package remains uncommitted and is layered on the existing dirty UX working tree.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR update, merge, tag or release was performed."
+      ],
+      "next_action": "After separate user approval, close any pre-change canonical process normally, launch start.bat once and obtain bounded human visual acceptance for menus, focus states, start screen, playlist and Media Info before requesting commit approval."
+    },
+    {
+      "id": "EV-20260830-005",
+      "recorded_at_utc": "2026-08-30T00:20:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted interaction-responsiveness and shortcut-dialog correction layered on the unified visual-theme UX tree",
+      "changed_files": [
+        "app/menu_actions.py",
+        "app/video_frame.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_visual_theme_regressions.py"
+      ],
+      "subject": "Prevent repeated empty-state z-order churn and compact keyboard-shortcuts dialog",
+      "commands": [
+        "python -m pytest -q tests/test_visual_theme_regressions.py tests/test_default_cinematic_ui_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_empty_state_info_dialog_regressions.py (53 passed)",
+        "python -m pytest -q tests/test_frameless_resize_fallback_regressions.py tests/test_title_bar_regressions.py tests/test_title_bar_hardening_regressions.py tests/test_overlay_foreground_ownership_regressions.py tests/test_overlay_button_hit_regressions.py tests/test_overlay_responsive_regressions.py tests/test_overlay_autohide_regressions.py (236 passed)",
+        "python -m pytest -q tests/test_continuity_regressions.py (10 passed)",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json and git diff --check"
+      ],
+      "evidence": [
+        "EmptyStateOverlay is now raised only on the visibility transition; the 100 ms UI timer no longer repeats native-child raise_() and z-order/input churn.",
+        "Klavye Kısayolları is fixed at 450x520 with reduced table spacing and a default Tamam button that calls accept(), giving a compact deterministic Accepted close path.",
+        "Title-bar, resize, overlay ownership/hit and empty-state interaction families passed 236 tests after the change; continuity regression passed 10 tests."
+      ],
+      "summary": "Deterministic evidence supports the measured z-order churn as a real source of intermittent empty-state click latency and closes the oversized shortcut dialog/close semantics without changing media playback paths.",
+      "limitations": [
+        "No fresh Windows human click-latency measurement or visual acceptance has run after this correction.",
+        "Direct libmpv property reads remain in explicit subtitle/settings/device menu actions; those are a separate potential blocking path not changed in this evidence.",
+        "The package remains uncommitted and no Computer Use, build, installation, uninstall, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "After the user closes the current canonical process, launch one fresh canonical start.bat session and repeat empty-state clicks, top-bar clicks, shortcut dialog Tamam, playlist and overlay interactions while observing whether latency recurs."
+    },
+    {
+      "id": "EV-20260830-006",
+      "recorded_at_utc": "2026-08-30T00:35:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted focus handoff correction layered on EV-20260830-005",
+      "changed_files": [
+        "app/media_controls.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_visual_theme_regressions.py"
+      ],
+      "subject": "Clear file/folder opener focus after successful media load",
+      "commands": [
+        "python -m pytest -q tests/test_visual_theme_regressions.py tests/test_media_folder_recent_regressions.py tests/test_default_cinematic_ui_regressions.py (139 passed)",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json"
+      ],
+      "evidence": [
+        "Successful open_path and play_from_playlist now return focus to the StrongFocus video surface, so the title/file-folder button cannot remain visibly focused during playback.",
+        "The source contract covers both direct file and folder/playlist load paths; folder state, playlist behavior and default cinematic UI tests passed 139 times."
+      ],
+      "summary": "The reported selected folder icon was keyboard focus left on the opener after the modal folder dialog returned, not a playback selection state; successful media load now clears that focus visibly.",
+      "limitations": [
+        "No fresh Windows visual confirmation has run after this focus correction; the currently running process predates the change and must be restarted.",
+        "The package remains uncommitted and no Computer Use, build, installation, uninstall, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Close the current canonical process normally, launch a fresh canonical start.bat session, open a folder, and verify that the opener icon is neutral once video playback starts."
+    },
+    {
+      "id": "EV-20260830-007",
+      "recorded_at_utc": "2026-08-30T00:50:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted unified main-window acceptance runner layered on EV-20260830-006",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/run_main_window_acceptance.py",
+        "tests/test_main_window_acceptance_contract.py"
+      ],
+      "subject": "Single repeatable fail-closed main-window acceptance command",
+      "commands": [
+        "python -m pytest -q tests/test_main_window_acceptance_contract.py tests/test_visual_theme_regressions.py tests/test_media_folder_recent_regressions.py tests/test_default_cinematic_ui_regressions.py (141 passed)",
+        "MLC_NATIVE_SMOKE=0 python tests/run_main_window_acceptance.py (SKIPPED: OPT_IN_REQUIRED, exit 0)",
+        "python -m pytest -q tests/test_continuity_regressions.py (10 passed)",
+        "python -m py_compile tests/run_main_window_acceptance.py and python -m json.tool docs/VERIFICATION_LEDGER.json"
+      ],
+      "evidence": [
+        "tests/run_main_window_acceptance.py wraps the canonical 13-group physical runner in a named main-window acceptance cycle with default repeat=3 and bounded repeat 1-5.",
+        "The wrapper stops on the first non-PASS cycle, preserves per-cycle JSON reports and emits one fail-closed all_passed summary with MARK_DONE.",
+        "The contract test verifies opt-in, bounds, stop-on-failure, marker and default repeat behavior; deterministic impacted families passed 141 tests."
+      ],
+      "summary": "A single repeatable command now measures the main window as one acceptance package instead of requiring the user to interpret isolated group runs.",
+      "limitations": [
+        "The physical runner was not executed in this turn; MLC_NATIVE_SMOKE remained opt-out and no native video fixture was supplied.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "For the first real acceptance, close the current canonical process, set MLC_NATIVE_SMOKE=1 and MLC_NATIVE_TEST_VIDEO to a valid local fixture, then run python tests/run_main_window_acceptance.py --repeat 3."
+    },
+    {
+      "id": "EV-20260830-008",
+      "recorded_at_utc": "2026-08-30T00:55:00Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted acceptance-test prerequisite and runner corrections layered on EV-20260830-007",
+      "changed_files": [
+        "tests/native_physical_acceptance_child.py",
+        "tests/test_main_window_acceptance_contract.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "I-drive two-video main-window acceptance measurements",
+      "commands": [
+        "MLC_NATIVE_SMOKE=1 MLC_NATIVE_TEST_VIDEO=I:\\Dizi\\Resident Alien Season 1\\Resident.Alien.S01E01.Pilot.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb.mkv MLC_PLAYLIST_VIDEOS=I:\\Dizi\\Resident Alien Season 1\\Resident.Alien.S01E02.Homesick.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb.mkv python tests/native_physical_acceptance_child.py --group buttons (21/21 PASS)",
+        "same environment python tests/native_physical_acceptance_child.py --group window_resize (12/12 PASS after boundary-policy alignment)",
+        "same environment python tests/run_main_window_acceptance.py --repeat 1 (stopped after first-cycle buttons FAIL: fullscreen[open] entered=False; remaining groups not decision-complete)"
+      ],
+      "evidence": [
+        "I-drive fixture paths were resolved and the two-video playlist enabled real next/previous checks.",
+        "Buttons group passed after establishing the subtitle-off precondition; the prior four CC FAILs were test setup errors, not reproduced.",
+        "Window resize group passed after aligning playlist-open right-boundary expectations with the deterministic title-bar ownership contract.",
+        "The combined cycle exposed a remaining playlist-open fullscreen delivery failure: fullscreen[open] entered=False while exited=True; this is not a complete PASS."
+      ],
+      "summary": "The unified native acceptance command is effective: it removed false precondition failures and exposed a reproducible playlist-open fullscreen interaction failure before completing the cycle.",
+      "limitations": [
+        "The cycle was intentionally stopped after the first decisive failure; no overall PASS and no repeat=3 stability result exists.",
+        "The fullscreen failure's exact z-order versus action-toggle root cause is not yet isolated.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Inspect and instrument overlayFullscreen delivery with playlist open, then rerun only the buttons group before attempting another full cycle."
+    },
+    {
+      "id": "EV-20260830-009",
+      "recorded_at_utc": "2026-08-30T01:20:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted resize-corner policy correction layered on EV-20260830-008",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/native_physical_acceptance_child.py",
+        "tests/test_main_window_acceptance_contract.py"
+      ],
+      "subject": "Snapped playlist boundary and main-window corner resize policy",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py tests/test_title_bar_regressions.py tests/test_main_window_acceptance_contract.py (79 passed)"
+      ],
+      "evidence": [
+        "With a snapped playlist open, the shared middle left/right boundary remains owned by the playlist and produces no duplicate horizontal main-window resize cursor.",
+        "At the exact top-right, bottom-right, top-left and bottom-left bands the horizontal component is preserved, so the main window exposes the diagonal corner resize cursor without changing playlist proportional sizing.",
+        "Physical resize expectations and the acceptance contract remain aligned with the middle-boundary ownership policy."
+      ],
+      "summary": "The requested behavior is now narrow and consistent: playlist sizing remains proportional; only the main window's exact corners expose diagonal resize while the shared side remains playlist-owned.",
+      "limitations": [
+        "This is deterministic/source evidence only; the corrected corner cursor has not yet been remeasured in a fresh native run.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Run the targeted native window_resize group with the two I-drive videos and verify middle-boundary stability plus all four diagonal corner drags."
+    },
+    {
+      "id": "EV-20260830-010",
+      "recorded_at_utc": "2026-08-30T01:35:00Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted resize-corner policy and physical expectation correction layered on EV-20260830-009",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/native_physical_acceptance_child.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_main_window_acceptance_contract.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "I-drive physical main-window edge and corner resize acceptance",
+      "commands": [
+        "MLC_NATIVE_SMOKE=1 ... python tests/native_physical_acceptance_child.py --group window_resize"
+      ],
+      "evidence": [
+        "Closed-playlist left/right/top/bottom edges and all four corners each changed the intended axes by exactly 70 pixels.",
+        "With the snapped playlist open, the shared right middle boundary stayed fixed, while bottom-right changed both right and bottom by 70 pixels with no overlap.",
+        "The group completed with 12/12 PASS, exit 0, MARK_DONE, stop->terminate order and zero reported input blocks."
+      ],
+      "summary": "The requested narrow policy is physically confirmed: playlist remains proportional and middle-boundary-owned; the main window's exact corners provide diagonal resize.",
+      "limitations": [
+        "This proves only the window_resize native scenario and does not clear the previously failed full buttons cycle or overall repeat=3 acceptance.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Return to the remaining playlist-open overlayFullscreen delivery diagnosis before rerunning the complete main-window acceptance cycle."
+    },
+    {
+      "id": "EV-20260830-011",
+      "recorded_at_utc": "2026-08-30T01:55:00Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted expanded playlist-open resize matrix layered on EV-20260830-010",
+      "changed_files": [
+        "tests/native_physical_acceptance_child.py",
+        "tests/test_main_window_acceptance_contract.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Expanded I-drive edge/corner resize matrix with playlist open",
+      "commands": [
+        "MLC_NATIVE_SMOKE=1 ... python tests/native_physical_acceptance_child.py --group window_resize"
+      ],
+      "evidence": [
+        "The physical matrix measured closed-playlist edges and corners plus all eight edge/corner positions with the snapped playlist open.",
+        "The shared right middle boundary remained stable, while left/right/top/bottom edges and all four corners changed their intended axes by 70 pixels without overlap.",
+        "The expanded group completed 17/17 PASS, exit 0, MARK_DONE, stop->terminate order and zero blocked cases."
+      ],
+      "summary": "The resize test area now covers every requested edge and corner in both playlist states, and all measurements pass.",
+      "limitations": [
+        "This proves only the expanded window_resize native scenario; the prior full buttons cycle still requires separate fullscreen diagnosis.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Return to the remaining playlist-open overlayFullscreen delivery diagnosis before rerunning the complete main-window acceptance cycle."
+    },
+    {
+      "id": "EV-20260830-012",
+      "recorded_at_utc": "2026-08-30T02:10:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted center-aligned resize hit band layered on EV-20260830-011",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_edge_margin_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Center-aligned resize hit detection",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_title_bar_hardening_regressions.py tests/test_window_edge_margin_regressions.py tests/test_main_window_acceptance_contract.py (94 passed)"
+      ],
+      "evidence": [
+        "RESIZE_MARGIN is now 2 px, limiting detection to the actual edge centerline instead of a broad 12 px interior band.",
+        "All edge/corner and playlist-boundary contracts pass with the narrower hit area."
+      ],
+      "summary": "Resize now requires the cursor center to be on the window edge, while preserving all eight directions and playlist ownership rules.",
+      "limitations": [
+        "A fresh native run after the 2 px change was not completed; the prior expanded native run used the earlier hit margin.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app and perform the focused native resize run with the new 2 px hit band."
+    },
+    {
+      "id": "EV-20260830-013",
+      "recorded_at_utc": "2026-08-30T02:25:00Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted 2 px resize hit-band change; native retry interrupted after environment/input drift",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_edge_margin_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Interrupted native resize retry after 2 px hit-band change",
+      "commands": [
+        "MLC_NATIVE_SMOKE=1 ... python tests/native_physical_acceptance_child.py --group window_resize (interrupted; first edge input drift and right-edge FAIL)"
+      ],
+      "evidence": [
+        "The retry did not reach a decision-complete result: cursor/input coordinates drifted on the first edge and the subsequent right edge did not resize.",
+        "The result is not evidence against the 2 px source behavior because the run was interrupted and did not complete the matrix."
+      ],
+      "summary": "The first native retry after narrowing the hit band was invalid/incomplete due input-environment drift; it is recorded as failed and not treated as product PASS or regression.",
+      "limitations": [
+        "No complete native result exists for the 2 px change yet.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app and rerun the focused native resize group only after confirming a stable foreground/input environment."
+    },
+    {
+      "id": "EV-20260830-014",
+      "recorded_at_utc": "2026-08-30T02:45:00Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted 6 px center-aligned resize hit band layered on EV-20260830-013",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_window_edge_margin_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Stable native resize after center-aligned hit-band adjustment",
+      "commands": [
+        "MLC_NATIVE_SMOKE=1 ... python tests/native_physical_acceptance_child.py --group window_resize"
+      ],
+      "evidence": [
+        "The expanded closed/open playlist matrix covered all four edges and four corners, including the shared right boundary policy.",
+        "Every intended axis changed by 70 pixels, no playlist overlap occurred, and the product shutdown path remained stop->terminate.",
+        "The group completed 17/17 PASS, exit 0, MARK_DONE, zero FAIL and zero BLOCKED."
+      ],
+      "summary": "The 6 px center-aligned hit band is the smallest tested value that remains reliable in the real Windows runner while keeping resize visually close to the edge center.",
+      "limitations": [
+        "This proves the expanded window_resize scenario only; the prior playlist-open fullscreen buttons failure remains open.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app for user visual confirmation, then isolate the remaining playlist-open overlayFullscreen delivery failure."
+    },
+    {
+      "id": "EV-20260830-015",
+      "recorded_at_utc": "2026-08-30T03:05:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted startup focus correction layered on EV-20260830-014",
+      "changed_files": [
+        "app/video_frame.py",
+        "tests/test_visual_theme_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Neutral startup focus for empty-state opener controls",
+      "commands": [
+        "python -m pytest -q tests/test_visual_theme_regressions.py tests/test_empty_state_info_dialog_regressions.py (13 passed)"
+      ],
+      "evidence": [
+        "When the empty-state surface first becomes visible, focus is explicitly returned to the video frame so Dosya Aç/Klasör Aç cannot appear selected from inherited startup focus.",
+        "The focused source-contract and empty-state tests passed."
+      ],
+      "summary": "Startup opener focus is now neutralized without changing button click behavior.",
+      "limitations": [
+        "Fresh native visual confirmation of startup focus is still pending.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app and visually confirm both opener buttons are neutral before any click."
+    },
+    {
+      "id": "EV-20260830-016",
+      "recorded_at_utc": "2026-08-30T03:35:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted transparency-popup focus cleanup layered on EV-20260830-015",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Transparency popup close focus cleanup",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_visual_theme_regressions.py (52 passed)"
+      ],
+      "evidence": [
+        "Both transparency-popup close paths return focus to the video surface, preventing the opener button from remaining visibly focused after an empty-area interaction.",
+        "The focused title-bar and visual-theme regression families passed."
+      ],
+      "summary": "The reported post-transparency selected opener state is corrected at the popup lifecycle boundary.",
+      "limitations": [
+        "Fresh native visual confirmation of popup close and hand cursor remains pending.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app, adjust transparency, click empty video space and confirm neutral opener focus plus hand cursors."
+    },
+    {
+      "id": "EV-20260830-017",
+      "recorded_at_utc": "2026-08-30T03:55:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted popup cursor ownership correction layered on EV-20260830-016",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_visual_theme_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Transparency popup no longer masks title-bar hand cursors",
+      "commands": [
+        "python -m pytest -q tests/test_visual_theme_regressions.py tests/test_title_bar_regressions.py tests/test_frameless_resize_fallback_regressions.py (115 passed)"
+      ],
+      "evidence": [
+        "Global resize cursor override is now restricted to the real video control overlay; the transparency popup cannot leave a stale override over title-bar buttons.",
+        "The focused cursor, title-bar and visual-theme regression families passed."
+      ],
+      "summary": "After transparency adjustment, moving back to the title bar can restore the expected hand cursor on the first hover.",
+      "limitations": [
+        "Fresh native visual confirmation after popup adjustment remains pending.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app and verify transparency-popup close followed by first title-bar hover shows hand cursors."
+    },
+    {
+      "id": "EV-20260830-018",
+      "recorded_at_utc": "2026-08-30T04:20:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted explicit title-button focus cleanup layered on EV-20260830-017",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Explicit title-button focus clearing after transparency popup close",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_visual_theme_regressions.py tests/test_frameless_resize_fallback_regressions.py (115 passed)"
+      ],
+      "evidence": [
+        "Popup close now clears focus from every title-bar button before attempting to focus the video frame, covering Windows native-child focus retention.",
+        "The transparency close regression asserts the transparency button is not focused after hide; all 115 focused tests passed."
+      ],
+      "summary": "The remaining selected-icon state after transparency popup close is removed explicitly at the title-bar focus boundary.",
+      "limitations": [
+        "Fresh native visual confirmation of this final focus cleanup remains pending.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app and repeat transparency-adjust, empty-click, and first-hover visual checks."
+    },
+    {
+      "id": "EV-20260830-019",
+      "recorded_at_utc": "2026-08-30T04:45:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted deferred popup focus cleanup layered on EV-20260830-018",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Deferred focus cleanup after Qt popup auto-restore",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_visual_theme_regressions.py (53 passed)"
+      ],
+      "evidence": [
+        "Transparency popup close now clears title-button focus immediately and again on the next Qt event turn, after Popup focus restoration.",
+        "Focused title-bar and visual-theme regressions passed."
+      ],
+      "summary": "The Qt Popup auto-restore race is covered by deferred focus cleanup.",
+      "limitations": [
+        "Fresh native visual confirmation remains pending.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app and verify no transparency icon remains selected after popup close."
+    },
+    {
+      "id": "EV-20260830-020",
+      "recorded_at_utc": "2026-08-30T05:10:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted PiP media-availability gate layered on EV-20260830-019",
+      "changed_files": [
+        "app/player.py",
+        "app/title_bar.py",
+        "app/video_frame.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_title_bar_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Prevent empty-state picture-in-picture",
+      "commands": [
+        "python -m pytest -q tests/test_window_modes_regressions.py tests/test_title_bar_regressions.py tests/test_context_menu_structure_regressions.py tests/test_visual_theme_regressions.py (179 passed)"
+      ],
+      "evidence": [
+        "PiP entry returns False with no loaded media; title and context-menu commands are disabled until media is available.",
+        "Existing PiP entry/exit, title-bar and context-menu behavior remained covered by the targeted suite."
+      ],
+      "summary": "The empty startup screen can no longer be compressed into PiP; PiP becomes available only after a video is loaded.",
+      "limitations": [
+        "The transparency-popup cursor/focus visual issue remains separately open and is not claimed fixed by this change.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app and visually confirm disabled PiP before media and enabled PiP after loading a video; continue separate transparency cursor diagnosis."
+    },
+    {
+      "id": "EV-20260830-021",
+      "recorded_at_utc": "2026-08-30T05:45:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted title focus visual neutralization and post-open PiP refresh layered on EV-20260830-020",
+      "changed_files": [
+        "app/title_bar.py",
+        "app/media_controls.py",
+        "app/player.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_visual_theme_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Neutral title focus visual and PiP enablement after video load",
+      "commands": [
+        "python -m pytest -q tests/test_window_modes_regressions.py tests/test_title_bar_regressions.py tests/test_context_menu_structure_regressions.py tests/test_visual_theme_regressions.py tests/test_media_selection_atomic_regressions.py (193 passed)"
+      ],
+      "evidence": [
+        "Title-button focus keeps only its accessibility outline; it no longer paints the grey selected background reported after transparency adjustment.",
+        "Successful direct and playlist media opens refresh title-bar mode state, so PiP changes from disabled to enabled after a video is loaded; no-media entry remains rejected."
+      ],
+      "summary": "The persistent grey transparency state is neutralized at the visual style boundary, and the PiP hand cursor can become available only after the post-open state refresh.",
+      "limitations": [
+        "Fresh native Windows visual confirmation remains pending; deterministic tests do not prove the observed cursor or focus rendering.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app, load a video, close the transparency popup, then confirm neutral transparency appearance and the PiP hand cursor."
+    },
+    {
+      "id": "EV-20260830-022",
+      "recorded_at_utc": "2026-08-30T06:05:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted transparency popup auto-hide regression addition",
+      "changed_files": [
+        "tests/test_title_bar_regressions.py"
+      ],
+      "subject": "Initial direct-hide popup focus regression was not a valid offscreen scenario",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_visual_theme_regressions.py tests/test_window_modes_regressions.py (1 failed, 68 passed)"
+      ],
+      "evidence": [
+        "The offscreen fixture does not create the native top-level popup lifecycle needed for direct QFrame.hide() focus ownership, so the new assertion was a harness false negative rather than product evidence."
+      ],
+      "summary": "No automatic retry occurred: the fixture boundary was inspected before replacing the assertion with the actual Qt Hide event path.",
+      "limitations": [
+        "This result does not assess real Windows cursor or focus rendering.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Exercise the TitleBar popup Hide event directly, then rerun the focused family."
+    },
+    {
+      "id": "EV-20260830-023",
+      "recorded_at_utc": "2026-08-30T06:15:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted popup Hide lifecycle correction layered on EV-20260830-021",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_visual_theme_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Transparency popup automatic-hide cleanup and focus-style precedence",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_visual_theme_regressions.py tests/test_window_modes_regressions.py (69 passed)"
+      ],
+      "evidence": [
+        "The transparency popup is now observed for its actual Qt Hide event, so outside-click automatic dismissal clears its opener's down/focus state and returns focus to the video surface on both the immediate and deferred Qt turns.",
+        "The title-specific focus selector explicitly overrides the global QPushButton background-color focus rule with transparent background and transparent background-color."
+      ],
+      "summary": "The reported post-transparency stuck selection is handled on the real popup lifecycle boundary rather than only on the explicit close helper.",
+      "limitations": [
+        "Fresh native Windows visual confirmation remains pending; deterministic tests do not prove the observed cursor or focus rendering.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app, set transparency, click outside the popup, and confirm neither stuck grey selection nor lost title-button hand cursor remains."
+    },
+    {
+      "id": "EV-20260830-024",
+      "recorded_at_utc": "2026-08-30T06:40:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted in-window transparency panel replacing native Qt.Popup layered on EV-20260830-023",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_visual_theme_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_frameless_resize_fallback_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Replace focus-grabbing transparency popup with an in-window panel",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_visual_theme_regressions.py tests/test_window_modes_regressions.py tests/test_frameless_resize_fallback_regressions.py (132 passed)"
+      ],
+      "evidence": [
+        "Transparency control is now a child of the main player window, not a Qt.Popup top-level; the native popup mouse-grab and focus-restore path is absent.",
+        "An application event filter closes the visible panel on an outside click without consuming that click, and the popup-hide cleanup releases any stale resize cursor override."
+      ],
+      "summary": "The repeated transparency interaction defect is addressed at its windowing boundary instead of adding more focus-timer workarounds.",
+      "limitations": [
+        "Fresh native Windows visual confirmation remains pending; deterministic tests do not prove the observed cursor or focus rendering.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Start the canonical app from a fully closed state and visually test transparency adjustment followed by an outside click and immediate title-button hover."
+    },
+    {
+      "id": "EV-20260830-025",
+      "recorded_at_utc": "2026-08-30T06:55:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted removal of transparency-close native video focus redirect layered on EV-20260830-024",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_visual_theme_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_frameless_resize_fallback_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Preserve title-button cursor ownership after transparency panel close",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_visual_theme_regressions.py tests/test_window_modes_regressions.py tests/test_frameless_resize_fallback_regressions.py (132 passed)"
+      ],
+      "evidence": [
+        "While the panel is open, the user observed title buttons keep their hand cursor; the only close-only handoff was the forced video-frame setFocus call.",
+        "Transparency close no longer redirects focus to the native video child; regression doubles fail if such a redirect is reintroduced, while the opener remains neither focused nor down."
+      ],
+      "summary": "The close-only cursor regression is targeted by removing the native focus handoff, not by changing button cursor definitions that already work while the panel is visible.",
+      "limitations": [
+        "Fresh native Windows visual confirmation remains pending; deterministic tests do not prove the observed cursor rendering.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app, close the transparency panel, then immediately hover a title button and confirm the hand cursor remains."
+    },
+    {
+      "id": "EV-20260830-026",
+      "recorded_at_utc": "2026-08-30T07:10:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted per-title-button focus fill override layered on EV-20260830-025",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_visual_theme_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_frameless_resize_fallback_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Prevent global focus fill from selecting title-bar commands",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_visual_theme_regressions.py tests/test_window_modes_regressions.py tests/test_frameless_resize_fallback_regressions.py (133 passed)"
+      ],
+      "evidence": [
+        "The global application stylesheet defines QPushButton:focus with background-color #29323A, which can reapply a grey selected fill after any title command gains focus.",
+        "Every title command now owns a focus selector that explicitly sets transparent background and background-color; the regression enumerates both left and right title controls."
+      ],
+      "summary": "Dosya Aç and every other title command are protected from the global focus-fill rule at the widget precedence boundary; genuine hover remains distinct.",
+      "limitations": [
+        "Fresh native Windows visual confirmation remains pending; deterministic tests do not prove the observed cursor rendering.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app, close the transparency panel, then verify no title command remains grey-selected unless the pointer is actually hovering it."
+    },
+    {
+      "id": "EV-20260830-027",
+      "recorded_at_utc": "2026-08-30T07:25:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted post-panel-close title cursor refresh layered on EV-20260830-026",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_visual_theme_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_frameless_resize_fallback_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Refresh title cursor after transparency panel removal",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_visual_theme_regressions.py tests/test_window_modes_regressions.py tests/test_frameless_resize_fallback_regressions.py (134 passed)"
+      ],
+      "evidence": [
+        "The user confirmed title controls show the hand cursor while the panel is open but only after a second interaction when it closes, isolating missing cursor re-evaluation after child removal.",
+        "On the next Qt event turn after panel Hide, the title bar now finds the button under the actual cursor and re-applies PointingHandCursor; the regression verifies the unset/reapply sequence."
+      ],
+      "summary": "The first post-close hover no longer relies on a second click or mouse-enter event to make Windows update the title-button cursor.",
+      "limitations": [
+        "Fresh native Windows visual confirmation remains pending; deterministic tests do not prove the observed cursor rendering.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app, close the transparency panel, and verify the first title-button hover immediately shows the hand cursor."
+    },
+    {
+      "id": "EV-20260830-028",
+      "recorded_at_utc": "2026-08-30T07:45:00Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted opt-in native title-cursor harness",
+      "changed_files": [
+        "tests/native_title_cursor_smoke_child.py",
+        "tests/test_native_title_cursor_smoke_regressions.py"
+      ],
+      "subject": "Initial media predicate in native title-cursor harness was fail-closed but invalid",
+      "commands": [
+        "MLC_NATIVE_TITLE_CURSOR_SMOKE=1 MLC_NATIVE_TITLE_CURSOR_MEDIA=<private-media> python tests/native_title_cursor_smoke_child.py (MARK_FAILED, exit 3)"
+      ],
+      "evidence": [
+        "All cursor-handle observations were the system hand cursor, but the harness incorrectly required a duration callback within five seconds and then incorrectly consumed MPVPlayer.open_path()'s non-returning wrapper as a boolean.",
+        "The child exited cleanly; no player or mpv process remained."
+      ],
+      "summary": "The failed marker is a harness-predicate failure, not evidence of a cursor defect or media-playback failure; it was inspected before the corrected run.",
+      "limitations": [
+        "No product PASS is inferred from this failed run.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Use accepted media command state rather than the public wrapper return or duration callback for this cursor-only scenario."
+    },
+    {
+      "id": "EV-20260830-029",
+      "recorded_at_utc": "2026-08-30T07:55:00Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted opt-in native title-cursor harness with actual media command",
+      "changed_files": [
+        "tests/native_title_cursor_smoke_child.py",
+        "tests/test_native_title_cursor_smoke_regressions.py"
+      ],
+      "subject": "Native Windows title cursor after transparency cycle",
+      "commands": [
+        "MLC_NATIVE_TITLE_CURSOR_SMOKE=1 MLC_NATIVE_TITLE_CURSOR_MEDIA=<private-media> python tests/native_title_cursor_smoke_child.py (exit 0, MARK_DONE)"
+      ],
+      "evidence": [
+        "With a real private video command accepted, opacity changed from 100 to 58 and back to 100, then both opener-close and outside-close paths were tested against Dosya Aç.",
+        "CURSOR_OPEN, CURSOR_FIRST_AFTER_CLOSE, CURSOR_SETTLED_AFTER_CLOSE and CURSOR_AFTER_OUTSIDE_CLOSE all equalled the measured system hand handle 65567; arrow handle was distinct at 65539; no process leaked."
+      ],
+      "summary": "The exact temporary child scenario produced a hand cursor on the first measured post-close hover; it does not replace user acceptance for the live application sequence.",
+      "limitations": [
+        "The child is an uncommitted source scenario, not an installed artifact or human acceptance result.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Cover the immediate first user mouse movement after panel hide in source and retry live human verification."
+    },
+    {
+      "id": "EV-20260830-030",
+      "recorded_at_utc": "2026-08-30T08:05:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted first-mouse-move title cursor refresh layered on EV-20260830-029",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/native_title_cursor_smoke_child.py",
+        "tests/test_native_title_cursor_smoke_regressions.py",
+        "tests/test_visual_theme_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_frameless_resize_fallback_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Refresh title cursor on the first movement after transparency close",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_native_title_cursor_smoke_regressions.py tests/test_visual_theme_regressions.py tests/test_window_modes_regressions.py tests/test_frameless_resize_fallback_regressions.py (136 passed)"
+      ],
+      "evidence": [
+        "Panel Hide marks a pending cursor refresh; the first application MouseMove or MouseButtonPress refreshes the title button under the actual current pointer and clears that marker.",
+        "The regression proves the first movement uses the refresh path, while EV-20260830-029 independently measured the native Windows cursor handle for the completed close cycles."
+      ],
+      "summary": "The first post-close user movement is now explicitly covered instead of relying on a second click to cause a native cursor update.",
+      "limitations": [
+        "Fresh human confirmation remains pending for the reported timing path.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Start the canonical app and repeat the user timing path: set transparency, restore 100, close panel, then immediately move once to Dosya Aç."
+    },
+    {
+      "id": "EV-20260830-031",
+      "recorded_at_utc": "2026-08-30T08:20:00Z",
+      "proof_layer": "external_submission",
+      "result": "failed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted transparency cursor changes through EV-20260830-030",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/native_title_cursor_smoke_child.py",
+        "tests/test_native_title_cursor_smoke_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "User live acceptance still reports second-interaction title cursor recovery",
+      "commands": [],
+      "evidence": [
+        "After the canonical app was restarted, the user reported the cursor still becomes correct only on the second interaction.",
+        "This conflicts with EV-20260830-029's narrow native child PASS and therefore blocks any claim that the user-visible defect is fixed."
+      ],
+      "summary": "Human live acceptance failed; the user requested that work stop and the remaining defect is explicitly deferred.",
+      "limitations": [
+        "This external user observation is not deterministic, native smoke, installed-artifact, or third-party delivery evidence.",
+        "No further investigation, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Do not continue this cursor issue unless the user separately reopens it; preserve the failed live-acceptance result."
+    },
+    {
+      "id": "EV-20260830-032",
+      "recorded_at_utc": "2026-08-30T08:35:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted deferred title-bar system move layered on failed live acceptance EV-20260830-031",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_frameless_resize_fallback_regressions.py",
+        "tests/test_native_title_cursor_smoke_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Do not start native window move on a simple title-bar click",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_regressions.py tests/test_frameless_resize_fallback_regressions.py tests/test_native_title_cursor_smoke_regressions.py (114 passed)"
+      ],
+      "evidence": [
+        "User observation isolated the defect to a first click on the top strip; a click on the video surface recovered immediately, while top-strip recovery required a second interaction.",
+        "TitleBar previously invoked startSystemMove on every empty-area press. It now records the press and starts native/manual movement only after QApplication.startDragDistance() is crossed; regression covers both simple click and real drag."
+      ],
+      "summary": "The concrete top-strip-only cause is removed: a normal click can close or interact with the title area without entering Windows' modal move loop.",
+      "limitations": [
+        "Fresh human verification is pending; no new native smoke was run for this modified scenario.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Restart the canonical app and repeat the top-strip click followed by the first title-button hover; separately verify that dragging the empty title strip still moves the window."
+    },
+    {
+      "id": "EV-20260830-033",
+      "recorded_at_utc": "2026-08-30T09:00:00Z",
+      "proof_layer": "external_submission",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted title-bar drag-threshold fix layered on EV-20260830-032",
+      "changed_files": [
+        "app/title_bar.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_frameless_resize_fallback_regressions.py",
+        "tests/test_native_title_cursor_smoke_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "User accepts first-click title-bar interaction after transparency cycle",
+      "commands": [],
+      "evidence": [
+        "After the canonical application was restarted with the drag-threshold change, the user reported: 'aa düzeldi yaptın'.",
+        "The preceding observation distinguished the affected blank title strip from the video surface and led to the exact startSystemMove-on-press root cause covered by EV-20260830-032."
+      ],
+      "summary": "Live user acceptance confirms the first title-bar interaction is no longer swallowed after the transparency sequence. The regression prevents a plain title-bar click from starting the native move loop while retaining real drag movement.",
+      "limitations": [
+        "This is user-visible acceptance of the reported interaction path, not an installed-artifact, build, release, or full Windows acceptance-matrix result.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Keep the drag-threshold regression with any future title-bar or transparency work; obtain separate approval before committing the existing working-tree changes."
+    },
+    {
+      "id": "EV-20260903-034",
+      "recorded_at_utc": "2026-09-03T21:20:00Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted UX, title-bar, playlist, visual-theme, icon and acceptance-runner package through EV-20260830-033",
+      "changed_files": [
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "tests/test_main_window_acceptance_contract.py",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts"
+      ],
+      "subject": "Full deterministic package exposes stale maintenance metadata",
+      "commands": [
+        "python -m pytest -q (3 failed, 5231 passed, 11 skipped, 95.65s)"
+      ],
+      "evidence": [
+        "The four changed inventory sources app/video_frame.py, app/media_controls.py, app/player.py and app/menu_actions.py no longer matched their LF-normalized hashes and structural metrics.",
+        "The newly added tests/test_main_window_acceptance_contract.py omitted the required GPL SPDX line, and the generated English catalog left the new PiP-disabled tooltip unfinished."
+      ],
+      "summary": "The full package is not green until generated/supporting metadata tracks the current source; no product-behavior failure is inferred from these three maintenance gates.",
+      "limitations": [
+        "This failed deterministic result does not change native, installed-artifact or human acceptance evidence.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Refresh exact inventory metrics, restore the SPDX header, generate catalogs, add the English tooltip translation, and run the failing gates before a full rerun."
+    },
+    {
+      "id": "EV-20260903-035",
+      "recorded_at_utc": "2026-09-03T21:34:18Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "baseline_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+      "working_tree_state": "uncommitted package with refreshed inventory, SPDX header and generated translation catalogs",
+      "changed_files": [
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "tests/test_main_window_acceptance_contract.py",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "translations/mlcplayer_ru.ts",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Full deterministic package after maintenance synchronization",
+      "commands": [
+        "python packaging/extract_translations.py --check (461 strings, current)",
+        "python -m pytest -q tests/test_quality_evolution_plan_regressions.py tests/test_spdx_header_regressions.py tests/test_translation_pipeline_regressions.py tests/test_continuity_regressions.py tests/test_main_window_acceptance_contract.py (377 passed)",
+        "python -m pytest -q (5234 passed, 11 skipped, 94.26s)",
+        "git diff --check",
+        "python -m json.tool docs/ARCHITECTURE_INVENTORY.json"
+      ],
+      "evidence": [
+        "The machine inventory now exactly measures all six tracked large source modules, including the four changed modules.",
+        "The generated English catalog retains 'Open a video first.' for the new PiP-disabled tooltip and all seven catalogs are current."
+      ],
+      "summary": "The complete deterministic source-tree package is green after the maintenance synchronization.",
+      "limitations": [
+        "This is source-tree deterministic evidence only; it does not rerun native, installed-artifact or broader Windows acceptance scenarios.",
+        "No Computer Use, build, installation, uninstall, commit, push, PR, merge, tag or release was performed."
+      ],
+      "next_action": "Obtain separate approval before staging and committing the current working-tree package."
     }
   ]
 }

@@ -280,10 +280,10 @@ def test_icon_sizes_match_the_approved_reference_scale(product_window):
     for name in ("overlaySubtitles", "overlayVolume", "overlaySettings",
                  "overlayFullscreen"):
         button = button_by_name(frame, name)
-        assert button.iconSize().width() == 22, name
-    assert button_by_name(frame, "overlayPrevious").iconSize().width() == 25
-    assert button_by_name(frame, "overlayNext").iconSize().width() == 25
-    assert button_by_name(frame, "overlayPlayPause").iconSize().width() == 27
+        assert button.iconSize().width() == 28, name
+    assert button_by_name(frame, "overlayPrevious").iconSize().width() == 30
+    assert button_by_name(frame, "overlayNext").iconSize().width() == 30
+    assert button_by_name(frame, "overlayPlayPause").iconSize().width() == 32
 
 
 def test_button_hit_areas_do_not_overlap_each_other(product_window):

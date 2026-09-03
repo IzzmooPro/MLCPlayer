@@ -23,10 +23,11 @@ from PyQt6.QtWidgets import (
     QComboBox, QDialog, QFrame, QHBoxLayout, QLabel, QLayout,
     QLineEdit, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
 
+from app.config import UI_ACCENT
 from app.ui_icons import make_media_icon
 from app.i18n import tr, tr_mark, translate_marked
 
-ACCENT = "#F26A3D"
+ACCENT = UI_ACCENT
 SURFACE = "rgba(19, 20, 22, 255)"
 TEXT = "#E9EDF1"
 MUTED = "#8E969F"

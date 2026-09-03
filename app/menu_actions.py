@@ -44,6 +44,12 @@ def _toggle_loop_file_action(player, action, enabled):
             action, bool(getattr(player, "loop_file", False)))
 
 
+def _toggle_checked_action(player, action, method_name, state_name, enabled):
+    if getattr(player, method_name)(enabled) is False:
+        _set_checked_without_signal(
+            action, bool(getattr(player, state_name, False)))
+
+
 def setup_menu(player):
     menu_bar = player.menuBar()
 
@@ -181,14 +187,21 @@ def setup_menu(player):
     loop_playlist_action = QAction(tr("Listeyi Tekrarla"), player)
     loop_playlist_action.setCheckable(True)
     loop_playlist_action.setChecked(player.loop_playlist)
-    loop_playlist_action.toggled.connect(player.set_loop_playlist)
+    loop_playlist_action.toggled.connect(
+        lambda enabled: _toggle_checked_action(
+            player, loop_playlist_action, "set_loop_playlist",
+            "loop_playlist", enabled))
     play_menu.addAction(loop_playlist_action)
+    player.loop_playlist_action = loop_playlist_action
 
     shuffle_action = QAction(tr("Karışık Oynat"), player)
     shuffle_action.setCheckable(True)
     shuffle_action.setChecked(player.shuffle)
-    shuffle_action.toggled.connect(player.toggle_shuffle)
+    shuffle_action.toggled.connect(
+        lambda enabled: _toggle_checked_action(
+            player, shuffle_action, "toggle_shuffle", "shuffle", enabled))
     play_menu.addAction(shuffle_action)
+    player.shuffle_action = shuffle_action
 
     play_menu.addSeparator()
 
@@ -604,7 +617,11 @@ def _exclusive_group(player, menu, attribute):
     return group
 
 
-def refresh_audio_tracks(player):
+_MPV_SNAPSHOT_MISSING = object()
+
+
+def refresh_audio_tracks(player, track_list=_MPV_SNAPSHOT_MISSING,
+                         current_aid=_MPV_SNAPSHOT_MISSING):
     """Ses PARÇALARI (videonun içindeki ses akışları) menüsünü doldurur."""
     menu = player.audio_track_menu
     clear_dynamic_menu(menu)
@@ -612,27 +629,35 @@ def refresh_audio_tracks(player):
         empty_action = QAction(tr("Önce bir video açın."), player)
         empty_action.setEnabled(False)
         menu.addAction(empty_action)
-        return
+        return True
 
     try:
-        player.mpv_player.command('rescan-external-files')
-        track_list = player.mpv_player.track_list or []
+        # Menü çizimi dosya sistemi taraması başlatmaz. Özellikle bu fonksiyon
+        # `MPVPlayer.update_ui()` içindeki 100 ms GUI timer'ından çağrılır;
+        # `rescan-external-files` veya property read burada libmpv core lock'u
+        # beklerse bütün pencere yanıt vermeyi bırakır. Timer yolu gözlemcinin
+        # hazır snapshot'larını verir. Doğrudan kullanıcı yenilemesi için eski
+        # property-read fallback'i korunur, fakat yeniden tarama yapılmaz.
+        if track_list is _MPV_SNAPSHOT_MISSING:
+            track_list = player.mpv_player.track_list
+        if current_aid is _MPV_SNAPSHOT_MISSING:
+            current_aid = player.mpv_player.aid
+        track_list = track_list or []
         audio_tracks = [track for track in track_list
                         if isinstance(track, dict)
                         and track.get('type') == 'audio']
-        current_aid = player.mpv_player.aid
     except Exception as e:
         safe_console(f"Audio track listing error: {e}")
         error_action = QAction(tr("Ses parçaları yüklenemedi"), player)
         error_action.setEnabled(False)
         menu.addAction(error_action)
-        return
+        return False
 
     if not audio_tracks:
         no_audio_action = QAction(tr("Ses parçası bulunamadı"), player)
         no_audio_action.setEnabled(False)
         menu.addAction(no_audio_action)
-        return
+        return True
 
     group = _exclusive_group(player, menu, "_audio_track_group")
     for track, label in zip(audio_tracks,
@@ -651,6 +676,7 @@ def refresh_audio_tracks(player):
             lambda checked, aid=track_id: player.select_audio_track(aid))
         group.addAction(action)
         menu.addAction(action)
+    return True
 
 
 def _text_or_empty(value):
@@ -804,11 +830,13 @@ def refresh_subtitle_tracks(player):
         menu.addAction(action)
 
 
-def refresh_chapters(player):
+def refresh_chapters(player, chapters=_MPV_SNAPSHOT_MISSING):
     for action in player.chapter_menu.actions()[2:]:
         player.chapter_menu.removeAction(action)
     try:
-        chapters = player.mpv_player.chapter_list or []
+        if chapters is _MPV_SNAPSHOT_MISSING:
+            chapters = player.mpv_player.chapter_list
+        chapters = chapters or []
         if not chapters:
             empty_action = QAction(tr("Bölüm bulunamadı"), player)
             empty_action.setEnabled(False)
@@ -999,9 +1027,11 @@ def close_media_info(player):
 def show_shortcuts(player):
     shortcut_dialog = QDialog(player)
     shortcut_dialog.setWindowTitle(tr("Klavye Kısayolları"))
-    shortcut_dialog.setMinimumSize(500, 350)
+    shortcut_dialog.setFixedSize(450, 520)
 
     layout = QVBoxLayout(shortcut_dialog)
+    layout.setContentsMargins(12, 10, 12, 10)
+    layout.setSpacing(8)
 
     # HTML tablosu METİNDEN değil VERİDEN kurulur. Tek bir dev HTML bloğu
     # çevirmene etiketleri de teslim ederdi; bozuk bir `<td>` bütün
@@ -1030,16 +1060,17 @@ def show_shortcuts(player):
     ]
     rows = "\n".join(f"    <tr><td><b>{key}</b></td><td>{label}</td></tr>"
                      for key, label in shortcut_rows)
-    shortcuts_text = (f"\n    <h3>{tr('Klavye Kısayolları')}</h3>\n"
-                      '    <table border="0" cellspacing="10">\n'
+    shortcuts_text = (f"<h3>{tr('Klavye Kısayolları')}</h3>\n"
+                      '    <table border="0" cellspacing="4" cellpadding="0">\n'
                       f"{rows}\n    </table>\n    ")
 
     shortcuts_label = QLabel(shortcuts_text)
-    shortcuts_label.setStyleSheet("color: #C6CED6; font-size: 13px;")
+    shortcuts_label.setStyleSheet("color: #C6CED6; font-size: 12px;")
     layout.addWidget(shortcuts_label)
 
     ok_button = QPushButton(tr("Tamam"))
-    ok_button.clicked.connect(shortcut_dialog.close)
+    ok_button.setDefault(True)
+    ok_button.clicked.connect(shortcut_dialog.accept)
     layout.addWidget(ok_button)
 
     shortcut_dialog.exec()

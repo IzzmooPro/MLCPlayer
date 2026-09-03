@@ -138,6 +138,13 @@ değiştirmez.
   `tests/test_frameless_resize_edge_delivery_regressions.py` ve
   `tests/test_native_resize_input_safety_regressions.py` geometri/girdi
   sözleşmesini korur.
+- **Güncel çalışma ağacı ölçümü (EV-20260830-011/012):** Playlist kapalı ve
+  açıkken dört kenar ile dört köşe ayrı ayrı ölçüldü; genişletilmiş native
+  `window_resize` grubu **17/17 PASS** verdi. Yapışık playlist'in ortak sağ
+  orta sınırı sabit kalır, köşelerde ana pencerenin çapraz resize'ı korunur.
+  İmleç merkezine hizalı hit-test toleransı `RESIZE_MARGIN=6 px`'dir; 2 px
+  denemesi Windows kenar yakalamasında güvenilir olmadığından korunmamıştır.
+  6 px sürümüyle native tekrar **17/17 PASS** verdi (`EV-20260830-014`).
 - **Native ölçüm:** `tests/run_physical_acceptance.py window_resize,fullscreen`
   gerçek kenar SendInput, tam ekran düğmesi ve Esc dönüşünü ölçer.
 - **Exact girdiler:** gerçek video, mevcut ekran/DPI/monitör bilgisi, runtime

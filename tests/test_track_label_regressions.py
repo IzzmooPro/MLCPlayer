@@ -519,6 +519,38 @@ def test_audio_refresh_twice_does_not_duplicate_rows(menu_player):
     assert first == second == 2
 
 
+def test_audio_refresh_does_not_rescan_external_files_on_gui_thread(menu_player):
+    """Menu rendering must never start native file I/O from the GUI thread."""
+    from app.menu_actions import refresh_audio_tracks
+
+    app, window = menu_player(tracks=AUDIO_TRACKS)
+    calls = []
+    window.mpv_player.command = lambda *args: calls.append(args)
+
+    refresh_audio_tracks(window)
+
+    assert calls == []
+
+
+def test_audio_refresh_uses_observed_snapshot_without_mpv_reads(menu_player):
+    """The timer path can render a watcher snapshot without taking mpv locks."""
+    from app.menu_actions import refresh_audio_tracks
+
+    app, window = menu_player(raise_on_tracks=True)
+
+    class NoSyncReadMpv:
+        def __getattr__(self, name):
+            raise AssertionError(f"unexpected synchronous mpv read: {name}")
+
+    window.mpv_player = NoSyncReadMpv()
+    refreshed = refresh_audio_tracks(
+        window, track_list=AUDIO_TRACKS, current_aid=2)
+    actions = find_menu(window.menuBar(), "Ses Parçası").actions()
+
+    assert refreshed is True
+    assert [action.isChecked() for action in actions] == [False, True]
+
+
 def test_audio_track_id_reaches_the_callback_but_not_the_text(menu_player):
     from app.menu_actions import refresh_audio_tracks
 

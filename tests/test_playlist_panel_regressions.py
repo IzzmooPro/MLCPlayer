@@ -8,6 +8,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PyQt6.QtCore import QEvent, QMimeData, QPoint, QRect, Qt, QUrl
 from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import (
+    QAbstractItemView,
     QApplication,
     QHBoxLayout,
     QLabel,
@@ -48,9 +49,17 @@ def playlist_window(monkeypatch):
     window.current_file = window.playlist[2]
     window.is_paused = True
     window.played = []
+    window.removed_batches = []
     window.play_from_playlist = lambda index: window.played.append(index)
     window.add_to_playlist = lambda: None
     window.remove_from_playlist = lambda index: None
+    def remove_many(indices):
+        ordered = sorted(set(indices), reverse=True)
+        window.removed_batches.append(sorted(ordered))
+        for index in ordered:
+            window.playlist.pop(index)
+        return True
+    window.remove_many_from_playlist = remove_many
     window.clear_playlist = lambda: None
 
     central = QWidget(window)
@@ -403,6 +412,36 @@ def test_list_exposes_real_drag_drop_reordering_surface(playlist_window):
     assert view.acceptDrops()
     assert view.showDropIndicator()
     assert view.defaultDropAction() == Qt.DropAction.MoveAction
+    assert (view.selectionMode()
+            == QAbstractItemView.SelectionMode.ExtendedSelection)
+
+
+def test_playlist_rows_do_not_inherit_a_stale_horizontal_resize_cursor(
+        playlist_window):
+    """Leaving the 14 px resize band must not paint its cursor over rows."""
+    app, window, frame = playlist_window
+    panel = _open(app, window, frame)
+    view = panel.playlist_view
+
+    # Windows can deliver the edge event to the frameless top-level panel.
+    # Reproduce the resulting parent cursor before entering the row viewport.
+    panel.setCursor(Qt.CursorShape.SizeHorCursor)
+
+    assert view.viewport().cursor().shape() == Qt.CursorShape.ArrowCursor
+
+
+def test_top_level_playlist_never_owns_the_horizontal_resize_cursor(
+        playlist_window):
+    """Only the dedicated 14 px handle may own SizeHorCursor."""
+    app, window, frame = playlist_window
+    panel = _open(app, window, frame)
+    panel.unsetCursor()
+
+    QTest.mouseMove(panel, QPoint(7, panel.height() // 2))
+    app.processEvents()
+
+    assert not panel.testAttribute(Qt.WidgetAttribute.WA_SetCursor)
+    assert panel.resize_handle.cursor().shape() == Qt.CursorShape.SizeHorCursor
 
 
 def test_real_mouse_drag_reorders_without_starting_playback(playlist_window):
@@ -473,14 +512,59 @@ def test_reorder_around_current_item_updates_index_without_playing(playlist_wind
     assert window.played == []
 
 
-def test_single_click_plays_selected_item(playlist_window):
+def test_single_click_selects_item_without_playing_it(playlist_window):
     app, window, frame = playlist_window
     panel = _open(app, window, frame)
     view = panel.playlist_view
     point = view.visualItemRect(view.item(1)).center()
 
     QTest.mouseClick(view.viewport(), Qt.MouseButton.LeftButton, pos=point)
+
+    assert view.currentRow() == 1
+    assert window.played == []
+    assert panel.row_widget(1).property("selected") is True
+    assert panel.row_widget(1).property("playing") is False
+    assert panel.row_widget(2).property("playing") is True
+    assert all(panel.row_widget(row).property("selected") is False
+               for row in (0, 2, 3))
+
+
+def test_double_click_plays_selected_item(playlist_window):
+    app, window, frame = playlist_window
+    panel = _open(app, window, frame)
+    view = panel.playlist_view
+    point = view.visualItemRect(view.item(1)).center()
+
+    # QtTest's mouseDClick emits the double-click event itself; establish the
+    # preceding first click that a real desktop double-click sequence has.
+    QTest.mouseClick(view.viewport(), Qt.MouseButton.LeftButton, pos=point)
+    QTest.mouseDClick(view.viewport(), Qt.MouseButton.LeftButton, pos=point)
+
     assert window.played == [1]
+
+
+def test_ctrl_click_selects_multiple_rows_and_remove_deletes_one_batch(
+        playlist_window):
+    app, window, frame = playlist_window
+    panel = _open(app, window, frame)
+    view = panel.playlist_view
+    first = view.visualItemRect(view.item(0)).center()
+    third = view.visualItemRect(view.item(2)).center()
+
+    QTest.mouseClick(view.viewport(), Qt.MouseButton.LeftButton, pos=first)
+    QTest.mouseClick(view.viewport(), Qt.MouseButton.LeftButton,
+                     Qt.KeyboardModifier.ControlModifier, pos=third)
+    app.processEvents()
+
+    assert sorted(view.row(item) for item in view.selectedItems()) == [0, 2]
+    assert panel.row_widget(0).property("selected") is True
+    assert panel.row_widget(2).property("selected") is True
+    assert window.played == []
+
+    panel.remove_button.click()
+
+    assert window.removed_batches == [[0, 2]]
+    assert window.playlist == [r"C:\media\same.mkv", r"C:\media\last.mp4"]
 
 
 def test_drag_reorder_does_not_play_selected_item(playlist_window):
@@ -519,7 +603,8 @@ def test_footer_actions_use_existing_player_flows(playlist_window):
     panel = _open(app, window, frame)
     calls = []
     window.add_to_playlist = lambda: calls.append(("add", None))
-    window.remove_from_playlist = lambda index: calls.append(("remove", index))
+    window.remove_many_from_playlist = (
+        lambda indexes: calls.append(("remove_many", list(indexes))) or True)
     window.clear_playlist = lambda: calls.append(("clear", None))
     panel.playlist_view.setCurrentRow(1)
 
@@ -527,7 +612,8 @@ def test_footer_actions_use_existing_player_flows(playlist_window):
     panel.remove_button.click()
     panel.clear_button.click()
 
-    assert calls == [("add", None), ("remove", 1), ("clear", None)]
+    assert calls == [
+        ("add", None), ("remove_many", [1]), ("clear", None)]
 
 
 def test_playlist_toggle_and_escape_close_the_panel(playlist_window):

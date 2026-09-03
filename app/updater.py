@@ -50,7 +50,8 @@ from PyQt6.QtWidgets import (QDialog, QFrame, QGraphicsDropShadowEffect,
 
 from app.app_icon import application_icon
 from app import release_signature as signing
-from app.config import APP_VERSION
+from app.config import (APP_VERSION, UI_ACCENT, UI_ACCENT_HOVER,
+                        UI_ACCENT_PRESSED, UI_FONT_FAMILY)
 from app.errors import log
 
 GITHUB_REPO = "IzzmooPro/MLCPlayer"
@@ -114,7 +115,7 @@ QFrame#updateBrandPanel {
 QWidget#updateContentPanel { background: transparent; border: none; }
 QLabel {
     background: transparent; border: none; color: #E9EDF1;
-    font-family: "Segoe UI";
+    font-family: __UI_FONT_FAMILY__;
 }
 QLabel#updateHeading { font-size: 19px; font-weight: 700; }
 QLabel#updateDescription { font-size: 14px; color: #E9EDF1; }
@@ -126,7 +127,7 @@ QPushButton {
     padding: 0 18px;
     border-radius: 7px;
     font-size: 13px;
-    font-family: "Segoe UI";
+    font-family: __UI_FONT_FAMILY__;
 }
 QPushButton#updateClose {
     min-width: 30px; max-width: 30px;
@@ -139,17 +140,17 @@ QPushButton#updateClose {
     font-size: 22px;
     font-weight: 300;
 }
-QPushButton#updateClose:hover { color: #FFFFFF; background: #F26A3D; }
+QPushButton#updateClose:hover { color: #FFFFFF; background: __UI_ACCENT__; }
 QPushButton#updateReleaseNotes {
     min-height: 28px;
     padding: 0;
-    color: #F26A3D;
+    color: __UI_ACCENT__;
     background: transparent;
     border: none;
     font-size: 13px;
     text-align: left;
 }
-QPushButton#updateReleaseNotes:hover { color: #FF7A48; }
+QPushButton#updateReleaseNotes:hover { color: __UI_ACCENT_HOVER__; }
 QPushButton#updateLater {
     min-width: 106px;
     color: #DDE2E7;
@@ -160,12 +161,12 @@ QPushButton#updateLater:hover { background: rgba(255,255,255,12); }
 QPushButton#updatePrimary {
     min-width: 114px;
     color: #FFFFFF;
-    background: #F26A3D;
+    background: __UI_ACCENT__;
     border: none;
     font-weight: 600;
 }
-QPushButton#updatePrimary:hover { background: #FF7A48; }
-QPushButton#updatePrimary:pressed { background: #DD5930; }
+QPushButton#updatePrimary:hover { background: __UI_ACCENT_HOVER__; }
+QPushButton#updatePrimary:pressed { background: __UI_ACCENT_PRESSED__; }
 QPushButton:disabled { color: #717982; background: #25292E; }
 QProgressBar#updateProgress {
     min-height: 5px; max-height: 5px;
@@ -175,10 +176,13 @@ QProgressBar#updateProgress {
     border-radius: 2px;
 }
 QProgressBar#updateProgress::chunk {
-    background: #F26A3D;
+    background: __UI_ACCENT__;
     border-radius: 2px;
 }
-"""
+""".replace("__UI_ACCENT__", UI_ACCENT).replace(
+    "__UI_ACCENT_HOVER__", UI_ACCENT_HOVER).replace(
+    "__UI_ACCENT_PRESSED__", UI_ACCENT_PRESSED).replace(
+    "__UI_FONT_FAMILY__", UI_FONT_FAMILY)
 
 #: Doğrulanmış güncelleme asset'i. `signature_url`, yayıncı imzasının
 #: (`<kurulum>.sig`) adresidir; imza katmanı açıkken ZORUNLUDUR.

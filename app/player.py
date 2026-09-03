@@ -34,10 +34,10 @@ from app.media_controls import (clear_url_loading, is_remote_media_url,
     safe_media_host, update_url_loading,
     toggle_mute, open_file, open_folder, open_url, open_path, open_recent, open_subtitle, select_subtitle_language, toggle_subtitles,
     seek_position, seek_relative, seek_chapter, play_pause, stop, set_volume, change_volume, add_to_playlist, show_playlist,
-    play_from_playlist, remove_from_playlist, clear_playlist, take_screenshot, play_next,
+    play_from_playlist, remove_from_playlist, remove_many_from_playlist,
+    clear_playlist, take_screenshot, play_next,
     play_previous, goto_time, set_playback_speed, save_playlist, load_playlist,
-    append_media_paths, media_suffixes, finish_media_at_start,
-    natural_end_should_rewind
+    append_media_paths, media_suffixes, handle_natural_end
 )
 from app.i18n import tr
 from app.window_modes import (MIN_OPACITY_PERCENT, PIP_MIN_SIZE,
@@ -54,6 +54,10 @@ CINEMATIC_CONTENT_MARGINS = (0, 0, 0, 0)
 
 # Son acilanlar kayit siniri; bellek ve kalici liste AYNI siniri kullanir.
 RECENT_FILE_LIMIT = 10
+
+# Gözlemci henüz bir MPV değeri yayınlamadıysa GUI timer'ı o işi sonraki
+# tura bırakır. `None` geçerli bir MPV snapshot'ı olabildiği için ayrı sentinel.
+_MPV_OBSERVED_MISSING = object()
 
 
 def build_ytdl_config(bin_dir):
@@ -166,6 +170,9 @@ class MPVPlayer(QMainWindow):
         self.loop_file = False
         self.loop_playlist = False
         self.shuffle = False
+        self._shuffle_signature = ()
+        self._shuffle_order = []
+        self._shuffle_cursor = -1
         # Ayarlar kalıcılığı (pencere, ses, son dosyalar)
         self.settings = user_settings()
         self.restore_recent_files()
@@ -497,8 +504,7 @@ class MPVPlayer(QMainWindow):
                 # Asenkron seek gerçekten başa ulaştı; sonraki doğal son
                 # için tek-atım koruması yeniden kurulabilir.
                 self._eof_rewound = False
-            if natural_end_should_rewind(self):
-                finish_media_at_start(self)
+            handle_natural_end(self)
 
             # Dosya açma hatası kontrolü: yükleme denendi ama 3 saniye içinde
             # süre bilgisi gelmediyse ve çekirdek boşta kaldıysa dosya açılamamıştır.
@@ -521,29 +527,51 @@ class MPVPlayer(QMainWindow):
                                 details=msg)
                 stop(self)
 
+            # MPV callback'lerinin son snapshot'ları. GUI timer'ı burada
+            # track-list/aid/chapter-list property'lerini SENKRON okumaz;
+            # libmpv core lock'u medya açılışında pencereyi dondurabiliyor.
+            watcher = self.__dict__.get("_subtitle_watcher")
+            observed_tracks = _MPV_OBSERVED_MISSING
+            observed_aid = _MPV_OBSERVED_MISSING
+            observed_chapters = _MPV_OBSERVED_MISSING
+            if watcher is not None:
+                observed_tracks = watcher.latest(
+                    "track-list", _MPV_OBSERVED_MISSING)
+                observed_aid = watcher.latest("aid", _MPV_OBSERVED_MISSING)
+                observed_chapters = watcher.latest(
+                    "chapter-list", _MPV_OBSERVED_MISSING)
+
             # Yeni bir dosya yüklendiğinde ses kanalı menüsünü otomatik doldur
             # (kullanıcının "Ses Kanallarını Yenile"ye tıklaması gerekmez)
             if (self.current_file and self.current_file != self._audio_menu_file
-                    and self.duration > 0):
-                self._audio_menu_file = self.current_file
+                    and self.duration > 0
+                    and observed_tracks is not _MPV_OBSERVED_MISSING
+                    and observed_aid is not _MPV_OBSERVED_MISSING):
                 try:
-                    refresh_audio_tracks(self)
+                    if refresh_audio_tracks(
+                            self, track_list=observed_tracks,
+                            current_aid=observed_aid):
+                        self._audio_menu_file = self.current_file
                 except Exception as e:
                     safe_console(f"Could not refresh the audio track menu: {e}")
 
             if (self.current_file and self.current_file != self._chapter_menu_file
-                    and self.duration > 0):
+                    and self.duration > 0
+                    and observed_chapters is not _MPV_OBSERVED_MISSING):
                 self._chapter_menu_file = self.current_file
-                refresh_chapters(self)
+                refresh_chapters(self, chapters=observed_chapters)
 
             # Medya ile birlikte bırakılan altyazılar yükleme tamamlanınca
             # eklensin; canlı bırakmayla AYNI etkinleştirme yolu kullanılır.
-            self._apply_pending_subtitles()
+            if observed_tracks is not _MPV_OBSERVED_MISSING:
+                self._apply_pending_subtitles(track_list=observed_tracks)
 
             # Yerel SRT sessiz otomatik etkinleştirme (medya başına tek atım).
             # Yeni timer kurulmaz; mevcut UI döngüsünün içinde çalışır.
-            if self.duration > 0 and self.mpv_player.track_list:
-                activate_local_subtitle(self)
+            if (self.duration > 0
+                    and observed_tracks is not _MPV_OBSERVED_MISSING
+                    and observed_tracks):
+                activate_local_subtitle(self, track_list=observed_tracks)
 
             # Mevcut dosya oynatılıyorsa butonları etkinleştir
             has_file = bool(self.current_file)
@@ -635,15 +663,16 @@ class MPVPlayer(QMainWindow):
                         details=f"{tr('Altyazı yolu:')} {path}")
         return False
 
-    def _apply_pending_subtitles(self):
+    def _apply_pending_subtitles(self, track_list=_MPV_OBSERVED_MISSING):
         """Medya ile birlikte bırakılan altyazıları yükleme bitince ekler.
 
         mpv, yükleme sırasında önceden `sub_add` edilmiş dış altyazıları
         siler; bu yüzden kuyruk yalnız gerçek `track_list` hazır olduğunda
         boşaltılır ve canlı bırakmayla AYNI etkinleştirme yolundan geçer.
         """
-        if not (self._pending_subs and self.duration > 0
-                and self.mpv_player.track_list):
+        if track_list is _MPV_OBSERVED_MISSING:
+            track_list = self.mpv_player.track_list
+        if not (self._pending_subs and self.duration > 0 and track_list):
             return
         pending = self._pending_subs
         self._pending_subs = []
@@ -805,33 +834,116 @@ class MPVPlayer(QMainWindow):
         update_recent_menu(self)
 
     # --- Döngü ve karışık modlar ---
+    def _refresh_playback_mode_controls(self):
+        """Menü ve görünür overlay'i aynı ürün durumundan günceller."""
+        for attribute, value in (
+                ("loop_file_action", getattr(self, "loop_file", False)),
+                ("loop_playlist_action", getattr(
+                    self, "loop_playlist", False)),
+                ("shuffle_action", getattr(self, "shuffle", False))):
+            action = getattr(self, attribute, None)
+            if action is None:
+                continue
+            previous = action.blockSignals(True)
+            try:
+                action.setChecked(bool(value))
+            finally:
+                action.blockSignals(previous)
+        frame = getattr(self, "video_frame", None)
+        refresh = getattr(frame, "update_overlay_playback_modes", None)
+        if callable(refresh):
+            refresh()
+
+    @staticmethod
+    def _canonical_loop_file_value(value):
+        """python-mpv NODE/OSD dönüşlerini ``inf`` veya ``no`` yapar."""
+        if isinstance(value, bool):
+            return "inf" if value else "no"
+        if isinstance(value, (int, float)):
+            if value == -1:
+                return "inf"
+            if value == 0:
+                return "no"
+        text = str(value).strip().lower()
+        if text in ("inf", "infinite", "yes", "true"):
+            return "inf"
+        if text in ("no", "false", "none", "0"):
+            return "no"
+        return text
+
+    @staticmethod
+    def _read_native_loop_file(mpv_player):
+        """Gerçek libmpv'de canonical OSD string'i, double'da attribute'u oku."""
+        getter = getattr(mpv_player, "_get_property", None)
+        if callable(getter):
+            try:
+                return getter("loop-file", fmt=mpv.MpvFormat.OSD_STRING)
+            except TypeError:
+                # Basit test double'ları ``fmt`` kabul etmeyebilir.
+                return getter("loop-file")
+        return mpv_player.loop_file
+
     def set_loop_file(self, enabled):
         target = "inf" if enabled else "no"
+        previous_target = ("inf" if bool(getattr(self, "loop_file", False))
+                           else "no")
+        write_attempted = False
         try:
             self.mpv_player.loop_file = target
-            if str(self.mpv_player.loop_file).strip().lower() != target:
+            write_attempted = True
+            readback = MPVPlayer._canonical_loop_file_value(
+                MPVPlayer._read_native_loop_file(self.mpv_player))
+            if readback != target:
                 raise RuntimeError("loop write was ignored")
         except Exception as e:
+            if write_attempted:
+                try:
+                    self.mpv_player.loop_file = previous_target
+                except Exception as rollback_error:
+                    safe_console(
+                        "Loop rollback error: "
+                        f"{type(rollback_error).__name__}")
             safe_console(f"Loop setting error: {e}")
             return False
         self.loop_file = bool(enabled)
+        if self.loop_file:
+            self.loop_playlist = False
+        MPVPlayer._refresh_playback_mode_controls(self)
         return True
 
     def set_loop_playlist(self, enabled):
+        enabled = bool(enabled)
+        if enabled and bool(getattr(self, "loop_file", False)):
+            if MPVPlayer.set_loop_file(self, False) is False:
+                return False
         self.loop_playlist = enabled
+        MPVPlayer._refresh_playback_mode_controls(self)
+        return True
+
+    def cycle_repeat_mode(self):
+        """Kapalı → liste → tek dosya → kapalı döngüsü."""
+        if bool(getattr(self, "loop_file", False)):
+            if MPVPlayer.set_loop_file(self, False) is False:
+                return False
+            return "off"
+        if bool(getattr(self, "loop_playlist", False)):
+            if MPVPlayer.set_loop_file(self, True) is False:
+                return False
+            return "file"
+        if MPVPlayer.set_loop_playlist(self, True) is False:
+            return False
+        return "playlist"
 
     def toggle_shuffle(self, enabled):
         self.shuffle = bool(enabled)
-        if self.shuffle and len(self.playlist) > 1:
-            import random
-            current = self.playlist[self.current_playlist_index] if (
-                0 <= self.current_playlist_index < len(self.playlist)) else None
-            current_index = self.current_playlist_index
-            remaining = [path for index, path in enumerate(self.playlist)
-                         if index != current_index]
-            random.shuffle(remaining)
-            self.playlist = ([current] if current else []) + remaining
-            self.current_playlist_index = 0 if current else -1
+        if self.shuffle:
+            from app.media_controls import _build_shuffle_order
+            _build_shuffle_order(self)
+        else:
+            self._shuffle_signature = ()
+            self._shuffle_order = []
+            self._shuffle_cursor = -1
+        MPVPlayer._refresh_playback_mode_controls(self)
         return self.shuffle
 
     def toggle_fullscreen(self):
@@ -879,6 +991,11 @@ class MPVPlayer(QMainWindow):
                   if enabled is None else bool(enabled))
         if target == self.picture_in_picture_enabled:
             return target
+
+        # Boş başlangıç ekranını PiP boyutuna sıkıştırmak ürün davranışı
+        # değildir; PiP yalnız yüklü medya varken açılabilir.
+        if target and not bool(getattr(self, "current_file", "")):
+            return False
 
         if target:
             was_fullscreen = bool(self.video_frame.is_video_fullscreen)
@@ -1198,6 +1315,8 @@ class MPVPlayer(QMainWindow):
     def load_playlist(self): load_playlist(self)
     def play_from_playlist(self, index): play_from_playlist(self, index)
     def remove_from_playlist(self, index): remove_from_playlist(self, index)
+    def remove_many_from_playlist(self, indexes):
+        return remove_many_from_playlist(self, indexes)
     def clear_playlist(self): clear_playlist(self)
     def take_screenshot(self): take_screenshot(self)
     def play_next(self): play_next(self)

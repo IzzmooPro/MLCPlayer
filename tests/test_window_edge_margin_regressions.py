@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Sinematik pencerede görünür dış boşluk olmamalı (A).
 
-`main_layout` sinematik modda dört kenara da RESIZE_MARGIN (12 px) iç boşluk
+`main_layout` sinematik modda dört kenara da RESIZE_MARGIN (2 px) iç boşluk
 uyguluyordu. Bu değer bir hit-test toleransıdır; görünür içerik marjına
 dönüştüğü için video ve playlist pencere kenarlarına sıfır oturmuyor, sağda,
 solda ve altta ince koyu bir çerçeve görünüyordu.
@@ -104,7 +104,7 @@ def test_product_cinematic_layout_uses_zero_visible_margins():
 
 def test_resize_margin_constant_is_still_available_for_hit_testing():
     """RESIZE_MARGIN kaldırılmamalı; yalnızca hit-test toleransı olmalı."""
-    assert RESIZE_MARGIN == 12
+    assert RESIZE_MARGIN == 6
 
 
 # --- Görünür yerleşim: içerik kenarlara sıfır oturmalı ---
@@ -199,7 +199,7 @@ def test_resize_hit_test_still_covers_edges_and_corners(point, expected):
 
 
 def test_hit_test_tolerance_is_independent_of_visible_margins():
-    """Marj 0 olsa da kenardan 12 px içeride hâlâ resize bölgesi olmalı."""
+    """Kenar toleransı yalnızca iki piksel içeriye kadar sürer."""
     rect = QRect(0, 0, 1280, 720)
     assert resize_edges_at(rect, QPoint(RESIZE_MARGIN, 300)) == Qt.Edge.LeftEdge
     assert resize_edges_at(rect, QPoint(RESIZE_MARGIN + 1, 300)) == Qt.Edge(0)

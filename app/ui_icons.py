@@ -12,7 +12,8 @@ ICON_KINDS = ("play", "pause", "previous", "next", "fullscreen",
               "subtitles", "volume", "volume_muted", "settings",
               "open_folder", "playlist", "more", "minimize",
               "maximize", "restore", "transparency",
-              "picture_in_picture", "close")
+              "picture_in_picture", "repeat", "repeat_one", "shuffle",
+              "close")
 
 
 def _triangle(width, height, offset_x=0.0, pointing_right=True):
@@ -276,6 +277,51 @@ def _draw_picture_in_picture(painter, size, colour):
                             size * 0.27, size * 0.20), colour)
 
 
+def _draw_repeat(painter, size, colour, show_one=False):
+    """İki yönlü tekrar oku; tek-dosya durumunda ortada küçük ``1``."""
+    pen = _stroke_pen(painter, size, colour, 0.06)
+    top = size * 0.34
+    bottom = size * 0.66
+    left = size * 0.22
+    right = size * 0.78
+    arm = size * 0.12
+    painter.drawLine(QPointF(left, top), QPointF(right, top))
+    painter.drawLine(QPointF(right, top), QPointF(right - arm, top - arm))
+    painter.drawLine(QPointF(right, top), QPointF(right - arm, top + arm))
+    painter.drawLine(QPointF(right, bottom), QPointF(left, bottom))
+    painter.drawLine(QPointF(left, bottom), QPointF(left + arm, bottom - arm))
+    painter.drawLine(QPointF(left, bottom), QPointF(left + arm, bottom + arm))
+    if show_one:
+        font = painter.font()
+        font.setPixelSize(max(7, int(size * 0.34)))
+        font.setBold(True)
+        painter.setFont(font)
+        painter.setPen(pen)
+        painter.drawText(QRectF(size * 0.37, size * 0.34,
+                                size * 0.26, size * 0.34),
+                         Qt.AlignmentFlag.AlignCenter, "1")
+
+
+def _draw_shuffle(painter, size, colour):
+    """Standart çapraz karışık oynatma okları."""
+    _stroke_pen(painter, size, colour, 0.06)
+    left = size * 0.20
+    right = size * 0.80
+    top = size * 0.30
+    bottom = size * 0.70
+    arm = size * 0.11
+    painter.drawLine(QPointF(left, top), QPointF(size * 0.38, top))
+    painter.drawLine(QPointF(size * 0.38, top), QPointF(size * 0.62, bottom))
+    painter.drawLine(QPointF(size * 0.62, bottom), QPointF(right, bottom))
+    painter.drawLine(QPointF(right, bottom), QPointF(right - arm, bottom - arm))
+    painter.drawLine(QPointF(right, bottom), QPointF(right - arm, bottom + arm))
+    painter.drawLine(QPointF(left, bottom), QPointF(size * 0.38, bottom))
+    painter.drawLine(QPointF(size * 0.38, bottom), QPointF(size * 0.62, top))
+    painter.drawLine(QPointF(size * 0.62, top), QPointF(right, top))
+    painter.drawLine(QPointF(right, top), QPointF(right - arm, top - arm))
+    painter.drawLine(QPointF(right, top), QPointF(right - arm, top + arm))
+
+
 _PAINTERS = {
     "play": _draw_play,
     "pause": _draw_pause,
@@ -294,6 +340,9 @@ _PAINTERS = {
     "restore": _draw_restore,
     "transparency": _draw_transparency,
     "picture_in_picture": _draw_picture_in_picture,
+    "repeat": lambda p, s, c: _draw_repeat(p, s, c, False),
+    "repeat_one": lambda p, s, c: _draw_repeat(p, s, c, True),
+    "shuffle": _draw_shuffle,
     "close": _draw_close,
 }
 

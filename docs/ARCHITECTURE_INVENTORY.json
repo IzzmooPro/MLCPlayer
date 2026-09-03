@@ -1,42 +1,42 @@
 {
   "schema_version": 1,
   "status": "analyzed",
-  "measured_product_commit": "b54a9c3d5c87472f47acab6155c5d6325d24dc45",
-  "working_tree_state": "clean product sources; inventory refresh uncommitted",
-  "measured_at_utc": "2026-08-29T17:45:44Z",
+  "measured_product_commit": "04197efc56cf31c40c8081dcc9cbb8c7265292c5",
+  "working_tree_state": "uncommitted playlist UX, playback-mode controls, compact overlay scaling, focus-safe overlay z-order, extended timeline, and unified visual theme on exact committed baseline",
+  "measured_at_utc": "2026-09-03T21:30:45Z",
   "hash_contract": "sha256 of UTF-8 source normalized to LF",
   "modules": [
     {
       "path": "app/video_frame.py",
-      "sha256": "53f3381cafaec032b8dae765ab84eb4028e3d3459e71a4bac7cba854a61ec80a",
-      "lines": 2640,
+      "sha256": "935d00b34164437df27890226389240ac645bf2223784a33ad16cc154d6abc15",
+      "lines": 2790,
       "classes": 3,
-      "top_functions": 3,
-      "indented_functions": 110,
-      "self_state": 64
+      "top_functions": 5,
+      "indented_functions": 111,
+      "self_state": 66
     },
     {
       "path": "app/media_controls.py",
-      "sha256": "bf34ca19841601d4ba155e396413f12777c7cc812b0546faf5148a22e7e90cfe",
-      "lines": 1488,
+      "sha256": "d523475512bc4ac44eaf6bf4aa16f1d9adfab77bae33d691bc1a5a5017cd2d3d",
+      "lines": 1644,
       "classes": 0,
-      "top_functions": 64,
+      "top_functions": 73,
       "indented_functions": 2,
       "self_state": 0
     },
     {
       "path": "app/player.py",
-      "sha256": "8162463bd06777b6544af5f46d5579e2a1644041b2cee6f7c4946bad27602c24",
-      "lines": 1220,
+      "sha256": "c5e1adee6cf08b87a50ad68b93b2158fbc69ca5480727af375c3b9989278e677",
+      "lines": 1339,
       "classes": 1,
       "top_functions": 1,
-      "indented_functions": 78,
-      "self_state": 53
+      "indented_functions": 83,
+      "self_state": 56
     },
     {
       "path": "app/playlist_panel.py",
-      "sha256": "89853219be169c7708a388d6ec474053fad9bfae4348248c9fdf087c74ef3aa1",
-      "lines": 1101,
+      "sha256": "837dfd4836a7ab87c3f6d51240e26ffc8989902cf17b4966e95a12c7295f2fc2",
+      "lines": 1144,
       "classes": 5,
       "top_functions": 0,
       "indented_functions": 72,
@@ -44,17 +44,17 @@
     },
     {
       "path": "app/menu_actions.py",
-      "sha256": "b15451b24c6bfda368db3564689f9158cd3a6eb49daed101104ee907eb925ac0",
-      "lines": 1138,
+      "sha256": "7fab77558d32afcdaabb637cf1772a88ae143b8d997f657147b4adde54b1229b",
+      "lines": 1169,
       "classes": 0,
-      "top_functions": 38,
+      "top_functions": 39,
       "indented_functions": 5,
       "self_state": 0
     },
     {
       "path": "app/updater.py",
-      "sha256": "351e5a9019e92e31683fcec39e233e26ad5f04003ff16e19e308d938ae30be13",
-      "lines": 1028,
+      "sha256": "315bbe435492acf650c7666ac02fc5b43a590a63bcc0b0f054d83ce9315619fc",
+      "lines": 1032,
       "classes": 4,
       "top_functions": 19,
       "indented_functions": 27,

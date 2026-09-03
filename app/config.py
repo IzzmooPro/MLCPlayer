@@ -97,6 +97,13 @@ SUBTITLE_EXTENSIONS = "*.srt *.vtt *.ass *.ssa *.sub"
 #: Iki yerde ayri ayri yazilmaz; ikisi de buradan turer.
 WINDOW_BACKGROUND = "#151A1F"
 
+#: Gorunur arayuzun tek marka rengi ve tipografi zinciri. Yardimci
+#: pencereler kendi sabitini uretmez; ayni urun kimligini buradan alir.
+UI_ACCENT = "#F26A3D"
+UI_ACCENT_HOVER = "#FF7A48"
+UI_ACCENT_PRESSED = "#DD5930"
+UI_FONT_FAMILY = '"Segoe UI Variable Text", "Segoe UI"'
+
 #: Ipucu (tooltip) stili -- URUNUN TEK kaynagi. `APP_STYLE` ANA
 #: PENCEREYE kurulur; ayri top-level pencereler (playlist) onu
 #: almadigi icin ipuclari sistem varsayilanina dusuyordu ve kocaman
@@ -118,6 +125,10 @@ TOOLTIP_STYLE = """
 # parantezi ikilemeyi gerektirir ve tek bir kacirma stili sessizce bozar.
 # Renk YER TUTUCU ile enjekte edilir (asagida `.replace`).
 APP_STYLE = """
+    QWidget {
+        font-family: __UI_FONT_FAMILY__;
+    }
+
     QMainWindow {
         background-color: __WINDOW_BACKGROUND__;
     }
@@ -154,7 +165,7 @@ APP_STYLE = """
         border-radius: 5px;
     }
     QMenu::item:selected {
-        background-color: #2E7DB8;
+        background-color: __UI_ACCENT__;
         color: #FFFFFF;
     }
     QMenu::item:disabled {
@@ -194,7 +205,7 @@ APP_STYLE = """
         background: #FFFFFF;
     }
     QSlider::sub-page:horizontal {
-        background: #2E9BD8;
+        background: __UI_ACCENT__;
         border-radius: 2px;
     }
 
@@ -214,7 +225,7 @@ APP_STYLE = """
         background: #FFFFFF;
     }
     QSlider#positionSlider::sub-page:horizontal {
-        background: #2E9BD8;
+        background: __UI_ACCENT__;
         border-radius: 2px;
     }
     QSlider#volumeSlider::groove:horizontal {
@@ -233,7 +244,7 @@ APP_STYLE = """
         background: #FFFFFF;
     }
     QSlider#volumeSlider::sub-page:horizontal {
-        background: #2E9BD8;
+        background: __UI_ACCENT__;
         border-radius: 1px;
     }
 
@@ -252,6 +263,10 @@ APP_STYLE = """
     QPushButton:pressed {
         background-color: #333F4A;
     }
+    QPushButton:focus {
+        border-color: #707A84;
+        background-color: #29323A;
+    }
     QPushButton:disabled {
         color: #6B7785;
         background-color: #1E252C;
@@ -268,6 +283,10 @@ APP_STYLE = """
     }
     QToolButton:pressed {
         background-color: #333F4A;
+    }
+    QToolButton:focus {
+        border: 1px solid #707A84;
+        background-color: #29323A;
     }
 
     QLabel {
@@ -292,7 +311,7 @@ APP_STYLE = """
         border-radius: 4px;
     }
     QListWidget::item:selected {
-        background-color: #2E7DB8;
+        background-color: __UI_ACCENT__;
         color: #FFFFFF;
     }
     QListWidget::item:hover {
@@ -305,10 +324,10 @@ APP_STYLE = """
         border: 1px solid #333F4A;
         border-radius: 6px;
         padding: 6px 8px;
-        selection-background-color: #2E7DB8;
+        selection-background-color: __UI_ACCENT__;
     }
     QLineEdit:focus {
-        border-color: #2E9BD8;
+        border-color: __UI_ACCENT__;
     }
 
     QComboBox {
@@ -329,7 +348,7 @@ APP_STYLE = """
         background-color: #1E252C;
         color: #E0E5EB;
         border: 1px solid #2E3842;
-        selection-background-color: #2E7DB8;
+        selection-background-color: __UI_ACCENT__;
         selection-color: #FFFFFF;
     }
 
@@ -358,7 +377,10 @@ __TOOLTIP_STYLE__
     QScrollBar::add-page, QScrollBar::sub-page {
         background: transparent;
     }
-""".replace("__WINDOW_BACKGROUND__", WINDOW_BACKGROUND).replace("__TOOLTIP_STYLE__", TOOLTIP_STYLE)
+""".replace("__WINDOW_BACKGROUND__", WINDOW_BACKGROUND).replace(
+    "__UI_ACCENT__", UI_ACCENT).replace(
+    "__UI_FONT_FAMILY__", UI_FONT_FAMILY).replace(
+    "__TOOLTIP_STYLE__", TOOLTIP_STYLE)
 
 
 # --- Arayüz modu ---

@@ -155,6 +155,76 @@ def test_failed_replacement_after_removing_active_item_restores_the_list(
     assert snapshot(player) == before
 
 
+def test_failed_bulk_remove_of_active_items_restores_the_whole_list(monkeypatch):
+    player = player_state()
+    player.playlist.append("old-c.mkv")
+    silence_errors(monkeypatch)
+    before = snapshot(player)
+
+    result = media_controls.remove_many_from_playlist(player, [0, 1])
+
+    assert result is False
+    assert snapshot(player) == before
+
+
+def test_bulk_remove_before_active_item_updates_index_without_reloading():
+    player = player_state()
+    player.playlist = ["zero.mkv", "one.mkv", "active.mkv", "last.mkv"]
+    player.current_playlist_index = 2
+    player.current_file = "active.mkv"
+
+    result = media_controls.remove_many_from_playlist(player, [0, 1])
+
+    assert result is True
+    assert player.playlist == ["active.mkv", "last.mkv"]
+    assert player.current_playlist_index == 0
+    assert player.current_file == "active.mkv"
+    assert player.mpv_player.calls == []
+
+
+def test_bulk_remove_containing_active_item_loads_one_survivor(monkeypatch):
+    player = player_state()
+    player.playlist = ["zero.mkv", "active.mkv", "two.mkv", "last.mkv"]
+    player.current_playlist_index = 1
+    player.current_file = "active.mkv"
+    loaded = []
+
+    def accept(owner, index):
+        loaded.append((list(owner.playlist), index))
+        owner.current_playlist_index = index
+        owner.current_file = owner.playlist[index]
+        return True
+
+    monkeypatch.setattr(media_controls, "play_from_playlist", accept)
+
+    result = media_controls.remove_many_from_playlist(player, [1, 2])
+
+    assert result is True
+    assert player.playlist == ["zero.mkv", "last.mkv"]
+    assert player.current_playlist_index == 1
+    assert player.current_file == "last.mkv"
+    assert loaded == [(["zero.mkv", "last.mkv"], 1)]
+
+
+def test_bulk_remove_all_items_stops_only_once(monkeypatch):
+    player = player_state()
+    stops = []
+
+    def accept_stop(owner):
+        stops.append(1)
+        owner.current_file = ""
+        return True
+
+    monkeypatch.setattr(media_controls, "stop", accept_stop)
+
+    result = media_controls.remove_many_from_playlist(player, [0, 1])
+
+    assert result is True
+    assert player.playlist == []
+    assert player.current_playlist_index == -1
+    assert stops == [1]
+
+
 def test_failed_stop_does_not_clear_the_playlist(monkeypatch):
     player = player_state()
     silence_errors(monkeypatch)

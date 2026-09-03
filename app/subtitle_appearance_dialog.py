@@ -43,14 +43,14 @@ from PyQt6.QtWidgets import (
     QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSlider, QStyle,
     QStyleOptionComboBox, QStylePainter, QVBoxLayout, QWidget)
 
-from app.config import SUBTITLE_DEFAULTS
+from app.config import SUBTITLE_DEFAULTS, UI_ACCENT
 from app.i18n import tr, tr_mark, translate_marked
 from app.subtitle_style import (BORDER_PRESETS, COLOR_KEYS, DELAY_PRESETS,
                                 SCALE_PRESETS, mpv_argb_to_qcolor,
                                 normalise_subtitle_numeric,
                                 qcolor_to_mpv_argb, style_notice)
 
-ACCENT = "#F26A3D"
+ACCENT = UI_ACCENT
 SURFACE = "rgba(19, 20, 22, 255)"
 TEXT = "#E9EDF1"
 MUTED = "#8E969F"
