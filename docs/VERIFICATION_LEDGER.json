@@ -14795,6 +14795,41 @@
         "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
       ],
       "next_action": "Keep this native PASS as the closure evidence for the reported second-Esc defect; proceed only under a separately approved next action such as commit, build or another open acceptance-matrix scenario."
+    },
+    {
+      "id": "EV-20260908-039",
+      "recorded_at_utc": "2026-09-08T13:57:21Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "98be6f243e7a43a33ae901d61a61d6f7850b7b8a",
+      "evidence_commit": "98be6f243e7a43a33ae901d61a61d6f7850b7b8a",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "clean after the user-approved 40-file v0.41 playback/window lifecycle commit readback and before this append-only binding record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Evidence-commit binding for the v0.41 playback, PiP, subtitle and second-Esc stabilization package",
+      "commands": [
+        "git add --all",
+        "git diff --cached --check plus staged name/status and stat readback",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "git commit -m fix: stabilize v0.41 playback window lifecycle",
+        "git rev-parse HEAD plus git show, status, parent, tree and origin divergence readback"
+      ],
+      "evidence": [
+        "The user-approved commit completed with exact SHA 98be6f243e7a43a33ae901d61a61d6f7850b7b8a and parent 95246d19ebac75e651e4970f5ebbc7473cc0f418. Its subject is fix: stabilize v0.41 playback window lifecycle.",
+        "The commit contains exactly 40 files with 5035 insertions and 1349 deletions, including the product, regression/native acceptance, translation, user guidance, architecture, continuity and append-only evidence changes reviewed in EV-20260905-016 through EV-20260908-038.",
+        "Pre-commit staged diff check, ledger JSON validation and continuity 10/10 passed. The exact uncommitted product source had affected-family 207/207 deterministic PASS and final second-Esc native_smoke PASS in EV-20260908-038; those proof boundaries remain unchanged by commit binding.",
+        "Post-commit readback showed a clean working tree, HEAD one commit ahead of its task-branch origin and two commits ahead of origin/master."
+      ],
+      "summary": "The reviewed v0.41 stabilization package is now bound to exact implementation commit 98be6f243e7a43a33ae901d61a61d6f7850b7b8a.",
+      "limitations": [
+        "This record binds prior evidence to the committed source; it does not create hosted CI, source-build, installed-artifact or release evidence.",
+        "No push, PR, build, installation, tag, merge or release occurred."
+      ],
+      "next_action": "Commit this documentation-only evidence binding, then obtain separate user approval before any push, PR, build or other gated action."
     }
   ]
 }
