@@ -55,6 +55,7 @@ GROUPS = [
     ("11", "zorder", 480),
     ("12", "playback_seek", PLAYBACK_SEEK_GROUP_TIMEOUT_SECONDS),
     ("13", "tracks", 180),
+    ("14", "playlist_reorder", 180),
 ]
 
 

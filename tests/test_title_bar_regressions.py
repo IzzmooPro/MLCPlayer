@@ -27,6 +27,22 @@ RIGHT_ORDER = ("titleTransparency", "titlePictureInPicture", "titleMinimize",
                "titleMaximize", "titleClose")
 
 
+def test_observed_windows_path_enables_real_pip_button(title_bar):
+    from app.player import MPVPlayer
+
+    app, window, bar = title_bar()
+    window.current_file = "I:/Film/video.mkv"
+    window._pip_media_available = False
+    bar.update_window_mode_state()
+    button = bar.findChild(QPushButton, "titlePictureInPicture")
+    assert not button.isEnabled()
+    MPVPlayer._set_picture_in_picture_media_available(
+        window, [{"type": "video"}], r"I:\Film\video.mkv")
+    assert button.isEnabled()
+    button.click()
+    assert window.calls == ["toggle_picture_in_picture"]
+
+
 def test_transparency_icon_is_a_half_filled_opacity_symbol():
     app = QApplication.instance() or QApplication([])
     image = make_media_pixmap("transparency", 20).toImage()

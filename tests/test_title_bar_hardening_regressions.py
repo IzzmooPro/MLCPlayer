@@ -11,13 +11,17 @@ from types import SimpleNamespace
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import QEvent, QPoint, QSize, Qt
+from PyQt6.QtCore import QEvent, QPoint, QRect, QSize, Qt
 from PyQt6.QtGui import QKeyEvent, QMouseEvent
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QMenu, QPushButton, QVBoxLayout, QWidget)
 
 from app.title_bar import (RESIZE_MARGIN, FramelessResizeFilter, TitleBar)
-from app.player import MPVPlayer
+import app.player as player_module
+from app.player import (ESCAPE_GEOMETRY_RETRY_LIMIT,
+                        ESCAPE_GEOMETRY_STABLE_POLLS,
+                        ESCAPE_STATE_RETRY_LIMIT, ESCAPE_STATE_RETRY_MS,
+                        MPVPlayer)
 
 
 @pytest.fixture
@@ -219,6 +223,364 @@ def test_escape_exits_fullscreen_then_restores_balanced_default_size(
     assert window.size() == QSize(min(960, available.width() - 40),
                                   min(600, available.height() - 40))
     assert event.isAccepted()
+
+
+def test_default_size_is_reapplied_after_maximized_state_transition(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(
+                            (delay, callback)))
+
+    MPVPlayer.restore_default_window_size(window)
+    available = window.screen().availableGeometry()
+    width = min(960, max(window.minimumWidth(), available.width() - 40))
+    height = min(600, max(window.minimumHeight(), available.height() - 40))
+    expected = (available.x() + (available.width() - width) // 2,
+                available.y() + (available.height() - height) // 2,
+                width, height)
+
+    assert callbacks and callbacks[0][0] == 0
+    # Windows'un gecikmiş showNormal restore mesajı ilk hedefi eski büyütülmüş
+    # geometriye getirebilir; callback tam olarak bu durumu düzeltmelidir.
+    window.setGeometry(0, 0, available.width(), available.height())
+    calls = []
+    window.setGeometry = lambda *values: calls.append(values)
+    callbacks[0][1]()
+    assert calls == [expected]
+
+
+def test_stale_default_size_callback_cannot_override_newer_geometry(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(callback))
+
+    MPVPlayer.restore_default_window_size(window)
+    old_callback = callbacks[0]
+    MPVPlayer.restore_default_window_size(window)
+    calls = []
+    window.setGeometry = lambda *values: calls.append(values)
+
+    old_callback()
+    assert calls == []
+
+
+def test_default_size_callback_waits_for_windows_to_leave_maximized_state(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(
+                            (delay, callback)))
+    MPVPlayer.restore_default_window_size(window)
+    calls = []
+    window.setGeometry = lambda *values: calls.append(values)
+    window.isMaximized = lambda: True
+
+    callbacks[0][1]()
+    assert calls == []
+    assert len(callbacks) == 2
+    assert callbacks[1][0] > 0
+
+    window.isMaximized = lambda: False
+    callbacks[1][1]()
+    assert len(calls) == 1
+
+
+def test_default_size_callback_rechecks_geometry_after_normal_transition(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(
+                            (delay, callback)))
+    MPVPlayer.restore_default_window_size(window)
+    window.isMaximized = lambda: False
+    window.isMinimized = lambda: False
+    target = QRect(window.geometry())
+    old_restore = QRect(0, 0, window.screen().availableGeometry().width(),
+                        window.screen().availableGeometry().height())
+    geometries = [target, old_restore]
+    window.geometry = lambda: geometries.pop(0) if geometries else target
+    calls = []
+    window.setGeometry = lambda *values: calls.append(values)
+
+    callbacks[0][1]()
+    assert len(calls) == 1
+    assert len(callbacks) == 2
+    assert callbacks[1][0] == ESCAPE_STATE_RETRY_MS
+
+    # Windows, normal-state bildiriminin ardından eski restore geometrisini
+    # yeniden yazarsa sonraki doğrulama bunu tekrar hedefe getirmelidir.
+    callbacks[1][1]()
+    assert len(calls) == 2
+    assert "_pending_escape_geometry" in window.__dict__
+
+    index = 2
+    while index < len(callbacks) and index < 200:
+        callbacks[index][1]()
+        index += 1
+    assert len(callbacks) == ESCAPE_GEOMETRY_STABLE_POLLS + 2
+    assert "_pending_escape_geometry" not in window.__dict__
+
+
+def test_default_size_callback_applies_target_to_native_window(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    overlay_calls = []
+    window.video_frame = SimpleNamespace(
+        is_video_fullscreen=False,
+        update_overlay_geometry=lambda: overlay_calls.append(True))
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(callback))
+    native_calls = []
+    monkeypatch.setattr(player_module, "set_native_window_geometry",
+                        lambda owner, target: native_calls.append(
+                            (owner, target)) or True,
+                        raising=False)
+
+    MPVPlayer.restore_default_window_size(window)
+    window.isMaximized = lambda: False
+    window.isMinimized = lambda: False
+    callbacks[0]()
+
+    assert len(native_calls) == 1
+    assert native_calls[0][0] is window
+    assert native_calls[0][1] == window.geometry()
+    assert overlay_calls == [True]
+
+
+def test_native_geometry_failure_cannot_count_as_stable(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(callback))
+    monkeypatch.setattr(player_module, "set_native_window_geometry",
+                        lambda _owner, _target: False)
+    MPVPlayer.restore_default_window_size(window)
+    window.isMaximized = lambda: False
+    window.isMinimized = lambda: False
+
+    for index in range(ESCAPE_GEOMETRY_STABLE_POLLS):
+        callbacks[index]()
+
+    assert len(callbacks) == ESCAPE_GEOMETRY_STABLE_POLLS + 1
+    assert "_pending_escape_geometry" in window.__dict__
+
+
+def test_default_size_callback_stops_after_stable_geometry_checks(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(
+                            (delay, callback)))
+    MPVPlayer.restore_default_window_size(window)
+    window.isMaximized = lambda: False
+    window.isMinimized = lambda: False
+    calls = []
+    window.setGeometry = lambda *values: calls.append(values)
+
+    index = 0
+    while index < len(callbacks) and index < 200:
+        callbacks[index][1]()
+        index += 1
+
+    assert len(callbacks) == ESCAPE_GEOMETRY_STABLE_POLLS
+    assert len(calls) == ESCAPE_GEOMETRY_STABLE_POLLS
+    assert all(delay == ESCAPE_STATE_RETRY_MS
+               for delay, _callback in callbacks[1:])
+    assert "_pending_escape_geometry" not in window.__dict__
+
+
+def test_default_size_callback_survives_restore_after_first_200_ms(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(
+                            (delay, callback)))
+    MPVPlayer.restore_default_window_size(window)
+    window.isMaximized = lambda: False
+    window.isMinimized = lambda: False
+    target = QRect(window.geometry())
+    available = window.screen().availableGeometry()
+    old_restore = QRect(0, 0, available.width(), available.height())
+    geometries = ([target] * 8 + [old_restore]
+                  + [target] * ESCAPE_GEOMETRY_STABLE_POLLS)
+    window.geometry = lambda: geometries.pop(0)
+    calls = []
+    window.setGeometry = lambda *values: calls.append(values)
+
+    for index in range(8):
+        callbacks[index][1]()
+
+    # Native ölçümde 200 ms'lik ilk stabil pencere yetersiz kaldı. Daha geç
+    # restore yazısını görecek en az bir callback hâlâ bekliyor olmalıdır.
+    assert len(callbacks) >= 9
+    assert "_pending_escape_geometry" in window.__dict__
+    callbacks[8][1]()
+    assert calls[-1] == (target.x(), target.y(), target.width(),
+                         target.height())
+    assert "_pending_escape_geometry" in window.__dict__
+
+
+def test_late_normal_state_retains_full_geometry_stability_budget(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(
+                            (delay, callback)))
+    MPVPlayer.restore_default_window_size(window)
+    state = {"maximized": True}
+    window.isMaximized = lambda: state["maximized"]
+    window.isMinimized = lambda: False
+    normal_calls = []
+    window.showNormal = lambda: normal_calls.append(True)
+    calls = []
+    window.setGeometry = lambda *values: calls.append(values)
+
+    for index in range(ESCAPE_STATE_RETRY_LIMIT - 1):
+        callbacks[index][1]()
+    state["maximized"] = False
+
+    index = ESCAPE_STATE_RETRY_LIMIT - 1
+    while index < len(callbacks) and index < 300:
+        callbacks[index][1]()
+        index += 1
+
+    assert len(normal_calls) == ESCAPE_STATE_RETRY_LIMIT - 1
+    assert len(calls) == ESCAPE_GEOMETRY_STABLE_POLLS
+    assert "_pending_escape_geometry" not in window.__dict__
+
+
+def test_state_oscillation_cannot_reset_geometry_retry_budget(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(
+                            (delay, callback)))
+    MPVPlayer.restore_default_window_size(window)
+    state = {"maximized": False}
+    window.isMaximized = lambda: state["maximized"]
+    window.isMinimized = lambda: False
+    available = window.screen().availableGeometry()
+    old_restore = QRect(0, 0, available.width(), available.height())
+    window.geometry = lambda: old_restore
+    window.setGeometry = lambda *_values: None
+    window.showNormal = lambda: None
+
+    index = 0
+    for _ in range(ESCAPE_GEOMETRY_RETRY_LIMIT - 1):
+        callbacks[index][1]()
+        index += 1
+    state["maximized"] = True
+    for _ in range(ESCAPE_STATE_RETRY_LIMIT - 1):
+        callbacks[index][1]()
+        index += 1
+    state["maximized"] = False
+    callbacks[index][1]()
+    index += 1
+
+    assert len(callbacks) == index
+    assert index <= (ESCAPE_STATE_RETRY_LIMIT
+                     + ESCAPE_GEOMETRY_RETRY_LIMIT)
+    assert "_pending_escape_geometry" not in window.__dict__
+
+
+def test_default_size_callback_has_a_bounded_maximized_wait(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(
+                            (delay, callback)))
+    MPVPlayer.restore_default_window_size(window)
+    window.isMaximized = lambda: True
+    normal_calls = []
+    window.showNormal = lambda: normal_calls.append(True)
+    calls = []
+    window.setGeometry = lambda *values: calls.append(values)
+
+    index = 0
+    while index < len(callbacks) and index < 200:
+        callbacks[index][1]()
+        index += 1
+
+    assert callbacks[0][0] == 0
+    assert len(callbacks) == ESCAPE_STATE_RETRY_LIMIT + 1
+    assert all(delay == ESCAPE_STATE_RETRY_MS
+               for delay, _callback in callbacks[1:])
+    assert len(normal_calls) == ESCAPE_STATE_RETRY_LIMIT
+    assert calls == []
+    assert "_pending_escape_geometry" not in window.__dict__
+
+
+@pytest.mark.parametrize("unsafe_state", ["fullscreen", "pip", "closing"])
+def test_default_size_callback_stops_before_a_new_window_mode(
+        frameless_window, monkeypatch, unsafe_state):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(callback))
+    MPVPlayer.restore_default_window_size(window)
+    if unsafe_state == "fullscreen":
+        window.isFullScreen = lambda: True
+    elif unsafe_state == "pip":
+        window.picture_in_picture_enabled = True
+    else:
+        window._mlc_close_done = True
+    calls = []
+    window.setGeometry = lambda *values: calls.append(values)
+
+    callbacks[0]()
+    assert calls == []
+
+
+def test_default_size_callback_tolerates_deleted_qt_window(
+        frameless_window, monkeypatch):
+    app, window, bar, resize_filter = frameless_window(size=(1250, 780))
+    callbacks = []
+    window.showMaximized()
+    app.processEvents()
+    monkeypatch.setattr("app.player.QTimer.singleShot",
+                        lambda delay, callback: callbacks.append(callback))
+    MPVPlayer.restore_default_window_size(window)
+    window.isFullScreen = lambda: (_ for _ in ()).throw(
+        RuntimeError("wrapped C/C++ object has been deleted"))
+
+    callbacks[0]()
 
 
 def test_resize_filter_includes_native_overlay_and_playlist_edge_surfaces(

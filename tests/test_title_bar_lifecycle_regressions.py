@@ -13,12 +13,14 @@ from types import SimpleNamespace
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import QSettings
+from PyQt6.QtCore import QEvent, QSettings, Qt
+from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtWidgets import (
     QApplication, QFileDialog, QInputDialog, QLabel, QMainWindow, QSlider,
     QVBoxLayout, QWidget)
 
 from app import media_controls
+from app.player import MPVPlayer
 from app.video_frame import VideoFrame
 
 
@@ -126,6 +128,84 @@ def product_window(monkeypatch, tmp_path):
 
 
 # --- 1. Fullscreen çıkışında çağrı sırası ---
+
+
+@pytest.mark.parametrize("owner_state", ("hidden", "minimized", "closing"))
+def test_delayed_title_raise_does_not_resurrect_inactive_owner(
+        product_window, owner_state):
+    app, window, frame = product_window()
+    bar = QWidget(window.central_widget)
+    window.main_layout.insertWidget(0, bar)
+    window.title_bar = bar
+    window.cinematic_ui_enabled = True
+    bar.show()
+    app.processEvents()
+    if owner_state == "hidden":
+        window.hide()
+    elif owner_state == "minimized":
+        window.showMinimized()
+    else:
+        window._mlc_close_done = True
+    bar.hide()
+    app.processEvents()
+
+    MPVPlayer.ensure_title_bar_on_top(window)
+
+    # Explicit hidden state matters: isVisible() is false under a hidden
+    # parent even after an erroneous show() has armed the native child.
+    assert bar.isHidden()
+
+
+def test_visible_owner_can_restore_title_after_a_hidden_interval(product_window):
+    app, window, frame = product_window()
+    bar = QWidget(window.central_widget)
+    window.main_layout.insertWidget(0, bar)
+    window.title_bar = bar
+    window.cinematic_ui_enabled = True
+    window.hide()
+    bar.hide()
+    window.showNormal()
+    app.processEvents()
+
+    MPVPlayer.ensure_title_bar_on_top(window)
+
+    assert bar.isVisible()
+
+
+@pytest.mark.parametrize("maximized", (False, True))
+def test_fullscreen_exit_settles_title_geometry_before_showing_it(
+        product_window, maximized):
+    app, window, frame = product_window()
+    shown = []
+
+    class MeasuredTitle(QWidget):
+        def showEvent(self, event):
+            shown.append((self.width(), window.central_widget.width(),
+                          frame.is_video_fullscreen))
+            super().showEvent(event)
+
+    bar = MeasuredTitle(window.central_widget)
+    bar.setFixedHeight(40)
+    window.title_bar = bar
+    window.main_layout.insertWidget(0, bar)
+    bar.show()
+    if maximized:
+        window.showMaximized()
+    app.processEvents()
+    for _cycle in range(3):
+        frame.enter_fullscreen()
+        app.processEvents()
+        shown.clear()
+
+        event = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Escape,
+                          Qt.KeyboardModifier.NoModifier)
+        MPVPlayer.keyPressEvent(window, event)
+
+        assert event.isAccepted()
+        assert window.isMaximized() == maximized
+        assert shown
+        assert all(width == owner_width and not fullscreen
+                   for width, owner_width, fullscreen in shown), shown
 
 def test_legacy_placeholder_cannot_visually_replace_the_empty_state(
         product_window):

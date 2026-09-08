@@ -1,9 +1,11 @@
 # SignPath Foundation readiness
 
 This is an engineering checklist, not proof of acceptance and not legal
-advice. **Submission status: SUBMITTED - AWAITING DECISION**. The application
-was submitted on 23 August 2026. SignPath Foundation has not accepted the
-project and is the only party that can decide eligibility.
+advice. **Submission status: SUBMITTED - NOT APPROVED (2 September 2026)**.
+The application was submitted on 23 August 2026. SignPath Foundation declined
+the Foundation application because the project did not yet show sufficient
+public visibility/trust signals. This is not a technical-quality verdict and
+does not create a SignPath account, certificate or paid subscription.
 
 The reviewable submission draft is
 [`SIGNPATH_FOUNDATION_APPLICATION.md`](SIGNPATH_FOUNDATION_APPLICATION.md).
@@ -69,12 +71,19 @@ This proves form delivery only. No application identifier, acceptance,
 SignPath account, GitHub App, token, organization, project, policy,
 certificate, signing request or signature was returned.
 
-## While awaiting the decision
+## Recorded Foundation response
 
-1. Monitor the submitted contact mailbox for SignPath's response.
-2. Do not add an action, token, certificate or acceptance claim before an
-   explicit acceptance and separate implementation approval.
-3. Record SignPath's response without publishing private contact details.
+The user provided SignPath's 2 September 2026 support response. It states that
+the Foundation program looks for established external trust/visibility signals
+such as community adoption, independent references and sustained engagement,
+and that MLC Player did not yet show enough of them. It invites a later
+reapplication if those signals grow and separately mentions a paid
+subscription as an optional route. Neither path is approved, configured or
+part of MLC Player's active release chain.
+
+Do not add an action, token, certificate or acceptance claim without a future
+explicit acceptance and separate implementation approval. Private contact
+details remain outside the repository.
 
 ## Configuration only after SignPath acceptance
 

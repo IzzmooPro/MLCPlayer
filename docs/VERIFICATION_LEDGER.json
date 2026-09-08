@@ -12654,6 +12654,2182 @@
         "No native, installed-artifact, build, installation, commit, push, PR, merge, tag or release was performed after this fix."
       ],
       "next_action": "Obtain separate approval before staging and committing this CI compatibility fix."
+    },
+    {
+      "id": "EV-20260903-041",
+      "recorded_at_utc": "2026-09-03T22:13:25Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "260b2a90c3e3d98a3853b65237b2f0742a548ddd",
+      "baseline_commit": "260b2a90c3e3d98a3853b65237b2f0742a548ddd",
+      "working_tree_state": "uncommitted v0.41 application and installer version-field update",
+      "changed_files": [
+        "app/config.py",
+        "packaging/MLCPlayer.iss",
+        "tests/test_version_consistency.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "v0.41 candidate version fields are internally consistent",
+      "commands": [
+        "python -m pytest -q tests/test_version_consistency.py tests/test_release_documentation_regressions.py (214 passed)",
+        "git diff --check"
+      ],
+      "evidence": [
+        "APP_VERSION is v0.41, derived WINDOWS_VERSION is 0.41.0.0, and the Inno Setup defines match both values.",
+        "The release documentation contract remains green with the v0.41 candidate fields."
+      ],
+      "summary": "The v0.41 source candidate has a single consistent version across application and installer metadata; no artifact has been produced.",
+      "limitations": [
+        "This is deterministic source-tree evidence only; it does not prove a built, installed, physically accepted, tagged or released v0.41 artifact.",
+        "No commit, push, PR, merge, dispatch, build, installation, tag or release was performed for this version update."
+      ],
+      "next_action": "Obtain separate approval before committing the v0.41 version-field update."
+    },
+    {
+      "id": "EV-20260905-001",
+      "recorded_at_utc": "2026-09-05T07:38:47Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Documentation-only audit handoff; product source unchanged",
+      "changed_files": ["docs/ENGINEERING_AUDIT.md", "docs/CONTINUITY.md", "docs/VERIFICATION_LEDGER.json"],
+      "subject": "Open PiP and M3U behavior gaps documented for implementation handoff",
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git rev-list --left-right --count HEAD...origin/master",
+        "python -m pytest -q tests/test_playback_mode_controls_regressions.py tests/test_window_modes_regressions.py tests/test_playback_lifecycle_regressions.py tests/test_media_selection_atomic_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py",
+        "PowerShell stdin Python probe reproduced in docs/ENGINEERING_AUDIT.md AUD-20260905; runpy tests/conftest.py, mocked stop and M3U reader"
+      ],
+      "evidence": [
+        "Existing affected suite: 80 passed in 0.93s. These tests do not close the newly probed gaps.",
+        "Stop probe returned True, cleared current_file, retained picture_in_picture_enabled=True and called no PiP exit.",
+        "Mocked URL-only M3U reader returned False with one warning; source saver writes URL entries but loader filters for local files.",
+        "Existing offscreen mode fixture with current_file=audio-only.mp3 and duration=0 allowed PiP entry when native topmost was mocked successful; no real audio/video decoding was attempted.",
+        "CI mpv module is replaced by scripts/ci_mpv_stub.py under MLC_CI=1; missing MpvFormat in that surface is not proof of a real binding version limitation.",
+        "Detailed implementation boundaries and acceptance criteria recorded as AUD-20260905-01 through 06 in the existing engineering audit."
+      ],
+      "summary": "Behavior audit has unresolved findings despite existing green tests; implementation handoff recorded without changing product code.",
+      "limitations": [
+        "Failed denotes unmet behavior expectations, not a failure of the 80-test run.",
+        "No native Windows interaction or media decode performed; observed state does not prove a rendered visual defect.",
+        "Independent review and physical acceptance remain open; this is not an exhaustive application safety or release verdict.",
+        "SignPath rejection is based on the user-provided September 2 email; external mailbox was not accessed."
+      ],
+      "next_action": "Implement PiP findings AUD-20260905-01/02 using red regressions, then address M3U roundtrip and documentation findings; preserve separate release gates."
+    },
+    {
+      "id": "EV-20260905-002",
+      "recorded_at_utc": "2026-09-05T07:51:07Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "uncommitted AUD-20260905 PiP lifecycle, observed-video gate, M3U URL roundtrip, documentation and inventory remediation",
+      "changed_files": [
+        "app/media_controls.py",
+        "app/player.py",
+        "app/title_bar.py",
+        "app/video_frame.py",
+        "CODE_SIGNING_POLICY.md",
+        "README.md",
+        "README.tr.md",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/ENGINEERING_AUDIT.md",
+        "docs/SIGNPATH_FOUNDATION_APPLICATION.md",
+        "docs/SIGNPATH_READINESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/test_media_selection_atomic_regressions.py",
+        "tests/test_playback_lifecycle_regressions.py",
+        "tests/test_playback_mode_controls_regressions.py",
+        "tests/test_signpath_readiness_regressions.py",
+        "tests/test_subtitle_track_watch_regressions.py",
+        "tests/test_window_modes_regressions.py"
+      ],
+      "corrects": [
+        {
+          "entry_id": "EV-20260903-037",
+          "field": "evidence[1]",
+          "incorrect": "tests/test_playback_mode_controls_regressions.py::test_native_false_node_readback_is_canonical_no_not_a_failed_write failed because app/player.py directly accessed mpv.MpvFormat.OSD_STRING, while that python-mpv module has no MpvFormat attribute.",
+          "corrected": "tests/conftest.py installs scripts/ci_mpv_stub.py under MLC_CI=1, and that repository-owned stub lacks MpvFormat; the failed run therefore proves the CI surface was enum-less, not that a real installed python-mpv binding lacks the enum."
+        },
+        {
+          "entry_id": "EV-20260903-037",
+          "field": "summary",
+          "incorrect": "The loop-file write did not fail; its readback verification incorrectly required an optional python-mpv enum surface unavailable on the hosted runner.",
+          "corrected": "The loop-file write did not fail; its readback verification required an optional enum absent from the repository CI stub surface. This does not make a claim about the real installed python-mpv binding."
+        },
+        {
+          "entry_id": "EV-20260903-038",
+          "field": "subject",
+          "incorrect": "Loop readback remains canonical when python-mpv omits MpvFormat",
+          "corrected": "Loop readback remains canonical when the exercised MPV module surface omits MpvFormat"
+        },
+        {
+          "entry_id": "EV-20260903-040",
+          "field": "evidence[0]",
+          "incorrect": "The CI-specific missing-MpvFormat regression is included in the complete package and passes.",
+          "corrected": "The regression simulating an MPV module without MpvFormat is included in the complete package and passes; it is compatible with the CI stub but is not evidence about a real installed binding version."
+        }
+      ],
+      "subject": "Close deterministic AUD-20260905 PiP, M3U and documentation findings without promoting physical acceptance",
+      "commands": [
+        "audit red probes recorded in EV-20260905-001 for PiP stop, path-only PiP gate and URL-only M3U reader",
+        "python -m pytest -q tests/test_window_modes_regressions.py tests/test_playback_lifecycle_regressions.py tests/test_media_selection_atomic_regressions.py (56 passed)",
+        "python -m pytest -q tests/test_window_modes_regressions.py tests/test_playback_lifecycle_regressions.py tests/test_media_selection_atomic_regressions.py tests/test_subtitle_track_watch_regressions.py tests/test_title_bar_regressions.py tests/test_signpath_readiness_regressions.py tests/test_release_documentation_regressions.py tests/test_quality_evolution_plan_regressions.py tests/test_playback_mode_controls_regressions.py tests/test_ci_mpv_stub_regressions.py tests/test_url_loading_regressions.py tests/test_continuity_regressions.py (413 passed)",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "git diff --check"
+      ],
+      "evidence": [
+        "stop now invokes the existing PiP exit method after the non-blocking MPV stop submission; a release failure preserves the existing PiP state rather than falsely reporting normal mode, and the empty-state overlay suppresses itself while PiP remains active.",
+        "PiP entry and title-bar availability require both a current target and matching observer-cached path plus track-list containing type=video; open, URL, playlist and stop paths clear those snapshots before a new decision, without a synchronous MPV property read in update_ui.",
+        "New regressions cover audio/pending paths, observed video versus audio tracks, successful/refused PiP exit handling, mixed local/HTTP(S) M3U save/load, UTF-8 BOM, rejected FTP input and URL-first playlist loading lifecycle.",
+        "SignPath documentation records the user-provided 2 September Foundation non-approval as a public-visibility/trust-signal decision, not as a product-quality judgment or paid-subscription approval.",
+        "The architecture inventory now matches the three changed in-scope application modules; the CI-stub correction is append-only and does not alter historical ledger entries."
+      ],
+      "summary": "AUD-20260905 findings 01, 02, 03, 04 and 06 are closed only at the deterministic source/test layer. Finding 05 remains NOT_RUN because its Windows acceptance scenarios were not executed.",
+      "limitations": [
+        "No GitHub test, native smoke, build, installation, installed-artifact check, commit, push, PR, merge, tag or release was performed.",
+        "No real Windows PiP/stop/reopen loop, MP3/live-video decode, album-art policy decision, playlist physical drag or second-instance IPC acceptance was run; these are not PASS.",
+        "The SignPath response is based on the user-provided email; the mailbox and SignPath service were not accessed.",
+        "The user requested no additional agent; independent adversarial review is NOT_RUN."
+      ],
+      "next_action": "Review the uncommitted diff and, only if desired, grant separate commit approval. Native/physical acceptance remains a later explicitly authorized task."
+    },
+    {
+      "id": "EV-20260905-003",
+      "recorded_at_utc": "2026-09-05T08:05:07Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "uncommitted AUD-20260905 remediation plus native-smoke ordering repair and canonical-desktop-checkout policy",
+      "changed_files": [
+        "AGENTS.md",
+        "tests/native_feature_batch_smoke_child.py",
+        "tests/test_native_feature_acceptance_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Real-video Windows native smoke after observed-video PiP gate remediation",
+      "commands": [
+        "cmd /c Start.bat -CheckOnly",
+        "python -m pytest -q tests/test_native_feature_acceptance_regressions.py tests/test_window_modes_regressions.py tests/test_playback_lifecycle_regressions.py (86 passed)",
+        "MLC_NATIVE_FEATURE_ACCEPTANCE=1; run_native_feature on a user-scoped local supported video (all required checks passed)",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "git diff --check"
+      ],
+      "evidence": [
+        "Launcher preflight reported Python, runtime binaries and required packages ready without starting the player.",
+        "The native child now opens the selected video and waits for duration plus observer-backed video availability before testing PiP from maximized or fullscreen states.",
+        "All 17 required native checks passed, including PiP entry/exit/drag/resize, title-bar mode transitions, corner cursors, opacity adjustment, immediate timeline, natural EOF rewind/pause and non-blocking stop.",
+        "Parent gate accepted exit code 0, empty stderr and the final MARK_DONE marker; the contained Windows Job Object reported zero active processes after the child exited.",
+        "The user-scoped media fingerprint was read before and after by the parent gate; no media modification problem was reported. Its private path and digest are intentionally not recorded."
+      ],
+      "summary": "The current uncommitted source tree passed one bounded, real Windows native smoke with a supported local video. This closes only that exact smoke scenario and does not promote installation or human acceptance.",
+      "limitations": [
+        "No GitHub test, build, installation, installed-artifact check, commit, push, PR, merge, tag or release was performed.",
+        "This is one media fixture and one bounded native scenario; it does not close the remaining physical playlist drag or second-instance IPC matrix rows, nor replace user visual acceptance.",
+        "The working-tree changes are not contained in the baseline commit; a later evidence-commit record is required only after separately approved commit creation."
+      ],
+      "next_action": "Review the uncommitted diff and, only if desired, grant separate commit approval."
+    },
+    {
+      "id": "EV-20260905-004",
+      "recorded_at_utc": "2026-09-05T08:27:33Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout; prior native observations are not contained in the baseline commit. This task only reconciles evidence and documentation.",
+      "changed_files": [
+        "tests/native_window_ipc_smoke.py",
+        "tests/test_physical_playlist_reorder_regressions.py",
+        "AGENTS.md",
+        "CODE_SIGNING_POLICY.md",
+        "README.md",
+        "README.tr.md",
+        "app/media_controls.py",
+        "app/player.py",
+        "app/title_bar.py",
+        "app/video_frame.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/ENGINEERING_AUDIT.md",
+        "docs/SIGNPATH_FOUNDATION_APPLICATION.md",
+        "docs/SIGNPATH_READINESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/native_feature_batch_smoke_child.py",
+        "tests/native_physical_acceptance_child.py",
+        "tests/run_physical_acceptance.py",
+        "tests/test_media_selection_atomic_regressions.py",
+        "tests/test_native_feature_acceptance_regressions.py",
+        "tests/test_playback_lifecycle_regressions.py",
+        "tests/test_playback_mode_controls_regressions.py",
+        "tests/test_signpath_readiness_regressions.py",
+        "tests/test_subtitle_track_watch_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md"
+      ],
+      "subject": "Recover bounded physical playlist reorder evidence without closing the complete WIN-P0-07 matrix row",
+      "commands": [
+        "Get-Content -LiteralPath \"$env:TEMP\\mlc_physical_logs\\group14-playlist_reorder.log\"",
+        "Get-Content -LiteralPath \"$env:TEMP\\mlc_physical_logs\\summary.json\"",
+        "git diff -- tests/native_physical_acceptance_child.py tests/run_physical_acceptance.py"
+      ],
+      "evidence": [
+        "Recovered existing group 14 log and JSON report agree: PID 6440, elapsed 7.6 seconds, exit 0, no timeout, four PASS rows, no FAIL/BLOCKED rows, protocol_problems empty, final MARK_DONE and active_job_processes_after=0.",
+        "PLAYLIST_LEN=3; Win32 press/move measured moved=True target=2 after_last=True before release. Model order equals before[1:] + before[:1]; current and selected indices both became 2.",
+        "Product close was accepted with stop=1, terminate=1, order stop->terminate and mpv_released=True; child restored cursor. The runner merges stdout and stderr, so a separately empty stderr stream is not asserted.",
+        "This is readback of the inherited run, not a new native execution. The source gate measures after-last state, not the painted insertion-line pixels or a human visual judgment.",
+        "PiP 17/17, exit 0, empty stderr, MARK_DONE and zero Job Object processes were already recorded in EV-20260905-003. The handoff is not counted as a second PiP run."
+      ],
+      "private_artifact_digests": [
+        {
+          "name": "playlist-reorder-group14.log",
+          "sha256": "a687eea98aa723c9c960bd44e473ce3b7d258c67fea43243c57650ccbed35417"
+        },
+        {
+          "name": "playlist-reorder-summary.json",
+          "sha256": "efc2699bfbe3cf6073233049db9654ddc9d3a26ac327d2903f46e4cafc1bf540"
+        }
+      ],
+      "summary": "The recovered native report supports the four bounded playlist checks. Formal WIN-P0-07 remains NOT_RUN for the complete acceptance contract.",
+      "limitations": [
+        "The exact original launch command, contemporaneous source digest, ordered media identities/hashes, runtime/DLL manifest and display identity were not recovered. Current file hashes cannot retrospectively supply that provenance.",
+        "Only one first-to-last drag in a three-item playlist is evidenced; repeated drags, multi-selection, other boundary cases, media integrity and human visual acceptance are unmeasured.",
+        "No native rerun, Computer Use, additional agent, GitHub operation, build, installation, commit, push, PR, tag or release occurred in this task."
+      ],
+      "next_action": "Complete the local documentation gates and review the uncommitted evidence diff; any future native acceptance needs a separately authorized exact scenario."
+    },
+    {
+      "id": "EV-20260905-005",
+      "recorded_at_utc": "2026-09-05T08:27:33Z",
+      "proof_layer": "native_smoke",
+      "result": "blocked",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout; prior native observations are not contained in the baseline commit. This task only reconciles evidence and documentation.",
+      "changed_files": [
+        "tests/native_window_ipc_smoke.py",
+        "tests/test_physical_playlist_reorder_regressions.py",
+        "AGENTS.md",
+        "CODE_SIGNING_POLICY.md",
+        "README.md",
+        "README.tr.md",
+        "app/media_controls.py",
+        "app/player.py",
+        "app/title_bar.py",
+        "app/video_frame.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/ENGINEERING_AUDIT.md",
+        "docs/SIGNPATH_FOUNDATION_APPLICATION.md",
+        "docs/SIGNPATH_READINESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/native_feature_batch_smoke_child.py",
+        "tests/native_physical_acceptance_child.py",
+        "tests/run_physical_acceptance.py",
+        "tests/test_media_selection_atomic_regressions.py",
+        "tests/test_native_feature_acceptance_regressions.py",
+        "tests/test_playback_lifecycle_regressions.py",
+        "tests/test_playback_mode_controls_regressions.py",
+        "tests/test_signpath_readiness_regressions.py",
+        "tests/test_subtitle_track_watch_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md"
+      ],
+      "subject": "Real-window IPC handoff reported successful but raw execution and complete acceptance evidence are unavailable",
+      "commands": [
+        "Get-Content -LiteralPath tests/native_window_ipc_smoke.py",
+        "Get-Content docs/WINDOWS_ACCEPTANCE_MATRIX.md | Select-Object -Skip 175 -First 33"
+      ],
+      "evidence": [
+        "The task handoff reports successful file and safe localhost URL delivery to a real MPVPlayer window through a separate SingleInstanceGuard process. This statement is inherited reported evidence; raw IPC stdout/stderr, primary exit and MARK_DONE were not recovered in this task.",
+        "Source checks secondary exit 0, empty secondary stderr, SECONDARY output, received payload equality and player.current_file equality, using separate guard subprocesses for file and URL within one primary-window run.",
+        "The file payload is the same video already opened by the primary, so current_file equality alone does not demonstrate a fresh media switch or successful decoding after handoff.",
+        "The URL is http://127.0.0.1:9/mlc-ipc-probe.m3u8. The handoff reports connection failure because no local server was listening. current_file equality is URL-request state, not successful stream load or playback.",
+        "The script invokes activate_window but asserts no foreground HWND, records no final process inventory or mutex/port readback, and has no parent failure/cleanup gate. Script text containing MARK_DONE does not prove that marker was emitted."
+      ],
+      "summary": "BLOCKED denotes missing verification evidence, not an observed IPC product failure. WIN-P0-08 remains NOT_RUN for complete formal acceptance; no additional native PASS is asserted.",
+      "limitations": [
+        "No raw IPC artifact digest or exact invocation/runtime/media provenance can be recorded honestly from the handoff alone.",
+        "Primary process exit, primary stderr classification, final marker and process cleanup remain unverified here; secondary checks in source are not recovered terminal results.",
+        "Foreground restoration, a distinct file target being decoded and a successfully served safe URL remain unmeasured. No independent adversarial agent was used under the explicit single-agent instruction."
+      ],
+      "next_action": "Complete local documentation gates and review the inherited IPC harness limitations; any future execution requires separate authorization and preserved raw output."
+    },
+    {
+      "id": "EV-20260905-006",
+      "recorded_at_utc": "2026-09-05T08:27:33Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout; prior native observations are not contained in the baseline commit. This task only reconciles evidence and documentation.",
+      "changed_files": [
+        "tests/native_window_ipc_smoke.py",
+        "tests/test_physical_playlist_reorder_regressions.py",
+        "AGENTS.md",
+        "CODE_SIGNING_POLICY.md",
+        "README.md",
+        "README.tr.md",
+        "app/media_controls.py",
+        "app/player.py",
+        "app/title_bar.py",
+        "app/video_frame.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/ENGINEERING_AUDIT.md",
+        "docs/SIGNPATH_FOUNDATION_APPLICATION.md",
+        "docs/SIGNPATH_READINESS.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "tests/native_feature_batch_smoke_child.py",
+        "tests/native_physical_acceptance_child.py",
+        "tests/run_physical_acceptance.py",
+        "tests/test_media_selection_atomic_regressions.py",
+        "tests/test_native_feature_acceptance_regressions.py",
+        "tests/test_playback_lifecycle_regressions.py",
+        "tests/test_playback_mode_controls_regressions.py",
+        "tests/test_signpath_readiness_regressions.py",
+        "tests/test_subtitle_track_watch_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md"
+      ],
+      "subject": "Evidence preparation stopped on legacy-encoded playlist log before any repository write",
+      "commands": [
+        "Private record_handoff.py preparation script: Path(log).read_text(encoding=\"utf-8\")",
+        "python -m pytest -q tests/test_quality_evolution_plan_regressions.py tests/test_continuity_regressions.py"
+      ],
+      "evidence": [
+        "The preparation script raised UnicodeDecodeError at byte offset 384 (0xfd) before its append/write stage. Readback confirmed the ledger was byte-identical to the task-start snapshot and still ended at EV-20260905-003.",
+        "Inspection showed cp1254 decodes the affected Turkish fragment correctly. Final preparation validates ASCII markers directly from raw bytes and preserves the original log and its SHA-256 without transcoding.",
+        "The following shell test command still ran and returned 16 passed against the unchanged documents; shell exit 0 did not make the failed preparation successful. Those 16 are not validation of updated documents."
+      ],
+      "summary": "A local evidence-reader encoding failure was diagnosed before one corrected preparation attempt; no product/native failure or new native run occurred.",
+      "limitations": [
+        "The preparation script is private tooling, not product code. The corrected document state still requires its own narrow validation."
+      ],
+      "next_action": "Apply the diagnosed byte-marker reader correction, then validate the updated ledger, continuity and matrix."
+    },
+    {
+      "id": "EV-20260905-007",
+      "recorded_at_utc": "2026-09-05T08:28:34Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout preserved; this task changed only ledger, continuity and Windows acceptance matrix. Baseline does not contain these uncommitted changes.",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md"
+      ],
+      "subject": "Local handoff reconciliation passes narrow tests and append-only checks without promoting incomplete native acceptance",
+      "commands": [
+        "$env:MLC_CI=\"1\"; $env:QT_QPA_PLATFORM=\"offscreen\"; python -m pytest -q tests/test_physical_playlist_reorder_regressions.py tests/test_physical_acceptance_runner_regressions.py tests/test_native_feature_acceptance_regressions.py tests/test_single_instance_regressions.py",
+        "$env:MLC_CI=\"1\"; $env:QT_QPA_PLATFORM=\"offscreen\"; python -m pytest -q tests/test_quality_evolution_plan_regressions.py tests/test_continuity_regressions.py",
+        "python scripts/verify_ledger_append_only.py --base-ref HEAD",
+        "git diff --check"
+      ],
+      "evidence": [
+        "Affected deterministic contracts: 96 passed in 0.84s, exit 0, with CI MPV stub and offscreen Qt. No native acceptance script was launched.",
+        "After the diagnosed preparation correction, updated quality/inventory/continuity gates: 16 passed in 0.38s, exit 0. This is a distinct check from the 16 on unchanged documents recorded in EV-20260905-006.",
+        "Ledger append-only check against local HEAD returned LEDGER_APPEND_ONLY_OK; task-start ledger entries were separately compared and preserved, including all inherited uncommitted records.",
+        "SHA-256 comparison with the task-start snapshot found no changes to inherited product/test/user files outside the three documentation files. git diff --check exited 0.",
+        "Matrix execution mappings now describe the actual narrow playlist/IPC harnesses and remaining provenance/acceptance gaps; formal WIN-P0-07/08 remain NOT_RUN. PiP EV-20260905-003 is reused without counting another run."
+      ],
+      "private_artifact_digests": [
+        {
+          "name": "handoff-start-file-snapshot.json",
+          "sha256": "c31e603ede0c48e3e37c6a57110d7603d4ff9bf9b27ed8df78cdef4249fb8d9d"
+        }
+      ],
+      "summary": "Local documentation reconciliation and scoped deterministic validation completed; recovered playlist checks passed, IPC raw-proof gap remains blocked, and the dirty source tree is preserved.",
+      "limitations": [
+        "Current source/file snapshot hashes describe this readback task, not the earlier native-run provenance.",
+        "No native rerun, Computer Use, additional agent, GitHub operation, build, installation, commit, push, PR, tag or release. Independent adversarial review and human/installed-artifact acceptance remain unperformed.",
+        "The complete application suite was not rerun; this result covers only the named narrow deterministic and document contracts."
+      ],
+      "next_action": "Review the uncommitted diff. Any commit or future native acceptance requires separate explicit approval; no publication action is authorized by this handoff."
+    },
+    {
+      "id": "EV-20260905-008",
+      "recorded_at_utc": "2026-09-05T08:29:54Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Same preserved dirty canonical source/test tree; documentation-only evidence closure",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md"
+      ],
+      "subject": "One-off autocrlf override made the final whitespace probe compare raw CRLF lines",
+      "commands": [
+        "git -c core.safecrlf=false -c core.autocrlf=false diff --check",
+        "git config --get core.autocrlf"
+      ],
+      "evidence": [
+        "The extra final diff probe exited 1 with trailing-whitespace reports on existing CRLF lines, including unchanged AGENTS.md. It used a command-local autocrlf=false override.",
+        "Readback found repository core.autocrlf=true and confirmed unchanged inherited file hashes. The command altered no persistent Git configuration or files.",
+        "The preceding post-007 continuity gate passed 10 tests in 0.33s and the ledger check returned LEDGER_APPEND_ONLY_OK; those results do not turn this overridden diff probe into PASS."
+      ],
+      "summary": "The noncanonical diff configuration produced a failed check; the cause was inspected before restoring the repository-normal comparison.",
+      "limitations": [
+        "This is a failed local verification command, not a newly introduced product or whitespace defect."
+      ],
+      "next_action": "Use normal git diff --check without the one-off overrides; retain both results in the ledger."
+    },
+    {
+      "id": "EV-20260905-009",
+      "recorded_at_utc": "2026-09-05T08:29:54Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Same preserved dirty canonical source/test tree; documentation-only evidence closure",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md"
+      ],
+      "subject": "Repository-normal diff check and preserved-history readback close local evidence reconciliation",
+      "commands": [
+        "git diff --check",
+        "git config --get core.autocrlf"
+      ],
+      "evidence": [
+        "After diagnosing EV-20260905-008, normal git diff --check returned exit 0 with empty stdout under the existing core.autocrlf=true setting.",
+        "Task-start SHA-256 checks preserved inherited product/test files, and the 392-entry task-start ledger remains an unchanged prefix. Only continuity, ledger and acceptance matrix were changed in this task.",
+        "Scoped deterministic evidence remains EV-20260905-007: 96 affected tests and 16 updated document/quality tests passed. The subsequent continuity-only 10-test run also passed; these overlapping counts are not added as distinct tests."
+      ],
+      "summary": "Local evidence reconciliation is complete. PiP evidence is reused once, four bounded playlist checks are supported, and IPC formal proof remains incomplete.",
+      "limitations": [
+        "No new native run, independent agent, Computer Use, GitHub operation, build, install, commit, push, PR, tag or release. WIN-P0-07/08 remain NOT_RUN; IPC evidence EV-20260905-005 remains BLOCKED."
+      ],
+      "next_action": "Review the uncommitted diff; any commit or future exact native acceptance requires separate explicit authorization."
+    },
+    {
+      "id": "EV-20260905-010",
+      "recorded_at_utc": "2026-09-05T08:39:14Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty source preserved; new title lifecycle regressions added before this fix",
+      "changed_files": ["tests/test_title_bar_lifecycle_regressions.py"],
+      "subject": "Title visibility regressions expose inactive-owner resurrection and stale fullscreen state during Esc restoration",
+      "commands": [
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_lifecycle_regressions.py -k 'delayed_title_raise or visible_owner_can_restore'",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_lifecycle_regressions.py -k 'fullscreen_exit_settles_title'"
+      ],
+      "evidence": [
+        "The user supplied a screenshot showing a second detached-looking title strip and identified the trigger as video fullscreen followed by Esc to restore a smaller window. No active Player process was available for a current PID/HWND readback.",
+        "First red run: 3 failed, 1 passed, 24 deselected. ensure_title_bar_on_top explicitly showed a hidden child when its owner was hidden, minimized or marked _mlc_close_done.",
+        "Fullscreen red run: 1 failed, 28 deselected. The title showEvent observed (width=900, owner_width=900, is_video_fullscreen=True). This proves stale mode state during title restoration, not a measured geometry mismatch.",
+        "Source inspection: the title is a WA_NativeWindow child; its Show event can enter FramelessResizeFilter and ensure_title_bar_on_top, which returns early while is_video_fullscreen remains true."
+      ],
+      "summary": "Two deterministic lifecycle defects were reproduced. Their contribution to the screenshot's Windows rendering artifact remains a hypothesis until the exact native transition is checked.",
+      "limitations": [
+        "Offscreen widget tests do not reproduce Windows compositor pixels, native HWND parenting or video decoding. The screenshot alone cannot distinguish a stale native surface from another process.",
+        "No native rerun, Computer Use or additional agent was used."
+      ],
+      "next_action": "Correct the owner visibility guard and fullscreen title restoration order, then run the affected regression family."
+    },
+    {
+      "id": "EV-20260905-011",
+      "recorded_at_utc": "2026-09-05T08:39:15Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty source plus uncommitted title visibility guard and fullscreen restoration ordering correction",
+      "changed_files": [
+        "app/player.py", "app/video_frame.py", "tests/test_title_bar_lifecycle_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json", "docs/CONTINUITY.md", "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Title restoration lifecycle correction passes targeted tests; screenshot-specific native acceptance remains open",
+      "commands": [
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_lifecycle_regressions.py tests/test_window_modes_regressions.py tests/test_title_bar_regressions.py tests/test_player_shutdown_regressions.py",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_lifecycle_regressions.py tests/test_title_bar_hardening_regressions.py tests/test_quality_evolution_plan_regressions.py"
+      ],
+      "evidence": [
+        "Initial green affected family: 168 passed in 0.94s. Hidden, minimized and closing owner states no longer re-show the title through the z-order helper; a visible owner still restores it.",
+        "Fullscreen exit restores window state and margins, clears is_video_fullscreen and activates the layout before explicitly showing the native title. Its Show event now sees the restored mode.",
+        "Final expanded boundary family: 69 passed in 0.64s. The regression invokes the product Esc key handler for three cycles from each normal/maximized starting state and checks title show-time width/state plus restored maximize state.",
+        "The two changed architecture-inventory modules were rehashed from normalized current source, and the inventory regression passed. Existing unrelated dirty changes were retained."
+      ],
+      "summary": "The demonstrated source lifecycle defects are fixed. This is a candidate correction for the user-reported detached title strip; the exact screenshot defect is not yet confirmed resolved on Windows.",
+      "limitations": [
+        "No new native/video run or human visual acceptance. Earlier native 17/17 evidence predates this change and is not transferred to it.",
+        "No additional agent under the explicit user restriction; independent adversarial review remains unperformed.",
+        "No GitHub, build, installation, commit, push, PR, tag or release. The running/installed artifact has not been updated by these source edits."
+      ],
+      "next_action": "Validate the canonical source in the exact video -> fullscreen -> Esc scenario, including title surface ownership/geometry and visual readback, under separate native-run approval."
+    },
+    {
+      "id": "EV-20260905-012",
+      "recorded_at_utc": "2026-09-05T08:46:42Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native run against the inherited dirty canonical tree with EV-20260905-011 title lifecycle correction; no product source edits during this run",
+      "changed_files": ["app/player.py", "app/video_frame.py", "tests/test_title_bar_lifecycle_regressions.py", "docs/ARCHITECTURE_INVENTORY.json", "docs/CONTINUITY.md", "docs/VERIFICATION_LEDGER.json"],
+      "subject": "Six real-video fullscreen to Esc transitions preserve title HWND ownership and geometry without reproducing the detached strip",
+      "commands": [
+        "python -m py_compile <private-probe-dir>/probe.py",
+        "MLC_TITLE_PROBE_MEDIA=<single-local-Avatar-video> python <private-probe-dir>/probe.py",
+        "Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'python|MLC' } | Select-Object ProcessId,ParentProcessId,Name"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64", "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0", "screen": [2560, 1440], "device_pixel_ratio": 1.0,
+        "audio_output": "null", "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "d77c951046065ee2ab10299e43ec0d203866c8c1170a828bd14dbea6d5a423b7",
+        "app/video_frame.py": "6766ff8b281ab5dede1acc4abc3a991cb7d93559804f80d3f0daba060d7dec0d"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv", "size": 31195865553, "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "fullscreen-title-probe.py", "sha256": "afb82f41c8a13e52412c0ae07c97d780ff62526587115b79327e14a76de2a134"},
+        {"name": "fullscreen-title-provenance.json", "sha256": "3062d2337122bb88ad4c8e9061edcac97db4275d27ca49e4f7a3fb004efa6313"},
+        {"name": "fullscreen-title-parent.json", "sha256": "bde1b6ac41908ca83d757be558700fd5c8aa4fcadb0e7d55fb1394c593594d92"},
+        {"name": "fullscreen-title-stdout.log", "sha256": "b212b285801a07da4b9197661623c3530b7125df9ea90e024024887bb0688b05"},
+        {"name": "fullscreen-title-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "fullscreen-title-normal1.png", "sha256": "3bc563f34ed71dfa54822a1649e1d9b3251b296cb4b37763a05f94ac14f2283b"},
+        {"name": "fullscreen-title-max1.png", "sha256": "060bab05572997af020695ef8afaade06bb7f84149b1b0b81bae5f7645d9144c"},
+        {"name": "fullscreen-title-final-window.png", "sha256": "9cb21ab04e7c1706f40d6bbdb6a01e2a3acffa1fea3240f63d96ae7291091b9b"}
+      ],
+      "evidence": [
+        "One child, PID 24780, started only after assignment to the existing Windows Job Object guard. User settings/log directories were isolated; real libmpv and a local video were used with ao=null. All app source raw-byte hashes were identical before and after.",
+        "Video duration was 11828.916 seconds; observed video readiness and position advancement from 3944.0 to 3944.583 were verified. Position reached 3953.75 after the transitions.",
+        "Three normal and three maximized fullscreen/escape cycles passed. Fullscreen hid the title; each return preserved root HWND 2168316, title HWND 5182296 and video HWND 987586. The title root remained the player and its native rectangle matched the Qt expected rectangle exactly.",
+        "Normal return title rectangle was [12,30,972,70], inside owner [12,30,972,630]. Maximized return title rectangle was [0,0,2560,40], inside owner [0,0,2560,1392]. The own-process visible-window inventory found no matching detached title-sized strip outside the owner.",
+        "Normal-return and final-window desktop screenshots were visually inspected by the agent and showed a single attached title bar. This is agent screenshot review, not user visual acceptance.",
+        "Product close was accepted with exactly stop->terminate and mpv_player=None. Child and parent exited 0, stderr was zero bytes, RESULT failures=0 and MARK_DONE were present, Job Object active processes were 0, and subsequent Python/MLC process inventory was empty.",
+        "The extra Esc-after-maximized-return check printed PASS but only asserted mode/title visibility. Its old cached owner HWND rectangle was [800,396,3360,1788], while the title rectangle was [800,396,1760,436] and the screenshot showed a compact window. Current HWND identity and Qt owner geometry were not captured at that point. This mismatch is unresolved: a stale handle, native geometry issue or probe limitation cannot be distinguished from this run. That extra size check is not accepted as full native geometry PASS."
+      ],
+      "summary": "The six bounded fullscreen-to-Esc transitions passed on the corrected source and did not reproduce the detached title strip. The additional second-Esc size/handle discrepancy remains open despite the probe's aggregate success output.",
+      "limitations": [
+        "No pre-fix native A/B run was performed; this run cannot establish that the changed source order was the sole cause of the user's original artifact or rule out intermittent recurrence.",
+        "Esc was delivered with Qt QTest to the actual video widget; this is not physical hardware key injection. Only one local video, monitor configuration and short observation window were tested.",
+        "The large media fingerprint uses sampled-v1, not a full-file SHA-256. No installed artifact, independent agent or user visual acceptance is implied.",
+        "No automatic native retry, GitHub operation, build, installation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Report the six successful transitions and the unresolved second-Esc geometry/handle discrepancy. If further native diagnosis is authorized, capture current HWND identity and Qt/native owner rectangles after default-size restoration before asserting a fix."
+    },
+    {
+      "recorded_at_utc": "2026-09-05T09:04:58Z",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout; uncommitted PiP path identity correction measured separately before and after",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_title_bar_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "id": "EV-20260905-013",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "subject": "Actual top-right PiP click reproduces disabled video gate due to Windows path separators",
+      "commands": [
+        "python -m py_compile <private-pip-probe-dir>/probe.py",
+        "MLC_TITLE_PROBE_MEDIA=<single-local-Avatar-video> python <private-pip-probe-dir>/probe.py"
+      ],
+      "private_artifact_digests": [
+        {
+          "name": "pip-probe.py",
+          "sha256": "46f9578f44b9f4dfc0a185ab04b75102921f1e1ad38d4638774f30e9e12b0ae5"
+        },
+        {
+          "name": "parent-helper.py",
+          "sha256": "afb82f41c8a13e52412c0ae07c97d780ff62526587115b79327e14a76de2a134"
+        },
+        {
+          "name": "failed-pip-provenance.json",
+          "sha256": "8cb925e4c2a0e5b13f3ed0d9c0c5b749af81d3486262b56ecd33ec02cbe4335a"
+        },
+        {
+          "name": "failed-pip-stdout.log",
+          "sha256": "5d3cd6b404efeab1459ccfade0cb28b3df626734284a97730423c7597b1909e3"
+        },
+        {
+          "name": "failed-pip-parent.json",
+          "sha256": "78dc552118556663559660f981ca2ea7634893179a81d1fcdca27acdab8fcc63"
+        }
+      ],
+      "evidence": [
+        "Approved native click with real local video and isolated settings/ao=null. Duration 11828.916 and video track present, but QFileDialog-style I:/Film/... and observed I:\\Film\\... compared unequal. Button disabled with Once video acin tooltip; native mouse press/release reached the title button, clicked signal count 0.",
+        "PID 38948, child exit 1, failed initial PiP assertion (exception adds another false, yielding RESULT failures=2), MARK_DONE present, stderr empty. Product shutdown stop->terminate passed; Job Object active processes 0. Cause inspected before corrected rerun."
+      ],
+      "summary": "The reported button failure was reproduced and traced to literal local path equality, before the path fix.",
+      "limitations": [
+        "One video/runtime; fullscreen PiP step not reached. This failed result is not PASS.",
+        "No installation, build, GitHub or independent agent review."
+      ],
+      "next_action": "Correct local Windows path comparison without normalizing URL tokens and verify targeted regressions."
+    },
+    {
+      "recorded_at_utc": "2026-09-05T09:04:58Z",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout; uncommitted PiP path identity correction measured separately before and after",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_title_bar_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "id": "EV-20260905-014",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "subject": "Windows media path spelling no longer disables PiP",
+      "commands": [
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_window_modes_regressions.py -k pip_observed_path_identity",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_window_modes_regressions.py tests/test_title_bar_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_media_selection_atomic_regressions.py"
+      ],
+      "evidence": [
+        "Before fix, new identity cases: 5 failed, 4 passed. Slash/case/UNC variants failed to enable PiP and empty/None identities incorrectly enabled it.",
+        "After fix, 123 affected tests passed, including actual TitleBar button enabled/click dispatch. URL path/query case stays exact; different media and audio/no-track guards remain closed.",
+        "No filesystem calls or synchronous MPV reads added. Windows drive/UNC spelling uses ntpath.normcase only; empty/non-string identities rejected. Player LF-normalized SHA256 8de0f0f01c204a975922266e40cd2fb1b2875c863127a93a30ada90a338117ea, 1395 lines; inventory refreshed."
+      ],
+      "summary": "Minimal source fix and targeted red/green regressions passed.",
+      "limitations": [
+        "Deterministic results alone do not prove native or installed behavior.",
+        "No independent agent review under the existing user restriction."
+      ],
+      "next_action": "Measure the same authorized real-video top-right PiP click against the corrected source."
+    },
+    {
+      "recorded_at_utc": "2026-09-05T09:04:58Z",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout; uncommitted PiP path identity correction measured separately before and after",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_window_modes_regressions.py",
+        "tests/test_title_bar_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "id": "EV-20260905-015",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "subject": "Corrected source accepts top-right PiP click before and after fullscreen Esc",
+      "commands": [
+        "Copy unchanged private probe into a new artifact directory to preserve failed evidence",
+        "MLC_TITLE_PROBE_MEDIA=<single-local-Avatar-video> python <private-fixed-pip-probe-dir>/probe.py",
+        "Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'python|MLC' } | Select-Object ProcessId,ParentProcessId,Name"
+      ],
+      "runtime": {
+        "python": "3.14.3",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "b1a57bfe7e8c6cbd84c8d011a446a82fcca5f40cf04d91370b29a434b7d5f326"
+      },
+      "private_artifact_digests": [
+        {
+          "name": "pip-probe.py",
+          "sha256": "46f9578f44b9f4dfc0a185ab04b75102921f1e1ad38d4638774f30e9e12b0ae5"
+        },
+        {
+          "name": "parent-helper.py",
+          "sha256": "afb82f41c8a13e52412c0ae07c97d780ff62526587115b79327e14a76de2a134"
+        },
+        {
+          "name": "fixed-pip-provenance.json",
+          "sha256": "bc6de65771a7fb382db29d3b8d13e69d6fef188b0fb7a78b54b95819a3f79807"
+        },
+        {
+          "name": "fixed-pip-parent.json",
+          "sha256": "6ccb210171f2e0af984320e882d756b3472910eb4a8c1e5f9918cc6d98a088f8"
+        },
+        {
+          "name": "fixed-pip-stdout.log",
+          "sha256": "150d0816e128ecdcc21d7bed3e6bf972c22f8c5119be039e07d8f5e12d7d66dc"
+        }
+      ],
+      "evidence": [
+        "Same unchanged probe and local video as failed EV-20260905-013, rerun after cause diagnosis and source correction within the user's approved PiP scenario. Source/media before-after provenance checks passed.",
+        "Initial and post-fullscreen-Esc Win32 clicks each produced one clicked signal and PiP=true. Both Qt and native rectangle [2056,1098,480,270], topmost=true, title hidden, stable owner HWND 1970284/title HWND 12916176. PiP exit restored [100,100,960,600], topmost=false and visible title.",
+        "PID 39368, child/parent exit 0, RESULT failures=0, MARK_DONE, stderr 0 bytes, shutdown stop->terminate, active Job processes 0. Subsequent Python/MLC process inventory empty."
+      ],
+      "summary": "The reproduced PiP blocker is fixed in canonical source and the same actual click succeeds on real Windows.",
+      "limitations": [
+        "Single local video and runtime; native mouse injection is not human visual acceptance. No installed artifact update or build.",
+        "The separate EV-20260905-012 second-Esc maximized geometry/handle discrepancy is still unresolved; this PiP run does not close it.",
+        "No GitHub, commit, installation or independent agent review."
+      ],
+      "next_action": "Obtain user acceptance of PiP from restarted canonical source; keep the unrelated second-Esc geometry discrepancy open."
+    },
+    {
+      "id": "EV-20260905-016",
+      "recorded_at_utc": "2026-09-05T09:12:57Z",
+      "proof_layer": "deterministic",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout including uncommitted AUD, title lifecycle and PiP corrections; no product source edit during this general audit",
+      "changed_files": [
+        "app/media_controls.py",
+        "app/player.py",
+        "app/title_bar.py",
+        "app/video_frame.py",
+        "tests/native_feature_batch_smoke_child.py",
+        "tests/test_media_selection_atomic_regressions.py",
+        "tests/test_title_bar_lifecycle_regressions.py",
+        "tests/test_title_bar_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_ru.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json",
+        "docs/WINDOWS_ACCEPTANCE_MATRIX.md"
+      ],
+      "subject": "General code, test and function audit finds one confirmed PiP rollback defect and incomplete acceptance",
+      "commands": [
+        "python packaging/verify_dependencies.py requirements-lock.txt",
+        "python -m compileall -q main.py app tests packaging",
+        "python packaging/extract_translations.py --check",
+        "MLC_CI=1 PYTHONPATH=<workspace>/scripts python -m pytest -q tests",
+        "In-memory playback-state rollback probe with mpv import stub",
+        "Independent read-only adversarial reviews of code, tests and functional evidence"
+      ],
+      "evidence": [
+        "Dependency pin gate stopped before tests: active Python 3.14.3 has Pillow 12.2.0 while requirements-lock.txt requires 12.3.0. No package was installed and the failed command was not retried.",
+        "Compileall succeeded. Translation extraction check failed because all seven catalogs are structurally stale. Each catalog contains the same 461 source messages (0 missing, 0 extra); the failure is generated location/order metadata, not a missing English translation. English has 0 unfinished entries; the other six catalogs intentionally remain 461/461 unfinished and are not compiled.",
+        "The full deterministic suite was then measured explicitly in the current non-locked environment: 5261 passed, 15 skipped, 1 failed in 84.64 seconds. The sole failure is tests/test_translation_pipeline_regressions.py::test_the_translation_files_are_up_to_date. This is not a locked-environment CI PASS.",
+        "Confirmed P1 state/UI defect: reset_picture_in_picture_media_availability disables the title button before a replacement load; _restore_failed_media_selection restores _pip_media_available but does not refresh title_bar. The isolated state probe printed after_reset False/False then after_rollback True/False. Direct file, URL, folder and playlist synchronous rejection paths share this rollback.",
+        "Independent review found a plausible P2 race because track-list and path observer values are cached independently without a media generation identity; a late old-video track-list could pair with the new path. MPV event ordering was not measured, so this remains a risk rather than a confirmed runtime bug.",
+        "Tracked native feature smoke canonicalizes the input with os.path.abspath and therefore does not preserve the QFileDialog forward-slash trigger of EV-20260905-013. The deterministic slash/case regression and private native evidence exist, but the repository-owned native runner does not permanently cover that exact trigger.",
+        "Functional evidence remains incomplete: WIN-P0-07 playlist and WIN-P0-08 IPC are NOT_RUN; the second-Esc cached HWND/Qt geometry discrepancy remains unresolved. Multi-monitor, mixed DPI, audio-device change, network interruption, long playlist and sleep/wake are NOT_RUN; broad HDR, Bluetooth and multi-GPU rows are BLOCKED.",
+        "README says matching local subtitles remain hidden until user selection, while app/local_subtitle.py and its tests automatically select and show them. Continuity already marks this as an unresolved product decision. player.py also retains a stale comment claiming playlists do not auto-advance although handle_natural_end advances them."
+      ],
+      "summary": "The current source is not ready to be called complete: one reproducible PiP rollback UI defect, one full-suite translation metadata failure, one plausible observer race, and several explicit functional acceptance gaps remain.",
+      "limitations": [
+        "No new native scenario, build, installation, GitHub operation or human acceptance was performed. Existing native and installed evidence is not transferred to this audit.",
+        "Pillow mismatch means the exact locked dependency environment was not validated. The full suite result is informative only for the active non-locked environment.",
+        "Independent agents were read-only and did not run tests; the primary agent integrated their findings and reproduced the P1 rollback state defect.",
+        "No source fix, translation refresh, dependency installation, commit, push, PR, tag or release was performed."
+      ],
+      "next_action": "Fix the failed-media-selection PiP button refresh regression-first, then record the affected deterministic result before addressing the next audit item."
+    },
+    {
+      "id": "EV-20260905-017",
+      "recorded_at_utc": "2026-09-05T09:21:40Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout plus uncommitted failed-media PiP rollback correction, tracked native trigger hardening, stale comment correction and generated translation metadata refresh",
+      "changed_files": [
+        "app/media_controls.py",
+        "app/player.py",
+        "tests/test_media_selection_atomic_regressions.py",
+        "tests/native_feature_batch_smoke_child.py",
+        "tests/test_native_feature_acceptance_regressions.py",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_ru.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Failed replacement load restores PiP button state across file, playlist and folder paths",
+      "commands": [
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_media_selection_atomic_regressions.py -k restores_the_pip_button_state",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_media_selection_atomic_regressions.py -k pip_button",
+        "python packaging/extract_translations.py",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q <seven affected test modules>",
+        "python -m compileall -q main.py app tests packaging",
+        "python packaging/extract_translations.py --check",
+        "MLC_CI=1 PYTHONPATH=<workspace>/scripts python -m pytest -q tests",
+        "Independent read-only adversarial review of the final rollback diff"
+      ],
+      "evidence": [
+        "Initial direct-file regression failed with restored _pip_media_available=True but title PiP enabled=False and one refresh. Independent review then found the same gap in direct play_from_playlist and open_folder rollback; the expanded pre-fix run produced 2 failed and 1 passed.",
+        "Refresh was moved to the common _restore_playback_state path after all captured player/MPV fields are restored. A deleted Qt child RuntimeError cannot interrupt remaining settings and UI rollback. Direct file, playlist-step and folder-first-item regressions then passed 3/3.",
+        "The affected file/window/title/playback/native-contract/translation family passed 203 tests. Independent adversarial re-read returned GO with no blocker; its stated boundary is asynchronous decode/network failure after native load submission.",
+        "The tracked native feature child now preserves the QFileDialog forward-slash Windows trigger before MPV reports backslashes. Its source contract and related playback mode tests passed 57/57; no native child was launched.",
+        "The stale player comment now matches actual repeat/shuffle/playlist natural-end behavior. Generated translation catalogs were refreshed after final source line changes; all 461 source keys match, and translation text/type mappings are unchanged from HEAD.",
+        "Final compileall and translation freshness checks passed. Full deterministic suite in the active environment passed 5265 with 15 skipped in 82.72 seconds."
+      ],
+      "source_normalized_sha256": {
+        "app/media_controls.py": "476199e40ca5d0a75080ee37d84e02637fad229902472bc880383921a04768e2",
+        "app/player.py": "be9539d27360a3b0f18c64635f40e58bdb43cd6144923f6d3cc34256b6a936a0"
+      },
+      "summary": "The confirmed PiP rollback defect is corrected across all synchronous replacement rejection paths, the permanent native runner contains the original separator trigger, catalogs are fresh, and the current deterministic suite is green.",
+      "limitations": [
+        "The active environment still has Pillow 12.2.0 while requirements-lock.txt requires 12.3.0; this is not an exact locked-environment or hosted CI PASS.",
+        "No native run, build, installation, GitHub operation, human acceptance or commit was performed.",
+        "Asynchronous decode/network failure after MPV accepts loadfile is outside the synchronous rollback contract.",
+        "The possible cross-generation track-list/path observer race, second-Esc geometry discrepancy, P0-07/P0-08 and hardware acceptance gaps remain open."
+      ],
+      "next_action": "Under separate native approval, trace ordered path and track-list callbacks during a real video-to-audio switch to confirm or reject the possible cross-generation PiP observer race before changing source."
+    },
+    {
+      "id": "EV-20260905-018",
+      "recorded_at_utc": "2026-09-05T09:30:40Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native observer-order scenario against the inherited dirty canonical tree containing EV-20260905-017 corrections; product source remained unchanged during both probe attempts",
+      "changed_files": [
+        "app/media_controls.py",
+        "app/player.py",
+        "tests/test_media_selection_atomic_regressions.py",
+        "tests/native_feature_batch_smoke_child.py",
+        "tests/test_native_feature_acceptance_regressions.py",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_ru.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Six native video-to-audio transitions do not reproduce mixed-generation PiP observer state",
+      "commands": [
+        "python -m py_compile <private-observer-probe-dir>/probe.py",
+        "MLC_TITLE_PROBE_MEDIA=<single-local-Avatar-video> python <private-observer-probe-dir>/probe.py",
+        "Inspect failed artifact before correcting probe expectation",
+        "Copy probe into a new private artifact directory and change only None-success acceptance",
+        "MLC_TITLE_PROBE_MEDIA=<same-single-local-Avatar-video> python <private-fixed-observer-probe-dir>/probe.py",
+        "Get-CimInstance Win32_Process filtered to the private probe command line"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "72d2f311343bcf144cca23b4d36a5cd6d797824095b049f1fe06174782f5a922",
+        "app/media_controls.py": "0885930bdbdec3762ff65dabafffb872f267bd9c06c10081564d4ecbb6a126a1",
+        "app/video_frame.py": "6766ff8b281ab5dede1acc4abc3a991cb7d93559804f80d3f0daba060d7dec0d"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {
+          "name": "failed-observer-probe.py",
+          "sha256": "026f1403a5f39fe24b36a1591994688bc7c9e5720a21f3a1bd629eb8199a24af"
+        },
+        {
+          "name": "failed-observer-stdout.log",
+          "sha256": "c5035cacb26111fefb78de3dd6b9dbb78301707abf9d01622afe34632728ca6a"
+        },
+        {
+          "name": "failed-observer-parent.json",
+          "sha256": "a59579e74eba300a6bda5d022ea4b8f3d04a248ce0d2c7ddbd82b0a284555454"
+        },
+        {
+          "name": "fixed-observer-probe.py",
+          "sha256": "1460c7b5e7c5070974c0e19b9c0d90073ff2646234dba5f1d48db7ede3be0aae"
+        },
+        {
+          "name": "fixed-observer-provenance.json",
+          "sha256": "be4cdb0595e577503b5c79404c65b1e9694d149e7efe7ad97bdec3f5ab702cf2"
+        },
+        {
+          "name": "fixed-observer-parent.json",
+          "sha256": "d5fb50cdd0ef3a745b9805e1efca6a01f1b65bdfe37aa0f9586349fe5c78e587"
+        },
+        {
+          "name": "fixed-observer-stdout.log",
+          "sha256": "1989c27b44c7b485efcbf39f1e9ce1cd97c5bfc23d52c2a11d6275c71c1bf681"
+        },
+        {
+          "name": "observer-stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "controlled-audio.wav",
+          "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+        },
+        {
+          "name": "current-parent-helper.py",
+          "sha256": "afb82f41c8a13e52412c0ae07c97d780ff62526587115b79327e14a76de2a134"
+        }
+      ],
+      "evidence": [
+        "Preflight found another workspace's active pytest/temporary child. It was identified as Offer Management work and left untouched. The MLC child remained isolated in its own Windows Job Object.",
+        "The first native attempt loaded video and audio correctly and already observed no mixed state, but the probe incorrectly required truthy open_path success although the wrapper returns None. It stopped after audio transition 1 with child exit 1, RESULT failures=2, stderr empty, clean stop->terminate and Job processes 0. The cause was inspected before rerun; its artifact was preserved.",
+        "The fixed probe changed only success acceptance from truthy to not-False. Six audio transitions passed. Every transition observed track-list=[] then path=audio then track-list=[audio] (the audio track event repeated); each final path/tracks was audio-only, mixed_count=0, pip_true_samples=0 and pip_final=false.",
+        "Initial video readiness and five video returns all had video tracks and PiP availability true. Across 56 traced path/track-list events, global mixed audio-path/video-track count was zero.",
+        "Child PID 38660 and parent exited 0; stderr was zero bytes; RESULT failures=0 and MARK_DONE were exact and unique; shutdown was exactly stop->terminate; Job active processes were 0 and no Python/MLC command line containing the private probe remained.",
+        "Video fingerprint and all app source raw hashes were unchanged before/after. Controlled WAV was 32044 bytes with the recorded full SHA-256.",
+        "Independent read-only artifact review returned GO and confirmed all six transitions, five returns, exact markers, hashes and clean process state. It found no false PASS in this artifact."
+      ],
+      "summary": "The hypothesized cross-generation path/track-list mix did not occur in six real native video-to-audio transitions on the measured runtime; no speculative source change is justified by this evidence.",
+      "limitations": [
+        "One Windows/runtime/DLL, one real video, one generated audio fixture and six transitions do not prove every MPV timing impossible. The risk is rejected for this measured scenario, not universally.",
+        "The probe logs open_return=null because the facade does not forward the successful return; changed path, positive duration and audio-only tracks prove the load effect.",
+        "The imported parent helper hash was measured after the run and is listed, but was not embedded inside provenance.json at launch time. This is a provenance completeness limitation.",
+        "The existing second-Esc geometry discrepancy, P0-07/P0-08, hardware acceptance and local-subtitle product decision remain open. No build, installation, GitHub operation, commit or human acceptance occurred."
+      ],
+      "next_action": "Resolve the product contract for matching local subtitles: keep the current automatic visible activation or change behavior to remain hidden until explicit user selection."
+    },
+    {
+      "id": "EV-20260905-019",
+      "recorded_at_utc": "2026-09-05T09:45:57Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User selected the existing automatic-visible local subtitle behavior on the inherited dirty canonical tree; product behavior was preserved and its public contract was corrected",
+      "changed_files": [
+        "README.md",
+        "README.tr.md",
+        "app/config.py",
+        "tests/test_readme_user_guidance_regressions.py",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Public local subtitle contract matches automatic visible activation for verified matching SRT files",
+      "commands": [
+        "python -m pytest -q tests/test_readme_user_guidance_regressions.py",
+        "python -m pytest -q tests/test_readme_user_guidance_regressions.py -k matching_local_subtitle_contract",
+        "python -m pytest -q tests/test_readme_user_guidance_regressions.py tests/test_release_documentation_regressions.py tests/test_local_subtitle_autoload_regressions.py tests/test_config_regressions.py",
+        "rg -l 'MPV_CONFIG|sub_visibility|sub_auto' tests -g 'test_*.py'",
+        "python -m pytest -q tests/test_readme_user_guidance_regressions.py tests/test_release_documentation_regressions.py tests/test_local_subtitle_autoload_regressions.py",
+        "python -m compileall -q app/config.py",
+        "git diff --check",
+        "Independent read-only adversarial review of README, source comment and regression contract"
+      ],
+      "source_raw_sha256": {
+        "README.md": "76372f9b8a3fe45310bf6d126c4f6be7fe2a44ca9d9662fb528b57454899ad5d",
+        "README.tr.md": "1abb7605be8ceef892968b6c6e2fd7e118aa3ea5250d94c7718f72dca66bc073",
+        "app/config.py": "63a3c6ba9d629ced7e35ba01e8f4bb37c13d5f4001c666a4cb9cdc1fef674c18",
+        "tests/test_readme_user_guidance_regressions.py": "bb95bb54145cfca51c8cc466b0d2738d923927647b35f2d2c85cdcdac54040b8"
+      },
+      "evidence": [
+        "The first new README regression failed against the old hidden-until-selected wording, establishing the documentation contradiction before the correction.",
+        "Independent review rejected the initial broad local-subtitle wording because automatic selection and visibility are limited to matching SRT files; ASS, VTT and SUB are outside this helper contract.",
+        "The README promises were narrowed to matching SRT files in both languages. The regression now locks the SRT scope, automatic selection and visibility, and absence of the obsolete hidden-until-selected wording.",
+        "The stale app/config.py comment now distinguishes MPV's hidden startup default from app/local_subtitle.py selecting and showing a verified matching SRT track; runtime code was unchanged.",
+        "One combined command did not start tests because tests/test_config_regressions.py does not exist. The selection error was inspected with rg before the corrected affected package passed 253 tests.",
+        "The final affected documentation/local-subtitle package passed 253/253, app/config.py compiled, git diff --check passed, and the independent final re-read returned GO with no remaining material finding."
+      ],
+      "summary": "The user-selected automatic-visible matching SRT behavior is now stated accurately in both public READMEs and protected by a bilingual regression without changing playback behavior.",
+      "limitations": [
+        "Automatic selection and visibility here applies only to verified matching SRT files, not every subtitle format.",
+        "This is deterministic source/documentation evidence; no native run, build, installation, GitHub operation, commit or human playback acceptance occurred.",
+        "The exact dependency lock remains unmatched locally because Pillow 12.2.0 is installed while requirements-lock.txt requires 12.3.0."
+      ],
+      "next_action": "Under separate native approval, reproduce and trace the remaining second-Esc HWND/Qt geometry discrepancy before changing window-mode source."
+    },
+    {
+      "id": "EV-20260908-020",
+      "recorded_at_utc": "2026-09-07T22:06:37Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native second-Esc geometry diagnosis against the inherited dirty canonical tree through EV-20260905-019; no product source changed during the run",
+      "changed_files": [
+        "app/player.py",
+        "app/video_frame.py",
+        "tests/test_title_bar_lifecycle_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Second Esc leaves the root HWND at maximized size while Qt and child surfaces report the restored 960 by 600 geometry",
+      "commands": [
+        "python -m py_compile <private-second-esc-probe-dir>/probe.py",
+        "Get-CimInstance Win32_Process filtered to the private probe command line",
+        "MLC_TITLE_PROBE_MEDIA=<single-local-Avatar-video> python <private-second-esc-probe-dir>/probe.py",
+        "Visual inspection of the final desktop screenshot"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "72d2f311343bcf144cca23b4d36a5cd6d797824095b049f1fe06174782f5a922"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-probe.py", "sha256": "a3c5d805ee36cafbf6723fc68a6b1cca4f1481093662281c5025c0fc57d275b8"},
+        {"name": "second-esc-provenance.json", "sha256": "d943de5c1e66c10f151e656338d48dc4ab35411df80175a3ea8fa7fd5c40c109"},
+        {"name": "second-esc-parent.json", "sha256": "37ed02573eca2d183c3cc0e8854bf5fe65262e104bdf69a08d25d58a4b017300"},
+        {"name": "second-esc-stdout.log", "sha256": "012e7d4bcda34d6201a5a7ec59710e8a24520b82e5f83909eb2ee8101e861b80"},
+        {"name": "second-esc-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-final-window.png", "sha256": "4b6797bdcacdc05889e7ea9cd90fe9e46030c0384adebf61cda5f8c7618c9382"}
+      ],
+      "evidence": [
+        "Video readiness and advancement passed. Three normal and three maximized fullscreen-to-Esc cycles again preserved stable owner/title/video HWND identities, correct title ownership and matching title geometry.",
+        "Before the second Esc, Qt and native owner rectangles both measured [0,0,2560,1392]. After it, Qt geometry and frameGeometry were [800,396,1760,996], and title/video child rectangles followed that 960 by 600 target.",
+        "The same valid root HWND did not change identity but GetWindowRect returned [800,396,3360,1788], retaining the 2560 by 1392 maximized size. This rejects the stale-handle hypothesis and confirms native root versus Qt geometry divergence.",
+        "The final screenshot showed one compact attached player, but the hidden oversized native root bounds remain a functional window/input risk. The geometry assertion failed and was not promoted from the aggregate transition successes.",
+        "Child PID 34080 exited 1 with RESULT failures=2 and exact MARK_DONE; stderr was empty, shutdown was stop->terminate, Job active processes were 0, and source/media integrity passed. No automatic retry occurred."
+      ],
+      "summary": "The unresolved second-Esc discrepancy is a reproducible native root-window synchronization defect, not a stale cached handle or only a probe artifact.",
+      "limitations": [
+        "Qt QTest delivered Esc to the real video widget; physical keyboard injection and installed-artifact behavior were not measured.",
+        "One Windows/Qt/DLL/monitor/media configuration was measured. The screenshot alone does not expose the oversized native root bounds.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Correct the showNormal-to-default-geometry ordering with lifecycle guards, validate it deterministically, then request separate approval before one exact native rerun."
+    },
+    {
+      "id": "EV-20260908-021",
+      "recorded_at_utc": "2026-09-07T22:06:37Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout plus an uncommitted guarded deferred second-Esc root geometry reconciliation and its regressions",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Maximized-to-normal second Esc reapplies the exact default geometry after the Windows state transition",
+      "commands": [
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py -k default_size_is_reapplied_after_maximized_state_transition",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py -k 'escape_exits_fullscreen_then_restores_balanced_default_size or default_size'",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q <title lifecycle, window mode, native contract and architecture inventory modules>",
+        "python -m compileall -q app/player.py tests/test_title_bar_hardening_regressions.py",
+        "python packaging/extract_translations.py --check",
+        "git diff --check",
+        "Independent read-only adversarial review and final re-review"
+      ],
+      "source_raw_sha256": {
+        "app/player.py": "745b1cb2424d626f27807be23ba819b719b7233e83c477c3b53d27c280e9ef78",
+        "tests/test_title_bar_hardening_regressions.py": "520371d7a219507f98c813a283a1f81b6d8eb8805707a65283883f5959036757",
+        "docs/ARCHITECTURE_INVENTORY.json": "f2172d59c3901ceb78ee565deabbcf9526b73dc463b5ff393e5235d5d124b145"
+      },
+      "source_normalized_sha256": {
+        "app/player.py": "ea29b1f4cf3f66142b8c35429b96d84437663780bed58ffb9c3f48f479f0aaff"
+      },
+      "evidence": [
+        "The new regression first failed because restore_default_window_size did not schedule any post-showNormal geometry reconciliation.",
+        "The correction applies the calculated target immediately and once on the next Qt event turn after a maximized/minimized state transition, addressing the measured ordering gap without blocking or pumping nested events.",
+        "Every request advances a generation and invalidates prior pending work. The callback verifies exact generation, current target geometry, fullscreen/PiP/frame-fullscreen/maximized/minimized/closing state and catches RuntimeError across all Qt access before reapplying.",
+        "The strengthened regressions verify the independently calculated screen-bounded target, the deferred call, stale-generation rejection, fullscreen/PiP/closing cancellation and deleted-wrapper tolerance. The focused boundary set passed 7/7.",
+        "The final affected family including title lifecycle, window modes, native-runner contracts and architecture inventory passed 144/144. Compileall, translation freshness and diff checks passed.",
+        "Independent review initially returned NO-GO for lifecycle and stale callback gaps; after those findings were fixed, its final source re-read returned GO with no remaining blocker."
+      ],
+      "summary": "The source now reconciles the root geometry after Windows completes the maximized-to-normal transition, with stale and unsafe callbacks suppressed; deterministic evidence and independent review are green.",
+      "limitations": [
+        "Deterministic Qt tests cannot observe GetWindowRect and do not prove that the native root HWND now matches Qt geometry.",
+        "The failed native run predates this correction; a separately approved exact native rerun is required before marking the runtime defect fixed.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Under separate native retry approval, run the same second-Esc probe once and require the unchanged root HWND GetWindowRect to match Qt frameGeometry and its title/video children."
+    },
+    {
+      "id": "EV-20260908-022",
+      "recorded_at_utc": "2026-09-07T22:12:55Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native retry against the EV-20260908-021 candidate correction in the inherited dirty canonical tree; no product source changed during the run",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "First post-fix native retry exposes a fail-open current-geometry guard after Windows delayed restore",
+      "commands": [
+        "Copy the exact failed-run probe into a fresh private artifact directory",
+        "python -m py_compile <private-second-esc-fixed-probe-dir>/probe.py",
+        "Get-CimInstance Win32_Process filtered to the private probe command line",
+        "MLC_TITLE_PROBE_MEDIA=<same-local-Avatar-video> python <private-second-esc-fixed-probe-dir>/probe.py"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "745b1cb2424d626f27807be23ba819b719b7233e83c477c3b53d27c280e9ef78"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-fixed-probe.py", "sha256": "a3c5d805ee36cafbf6723fc68a6b1cca4f1481093662281c5025c0fc57d275b8"},
+        {"name": "second-esc-fixed-provenance.json", "sha256": "01ff04c49a140556b2dc9f071b1382895f37dfdeda48b0c2ff1d2cf91e800fa3"},
+        {"name": "second-esc-fixed-parent.json", "sha256": "e960bde8581288c764af150f0dc413978302bc2d23dc354bd05376cca4aec3ef"},
+        {"name": "second-esc-fixed-stdout.log", "sha256": "62971899fafafbbc373cbebecd9b427ce5b926fd69fc8af6db27ba368b13705f"},
+        {"name": "second-esc-fixed-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-fixed-final-window.png", "sha256": "5272476dca041802b5d0a80a70a72706a77494b44dae97b4bf110d4eccccb90c"}
+      ],
+      "evidence": [
+        "The exact same probe SHA and media ran against the EV-20260908-021 player source. Video readiness, advancement and all six fullscreen-to-Esc title ownership/geometry cycles passed.",
+        "Before second Esc, native and Qt owner geometry were [0,0,2560,1392]. After second Esc, isMaximized became false but Windows delayed restore left both Qt and native owner geometry at [0,0,2560,1392].",
+        "The scheduled callback did not reapply 960 by 600 because its current-geometry equality guard treated the Windows overwrite as newer intent. owner_size_ok was false while native_qt_match and title_match remained true.",
+        "Child PID 16484 exited 1 with RESULT failures=2 and exact MARK_DONE; stderr was empty, stop->terminate shutdown passed, Job active processes were 0, and source/media integrity passed. No automatic second retry occurred."
+      ],
+      "summary": "The first candidate did not fix the native defect because its stale-geometry protection also blocked the exact Windows delayed restore it needed to correct.",
+      "limitations": [
+        "This failed result applies to the EV-20260908-021 candidate source and cannot be transferred to its later revision.",
+        "Qt QTest delivered Esc; physical keyboard and installed-artifact behavior were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Remove only the conflicting current-geometry equality guard, retain generation and unsafe-mode guards, add a regression for delayed Windows overwrite, and require separate approval for another native retry."
+    },
+    {
+      "id": "EV-20260908-023",
+      "recorded_at_utc": "2026-09-07T22:12:55Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout plus revised uncommitted second-Esc correction after inspecting EV-20260908-022",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Deferred second-Esc geometry reconciliation survives the measured delayed Windows restore overwrite",
+      "commands": [
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py -k default_size_is_reapplied_after_maximized_state_transition",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py -k 'escape_exits_fullscreen_then_restores_balanced_default_size or default_size'",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q <title lifecycle, window mode, native contract and architecture inventory modules>",
+        "python -m compileall -q app/player.py tests/test_title_bar_hardening_regressions.py",
+        "python packaging/extract_translations.py --check",
+        "git diff --check",
+        "Independent read-only adversarial re-review after failed native evidence"
+      ],
+      "source_raw_sha256": {
+        "app/player.py": "b9694bf1644451eca3eb1cddc5e95982347d5fe3d195cb05e8f857fdee27226e",
+        "tests/test_title_bar_hardening_regressions.py": "5a3fef724b1d101323aaf37bf2f49a5eec4e091b0c46c4e759ca122476754d4a",
+        "docs/ARCHITECTURE_INVENTORY.json": "98d305a0321046923af8d05a5a4e901bdf76de5c2e10802eb72ca45629b7e434"
+      },
+      "source_normalized_sha256": {
+        "app/player.py": "735e5401e7a7a023f9df346a493ab80c78c0c74c2228339af62360ced3718022"
+      },
+      "evidence": [
+        "The regression now overwrites the immediate target with the available-screen geometry before invoking the callback, reproducing the event order observed in EV-20260908-022. It failed red while the current-geometry equality guard remained.",
+        "Only that conflicting equality guard was removed. Exact generation/pending identity and fullscreen, PiP, frame-fullscreen, maximized, minimized, closing and deleted-wrapper protections remain.",
+        "The corrected boundary set passed 7/7 and the affected title/window/native-contract/inventory family passed 144/144. Compileall, translation freshness and diff checks passed.",
+        "Independent adversarial re-review returned GO. It accepted the bounded possibility that an arbitrary programmatic normal-window move in the same zero-delay interval may be overwritten once because second Esc itself explicitly requests the default geometry."
+      ],
+      "summary": "The revised source models and corrects the exact delayed Windows overwrite without reopening stale-generation or unsafe-window-mode callbacks.",
+      "limitations": [
+        "This remains deterministic source evidence; the revised source has not yet produced a native PASS.",
+        "A separate approved native retry must show both Qt and the unchanged root HWND at the exact centered default geometry.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Under separate native retry approval, run the unchanged second-Esc probe once against this revised source and require exact Qt/root HWND/title/video geometry alignment."
+    },
+    {
+      "id": "EV-20260908-024",
+      "recorded_at_utc": "2026-09-07T22:23:28Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native retry against the EV-20260908-023 revision in the inherited dirty canonical tree; no product source changed during the run",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Zero-delay second-Esc reconciliation consumes pending geometry before Windows leaves maximized state",
+      "commands": [
+        "Copy the unchanged second-Esc probe into a fresh private artifact directory",
+        "python -m py_compile <private-second-esc-final-probe-dir>/probe.py",
+        "Get-CimInstance Win32_Process filtered to the private probe command line",
+        "MLC_TITLE_PROBE_MEDIA=<same-local-Avatar-video> python <private-second-esc-final-probe-dir>/probe.py"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "b9694bf1644451eca3eb1cddc5e95982347d5fe3d195cb05e8f857fdee27226e"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-final-probe.py", "sha256": "a3c5d805ee36cafbf6723fc68a6b1cca4f1481093662281c5025c0fc57d275b8"},
+        {"name": "second-esc-final-provenance.json", "sha256": "15ff3eb6e6ab97f722b306c23cb392ee969c5bd72a7e259cb1fec7da7fbd6861"},
+        {"name": "second-esc-final-parent.json", "sha256": "a87e0e2f2b35b3153d0c562b44e75b37cc4caa00a0ed548342b2eb9ce810715e"},
+        {"name": "second-esc-final-stdout.log", "sha256": "057063a36d2c21cdf217ee6aa3fb4f79e6f3e94d3adab54c71f79c76b7617947"},
+        {"name": "second-esc-final-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-final-window.png", "sha256": "dbc6a117b67cce2272a7f71a98f4e36a95e20c7d0b1e6d460331bdcff12df409"}
+      ],
+      "evidence": [
+        "The unchanged probe and media ran against the exact EV-20260908-023 player hash. Video readiness, advancement, three normal and three maximized fullscreen-to-Esc cycles all passed.",
+        "The zero-delay callback ran while isMaximized was still true, removed the pending target and returned. After 700 ms, the same valid owner/title/video HWNDs and both Qt/native geometry remained [0,0,2560,1392].",
+        "The failed result distinguishes this early-callback ordering from EV-20260908-022's late Windows overwrite: a single zero-delay callback is insufficient in either direction.",
+        "Child PID 18216 exited 1 with RESULT failures=2 and exact MARK_DONE; stderr was empty, stop->terminate shutdown passed, Job active processes were 0, and source/media integrity passed. No automatic retry occurred."
+      ],
+      "summary": "The EV-20260908-023 revision still fails when its callback runs before Windows publishes the normal state, because it discards the pending target instead of waiting.",
+      "limitations": [
+        "This failed result applies only to the EV-20260908-023 source revision.",
+        "Qt QTest delivered Esc; physical keyboard and installed-artifact behavior were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Retain pending geometry while Windows remains maximized, reissue showNormal on a bounded interval longer than the measured 700 ms, and validate before another separately approved native retry."
+    },
+    {
+      "id": "EV-20260908-025",
+      "recorded_at_utc": "2026-09-07T22:23:28Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout plus bounded state-transition polling for the uncommitted second-Esc correction",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_ru.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Second-Esc target survives both early callback and late Windows restore orderings through bounded normal-state reconciliation",
+      "commands": [
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py -k waits_for_windows_to_leave_maximized_state",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py -k 'escape_exits_fullscreen_then_restores_balanced_default_size or default_size'",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q <title lifecycle, window mode, native contract and architecture inventory modules>",
+        "python -m compileall -q app/player.py tests/test_title_bar_hardening_regressions.py",
+        "python packaging/extract_translations.py",
+        "python packaging/extract_translations.py --check",
+        "git diff --check",
+        "Independent read-only adversarial review through final source revision"
+      ],
+      "source_raw_sha256": {
+        "app/player.py": "25f8f4e23eb03d2a7cb3ee4268236fae29d68d354a0378e39c57aaa9c00bb7b9",
+        "tests/test_title_bar_hardening_regressions.py": "2149f0f442aef5ce7521d2cc374b5a779fab8cd3acb00adac28571f56dd3e4a2",
+        "docs/ARCHITECTURE_INVENTORY.json": "ac1d52045c0a46aeb5d3ece55fac8ba9961db80133e355987742d2d35cb94bb0"
+      },
+      "source_normalized_sha256": {
+        "app/player.py": "7ef00bb14d3249ffcf8ff8d4d27dfc840234b837e3ad137c9304d9b6e43ad64e"
+      },
+      "evidence": [
+        "The early-callback regression first failed because pending geometry was discarded while the window was still maximized.",
+        "The final source applies the target immediately, keeps pending state across early callbacks, reissues showNormal every 25 ms and waits up to 80 attempts, approximately two seconds, before bounded cleanup. Once normal state appears, it reapplies the exact target.",
+        "Generation identity plus fullscreen, PiP, frame-fullscreen, closing and deleted-wrapper guards prevent unsafe or stale application. Normal-state Esc writes target once rather than producing duplicate synchronous geometry churn.",
+        "Regression coverage locks early callback waiting, late Windows overwrite correction, exact initial and retry timing/counts, bounded cleanup, stale generation, unsafe modes and deleted Qt wrappers. Focused tests passed 9/9.",
+        "The final affected family passed 146/146. Compileall, translation regeneration/freshness, architecture inventory and diff checks passed. Independent final re-review returned GO with no remaining source/test blocker."
+      ],
+      "summary": "The source now handles both native event orders with a bounded two-second normal-state reconciliation and complete stale/lifecycle guards.",
+      "limitations": [
+        "This is deterministic evidence; the final revision has not yet produced native HWND/Qt geometry PASS.",
+        "If Windows remains maximized beyond the bounded two-second window, pending geometry is cleared rather than polling forever.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Under separate native retry approval, run the unchanged probe once against this final revision and require exact centered 960 by 600 Qt/root HWND/title/video alignment."
+    },
+    {
+      "id": "EV-20260908-026",
+      "recorded_at_utc": "2026-09-07T22:37:34Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native retry against the EV-20260908-025 revision in the inherited dirty canonical tree; no product source changed during the run",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "First normal-state callback applies the target before a later Windows restore overwrite",
+      "commands": [
+        "Copy the unchanged second-Esc probe into a fresh private artifact directory",
+        "python -m py_compile <private-second-esc-pass-probe-dir>/probe.py",
+        "Get-CimInstance Win32_Process filtered to the private probe command line",
+        "MLC_TITLE_PROBE_MEDIA=<same-local-Avatar-video> python <private-second-esc-pass-probe-dir>/probe.py"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "25f8f4e23eb03d2a7cb3ee4268236fae29d68d354a0378e39c57aaa9c00bb7b9"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-pass-probe.py", "sha256": "a3c5d805ee36cafbf6723fc68a6b1cca4f1481093662281c5025c0fc57d275b8"},
+        {"name": "second-esc-pass-provenance.json", "sha256": "90c54c16cee3a94b23775c04bac7dc50dbf7d6ba56de7cc06d13270872d9bb81"},
+        {"name": "second-esc-pass-parent.json", "sha256": "e610d979853d813d27817e6a1db574b0f0f63bc6ecb20e4be5acc750ca5e0b68"},
+        {"name": "second-esc-pass-stdout.log", "sha256": "dd311e36118676be1254f8733e15f9f4a23cce87b549fb8d97f0453b3b23b6ef"},
+        {"name": "second-esc-pass-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-pass-final-window.png", "sha256": "2de08890b5595632b784d5ca6143f27f3eb33095028d29d19ecc696b1d3b2306"},
+        {"name": "second-esc-pass-failure.png", "sha256": "a9d643314fff858e945f06a7157a30fd7800593f0c985a084f0f8ce54a3ffab1"}
+      ],
+      "evidence": [
+        "The unchanged probe and media ran against the exact EV-20260908-025 player hash. Video readiness, advancement, three normal and three maximized fullscreen-to-Esc cycles all passed.",
+        "After the second Esc and 700 ms, isMaximized was false but the same valid owner/title/video HWNDs and both Qt/native owner geometry were still [0,0,2560,1392]. Title and video remained attached to the unchanged root; this was a geometry overwrite, not a detached or stale window.",
+        "The result proves that stopping after the first normal-state target write is too early: a later Windows restore write can still replace it.",
+        "Child PID 38548 exited 1 with RESULT failures=2 and exact MARK_DONE; stderr was empty, stop-to-terminate shutdown passed, Job active processes were 0, source/media integrity passed, and no automatic retry occurred."
+      ],
+      "summary": "The EV-20260908-025 revision reaches normal state but ends reconciliation before the target survives a later native restore write.",
+      "limitations": [
+        "This failed result applies only to the EV-20260908-025 source revision.",
+        "Qt QTest delivered Esc; physical keyboard and installed-artifact behavior were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Keep reconciling after normal state until the target remains stable across consecutive polls, with independent finite state and geometry budgets, then validate before another separately approved native retry."
+    },
+    {
+      "id": "EV-20260908-027",
+      "recorded_at_utc": "2026-09-07T22:37:34Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout plus bounded post-normal geometry stabilization for the uncommitted second-Esc correction",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_ru.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Second-Esc reconciliation survives post-normal native overwrite with finite independent state and geometry budgets",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py::test_default_size_callback_rechecks_geometry_after_normal_transition (red before implementation)",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_title_bar_regressions.py tests/test_window_modes_regressions.py tests/test_native_feature_acceptance_regressions.py tests/test_quality_evolution_plan_regressions.py",
+        "python -m compileall -q app/player.py tests/test_title_bar_hardening_regressions.py",
+        "python packaging/extract_translations.py --check (failed before regeneration because source locations changed)",
+        "python packaging/extract_translations.py --diff",
+        "python packaging/extract_translations.py --check",
+        "git diff --check",
+        "Independent read-only adversarial reviews across both boundedness corrections"
+      ],
+      "source_raw_sha256": {
+        "app/player.py": "4be50d2c6d1f6a47cfba235a69aacdd946f7d474f1f4e71c74b1561ca7c30701",
+        "tests/test_title_bar_hardening_regressions.py": "d74addb9482c33963ee111c0f30e0883c4e75d56798906683b51549e0a88af2e",
+        "docs/ARCHITECTURE_INVENTORY.json": "63563e8742e939ac571cf11b09c2bbd2cbe1ec08a1a57110afbc77ac66bae3e7"
+      },
+      "source_normalized_sha256": {
+        "app/player.py": "2c725e0eb3ea474a346b074b7ceedd63857265f5bacbb79857a8bda4e94acc39"
+      },
+      "evidence": [
+        "The new post-normal regression failed red because the previous callback wrote the target once, cleared pending state and scheduled no verification.",
+        "The final source requires eight consecutive 25 ms target-geometry observations after normal state. A mismatch reapplies the target and resets the stable count; state waiting and geometry verification have separate 80-attempt budgets, and geometry budget is preserved across later max/min transitions.",
+        "Regression coverage now generates a real target-to-old-restore-to-target sequence, proves mismatch resets stability, proves late normal state retains its full stability budget and proves state oscillation cannot extend the chain beyond the sum of both finite budgets.",
+        "The focused title-bar file passed 45/45 and the final affected family passed 202/202. Compileall, regenerated translation freshness, architecture inventory and diff checks passed.",
+        "Independent review first rejected shared-budget early cleanup, then rejected geometry-budget reset across state oscillation. Both findings were fixed; final read-only adversarial re-review returned GO with no remaining source/test blocker."
+      ],
+      "summary": "The source now keeps the exact centered target alive through delayed Windows restore writes while generation, lifecycle and finite-work guards remain enforced.",
+      "limitations": [
+        "This is deterministic evidence; the EV-20260908-027 source has not yet produced native HWND/Qt geometry PASS.",
+        "Worst-case reconciliation is bounded by 80 state retries plus 80 geometry checks, approximately four seconds at 25 ms intervals.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Under separate native retry approval, run the unchanged probe once against this exact source and require centered 960 by 600 Qt/root HWND/title/video alignment after the second Esc."
+    },
+    {
+      "id": "EV-20260908-028",
+      "recorded_at_utc": "2026-09-08T07:00:33Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native retry against the EV-20260908-027 revision in the inherited dirty canonical tree; no product source changed during the run",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Eight stable geometry polls finish before the measured late Windows restore overwrite",
+      "commands": [
+        "Verify exact HEAD, branch, origin/master divergence, player/probe hashes, media identity and zero matching probe processes",
+        "Copy the unchanged probe into a fresh private artifact directory",
+        "python -m py_compile <private-second-esc-stable-probe-dir>/probe.py",
+        "MLC_TITLE_PROBE_MEDIA=<same-local-Avatar-video> python <private-second-esc-stable-probe-dir>/probe.py"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "4be50d2c6d1f6a47cfba235a69aacdd946f7d474f1f4e71c74b1561ca7c30701"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-stable-probe.py", "sha256": "a3c5d805ee36cafbf6723fc68a6b1cca4f1481093662281c5025c0fc57d275b8"},
+        {"name": "second-esc-stable-provenance.json", "sha256": "9e2a09755789ef929acb8189454bc73eb9576b206ca6a23b813adb5f8f498c5f"},
+        {"name": "second-esc-stable-parent.json", "sha256": "30efbeb0b7bb59c807e939e0bbf6fee5b783bf286d0f7e9e5222089a536f07af"},
+        {"name": "second-esc-stable-stdout.log", "sha256": "80090b7ca5e4dbe39ba59d978d112d4f77e8e2ceb9305afa165d264dab832bfa"},
+        {"name": "second-esc-stable-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-stable-final-window.png", "sha256": "2549a561f74ff589c132dbbeb3d9e1206c1bf66339206f40a81600a3a06db0e9"},
+        {"name": "second-esc-stable-failure.png", "sha256": "4a474c1e9cd9ae9945de91ab7a0792602226dff1011b1882d515bbf85fa9aeea"}
+      ],
+      "evidence": [
+        "The preflight matched exact baseline 95246d1, player hash 4be50d2, unchanged probe hash a3c5d80, unchanged media size and zero matching processes. Video readiness, advancement, three normal and three maximized fullscreen-to-Esc cycles all passed.",
+        "After the second Esc and 700 ms, isMaximized was false but the unchanged valid owner/title/video HWND chain and Qt/native owner geometry remained [0,0,2560,1392]. The title stayed attached; this was not a duplicate window.",
+        "The eight-poll stability window covered only about 200 ms. The result rejects that duration as sufficient for this measured Windows restore ordering; it does not prove the exact overwrite timestamp.",
+        "Child PID 17508 exited 1 with RESULT failures=2 and exact MARK_DONE; stderr was empty, stop-to-terminate shutdown passed, Job active processes and the post-run matching process count were 0, and source/media integrity passed. No automatic retry occurred."
+      ],
+      "summary": "The independent geometry loop is structurally correct but its 200 ms stable threshold can end before the late native restore observed at the 700 ms probe point.",
+      "limitations": [
+        "This failed result applies only to the EV-20260908-027 source revision with eight stable polls.",
+        "The probe samples final geometry at 700 ms and does not timestamp the intervening native overwrite.",
+        "Qt QTest delivered Esc; physical keyboard and installed-artifact behavior were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Require a stable observation window longer than the measured 700 ms while retaining the existing finite attempt budget, then validate before another separately approved native retry."
+    },
+    {
+      "id": "EV-20260908-029",
+      "recorded_at_utc": "2026-09-08T07:00:33Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout plus one-second post-normal stability threshold for the uncommitted second-Esc correction",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Second-Esc target remains monitored beyond the measured 700 ms late-restore window",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py::test_default_size_callback_survives_restore_after_first_200_ms (red with eight stable polls)",
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_title_bar_regressions.py tests/test_window_modes_regressions.py tests/test_native_feature_acceptance_regressions.py tests/test_quality_evolution_plan_regressions.py",
+        "python -m compileall -q app/player.py tests/test_title_bar_hardening_regressions.py",
+        "python packaging/extract_translations.py --check",
+        "git diff --check",
+        "Independent read-only adversarial review after EV-20260908-028"
+      ],
+      "source_raw_sha256": {
+        "app/player.py": "495c47f0a7f069f86c5cf2e057b1ae07f9ce1779ef101c8508961527a1344e00",
+        "tests/test_title_bar_hardening_regressions.py": "1e0c1833ee125c2bfaa05508ef1d29911d1f049ddb97cd39cda02d15a7f9e0c1",
+        "docs/ARCHITECTURE_INVENTORY.json": "85c4eff8ba309cac2968b545556d28064ed7a02cce6ba0d44c81ffed7a7029b9"
+      },
+      "source_normalized_sha256": {
+        "app/player.py": "7b333d4eeaf19f278ecfc9f8a1e6c28da3cf59fa1937fe0a4ed2812a910ff8ce"
+      },
+      "evidence": [
+        "A new regression supplied eight consecutive target matches followed by the old restore geometry. It failed red with the old eight-poll threshold because pending state was already cleared before the ninth callback.",
+        "The final constant requires 40 consecutive checks at 25 ms intervals, approximately one second. A mismatch resets stability and reapplies the target; the independent 80-check geometry budget and 80-retry state budget keep worst-case work near four seconds.",
+        "The title-bar file passed 46/46 and the final affected family passed 203/203. Compileall, translation freshness, architecture inventory and diff checks passed.",
+        "Independent adversarial review accepted the measured-duration inference, test fidelity, finite bounds and lifecycle guards, returning GO with no source/test blocker."
+      ],
+      "summary": "The stability window now extends beyond the 700 ms native observation while retaining deterministic reset, lifecycle and bounded-work contracts.",
+      "limitations": [
+        "This is deterministic evidence; the EV-20260908-029 source has not yet produced native HWND/Qt geometry PASS.",
+        "The one-second stability interval can reapply the requested default geometry if the user tries to move the window immediately after the second Esc.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Under separate native retry approval, run the unchanged probe once against this exact source and require centered 960 by 600 Qt/root HWND/title/video alignment after the second Esc."
+    },
+    {
+      "id": "EV-20260908-030",
+      "recorded_at_utc": "2026-09-08T07:51:03Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native retry against the EV-20260908-029 revision in the inherited dirty canonical tree; no product source changed during the run",
+      "changed_files": [
+        "app/player.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "One-second Qt geometry reconciliation still leaves the native owner at maximized dimensions",
+      "commands": [
+        "Verify exact HEAD, branch, origin/master divergence, player/probe hashes, media identity and zero matching probe processes",
+        "Copy the unchanged probe into a fresh private artifact directory",
+        "python -m py_compile <private-second-esc-one-second-probe-dir>/probe.py",
+        "MLC_TITLE_PROBE_MEDIA=<same-local-Avatar-video> python <private-second-esc-one-second-probe-dir>/probe.py"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "495c47f0a7f069f86c5cf2e057b1ae07f9ce1779ef101c8508961527a1344e00"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-one-second-probe.py", "sha256": "a3c5d805ee36cafbf6723fc68a6b1cca4f1481093662281c5025c0fc57d275b8"},
+        {"name": "second-esc-one-second-provenance.json", "sha256": "606e3b4e701e718b3abbb2675b37e1d15450cdc2a2836ed46bacee45ad0e9a1e"},
+        {"name": "second-esc-one-second-parent.json", "sha256": "c8cbc085614f7fd5eeecec5324b737da2001832df7ad95383c4767ac729911ab"},
+        {"name": "second-esc-one-second-stdout.log", "sha256": "31e8a87db6305ec5d542c3a2921d22de3fba36acb833e9df385b1056f2838457"},
+        {"name": "second-esc-one-second-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-one-second-final-window.png", "sha256": "813338c988934204e474a363137b82da42c07b22ed59df4794acaa540e7e21da"},
+        {"name": "second-esc-one-second-failure.png", "sha256": "6f1c13fc9388533ecdfd3a908cb29f4b7016dadb3ed6d02cd179cfa82b9c914e"}
+      ],
+      "evidence": [
+        "The preflight matched exact baseline 95246d1, player hash 495c47f, unchanged probe hash a3c5d80, unchanged media identity and zero matching processes. Video readiness, advancement, three normal and three maximized fullscreen-to-Esc cycles passed.",
+        "After the second Esc and 700 ms, isMaximized was false but the unchanged valid owner/title/video HWND chain and both Qt/native owner geometry remained [0,0,2560,1392]. Title/root attachment remained correct.",
+        "Extending consecutive Qt target observations from 200 ms to one second did not change the outcome. This rejects the timing-only hypothesis and shows that QWidget.setGeometry is not moving the root HWND in this transition.",
+        "Child PID 33592 exited 1 with RESULT failures=2 and exact MARK_DONE; stderr was empty, stop-to-terminate shutdown passed, Job active processes were 0, and source/media integrity passed. No automatic retry occurred."
+      ],
+      "summary": "The remaining defect is at the native owner-placement boundary rather than the duration of Qt geometry polling.",
+      "limitations": [
+        "This failed result applies only to the EV-20260908-029 source revision.",
+        "Qt QTest delivered Esc; physical keyboard and installed-artifact behavior were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Use a same-HWND, non-activating native placement fallback with DPI-aware monitor mapping, protect PiP topmost behavior and validate before another separately approved native retry."
+    },
+    {
+      "id": "EV-20260908-031",
+      "recorded_at_utc": "2026-09-08T07:51:03Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout plus same-HWND Win32 geometry fallback for the uncommitted second-Esc correction",
+      "changed_files": [
+        "app/player.py",
+        "app/window_modes.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_ru.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Second-Esc reconciliation applies centered geometry directly to the existing native owner without activation or z-order changes",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py::test_default_size_callback_applies_target_to_native_window (red before implementation)",
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py tests/test_window_modes_regressions.py",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_title_bar_regressions.py tests/test_window_modes_regressions.py tests/test_native_feature_acceptance_regressions.py tests/test_quality_evolution_plan_regressions.py",
+        "python -m compileall -q app/player.py app/window_modes.py tests/test_title_bar_hardening_regressions.py tests/test_window_modes_regressions.py",
+        "python packaging/extract_translations.py",
+        "python packaging/extract_translations.py --check",
+        "git diff --check",
+        "Independent read-only adversarial review through corrected final source"
+      ],
+      "source_raw_sha256": {
+        "app/player.py": "8cb3044b52fee5c67e8ce4242367861705ffd05a4f43e39c603b3f1b50cb65ad",
+        "app/window_modes.py": "641bed2e8673c6551b1f3f304636e3d594233f4ae9e8828f1e752535077c5365",
+        "tests/test_title_bar_hardening_regressions.py": "e3f5a406a8d0f49e7a3b9fffe0dbef812d6a508a52d4ac5b0b6b8d8602a7cdc9",
+        "tests/test_window_modes_regressions.py": "a1132e746945d540dd6aad063bf5ae8f759d141bb8f6a0d88d44bbfb6800a3f3",
+        "docs/ARCHITECTURE_INVENTORY.json": "04000f2b162ab42a331e2ef38308ba2d364485fe05eea235782513842b26bfcd"
+      },
+      "source_normalized_sha256": {
+        "app/player.py": "8e52c82da06a2b626da8c7198b6c7f2d2f1d798b5a22d6f3a29bc14bd45455e0"
+      },
+      "evidence": [
+        "The product regression first failed because the normal-state callback had no native owner placement path.",
+        "The final Windows-only helper maps the Qt target relative to its QScreen work area into the matching MonitorFromWindow native work area, preserves pointer-width ctypes signatures and calls SetWindowPos on the existing HWND with NOZORDER, NOACTIVATE and NOOWNERZORDER.",
+        "Unsupported platforms return None and retain Qt-only stabilization. A supported native API failure returns False, resets stable progress and retries within the existing finite geometry budget.",
+        "Independent review found and blocked an intermediate accidental loss of the PiP topmost implementation, a focus-activating SW_RESTORE call and ignored native failures. The final source restored and directly tested TOPMOST/NOTOPMOST same-HWND behavior, removed SW_RESTORE and made native failure fail closed.",
+        "The final affected family passed 207/207. Compileall, translation regeneration/freshness, architecture inventory and diff checks passed; final independent re-review returned GO with no source/test blocker."
+      ],
+      "summary": "The candidate now targets the measured native owner-placement boundary while preserving PiP topmost, focus, z-order, generation, lifecycle and bounded retry contracts.",
+      "limitations": [
+        "This is deterministic evidence; the EV-20260908-031 source has not yet produced native HWND/Qt geometry PASS.",
+        "SetWindowPos success is not separately followed by GetWindowRect inside the product helper; the unchanged native probe performs the authoritative readback.",
+        "Mixed-DPI and multi-monitor hardware were not measured in this deterministic pass.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Under separate native retry approval, run the unchanged probe once against this exact source and require centered 960 by 600 Qt/root HWND/title/video alignment after the second Esc."
+    },
+    {
+      "id": "EV-20260908-032",
+      "recorded_at_utc": "2026-09-08T08:21:45Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native retry against the EV-20260908-031 revision in the inherited dirty canonical tree; no product source changed during the run",
+      "changed_files": [
+        "app/player.py",
+        "app/window_modes.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "SetWindowPos alone cannot clear the native maximized show state",
+      "commands": [
+        "Verify exact HEAD, branch, origin/master divergence, player/window_modes/probe hashes, media identity and zero matching probe processes",
+        "Copy the unchanged probe into a fresh private artifact directory",
+        "python -m py_compile <private-second-esc-native-placement-probe-dir>/probe.py",
+        "MLC_TITLE_PROBE_MEDIA=<same-local-Avatar-video> python <private-second-esc-native-placement-probe-dir>/probe.py"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "8cb3044b52fee5c67e8ce4242367861705ffd05a4f43e39c603b3f1b50cb65ad",
+        "app/window_modes.py": "641bed2e8673c6551b1f3f304636e3d594233f4ae9e8828f1e752535077c5365"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-native-placement-probe.py", "sha256": "a3c5d805ee36cafbf6723fc68a6b1cca4f1481093662281c5025c0fc57d275b8"},
+        {"name": "second-esc-native-placement-provenance.json", "sha256": "637be5d666064cf205f2616017f2e0c5242aabd90291d727424533a3f92840b6"},
+        {"name": "second-esc-native-placement-parent.json", "sha256": "bbf29a2fe2cbff5986efbbf2b4d79ea687215cbffba328cefce78d33171baf5e"},
+        {"name": "second-esc-native-placement-stdout.log", "sha256": "6a79c4fb791e311ff65a6bcec2dd4ffb80675a7e375d1c47a2c114e4cf6b7f1e"},
+        {"name": "second-esc-native-placement-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-native-placement-final-window.png", "sha256": "31c9541e8b2cb15a16ef5466e959487e0ff9e53e022be27ab1ac5098c6f16bee"},
+        {"name": "second-esc-native-placement-failure.png", "sha256": "5010b2c1517893c4055be324738ffbf578e9e5251e9308d334f5ec2f1f41a138"}
+      ],
+      "evidence": [
+        "The preflight matched exact baseline 95246d1, player hash 8cb3044, window_modes hash 641bed2, unchanged probe hash a3c5d80, unchanged media identity and zero matching processes. Video readiness, advancement and all six fullscreen-to-Esc cycles passed.",
+        "After the second Esc and 700 ms, isMaximized was false but the same valid owner/title/video HWND chain and both Qt/native owner geometry remained [0,0,2560,1392]. Title/root attachment remained correct.",
+        "Direct non-activating SetWindowPos did not alter the outcome. Microsoft Win32 documentation distinguishes show-state restoration from placement, so the missing native restore state became the next bounded hypothesis.",
+        "Child PID 36952 exited 1 with RESULT failures=2 and exact MARK_DONE; stderr was empty, stop-to-terminate shutdown passed, Job active processes and post-run matching process count were 0, and source/media integrity passed. No automatic retry occurred."
+      ],
+      "summary": "The existing HWND also requires a native non-activating restore-state transition before its target placement can take effect.",
+      "limitations": [
+        "This failed result applies only to the EV-20260908-031 source revision without a native show-state restore.",
+        "The outer PowerShell command misspelled its final status-label cmdlet after the probe parent had already completed; parent.json, child exit, markers, stderr and Job evidence remain complete.",
+        "Qt QTest delivered Esc; physical keyboard and installed-artifact behavior were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Use documented SW_SHOWNOACTIVATE before the existing same-HWND SetWindowPos call, retain non-activation and z-order tests, then validate before another separately approved native retry."
+    },
+    {
+      "id": "EV-20260908-033",
+      "recorded_at_utc": "2026-09-08T08:21:45Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout plus non-activating native restore before same-HWND placement for the uncommitted second-Esc correction",
+      "changed_files": [
+        "app/player.py",
+        "app/window_modes.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "translations/mlcplayer_en.ts",
+        "translations/mlcplayer_de.ts",
+        "translations/mlcplayer_es.ts",
+        "translations/mlcplayer_fr.ts",
+        "translations/mlcplayer_it.ts",
+        "translations/mlcplayer_ru.ts",
+        "translations/mlcplayer_pt_BR.ts",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Second-Esc native fallback restores show state without activation before applying the target geometry",
+      "commands": [
+        "Review official Microsoft ShowWindow, SetWindowPlacement, GetWindowPlacement and Window Features contracts",
+        "python -m pytest -q <four native geometry, native failure and topmost focused tests>",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_title_bar_regressions.py tests/test_window_modes_regressions.py tests/test_native_feature_acceptance_regressions.py tests/test_quality_evolution_plan_regressions.py",
+        "python -m compileall -q app/player.py app/window_modes.py tests/test_title_bar_hardening_regressions.py tests/test_window_modes_regressions.py",
+        "python packaging/extract_translations.py --check",
+        "git diff --check",
+        "Independent read-only adversarial review of SW_SHOWNOACTIVATE ordering and side effects"
+      ],
+      "source_raw_sha256": {
+        "app/player.py": "8cb3044b52fee5c67e8ce4242367861705ffd05a4f43e39c603b3f1b50cb65ad",
+        "app/window_modes.py": "c285bad9a55da6e7e0796e4bdce0691c0045a90e0fda57fe9a3e264759972987",
+        "tests/test_title_bar_hardening_regressions.py": "e3f5a406a8d0f49e7a3b9fffe0dbef812d6a508a52d4ac5b0b6b8d8602a7cdc9",
+        "tests/test_window_modes_regressions.py": "18371f1797a00c4ca698d402f78f6dcd315fdad7ebd66796de96d4ae6291ebbf",
+        "docs/ARCHITECTURE_INVENTORY.json": "04000f2b162ab42a331e2ef38308ba2d364485fe05eea235782513842b26bfcd"
+      },
+      "source_normalized_sha256": {
+        "app/player.py": "8e52c82da06a2b626da8c7198b6c7f2d2f1d798b5a22d6f3a29bc14bd45455e0"
+      },
+      "evidence": [
+        "Microsoft documents SW_SHOWNOACTIVATE as displaying a window in its most recent size and position similarly to SW_SHOWNORMAL while leaving it inactive. Window Features separates native show-state restoration from SetWindowPos placement.",
+        "The final helper calls ShowWindow with exact command 4 on the existing HWND and immediately overwrites the restored size with the DPI-aware target through SetWindowPos using NOZORDER, NOACTIVATE and NOOWNERZORDER.",
+        "ShowWindow's return is previous visibility rather than operation success and is intentionally ignored; the helper result remains the SetWindowPos result. Existing PiP/topmost, unsupported-platform and native-failure contracts remain protected.",
+        "Four focused tests and the final affected family passed 207/207. Compileall, translation freshness, architecture inventory and diff checks passed; independent adversarial review returned GO with no static blocker."
+      ],
+      "summary": "The candidate now addresses both native show state and placement without activating, reordering or recreating the owner HWND.",
+      "limitations": [
+        "This is deterministic evidence; the EV-20260908-033 source has not yet produced native HWND/Qt geometry PASS.",
+        "The bounded one-second reconciliation may generate brief resize/flicker events; the exact native run must observe the visible result.",
+        "Mixed-DPI and multi-monitor hardware were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Under separate native retry approval, run the unchanged probe once against this exact source and require centered 960 by 600 Qt/root HWND/title/video alignment after the second Esc."
+    },
+    {
+      "id": "EV-20260908-034",
+      "recorded_at_utc": "2026-09-08T09:39:59Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native retry against the EV-20260908-033 revision in the inherited dirty canonical tree; no product source changed during the run",
+      "changed_files": [
+        "app/player.py",
+        "app/window_modes.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Native owner and title restore correctly but the separate control overlay remains at its previous global position",
+      "commands": [
+        "Verify exact HEAD, branch, origin/master divergence, player/window_modes/probe hashes, media identity and zero matching probe processes",
+        "Copy the unchanged probe into a fresh private artifact directory",
+        "python -m py_compile <private-second-esc-show-noactivate-probe-dir>/probe.py",
+        "MLC_TITLE_PROBE_MEDIA=<same-local-Avatar-video> python <private-second-esc-show-noactivate-probe-dir>/probe.py",
+        "Independent raw artifact and final-window visual adversarial review"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "8cb3044b52fee5c67e8ce4242367861705ffd05a4f43e39c603b3f1b50cb65ad",
+        "app/window_modes.py": "c285bad9a55da6e7e0796e4bdce0691c0045a90e0fda57fe9a3e264759972987"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-show-noactivate-probe.py", "sha256": "a3c5d805ee36cafbf6723fc68a6b1cca4f1481093662281c5025c0fc57d275b8"},
+        {"name": "second-esc-show-noactivate-provenance.json", "sha256": "7cf94c060f8d32ecec306084f03b5c5b738a9a160fd4a772e7539be982d736e4"},
+        {"name": "second-esc-show-noactivate-parent.json", "sha256": "df0e337b1f583ef23c1f8cae232a612bc7f6715e61b452e20d00dff6cc0ab41a"},
+        {"name": "second-esc-show-noactivate-stdout.log", "sha256": "37d0b45b65e93a906877470c4b3ce54e00a996b4e7af17170f98e55e12ec4339"},
+        {"name": "second-esc-show-noactivate-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-show-noactivate-final-window.png", "sha256": "bf98d3392f11e3df9dca682c75967753a9d564f1023223aa5818b99f999db0af"}
+      ],
+      "evidence": [
+        "The probe reported exit 0, failures=0 and MARK_DONE. Owner Qt/native geometry became exact centered [800,396,1760,996], title became [800,396,1760,436], owner/title/video HWNDs were unchanged, playback advanced, stderr was empty, shutdown was stop-to-terminate and Job/process leakage was 0.",
+        "Independent artifact review rejected that apparent PASS because visible window 1050210, the separate control overlay, remained [0,490,960,600] with itself as root while the video moved to [800,436,1760,996]. The expected overlay band was approximately [800,886,1760,996].",
+        "The final-window image visually confirmed the playback controls detached on the left while the owner/video/title were centered. The original probe checked owner/title/video and stray title strips but omitted the control overlay, so its internal PASS was fail-open.",
+        "The authoritative result is FAILED despite child and parent exit 0. Source/media provenance and process cleanup remain valid; no automatic retry occurred."
+      ],
+      "summary": "SW_SHOWNOACTIVATE plus SetWindowPos fixes the original owner/title defect but native movement does not reliably emit the Qt event that repositions the separate control overlay.",
+      "limitations": [
+        "This failed result applies only to the EV-20260908-033 source revision without explicit post-native overlay synchronization.",
+        "The original probe's internal success marker is insufficient because its assertion set omitted the control overlay HWND and geometry.",
+        "Qt QTest delivered Esc; physical keyboard and installed-artifact behavior were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Synchronize overlay geometry immediately after successful native owner placement and require an expanded probe to match the control overlay HWND to the video bottom band before another separately approved native retry."
+    },
+    {
+      "id": "EV-20260908-035",
+      "recorded_at_utc": "2026-09-08T09:39:59Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout plus explicit post-native overlay synchronization and expanded private native probe contract",
+      "changed_files": [
+        "app/player.py",
+        "app/window_modes.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Successful native owner placement immediately resynchronizes the separate control overlay and the next probe measures that surface",
+      "commands": [
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py::test_default_size_callback_applies_target_to_native_window (red before overlay synchronization)",
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py",
+        "MLC_CI=1 QT_QPA_PLATFORM=offscreen python -m pytest -q tests/test_title_bar_hardening_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_title_bar_regressions.py tests/test_window_modes_regressions.py tests/test_native_feature_acceptance_regressions.py tests/test_quality_evolution_plan_regressions.py",
+        "python -m compileall -q app/player.py app/window_modes.py tests/test_title_bar_hardening_regressions.py tests/test_window_modes_regressions.py",
+        "python packaging/extract_translations.py --check",
+        "python -m py_compile <private-second-esc-overlay-contract-dir>/probe.py",
+        "git diff --check",
+        "Independent read-only source review after EV-20260908-034"
+      ],
+      "source_raw_sha256": {
+        "app/player.py": "a13ab8a929383769951b84c0bec7aa904db62d71f9a569a012d3e5601754ddb0",
+        "app/window_modes.py": "c285bad9a55da6e7e0796e4bdce0691c0045a90e0fda57fe9a3e264759972987",
+        "tests/test_title_bar_hardening_regressions.py": "ffd0f78c905558b51c7359def409c7c8bb92cad49fbe43f79ec1490d43536d4b",
+        "tests/test_window_modes_regressions.py": "18371f1797a00c4ca698d402f78f6dcd315fdad7ebd66796de96d4ae6291ebbf",
+        "docs/ARCHITECTURE_INVENTORY.json": "fd5f78e4122c216d8e7494407ed650d45e315b15137a8f07747b00e080e44f01"
+      },
+      "source_normalized_sha256": {
+        "app/player.py": "e8d12b71723a0a5b64db96ebc41851f0e828e248faf4cfce194febd0c6792e52"
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-overlay-contract-probe.py", "sha256": "2a64541ce75624f7d7441eafe348c03e6c10ab77c5e282c909653bd7554ebb33"}
+      ],
+      "evidence": [
+        "The product regression attached an overlay geometry spy to the native-success callback. It failed red because owner placement did not trigger any explicit overlay synchronization.",
+        "The final callback invokes video_frame.update_overlay_geometry immediately and only when native owner placement returns True. False remains fail-closed for stability and unsupported None retains the Qt event path.",
+        "The expanded private probe caches and re-reads the control overlay HWND, validity, native rect, Qt geometry, visibility and root, computes its expected bottom band from the video frame and requires a plus-or-minus three-pixel match in second_escape_geometry.",
+        "The title-bar file passed 48/48 and the final affected family passed 207/207. Compileall, translation freshness, architecture inventory, probe compilation and diff checks passed; independent source re-review returned GO."
+      ],
+      "summary": "The candidate now keeps owner, title, video and the separate playback-control surface geometrically coherent, and the next native probe can no longer pass while the overlay is detached.",
+      "limitations": [
+        "This is deterministic evidence; the EV-20260908-035 source and expanded probe have not yet produced native PASS.",
+        "Repeated overlay synchronization is bounded but may expose flicker or playlist/subtitle side effects that the native run must observe.",
+        "Mixed-DPI and multi-monitor hardware were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Under separate native retry approval, run the expanded probe once against this exact source and require owner/title/video/control-overlay geometry, unchanged handles, playback, shutdown, marker, stderr and process checks all to pass."
+    },
+    {
+      "id": "EV-20260908-036",
+      "recorded_at_utc": "2026-09-08T09:56:41Z",
+      "proof_layer": "native_smoke",
+      "result": "failed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native run against the EV-20260908-035 product revision in the inherited dirty canonical tree; product sources did not change during the run",
+      "changed_files": [
+        "app/player.py",
+        "app/window_modes.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Correct observed second-Esc window and overlay result is rejected because the executed probe did not enforce the complete final lifecycle contract",
+      "commands": [
+        "Verify exact HEAD, branch, origin/master divergence, continuity, probe source and unchanged media identity",
+        "MLC_TITLE_PROBE_MEDIA=<same-local-Avatar-video> python <private-second-esc-overlay-contract-dir>/probe.py",
+        "Verify parent, provenance, stdout, stderr, image digests, source stability and zero matching processes",
+        "Independent raw artifact, final-window image and probe-contract adversarial review"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "a13ab8a929383769951b84c0bec7aa904db62d71f9a569a012d3e5601754ddb0",
+        "app/window_modes.py": "c285bad9a55da6e7e0796e4bdce0691c0045a90e0fda57fe9a3e264759972987"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-overlay-executed-probe.py", "sha256": "2a64541ce75624f7d7441eafe348c03e6c10ab77c5e282c909653bd7554ebb33"},
+        {"name": "second-esc-overlay-provenance.json", "sha256": "a0ff5c45c4437a39b37ebbcb08ac1dba8207678c8c7317e9a9c7fbebbee1029c"},
+        {"name": "second-esc-overlay-parent.json", "sha256": "25e36c0c621f2fa36378c305a0fe437b35159c4c05b30852747a740ce2e1b9d2"},
+        {"name": "second-esc-overlay-stdout.log", "sha256": "834ea664681e6a64a5f29ac4a1fd22978e5983703bc821c53503d861676cd3e5"},
+        {"name": "second-esc-overlay-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-overlay-final-window.png", "sha256": "198b65608905c1cbbe16d41eed7a72177992e523bb9dc0aef813660112d37630"}
+      ],
+      "evidence": [
+        "The child and parent reported exit 0, RESULT failures=0, one MARK_DONE, empty stderr, unchanged source and media, stop-to-terminate shutdown and zero Job/process leakage.",
+        "After the second Esc, the same observed owner/title/video/control-overlay handles were valid. Owner was centered [800,396,1760,996], title [800,396,1760,436], video [800,436,1760,996] and overlay [800,886,1760,996]; playback advanced and the final image showed no detached title or controls.",
+        "Independent review nevertheless rejected PASS because the executed probe did not make all observed facts mandatory: owner/title/video handle continuity, final video root, completion of the pending reconciliation chain and final duplicate-title inventory were incomplete or absent assertions.",
+        "The authoritative result is FAILED because the evidence contract was fail-open, even though this single observed product execution looked correct. No automatic native retry occurred."
+      ],
+      "summary": "The product behaved correctly in this run, but the executed probe could have passed materially different broken outcomes and therefore cannot establish native PASS.",
+      "limitations": [
+        "This failure concerns proof sufficiency; it does not assert that the EV-20260908-035 product behavior failed in the captured execution.",
+        "Qt QTest delivered Esc; physical keyboard, mixed-DPI, multi-monitor and installed-artifact behavior were not measured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Harden the private probe with final handle, root, pending-chain, settle and duplicate-strip assertions, obtain independent GO, then request a separate approval for one exact native run."
+    },
+    {
+      "id": "EV-20260908-037",
+      "recorded_at_utc": "2026-09-08T09:56:41Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "Inherited dirty canonical checkout with unchanged EV-20260908-035 product source and a hardened private second-Esc native probe",
+      "changed_files": [
+        "app/player.py",
+        "app/window_modes.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Final second-Esc probe fails closed across handle continuity, roots, reconciliation completion, overlay placement and duplicate title surfaces",
+      "commands": [
+        "Run red and green source-contract checks for handle continuity and handle validity assertions",
+        "Run red and green source-contract checks for pending-chain completion and final video-root assertion",
+        "Run red and green source-contract checks for safe pending lookup, source-derived timeout and final duplicate-title inventory",
+        "python -m py_compile <private-second-esc-final-contract-dir>/probe.py",
+        "python -m pytest -q tests/test_title_bar_hardening_regressions.py tests/test_title_bar_lifecycle_regressions.py tests/test_title_bar_regressions.py tests/test_window_modes_regressions.py tests/test_native_feature_acceptance_regressions.py tests/test_quality_evolution_plan_regressions.py",
+        "Independent iterative read-only adversarial review of the final probe contract"
+      ],
+      "source_raw_sha256": {
+        "app/player.py": "a13ab8a929383769951b84c0bec7aa904db62d71f9a569a012d3e5601754ddb0",
+        "app/window_modes.py": "c285bad9a55da6e7e0796e4bdce0691c0045a90e0fda57fe9a3e264759972987",
+        "tests/test_title_bar_hardening_regressions.py": "ffd0f78c905558b51c7359def409c7c8bb92cad49fbe43f79ec1490d43536d4b",
+        "tests/test_window_modes_regressions.py": "18371f1797a00c4ca698d402f78f6dcd315fdad7ebd66796de96d4ae6291ebbf",
+        "docs/ARCHITECTURE_INVENTORY.json": "fd5f78e4122c216d8e7494407ed650d45e315b15137a8f07747b00e080e44f01"
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-final-contract-probe.py", "sha256": "ee70446c4d4def4dd2aa2b1f733fee7b1d95992ab6d32168360d298aaae63ebe"}
+      ],
+      "evidence": [
+        "The final PASS condition requires unchanged owner, title, video and overlay handles; all cached/current handles valid; title and video rooted in the owner; centered 960 by 600 native/Qt owner; matching title and overlay rectangles; and visible title/overlay.",
+        "After the second Esc, the probe waits within a timeout derived from both product retry limits until the pending geometry key is removed, then settles another 700 ms before taking the only final snapshot and screenshot. Missing completion fails closed without raising on the removed key.",
+        "The final visible HWND inventory must contain no extra title-like surface outside the owner, directly covering the reported detached second strip. Each newly required assertion had a failing pre-change contract check followed by a passing check; probe compilation passed.",
+        "The affected product family remained 207/207 passed. Independent final review returned GO with P0=0 and P1=0; its residual P2 concerns are a small-strip heuristic boundary and possible timeout false-negative, neither of which can create PASS for the reported 960-pixel symptom."
+      ],
+      "summary": "The prepared private probe now measures the reported duplicate strip and the complete post-reconciliation window lifecycle without transferring the prior run's apparent success.",
+      "limitations": [
+        "This is deterministic probe evidence; the final probe hash has not yet produced a native result.",
+        "The duplicate-strip heuristic targets the reported title-sized surface and does not classify hypothetical surfaces narrower than 400 device pixels.",
+        "Mixed-DPI, multi-monitor, physical-keyboard and installed-artifact behavior remain unmeasured.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Under a new separate native approval, run the final probe once against the unchanged EV-20260908-035 source and require every final lifecycle assertion, marker, stderr, playback, shutdown and process check to pass."
+    },
+    {
+      "id": "EV-20260908-038",
+      "recorded_at_utc": "2026-09-08T10:04:53Z",
+      "proof_layer": "native_smoke",
+      "result": "passed",
+      "commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "User-approved single native run against the unchanged EV-20260908-035 product revision and EV-20260908-037 final probe in the inherited dirty canonical tree; all product sources remained unchanged during the run",
+      "changed_files": [
+        "app/player.py",
+        "app/window_modes.py",
+        "tests/test_title_bar_hardening_regressions.py",
+        "tests/test_window_modes_regressions.py",
+        "docs/ARCHITECTURE_INVENTORY.json",
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Final native second-Esc lifecycle keeps the owner, title, video and control overlay coherent without an extra title strip",
+      "commands": [
+        "Verify exact HEAD, branch, origin/master divergence, final probe hash, media presence, probe compilation and zero conflicting processes",
+        "MLC_TITLE_PROBE_MEDIA=<same-local-Avatar-video> python <private-second-esc-final-contract-dir>/probe.py",
+        "Verify parent, provenance, stdout, stderr, image digests, 43 source hashes, media before/after identity and zero matching processes",
+        "Independent raw artifact, final-window image and full final-contract adversarial review"
+      ],
+      "runtime": {
+        "python": "3.14.3, MSC v.1944 64 bit AMD64",
+        "qt": "6.10.0",
+        "windows": "Windows-11-10.0.26200-SP0",
+        "screen": [2560, 1440],
+        "device_pixel_ratio": 1.0,
+        "audio_output": "null",
+        "mpv_dll_sha256": "de80329f5c019ba2ee48184b5dc1e1d0c2ee9eeba3f1fb7959f20b4b0f684f4e"
+      },
+      "source_raw_sha256": {
+        "app/player.py": "a13ab8a929383769951b84c0bec7aa904db62d71f9a569a012d3e5601754ddb0",
+        "app/window_modes.py": "c285bad9a55da6e7e0796e4bdce0691c0045a90e0fda57fe9a3e264759972987"
+      },
+      "media_fingerprint": {
+        "safe_name": "local-avatar-video.mkv",
+        "size": 31195865553,
+        "hash_mode": "sampled-v1",
+        "sampled_sha256": "c7956e128179eba69d8ae765c31b3efa63c57a732ecb1edc99925f14a44186a2",
+        "before_after_equal": true
+      },
+      "private_artifact_digests": [
+        {"name": "second-esc-final-contract-probe.py", "sha256": "ee70446c4d4def4dd2aa2b1f733fee7b1d95992ab6d32168360d298aaae63ebe"},
+        {"name": "second-esc-final-contract-provenance.json", "sha256": "51ee78da5947631afdf8de71c7297b272ecb60e7f970f7fcb541c520227957d3"},
+        {"name": "second-esc-final-contract-parent.json", "sha256": "8d5c51d043f1f7ea3a08b0be425d0c3a744ec2ecda9e869ec9fe91eaf0d192f6"},
+        {"name": "second-esc-final-contract-stdout.log", "sha256": "a5c259026c2ca0b9471f8493b24d46985c7effa786eeea47f2e30d49b0010b40"},
+        {"name": "second-esc-final-contract-stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+        {"name": "second-esc-final-contract-final-window.png", "sha256": "1b2e637b1ee28bdabee4e6365a8905e81cf2267736505c0735c64e2d7e766996"}
+      ],
+      "evidence": [
+        "The final probe produced exit 0, problems empty, stderr 0 bytes, exactly one RESULT failures=0 and MARK_DONE, no CHECK FAIL or PROBE_ERROR, stop-to-terminate shutdown and zero Job/post-run process leakage.",
+        "After the pending reconciliation chain completed and a further 700 ms settle, owner/title/video/control-overlay cached and current handles were identical and valid. Title and video roots were the owner HWND; no handle changed.",
+        "The final owner native and Qt frame was centered [800,396,1760,996], exactly 960 by 600. Title was [800,396,1760,436], video [800,436,1760,996] and control overlay [800,886,1760,996]; every native/Qt/title/overlay match was true and final_outside_title_strips was empty.",
+        "Playback continued through six fullscreen-to-Esc cycles and the final second Esc. The final image showed one title bar and controls inside the owner. All 43 product source hashes and the sampled media identity stayed unchanged; independent artifact review returned authoritative GO with P0=0, P1=0 and P2=0."
+      ],
+      "summary": "The reported fullscreen-exit then second-Esc defect is fixed in the measured native scenario: the window returns to centered 960 by 600 with no detached title or playback-control surface.",
+      "limitations": [
+        "This PASS applies only to the exact dirty working-tree source, probe, DLL, media and Windows 11 / Qt 6.10 / DPR 1.0 single-monitor scenario recorded here.",
+        "Physical keyboard, mixed-DPI, multi-monitor, source build, installed artifact and human acceptance were not measured and do not inherit this PASS.",
+        "No build, installation, GitHub operation, commit, push, PR, tag or release occurred."
+      ],
+      "next_action": "Keep this native PASS as the closure evidence for the reported second-Esc defect; proceed only under a separately approved next action such as commit, build or another open acceptance-matrix scenario."
+    },
+    {
+      "id": "EV-20260908-039",
+      "recorded_at_utc": "2026-09-08T13:57:21Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "98be6f243e7a43a33ae901d61a61d6f7850b7b8a",
+      "evidence_commit": "98be6f243e7a43a33ae901d61a61d6f7850b7b8a",
+      "baseline_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+      "working_tree_state": "clean after the user-approved 40-file v0.41 playback/window lifecycle commit readback and before this append-only binding record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Evidence-commit binding for the v0.41 playback, PiP, subtitle and second-Esc stabilization package",
+      "commands": [
+        "git add --all",
+        "git diff --cached --check plus staged name/status and stat readback",
+        "python -m json.tool docs/VERIFICATION_LEDGER.json",
+        "python -m pytest -q tests/test_continuity_regressions.py",
+        "git commit -m fix: stabilize v0.41 playback window lifecycle",
+        "git rev-parse HEAD plus git show, status, parent, tree and origin divergence readback"
+      ],
+      "evidence": [
+        "The user-approved commit completed with exact SHA 98be6f243e7a43a33ae901d61a61d6f7850b7b8a and parent 95246d19ebac75e651e4970f5ebbc7473cc0f418. Its subject is fix: stabilize v0.41 playback window lifecycle.",
+        "The commit contains exactly 40 files with 5035 insertions and 1349 deletions, including the product, regression/native acceptance, translation, user guidance, architecture, continuity and append-only evidence changes reviewed in EV-20260905-016 through EV-20260908-038.",
+        "Pre-commit staged diff check, ledger JSON validation and continuity 10/10 passed. The exact uncommitted product source had affected-family 207/207 deterministic PASS and final second-Esc native_smoke PASS in EV-20260908-038; those proof boundaries remain unchanged by commit binding.",
+        "Post-commit readback showed a clean working tree, HEAD one commit ahead of its task-branch origin and two commits ahead of origin/master."
+      ],
+      "summary": "The reviewed v0.41 stabilization package is now bound to exact implementation commit 98be6f243e7a43a33ae901d61a61d6f7850b7b8a.",
+      "limitations": [
+        "This record binds prior evidence to the committed source; it does not create hosted CI, source-build, installed-artifact or release evidence.",
+        "No push, PR, build, installation, tag, merge or release occurred."
+      ],
+      "next_action": "Commit this documentation-only evidence binding, then obtain separate user approval before any push, PR, build or other gated action."
     }
   ]
 }

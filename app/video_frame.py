@@ -300,7 +300,7 @@ class SubtitleTrackWatcher(QObject):
     # `aid` ve `chapter-list` de aynı cache'e girer. Yeni medya açılışındaki
     # ses/bölüm menüsü böylece 100 ms GUI timer'ında libmpv property lock'u
     # almaz; olay thread'inin son snapshot'ı kullanılır.
-    OBSERVED = ("sid", "track-list", "osd-dimensions", "sub-scale",
+    OBSERVED = ("sid", "track-list", "path", "osd-dimensions", "sub-scale",
                 "aid", "chapter-list")
 
     def attach(self, mpv_player):
@@ -353,6 +353,17 @@ class SubtitleTrackWatcher(QObject):
         """
         with self._state_lock:
             return self._values.get(name, default)
+
+    def forget(self, *names):
+        """Yeni medya öncesi eski property snapshot'larını bırak.
+
+        Bu işlem libmpv'ye senkron sorgu yapmaz. Yeni ``loadfile`` komutundan
+        önceki video track'inin, yeni yol atanmışken UI kararlarına sızmasını
+        engeller.
+        """
+        with self._state_lock:
+            for name in names:
+                self._values.pop(name, None)
 
     def _notify(self, name, value):
         """MPV OLAY THREAD'İ. Değeri saklar ve yalnız sinyal yayınlar."""
@@ -529,7 +540,13 @@ class VideoFrame(QWidget):
         requested = self._empty_state_requested()
         owner_ready = (self.main_window.isVisible()
                        and not self.main_window.isMinimized())
-        if not requested or self._overlay_suppressed or not owner_ready:
+        # Stop sonrasında native topmost bırakma reddedilirse PiP flag'i
+        # bilinçli olarak korunur. Boş başlangıç yüzeyi o küçük pencereye
+        # çizilmez; kullanıcı PiP'den tekrar çıkmayı deneyebilir.
+        pip_active = bool(getattr(self.main_window,
+                                  "picture_in_picture_enabled", False))
+        if (not requested or self._overlay_suppressed or not owner_ready
+                or pip_active):
             surface.hide()
             return False
         self.hide_overlay_immediately()
@@ -2438,10 +2455,6 @@ class VideoFrame(QWidget):
         if panel and getattr(self, "_panel_was_visible", False):
             panel.show()
 
-        title_bar = getattr(window, "title_bar", None)
-        if title_bar and getattr(self, "_title_bar_was_visible", False):
-            title_bar.show()
-
         # Playlist yalnız tam ekrandan ÖNCE açıksa geri gelir. Geometrisi
         # yeniden hesaplanır: ana pencere tam ekrandayken boyutu değişti,
         # yapışık panelin eski konumu bayattır.
@@ -2459,6 +2472,17 @@ class VideoFrame(QWidget):
         # halde ensure_title_bar_on_top() hâlâ fullscreen sanıp erken döner
         # ve başlık çubuğunun öne alınması tesadüfi Qt olaylarına kalır.
         self.is_video_fullscreen = False
+
+        # Native başlık child'ı pencere durumu ve layout geri yüklenmeden
+        # gösterilmemeli. Show olayı resize filtresine tekrar girer; o anda
+        # eski fullscreen state'iyle çalışmak z-order yenilemesini atlıyordu.
+        if layout is not None:
+            layout.activate()
+        title_bar = getattr(window, "title_bar", None)
+        if (title_bar and getattr(self, "_title_bar_was_visible", False)
+                and window.isVisible() and not window.isMinimized()
+                and not window.__dict__.get("_mlc_close_done", False)):
+            title_bar.show()
 
         ensure = getattr(window, "ensure_title_bar_on_top", None)
         if callable(ensure):

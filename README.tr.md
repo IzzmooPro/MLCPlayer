@@ -27,15 +27,15 @@ görünümü kaldırılmıştır.
   Denetle`. İndirilen kurulumun yayımlanan boyutu, SHA-256 özeti ve yayıncı
   Ed25519 imzası doğrulanır; doğrulanamayan dosya çalıştırılmaz ve silinir.
   Kapanış üründen geçer, süreç zorla öldürülmez.
-- **Altyazılar:** Eşleşen yerel altyazılar otomatik bulunur ve siz seçene kadar
-  gizli kalır. OpenSubtitles kullanan Altyazı Merkezi, API dağıtım şartları
+- **Altyazılar:** Eşleşen yerel `.srt` altyazılar otomatik bulunur, seçilir ve görünür.
+  OpenSubtitles kullanan Altyazı Merkezi, API dağıtım şartları
   incelenirken geçici olarak gizlidir; ağ işlevi arayüzden erişilemez.
 - **Altyazı görünümü:** yazı/kenarlık/arka plan rengi, boyut, kenarlık
   kalınlığı, dikey konum ve senkron. Canlı temsili önizleme içerir.
 - **Güvenli alt bant:** altyazı hiçbir durumda kontrol katmanıyla çakışmaz;
   kullanıcının kayıtlı konum tercihi değiştirilmeden korunur.
-- **Yerel altyazı:** medyanın yanındaki eşleşen `.srt` bulunur, kullanıcı
-  açana kadar gizli başlar; her parça kendi altyazısını etkinleştirir.
+- **Yerel altyazı:** medyanın yanındaki eşleşen `.srt` otomatik bulunur,
+  seçilir ve görünür; her parça kendi altyazısını etkinleştirir.
 - **Medya Bilgisi:** dosya, video, ses ve altyazı parçaları için tek ve
   okunabilir görünüm. Ham MPV anahtarı veya teknik iç metin gösterilmez.
 - **Güvenli hata sistemi:** kullanıcıya giden metinlerde gerçek dosya yolu,
@@ -51,8 +51,8 @@ görünümü kaldırılmıştır.
 - URL için `Ctrl+U` kullanın. Doğrudan HTTP/HLS akışları ana oynatıcıyla
   çalışabilir; site çıkarımı aşağıda anlatılan İnternet Videosu ek paketini
   gerektirir.
-- Eşleşen yerel altyazılar otomatik bulunur fakat siz seçene kadar gizli
-  kalır. Çevrimiçi altyazı arama geçici olarak gizlidir; yerel altyazı yükleme
+- Eşleşen yerel `.srt` altyazılar otomatik bulunur, seçilir ve görünür. Çevrimiçi
+  altyazı arama geçici olarak gizlidir; yerel altyazı yükleme
   ve görünüm ayarları kullanılabilir.
 - Arayüz dili `Araçlar → Dil` üzerinden seçilir ve yeniden başlatınca uygulanır.
   Bütün desteklenen kısayollar `Araçlar → Klavye Kısayolları` içindedir.
@@ -83,8 +83,9 @@ Kurulum henüz kod imzalı değildir; Windows SmartScreen ilk çalıştırmada
 Projenin [Kod imzalama politikası](CODE_SIGNING_POLICY.md),
 [Gizlilik politikası](PRIVACY.md), [SignPath hazırlık kaydı](docs/SIGNPATH_READINESS.md)
 ve [başvuru kaydı](docs/SIGNPATH_FOUNDATION_APPLICATION.md) herkese açıktır.
-Başvuru 23 Ağustos 2026 tarihinde gönderildi ve karar bekleniyor; proje henüz
-kabul edilmedi ve mevcut kurulum imzasızdır.
+Başvuru 23 Ağustos 2026 tarihinde gönderildi; Foundation başvuruyu 2 Eylül
+2026'da projenin henüz yeterli kamu görünürlüğü/güven sinyali olmadığı
+gerekçesiyle onaylamadı. Mevcut kurulum imzasızdır.
 
 Kurulu sürüm `Yardım → Güncellemeleri Denetle` ile güvenli biçimde
 yükseltilebilir. Yerleşik güncelleyici yalnız ana oynatıcıyı günceller;

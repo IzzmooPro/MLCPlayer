@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Şeffaflık ve PiP ana HWND'yi koruyan oturumluk pencere modlarıdır."""
 import os
+from ctypes import wintypes
 from types import SimpleNamespace
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -10,8 +11,10 @@ import pytest
 from PyQt6.QtCore import QRect, QSize
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
 
+import app.window_modes as window_modes
 from app.player import MPVPlayer
-from app.window_modes import PIP_MIN_SIZE, keep_rect_inside
+from app.window_modes import (PIP_MIN_SIZE, keep_rect_inside,
+                              set_native_window_geometry)
 
 
 @pytest.fixture
@@ -24,6 +27,7 @@ def mode_window():
     window.window_transparency_enabled = False
     window.picture_in_picture_enabled = False
     window.current_file = "fixture.mp4"
+    window._pip_media_available = True
     window._pip_restore_geometry = None
     window._pip_restore_maximized = False
     title_bar = QWidget(window)
@@ -104,6 +108,73 @@ def test_resized_pip_stays_inside_available_screen():
     assert bounded == QRect(2000, 1077, 560, 315)
 
 
+def test_native_window_geometry_maps_qt_work_area_to_monitor_pixels(
+        mode_window, monkeypatch):
+    app, window = mode_window
+    calls = []
+
+    class User32:
+        def MonitorFromWindow(self, hwnd, fallback):
+            calls.append(("monitor", hwnd.value, fallback))
+            return 7
+
+        def GetMonitorInfoW(self, monitor, pointer):
+            info = pointer._obj
+            info.rcWork.left = 200
+            info.rcWork.top = 100
+            info.rcWork.right = 2200
+            info.rcWork.bottom = 1500
+            return 1
+
+        def ShowWindow(self, hwnd, command):
+            calls.append(("show", hwnd.value, command))
+            return 1
+
+        def SetWindowPos(self, hwnd, insert_after, x, y, width, height,
+                         flags):
+            calls.append(("position", hwnd.value, insert_after.value,
+                          x, y, width, height, flags))
+            return 1
+
+    window.screen = lambda: SimpleNamespace(
+        availableGeometry=lambda: QRect(100, 50, 1000, 700))
+    monkeypatch.setattr(window_modes, "_user32", User32())
+    monkeypatch.setattr(window_modes, "_native_window_geometry_supported",
+                        lambda: True)
+
+    assert set_native_window_geometry(
+        window, QRect(300, 250, 400, 300)) is True
+    hwnd = int(window.winId())
+    assert calls == [
+        ("monitor", hwnd, 2),
+        ("show", hwnd, 4),
+        ("position", hwnd, None, 600, 500, 800, 600, 0x0214),
+    ]
+
+
+def test_native_topmost_keeps_existing_hwnd_and_never_activates(
+        mode_window, monkeypatch):
+    app, window = mode_window
+    calls = []
+
+    class User32:
+        def SetWindowPos(self, hwnd, insert_after, x, y, width, height,
+                         flags):
+            calls.append((hwnd.value, insert_after.value, x, y,
+                          width, height, flags))
+            return 1
+
+    monkeypatch.setattr(window_modes, "_user32", User32())
+
+    assert window_modes.set_native_topmost(window, True) is True
+    assert window_modes.set_native_topmost(window, False) is True
+    hwnd = int(window.winId())
+    assert calls == [
+        (hwnd, wintypes.HWND(-1).value, 0, 0, 0, 0, 0x0013),
+        (hwnd, wintypes.HWND(-2).value, 0, 0, 0, 0, 0x0013),
+    ]
+
+
 def test_pip_is_small_resizable_topmost_and_restores_geometry(
         mode_window, monkeypatch):
     app, window = mode_window
@@ -139,6 +210,66 @@ def test_pip_does_not_open_without_loaded_media(mode_window, monkeypatch):
 
     assert MPVPlayer.toggle_picture_in_picture(window, True) is False
     assert window.picture_in_picture_enabled is False
+
+
+@pytest.mark.parametrize("path", ("audio-only.mp3", "pending-video.mkv"))
+def test_pip_requires_an_observed_video_track_not_only_a_path(
+        mode_window, monkeypatch, path):
+    app, window = mode_window
+    window.current_file = path
+    window._pip_media_available = False
+    monkeypatch.setattr("app.player.set_native_topmost",
+                        lambda *_args: pytest.fail("PiP must not enter"))
+
+    assert MPVPlayer.toggle_picture_in_picture(window, True) is False
+    assert window.picture_in_picture_enabled is False
+
+
+def test_observed_video_track_enables_pip_but_audio_track_does_not(mode_window):
+    app, window = mode_window
+    calls = []
+    window.title_bar.update_window_mode_state = lambda: calls.append(True)
+    window._pip_media_available = False
+
+    assert MPVPlayer._set_picture_in_picture_media_available(
+        window, [{"type": "audio"}], "fixture.mp4") is False
+    assert window._pip_media_available is False
+    assert MPVPlayer._set_picture_in_picture_media_available(
+        window, [{"type": "video"}, {"type": "audio"}], "fixture.mp4") is True
+    assert window._pip_media_available is True
+    assert calls == [True]
+
+
+@pytest.mark.parametrize("selected,observed,expected", [
+    ("I:/Film/video.mkv", r"I:\Film\video.mkv", True),
+    ("I:/Film/VIDEO.mkv", r"i:\film\video.mkv", True),
+    ("//server/share/video.mkv", r"\\server\share\video.mkv", True),
+    ("I:/Film/video.mkv", r"I:\Film\other.mkv", False),
+    ("https://example.test/Video.mkv", "https://example.test/video.mkv", False),
+    ("https://example.test/v?token=A", "https://example.test/v?token=a", False),
+    ("https://example.test/v", "https://example.test/v", True),
+    ("", "", False),
+    (None, None, False),
+])
+def test_pip_observed_path_identity(mode_window, selected, observed, expected):
+    app, window = mode_window
+    window.current_file = selected
+    window._pip_media_available = False
+
+    assert MPVPlayer._set_picture_in_picture_media_available(
+        window, [{"type": "video"}], observed) is expected
+    assert window._pip_media_available is expected
+
+
+def test_previous_media_track_snapshot_cannot_enable_pip_for_new_path(
+        mode_window):
+    app, window = mode_window
+    window.current_file = "new-audio.mp3"
+    window._pip_media_available = False
+
+    assert MPVPlayer._set_picture_in_picture_media_available(
+        window, [{"type": "video"}], "previous-video.mkv") is False
+    assert window._pip_media_available is False
 
 
 def test_repeated_pip_cycles_restore_the_same_geometry(mode_window,

@@ -184,9 +184,13 @@ değiştirmez.
   native kanıttır, fakat fiziksel yeniden sıralama kabulü değildir.
 - **Exact girdiler:** birbirinden ayırt edilebilir en az üç gerçek video,
   `MLC_PLAYLIST_VIDEOS` sırası, runtime ve ekran kimliği.
-- **Açık boşluk:** satırı fareyle taşıma, ilk satırı en sona bırakma ve son
-  satırın altındaki hedef çizgisi mevcut native runner'da ölçülmüyor. Bu
-  davranış ayrıca manuel veya dar native kabul gerektirir.
+- **Güncel dar kanıt:** `playlist_reorder` grubu üç yerel videoda Win32
+  sürükleme, after-last hedef durumu, ilk satırın sona geçmesi, aktif/seçili
+  indeks `2` ve ürün kapanışını 4/4 ölçtü; mevcut log/JSON exit `0`, final
+  marker ve Job Object süreç `0` ile geri okundu (`EV-20260905-004`).
+- **Açık boşluk:** koşumun exact medya/runtime/ekran kimlikleri ve kaynak
+  özeti eksik; boyanmış hedef çizgisi ve insan görsel kabulü ölçülmedi.
+  Dar taşıma sonucu tam satırın kabulü değildir; `NOT_RUN` korunur.
 
 ### WIN-P0-08 — İkinci örnek ve IPC
 
@@ -195,16 +199,21 @@ değiştirmez.
   tabanındaki offscreen çok-süreç kapsamı dosya, güvenli URL ve yalnız
   aktivasyon isteklerinin her birinde gerçek secondary PID'i, exit `0` ve
   terminal süreç kapanışını ayrıca ölçer (`EV-20260829-002`).
-- **Native ölçüm:** exact commit için fail-closed ikinci-örnek/IPC runner'ı
-  yoktur. Eski kullanıcı kabulü yeni başlangıç çizgisine aktarılmaz.
+- **Native ölçüm:** `tests/native_window_ipc_smoke.py` gerçek MPVPlayer
+  penceresi ve ayrı guard süreçleriyle payload/hedef durumunu kontrol eder.
+  Devir notu dosya/localhost URL devrini başarılı bildirir; ham çıktı, primary
+  exit/marker ve final süreç envanteri bu tur bulunamadı (`EV-20260905-005`,
+  kanıt BLOCKED). Tam fail-closed kabul runner'ı değildir; eski kullanıcı
+  kabulü yeni başlangıç çizgisine aktarılmaz.
 - **Exact girdiler:** temiz ilk kaynak örneği, gerçek yerel video, güvenli URL,
   iki süreç PID'i, IPC port/mutex durumu, final process inventory ve runtime
   kimliği.
 - **Açık boşluk:** dosya ve URL iki ayrı gerçek koşumda ilk örneğe geçmeden,
   ikinci süreç çıkmadan ve artık süreç olmadığı kaydedilmeden PASSED yazılmaz.
-  Offscreen secondary süreç kanıtı, gerçek ürün penceresinin foreground
-  dönüşünü veya hedef medyanın yüklendiğini ölçmediğinden bu satır `NOT_RUN`
-  kalır.
+  Mevcut native denemede dosya zaten açık; localhost URL'nin yükleme isteği
+  başarılı URL oynatımı değildir. Foreground dönüşü ve final süreç temizliği
+  de doğrulanmadığından bu satır `NOT_RUN` kalır. Offscreen kanıt bu açıkları
+  kapatmaz.
 
 ## Önerilen yürütme sırası
 

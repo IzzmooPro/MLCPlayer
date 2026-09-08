@@ -110,7 +110,9 @@ def native_window_rect(hwnd):
 
 def main():
     app = QApplication.instance() or QApplication([])
-    media = os.path.abspath(os.environ[MEDIA_VARIABLE])
+    # QFileDialog Windows'ta '/' döndürebilir; MPV aynı yolu '\\' ile bildirir.
+    # Kalıcı native koşum gerçek ürün tetikleyicisini korusun.
+    media = os.path.abspath(os.environ[MEDIA_VARIABLE]).replace(os.sep, "/")
 
     checks = []
     check_names = []
@@ -130,6 +132,16 @@ def main():
         player.setGeometry(220, 140, 1000, 650)
         player.show()
         pump(app, 0.4)
+
+        # PiP yalnız gözlenen bir video izi varken kullanılabilir. Pencere
+        # modu kontrolleri bunu varsaydığından gerçek medyayı önce yükle ve
+        # libmpv'nin track-list/path bildirimini bekle. Böylece smoke eski
+        # "boş oynatıcıdan PiP" davranışını yanlışlıkla beklemez.
+        player.open_path(media)
+        deadline = time.perf_counter() + 5.0
+        while (player.duration <= 0 or not player._pip_media_available) \
+                and time.perf_counter() < deadline:
+            pump(app, 0.05)
 
         # Başlık düğmesi iki yönde gerçek pencere durumunu değiştirmeli.
         QTest.mouseClick(player.title_bar.maximize_button,
@@ -210,12 +222,9 @@ def main():
         player.title_bar.transparency_slider.setValue(100)
         player.title_bar.hide_transparency_control()
 
-        # PiP goruntusu yer tutucuyla degil, gercek video yuzeyiyle kabul
-        # edilir. Ayni medya asagida dispatch suresi icin yeniden acilabilir.
-        player.open_path(media)
-        deadline = time.perf_counter() + 5.0
-        while player.duration <= 0 and time.perf_counter() < deadline:
-            pump(app, 0.05)
+        # PiP goruntusu yer tutucuyla degil, yukarida hazirlanan gercek video
+        # yuzeyiyle kabul edilir. Ayni medya asagida dispatch suresi icin
+        # yeniden acilabilir.
 
         physical_click(player.title_bar.picture_in_picture_button)
         pump(app, 0.2)

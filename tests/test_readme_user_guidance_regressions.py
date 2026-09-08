@@ -91,3 +91,14 @@ def test_ready_installer_requirements_name_windows_x64_and_admin_rights():
     assert "Windows 10 veya 11" in TR
     assert "64-bit" in TR
     assert "yönetici" in TR.lower()
+
+
+def test_matching_local_subtitle_contract_is_automatic_and_visible():
+    assert "matching local `.srt` subtitles" in EN.lower()
+    assert "selected and shown automatically" in EN.lower()
+    assert "stay hidden until" not in EN.lower()
+
+    assert "eşleşen yerel `.srt` altyazılar" in TR.lower()
+    assert "otomatik bulunur, seçilir ve görünür" in TR.lower()
+    assert "siz seçene kadar gizli" not in TR.lower()
+    assert "açana kadar gizli" not in TR.lower()

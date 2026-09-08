@@ -4,7 +4,7 @@
 APP_NAME = "MLC Player"
 # Sürümün TEK kaynağı. Hakkında penceresi, installer betiği ve yayın
 # etiketi buradan türer; `tests/test_version_consistency.py` bağı korur.
-APP_VERSION = "v0.40"
+APP_VERSION = "v0.41"
 # Windows sürüm alanları dört sayılı olmak zorundadır; elle yazılmaz.
 WINDOWS_VERSION = ".".join((APP_VERSION.lstrip("v").split(".") + ["0", "0", "0"])[:4])
 # Telif yılının TEK kaynağı. README ve Hakkında penceresi ayrı ayrı
@@ -56,7 +56,8 @@ MPV_CONFIG = {
     # Geniş `fuzzy` yerine mpv'nin resmî `exact` davranışı: yalnız tam video
     # gövdesi ve dil/etiket sonekleri yüklenir (bkz. `app/local_subtitle.py`).
     "sub_auto": "exact",
-    # Gömülü ve aynı adlı harici altyazıları bul; kullanıcı açana kadar gösterme.
+    # MPV altyazıları başlangıçta gizler; doğrulanan eşleşen `.srt` parçasını
+    # `app/local_subtitle.py` seçip görünür yapar.
     "sub_visibility": "no",
     # Ses dosyalarında albüm kapağı video alanında gösterilir; aksi hâlde
     # siyah kare kalıyordu. ÖLÇÜLDÜ: bu libmpv sürümünde varsayılan KAPALI

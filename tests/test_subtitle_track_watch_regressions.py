@@ -89,8 +89,8 @@ def set_track(mpv, codec, sid=1):
 
 # --- Gözlemci sözleşmesi ----------------------------------------------
 
-def test_the_watcher_observes_track_and_render_area_changes(bench):
-    """`sid`, `track-list` ve `osd-dimensions` birlikte gözlenir.
+def test_the_watcher_observes_track_render_area_and_media_identity(bench):
+    """`sid`, `track-list`, `path` ve `osd-dimensions` birlikte gözlenir.
 
     `osd-dimensions` ölçek referansıdır: tam ekran/playlist geçişinde
     mpv yeni render alanını Qt resize olayından SONRA yerleştiriyor ve
@@ -105,8 +105,8 @@ def test_the_watcher_observes_track_and_render_area_changes(bench):
     # marj ölçek değişiminde yeniden hesaplanmalı. Ayrıca değer SENKRON
     # okunmamalı: boyutlandırma sırasında libmpv okuması core lock'u
     # bekleyip GUI'yi 80 ms'ye kadar donduruyordu.
-    assert sorted(names) == ["aid", "chapter-list", "osd-dimensions", "sid",
-                             "sub-scale", "track-list"]
+    assert sorted(names) == ["aid", "chapter-list", "osd-dimensions", "path",
+                             "sid", "sub-scale", "track-list"]
 
 
 def test_a_render_area_change_recomputes_the_band(bench):
@@ -277,8 +277,8 @@ def test_the_player_attaches_the_watcher_to_real_mpv():
 
     # `sub-scale` için gerekçe: bkz. yukarıdaki gözlem listesi testi.
     assert sorted(name for name, _ in mpv.observed) == [
-        "aid", "chapter-list", "osd-dimensions", "sid", "sub-scale",
-        "track-list"]
+        "aid", "chapter-list", "osd-dimensions", "path", "sid",
+        "sub-scale", "track-list"]
     assert player._subtitle_watcher is watcher
 
     app = QApplication.instance() or QApplication([])

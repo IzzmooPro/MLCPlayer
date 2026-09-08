@@ -100,6 +100,10 @@ yazma yapılmaz.
 ## Kalıcı çalışma kuralları
 
 - Kullanıcıyla Türkçe, kısa ve karar odaklı konuş.
+- Kullanıcının tek kanonik masaüstü checkout'u `MLC Player` klasörüdür.
+  Masaüstünde ek `MLC Player-*` kopyası veya worktree oluşturma; izolasyon
+  zorunlu ve açıkça onaylıysa yalnız araç-yönetimli `.codex` alanını kullan,
+  kanonik test/çalıştırmayı yine bu checkout'tan yap.
 - Kirli çalışma ağacını ve kullanıcı dosyalarını koru.
 - Etki alanına uygun dar test kullan; aynı tam paketi gereksiz tekrarlama.
 - Ürün kodu, hosted/deterministik kanıt, native smoke ve kurulu artifact

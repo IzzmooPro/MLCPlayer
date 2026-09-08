@@ -1,11 +1,20 @@
 # SignPath Foundation application draft
 
-**Submission status: SUBMITTED - AWAITING DECISION**
+**Submission status: SUBMITTED - NOT APPROVED (2 September 2026)**
 
 This public record captures the SignPath Foundation Open Source application
 submitted on 23 August 2026. It does not claim acceptance, an account, a
 certificate, a signing request or a signature. Only SignPath Foundation can
 decide eligibility.
+
+## Foundation response
+
+The user provided SignPath's 2 September 2026 support response. The Foundation
+application was not approved because MLC Player did not yet show enough public
+visibility/trust signals. The response invites a future reapplication after
+those signals grow and separately mentions a paid subscription; neither is a
+technical-quality verdict, an approval, a configured service or part of the
+active release chain.
 
 ## Applicant details
 

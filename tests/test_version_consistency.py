@@ -31,10 +31,10 @@ def test_app_version_has_release_format():
     assert re.fullmatch(r"v\d+\.\d+", APP_VERSION), APP_VERSION
 
 
-def test_current_release_target_is_v0_40():
+def test_current_release_target_is_v0_41():
     """Bu yayin turunun acikca onaylanan hedefi sessizce ayrismamali."""
-    assert APP_VERSION == "v0.40"
-    assert WINDOWS_VERSION == "0.40.0.0"
+    assert APP_VERSION == "v0.41"
+    assert WINDOWS_VERSION == "0.41.0.0"
 
 
 def test_windows_version_is_derived_from_app_version():

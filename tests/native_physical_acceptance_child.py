@@ -1668,6 +1668,8 @@ def group_separator():
            f"{overlap.getRect() if not overlap.isEmpty() else None} "
            f"visible={panel.isVisible()} open={panel.is_open}",
            widened > before and overlap.isEmpty() and panel.isVisible()
+
+
            and panel.is_open)
 
     hx, hy = global_centre(handle)
@@ -1707,6 +1709,75 @@ def group_separator():
     record("normal_click_after_drag", "SendInput click",
            "surukleme sonrasi normal tiklama calisir", f"toggled={ok}", ok)
     shot("separator")
+
+
+# ================= GRUP 14 - playlist fiziksel yeniden sıralama =================
+
+def group_playlist_reorder():
+    """İlk satırı son satırın altına gerçek fareyle bırakıp modeli ölç."""
+    frame = PLAYER.video_frame
+    if not frame.playlist_panel.is_open:
+        toggle_playlist_physical("playlist_reorder_open")
+        wait_for(lambda: frame.playlist_panel.is_open, 5000)
+    panel = frame.playlist_panel
+    panel.finish_animation()
+    panel.refresh()
+    pump(300)
+    view = panel.playlist_view
+    if view.count() < 3:
+        record("playlist_reorder_precondition", "gerçek çoklu playlist",
+               "en az üç yerel video", f"count={view.count()}", None,
+               "BLOCKED: NEED_THREE_VIDEOS")
+        return
+
+    before = list(PLAYER.playlist)
+    first_rect = view.visualItemRect(view.item(0))
+    last_rect = view.visualItemRect(view.item(view.count() - 1))
+    viewport = view.viewport()
+    start = viewport.mapToGlobal(first_rect.center())
+    target_local = QPoint(last_rect.center().x(), last_rect.bottom() - 4)
+    target = viewport.mapToGlobal(target_local)
+    hit = QApplication.widgetAt(start)
+    belongs_to_view = hit is not None and (
+        hit is viewport or hit.parent() is viewport or hit.parent() is view)
+    if not belongs_to_view:
+        record("playlist_reorder_precondition", "Win32 hedef doğrulaması",
+               "başlangıç playlist viewport'a ait", f"hit={hit}", None,
+               "BLOCKED: START_TARGET")
+        return
+
+    user32.SetCursorPos(start.x(), start.y())
+    pump(120)
+    mouse_button(True)
+    pump(100)
+    for step in range(1, 15):
+        user32.SetCursorPos(
+            int(start.x() + (target.x() - start.x()) * step / 14),
+            int(start.y() + (target.y() - start.y()) * step / 14))
+        APP.processEvents()
+        time.sleep(0.018)
+    pump(160)
+    target_seen = (view._drag_moved and view._drag_target == view.count() - 1
+                   and view._drag_after_last)
+    record("playlist_reorder_after_last_target", "Win32 press/move",
+           "son satırda dragAfter hedef çizgisi",
+           f"moved={view._drag_moved} target={view._drag_target} "
+           f"after_last={view._drag_after_last}", target_seen)
+    mouse_button(False)
+    pump(450)
+
+    expected = before[1:] + before[:1]
+    after = list(PLAYER.playlist)
+    current = PLAYER.current_playlist_index
+    selected = view.currentRow()
+    record("playlist_reorder_first_to_last", "Win32 release + model readback",
+           "ilk öğe sona taşınır",
+           f"before={len(before)} after={len(after)} current={current} "
+           f"selected={selected}", after == expected)
+    record("playlist_reorder_playing_and_selection", "model/view readback",
+           "oynayan ve seçili satır yeni son indis",
+           f"current={current} selected={selected} expected={len(after)-1}",
+           current == len(after) - 1 and selected == len(after) - 1)
 
 
 # ================= GRUP 4 - pencere kenar/kose resize =================
@@ -3017,6 +3088,8 @@ def run_group_body(args, original_cursor, original_foreground):
             group_subtitles(args.no_sub_video)
         elif GROUP == "tracks":
             group_tracks()
+        elif GROUP == "playlist_reorder":
+            group_playlist_reorder()
         elif GROUP == "zorder":
             rect = PLAYER.geometry()
             group_zorder(f"{rect.x()+140},{rect.y()+140},640,460")

@@ -3,8 +3,8 @@
 #define MyAppName "MLC Player"
 ; SÜRÜM TEK KAYNAK: app/config.py → APP_VERSION. Burası onun kopyasıdır ve
 ; tests/test_version_consistency.py ikisini birbirine bağlar; elle ayrışamaz.
-#define MyAppVersion "v0.40"
-#define MyAppNumericVersion "0.40.0.0"
+#define MyAppVersion "v0.41"
+#define MyAppNumericVersion "0.41.0.0"
 #define MyAppPublisher "IzzmooPro"
 #define MyAppUrl "https://github.com/IzzmooPro/MLCPlayer"
 #define MyAppExeName "MLC Player.exe"
