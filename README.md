@@ -30,8 +30,8 @@ thumbnails generated in the background, natural `1-2-10` ordering, folder
 opening and drag-and-drop. It does not overlap the video or float always on
 top.
 
-**Subtitles.** Matching local subtitles are found automatically and stay hidden
-until you ask for them, so a file never opens with unexpected text on screen.
+**Subtitles.** Matching local `.srt` subtitles are found, selected and shown
+automatically as soon as the verified subtitle track is ready.
 The OpenSubtitles-powered Subtitle Centre is temporarily hidden while its API
 distribution terms are reviewed; its network code is not exposed in the UI.
 
@@ -68,8 +68,8 @@ tracebacks, with details available separately; remote addresses appear as
 - Use `Ctrl+U` for a URL. Direct HTTP/HLS streams can work with the main
   player; website extraction requires the Internet Video add-on described
   below.
-- Matching local subtitles are detected automatically but stay hidden until
-  selected. Online subtitle search is temporarily hidden; local subtitle
+- Matching local `.srt` subtitles are detected, selected and shown automatically.
+  Online subtitle search is temporarily hidden; local subtitle
   loading and appearance controls remain available.
 - `Tools → Language` selects the interface language after restart.
   `Tools → Keyboard Shortcuts` lists every supported shortcut.
@@ -103,8 +103,9 @@ an unknown publisher on first run.
 See the project's [Code signing policy](CODE_SIGNING_POLICY.md),
 [Privacy policy](PRIVACY.md), [SignPath readiness record](docs/SIGNPATH_READINESS.md)
 and [application record](docs/SIGNPATH_FOUNDATION_APPLICATION.md). An
-application was submitted on 23 August 2026 and is awaiting a decision; the
-project has not been accepted and the current installer remains unsigned.
+application was submitted on 23 August 2026 and was not approved by the
+Foundation on 2 September 2026 because public visibility/trust signals were
+not yet sufficient; the current installer remains unsigned.
 
 Already installed? `Help → Check for updates` verifies and updates the main
 player. The built-in updater updates only the main player; if you use the

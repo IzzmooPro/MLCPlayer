@@ -1,12 +1,13 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
 import os
+import ntpath
 import sys
 import time
 import mpv
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QMessageBox, QSizePolicy)
-from PyQt6.QtCore import Qt, QTimer, QSettings, QObject, QEventLoop
+from PyQt6.QtCore import Qt, QTimer, QSettings, QObject, QEventLoop, QRect
 
 from app.config import cinematic_ui_enabled, APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, APP_STYLE, DEFAULT_VOLUME, MAX_VOLUME, MPV_CONFIG, MEDIA_EXTENSIONS, SUBTITLE_EXTENSIONS, SUBTITLE_DEFAULTS
 from app.settings_store import user_settings
@@ -42,10 +43,15 @@ from app.media_controls import (clear_url_loading, is_remote_media_url,
 from app.i18n import tr
 from app.window_modes import (MIN_OPACITY_PERCENT, PIP_MIN_SIZE,
                               keep_pip_window_on_screen, pip_geometry_for,
-                              set_native_topmost)
+                              set_native_topmost,
+                              set_native_window_geometry)
 
 ESCAPE_WINDOW_WIDTH = 960
 ESCAPE_WINDOW_HEIGHT = 600
+ESCAPE_STATE_RETRY_MS = 25
+ESCAPE_STATE_RETRY_LIMIT = 80
+ESCAPE_GEOMETRY_RETRY_LIMIT = 80
+ESCAPE_GEOMETRY_STABLE_POLLS = 40
 
 # Sinematik içerik pencere kenarlarına sıfır boşlukla oturur. Görünür marj
 # YOKTUR; kenar resize toleransı RESIZE_MARGIN ile ayrıca sağlanır.
@@ -137,6 +143,8 @@ class MPVPlayer(QMainWindow):
         self.window_opacity_percent = 100
         self.window_transparency_enabled = False
         self.picture_in_picture_enabled = False
+        # Yalnız gözlenmiş MPV video track'i PiP'ye girişe izin verir.
+        self._pip_media_available = False
         self._pip_restore_geometry = None
         self._pip_restore_maximized = False
         self._pip_restore_minimum = None
@@ -311,6 +319,9 @@ class MPVPlayer(QMainWindow):
         çağrılır ve bayrak hemen temizlenir.
         """
         if not getattr(self, "cinematic_ui_enabled", False):
+            return
+        if (self.__dict__.get("_mlc_close_done", False)
+                or not self.isVisible() or self.isMinimized()):
             return
         if getattr(self, "picture_in_picture_enabled", False):
             # PiP bilerek basliksizdir. Medya yukleme tamamlaninca gelen
@@ -495,8 +506,8 @@ class MPVPlayer(QMainWindow):
                 self._title_bar_raise_pending = False
                 self.ensure_title_bar_on_top()
 
-            # Dosya sonuna ulaşıldıysa başa sar ve duraklat. Kullanıcının
-            # açık talebi gereği oynatma listesi otomatik devam ETMEZ.
+            # Dosya sonuna ulaşıldıysa repeat/shuffle ve liste durumuna göre
+            # sıradaki öğeye geç veya mevcut öğeyi başa sarıp duraklat.
             # NOT: Bu mpv build'i vo=gpu+wid ile END_FILE event'i göndermiyor;
             # core-idle >= dosya sonu kontrolü daha güvenilir.
             if (self._eof_rewound and not self._core_idle and self.duration > 0
@@ -532,14 +543,21 @@ class MPVPlayer(QMainWindow):
             # libmpv core lock'u medya açılışında pencereyi dondurabiliyor.
             watcher = self.__dict__.get("_subtitle_watcher")
             observed_tracks = _MPV_OBSERVED_MISSING
+            observed_path = _MPV_OBSERVED_MISSING
             observed_aid = _MPV_OBSERVED_MISSING
             observed_chapters = _MPV_OBSERVED_MISSING
             if watcher is not None:
                 observed_tracks = watcher.latest(
                     "track-list", _MPV_OBSERVED_MISSING)
+                observed_path = watcher.latest("path", _MPV_OBSERVED_MISSING)
                 observed_aid = watcher.latest("aid", _MPV_OBSERVED_MISSING)
                 observed_chapters = watcher.latest(
                     "chapter-list", _MPV_OBSERVED_MISSING)
+
+            if (observed_tracks is not _MPV_OBSERVED_MISSING
+                    and observed_path is not _MPV_OBSERVED_MISSING):
+                self._set_picture_in_picture_media_available(
+                    observed_tracks, observed_path)
 
             # Yeni bir dosya yüklendiğinde ses kanalı menüsünü otomatik doldur
             # (kullanıcının "Ses Kanallarını Yenile"ye tıklaması gerekmez)
@@ -992,6 +1010,40 @@ class MPVPlayer(QMainWindow):
             self.title_bar.update_window_mode_state()
         return percent
 
+    def _set_picture_in_picture_media_available(self, track_list, observed_path):
+        """Son observer snapshot'ında gerçek bir video track'i var mı?
+
+        Bu GUI-thread yöntemi hiçbir MPV property okumaz. ``track-list``
+        yeni medya seçilirken temizlendiği için önceki videonun state'i yeni
+        ses/yükleme girişimine taşınmaz.
+        """
+        has_video = False
+        selected_path = self.current_file
+        same_media = False
+        if (isinstance(selected_path, str) and selected_path
+                and isinstance(observed_path, str) and observed_path):
+            same_media = selected_path == observed_path
+            # QFileDialog uses '/', while MPV reports Windows paths with '\\'.
+            # Keep URL paths and tokens exact; do not touch the filesystem.
+            if (not same_media and "://" not in selected_path
+                    and "://" not in observed_path
+                    and ntpath.splitdrive(selected_path)[0]
+                    and ntpath.splitdrive(observed_path)[0]):
+                same_media = (ntpath.normcase(selected_path)
+                              == ntpath.normcase(observed_path))
+        if (same_media
+                and isinstance(track_list, (list, tuple))):
+            for track in track_list:
+                if isinstance(track, dict) and track.get("type") == "video":
+                    has_video = True
+                    break
+        if bool(getattr(self, "_pip_media_available", False)) == has_video:
+            return has_video
+        self._pip_media_available = has_video
+        if self.title_bar is not None:
+            self.title_bar.update_window_mode_state()
+        return has_video
+
     def toggle_picture_in_picture(self, enabled=None):
         """Aynı libmpv HWND'sini küçük, resizable ve üstte tutulan moda alır."""
         target = (not self.picture_in_picture_enabled
@@ -1001,7 +1053,9 @@ class MPVPlayer(QMainWindow):
 
         # Boş başlangıç ekranını PiP boyutuna sıkıştırmak ürün davranışı
         # değildir; PiP yalnız yüklü medya varken açılabilir.
-        if target and not bool(getattr(self, "current_file", "")):
+        if target and not (bool(getattr(self, "current_file", ""))
+                           and bool(getattr(self,
+                                            "_pip_media_available", False))):
             return False
 
         if target:
@@ -1077,7 +1131,12 @@ class MPVPlayer(QMainWindow):
 
     def restore_default_window_size(self):
         """Pencere modunda Esc ile dengeli varsayılan boyuta dön ve ortala."""
-        if self.isMaximized() or self.isMinimized():
+        generation = int(self.__dict__.get(
+            "_escape_geometry_generation", 0)) + 1
+        self._escape_geometry_generation = generation
+        self.__dict__.pop("_pending_escape_geometry", None)
+        state_transition = self.isMaximized() or self.isMinimized()
+        if state_transition:
             self.showNormal()
         screen = self.screen() or QApplication.primaryScreen()
         if screen is None:
@@ -1088,9 +1147,77 @@ class MPVPlayer(QMainWindow):
                                              available.width() - 40))
         height = min(ESCAPE_WINDOW_HEIGHT, max(self.minimumHeight(),
                                                available.height() - 40))
-        self.resize(width, height)
-        self.move(available.x() + (available.width() - width) // 2,
-                  available.y() + (available.height() - height) // 2)
+        target = (available.x() + (available.width() - width) // 2,
+                  available.y() + (available.height() - height) // 2,
+                  width, height)
+        self.setGeometry(*target)
+        if state_transition:
+            # Windows, showNormal() sonrasındaki yerel restore mesajını aynı
+            # çağrı yığınında tamamlamayabilir. Qt çocukları yeni ölçüyü alırken
+            # kök HWND eski büyütülmüş ölçüde kalmasın diye hedefi bir sonraki
+            # olay turunda yeniden uygula.
+            self._pending_escape_geometry = (generation, target)
+            QTimer.singleShot(
+                0, lambda: MPVPlayer._apply_pending_escape_geometry(
+                    self, generation, 0, 0, 0))
+
+    def _apply_pending_escape_geometry(self, generation, state_attempt=0,
+                                       geometry_attempt=0, stable_polls=0):
+        try:
+            pending = self.__dict__.get("_pending_escape_geometry")
+            if pending is None or pending[0] != generation:
+                return
+            target = pending[1]
+            frame = getattr(self, "video_frame", None)
+            if (self.__dict__.get("_mlc_close_done", False)
+                    or getattr(self, "picture_in_picture_enabled", False)
+                    or self.isFullScreen()
+                    or bool(getattr(frame, "is_video_fullscreen", False))):
+                self.__dict__.pop("_pending_escape_geometry", None)
+                return
+            if self.isMaximized() or self.isMinimized():
+                if state_attempt >= ESCAPE_STATE_RETRY_LIMIT:
+                    self.__dict__.pop("_pending_escape_geometry", None)
+                    return
+                self.showNormal()
+                QTimer.singleShot(
+                    ESCAPE_STATE_RETRY_MS,
+                    lambda: MPVPlayer._apply_pending_escape_geometry(
+                        self, generation, state_attempt + 1,
+                        geometry_attempt, 0))
+                return
+
+            geometry = self.geometry()
+            geometry_matches = (
+                geometry.x(), geometry.y(), geometry.width(),
+                geometry.height()) == target
+            self.setGeometry(*target)
+            native_geometry = set_native_window_geometry(
+                self, QRect(*target))
+            if native_geometry is False:
+                geometry_matches = False
+            elif native_geometry is True:
+                update_overlay = getattr(
+                    frame, "update_overlay_geometry", None)
+                if callable(update_overlay):
+                    update_overlay()
+            stable_polls = stable_polls + 1 if geometry_matches else 0
+            geometry_attempt += 1
+            if (stable_polls >= ESCAPE_GEOMETRY_STABLE_POLLS
+                    or geometry_attempt >= ESCAPE_GEOMETRY_RETRY_LIMIT):
+                self.__dict__.pop("_pending_escape_geometry", None)
+                return
+            # Windows, normal-state olayından sonra eski restore geometrisini
+            # bir kez daha yazabilir. Hedef birkaç ardışık olay turunda sabit
+            # kalana kadar sınırlı biçimde yeniden doğrula.
+            QTimer.singleShot(
+                ESCAPE_STATE_RETRY_MS,
+                lambda: MPVPlayer._apply_pending_escape_geometry(
+                    self, generation, state_attempt, geometry_attempt,
+                    stable_polls))
+        except RuntimeError:
+            # Pencere sıfır süreli callback'ten önce kapatılmış olabilir.
+            return
 
     def keyPressEvent(self, event):
         key = event.key()

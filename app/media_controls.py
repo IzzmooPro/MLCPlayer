@@ -98,6 +98,24 @@ def _hide_subtitles_for_new_media(player):
         pass
 
 
+def reset_picture_in_picture_media_availability(player):
+    """Yeni yükleme/stopta eski video-track kararını geçersiz kıl.
+
+    PiP kapısı dosya adı ya da duration üzerinden tahmin yürütmez. Karar,
+    ``MPVPlayer.update_ui`` içindeki gözlenmiş ``track-list`` snapshot'ından
+    yeniden kurulana kadar kapalıdır.
+    """
+    player._pip_media_available = False
+    watcher = getattr(player, "_subtitle_watcher", None)
+    forget = getattr(watcher, "forget", None)
+    if callable(forget):
+        forget("track-list", "path")
+    title_bar = getattr(player, "title_bar", None)
+    refresh = getattr(title_bar, "update_window_mode_state", None)
+    if callable(refresh):
+        refresh()
+
+
 def append_media_paths(player, paths):
     """Bırakılan medyaları mevcut sırayı bozmadan oynatma listesine ekler."""
     additions = [path for path in paths if path]
@@ -254,7 +272,7 @@ _PLAYBACK_STATE_FIELDS = (
     "duration", "position", "is_paused", "_core_idle", "_audio_menu_file",
     "_chapter_menu_file", "_pending_subs", "_load_started_at",
     "_title_bar_raise_pending", "_eof_rewound", "_url_loading_active",
-    "_url_loading_started_at",
+    "_url_loading_started_at", "_pip_media_available",
 )
 _MPV_STATE_FIELDS = ("sub_delay", "sub_visibility")
 _SUB_DELAY_KEY = "subtitle/sub_delay"
@@ -320,6 +338,14 @@ def _restore_playback_state(player, state):
         try:
             setattr(mpv_player, name, value)
         except Exception:
+            pass
+    title_bar = getattr(player, "title_bar", None)
+    refresh_modes = getattr(title_bar, "update_window_mode_state", None)
+    if callable(refresh_modes):
+        try:
+            refresh_modes()
+        except RuntimeError:
+            # Kapanmakta olan Qt child'ı diğer state geri alımını kesmemeli.
             pass
     settings = getattr(player, "settings", None)
     status = state["settings_status"]
@@ -429,6 +455,7 @@ def open_path(player, path):
         player._chapter_menu_file = ""
         player._pending_subs = []
         player._eof_rewound = False
+        reset_picture_in_picture_media_availability(player)
         player.current_file = path
         if os.path.isfile(path):
             player.last_dir = os.path.dirname(path)
@@ -698,6 +725,7 @@ def open_media_url(player, raw):
         player.playlist = []
         player.current_playlist_index = -1
         player.current_file = url
+        reset_picture_in_picture_media_availability(player)
         # URL yaşam döngüsü yerel dosyanınkinden AYRIDIR.
         player._load_started_at = 0
         begin_url_loading(player)
@@ -957,6 +985,19 @@ def stop(player):
     except Exception as e:
         safe_console(f"MPV stop error: {e}")
         return False
+    # Durdurulmuş medya PiP boyutunda boş başlangıç yüzeyi bırakmamalı.
+    # Native topmost bırakma başarısızsa ``toggle_*`` mevcut sözleşmesi gereği
+    # PiP'yi korur; burada başarı varmış gibi flag/geometri zorlanmaz.
+    if getattr(player, "picture_in_picture_enabled", False):
+        exit_pip = getattr(player, "toggle_picture_in_picture", None)
+        if callable(exit_pip):
+            try:
+                exit_pip(False)
+            except Exception as exc:
+                # MPV stop kabul edildikten sonra pencere-yardımcı arızası
+                # medya state'ini yarım bırakmamalı. PiP flag'i yalnız gerçek
+                # çıkış yordamının kendi sonucu ile değişir.
+                safe_console(f"PiP exit after stop error: {type(exc).__name__}")
     player.play_button.setIcon(player.play_icon)
     player.is_paused = True
     player.duration = 0
@@ -966,6 +1007,7 @@ def stop(player):
     player._audio_menu_file = ""
     player._chapter_menu_file = ""
     player._pending_subs = []
+    reset_picture_in_picture_media_availability(player)
     player.current_file = ""
     clear_url_loading(player)
     if player.video_frame.control_overlay is not None:
@@ -1228,9 +1270,14 @@ def play_from_playlist(player, index):
             player._chapter_menu_file = ""
             player._pending_subs = []
             player._eof_rewound = False
-            clear_url_loading(player)
             player.current_file = file_path
-            player._load_started_at = time.time()
+            reset_picture_in_picture_media_availability(player)
+            if is_remote_media_url(file_path):
+                player._load_started_at = 0
+                begin_url_loading(player)
+            else:
+                clear_url_loading(player)
+                player._load_started_at = time.time()
             _clear_title_bar_raise(player)
             _reset_subtitle_timing_for_new_media(player)
             _hide_subtitles_for_new_media(player)
@@ -1394,10 +1441,17 @@ def load_playlist(player):
         return False
     try:
         entries = []
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8-sig") as f:
             for line in f:
                 line = line.strip()
                 if line and not line.startswith("#"):
+                    # HTTP(S) öğeleri yerel yol çözümüne ya da isfile
+                    # filtresine sokulmaz: URL'nin query/fragment'i ve sırası
+                    # kaydedildiği biçimde korunur. Diğer şemalar bilinçli
+                    # olarak kabul edilmez.
+                    if is_remote_media_url(line):
+                        entries.append(line)
+                        continue
                     # M3U listeleri mutlak veya liste dosyasına göreli yol içerebilir.
                     entry = line if os.path.isabs(line) else os.path.join(
                         os.path.dirname(file_path), line)

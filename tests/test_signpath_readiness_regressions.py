@@ -32,9 +32,9 @@ def test_code_signing_policy_is_truthful_about_current_status_and_roles():
     assert "manual approval" in policy.lower()
     assert "not Authenticode-signed" in policy
     assert "application was submitted on 23 August 2026" in policy
-    assert "awaiting SignPath Foundation's decision" in policy_flat
+    assert "not approve" in policy_flat
+    assert "2 September 2026" in policy
     assert "has not yet applied" not in policy
-    assert "been accepted" in policy
     assert "PRIVACY.md" in policy
 
 
@@ -53,13 +53,13 @@ def test_readiness_record_keeps_signpath_out_of_the_active_release_chain():
     readiness = _read("docs/SIGNPATH_READINESS.md")
     release_process = _read("docs/RELEASE_PROCESS.md")
 
-    assert "Submission status: SUBMITTED - AWAITING DECISION" in readiness
+    assert "Submission status: SUBMITTED - NOT APPROVED (2 September 2026)" in readiness
     assert "NOT SUBMITTED" not in readiness
     assert "not application-ready" not in readiness
     assert "It has not been run" not in readiness
     assert "Why the hosted build is not accepted yet" not in readiness
     assert "GitHub-hosted" in readiness
-    assert "SignPath acceptance" in readiness
+    assert "public visibility/trust signals" in readiness
     assert "Ed25519" in readiness
     assert "SignPath is not currently part" in release_process
     assert "Authenticode must happen before" in release_process
@@ -71,7 +71,7 @@ def test_signpath_foundation_application_is_submitted_but_not_accepted():
     application_flat = " ".join(application.split())
     workflow = _read(".github/workflows/build-unsigned-main.yml")
 
-    assert "Submission status: SUBMITTED - AWAITING DECISION" in application
+    assert "Submission status: SUBMITTED - NOT APPROVED (2 September 2026)" in application
     assert "https://github.com/IzzmooPro/MLCPlayer" in application
     assert "https://github.com/IzzmooPro/MLCPlayer/releases/latest" in application
     assert "https://signpath.org/terms.html" in application

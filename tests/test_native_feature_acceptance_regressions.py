@@ -37,6 +37,17 @@ def test_a_completely_healthy_feature_smoke_is_accepted():
         0, healthy_stdout(), b"") == []
 
 
+def test_pip_window_mode_smoke_waits_for_observed_video_before_entering_pip():
+    """Native senaryo, yeni PiP medya kapisini baypas etmemelidir."""
+    child = (Path(__file__).parent / "native_feature_batch_smoke_child.py")
+    source = child.read_text(encoding="utf-8")
+
+    assert source.index("player.open_path(media)") < source.index(
+        "player.showMaximized()")
+    assert "not player._pip_media_available" in source
+    assert "os.path.abspath(os.environ[MEDIA_VARIABLE]).replace(" in source
+
+
 @pytest.mark.parametrize("name", REQUIRED_CHECKS)
 def test_every_required_check_is_mandatory(name):
     stdout = "\n".join(

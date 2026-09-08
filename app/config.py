@@ -56,7 +56,8 @@ MPV_CONFIG = {
     # Geniş `fuzzy` yerine mpv'nin resmî `exact` davranışı: yalnız tam video
     # gövdesi ve dil/etiket sonekleri yüklenir (bkz. `app/local_subtitle.py`).
     "sub_auto": "exact",
-    # Gömülü ve aynı adlı harici altyazıları bul; kullanıcı açana kadar gösterme.
+    # MPV altyazıları başlangıçta gizler; doğrulanan eşleşen `.srt` parçasını
+    # `app/local_subtitle.py` seçip görünür yapar.
     "sub_visibility": "no",
     # Ses dosyalarında albüm kapağı video alanında gösterilir; aksi hâlde
     # siyah kare kalıyordu. ÖLÇÜLDÜ: bu libmpv sürümünde varsayılan KAPALI

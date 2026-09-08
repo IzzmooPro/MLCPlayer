@@ -89,7 +89,7 @@ def test_native_false_node_readback_is_canonical_no_not_a_failed_write():
 
 
 def test_native_loop_readback_does_not_require_mpv_format_enum(monkeypatch):
-    """GitHub CI'deki python-mpv yüzeyinde ``MpvFormat`` yoktur."""
+    """CI stub gibi enum'suz bir MPV yüzeyi fallback ile kanonik kalır."""
     class NativeLikeLoop:
         def __init__(self):
             self._value = "inf"

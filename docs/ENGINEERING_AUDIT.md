@@ -9,6 +9,264 @@ demek yerine **neyin ölçüldüğü** yazılır.
 
 Yayın süreci burada tekrarlanmaz: `docs/RELEASE_PROCESS.md`.
 
+## AUD-20260905 — v0.41 adayının uygulama devir raporu
+
+**Amaç:** Claude/Codex tarafından uygulanabilecek somut kusur tarifleri.
+Bu bölüm 5 Eylül 2026 kaynak denetiminin sabit snapshot'ıdır. Güncel iş
+sırası `CONTINUITY.md`, kanıt kaydı `EV-20260905-001` içindedir.
+
+### Başlangıç ve kapsam
+
+- Kanonik depo: `C:\Users\Universe\Desktop\Programlar TEST\2026 YENİLER\MLC Player`.
+- İncelenen HEAD: `95246d19ebac75e651e4970f5ebbc7473cc0f418`.
+- Dal: `codex/v041-release-candidate`; yerel origin görev ref'iyle eş;
+  yerel `origin/master` ref'inden 1 commit ileride. Bu incelemede fetch yapılmadı.
+- Rapor öncesi ağaç temizdi. Bu rapor ürün kodunu değiştirmedi.
+- Kaynak/test-double/offscreen kanıtıdır; gerçek Windows tıklaması,
+  video decode, kurulum veya yayımlanmış artifact kabulü değildir.
+- Mevcut ilgili testler: **80 passed in 0.93s**, komut aşağıda.
+  Yeşil sonuç yeni açıkların kapalı olduğunu göstermez; eksik senaryolar ayrıca ölçüldü.
+- Öncelikler bu raporun önerisidir; Windows matrisindeki P0 kimliklerinden ayrıdır.
+
+### AUD-20260905-01 — PiP içinde stop sonrası boş küçük pencere
+
+**Öncelik:** P2, kullanıcı etkileşimi. **Durum:** kaynak/state kusuru doğrulandı;
+görsel sonuç gerçek Windows'ta yeniden üretilmeli.
+
+**Konumlar (bu HEAD):** `app/media_controls.py:950` `stop`, aynı dosyadaki
+`clear_playlist` ve `remove_many_from_playlist`; `app/player.py:995`
+`toggle_picture_in_picture`; `app/video_frame.py:524` `sync_empty_state`.
+
+**Tetikleme:** Video aç → PiP'ye geç → durdur. Alternatif: aktif son öğeyi
+kaldır veya listeyi temizle. Stop `current_file` alanını boşaltıyor ve başlangıç
+yüzeyini istiyor; PiP flag'i, topmost ve küçük geometriyi geri almıyor.
+Doğrudan test-double ölçümü: `stop_result=True`, `current_file=''`,
+`pip_after_stop=True`, `pip_exit_calls=0`.
+
+**Düzeltme yönü:** Medya kapanışı ile pencere modu arasında ortak bir geçiş
+kur. PiP bayrağını elle False yapmak veya yalnız başlığı göstermek yetmez;
+mevcut PiP çıkışının topmost bırakma ve geometri/minimum boyut/başlık geri
+yükleme mantığı kullanılmalı. Video oynarken normal stop davranışı korunmalı.
+
+**Kritik hata yolu:** `toggle_picture_in_picture(False)` native topmost
+bırakılamazsa True dönerek PiP'yi koruyor. Sonucu kontrol etmeden normal moda
+geçildiğini yazma. Stop başarısı ile pencere restorasyonunun başarısızlığını
+ayrı ele al; durdurulmuş medyayı yanlışlıkla oynuyor gösterme. Mevcut
+`test_pip_stays_enabled_if_windows_cannot_release_topmost` korunmalı.
+
+**Kabul testleri:**
+
+1. Normal ve maximize edilmiş pencereden PiP → başarılı stop: PiP kapalı,
+   topmost bırakılmış, önceki geometri/minimum boyut ve başlık geri gelmiş.
+2. Son aktif öğeyi silme, listeyi temizleme ve medya açma hatasıyla stop
+   aynı restorasyon yolunu kullanır; çifte yükleme/stop oluşmaz.
+3. MPV stop reddedilirse mevcut medya ve pencere durumu tutarlı kalır.
+4. Native topmost bırakma reddedilirse UI başarı iddia etmez; yeniden çıkış mümkündür.
+5. Gerçek Windows'ta en az üç PiP/stop/yeniden aç döngüsü; başlık düğmeleri
+   ilk tıklamada çalışır, boş küçük pencere kalmaz.
+
+Test yerleri: `tests/test_window_modes_regressions.py`,
+`tests/test_playback_lifecycle_regressions.py`,
+`tests/test_media_selection_atomic_regressions.py`.
+
+### AUD-20260905-02 — PiP kullanılabilirliği video hazır olmasına bağlı değil
+
+**Öncelik:** P2. **Durum:** gate eksikliği offscreen ölçümle doğrulandı.
+
+**Konumlar:** `app/player.py:995` `toggle_picture_in_picture`,
+`app/title_bar.py:478` `update_window_mode_state`,
+`app/media_controls.py:411` `open_path`; URL ve playlist yükleme yolları.
+
+Her iki PiP gate'i yalnız `bool(current_file)` kullanıyor. `open_path`,
+dosya yolunu asenkron loadfile sonucu gelmeden atıyor. Dolayısıyla yolun
+dolu olması video track'i, başarılı yükleme veya çizilebilir video kanıtı değil.
+Mevcut offscreen pencere fixture'ında `current_file='audio-only.mp3'`,
+`duration=0` iken PiP girişinin True döndüğü ölçüldü. Gerçek MP3 decode edilmedi;
+kanıt, gate'in video varlığını hiç incelememesidir.
+
+**Düzeltme yönü:** Başlık düğmesi ve ürün metodu aynı medya-hazır/video-var
+kararını paylaşmalı. Dosya uzantısına ya da `duration > 0` koşuluna bağlama:
+canlı video duration=0 olabilir, ses dosyasının duration değeri pozitiftir.
+Mevcut MPV gözlemci snapshot'ları üzerinden gerçek video track/yükleme
+durumunu değerlendir; UI timer'ına yeni senkron MPV sorgusu ekleme.
+Önceki dosyanın track snapshot'ı yeni yüklemede geçerli sanılmamalı; yükleme
+başlangıcı, başarı, hata, stop ve video→ses geçişinde karar yenilenmeli.
+PiP zaten açıksa çıkış düğmesi medya kalmasa da kullanılabilir olmalı.
+
+**Kabul testleri:** boş başlangıç, bekleyen/başarısız load ve yalnız ses için
+PiP kapalı; gerçek video ve duration=0 canlı video için hazır olduktan sonra
+açık; video→ses geçişinde eski video state'i taşınmaz; düğme ve doğrudan
+metot aynı kararı verir; aktif PiP'den çıkış her zaman erişilebilir kalır.
+Mevcut `test_pip_does_not_open_without_loaded_media` yalnız boş yolu sınar;
+bu vakalarla genişletilmeli. Albüm kapağı içeren sesin PiP sayılıp sayılmayacağı
+ürün kararıdır; varsayılan öneri onu gerçek video kabul etmemektir.
+
+### AUD-20260905-03 — URL içeren M3U kaydet/aç döngüsü kayıplı
+
+**Öncelik:** P2. **Durum:** kaynak ve izole okuyucu ölçümüyle doğrulandı.
+
+**Konumlar:** `app/media_controls.py:1361` `save_playlist`,
+`:1388` `load_playlist`; aynı modüldeki `is_remote_media_url`,
+`open_external_target`, `play_from_playlist` ve URL yükleme durumları.
+
+**Tetikleme:** URL içeren listeyi M3U olarak kaydet → yeniden aç.
+Kaydedici her öğeyi aynen yazıyor. Okuyucu URL'yi göreli yerel yol gibi
+liste klasörüne ekliyor ve `os.path.isfile` filtresinden geçiriyor. Tümü URL
+ise False + uyarı; karma listede URL öğeleri sessizce eksiliyor.
+İzole okuyucuya `#EXTM3U\nhttps://example.invalid/video.m3u8\n` verilince
+`URL_PLAYLIST_LOAD=False`, `WARNINGS=1` ölçüldü. Ağ isteği yapılmadı.
+
+**Düzeltme yönü:** Desteklenen uzak medya adreslerini yerel yol çözümünden
+önce mevcut URL politikasıyla ayır ve aynen koru. Göreli yerel yollar M3U'nun
+klasörüne göre çözülmeye devam etsin. Sırayı/tekrar eden öğeleri koru;
+query/fragment/URL kodlamasını bozma. Keyfî şemaları sırf `://` içeriyor diye
+kabul etme. M3U8 HLS manifest yorumlayıcısı yazmak bu işin kapsamı değil.
+URL öğesini oynatma, mevcut URL hazırlama/yükleme/hata yaşam döngüsünü de
+kullanmalı; yalnız okuyucuya URL ekleyerek süre aşımı davranışını atlama.
+Liste ilk öğesinin yüklenmesi reddedilirse mevcut oturum geri alınmalı.
+
+**Kabul testleri:** yalnız HTTP(S), karma yerel/URL, göreli yol, boşluk ve
+Türkçe karakter, query/fragment içeren URL, reddedilen şema, geçersiz yerel
+dosya ve yükleme hatasında rollback. Save→load roundtrip'te geçerli öğeler
+ve sıra eşit olmalı. Mock ağ/yükleyici kullan; test sırasında gerçek dosya
+ve ayarlara dokunma. UTF-8 BOM desteğini de sınır testi olarak değerlendir
+(bu raporda ayrıca yeniden üretilmiş kusur olarak sayılmadı).
+
+### AUD-20260905-04 — Canlı devir ve SignPath metinleri eski
+
+**Öncelik:** P2 devir doğruluğu. **Durum:** metin/kullanıcı belgesiyle doğrulandı.
+
+- `CODE_SIGNING_POLICY.md:5` yanıt beklendiğini yazıyor;
+  `docs/SIGNPATH_READINESS.md:72` sonrası mailbox izleme öneriyor.
+  Kullanıcının paylaştığı 2 Eylül 2026 SignPath destek yanıtı Foundation
+  başvurusunun görünürlük/harici güven sinyalleri yetersizliğiyle reddedildiğini
+  bildiriyor. Bunu teknik kalite reddi veya ücretli abonelik onayı diye yazma.
+- Rapor öncesi `docs/CONTINUITY.md` master/commit onayı aşamasında kalmıştı;
+  yerel ölçüm aday dalın `95246d1` commit'inde olduğunu gösteriyor.
+  Bu raporun bağlantısı ve mevcut aday tabanı bu belge turunda güncellenir.
+- SignPath durum metinlerinin esas güncellemesi takip işidir. Başvuru
+  tarihçesini silme, karar tarihini ve kullanıcıdan sağlanan e-posta kaynağını
+  yaz; özel iletişim bilgilerini gereksiz yere çoğaltma. Ed25519 ile Windows
+  Authenticode imzasını birbirinin yerine sunma.
+
+**Kabul:** dokümanlar yanıt bekleniyor demiyor; kaynak sürüm adayı ile canlı
+release ayrılmış; geçmiş kanıtlar korunmuş; yeni tarih uydurulmamış.
+
+### AUD-20260905-05 — Windows kabul boşlukları
+
+**Öncelik:** yayın kabul planı. **Durum:** test eksikliği, ürün hatası iddiası değil.
+
+`docs/WINDOWS_ACCEPTANCE_MATRIX.md` özetinde P0 **6 PASSED / 2 NOT_RUN**,
+P1 **6 NOT_RUN**, P2 **3 BLOCKED**. Özellikle WIN-P0-07 playlist taşıma/sınırlar
+ve WIN-P0-08 gerçek ikinci pencere/IPC henüz formal kabul edilmemiş.
+Eski alt paragrafları güncel üst tablonun yerine kullanma.
+
+**İş:** her açık satırı mevcut runner, gerekli cihaz/medya/artifact ve
+ölçülecek davranışla eşle. Native koşum için geçerli kullanıcı yetkisini
+kontrol et; bu rapor fiziksel test/kurulum izni değildir. Aynı exact kaynak,
+runtime ve senaryoya ait eski kanıt varsa tekrar çalıştırmadan kullanılabilirliği
+incele; farklı commit veya artifact'in PASS'ini kopyalama.
+
+**Kabul:** gerçek IPC'de dosya/URL hedefe gider, ilk pencere foreground olur,
+ikinci süreç kapanır; playlistte taşıma, son satır, seçim ve tekrar işlemler
+korunur. Exit kodu, terminal marker, stderr ve süreç sızıntısı birlikte kaydedilir.
+Donanım yoksa BLOCKED kalır. Offscreen PASS fiziksel PASS olarak yükseltilmez.
+
+### AUD-20260905-06 — CI hatasının kökeni yanlış açıklanmış
+
+**Öncelik:** P2 kanıt doğruluğu. **Durum:** kaynakla doğrulandı.
+
+`tests/conftest.py` → `scripts/ci_mpv_stub.py::install_ci_mpv_stub`:
+`MLC_CI=1` iken `sys.modules['mpv']` bizim `ModuleType` taklidimizle değişiyor.
+Bu taklit `MpvFormat` tanımlamıyor. Dolayısıyla geçmiş run
+`33809616721` hatasından gerçek kurulu python-mpv sürümünün bu enum'u
+sunmadığı sonucu çıkarılamaz. Mevcut `app/player.py:875` fallback'i otomatik
+olarak kaldırma; bu rapor fallback'in ürün hatası olduğunu göstermiyor.
+
+**İş:** `EV-20260903-037`, `038`, `040` açıklamalarını bu ayrım için denetle.
+Eski ledger girdilerini yerinde değiştirme. Gerekli düzeltmeyi yeni kayıt ve
+yapılandırılmış `corrects` alanıyla yap; kesin alan adlarını/değerlerini
+mevcut şema ve continuity testlerinden al. Ürün yorumu ve test docstring'inde
+de gerçek bağımlılık ile CI taklidini ayır. Bu rapor kendi başına eski
+girdiler için makinece düzeltme kaydı değildir.
+
+**Kabul:** CI stub yolu ve gerçek binding yolu ayrı gösterilmiş;
+enum var/yok, NODE False/0/no, inf ve ignored-write/rollback durumları
+test edilmiş; bağımlılık sürümü hakkında ölçülmemiş iddia kalmamış.
+
+### Yeniden üretim ve test komutları
+
+Kanonik depo kökünde PowerShell; mevcut testler kullanıcı ayarlarını izole eder:
+
+```powershell
+python -m pytest -q tests/test_playback_mode_controls_regressions.py tests/test_window_modes_regressions.py tests/test_playback_lifecycle_regressions.py tests/test_media_selection_atomic_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py
+```
+
+Bu komut denetimde 80 passed verdi. Aşağıdaki izole probe dosya yazmadan ve
+ağ kullanmadan iki eksik davranışı gösterir; gerçek Windows görünümü kanıtı değildir:
+
+```powershell
+@'
+import runpy
+runpy.run_path('tests/conftest.py')
+from unittest.mock import MagicMock, patch, mock_open
+from app import media_controls as m
+p = MagicMock()
+p.picture_in_picture_enabled = True
+p.current_file = 'clip.mp4'
+print('stop_result', m.stop(p), 'current_file', repr(p.current_file),
+      'pip_after_stop', p.picture_in_picture_enabled,
+      'pip_exit_calls', p.toggle_picture_in_picture.call_count)
+with patch.object(m.QFileDialog, 'getOpenFileName',
+                  return_value=('C:/audit/list.m3u', '')), \
+     patch('builtins.open', mock_open(
+         read_data='#EXTM3U\nhttps://example.invalid/video.m3u8\n')), \
+     patch.object(m.QMessageBox, 'warning') as warning:
+    print('URL_PLAYLIST_LOAD', m.load_playlist(MagicMock()),
+          'WARNINGS', warning.call_count)
+'@ | python -
+```
+
+### Uygulayacak agent için görev tarifi
+
+Önce AGENTS.md ve CONTINUITY.md'yi oku; exact tabanı yeniden ölç. Bu raporun
+satırları yalnız yukarıdaki HEAD için geçerlidir; işlev adlarıyla bul.
+Önerilen sıra: **01+02 birlikte PiP yaşam döngüsü → 03 M3U roundtrip →
+04+06 belge/kanıt doğruluğu → 05 fiziksel kabul planı**.
+Her kusur için mevcut kaynakta önce kırmızı regresyonu üret, en küçük
+düzeltmeyi yap, ilgili aileyi çalıştır. Önceden kırmızı test oluşmadan
+yalnız mevcut yeşil paketi yeni kusurun kanıtı diye sunma.
+
+PiP çalışmasında başlık click/drag eşiği düzeltmesini koru; her basışta
+`startSystemMove()` çağrısını geri getirme. MPV UI donmasını düzeltmek için
+eklenmiş snapshot yaklaşımını senkron property taramasına geri çevirme.
+Envanter kapsamındaki ürün kaynağı değişirse
+`ARCHITECTURE_INVENTORY.json` ölçülerini kaynaktan güncelle.
+Rapor bulgularının kapanışını yeni kanıtla bağla; eski raporu silme.
+Commit/push/PR/build/kurulum/tag/release için geçerli görev yetkisini ayrıca
+değerlendir; bu belgenin kaydedilmesi bunları otomatik yetkilendirmez.
+
+**Bu rapor turunda değişen ürün dosyası:** yok.
+**Kalan risk:** yeni davranışların gerçek Windows kabulü ve düzeltmelerin
+bağımsız incelemesi yapılmadı; bütün uygulamanın hatasız olduğu iddia edilmez.
+
+### AUD-20260905 uygulama kapanış kaydı — 5 Eylül 2026
+
+Bu kayıt ilk raporu değiştirmez; aşağıdaki sonuçlar sonraki çalışma ağacında
+`EV-20260905-002` ile bağlanır. Yerel test kanıtı gerçek Windows, kurulu paket
+veya GitHub Actions kanıtı değildir.
+
+| Bulgu | Durum | Kapanış kanıtı / kalan sınır |
+| --- | --- | --- |
+| 01 PiP + stop | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI, CANLI KABUL BEKLİYOR | `stop()` artık mevcut PiP çıkış yolunu çağırır; native topmost bırakma reddedilirse durum zorla normal gösterilmez ve boş yüzey PiP'ye çizilmez. Başarılı Windows geometri/topmost/ilk-tıklama döngüsü ölçülmedi. |
+| 02 PiP medya gate'i | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI, CANLI KABUL BEKLİYOR | Gate dosya adı/duration yerine observer'ın son `track-list` snapshot'ındaki video track'ine bağlıdır; yeni yükleme ve stop eski snapshot'ı temizler. Gerçek MP3, canlı video ve albüm kapağı görseli denenmedi. |
+| 03 M3U URL roundtrip | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI | HTTP(S) öğeleri sıra/query/fragment korunarak okunur; BOM ve yerel göreli yol korunur; playlistten URL başlatma mevcut URL yükleme yaşam döngüsüne girer. Ağ/decode denemesi yapılmadı. |
+| 04 SignPath/devir metni | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI | 2 Eylül yanıtı görünürlük/güven sinyali eksikliği olarak kaydedildi; teknik kalite, sertifika veya ücretli plan onayı diye sunulmadı. Kaynak kullanıcı tarafından sağlanan e-postadır. |
+| 05 Windows kabul boşlukları | NOT_RUN | `WIN-P0-07`, `WIN-P0-08`, P1 ve P2 satırları fiziksel/native kabul gerektirir; bu turda çalıştırılmadı ve PASS yapılmadı. |
+| 06 CI köken açıklaması | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI | CI stub ile gerçek python-mpv ayrımı docstring ve append-only ledger düzeltmesinde açıklandı. GitHub koşumu yapılmadı. |
+
+Yerel etkili komut: `python -m pytest -q tests/test_window_modes_regressions.py tests/test_playback_lifecycle_regressions.py tests/test_media_selection_atomic_regressions.py tests/test_subtitle_track_watch_regressions.py tests/test_title_bar_regressions.py tests/test_signpath_readiness_regressions.py tests/test_release_documentation_regressions.py tests/test_quality_evolution_plan_regressions.py tests/test_playback_mode_controls_regressions.py tests/test_ci_mpv_stub_regressions.py tests/test_url_loading_regressions.py tests/test_continuity_regressions.py` (**413 passed**).
+
 ## Durum sözlüğü
 
 | durum | anlamı |

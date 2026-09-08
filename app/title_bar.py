@@ -483,10 +483,12 @@ class TitleBar(QWidget):
         self.transparency_button.setToolTip(transparency_label)
 
         pip = bool(getattr(self.player, "picture_in_picture_enabled", False))
-        has_media = bool(getattr(self.player, "current_file", ""))
-        pip_available = pip or has_media
+        has_video = (bool(getattr(self.player, "current_file", ""))
+                     and bool(getattr(self.player,
+                                      "_pip_media_available", False)))
+        pip_available = pip or has_video
         pip_label = (tr("Resim İçinde Resimden Çık") if pip
-                     else (tr("Resim İçinde Resim") if has_media
+                     else (tr("Resim İçinde Resim") if has_video
                            else tr("Önce video açın")))
         self.picture_in_picture_button.setEnabled(pip_available)
         self.picture_in_picture_button.setAccessibleName(pip_label)

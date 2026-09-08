@@ -43,7 +43,7 @@ def player_state():
         placeholder_label=placeholder, playlist_panel=panel,
         control_overlay=overlay, update_overlay_play_state=lambda: None,
         sync_empty_state=lambda: None)
-    return SimpleNamespace(
+    player = SimpleNamespace(
         mpv_player=mpv,
         playlist=["old-a.mkv", "old-b.mkv"],
         current_playlist_index=0,
@@ -61,6 +61,7 @@ def player_state():
         _eof_rewound=False,
         _url_loading_active=False,
         _url_loading_started_at=0.0,
+        _pip_media_available=True,
         settings=None,
         video_frame=frame,
         play_button=SimpleNamespace(setIcon=lambda _icon: None),
@@ -73,6 +74,16 @@ def player_state():
         current_time_label=SimpleNamespace(setText=lambda _text: None),
         total_time_label=SimpleNamespace(setText=lambda _text: None),
         _updating_position_slider=False)
+    title_bar = SimpleNamespace(pip_enabled=True, refreshes=0)
+
+    def refresh_window_modes():
+        title_bar.refreshes += 1
+        title_bar.pip_enabled = bool(
+            player.current_file and player._pip_media_available)
+
+    title_bar.update_window_mode_state = refresh_window_modes
+    player.title_bar = title_bar
+    return player
 
 
 def snapshot(player):
@@ -101,6 +112,43 @@ def test_failed_direct_file_open_restores_the_previous_session(
 
     assert result is False
     assert snapshot(player) == before
+
+
+def test_failed_file_open_restores_the_pip_button_state(tmp_path, monkeypatch):
+    player = player_state()
+    new_media = tmp_path / "new.mkv"
+    new_media.write_bytes(b"x")
+    silence_errors(monkeypatch)
+
+    assert media_controls.open_path(player, str(new_media)) is False
+
+    assert player._pip_media_available is True
+    assert player.title_bar.pip_enabled is True
+
+
+def test_failed_playlist_step_restores_the_pip_button(monkeypatch):
+    player = player_state()
+    player.playlist = ["new.mkv", "old-b.mkv"]
+    silence_errors(monkeypatch)
+
+    assert media_controls.play_from_playlist(player, 0) is False
+
+    assert player._pip_media_available is True
+    assert player.title_bar.pip_enabled is True
+
+
+def test_failed_folder_first_item_restores_the_pip_button(monkeypatch):
+    player = player_state()
+    monkeypatch.setattr(media_controls.QFileDialog, "getExistingDirectory",
+                        lambda *_args, **_kwargs: "C:/new")
+    monkeypatch.setattr(media_controls, "folder_media_files",
+                        lambda _folder: ["C:/new/new.mkv"])
+    silence_errors(monkeypatch)
+
+    media_controls.open_folder(player)
+
+    assert player._pip_media_available is True
+    assert player.title_bar.pip_enabled is True
 
 
 def test_failed_url_open_restores_playlist_and_previous_media(monkeypatch):
@@ -141,6 +189,63 @@ def test_failed_playlist_file_load_restores_the_previous_session(
     assert result is False
     assert snapshot(player) == before
     assert [name for name, _args in player.mpv_player.calls] == ["loadfile"]
+
+
+def test_m3u_round_trip_preserves_http_urls_and_local_entries(
+        tmp_path, monkeypatch):
+    class AcceptingMpv:
+        sub_delay = 0.0
+        sub_visibility = False
+
+        def __init__(self):
+            self.calls = []
+
+        def command_async(self, name, *args):
+            self.calls.append((name, args))
+
+    local = tmp_path / "Türkçe video.mkv"
+    local.write_bytes(b"x")
+    url = "https://example.test/stream.m3u8?token=a%2Fb#part"
+    saved = tmp_path / "liste.m3u"
+    writer = player_state()
+    writer.playlist = [str(local), url]
+    monkeypatch.setattr(media_controls.QFileDialog, "getSaveFileName",
+                        lambda *_args, **_kwargs: (str(saved), ""))
+
+    media_controls.save_playlist(writer)
+
+    reader = player_state()
+    reader.mpv_player = AcceptingMpv()
+    monkeypatch.setattr(media_controls.QFileDialog, "getOpenFileName",
+                        lambda *_args, **_kwargs: (str(saved), ""))
+
+    assert media_controls.load_playlist(reader) is True
+    assert reader.playlist == [str(local), url]
+    assert reader.current_file == str(local)
+
+
+def test_m3u_url_first_uses_url_loading_lifecycle_and_rejects_other_schemes(
+        tmp_path, monkeypatch):
+    class AcceptingMpv:
+        sub_delay = 0.0
+        sub_visibility = False
+
+        def command_async(self, *_args):
+            return None
+
+    playlist_file = tmp_path / "remote.m3u"
+    url = "https://example.test/live.m3u8?x=1#fragment"
+    playlist_file.write_text("\ufeff#EXTM3U\nftp://ignored.test/a\n" + url + "\n",
+                             encoding="utf-8")
+    player = player_state()
+    player.mpv_player = AcceptingMpv()
+    monkeypatch.setattr(media_controls.QFileDialog, "getOpenFileName",
+                        lambda *_args, **_kwargs: (str(playlist_file), ""))
+
+    assert media_controls.load_playlist(player) is True
+    assert player.playlist == [url]
+    assert player.current_file == url
+    assert player._url_loading_active is True
 
 
 def test_failed_replacement_after_removing_active_item_restores_the_list(

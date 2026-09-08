@@ -3,11 +3,11 @@
 Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi `CONTINUITY_HISTORY.md`, makinece doğrulanmış olaylar `VERIFICATION_LEDGER.json`, diğer tarihsel anlatı `PROJECT_STATUS.md`,
 `ROADMAP.md` ve `ENGINEERING_AUDIT.md` içindedir.
 
-- Güncelleme: 4 Eylül 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `260b2a90c3e3d98a3853b65237b2f0742a548ddd`
+- Güncelleme: 8 Eylül 2026
+- Kayıt hazırlanırken doğrulanan HEAD: `95246d19ebac75e651e4970f5ebbc7473cc0f418`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count` ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `master` (exact `260b2a9`; `origin/master` ile temiz ve `0/0` eş)
-- Son kanıt: `EV-20260903-041`
+- Dal: `codex/v041-release-candidate` (bu devirde kirli ağaç korundu; yerel origin görev ref'iyle eş, origin/master ref'inden 1 commit ileride; bu tur fetch yapılmadı)
+- Son kanıt: `EV-20260908-035`
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme hashleri ve Ed25519 imzaları geçti.**
 
 ## Canlı ürün ve yayın durumu
@@ -37,7 +37,7 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
   gelecekteki build'e taşınmaz.
 
 ## Kalite kabul özeti
-- Windows P0 matrisi: `WIN-P0-01`–`WIN-P0-06` PASSED; playlist fiziksel taşıma ve gerçek pencere IPC için `P0-07`, `P0-08` NOT_RUN.
+- Windows P0 matrisi: `WIN-P0-01`–`WIN-P0-06` PASSED; tam kabul sözleşmesi için `P0-07`, `P0-08` NOT_RUN. Dar playlist taşıma logu 4/4 PASS olarak geri okundu; IPC devri başarılı raporlandı ancak ham koşum kanıtı bu tur bulunamadı (`EV-20260905-004`–`005`).
 - `WIN-P0-06` exact `3451aef` kaynak ağacında manuel Explorer video+SRT bırakmayla doğru oynatma, ilerleyen süre ve görünür/doğru bağlı altyazı verdi. İlk kapanış gecikmesi ayrı onaylı tek dış-SRT native ölçümünde yeniden oluşmadı: apply/track/watcher doğrulandı, `stop→terminate` kapanışı yaklaşık 0,08 sn, exit 0, stderr boş, süreç sızıntısı 0 ve test sözleşmesi **321 passed / 1 skipped** (`EV-20260829-011`).
 - Exact `04197ef` tabanındaki uncommitted playlist UX paketi ana-thread senkron MPV tarama/okumalarını gözlemci snapshot'ına taşıdı; yalnız gerçek 14 px tutamaç yatay cursor sahibi, tek/çoklu seçim belirgin, tek tık seçim, çift tık oynatma ve toplu kaldırma atomiktir. Son birleşik etki paketi **606 passed**, ek sınırlar **54 passed**, final geniş paket **243 passed** verdi; kullanıcı final canonical kaynak koşumunu “Oldu” diye kabul etti (`EV-20260829-013`). Aynı working tree'de kullanıcı B yerleşimini seçti: görünür sağ araç grubunda tek tekrar düğmesi kapalı→liste→tek dosya döngüsüne, ayrı karışık düğmesi görünür sırayı bozmayan dahili sıraya bağlandı; doğal bitiş sıradaki öğeye ilerliyor, son öğede kapalı mod başa sarıp duruyor ve liste tekrarı başa dönüyor. Kırmızı 7/7 sınırdan sonra hedef **11 passed**, inventory dahil geniş etki paketi **323 passed** verdi; 400 px dar pencere taşmadan geçti (`EV-20260830-001`). İlk canonical kullanıcı kabulü, native kapatma değeri Python `False` iken ürünün yalnız `"no"` beklemesi nedeniyle dokuz `loop write was ignored` hatasıyla **FAILED** (`EV-20260830-002`). Canonical OSD readback + rollback düzeltmesi ve 40×40 hit alanlarını koruyan 10→4 px sağ-grup aralığı iki kırmızı sınırdan sonra geniş pakette **324 passed** verdi; yeni kaynak henüz fiziksel yeniden açılmadı (`EV-20260830-003`). Formal `WIN-P0-07` tam matris sırası yeniden kaydedilmediği için `NOT_RUN` kalır.
 - Aynı uncommitted UX ağacındaki görsel bütünlük paketi ürünün turuncu vurgu, hover/pressed renkleri ve Segoe UI Variable Text→Segoe UI font zincirini `app.config` altında tek kaynağa bağladı; eski mavi seçim/slider vurguları ve ikinci turuncu kaldırıldı. Başlık, playlist, başlangıç, Medya Bilgisi, kısa bilgi, overlay, altyazı ve güncelleyici yüzeyleri ortak kimliği kullanıyor; klavye focus durumları nötr ve görünür, daha önce reddedilen ikincil Klasör düğmesinde turuncu focus geri getirilmedi. Beş kırmızı sözleşme sonrası ana yüzey **192 passed**, ikinci etki halkası **561 passed**, kalite/çeviri **51 passed** ve tam deterministik paket **5210 passed / 11 skipped** verdi (`EV-20260830-004`). Taze Windows insan görsel kabulü ve bağımsız karşıt agent GO'su henüz yoktur.
@@ -158,13 +158,13 @@ Bu dosya projenin tek canlı devir noktasıdır. Tarihsel continuity kronolojisi
 - `SUBTITLE_SEARCH_UI_ENABLED=False` korunur. OpenSubtitles masaüstü dağıtım
   şartları ve güvenli dosya-çakışma davranışı doğrulanmadan çevrimiçi altyazı
   arayüzü açılmaz.
-- SignPath yanıtı beklenir. Ayrı açık onay olmadan GitHub App kurulmaz,
-  imzalama veya yayın işlemi yapılmaz; private iletişim bilgisi yayımlanmaz.
+- SignPath Foundation başvurusu 2 Eylül 2026'da yeterli kamu görünürlüğü/güven sinyali olmadığı gerekçesiyle onaylanmadı; bu teknik kalite reddi, sertifika veya ücretli plan onayı değildir. Ayrı açık onay olmadan GitHub App kurulmaz, imzalama veya yayın yapılmaz; private iletişim bilgisi yayımlanmaz.
 - `app/media_targets.py` ayrıştırması, ilgili P0 başlangıç çizgisi
   kaydedilmeden uygulanmaz.
-- README'deki yerel altyazının otomatik görünürlüğü ile mevcut kaynak/test
-  davranışı arasındaki çelişki ürün kararı bekler; bu belge düzenlemesi o
-  davranışı değiştirmez.
+- Kullanıcı eşleşen yerel `.srt` dosyaları için mevcut otomatik seçme ve görünür
+  açma davranışını ürün sözleşmesi olarak seçti. İngilizce/Türkçe README bu
+  sınırla düzeltildi; eski gizli-başlatma yorumu yenilendi ve etki paketi
+  **253 passed** verdi (`EV-20260905-019`).
 
 ## Kanıt sınırları
 
@@ -184,7 +184,7 @@ Merge-kayıt PR'ı protected master'a ulaştığında yeni meta-PR zinciri başl
 merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağla.
 ## Sıradaki tek adım
 
-PR #73, oynatma kontrolü ve CI uyumluluk düzeltmesini merge commit `260b2a90c3e3d98a3853b65237b2f0742a548ddd` ile `master`a taşıdı; zorunlu hosted `test` geçti. CI uyumluluk düzeltmesinin tam yerel paketi **5235 passed / 11 skipped** verdi (`EV-20260903-040`). Yeni yayın adayı `v0.41` için uygulama ve installer sürüm alanları `v0.41` / `0.41.0.0` olarak eşlendi; sürüm ve yayın dokümantasyonu sözleşmesi **214/214 PASS** verdi (`EV-20260903-041`). Canlı/latest yayın hâlâ v0.40'tır; v0.41 artifact'i henüz üretilmedi. Sıradaki işlem yalnız v0.41 sürüm alanları ve kanıt kaydı için ayrı commit onayıdır; ardından PR/hosted CI, exact-master dispatch, build ve fiziksel kabul kendi ayrı kapılarından geçer.
+Exact `95246d19ebac75e651e4970f5ebbc7473cc0f418` tabanındaki kirli kanonik çalışma ağacı korunuyor. Genel denetim ve önceki PiP/altyazı sonuçları `EV-20260905-016`–`019` içindedir. İkinci-Esc native teşhisinde aynı geçerli root HWND'nin 2560×1392 kalmasına yol açan event sıraları `EV-20260908-020`–`032` zincirinde korunur; her başarısızlığın nedeni yeni koşumdan önce incelendi ve otomatik retry yapılmadı. `EV-20260908-033` adayı aynı HWND'yi `SW_SHOWNOACTIVATE=4` ile native restore edip DPI-aware `SetWindowPos` uyguladı. `EV-20260908-034`, owner/title düzelirken ayrı control overlay'in eski global konumda kaldığını gösterdi ve resmî **FAILED** oldu. Son ürün kaynağı, native owner placement True döndüğünde aynı callback içinde `video_frame.update_overlay_geometry()` çağırır; False stabil sayılmaz, desteklenmeyen None Qt yolunda kalır. Kırmızı regresyon sonrası başlık dosyası **48 passed**, etki paketi **207 passed**, compile/çeviri/envanter/diff kontrolleri geçti ve bağımsız kaynak inceleme GO verdi (`EV-20260908-035`). İlk overlay koşumunda ürün doğru görünse de probe tüm lifecycle invariantlarını zorunlu kılmadığından apparent PASS fail-open reddedildi ve resmî sonuç **FAILED** kaydedildi (`EV-20260908-036`). Final özel probe; owner/title/video/overlay handle devamlılığı ve geçerliliğini, title/video root bağını, ürün retry sabitlerinden türetilen bekleme sonunda pending zincirinin bitmesini, 700 ms sonrası final geometriyi ve owner dışındaki ikinci başlık-benzeri yüzeyin yokluğunu zorunlu tutar. Her ek sözleşme kırmızı/yeşil kontrol ve py_compile ile doğrulandı; final hash `ee70446c4d4def4dd2aa2b1f733fee7b1d95992ab6d32168360d298aaae63ebe`, bağımsız kaynak inceleme P0=0/P1=0 ile GO verdi (`EV-20260908-037`). Son onaylı final koşum exit 0, failures 0, tek marker, boş stderr, sıfır süreç sızıntısı ve değişmeyen kaynak/medya ile geçti. Pending zinciri bitip 700 ms settle sonrasında aynı ve geçerli HWND'lerle owner `[800,396,1760,996]`, title `[800,396,1760,436]`, video `[800,436,1760,996]`, control overlay `[800,886,1760,996]` oldu; title/video owner'a bağlı, duplicate title listesi boş, oynatma ve stop→terminate kapanış geçti. Final görselde kopuk başlık veya kontrol yüzeyi yoktu; bağımsız artifact inceleme P0/P1/P2=0 ile resmî **native_smoke PASS** verdi (`EV-20260908-038`). Raporlanan ikinci-Esc sorunu bu exact Windows 11 / Qt 6.10 / DPR 1.0 tek ekran senaryosunda kapandı. Physical keyboard, mixed-DPI, çoklu monitör, build, kurulu artifact ve insan kabulü bu PASS'i devralmaz. `WIN-P0-07/08` ve diğer açık donanım satırları ayrı kalır. Sıradaki tek adım, kullanıcının ayrı onaylayacağı commit, build veya başka açık kabul-matrisi işidir. Build, kurulum, GitHub veya commit yapılmadı.
 ## Dokunulmayacaklar ve ayrı onaylar
 
 - Private görsel/native artifact yolları Git'e eklenmez.

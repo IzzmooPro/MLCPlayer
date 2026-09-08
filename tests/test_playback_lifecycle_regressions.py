@@ -71,6 +71,54 @@ def test_stop_submits_non_blocking_mpv_command_before_resetting_ui():
     assert player.position == 0
 
 
+def test_stop_exits_pip_through_the_existing_window_mode_path():
+    mpv = AsyncMpv()
+    player = _player(mpv)
+    player.picture_in_picture_enabled = True
+    player._pip_media_available = True
+    exits = []
+
+    def exit_pip(enabled):
+        exits.append(enabled)
+        player.picture_in_picture_enabled = False
+        return False
+
+    player.toggle_picture_in_picture = exit_pip
+
+    assert stop(player) is True
+
+    assert mpv.calls == [("stop", ())]
+    assert exits == [False]
+    assert player.picture_in_picture_enabled is False
+    assert player._pip_media_available is False
+
+
+def test_stop_does_not_claim_pip_exit_when_native_release_is_rejected():
+    mpv = AsyncMpv()
+    player = _player(mpv)
+    player.picture_in_picture_enabled = True
+    player._pip_media_available = True
+    player.toggle_picture_in_picture = lambda enabled: True
+
+    assert stop(player) is True
+
+    assert player.picture_in_picture_enabled is True
+    assert player._pip_media_available is False
+
+
+def test_stop_finishes_media_reset_if_pip_exit_ui_raises():
+    mpv = AsyncMpv()
+    player = _player(mpv)
+    player.picture_in_picture_enabled = True
+    player._pip_media_available = True
+    player.toggle_picture_in_picture = lambda _enabled: (_ for _ in ()).throw(
+        RuntimeError("window helper failed"))
+
+    assert stop(player) is True
+    assert player.current_file == ""
+    assert player.picture_in_picture_enabled is True
+
+
 def test_failed_stop_submission_keeps_current_playback_state():
     mpv = AsyncMpv()
     mpv.command_async = lambda *_args: (_ for _ in ()).throw(RuntimeError())

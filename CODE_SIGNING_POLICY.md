@@ -2,12 +2,15 @@
 
 ## Current status
 
-The MLC Player application was submitted on 23 August 2026 and is awaiting
-SignPath Foundation's decision. The project has not been accepted. The current
-v0.39 Windows installers are **not Authenticode-signed**. The current release
-does not carry a SignPath or Windows code-signing certificate.
+The MLC Player application was submitted on 23 August 2026. In its response
+dated 2 September 2026, SignPath Foundation did **not approve** the Foundation
+application because the project did not yet show sufficient public
+visibility/trust signals. This is not a technical-quality verdict, a
+certificate decision in the project's favour, or an approval of a paid plan.
+The current Windows installers are **not Authenticode-signed** and carry no
+SignPath or Windows code-signing certificate.
 
-If the project is accepted, future eligible Windows installers will use:
+If a future application is accepted, eligible Windows installers may use:
 
 > Free code signing provided by SignPath.io, certificate by SignPath Foundation.
 
