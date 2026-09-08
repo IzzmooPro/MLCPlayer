@@ -14830,6 +14830,132 @@
         "No push, PR, build, installation, tag, merge or release occurred."
       ],
       "next_action": "Commit this documentation-only evidence binding, then obtain separate user approval before any push, PR, build or other gated action."
+    },
+    {
+      "id": "EV-20260908-040",
+      "recorded_at_utc": "2026-09-08T15:11:29Z",
+      "proof_layer": "hosted_ci",
+      "result": "passed",
+      "commit": "29e56541fa31799f3524063da50b1720df1ec350",
+      "baseline_commit": "29e56541fa31799f3524063da50b1720df1ec350",
+      "working_tree_state": "clean master equal to origin/master before this append-only hosted evidence record",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Protected-master merge and exact-SHA manual hosted release-candidate test",
+      "commands": [
+        "gh pr merge 74 --merge",
+        "git fetch origin master; git checkout master; git merge --ff-only origin/master",
+        "gh workflow run ci.yml --ref master -f expected_sha=29e56541fa31799f3524063da50b1720df1ec350",
+        "gh run watch 34236625658 --exit-status",
+        "gh run view 34236625658 --json plus exact test-count log readback",
+        "git status and HEAD/origin/master/tree equality readback"
+      ],
+      "run_url": "https://github.com/IzzmooPro/MLCPlayer/actions/runs/34236625658",
+      "evidence": [
+        "PR 74 merged through a merge commit after its required test check passed. The resulting merge commit is 29e56541fa31799f3524063da50b1720df1ec350 with parents 260b2a90c3e3d98a3853b65237b2f0742a548ddd and 48a9e021f24d151cde62761e7adb18a94c97623c.",
+        "The merge tree exactly matched the approved PR head tree. Local master was fast-forwarded and read back equal to origin/master with ahead/behind 0/0.",
+        "Manual CI run 34236625658 used event workflow_dispatch, branch refs/heads/master and exact head SHA 29e56541fa31799f3524063da50b1720df1ec350. Its fail-closed exact-master dispatch check passed.",
+        "The hosted test job completed success with 5276 passed and 22 skipped in 121.52 seconds; dependency, environment, compile and translation checks also passed."
+      ],
+      "summary": "The v0.41 release candidate is merged on exact protected master and has a successful exact-SHA manual hosted test.",
+      "limitations": [
+        "Hosted CI does not prove local source build, installed artifact, physical Windows behavior or release publication.",
+        "The ledger append-only step is skipped by design on workflow_dispatch while exact-SHA, locked environment, compile, translation and full test gates run.",
+        "No build, installation, tag or release occurred in this evidence layer."
+      ],
+      "next_action": "Run the release build only under its separate user approval on clean exact master 29e56541fa31799f3524063da50b1720df1ec350."
+    },
+    {
+      "id": "EV-20260908-041",
+      "recorded_at_utc": "2026-09-08T15:11:29Z",
+      "proof_layer": "source_build",
+      "result": "failed",
+      "commit": "29e56541fa31799f3524063da50b1720df1ec350",
+      "baseline_commit": "29e56541fa31799f3524063da50b1720df1ec350",
+      "working_tree_state": "clean master equal to origin/master; first user-approved v0.41 build attempt stopped before deleting or producing output",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "First v0.41 build attempt fails closed on a mismatched global Pillow version before output mutation",
+      "commands": [
+        "python packaging/verify_build.py --pre",
+        "cmd /c packaging\\build_release.bat",
+        "global Python and Pillow readback, output inventory, process inventory and git status"
+      ],
+      "evidence": [
+        "The approved build command exited 1 because the global Python environment contained Pillow 12.2.0 while requirements-lock.txt requires Pillow 12.3.0.",
+        "The deterministic dependency gate ran before STEP 1 and before output cleanup, printed FAILED and explicitly reported that no output was produced.",
+        "Existing historical v0.39/v0.40 installer artifacts remained present; no v0.41 artifact or matching build, Player, PyInstaller or Inno process remained. Git stayed clean and exact. No automatic retry occurred."
+      ],
+      "summary": "The first build attempt safely rejected a non-locked shared Python environment before touching release output.",
+      "limitations": [
+        "This FAILED record does not describe product source or installer behavior; it is an environment precondition failure.",
+        "No artifact from this attempt may be treated as v0.41 build evidence."
+      ],
+      "next_action": "With separate install approval create an isolated build environment from requirements-lock.txt, verify pins, then obtain a new separate build approval before retrying."
+    },
+    {
+      "id": "EV-20260908-042",
+      "recorded_at_utc": "2026-09-08T15:11:29Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "29e56541fa31799f3524063da50b1720df1ec350",
+      "baseline_commit": "29e56541fa31799f3524063da50b1720df1ec350",
+      "working_tree_state": "clean exact master before and after the separately approved isolated v0.41 release build; build outputs are ignored artifacts",
+      "changed_files": [
+        "docs/CONTINUITY.md",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Isolated exact-master v0.41 main and Internet Video source build",
+      "commands": [
+        "Create a repository-external Python 3.14.3 virtual environment under separate install approval and install requirements-lock.txt",
+        "python packaging/verify_dependencies.py requirements-lock.txt",
+        "cmd /d /c packaging\\build_release.bat under a separate retry approval with the isolated Scripts directory first on PATH",
+        "python packaging/verify_build.py --post",
+        "python packaging/verify_build.py --final installer_output\\MLCPlayer_Setup_v0.41.exe",
+        "Exact artifact size/SHA-256, PE metadata, Authenticode, embedded-key Ed25519, dist inventory, process and Git readback",
+        "Independent read-only adversarial source-build artifact review"
+      ],
+      "artifacts": [
+        {
+          "name": "MLCPlayer_Setup_v0.41.exe",
+          "size_bytes": 55847997,
+          "sha256": "FB5BF5BD259614AE1EE1C5467D4548CB406D931CEC6327DB08013AC8FEA202D1"
+        },
+        {
+          "name": "MLCPlayer_Setup_v0.41.exe.sig",
+          "size_bytes": 88,
+          "sha256": "5C7C246871D66E70EAE27C2B2BA14A325AC202024A6EEB7712045F1EA8F97B18"
+        },
+        {
+          "name": "MLCPlayer_InternetVideo_v0.41.exe",
+          "size_bytes": 48823078,
+          "sha256": "5994C2ADB77AE9120EB6648EE3A561C2DBA1AFF8CF7202277D842278C5F57161"
+        },
+        {
+          "name": "MLCPlayer_InternetVideo_v0.41.exe.sig",
+          "size_bytes": 88,
+          "sha256": "39038BA8F3D5E65857325E3198A0811CAFB822FB9446342BC36EEE373A809A2B"
+        }
+      ],
+      "evidence": [
+        "The isolated environment matched every requirements-lock.txt pin, including Pillow 12.3.0, without changing the global Pillow 12.2.0 installation.",
+        "The single retry completed dependency, runtime, publishability, two Inno compile-only, exact-output cleanup, translation, PyInstaller, dist, both Inno builds, detached signing and final steps with exit 0 and DONE.",
+        "The main and add-on EXEs report FileVersion and ProductVersion 0.41.0.0. Both detached 88-byte signatures independently verified True against the corresponding exact EXE SHA-256 using the public key embedded in the committed source.",
+        "Both installers are Authenticode NotSigned as declared by the active policy; detached Ed25519 is not represented as Authenticode.",
+        "The dist tree contains 91 files and 188468501 bytes. Required package entries were complete, forbidden entries absent, runtime identities matched their manifest and no matching build process remained.",
+        "Independent adversarial review returned GO with P0=0, P1=0 and P2=0 for the bounded source_build claim."
+      ],
+      "summary": "Exact merge commit 29e56541 produced fresh v0.41 main and Internet Video installers with four bound artifact identities and valid detached Ed25519 signatures.",
+      "limitations": [
+        "This is source_build evidence only; installer UI, install, upgrade, rollback, uninstall, installed payload, native playback, SmartScreen, tag and release remain unproven.",
+        "The add-on payload was not independently extracted; its fresh exact Inno build and static payload contract passed, while installed behavior remains a physical B2 responsibility.",
+        "Both EXEs are Authenticode NotSigned; SignPath and SmartScreen acceptance are not part of this result."
+      ],
+      "next_action": "Commit this two-document hosted/build evidence package under separate approval, then request separate approval for exact-artifact B2 physical acceptance before any tag."
     }
   ]
 }
