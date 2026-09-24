@@ -115,6 +115,10 @@ def test_preflight_skips_only_the_generated_payload_and_normal_build_does_not():
         'Flags: ignoreversion recursesubdirs createallsubdirs; '
         'BeforeInstall: BeforeInstallMainPayload'
     )
+    cleanup_helper = (
+        'Source: "..\\dist\\MLCUserCleanup.exe"; DestDir: "{app}"; '
+        'Flags: ignoreversion'
+    )
     guarded = installer.split("#ifndef MLCCompilePreflight", 1)[1].split(
         "#endif", 1)[0]
     active_guarded_lines = [
@@ -123,7 +127,7 @@ def test_preflight_skips_only_the_generated_payload_and_normal_build_does_not():
     ]
 
     assert payload in guarded
-    assert active_guarded_lines == [payload]
+    assert active_guarded_lines == [payload, cleanup_helper]
     assert installer.count("#ifndef MLCCompilePreflight") == 1
     assert installer.count("#endif") >= 1
     assert '/DMLCCompilePreflight=1' not in release

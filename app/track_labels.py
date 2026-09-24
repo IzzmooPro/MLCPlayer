@@ -31,6 +31,7 @@ Sözleşme
 # SAF KATMAN: `app.i18n` DEĞİL `app.translate` (Qt'yi import anında
 # yüklemez; bkz. o modülün gerekçesi).
 from app.translate import tr, tr_mark, translate_marked
+from app.number_text import localize_decimal
 
 # --- Dil kodları -----------------------------------------------------
 
@@ -150,7 +151,7 @@ def sample_rate_label(hertz):
     khz = value / 1000.0
     if abs(khz - round(khz)) < 0.05:
         return f"{int(round(khz))} kHz"
-    return f"{khz:.1f}".replace(".", ",") + " kHz"
+    return localize_decimal(f"{khz:.1f}") + " kHz"
 
 
 def bitrate_label(bits_per_second):

@@ -21,6 +21,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from PyQt6.QtCore import Qt
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket
 from PyQt6.QtWidgets import QApplication
 
@@ -336,8 +337,16 @@ def test_activation_raises_the_window_and_opens_the_file():
         def isMinimized(self):
             return True
 
-        def showNormal(self):
-            calls.append("showNormal")
+        def windowState(self):
+            return (Qt.WindowState.WindowMinimized
+                    | Qt.WindowState.WindowMaximized)
+
+        def setWindowState(self, state):
+            # Yalnız simge durumu kalkar; büyütülmüş durum korunur.
+            calls.append(("state", state))
+
+        def show(self):
+            calls.append("show")
 
         def raise_(self):
             calls.append("raise")
@@ -352,7 +361,8 @@ def test_activation_raises_the_window_and_opens_the_file():
             calls.append("FLAG_DEGISTI")
 
     activate_window(FakeWindow(), r"I:\film.mkv")
-    assert calls == ["showNormal", "raise", "activate", ("open", r"I:\film.mkv")]
+    assert calls == [("state", Qt.WindowState.WindowMaximized), "show",
+                     "raise", "activate", ("open", r"I:\film.mkv")]
 
 
 def test_activation_without_a_file_only_raises():

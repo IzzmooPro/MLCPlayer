@@ -7,7 +7,9 @@ import time
 import mpv
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QMessageBox, QSizePolicy)
-from PyQt6.QtCore import Qt, QTimer, QSettings, QObject, QEventLoop, QRect
+from PyQt6.QtCore import (Qt, QTimer, QSettings, QObject, QEventLoop, QPoint,
+                          QRect)
+from PyQt6.QtGui import QCursor
 
 from app.config import cinematic_ui_enabled, APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, APP_STYLE, DEFAULT_VOLUME, MAX_VOLUME, MPV_CONFIG, MEDIA_EXTENSIONS, SUBTITLE_EXTENSIONS, SUBTITLE_DEFAULTS
 from app.settings_store import user_settings
@@ -64,6 +66,34 @@ RECENT_FILE_LIMIT = 10
 # Gözlemci henüz bir MPV değeri yayınlamadıysa GUI timer'ı o işi sonraki
 # tura bırakır. `None` geçerli bir MPV snapshot'ı olabildiği için ayrı sentinel.
 _MPV_OBSERVED_MISSING = object()
+
+
+def centered_startup_position(available, window_size):
+    """Mevcut pencere boyutunu değiştirmeden çalışma alanında ortala.
+
+    Pencere çalışma alanından büyükse sol üst köşe alanın içinde tutulur;
+    aksi hâlde başlık çubuğu ekran dışına düşer ve pencere tutulamaz.
+    """
+    return QPoint(
+        available.x() + max(0, (available.width() - window_size.width()) // 2),
+        available.y() + max(0, (available.height() - window_size.height()) // 2),
+    )
+
+
+def restore_saved_window_geometry(window, saved_geometry):
+    """Kayıtlı boyut/konum ve büyütülmüş durumu geri yükler.
+
+    Qt tam ekran bayrağını da geri getirir; ürünün tam ekran durumu ise
+    kalıcı değildir. Tam ekranda kapatılan pencere ürün habersizken tam
+    ekran açılmasın diye yalnız o bayrak temizlenir.
+    """
+    if not saved_geometry:
+        return False
+    restored = window.restoreGeometry(saved_geometry)
+    state = window.windowState()
+    if state & Qt.WindowState.WindowFullScreen:
+        window.setWindowState(state & ~Qt.WindowState.WindowFullScreen)
+    return restored
 
 
 def build_ytdl_config(bin_dir):
@@ -251,8 +281,7 @@ class MPVPlayer(QMainWindow):
 
         # Kaydedilmiş pencere boyutu/konumu ve ses seviyesini geri yükle
         saved_geometry = self.settings.value("geometry")
-        if saved_geometry:
-            self.restoreGeometry(saved_geometry)
+        restore_saved_window_geometry(self, saved_geometry)
         saved_volume = self.settings.value("volume")
         try:
             volume = int(float(saved_volume)) if saved_volume is not None else DEFAULT_VOLUME
@@ -285,6 +314,15 @@ class MPVPlayer(QMainWindow):
             self.resize_filter.install()
 
         self._ui_ready = True
+
+    def center_on_active_screen(self):
+        """Yalnız süreç açılışında pencereyi aktif ekranın ortasına taşı."""
+        screen = (QApplication.screenAt(QCursor.pos())
+                  or self.screen()
+                  or QApplication.primaryScreen())
+        if screen is not None:
+            self.move(centered_startup_position(
+                screen.availableGeometry(), self.size()))
 
     def clear_title_bar_raise_pending(self):
         """Yeni bir medya yükleme girişimi başladığında eski işareti siler.
@@ -531,6 +569,10 @@ class MPVPlayer(QMainWindow):
                 # NOT: Kullanıcı penceresine geliştirici talimatı
                 # (`pip install ...`) YAZILMAZ.
                 msg = f"{tr('Dosya açılamadı:')}\n{self.current_file}"
+                # Pencere modal `exec()` ile açılır ve bu timer onun
+                # döngüsünde de çalışır; işaret ÖNCE sıfırlanmazsa her tik
+                # yeni bir hata penceresi daha açar.
+                self._load_started_at = 0
                 show_user_error(self, tr("Dosya Açılamadı"),
                                 tr("Dosya açılamadı. Dosyanın mevcut ve "
                                    "desteklenen bir medya dosyası olduğunu "
@@ -653,8 +695,14 @@ class MPVPlayer(QMainWindow):
                                "kontrol edin."),
                             details=f"{tr('Altyazı yolu:')} {path}")
             return False
-        if self._drop_subtitle_session is None:
+        # Oturum önceki MLC track'inin `sid`'ini hatırlar ve yeni eklemede
+        # kaldırır; o numara başka medyada BAŞKA bir track'i gösterir. Bu
+        # yüzden oturum medyaya bağlıdır.
+        if (self._drop_subtitle_session is None
+                or self.__dict__.get("_drop_subtitle_media")
+                != self.current_file):
             self._drop_subtitle_session = SubtitleSession()
+            self._drop_subtitle_media = self.current_file
         try:
             applied = bool(self._drop_subtitle_session.apply(
                 self, path, wait=self._subtitle_track_wait,
@@ -1318,7 +1366,10 @@ class MPVPlayer(QMainWindow):
 
         # Ayarları kaydet (pencere boyutu, ses seviyesi, son klasör)
         try:
-            self.settings.setValue("geometry", self.saveGeometry())
+            # PiP geçici küçük bir moddur; o anki geometri kaydedilirse
+            # sonraki açılış küçük pencereyle başlar. Önceki kayıt korunur.
+            if not self.__dict__.get("picture_in_picture_enabled", False):
+                self.settings.setValue("geometry", self.saveGeometry())
             if hasattr(self, 'volume_slider'):
                 self.settings.setValue("volume", self.volume_slider.value())
             if self.last_dir:

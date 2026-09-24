@@ -137,6 +137,12 @@ if __name__ == "__main__":
             sys.exit(2)
         sys.exit(0)
 
+    # Kurulu kopyada kaldırma temizliği gerçek kullanıcı oturumuna bağlanır.
+    # Yardımcı konsol/pencere açmadan çalışır; başarısızlığı oynatıcıyı bozmaz,
+    # kaldırıcı daha sonra kullanıcı verisini silmiş gibi davranmaz.
+    from app.user_cleanup_helper import ensure_user_cleanup_task
+    safe_console(f"Uninstall cleanup task: {ensure_user_cleanup_task()}")
+
     # Ortak gorsel kimlik: ana pencere veya herhangi bir dialog
     # OLUSTURULMADAN once kurulur. Boylece butun ust seviye pencereler
     # ayni ikonu miras alir.
@@ -148,6 +154,7 @@ if __name__ == "__main__":
     if check_dependencies():
         from app.player import MPVPlayer
         player = MPVPlayer()
+        player.center_on_active_screen()
         player.show()
         # Başka bir başlatma isteği: pencere öne gelir, dosya BURAYA yüklenir.
         instance_guard.activation_requested.connect(

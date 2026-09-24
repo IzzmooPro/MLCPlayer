@@ -47,6 +47,7 @@ from urllib.parse import urlsplit
 # düzeyinde PyQt6 yükler ve bu dosyanın Qt'siz import sözleşmesini bozardı
 # (tests/test_media_info_builder_regressions.py).
 from app.translate import tr, tr_mark, translate_marked
+from app.number_text import byte_count_text, localize_decimal
 from app.track_labels import (bitrate_label, channel_name, codec_name,
                               language_name, sample_rate_label)
 
@@ -151,13 +152,13 @@ def format_size_text(size):
     try:
         value = float(size)
     except (TypeError, ValueError):
-        return "0 bayt"
+        return byte_count_text(0)
     if value < 1024:
-        return f"{int(value)} bayt"
+        return byte_count_text(value)
     for unit in ("KB", "MB", "GB"):
         value /= 1024.0
         if value < 1024 or unit == "GB":
-            return f"{value:.1f}".replace(".", ",") + f" {unit}"
+            return localize_decimal(f"{value:.1f}") + f" {unit}"
     return f"{value:.1f} GB"
 
 
@@ -391,7 +392,7 @@ def _aspect_text(value):
     for known, label in _COMMON_ASPECTS:
         if abs(ratio - known) <= _ASPECT_TOLERANCE:
             return label
-    return f"{ratio:.2f}".replace(".", ",") + ":1"
+    return localize_decimal(f"{ratio:.2f}") + ":1"
 
 
 def _pixel_format_text(track, params):
@@ -473,7 +474,7 @@ def _fps_text(track):
     if value <= 0:
         return ""
     text = f"{value:.3f}".rstrip("0").rstrip(".")
-    return text.replace(".", ",") + " fps"
+    return localize_decimal(text) + " fps"
 
 
 def _video_aspect_text(track, params):

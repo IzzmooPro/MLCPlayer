@@ -14,6 +14,8 @@ COPYRIGHT_YEAR = "2026"
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 450
 DEFAULT_VOLUME = 70
+# Menü çubuğu ve video sağ-tık menüsü bu tek listeyi kullanır.
+PLAYBACK_SPEEDS = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0)
 # 100 üstü mpv amplifikasyonu; ses çubuğu 0-175 arası değer alır
 MAX_VOLUME = 175
 

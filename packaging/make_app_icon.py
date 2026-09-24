@@ -14,8 +14,8 @@ coverage (alpha) value is computed per pixel: the further a pixel is from
 the plate colour, the more opaque it becomes, and its colour is snapped to
 the nearest flat mark colour. That keeps the edges clean.
 
-The installer wizard images are DELIBERATELY left alone; they sit on a
-dark panel where the plate is not a problem.
+The installer wizard images are regenerated separately by
+`packaging/make_wizard_images.py` from the same round source art.
 
 Usage: python packaging/make_app_icon.py
 """

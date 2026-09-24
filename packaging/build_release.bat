@@ -23,6 +23,7 @@ rem Move to the project root (this file lives under packaging\).
 cd /d "%~dp0.."
 set "PROJECT=%CD%"
 set "SPEC=MLCPlayer.spec"
+set "CLEANUP_SPEC=MLCUserCleanup.spec"
 set "ISS=packaging\MLCPlayer.iss"
 set "VERIFY=packaging\verify_build.py"
 set "DEPENDENCY_VERIFY=packaging\verify_dependencies.py"
@@ -167,6 +168,15 @@ if errorlevel 1 goto :fail
 echo.
 
 echo STEP 4/8  PyInstaller (onedir)  -  this can take a few minutes
+python "packaging\run_pyinstaller.py" "%CLEANUP_SPEC%" --noconfirm --clean --log-level WARN
+if errorlevel 1 (
+    echo ERROR: uninstall cleanup helper build failed.
+    goto :fail
+)
+if not exist "dist\MLCUserCleanup.exe" (
+    echo ERROR: dist\MLCUserCleanup.exe was not produced.
+    goto :fail
+)
 python "packaging\run_pyinstaller.py" "%SPEC%" --noconfirm --clean --log-level WARN
 if errorlevel 1 (
     echo ERROR: PyInstaller failed.

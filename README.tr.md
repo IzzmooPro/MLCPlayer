@@ -94,11 +94,19 @@ sayfasından ayrıca indirip çalıştırın.
 
 ### Kaldırma ve kullanıcı verileri
 
-Paketlerden birini kaldırmak ayarlarınızı ve günlüklerinizi korur; böylece
-yükseltme veya yeniden kurulum tercihlerinizi silmez. Günlükler
-`%APPDATA%\MLCPlayer\logs` altında tutulur ve `Araçlar → Günlük Yönetimi`
-üzerinden güvenle incelenebilir veya silinebilir. Ek paketin ayrı kaldırıcısı
-vardır; onu kaldırmak ana oynatıcıyı silmeden site çıkarımını kapatır.
+Varsayılan olarak paketlerden birini kaldırmak ayarlarınızı ve
+günlüklerinizi korur; böylece yükseltme veya yeniden kurulum tercihlerinizi
+silmez. Ana oynatıcının etkileşimli kaldırıcısında, ayarları/geçmişi/kayıtlı
+altyazı kimliklerini ve günlükleri/küçük resim önbelleğini/geçici
+güncelleme dosyalarını silmek için ayrı, varsayılan boş seçenekler vardır.
+İki veri seçeneği de işaretlenirse kurulu oynatıcı açıldığında kaydedilmiş
+Windows hesabına ait MLC Player verileri silinir; bu hesap kesin olarak
+belirlenemezse temizlik durur ve hata bildirilir. İlgisiz dosyalar ve
+paylaşılan eski önbellek konumlarına dokunulmaz. Günlükler
+`%APPDATA%\MLCPlayer\logs` altında tutulur ve
+`Araçlar → Günlük Yönetimi` üzerinden güvenle incelenebilir veya silinebilir.
+Ana kaldırıcı ayrıca kurulu Internet Video eklentisini de kaldırmayı sunar;
+eklenti kendi kaldırıcısıyla ana oynatıcıyı silmeden de kaldırılabilir.
 
 ## Çalıştırma (kaynaktan)
 

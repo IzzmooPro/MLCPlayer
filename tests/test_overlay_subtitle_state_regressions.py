@@ -7,6 +7,7 @@ basılmış olmak state olarak saklanmaz; klavye, menü, dil seçimi veya harici
 altyazı yükleme sonrası da doğru renk gösterilmelidir.
 """
 import os
+import types
 from types import SimpleNamespace
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -254,6 +255,23 @@ def test_menu_toggle_updates_the_icon(product_window):
 
 # --- 8/9. Dil seçimi ve harici altyazı ---
 
+def test_selecting_a_track_while_hidden_makes_it_visible(product_window):
+    # Yeni medya açılışında görünürlük kapatılır; kullanıcının menüden
+    # AÇIKÇA seçtiği parça gösterilmeli. Gerçek libmpv `sid` yazımı
+    # görünürlüğü değiştirmez (24 Eylül 2026 ölçümü).
+    app, window, frame = product_window(
+        sub_visibility=False, sid=False,
+        tracks=[{"id": 1, "type": "sub"}, {"id": 2, "type": "sub"}])
+    frame.update_overlay_state()
+
+    media_controls.select_subtitle_language(window, 2)
+    app.processEvents()
+
+    assert window.mpv_player.sid == 2
+    assert window.mpv_player.sub_visibility is True
+    assert frame.overlay_subtitles_active is True
+
+
 def test_selecting_a_subtitle_language_turns_the_icon_orange(product_window):
     app, window, frame = product_window(
         sub_visibility=True, sid=False,
@@ -277,13 +295,21 @@ def test_loading_an_external_subtitle_updates_the_icon(product_window,
     subtitle.write_text("1\n00:00:01,000 --> 00:00:02,000\nmerhaba\n",
                         encoding="utf-8")
 
-    def sub_add(path):
+    def sub_add(path, *args):
+        # Gerçek libmpv gibi: iz eklenir ve seçilir ama görünürlük
+        # DEĞİŞMEZ (24 Eylül 2026 ölçümü). Görünür yapmak ürünün işidir.
         window.mpv_player.track_list = list(window.mpv_player.track_list) + [
-            {"id": 3, "type": "sub", "external": True}]
+            {"id": 3, "type": "sub", "external": True,
+             "external-filename": path}]
         window.mpv_player.sid = 3
-        window.mpv_player.sub_visibility = True
 
     window.mpv_player.sub_add = sub_add
+    # Menü yolu ürünün TEK altyazı yaşam döngüsünü (gerçek yöntem) kullanır.
+    from app.player import MPVPlayer
+    window._drop_subtitle_session = None
+    window._subtitle_track_wait = lambda: None
+    window._activate_dropped_subtitle = types.MethodType(
+        MPVPlayer._activate_dropped_subtitle, window)
     monkeypatch.setattr(
         "app.media_controls.QFileDialog.getOpenFileName",
         staticmethod(lambda *args, **kwargs: (str(subtitle), "")))

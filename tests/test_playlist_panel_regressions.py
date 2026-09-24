@@ -875,3 +875,19 @@ def test_directly_opened_local_video_becomes_the_single_playlist_item():
     assert player.playlist == [r"C:\media\opened.mkv"]
     assert player.current_playlist_index == 0
     assert refreshed == [True]
+
+
+def test_remove_ignores_selected_rows_hidden_by_the_search(playlist_window):
+    # Seçim yapıldıktan sonra arama satırları gizler ama seçimi bırakmaz;
+    # "Kaldır" kullanıcının göremediği öğeleri de siliyordu.
+    app, window, frame = playlist_window
+    panel = _open(app, window, frame)
+    view = panel.playlist_view
+    view.item(0).setSelected(True)
+    view.item(3).setSelected(True)
+
+    panel.search_field.setText("last")
+    app.processEvents()
+    panel._remove_selected()
+
+    assert window.removed_batches == [[3]]

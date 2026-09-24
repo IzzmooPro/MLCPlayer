@@ -5,7 +5,6 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
-from app.app_icon import application_icon
 from app.config import (UI_ACCENT, UI_ACCENT_HOVER, UI_ACCENT_PRESSED,
                         UI_FONT_FAMILY)
 from app.i18n import tr
@@ -40,16 +39,6 @@ class EmptyStateOverlay(QWidget):
         root.setContentsMargins(20, 24, 20, 24)
         root.setSpacing(0)
         root.addStretch(2)
-
-        self.logo_label = QLabel(self)
-        self.logo_label.setObjectName("emptyStateLogo")
-        self.logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.logo_label.setStyleSheet("background: transparent;")
-        icon = application_icon()
-        if not icon.isNull():
-            self.logo_label.setPixmap(icon.pixmap(94, 94))
-        root.addWidget(self.logo_label)
-        root.addSpacing(18)
 
         self.title_label = QLabel(tr("İzlemeye hazır"), self)
         self.title_label.setObjectName("emptyStateTitle")
@@ -126,7 +115,7 @@ class EmptyStateOverlay(QWidget):
     def set_placeholder_text(self, text, default_text):
         """Normal başlangıç ve bağlantı-yükleniyor görünümleri arasında geç."""
         loading = bool(text and text != default_text)
-        for widget in (self.logo_label, self.title_label, self.hint_label,
+        for widget in (self.title_label, self.hint_label,
                        self.open_file_button, self.open_folder_button):
             widget.setVisible(not loading)
         self.loading_label.setText(text if loading else "")

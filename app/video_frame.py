@@ -15,16 +15,13 @@ from app.ui_components import ClickableSlider
 from app.ui_icons import make_media_icon
 from app.playlist_panel import PlaylistPanel
 from app.utils import format_time
-from app.config import (APP_STYLE, MAX_VOLUME, UI_ACCENT, UI_ACCENT_HOVER,
-                        cinematic_ui_enabled)
+from app.config import (APP_STYLE, MAX_VOLUME, PLAYBACK_SPEEDS, UI_ACCENT,
+                        UI_ACCENT_HOVER, cinematic_ui_enabled)
 from app import track_labels
 from app.errors import safe_console
 from app.menu_actions import populate_audio_device_menu, populate_recent_menu
 from app.i18n import tr, tr_mark, translate_marked
 from app.empty_state import EmptyStateOverlay
-
-# Ana menüyle AYNI hız seçenekleri.
-PLAYBACK_SPEEDS = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0)
 
 # Video sahnesi üzerinde fare tekerleği: standart bir kademe 120 birimdir
 # ve ses adımı ses çubuğunun kendi adımıyla (`VolumeSlider.wheelEvent`) aynıdır.

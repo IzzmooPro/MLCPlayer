@@ -1023,8 +1023,11 @@ class PlaylistPanel(QWidget):
         self.refresh()
 
     def _remove_selected(self):
+        # Arama satırı gizler ama seçimi bırakmaz; kullanıcının göremediği
+        # seçili öğe silinmez.
         rows = sorted({self.playlist_view.row(item)
-                       for item in self.playlist_view.selectedItems()})
+                       for item in self.playlist_view.selectedItems()
+                       if not item.isHidden()})
         if rows:
             self.player.remove_many_from_playlist(rows)
             self.refresh()

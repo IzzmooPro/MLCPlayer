@@ -489,9 +489,32 @@ kullanılmayacaktır.
 - Kaldırma sırasında uygulama çalışıyorsa kullanıcıya anlaşılır bildirim
   verilmeli veya kontrollü kapanış uygulanmalıdır.
 - Kaldırıcı yalnız kurulumun sahip olduğu dosyaları silmelidir.
-- Kullanıcı ayarları ve loglarının korunması/silinmesi için ayrıca açık ürün
-  kararı alınmalıdır; kurulum klasörünü geniş jokerlerle temizlemek bu kararın
-  yerine geçmez.
+- Kullanıcı kararı (8 Eylül 2026): ana kaldırıcı eklenti kuruluysa onu da
+  kaldırma seçeneğini varsayılan işaretli gösterir. Ayarlar/geçmiş/kayıtlı
+  altyazı kimlikleri ile günlük/küçük resim önbelleği/geçici güncelleme
+  dosyaları iki ayrı ve varsayılan boş seçimdir; sessiz kaldırmada da
+  kullanıcı verisi korunur.
+- Kurulum makineye özgü rastgele bir kimliği HKLM'de saklar. Kurulu Player ilk
+  normal açılışta görünmez, tetikleyicisiz ve yalnız isteğe bağlı çalışan düşük
+  yetkili görevi kendi SID'sine bağlar ve aynı kimliği kendi HKCU alanına
+  kaydeder. Kaldırıcı HKU içinde bu kimlikle tam bir SID eşleşmesi ister; sıfır
+  veya birden fazla eşleşmede kullanıcı verisini silmiş saymaz. IPC yalnız bu
+  kullanıcının `%LOCALAPPDATA%\Programs\MLC Player\UninstallCleanup\v1\ipc` dizinindedir;
+  helper, görev, IPC ve kayıt normal/sessiz her kaldırmada temizlenir.
+- Temizlik yalnız kayıtlı Windows hesabının exact ürün alanlarıyla sınırlıdır:
+  `HKCU\Software\MLCPlayer`, ürünün tüm ad-alanı eşleşen
+  OpenSubtitles Credential Manager hedefleri, `%APPDATA%\MLCPlayer` altındaki
+  exact ayar/log girdileri, `%LOCALAPPDATA%\MLCPlayer\cache\thumbnails`
+  altındaki 64-hex `.jpg` dosyaları ve `%LOCALAPPDATA%\MLCPlayerUpdate_*`
+  altındaki markalı kurucu/imza dosyaları. `%LOCALAPPDATA%\python` gibi
+  paylaşılan eski yollar, kullanıcı medya/altyazı/screenshot dosyaları ve
+  beklenmeyen girdiler silinmez; seçilmiş tam temizlikte böyle bir girdi
+  kalırsa sonuç kullanıcıya açık başarısızlık olarak bildirilir.
+- Eklenti kaldırma yolu exact HKLM kaydı, `{app}` sınırı ve `unins*.exe`
+  kimliğiyle doğrulanır; eklenti kaldırma başarısızsa ana ürün dosyaları
+  silinmeden işlem durur. Kullanıcı verisi yalnız ana kaldırma
+  `usPostUninstall` aşamasına ulaştıktan sonra değişir; iptal, çalışan ürün
+  mutex'i veya erken kaldırma hatası kullanıcı verisine dokunmaz.
 
 ## Paketleme öncesi zorunlu doğrulama
 

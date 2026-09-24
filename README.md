@@ -114,11 +114,19 @@ release as a separate step.
 
 ### Uninstall and user data
 
-Uninstalling either package keeps your settings and logs so an upgrade or
-reinstall does not erase your preferences. Logs are stored under
-`%APPDATA%\MLCPlayer\logs` and can be inspected or deleted safely from
-`Tools → Log Management`. The add-on has its own uninstaller; removing it
-disables website extraction without removing the main player.
+By default, uninstalling either package keeps your settings and logs so an
+upgrade or reinstall does not erase your preferences. The main player's
+interactive uninstaller offers separate unchecked choices to remove settings,
+history and saved subtitle credentials, and to remove logs, thumbnail cache
+and temporary update files. Selecting both choices removes the MLC Player data
+owned by the Windows account registered when the installed player was opened;
+the cleanup stops and reports a failure if that account cannot be identified
+exactly. Unrelated files and shared legacy cache locations are never removed.
+Logs are stored under `%APPDATA%\MLCPlayer\logs`
+and can be inspected or deleted safely from `Tools → Log Management`. The
+main uninstaller also offers to remove the installed Internet Video add-on;
+the add-on's own uninstaller can instead remove it without removing the main
+player.
 
 ---
 

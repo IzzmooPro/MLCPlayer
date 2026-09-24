@@ -12,7 +12,8 @@ from app import track_labels
 from app.errors import show_user_error, safe_console
 from app import i18n
 from app.i18n import tr
-from app.config import APP_VERSION, COPYRIGHT_YEAR, SUBTITLE_DEFAULTS
+from app.config import (APP_VERSION, COPYRIGHT_YEAR, PLAYBACK_SPEEDS,
+                        SUBTITLE_DEFAULTS)
 from app.updater import check_for_updates
 from app.media_info import build_media_info, media_info_refresh_key
 from app.media_controls import is_remote_media_url, safe_media_host
@@ -211,7 +212,7 @@ def setup_menu(player):
     speed_actions = {}
     speed_group = QActionGroup(player)
     speed_group.setExclusive(True)
-    for speed in [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]:
+    for speed in PLAYBACK_SPEEDS:
         speed_action = QAction(f"{speed}x", player)
         speed_action.setCheckable(True)
         speed_group.addAction(speed_action)
