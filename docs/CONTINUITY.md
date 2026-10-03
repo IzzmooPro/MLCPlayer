@@ -6,13 +6,13 @@ continuity kronolojisi `docs/history/CONTINUITY_HISTORY.md` içindedir. Diğer
 tarihsel anlatı `docs/history/` altındadır ve güncel karar kaynağı değildir.
 
 - Güncelleme: 3 Ekim 2026
-- Kayıt hazırlanırken doğrulanan HEAD: `33b19bcc4c28ba3d3a3dbf9c991f1d434ef520db`
+- Kayıt hazırlanırken doğrulanan HEAD: `c5ca0ec56ee8f7045cf03477ca1fe981b4692c4d`
 - Güncel HEAD/origin farkı her oturumda `git rev-list --left-right --count`
   ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
-- Dal: `codex/v041-build-evidence`; `EV-20261003-001` değişiklikleri iki
-  commit'tir: ürün düzeltmeleri `4964ddc`, ardından klasör/belge düzeni.
-- Son kanıt: `EV-20261003-002` (PR #75 ilk hosted koşum: tek test-yarışı
-  hatası, yalnız test düzeltmesi; değişiklik kanıtı `EV-20261003-001`)
+- `master`: PR #75 merge commit `c5ca0ec` (ürün düzeltmeleri, klasör/belge
+  düzeni ve CI test-yarışı düzeltmesi; `EV-20261003-001`–`002`).
+- Son kanıt: `EV-20261003-005` (exact `699C34C3` sessiz kaldırıldı, ürün
+  artığı sıfır; kurulum `EV-20261003-004`, build `EV-20261003-003`)
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme
   hashleri ve Ed25519 imzaları geçti.** v0.41 henüz yayımlanmadı.
 
@@ -30,9 +30,16 @@ tarihsel anlatı `docs/history/` altındadır ve güncel karar kaynağı değild
   (`EV-20260828-020`).
 - Kurulu v0.37 veya başka eski artifact için alınan sonuçlar v0.39'a ya da
   gelecekteki build'e taşınmaz.
-- Son kurulu v0.41 adayı `447E2155...FA48` (`EV-20260910-010`) kaynakla artık
-  birebir değildir: `EV-20260924-001`–`004` ve `EV-20261003-001`
-  değişiklikleri hiçbir paketin içinde değildir.
+- Güncel v0.41 adayı exact `c5ca0ec` build'idir: ana setup `699C34C3...85FB1`
+  / 64.318.343 bayt, add-on `15230011...0563E` / 48.810.649 bayt (değişmedi),
+  iki Ed25519 imzası geçerli (`EV-20261003-003`). Önceki yerel adaylar
+  (`447E2155` ve eskileri) kaynakla birebir değildir. Paket kuruldu; ağaç
+  build ile birebir, kullanıcı kontrolleri geçti (`EV-20261003-004`).
+  Sessiz kaldırma bütün ürün artıklarını (kullanıcı görevi, yardımcı ve
+  kaydı dahil) müdahalesiz sildi; yalnız varsayılan gereği kullanıcı ayarı ve
+  eski günlük kaldı (`EV-20261003-005`). Kanıtlanmayanlar: ekrandan büyük
+  kayıtlı pencere, ilk açılıştaki arka plan kaydı ve görünür kaldırıcının
+  veri silme seçenekleri.
 
 ## Kalite kabul özeti
 
@@ -120,14 +127,11 @@ merge/parent/run/`0/0` readback'ini sonraki gerçek kayıt provenance'ına bağl
 
 ## Sıradaki tek adım
 
-Ayrı build onayıyla bu kaynaktan yeni bir v0.41 paketi üretmek. Bu build,
-3 Ekim 2026'da taşınan spec, requirements ve çıktı yollarını ilk kez gerçek
-derlemeden geçirir; başarısız olursa neden incelenmeden tekrarlanmaz.
-Ardından ayrı onayla görünür kurulumda şunlar kontrol edilir: ilk açılışın
-bekleme yapmaması (temizlik kaydı artık arka planda), ekrandan büyük kayıtlı
-pencere, tam ekran/PiP'de kapatıp açma, simge durumundan ikinci başlatma,
-menüden altyazı ekleme/seçme, açılamayan dosya ve İngilizce yüzde/ondalık
-metinleri. Kaldırma, commit, push/PR, tag ve yayın ayrıca onay ister.
+Kayıt dalı `codex/v041-build-record`'u ayrı onaylarla commit, push ve PR
+olarak göndermek. Ardından v0.41 tag ve yayını yalnız
+`docs/release/RELEASE_PROCESS.md` sırasıyla, exact `c5ca0ec` artifact'ları
+(`699C34C3` ana setup, `15230011` add-on ve `.sig` dosyaları) ile ve her adım
+için ayrı onayla yapılır.
 
 ## Dokunulmayacaklar ve ayrı onaylar
 

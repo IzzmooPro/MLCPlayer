@@ -17791,6 +17791,93 @@
         "A new hosted run on the fix commit is still required before merge."
       ],
       "next_action": "Push the test-only fix to codex/v041-build-evidence and let the PR test check run once; merge with a merge commit only when it is green."
+    },
+    {
+      "id": "EV-20261003-003",
+      "recorded_at_utc": "2026-10-03T18:30:00Z",
+      "proof_layer": "source_build",
+      "result": "passed",
+      "commit": "c5ca0ec56ee8f7045cf03477ca1fe981b4692c4d",
+      "subject": "PR #75 merged; first v0.41 build through the moved specs and output/ paths",
+      "commands": [
+        "PR #75 head 3eefa3c: hosted CI run 37138669358 success (5391 passed, 24 skipped, LEDGER_APPEND_ONLY_OK)",
+        "gh pr merge 75 --merge --match-head-commit 3eefa3c1965f748109b63cf2ea2e68ac090614b9 -> merge commit c5ca0ec (parents 29e5654, 3eefa3c)",
+        "git switch master; git merge --ff-only origin/master; rev-list HEAD...origin/master = 0 0",
+        "cmd /d /c packaging\\build_release.bat on clean master c5ca0ec",
+        "Independent read-back: sha256 of both installers; app.release_signature.verify on both .sig files"
+      ],
+      "evidence": [
+        "build_release.bat steps 1-8 OK, exit 0; package complete 179.8 MB",
+        "Main setup output/installer/MLCPlayer_Setup_v0.41.exe: 64,318,343 bytes, SHA-256 699c34c35f9defff8a6ddea3874ed1b25326175a4e6dd49b35ab3859b3885fb1, Ed25519 valid",
+        "Add-on output/installer/MLCPlayer_InternetVideo_v0.41.exe: 48,810,649 bytes, SHA-256 15230011471d2011ceda9da2b836e581c53f6fe494f68963586434705960563e (unchanged), Ed25519 valid",
+        "PyInstaller wrote only output/build and output/dist (MLC Player/, MLCUserCleanup.exe); no root build/, dist/ or installer_output/ was created; tracked tree clean; no leftover MLC/ISCC/PyInstaller process"
+      ],
+      "summary": "The restructure PR merged with a merge commit after a green hosted run, and the first real build from the exact merge commit passed every step. The moved PyInstaller specs resolved all inputs, PyInstaller and Inno used the new output/ locations, and both installers carry valid publisher signatures. This supersedes the earlier local v0.41 candidates (447E2155 and older): only 699C34C3 matches the current source.",
+      "limitations": [
+        "Source-build evidence only: the installer was not installed, launched or uninstalled.",
+        "Authenticode status is unsigned as before; no tag or release was created.",
+        "The build ran in the local developer environment, not on the GitHub-hosted unsigned build workflow."
+      ],
+      "next_action": "With separate approval, install exact 699C34C3 visibly and check: no startup wait, oversized saved window, full-screen/PiP close-reopen, minimized second launch, menu subtitle add/select, a failing file, English percent/decimal text; then separately approve uninstall, and only afterwards tag/release per docs/release/RELEASE_PROCESS.md."
+    },
+    {
+      "id": "EV-20261003-004",
+      "recorded_at_utc": "2026-10-03T19:30:00Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "c5ca0ec56ee8f7045cf03477ca1fe981b4692c4d",
+      "subject": "Exact 699C34C3 v0.41 installed; tree, cleanup registration and user checks accepted",
+      "commands": [
+        "Pre-check (python winreg): no MLC Player uninstall entry, no MLC process",
+        "Get-FileHash of output/installer/MLCPlayer_Setup_v0.41.exe = 699C34C3...85FB1 immediately before each launch; Start-Process (first wizard closed without installing, no entry created; second run completed by the user)",
+        "Uninstall entry read-back; recursive SHA-256 comparison output/dist/MLC Player vs C:\\Program Files\\MLC Player",
+        "schtasks /Query /TN <per-user task> /V",
+        "C:\\Program Files\\MLC Player\\MLCUserCleanup.exe --provision (manual, timed)",
+        "reg query HKCU\\Software\\MLCPlayer\\UninstallCleanup and HKLM\\Software\\MLCPlayer\\UninstallCleanup (outside the sandbox); python winreg read of the same key for comparison"
+      ],
+      "evidence": [
+        "Uninstall entry: MLC Player v0.41, C:\\Program Files\\MLC Player\\; 97 installed files; all 91 dist files byte-identical; the 6 extras are LICENSE, README.md, README.tr.md (identical to .github/ sources), MLCUserCleanup.exe (identical to dist) and unins000.dat/.exe",
+        "Per-user scheduled task present, runs %LOCALAPPDATA%\\Programs\\MLC Player\\UninstallCleanup\\v1\\MLCUserCleanup.exe --process-request as the user",
+        "Manual provision: exit 0 in 2.09 s; reg query shows InstallId equal to HKLM (874487c7...), TaskName, HelperPath and HelperSha256 3f13cff7...27e8 equal to both the LocalAppData copy and the installed helper",
+        "Measurement trap: python winreg (WindowsApps packaged python) reported the HKCU key missing both before and after provisioning while reg query outside the sandbox showed every value; .claude/CLAUDE.md registry rule corrected accordingly",
+        "User visibly checked startup without wait, full-screen and PiP close/reopen, minimized-maximized second launch, menu subtitle add/select, a failing file and English percent/decimal text and reported no problem"
+      ],
+      "summary": "The exact merge-commit installer 699C34C3 installed cleanly on a machine without a previous copy. The installed tree matches the build byte for byte, the READMEs moved to .github/ ship correctly, and the uninstall-cleanup task, helper copy and per-user registration are consistent. The user's visible checks of the EV-20260924/EV-20261003 behaviours passed. An apparent missing registration was a measurement artefact of the packaged python, not a product defect.",
+      "limitations": [
+        "The oversized saved window case was not exercised.",
+        "The per-user registration was last written by a manual helper run; the Player's own background registration at first launch was not separately proven, because the pre-check reader (python) could not see HKCU values.",
+        "The installer was started from the agent shell; uninstall was not run.",
+        "User observation without captured markers or screenshots; not a native-smoke record."
+      ],
+      "next_action": "With separate approval, run a visible uninstall of the exact installation (both data options as chosen by the user) and verify zero leftovers with sandbox-free reg query plus file checks; then tag/release v0.41 strictly per docs/release/RELEASE_PROCESS.md with separate approvals for each step."
+    },
+    {
+      "id": "EV-20261003-005",
+      "recorded_at_utc": "2026-10-03T20:00:00Z",
+      "proof_layer": "installed_artifact",
+      "result": "passed",
+      "commit": "c5ca0ec56ee8f7045cf03477ca1fe981b4692c4d",
+      "subject": "Exact 699C34C3 v0.41 uninstalled silently with user data kept; zero product leftovers",
+      "commands": [
+        "Pre-state snapshot outside the sandbox: Test-Path on install, helper, data and shortcut paths; reg query on HKLM/HKCU MLCPlayer keys and the uninstall entry {EB0DD5CF-F20B-4B23-A1C9-2C23A83A8758}_is1; schtasks /Query on the per-user task",
+        "UninstallString read via reg query and checked to be C:\\Program Files\\MLC Player\\unins000.exe",
+        "unins000.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART (user approved the UAC prompt); completion detected by the uninstall entry disappearing and no _iu*/unins* process",
+        "Same snapshot repeated after uninstall, plus reg query /s /f \"MLC Player\" on both Uninstall views and schtasks /Query /FO CSV filtered for MLCPlayer"
+      ],
+      "evidence": [
+        "Uninstaller first process exit 0; uninstall entry gone and no uninstaller process after 8.4 s",
+        "Removed: C:\\Program Files\\MLC Player, HKLM\\Software\\MLCPlayer, the uninstall entry (0 matches in both views), Start-menu folder and public desktop shortcut",
+        "Per-user cleanup completed without intervention: the scheduled task, %LOCALAPPDATA%\\Programs\\MLC Player and HKCU\\Software\\MLCPlayer\\UninstallCleanup are gone",
+        "Kept by design (both data options default to unchecked in silent mode): HKCU\\Software\\MLCPlayer\\MLCPlayer settings and %APPDATA%\\MLCPlayer\\logs\\uygulama.log (pre-existing, 24 September)",
+        "No MLC or uninstaller process remained"
+      ],
+      "summary": "The exact merge-commit installation was removed cleanly. Every product artefact, including the per-user cleanup task, helper copy and registration that previously needed manual intervention (EV-20260910-007), was removed automatically; only the user's settings and an old log remain, as the silent default data choices require. Measured with sandbox-free reg query, file checks and schtasks rather than the packaged python.",
+      "limitations": [
+        "Silent uninstall only: the interactive data-deletion choices (delete settings, delete cache) were not exercised; deleting the user's data was deliberately not done without an explicit choice.",
+        "The Internet Video add-on was not installed, so its removal path was not exercised.",
+        "Not a native-smoke record; the uninstaller ran from the agent shell with the user approving UAC."
+      ],
+      "next_action": "Commit and push the record branch codex/v041-build-record and open a PR (separate approvals). Then tag and publish v0.41 strictly per docs/release/RELEASE_PROCESS.md, using the exact c5ca0ec artifacts 699C34C3 and 15230011 with their .sig files, each step separately approved."
     }
   ]
 }
