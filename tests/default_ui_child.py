@@ -97,6 +97,13 @@ def main():
         report["has_fade_animation"] = frame.overlay_fade is not None
 
         # Gerçek seek: timeline tıklaması slider ve mpv time_pos değiştirmeli
+        # Ölçüm sırasında 100 ms UI zamanlayıcısı durdurulur. Hosted CI'daki
+        # mpv taklidi konum bildirmez (`player.position` 0 kalır); zamanlayıcı
+        # tıklamadan hemen sonraki processEvents() içinde tetiklenirse
+        # `update_overlay_state` çubuğu 0'a geri yazıyordu (PR #75 ilk koşum,
+        # 3 Ekim 2026; seek gerçekleşmiş, time_pos=300). Bu test periyodik
+        # eşitlemeyi değil tıklamanın seek yaptığını ölçer.
+        player.timer.stop()
         player.duration = 600.0
         timeline = frame.overlay_timeline
         timeline.setValue(0)

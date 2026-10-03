@@ -17764,6 +17764,33 @@
         "Deferred by decision: event-driven EOF detection (needs native libmpv measurement), multi-file open (single-instance protocol bump), ruff in CI (lock change), converting source-text tests."
       ],
       "next_action": "With separate build approval, run packaging/build_release.bat once from this source; it is the first real build through the moved specs and output/ paths and must not be retried without inspecting a failure. Then, with separate approval, a visible install check (no startup wait, oversized saved window, full-screen/PiP close-reopen, minimized second launch, menu subtitle add/select, failing file, English percent/decimal text). Commit, push/PR, tag and release each need separate approval."
+    },
+    {
+      "id": "EV-20261003-002",
+      "recorded_at_utc": "2026-10-03T17:30:00Z",
+      "proof_layer": "hosted_ci",
+      "result": "failed",
+      "commit": "bf4837e8843b0054d7587b422179760a5a2d4f9f",
+      "subject": "PR #75 first hosted run failed on a timer race in the default-UI child; test-only fix",
+      "commands": [
+        "GitHub Actions CI run 37137517782 on bf4837e (PR #75 head)",
+        "gh run view 37137517782 --log-failed",
+        "Deterministic reproduction: default_ui_child copy with one player.update_ui() after the timeline click under MLC_CI=1 stub",
+        "Fix verification: same copy with QTest.qWait(250) after the click and the timer stopped",
+        "MLC_CI=1 PYTHONPATH=scripts python -m pytest -q tests/test_default_cinematic_ui_regressions.py; same without MLC_CI"
+      ],
+      "evidence": [
+        "Hosted run 37137517782: 5390 passed, 24 skipped, 1 failed - test_timeline_click_seeks_on_default_launch (timeline_click_value 0)",
+        "Reproduction: timeline_click_value 0 while timeline_click_time_pos 300.0 - the seek happened, one 100 ms update_ui tick rewrote the slider to the stub's never-updated position",
+        "After stopping player.timer for the measurement: value 500 / time_pos 300.0 even with a 250 ms wait; MLC_CI=1 17 passed 1 skipped, local 18 passed"
+      ],
+      "summary": "The only hosted failure was a test-harness race, not a product defect: the CI mpv stub never reports playback position, so if the 100 ms UI timer fired inside the processEvents() right after the click, update_overlay_state synchronised the timeline back to position 0. The race predates this PR and first surfaced on a slow runner. The child now stops the UI timer while measuring click-to-seek; product code is unchanged. No retry was run before the cause was established.",
+      "limitations": [
+        "Real libmpv updates position through its observer, so the product path is unaffected; the fix is test-only.",
+        "Other UI children were not audited for the same stub/timer pattern in this step.",
+        "A new hosted run on the fix commit is still required before merge."
+      ],
+      "next_action": "Push the test-only fix to codex/v041-build-evidence and let the PR test check run once; merge with a merge commit only when it is green."
     }
   ]
 }

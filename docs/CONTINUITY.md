@@ -11,7 +11,8 @@ tarihsel anlatı `docs/history/` altındadır ve güncel karar kaynağı değild
   ile ölçülür; bu belge kendi commit hash'ini tahmin etmez.
 - Dal: `codex/v041-build-evidence`; `EV-20261003-001` değişiklikleri iki
   commit'tir: ürün düzeltmeleri `4964ddc`, ardından klasör/belge düzeni.
-- Son kanıt: `EV-20261003-001`
+- Son kanıt: `EV-20261003-002` (PR #75 ilk hosted koşum: tek test-yarışı
+  hatası, yalnız test düzeltmesi; değişiklik kanıtı `EV-20261003-001`)
 - Yayın kararı: **v0.40 canlı/latest; 87 varlık eş, public ana/add-on indirme
   hashleri ve Ed25519 imzaları geçti.** v0.41 henüz yayımlanmadı.
 
