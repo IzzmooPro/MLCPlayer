@@ -174,7 +174,9 @@ Test kapsamı etki alanına göre nokta atışıdır.
 - Native testler yalnız kendi başlattığı kesin PID'i `try/finally` ile temizlemeli; Notepad/Explorer veya kullanıcının Python/Qt süreçlerini hedeflememeli.
 - Native crash assertion geçse bile yok sayılmaz; son marker ve gerçek exit code raporlanır.
 - Görsel değişiklik yalnız offscreen testle kabul edilmez; gerçek Windows penceresi ve mümkünse gerçek video gerekir.
-- **Kayıt defteri ölçümü ve düzeltmesi yalnız `python -c "import winreg..."` ile yapılır.** `Get-ItemProperty`, `Set-ItemProperty` ve `reg.exe` bu ortamda GÜVENİLİR DEĞİLDİR: ajanın PowerShell'inden yapılan yazmalar sanal katmanda kalır, gerçek hive'a ulaşmaz. Çapraz test: `reg.exe`'nin yazdığını python GÖREMEZ, python'un yazdığını `reg.exe` GÖRÜR. Bu yüzden "düzelttim" raporları üç tur boyunca yanlıştı (bkz. docs/history/PROJECT_STATUS.md, ölçüm aracı tuzağı).
+- **Kayıt defterinde tek araçla "yok" sonucu çıkarılmaz; iki araçla çapraz okunur.** Bu ortamda araçlar birbirini görmeyebilir:
+  - **Yazma:** ajanın PowerShell'inden yapılan yazmalar (`Set-ItemProperty`, `reg.exe`) sanal katmanda kalabilir, gerçek hive'a ulaşmayabilir. Bu yüzden "düzelttim" raporları üç tur boyunca yanlıştı (bkz. docs/history/PROJECT_STATUS.md, ölçüm aracı tuzağı). Kayıt düzeltmesi yalnız `python -c "import winreg..."` ile yapılır ve ayrı bir araçla geri okunur.
+  - **Okuma:** `python` bu makinede `WindowsApps` altındaki paketli bir kurulumdur. Ürünün (MLC Player, MLCUserCleanup) yazdığı HKCU değerlerini GÖREMEYEBİLİR: 3 Ekim 2026'da `HKCU\Software\MLCPlayer\UninstallCleanup` python'a "yok", sandbox dışı `reg query`'ye ise bütün değerleriyle "var" göründü (`EV-20261003-004`). Ürünün yazdığı değerler sandbox dışı `reg query` ile okunur; python sonucu tek başına kanıt değildir.
 - Windows kabuk davranışı (ör. "Birlikte aç" adı) yalnız dosya meta verisiyle doğrulanmaz; Explorer adı çıkarımla bulup ÖNBELLEĞE alır. Kabul, kullanıcının gerçek menüsünde görülmesidir.
 
 ## Tur sonu
