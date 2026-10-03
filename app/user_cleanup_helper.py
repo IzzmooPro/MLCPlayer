@@ -17,6 +17,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
 from xml.sax.saxutils import escape
 
 
@@ -602,12 +603,56 @@ def _remove_legacy_helper(local, registration, install_id, sid):
     return not failures
 
 
+ERROR_ALREADY_EXISTS = 183
+PROVISION_BUSY = 7
+
+
+def _acquire_provision_mutex(sid):
+    """Return an owned named-mutex handle, or None while another provision runs.
+
+    The OS releases the mutex when its process dies, so a crashed provision
+    never leaves a permanent lock behind (unlike a lock file).
+    """
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateMutexW.argtypes = [ctypes.c_void_p, wintypes.BOOL,
+                                      wintypes.LPCWSTR]
+    kernel32.CreateMutexW.restype = wintypes.HANDLE
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    suffix = hashlib.sha256(sid.encode("utf-8")).hexdigest()[:32]
+    handle = kernel32.CreateMutexW(
+        None, False, f"Local\\MLCPlayerUserCleanupProvision-{suffix}")
+    if not handle:
+        return None
+    if ctypes.get_last_error() == ERROR_ALREADY_EXISTS:
+        kernel32.CloseHandle(handle)
+        return None
+    return handle
+
+
+def _release_provision_mutex(handle):
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel32.CloseHandle(handle)
+
+
 def provision():
     sid = current_user_sid()
     local = profile_local_appdata()
     install_id = _read_install_id()
     if not sid or local is None or not install_id or os.name != "nt":
         return 2
+    lock = _acquire_provision_mutex(sid)
+    if not lock:
+        # Another provision for this user is already copying the helper and
+        # creating the task; competing here deletes its temporary file.
+        return PROVISION_BUSY
+    try:
+        return _provision_locked(sid, local, install_id)
+    finally:
+        _release_provision_mutex(lock)
+
+
+def _provision_locked(sid, local, install_id):
     source = Path(sys.executable if getattr(sys, "frozen", False) else __file__).resolve()
     source_hash = _file_sha256(source)
     if not source_hash:
@@ -691,6 +736,30 @@ def ensure_user_cleanup_task():
         return completed.returncode == 0
     except (OSError, subprocess.SubprocessError):
         return False
+
+
+def start_user_cleanup_registration(ensure=None, report=None):
+    """Run `ensure_user_cleanup_task` without blocking the GUI thread.
+
+    Provisioning may wait up to 30 s for its child process. The result is
+    only diagnostic, so startup must not wait for it. Exceptions are
+    reported as a safe type name because a worker thread never reaches
+    `sys.excepthook`.
+    """
+    ensure = ensure_user_cleanup_task if ensure is None else ensure
+
+    def _run():
+        try:
+            result = ensure()
+        except Exception as exc:
+            result = f"error:{type(exc).__name__}"
+        if report is not None:
+            report(result)
+
+    worker = threading.Thread(target=_run, name="MLCUserCleanupRegistration",
+                              daemon=True)
+    worker.start()
+    return worker
 
 
 def main(argv=None):

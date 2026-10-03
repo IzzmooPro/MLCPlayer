@@ -14,7 +14,7 @@ import mpv
 from app.config import MEDIA_EXTENSIONS, SUBTITLE_EXTENSIONS, DEFAULT_VOLUME, MAX_VOLUME
 from app.number_text import percent_text
 from app.utils import format_time, time_to_seconds
-from app.errors import show_user_error, safe_console
+from app.errors import show_user_error, safe_console, log
 from app.media_info import sanitize_media_url
 from app.runtime_binaries import (INTERNET_VIDEO_MISSING_MESSAGE,
                                   INTERNET_VIDEO_MISSING_TITLE)
@@ -51,8 +51,8 @@ def _reset_subtitle_timing_for_new_media(player):
     """Dosyaya özel altyazı gecikmesini yeni medyaya taşımayı önler."""
     try:
         player.mpv_player.sub_delay = 0.0
-    except Exception:
-        pass
+    except Exception as exc:
+        log(f"Subtitle delay reset failed: {type(exc).__name__}", "WARNING")
     settings = getattr(player, "settings", None)
     if settings is not None:
         settings.setValue("subtitle/sub_delay", 0.0)
@@ -95,8 +95,9 @@ def _hide_subtitles_for_new_media(player):
     """Yeni medya otomatik bulunan altyazıyla başlasa bile görünürlüğü kapatır."""
     try:
         player.mpv_player.sub_visibility = False
-    except Exception:
-        pass
+    except Exception as exc:
+        log(f"Subtitle hide for new media failed: {type(exc).__name__}",
+            "WARNING")
 
 
 def reset_picture_in_picture_media_availability(player):

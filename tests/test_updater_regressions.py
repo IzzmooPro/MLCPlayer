@@ -74,6 +74,22 @@ def release(**overrides):
     ("v1.0", "v0.9", True),
     ("v0.10", "v0.9", True),          # sayısal karşılaştırma, metin değil
     ("", "v0.1", False),
+    # Ön sürüm son eki sayı DEĞİLDİR: `v0.41-rc1` eski algoritmada
+    # (0, 41, 1) olup kararlı `v0.41`'den yeni görünüyordu.
+    ("v0.41-rc1", "v0.41", False),
+    ("v0.41", "v0.41-rc1", True),
+    ("v0.41-rc2", "v0.41-rc1", True),
+    ("v0.42-rc1", "v0.41", True),
+    ("v0.41.1", "v0.41", True),
+    # Sondaki sıfırlar ve `+build` üst verisi (semver) sürümü DEĞİŞTİRMEZ;
+    # kararlılık işaretçisi dördüncü sayıyla karışmamalıdır.
+    ("v0.41.0.0", "v0.41", False),
+    ("v0.41", "v0.41.0.0", False),
+    ("v0.41.0.0", "v0.41-rc1", True),
+    ("v0.41+build5", "v0.41", False),
+    ("v0.41", "v0.41+build5", False),
+    ("v0.41.", "v0.41", False),
+    ("v0.41", "v0.41.", False),
 ])
 def test_version_comparison(latest, current, expected):
     assert updater.is_newer_version(latest, current) is expected

@@ -107,7 +107,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="783" />
+            <location filename="app/media_controls.py" line="784" />
             <location filename="app/player.py" line="693" />
             <source>Altyazı Bulunamadı</source>
             <translation type="unfinished" />
@@ -118,12 +118,12 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="871" />
+            <location filename="app/media_controls.py" line="872" />
             <source>Altyazı Değiştirilemedi</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="776" />
+            <location filename="app/media_controls.py" line="777" />
             <source>Altyazı Dosyaları</source>
             <translation type="unfinished" />
         </message>
@@ -133,7 +133,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="775" />
+            <location filename="app/media_controls.py" line="776" />
             <location filename="app/menu_actions.py" line="74" />
             <location filename="app/menu_actions.py" line="261" />
             <source>Altyazı Ekle</source>
@@ -172,7 +172,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="825" />
+            <location filename="app/media_controls.py" line="826" />
             <source>Altyazı Seçilemedi</source>
             <translation type="unfinished" />
         </message>
@@ -187,7 +187,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="842" />
+            <location filename="app/media_controls.py" line="843" />
             <source>Altyazı bulunamadı</source>
             <translation type="unfinished" />
         </message>
@@ -207,7 +207,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="784" />
+            <location filename="app/media_controls.py" line="785" />
             <location filename="app/player.py" line="694" />
             <source>Altyazı dosyası bulunamadı. Dosyanın yerini kontrol edin.</source>
             <translation type="unfinished" />
@@ -286,7 +286,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="826" />
+            <location filename="app/media_controls.py" line="827" />
             <source>Altyazı seçilemedi. Lütfen başka bir altyazı parçasını deneyin.</source>
             <translation type="unfinished" />
         </message>
@@ -301,7 +301,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="786" />
+            <location filename="app/media_controls.py" line="787" />
             <location filename="app/player.py" line="696" />
             <location filename="app/player.py" line="729" />
             <location filename="app/player.py" line="805" />
@@ -309,7 +309,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="794" />
+            <location filename="app/media_controls.py" line="795" />
             <location filename="app/player.py" line="810" />
             <source>Altyazı yükleniyor...</source>
             <translation type="unfinished" />
@@ -320,7 +320,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="872" />
+            <location filename="app/media_controls.py" line="873" />
             <source>Altyazılar açılıp kapatılamadı. Lütfen tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>
@@ -459,8 +459,8 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1486" />
-            <location filename="app/media_controls.py" line="1500" />
+            <location filename="app/media_controls.py" line="1487" />
+            <location filename="app/media_controls.py" line="1501" />
             <source>Açılamadı</source>
             <translation type="unfinished" />
         </message>
@@ -481,12 +481,12 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="506" />
+            <location filename="app/media_controls.py" line="507" />
             <source>Bağlantı Açılamadı</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="502" />
+            <location filename="app/media_controls.py" line="503" />
             <source>Bağlantı açılıyor…</source>
             <translation type="unfinished" />
         </message>
@@ -521,7 +521,7 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1532" />
+            <location filename="app/media_controls.py" line="1533" />
             <source>Başarılı</source>
             <translation type="unfinished" />
         </message>
@@ -592,7 +592,7 @@ Lütfen işlemi tekrar deneyin. Sorun devam ederse programı yeniden başlatın.
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="507" />
+            <location filename="app/media_controls.py" line="508" />
             <source>Bu bağlantı açılamadı. Adresi ve internet bağlantınızı kontrol edip tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>
@@ -608,7 +608,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="247" />
+            <location filename="app/media_controls.py" line="248" />
             <source>Bu klasörde desteklenen medya dosyası bulunamadı.</source>
             <translation type="unfinished" />
         </message>
@@ -623,7 +623,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="932" />
+            <location filename="app/media_controls.py" line="933" />
             <location filename="app/menu_actions.py" line="164" />
             <location filename="app/menu_actions.py" line="848" />
             <location filename="app/menu_actions.py" line="868" />
@@ -634,7 +634,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="927" />
+            <location filename="app/media_controls.py" line="928" />
             <source>Bölüm bilgisi yok</source>
             <translation type="unfinished" />
         </message>
@@ -673,7 +673,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="809" />
+            <location filename="app/updater.py" line="823" />
             <source>Daha sonra</source>
             <translation type="unfinished" />
         </message>
@@ -683,7 +683,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="771" />
+            <location filename="app/updater.py" line="785" />
             <source>Değişiklikleri sürüm notlarında inceleyebilirsiniz.</source>
             <translation type="unfinished" />
         </message>
@@ -718,7 +718,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
         </message>
         <message>
             <location filename="app/empty_state.py" line="62" />
-            <location filename="app/media_controls.py" line="139" />
+            <location filename="app/media_controls.py" line="140" />
             <location filename="app/menu_actions.py" line="60" />
             <location filename="app/menu_actions.py" line="1043" />
             <location filename="app/title_bar.py" line="152" />
@@ -727,16 +727,16 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="445" />
-            <location filename="app/media_controls.py" line="491" />
-            <location filename="app/media_controls.py" line="1276" />
-            <location filename="app/media_controls.py" line="1332" />
+            <location filename="app/media_controls.py" line="446" />
+            <location filename="app/media_controls.py" line="492" />
+            <location filename="app/media_controls.py" line="1277" />
+            <location filename="app/media_controls.py" line="1333" />
             <location filename="app/player.py" line="576" />
             <source>Dosya Açılamadı</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="431" />
+            <location filename="app/media_controls.py" line="432" />
             <source>Dosya Bulunamadı</source>
             <translation type="unfinished" />
         </message>
@@ -746,12 +746,12 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="432" />
+            <location filename="app/media_controls.py" line="433" />
             <source>Dosya artık mevcut değil. Son Açılanlar listesinden kaldırıldı.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="492" />
+            <location filename="app/media_controls.py" line="493" />
             <source>Dosya açılamadı. Dosya silinmiş, taşınmış veya desteklenmeyen bir format olabilir.</source>
             <translation type="unfinished" />
         </message>
@@ -821,7 +821,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1536" />
+            <location filename="app/media_controls.py" line="1537" />
             <source>Ekran Görüntüsü Alınamadı</source>
             <translation type="unfinished" />
         </message>
@@ -831,17 +831,17 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1510" />
+            <location filename="app/media_controls.py" line="1511" />
             <source>Ekran görüntüsü almak için bir video oynatılıyor olmalıdır.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1533" />
+            <location filename="app/media_controls.py" line="1534" />
             <source>Ekran görüntüsü kaydedildi:</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1537" />
+            <location filename="app/media_controls.py" line="1538" />
             <source>Ekran görüntüsü kaydedilemedi. Masaüstüne yazma iznini ve boş alanı kontrol edin.</source>
             <translation type="unfinished" />
         </message>
@@ -851,7 +851,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="1022" />
+            <location filename="app/updater.py" line="1036" />
             <source>En güncel sürümü kullanıyorsunuz</source>
             <translation type="unfinished" />
         </message>
@@ -906,7 +906,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="910" />
+            <location filename="app/media_controls.py" line="911" />
             <source>Geri</source>
             <translation type="unfinished" />
         </message>
@@ -921,27 +921,27 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="504" />
+            <location filename="app/media_controls.py" line="505" />
             <source>Geçerli bir web adresi girin. Yalnız http:// ve https:// ile başlayan bağlantılar açılabilir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="503" />
+            <location filename="app/media_controls.py" line="504" />
             <source>Geçersiz Adres</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1675" />
+            <location filename="app/media_controls.py" line="1676" />
             <source>Geçersiz Zaman</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1681" />
+            <location filename="app/media_controls.py" line="1682" />
             <source>Girilen zaman konumuna gidilemedi. Zamanı tekrar kontrol edin.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="956" />
+            <location filename="app/updater.py" line="970" />
             <source>GitHub sayfasını aç</source>
             <translation type="unfinished" />
         </message>
@@ -967,19 +967,19 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="814" />
+            <location filename="app/updater.py" line="828" />
             <source>Güncelle</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="951" />
-            <location filename="app/updater.py" line="1021" />
-            <location filename="app/updater.py" line="1025" />
+            <location filename="app/updater.py" line="965" />
+            <location filename="app/updater.py" line="1035" />
+            <location filename="app/updater.py" line="1039" />
             <source>Güncelleme</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="684" />
+            <location filename="app/updater.py" line="698" />
             <source>Güncelleme Mevcut</source>
             <translation type="unfinished" />
         </message>
@@ -1004,7 +1004,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="902" />
+            <location filename="app/updater.py" line="916" />
             <source>Güncelleme uygulanıyor…</source>
             <translation type="unfinished" />
         </message>
@@ -1110,7 +1110,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1233" />
+            <location filename="app/media_controls.py" line="1234" />
             <location filename="app/playlist_panel.py" line="697" />
             <source>Kaldır</source>
             <translation type="unfinished" />
@@ -1127,8 +1127,8 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <location filename="app/modern_info_dialog.py" line="69" />
             <location filename="app/subtitle_center.py" line="560" />
             <location filename="app/title_bar.py" line="201" />
-            <location filename="app/updater.py" line="754" />
-            <location filename="app/updater.py" line="958" />
+            <location filename="app/updater.py" line="768" />
+            <location filename="app/updater.py" line="972" />
             <source>Kapat</source>
             <translation type="unfinished" />
         </message>
@@ -1169,12 +1169,12 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1429" />
+            <location filename="app/media_controls.py" line="1430" />
             <source>Kaydedilecek oynatma listesi yok.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1448" />
+            <location filename="app/media_controls.py" line="1449" />
             <source>Kaydedilemedi</source>
             <translation type="unfinished" />
         </message>
@@ -1189,7 +1189,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="915" />
+            <location filename="app/updater.py" line="929" />
             <source>Kaynak koddan çalışan kopya kurulumla güncellenmez.</source>
             <translation type="unfinished" />
         </message>
@@ -1216,27 +1216,27 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
         </message>
         <message>
             <location filename="app/empty_state.py" line="80" />
-            <location filename="app/media_controls.py" line="227" />
-            <location filename="app/media_controls.py" line="246" />
+            <location filename="app/media_controls.py" line="228" />
+            <location filename="app/media_controls.py" line="247" />
             <location filename="app/menu_actions.py" line="65" />
             <location filename="app/video_frame.py" line="2596" />
             <source>Klasör Aç</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="230" />
-            <location filename="app/media_controls.py" line="241" />
-            <location filename="app/media_controls.py" line="258" />
+            <location filename="app/media_controls.py" line="231" />
+            <location filename="app/media_controls.py" line="242" />
+            <location filename="app/media_controls.py" line="259" />
             <source>Klasör Açılamadı</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="242" />
+            <location filename="app/media_controls.py" line="243" />
             <source>Klasör okunamadı. Klasöre erişim izniniz olmayabilir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="231" />
+            <location filename="app/media_controls.py" line="232" />
             <source>Klasör seçilemedi. Lütfen tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>
@@ -1310,12 +1310,12 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1631" />
+            <location filename="app/media_controls.py" line="1632" />
             <source>Listenin başındasınız.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1630" />
+            <location filename="app/media_controls.py" line="1631" />
             <source>Listenin sonuna ulaştınız.</source>
             <translation type="unfinished" />
         </message>
@@ -1326,7 +1326,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1240" />
+            <location filename="app/media_controls.py" line="1241" />
             <location filename="app/playlist_panel.py" line="699" />
             <source>Listeyi Temizle</source>
             <translation type="unfinished" />
@@ -1347,12 +1347,12 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="764" />
+            <location filename="app/updater.py" line="778" />
             <source>MLC Player {version} indirilmeye hazır.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="main.py" line="185" />
+            <location filename="main.py" line="188" />
             <source>MPV Bileşeni Bulunamadı</source>
             <translation type="unfinished" />
         </message>
@@ -1380,8 +1380,8 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="140" />
-            <location filename="app/media_controls.py" line="1186" />
+            <location filename="app/media_controls.py" line="141" />
+            <location filename="app/media_controls.py" line="1187" />
             <source>Medya Dosyaları</source>
             <translation type="unfinished" />
         </message>
@@ -1471,7 +1471,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1230" />
+            <location filename="app/media_controls.py" line="1231" />
             <location filename="app/video_frame.py" line="713" />
             <location filename="app/video_frame.py" line="2585" />
             <source>Oynat</source>
@@ -1501,16 +1501,16 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1707" />
+            <location filename="app/media_controls.py" line="1708" />
             <source>Oynatma Hızı Değiştirilemedi</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1213" />
-            <location filename="app/media_controls.py" line="1218" />
-            <location filename="app/media_controls.py" line="1428" />
-            <location filename="app/media_controls.py" line="1433" />
-            <location filename="app/media_controls.py" line="1456" />
+            <location filename="app/media_controls.py" line="1214" />
+            <location filename="app/media_controls.py" line="1219" />
+            <location filename="app/media_controls.py" line="1429" />
+            <location filename="app/media_controls.py" line="1434" />
+            <location filename="app/media_controls.py" line="1457" />
             <location filename="app/playlist_panel.py" line="560" />
             <location filename="app/playlist_panel.py" line="631" />
             <location filename="app/video_frame.py" line="2604" />
@@ -1518,13 +1518,13 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1455" />
+            <location filename="app/media_controls.py" line="1456" />
             <location filename="app/menu_actions.py" line="110" />
             <source>Oynatma Listesi Aç</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1185" />
+            <location filename="app/media_controls.py" line="1186" />
             <source>Oynatma Listesine Dosya Ekle</source>
             <translation type="unfinished" />
         </message>
@@ -1545,7 +1545,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1432" />
+            <location filename="app/media_controls.py" line="1433" />
             <location filename="app/menu_actions.py" line="106" />
             <source>Oynatma Listesini Kaydet</source>
             <translation type="unfinished" />
@@ -1556,13 +1556,13 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1708" />
+            <location filename="app/media_controls.py" line="1709" />
             <source>Oynatma hızı değiştirilemedi. Lütfen başka bir hız deneyin.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1624" />
-            <location filename="app/media_controls.py" line="1632" />
+            <location filename="app/media_controls.py" line="1625" />
+            <location filename="app/media_controls.py" line="1633" />
             <source>Oynatma listesi</source>
             <translation type="unfinished" />
         </message>
@@ -1572,7 +1572,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1501" />
+            <location filename="app/media_controls.py" line="1502" />
             <source>Oynatma listesi açılamadı. Dosya bozuk veya okunamıyor olabilir.</source>
             <translation type="unfinished" />
         </message>
@@ -1583,8 +1583,8 @@ Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1214" />
-            <location filename="app/media_controls.py" line="1625" />
+            <location filename="app/media_controls.py" line="1215" />
+            <location filename="app/media_controls.py" line="1626" />
             <source>Oynatma listesi boş.</source>
             <translation type="unfinished" />
         </message>
@@ -1594,17 +1594,17 @@ Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1449" />
+            <location filename="app/media_controls.py" line="1450" />
             <source>Oynatma listesi kaydedilemedi. Dosyanın yazılabileceği bir konum seçmeyi deneyin.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1481" />
+            <location filename="app/media_controls.py" line="1482" />
             <source>Oynatma listesinde geçerli dosya bulunamadı.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1333" />
+            <location filename="app/media_controls.py" line="1334" />
             <source>Oynatma listesindeki dosya açılamadı. Dosya taşınmış veya silinmiş olabilir.</source>
             <translation type="unfinished" />
         </message>
@@ -1614,23 +1614,23 @@ Dosyaları buraya sürükleyin</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="714" />
+            <location filename="app/media_controls.py" line="715" />
             <source>Oynatıcı ayarları okunamadığı için bağlantı güvenli biçimde açılamadı. Lütfen tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="446" />
-            <location filename="app/media_controls.py" line="1277" />
+            <location filename="app/media_controls.py" line="447" />
+            <location filename="app/media_controls.py" line="1278" />
             <source>Oynatıcı ayarları okunamadığı için dosya güvenli biçimde açılamadı. Lütfen tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="259" />
+            <location filename="app/media_controls.py" line="260" />
             <source>Oynatıcı ayarları okunamadığı için klasör güvenli biçimde açılamadı. Lütfen tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1487" />
+            <location filename="app/media_controls.py" line="1488" />
             <source>Oynatıcı ayarları okunamadığı için oynatma listesi güvenli biçimde açılamadı. Lütfen tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>
@@ -1689,7 +1689,7 @@ Bu işlem mpv'nin bu sürümünde bulunmayan bir özellik kullanmaya çalıştı
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="main.py" line="186" />
+            <location filename="main.py" line="189" />
             <source>Program çalıştırılamadı: gerekli MPV bileşeni (mpv-2.dll) bulunamadı.
 
 Çözüm: Programın yanındaki 'bin' klasörünün eksiksiz olduğundan emin olun. Programı kurulum klasöründen başlatın.
@@ -1869,7 +1869,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1166" />
+            <location filename="app/media_controls.py" line="1167" />
             <source>Ses: %{volume}</source>
             <translation type="unfinished" />
         </message>
@@ -1891,7 +1891,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1161" />
+            <location filename="app/media_controls.py" line="1162" />
             <location filename="app/menu_actions.py" line="1058" />
             <location filename="app/video_frame.py" line="775" />
             <location filename="app/video_frame.py" line="1199" />
@@ -2002,7 +2002,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="779" />
+            <location filename="app/updater.py" line="793" />
             <source>Sürüm notları →</source>
             <translation type="unfinished" />
         </message>
@@ -2112,7 +2112,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="761" />
+            <location filename="app/media_controls.py" line="762" />
             <location filename="app/menu_actions.py" line="69" />
             <location filename="app/menu_actions.py" line="1044" />
             <source>URL'den Oynat</source>
@@ -2130,10 +2130,10 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="770" />
-            <location filename="app/media_controls.py" line="1480" />
-            <location filename="app/media_controls.py" line="1509" />
-            <location filename="app/media_controls.py" line="1653" />
+            <location filename="app/media_controls.py" line="771" />
+            <location filename="app/media_controls.py" line="1481" />
+            <location filename="app/media_controls.py" line="1510" />
+            <location filename="app/media_controls.py" line="1654" />
             <source>Uyarı</source>
             <translation type="unfinished" />
         </message>
@@ -2201,7 +2201,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="762" />
+            <location filename="app/media_controls.py" line="763" />
             <source>Video URL'si giriniz:</source>
             <translation type="unfinished" />
         </message>
@@ -2242,7 +2242,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="748" />
+            <location filename="app/updater.py" line="762" />
             <source>Yeni sürüm kullanıma hazır</source>
             <translation type="unfinished" />
         </message>
@@ -2274,17 +2274,17 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1660" />
+            <location filename="app/media_controls.py" line="1661" />
             <source>Zaman pozisyonunu girin (MM:SS veya HH:MM:SS formatında):</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1680" />
+            <location filename="app/media_controls.py" line="1681" />
             <source>Zamana Gidilemedi</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1659" />
+            <location filename="app/media_controls.py" line="1660" />
             <location filename="app/menu_actions.py" line="1060" />
             <location filename="app/video_frame.py" line="2733" />
             <source>Zamana Git</source>
@@ -2296,7 +2296,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1676" />
+            <location filename="app/media_controls.py" line="1677" />
             <source>Zamanı MM:SS veya HH:MM:SS biçiminde ve 0 ile %1 saniye arasında girin.</source>
             <translation type="unfinished" />
         </message>
@@ -2330,7 +2330,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="913" />
+            <location filename="app/media_controls.py" line="914" />
             <source>saniye</source>
             <translation type="unfinished" />
         </message>
@@ -2413,8 +2413,8 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="771" />
-            <location filename="app/media_controls.py" line="1654" />
+            <location filename="app/media_controls.py" line="772" />
+            <location filename="app/media_controls.py" line="1655" />
             <source>Önce bir video dosyası açın.</source>
             <translation type="unfinished" />
         </message>
@@ -2457,7 +2457,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/media_controls.py" line="910" />
+            <location filename="app/media_controls.py" line="911" />
             <source>İleri</source>
             <translation type="unfinished" />
         </message>
@@ -2472,12 +2472,12 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="877" />
+            <location filename="app/updater.py" line="891" />
             <source>İndiriliyor…</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="977" />
+            <location filename="app/updater.py" line="991" />
             <source>İndirme tamamlanıyor — pencere işlem bitince kapanacak.</source>
             <translation type="unfinished" />
         </message>
@@ -2511,7 +2511,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="app/updater.py" line="954" />
+            <location filename="app/updater.py" line="968" />
             <source>İsterseniz güncellemeyi GitHub sayfasından elle indirebilirsiniz.</source>
             <translation type="unfinished" />
         </message>

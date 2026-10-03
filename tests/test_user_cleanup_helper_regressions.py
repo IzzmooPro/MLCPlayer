@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-only
 from app import user_cleanup_helper as helper
 import hashlib
+import os
+
+import pytest
 
 
 class _RegistryKey:
@@ -273,3 +276,100 @@ def test_request_requires_exact_sid_and_separate_result_file(tmp_path, monkeypat
     monkeypatch.setattr(helper, "current_user_sid", lambda: "S-1-5-21-9")
     assert helper.read_owned_request(path)["delete_settings"] is True
     assert helper.result_file(tmp_path, nonce) != path
+
+
+def test_startup_registration_does_not_block_the_caller():
+    """Ölçülen risk: kayıt alt süreci 30 sn'ye kadar sürebilir ve pencere
+    açılmadan ana thread'de çalışıyordu. Başlatıcı hemen dönmeli, sonuç
+    arka planda raporlanmalıdır."""
+    import threading
+    import time
+
+    release = threading.Event()
+    reported = []
+
+    def slow_ensure():
+        release.wait(5)
+        return True
+
+    started = time.monotonic()
+    worker = helper.start_user_cleanup_registration(
+        ensure=slow_ensure, report=reported.append)
+    elapsed = time.monotonic() - started
+    try:
+        assert elapsed < 0.5, f"başlatıcı {elapsed:.2f} sn bloke etti"
+        assert worker.daemon, "kapanışı bekletmemeli"
+        assert reported == []
+    finally:
+        release.set()
+        worker.join(5)
+    assert reported == [True]
+
+
+def test_startup_registration_reports_instead_of_raising():
+    """Arka plan thread'indeki istisna `sys.excepthook`a ulaşmaz; yutulmadan
+    güvenli bir sonuç olarak raporlanmalıdır."""
+    reported = []
+
+    def broken_ensure():
+        raise OSError("sid okunamadı")
+
+    worker = helper.start_user_cleanup_registration(
+        ensure=broken_ensure, report=reported.append)
+    worker.join(5)
+    assert reported == ["error:OSError"]
+
+
+def test_main_starts_registration_after_the_window_and_handler():
+    """main.py kaydı senkron çağırmaz; hata yakalayıcı ondan önce kurulur
+    ve pencere `show()` edildikten sonra başlatılır."""
+    import ast
+    from pathlib import Path
+
+    tree = ast.parse(Path(__file__).resolve().parents[1].joinpath(
+        "main.py").read_text(encoding="utf-8"))
+    calls = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            func = node.func
+            name = getattr(func, "attr", None) or getattr(func, "id", None)
+            calls.append((node.lineno, name))
+    names = [name for _, name in sorted(calls)]
+    assert "ensure_user_cleanup_task" not in names
+    assert "start_user_cleanup_registration" in names
+    assert (names.index("install_exception_handler")
+            < names.index("show")
+            < names.index("start_user_cleanup_registration"))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows named mutex")
+def test_provision_mutex_is_exclusive_and_released_with_the_handle():
+    """Kayıt artık pencereyle paralel çalıştığı için hızlı kapat/aç iki
+    `--provision` süreci başlatabilir. Ortak `.new` dosyasını ikinci süreç
+    silebiliyordu. Kilit süreç ölünce işletim sistemince bırakılır; bayat
+    kilit dosyası gibi kalıcı engel üretmez."""
+    sid = "S-1-5-21-111-222-333-4444"
+    first = helper._acquire_provision_mutex(sid)
+    assert first
+    try:
+        assert helper._acquire_provision_mutex(sid) is None
+    finally:
+        helper._release_provision_mutex(first)
+    again = helper._acquire_provision_mutex(sid)
+    assert again
+    helper._release_provision_mutex(again)
+
+
+def test_concurrent_provision_returns_busy_without_touching_files(
+        tmp_path, monkeypatch):
+    local = tmp_path / "AppData" / "Local"
+    local.mkdir(parents=True)
+    monkeypatch.setattr(helper.os, "name", "nt")
+    monkeypatch.setattr(helper, "current_user_sid",
+                        lambda: "S-1-5-21-111-222-333-4444")
+    monkeypatch.setattr(helper, "profile_local_appdata", lambda: local)
+    monkeypatch.setattr(helper, "_read_install_id", lambda: "install-id")
+    monkeypatch.setattr(helper, "_acquire_provision_mutex", lambda _sid: None)
+    before = sorted(tmp_path.rglob("*"))
+    assert helper.provision() == helper.PROVISION_BUSY
+    assert sorted(tmp_path.rglob("*")) == before

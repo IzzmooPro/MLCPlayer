@@ -17,8 +17,8 @@
     },
     {
       "path": "app/media_controls.py",
-      "sha256": "d3d5afb88a3cc2bd65b82d16532ddabe205d461e8b9d68d5adb0049bc018cef7",
-      "lines": 1716,
+      "sha256": "949e822c23cb4f8c0e3e3a12c0b4581a2eac4f6638caa61072385793155f2c1d",
+      "lines": 1717,
       "classes": 0,
       "top_functions": 74,
       "indented_functions": 2,
@@ -53,8 +53,8 @@
     },
     {
       "path": "app/updater.py",
-      "sha256": "315bbe435492acf650c7666ac02fc5b43a590a63bcc0b0f054d83ce9315619fc",
-      "lines": 1032,
+      "sha256": "54074fed5e4bb44dbc105e9b87b7d6c024180b6e9812613b098a1911c0a61b2c",
+      "lines": 1046,
       "classes": 4,
       "top_functions": 19,
       "indented_functions": 27,

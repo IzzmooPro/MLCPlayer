@@ -107,7 +107,7 @@
             <translation>Find Subtitles</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="783" />
+            <location filename="app/media_controls.py" line="784" />
             <location filename="app/player.py" line="693" />
             <source>Altyazı Bulunamadı</source>
             <translation>Subtitle Not Found</translation>
@@ -118,12 +118,12 @@
             <translation>Find Subtitles…</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="871" />
+            <location filename="app/media_controls.py" line="872" />
             <source>Altyazı Değiştirilemedi</source>
             <translation>Could Not Change Subtitles</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="776" />
+            <location filename="app/media_controls.py" line="777" />
             <source>Altyazı Dosyaları</source>
             <translation>Subtitles Files</translation>
         </message>
@@ -133,7 +133,7 @@
             <translation>Add Subtitle File</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="775" />
+            <location filename="app/media_controls.py" line="776" />
             <location filename="app/menu_actions.py" line="74" />
             <location filename="app/menu_actions.py" line="261" />
             <source>Altyazı Ekle</source>
@@ -172,7 +172,7 @@
             <translation>Subtitle Track</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="825" />
+            <location filename="app/media_controls.py" line="826" />
             <source>Altyazı Seçilemedi</source>
             <translation>Could Not Select Subtitle</translation>
         </message>
@@ -187,7 +187,7 @@
             <translation>The subtitle settings could not be applied. The previous settings were kept; please try again.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="842" />
+            <location filename="app/media_controls.py" line="843" />
             <source>Altyazı bulunamadı</source>
             <translation>No subtitles found</translation>
         </message>
@@ -207,7 +207,7 @@
             <translation>Subtitle language</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="784" />
+            <location filename="app/media_controls.py" line="785" />
             <location filename="app/player.py" line="694" />
             <source>Altyazı dosyası bulunamadı. Dosyanın yerini kontrol edin.</source>
             <translation>The subtitle file was not found. Check where the file is.</translation>
@@ -286,7 +286,7 @@
             <translation>An unexpected problem occurred in the subtitle service.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="826" />
+            <location filename="app/media_controls.py" line="827" />
             <source>Altyazı seçilemedi. Lütfen başka bir altyazı parçasını deneyin.</source>
             <translation>The subtitle could not be selected. Please try another subtitle track.</translation>
         </message>
@@ -301,7 +301,7 @@
             <translation>The subtitle could not be linked to the queued video automatically. Play the video, then drop the subtitle again.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="786" />
+            <location filename="app/media_controls.py" line="787" />
             <location filename="app/player.py" line="696" />
             <location filename="app/player.py" line="729" />
             <location filename="app/player.py" line="805" />
@@ -309,7 +309,7 @@
             <translation>Subtitle path:</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="794" />
+            <location filename="app/media_controls.py" line="795" />
             <location filename="app/player.py" line="810" />
             <source>Altyazı yükleniyor...</source>
             <translation>Loading subtitle...</translation>
@@ -320,7 +320,7 @@
             <translation>Searching for subtitles…</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="872" />
+            <location filename="app/media_controls.py" line="873" />
             <source>Altyazılar açılıp kapatılamadı. Lütfen tekrar deneyin.</source>
             <translation>Subtitles could not be turned on or off. Please try again.</translation>
         </message>
@@ -459,8 +459,8 @@
             <translation>Apply the settings</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1486" />
-            <location filename="app/media_controls.py" line="1500" />
+            <location filename="app/media_controls.py" line="1487" />
+            <location filename="app/media_controls.py" line="1501" />
             <source>Açılamadı</source>
             <translation>Could Not Open</translation>
         </message>
@@ -481,12 +481,12 @@
             <translation>Link</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="506" />
+            <location filename="app/media_controls.py" line="507" />
             <source>Bağlantı Açılamadı</source>
             <translation>Could Not Open Link</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="502" />
+            <location filename="app/media_controls.py" line="503" />
             <source>Bağlantı açılıyor…</source>
             <translation>Opening link…</translation>
         </message>
@@ -521,7 +521,7 @@
             <translation>Test Connection</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1532" />
+            <location filename="app/media_controls.py" line="1533" />
             <source>Başarılı</source>
             <translation>Success</translation>
         </message>
@@ -597,7 +597,7 @@ Please try the operation again. If the problem persists, restart the program.</t
             <translation>Size</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="507" />
+            <location filename="app/media_controls.py" line="508" />
             <source>Bu bağlantı açılamadı. Adresi ve internet bağlantınızı kontrol edip tekrar deneyin.</source>
             <translation>This link could not be opened. Check the address and your internet connection, then try again.</translation>
         </message>
@@ -614,7 +614,7 @@ Sensitive information has been hidden automatically.</translation>
             <translation>This is a subtitle preview.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="247" />
+            <location filename="app/media_controls.py" line="248" />
             <source>Bu klasörde desteklenen medya dosyası bulunamadı.</source>
             <translation>No supported media files were found in this folder.</translation>
         </message>
@@ -629,7 +629,7 @@ Sensitive information has been hidden automatically.</translation>
             <translation>This program is FREE SOFTWARE and is distributed under the terms of the GNU GPL version 3.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="932" />
+            <location filename="app/media_controls.py" line="933" />
             <location filename="app/menu_actions.py" line="164" />
             <location filename="app/menu_actions.py" line="848" />
             <location filename="app/menu_actions.py" line="868" />
@@ -640,7 +640,7 @@ Sensitive information has been hidden automatically.</translation>
             <translation>Chapter</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="927" />
+            <location filename="app/media_controls.py" line="928" />
             <source>Bölüm bilgisi yok</source>
             <translation>No chapter information</translation>
         </message>
@@ -679,7 +679,7 @@ Sensitive information has been hidden automatically.</translation>
             <translation>Codec description</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="809" />
+            <location filename="app/updater.py" line="823" />
             <source>Daha sonra</source>
             <translation>Later</translation>
         </message>
@@ -689,7 +689,7 @@ Sensitive information has been hidden automatically.</translation>
             <translation>Cancel the changes</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="771" />
+            <location filename="app/updater.py" line="785" />
             <source>Değişiklikleri sürüm notlarında inceleyebilirsiniz.</source>
             <translation>You can review the changes in the release notes.</translation>
         </message>
@@ -724,7 +724,7 @@ Sensitive information has been hidden automatically.</translation>
         </message>
         <message>
             <location filename="app/empty_state.py" line="62" />
-            <location filename="app/media_controls.py" line="139" />
+            <location filename="app/media_controls.py" line="140" />
             <location filename="app/menu_actions.py" line="60" />
             <location filename="app/menu_actions.py" line="1043" />
             <location filename="app/title_bar.py" line="152" />
@@ -733,16 +733,16 @@ Sensitive information has been hidden automatically.</translation>
             <translation>Open File</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="445" />
-            <location filename="app/media_controls.py" line="491" />
-            <location filename="app/media_controls.py" line="1276" />
-            <location filename="app/media_controls.py" line="1332" />
+            <location filename="app/media_controls.py" line="446" />
+            <location filename="app/media_controls.py" line="492" />
+            <location filename="app/media_controls.py" line="1277" />
+            <location filename="app/media_controls.py" line="1333" />
             <location filename="app/player.py" line="576" />
             <source>Dosya Açılamadı</source>
             <translation>Could Not Open File</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="431" />
+            <location filename="app/media_controls.py" line="432" />
             <source>Dosya Bulunamadı</source>
             <translation>File Not Found</translation>
         </message>
@@ -752,12 +752,12 @@ Sensitive information has been hidden automatically.</translation>
             <translation>Add Files</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="432" />
+            <location filename="app/media_controls.py" line="433" />
             <source>Dosya artık mevcut değil. Son Açılanlar listesinden kaldırıldı.</source>
             <translation>The file no longer exists. It has been removed from Recent Files.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="492" />
+            <location filename="app/media_controls.py" line="493" />
             <source>Dosya açılamadı. Dosya silinmiş, taşınmış veya desteklenmeyen bir format olabilir.</source>
             <translation>The file could not be opened. It may have been deleted or moved, or it may be in an unsupported format.</translation>
         </message>
@@ -831,7 +831,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Take Screenshot</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1536" />
+            <location filename="app/media_controls.py" line="1537" />
             <source>Ekran Görüntüsü Alınamadı</source>
             <translation>Could Not Take Snapshot</translation>
         </message>
@@ -841,17 +841,17 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Taking snapshots</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1510" />
+            <location filename="app/media_controls.py" line="1511" />
             <source>Ekran görüntüsü almak için bir video oynatılıyor olmalıdır.</source>
             <translation>A video must be playing to take a snapshot.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1533" />
+            <location filename="app/media_controls.py" line="1534" />
             <source>Ekran görüntüsü kaydedildi:</source>
             <translation>Snapshot saved:</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1537" />
+            <location filename="app/media_controls.py" line="1538" />
             <source>Ekran görüntüsü kaydedilemedi. Masaüstüne yazma iznini ve boş alanı kontrol edin.</source>
             <translation>The snapshot could not be saved. Check your write permission for the desktop and the free space.</translation>
         </message>
@@ -861,7 +861,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Largest</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="1022" />
+            <location filename="app/updater.py" line="1036" />
             <source>En güncel sürümü kullanıyorsunuz</source>
             <translation>You are using the latest version</translation>
         </message>
@@ -916,7 +916,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Overall bitrate</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="910" />
+            <location filename="app/media_controls.py" line="911" />
             <source>Geri</source>
             <translation>Backward</translation>
         </message>
@@ -931,27 +931,27 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Navigation</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="504" />
+            <location filename="app/media_controls.py" line="505" />
             <source>Geçerli bir web adresi girin. Yalnız http:// ve https:// ile başlayan bağlantılar açılabilir.</source>
             <translation>Enter a valid web address. Only links starting with http:// or https:// can be opened.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="503" />
+            <location filename="app/media_controls.py" line="504" />
             <source>Geçersiz Adres</source>
             <translation>Invalid Address</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1675" />
+            <location filename="app/media_controls.py" line="1676" />
             <source>Geçersiz Zaman</source>
             <translation>Invalid Time</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1681" />
+            <location filename="app/media_controls.py" line="1682" />
             <source>Girilen zaman konumuna gidilemedi. Zamanı tekrar kontrol edin.</source>
             <translation>Could not go to the time you entered. Check the time again.</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="956" />
+            <location filename="app/updater.py" line="970" />
             <source>GitHub sayfasını aç</source>
             <translation>Open the GitHub page</translation>
         </message>
@@ -977,19 +977,19 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>View</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="814" />
+            <location filename="app/updater.py" line="828" />
             <source>Güncelle</source>
             <translation>Update</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="951" />
-            <location filename="app/updater.py" line="1021" />
-            <location filename="app/updater.py" line="1025" />
+            <location filename="app/updater.py" line="965" />
+            <location filename="app/updater.py" line="1035" />
+            <location filename="app/updater.py" line="1039" />
             <source>Güncelleme</source>
             <translation>Update</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="684" />
+            <location filename="app/updater.py" line="698" />
             <source>Güncelleme Mevcut</source>
             <translation>Update Available</translation>
         </message>
@@ -1014,7 +1014,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Could not check for updates.</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="902" />
+            <location filename="app/updater.py" line="916" />
             <source>Güncelleme uygulanıyor…</source>
             <translation>Applying the update…</translation>
         </message>
@@ -1120,7 +1120,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Japanese</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1233" />
+            <location filename="app/media_controls.py" line="1234" />
             <location filename="app/playlist_panel.py" line="697" />
             <source>Kaldır</source>
             <translation>Remove</translation>
@@ -1137,8 +1137,8 @@ Solution: unlock the file or copy it to another folder.</translation>
             <location filename="app/modern_info_dialog.py" line="69" />
             <location filename="app/subtitle_center.py" line="560" />
             <location filename="app/title_bar.py" line="201" />
-            <location filename="app/updater.py" line="754" />
-            <location filename="app/updater.py" line="958" />
+            <location filename="app/updater.py" line="768" />
+            <location filename="app/updater.py" line="972" />
             <source>Kapat</source>
             <translation>Close</translation>
         </message>
@@ -1179,12 +1179,12 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Category</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1429" />
+            <location filename="app/media_controls.py" line="1430" />
             <source>Kaydedilecek oynatma listesi yok.</source>
             <translation>There is no playlist to save.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1448" />
+            <location filename="app/media_controls.py" line="1449" />
             <source>Kaydedilemedi</source>
             <translation>Could Not Save</translation>
         </message>
@@ -1199,7 +1199,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Source</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="915" />
+            <location filename="app/updater.py" line="929" />
             <source>Kaynak koddan çalışan kopya kurulumla güncellenmez.</source>
             <translation>A copy running from source code cannot be updated by an installer.</translation>
         </message>
@@ -1226,27 +1226,27 @@ Solution: unlock the file or copy it to another folder.</translation>
         </message>
         <message>
             <location filename="app/empty_state.py" line="80" />
-            <location filename="app/media_controls.py" line="227" />
-            <location filename="app/media_controls.py" line="246" />
+            <location filename="app/media_controls.py" line="228" />
+            <location filename="app/media_controls.py" line="247" />
             <location filename="app/menu_actions.py" line="65" />
             <location filename="app/video_frame.py" line="2596" />
             <source>Klasör Aç</source>
             <translation>Open Folder</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="230" />
-            <location filename="app/media_controls.py" line="241" />
-            <location filename="app/media_controls.py" line="258" />
+            <location filename="app/media_controls.py" line="231" />
+            <location filename="app/media_controls.py" line="242" />
+            <location filename="app/media_controls.py" line="259" />
             <source>Klasör Açılamadı</source>
             <translation>Could Not Open Folder</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="242" />
+            <location filename="app/media_controls.py" line="243" />
             <source>Klasör okunamadı. Klasöre erişim izniniz olmayabilir.</source>
             <translation>The folder could not be read. You may not have permission to access it.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="231" />
+            <location filename="app/media_controls.py" line="232" />
             <source>Klasör seçilemedi. Lütfen tekrar deneyin.</source>
             <translation>The folder could not be selected. Please try again.</translation>
         </message>
@@ -1320,12 +1320,12 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Search the list</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1631" />
+            <location filename="app/media_controls.py" line="1632" />
             <source>Listenin başındasınız.</source>
             <translation>You are at the start of the playlist.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1630" />
+            <location filename="app/media_controls.py" line="1631" />
             <source>Listenin sonuna ulaştınız.</source>
             <translation>You have reached the end of the playlist.</translation>
         </message>
@@ -1336,7 +1336,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Repeat Playlist</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1240" />
+            <location filename="app/media_controls.py" line="1241" />
             <location filename="app/playlist_panel.py" line="699" />
             <source>Listeyi Temizle</source>
             <translation>Clear Playlist</translation>
@@ -1357,12 +1357,12 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>MLC Player icon</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="764" />
+            <location filename="app/updater.py" line="778" />
             <source>MLC Player {version} indirilmeye hazır.</source>
             <translation>MLC Player {version} is ready to download.</translation>
         </message>
         <message>
-            <location filename="main.py" line="185" />
+            <location filename="main.py" line="188" />
             <source>MPV Bileşeni Bulunamadı</source>
             <translation>MPV Component Not Found</translation>
         </message>
@@ -1392,8 +1392,8 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Media Information</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="140" />
-            <location filename="app/media_controls.py" line="1186" />
+            <location filename="app/media_controls.py" line="141" />
+            <location filename="app/media_controls.py" line="1187" />
             <source>Medya Dosyaları</source>
             <translation>Media Files</translation>
         </message>
@@ -1483,7 +1483,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Media</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1230" />
+            <location filename="app/media_controls.py" line="1231" />
             <location filename="app/video_frame.py" line="713" />
             <location filename="app/video_frame.py" line="2585" />
             <source>Oynat</source>
@@ -1513,16 +1513,16 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Playback Speed</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1707" />
+            <location filename="app/media_controls.py" line="1708" />
             <source>Oynatma Hızı Değiştirilemedi</source>
             <translation>Could Not Change Playback Speed</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1213" />
-            <location filename="app/media_controls.py" line="1218" />
-            <location filename="app/media_controls.py" line="1428" />
-            <location filename="app/media_controls.py" line="1433" />
-            <location filename="app/media_controls.py" line="1456" />
+            <location filename="app/media_controls.py" line="1214" />
+            <location filename="app/media_controls.py" line="1219" />
+            <location filename="app/media_controls.py" line="1429" />
+            <location filename="app/media_controls.py" line="1434" />
+            <location filename="app/media_controls.py" line="1457" />
             <location filename="app/playlist_panel.py" line="560" />
             <location filename="app/playlist_panel.py" line="631" />
             <location filename="app/video_frame.py" line="2604" />
@@ -1530,13 +1530,13 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Playlist</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1455" />
+            <location filename="app/media_controls.py" line="1456" />
             <location filename="app/menu_actions.py" line="110" />
             <source>Oynatma Listesi Aç</source>
             <translation>Open Playlist</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1185" />
+            <location filename="app/media_controls.py" line="1186" />
             <source>Oynatma Listesine Dosya Ekle</source>
             <translation>Add Files to Playlist</translation>
         </message>
@@ -1557,7 +1557,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Close the Playlist</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1432" />
+            <location filename="app/media_controls.py" line="1433" />
             <location filename="app/menu_actions.py" line="106" />
             <source>Oynatma Listesini Kaydet</source>
             <translation>Save Playlist</translation>
@@ -1568,13 +1568,13 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Repeat Playlist</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1708" />
+            <location filename="app/media_controls.py" line="1709" />
             <source>Oynatma hızı değiştirilemedi. Lütfen başka bir hız deneyin.</source>
             <translation>The playback speed could not be changed. Please try another speed.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1624" />
-            <location filename="app/media_controls.py" line="1632" />
+            <location filename="app/media_controls.py" line="1625" />
+            <location filename="app/media_controls.py" line="1633" />
             <source>Oynatma listesi</source>
             <translation>Playlist</translation>
         </message>
@@ -1584,7 +1584,7 @@ Solution: make sure the program's 'bin' folder is complete. Run the program from
             <translation>Playlist (save/open - .m3u)</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1501" />
+            <location filename="app/media_controls.py" line="1502" />
             <source>Oynatma listesi açılamadı. Dosya bozuk veya okunamıyor olabilir.</source>
             <translation>The playlist could not be opened. The file may be corrupt or unreadable.</translation>
         </message>
@@ -1596,8 +1596,8 @@ Dosyaları buraya sürükleyin</source>
 Drag files here</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1214" />
-            <location filename="app/media_controls.py" line="1625" />
+            <location filename="app/media_controls.py" line="1215" />
+            <location filename="app/media_controls.py" line="1626" />
             <source>Oynatma listesi boş.</source>
             <translation>The playlist is empty.</translation>
         </message>
@@ -1607,17 +1607,17 @@ Drag files here</translation>
             <translation>Adjust the playlist width</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1449" />
+            <location filename="app/media_controls.py" line="1450" />
             <source>Oynatma listesi kaydedilemedi. Dosyanın yazılabileceği bir konum seçmeyi deneyin.</source>
             <translation>The playlist could not be saved. Try choosing a location where the file can be written.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1481" />
+            <location filename="app/media_controls.py" line="1482" />
             <source>Oynatma listesinde geçerli dosya bulunamadı.</source>
             <translation>No valid files were found in the playlist.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1333" />
+            <location filename="app/media_controls.py" line="1334" />
             <source>Oynatma listesindeki dosya açılamadı. Dosya taşınmış veya silinmiş olabilir.</source>
             <translation>The file in the playlist could not be opened. It may have been moved or deleted.</translation>
         </message>
@@ -1627,23 +1627,23 @@ Drag files here</translation>
             <translation>Could Not Start the Player</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="714" />
+            <location filename="app/media_controls.py" line="715" />
             <source>Oynatıcı ayarları okunamadığı için bağlantı güvenli biçimde açılamadı. Lütfen tekrar deneyin.</source>
             <translation>The link could not be opened safely because the player settings could not be read. Please try again.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="446" />
-            <location filename="app/media_controls.py" line="1277" />
+            <location filename="app/media_controls.py" line="447" />
+            <location filename="app/media_controls.py" line="1278" />
             <source>Oynatıcı ayarları okunamadığı için dosya güvenli biçimde açılamadı. Lütfen tekrar deneyin.</source>
             <translation>The file could not be opened safely because the player settings could not be read. Please try again.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="259" />
+            <location filename="app/media_controls.py" line="260" />
             <source>Oynatıcı ayarları okunamadığı için klasör güvenli biçimde açılamadı. Lütfen tekrar deneyin.</source>
             <translation>The folder could not be opened safely because the player settings could not be read. Please try again.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1487" />
+            <location filename="app/media_controls.py" line="1488" />
             <source>Oynatıcı ayarları okunamadığı için oynatma listesi güvenli biçimde açılamadı. Lütfen tekrar deneyin.</source>
             <translation>The playlist could not be opened safely because the player settings could not be read. Please try again.</translation>
         </message>
@@ -1704,7 +1704,7 @@ This operation tried to use a feature that is not present in this version of mpv
             <translation>Profile</translation>
         </message>
         <message>
-            <location filename="main.py" line="186" />
+            <location filename="main.py" line="189" />
             <source>Program çalıştırılamadı: gerekli MPV bileşeni (mpv-2.dll) bulunamadı.
 
 Çözüm: Programın yanındaki 'bin' klasörünün eksiksiz olduğundan emin olun. Programı kurulum klasöründen başlatın.
@@ -1888,7 +1888,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>No audio device found</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1166" />
+            <location filename="app/media_controls.py" line="1167" />
             <source>Ses: %{volume}</source>
             <translation>Volume: {volume}%</translation>
         </message>
@@ -1910,7 +1910,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Volume Down</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1161" />
+            <location filename="app/media_controls.py" line="1162" />
             <location filename="app/menu_actions.py" line="1058" />
             <location filename="app/video_frame.py" line="775" />
             <location filename="app/video_frame.py" line="1199" />
@@ -2021,7 +2021,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Version</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="779" />
+            <location filename="app/updater.py" line="793" />
             <source>Sürüm notları →</source>
             <translation>Release notes →</translation>
         </message>
@@ -2131,7 +2131,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Turkish</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="761" />
+            <location filename="app/media_controls.py" line="762" />
             <location filename="app/menu_actions.py" line="69" />
             <location filename="app/menu_actions.py" line="1044" />
             <source>URL'den Oynat</source>
@@ -2149,10 +2149,10 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Ukrainian</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="770" />
-            <location filename="app/media_controls.py" line="1480" />
-            <location filename="app/media_controls.py" line="1509" />
-            <location filename="app/media_controls.py" line="1653" />
+            <location filename="app/media_controls.py" line="771" />
+            <location filename="app/media_controls.py" line="1481" />
+            <location filename="app/media_controls.py" line="1510" />
+            <location filename="app/media_controls.py" line="1654" />
             <source>Uyarı</source>
             <translation>Warning</translation>
         </message>
@@ -2220,7 +2220,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Video Track</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="762" />
+            <location filename="app/media_controls.py" line="763" />
             <source>Video URL'si giriniz:</source>
             <translation>Enter the video URL:</translation>
         </message>
@@ -2261,7 +2261,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Text size</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="748" />
+            <location filename="app/updater.py" line="762" />
             <source>Yeni sürüm kullanıma hazır</source>
             <translation>A new version is ready</translation>
         </message>
@@ -2293,17 +2293,17 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Director's Commentary</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1660" />
+            <location filename="app/media_controls.py" line="1661" />
             <source>Zaman pozisyonunu girin (MM:SS veya HH:MM:SS formatında):</source>
             <translation>Enter the time position (in MM:SS or HH:MM:SS format):</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1680" />
+            <location filename="app/media_controls.py" line="1681" />
             <source>Zamana Gidilemedi</source>
             <translation>Could Not Go to Time</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1659" />
+            <location filename="app/media_controls.py" line="1660" />
             <location filename="app/menu_actions.py" line="1060" />
             <location filename="app/video_frame.py" line="2733" />
             <source>Zamana Git</source>
@@ -2315,7 +2315,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Go to Time...</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="1676" />
+            <location filename="app/media_controls.py" line="1677" />
             <source>Zamanı MM:SS veya HH:MM:SS biçiminde ve 0 ile %1 saniye arasında girin.</source>
             <translation>Enter the time in MM:SS or HH:MM:SS format, between 0 and %1 seconds.</translation>
         </message>
@@ -2349,7 +2349,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>colour</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="913" />
+            <location filename="app/media_controls.py" line="914" />
             <source>saniye</source>
             <translation>seconds</translation>
         </message>
@@ -2432,8 +2432,8 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Open a video first.</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="771" />
-            <location filename="app/media_controls.py" line="1654" />
+            <location filename="app/media_controls.py" line="772" />
+            <location filename="app/media_controls.py" line="1655" />
             <source>Önce bir video dosyası açın.</source>
             <translation>Open a video file first.</translation>
         </message>
@@ -2476,7 +2476,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>items</translation>
         </message>
         <message>
-            <location filename="app/media_controls.py" line="910" />
+            <location filename="app/media_controls.py" line="911" />
             <source>İleri</source>
             <translation>Forward</translation>
         </message>
@@ -2491,12 +2491,12 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>The downloaded file is much larger than expected; it was rejected for safety.</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="877" />
+            <location filename="app/updater.py" line="891" />
             <source>İndiriliyor…</source>
             <translation>Downloading…</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="977" />
+            <location filename="app/updater.py" line="991" />
             <source>İndirme tamamlanıyor — pencere işlem bitince kapanacak.</source>
             <translation>The download is finishing — the window will close when it is done.</translation>
         </message>
@@ -2530,7 +2530,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>Spanish</translation>
         </message>
         <message>
-            <location filename="app/updater.py" line="954" />
+            <location filename="app/updater.py" line="968" />
             <source>İsterseniz güncellemeyi GitHub sayfasından elle indirebilirsiniz.</source>
             <translation>If you prefer, you can download the update manually from the GitHub page.</translation>
         </message>
