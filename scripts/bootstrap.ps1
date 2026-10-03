@@ -19,8 +19,8 @@ $MaximumPythonExclusive = [Version]"3.15"
 $Python = $null
 
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
-$MainFile = Join-Path $ProjectRoot "main.py"
-$Requirements = Join-Path $ProjectRoot "requirements.txt"
+$MainFile = Join-Path $ProjectRoot "app/main.py"
+$Requirements = Join-Path $ProjectRoot "requirements/runtime.txt"
 $DependencyVerifier = Join-Path $ProjectRoot "packaging\verify_dependencies.py"
 
 # The runtime binaries are carried in the repository; pip does not
@@ -153,9 +153,9 @@ if (Test-ModulesInstalled) {
     Write-Host "[OK] The required packages are already installed."
 }
 else {
-    Write-Host "[INFO] Installing the missing packages (requirements.txt)..."
+    Write-Host "[INFO] Installing the missing packages (requirements/runtime.txt)..."
     if (-not (Test-Path $Requirements)) {
-        throw "requirements.txt not found: $Requirements"
+        throw "requirements/runtime.txt not found: $Requirements"
     }
     & $Python.Executable @($Python.PrefixArgs) -m pip install --disable-pip-version-check -r $Requirements
     if ($LASTEXITCODE -ne 0) {

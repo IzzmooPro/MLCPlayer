@@ -17,7 +17,7 @@ import os
 import struct
 import time
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, Qt, pyqtSignal
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket
 
 from app.errors import log
@@ -301,7 +301,11 @@ class SingleInstanceGuard(QObject):
 def activate_window(window, payload=""):
     """Açık pencereyi standart çağrılarla öne getirir ve hedefi yükler."""
     if window.isMinimized():
-        window.showNormal()
+        # `showNormal()` büyütülmüş/tam ekran bayrağını da siler; yalnız
+        # simge durumu kaldırılır, önceki pencere durumu korunur.
+        window.setWindowState(
+            window.windowState() & ~Qt.WindowState.WindowMinimized)
+        window.show()
     window.raise_()
     window.activateWindow()
     if payload:

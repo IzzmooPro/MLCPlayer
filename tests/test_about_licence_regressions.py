@@ -83,7 +83,7 @@ def test_the_third_party_components_are_mentioned(about_text):
 
 def test_the_copyright_year_matches_the_readme(about_text):
     """İki yerde iki farklı yıl yazmak dikkatsizlik izlenimi verir."""
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (ROOT / ".github" / "README.md").read_text(encoding="utf-8")
     match = re.search(r"Copyright \(C\) (\d{4})", readme)
     assert match, "README'de telif satırı yok"
     assert match.group(1) in about_text["text"]

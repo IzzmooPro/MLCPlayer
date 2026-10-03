@@ -36,7 +36,7 @@ ICO = os.path.join(ASSETS, "mlc-player-icon.ico")
 # gorunuyordu); plakali sanat kurulum sihirbazinda kalir.
 APP_ICO = os.path.join(ASSETS, "mlc-player-icon-transparent.ico")
 MANIFEST = os.path.join(ASSETS, "ICON_MANIFEST.txt")
-SPEC = os.path.join(PROJECT, "MLCPlayer.spec")
+SPEC = os.path.join(PROJECT, "packaging/MLCPlayer.spec")
 
 REQUIRED_SIZES = (16, 20, 24, 32, 40, 48, 64, 128, 256)
 SOURCE_SIZE = (1254, 1254)
@@ -193,7 +193,7 @@ def test_the_app_user_model_id_is_stable():
 
 
 def test_main_sets_the_icon_before_any_window_is_built():
-    source = read(os.path.join(PROJECT, "main.py"))
+    source = read(os.path.join(PROJECT, "app/main.py"))
 
     identity = source.index("install_application_identity")
     application = source.index("QApplication(sys.argv)")
@@ -218,7 +218,7 @@ def test_the_model_id_is_windows_only_and_never_writes_the_registry():
 # =====================================================================
 
 def test_no_production_code_uses_a_standard_or_default_icon():
-    for relative in ("app/player.py", "app/title_bar.py", "main.py",
+    for relative in ("app/player.py", "app/title_bar.py", "app/main.py",
                      "app/media_info_dialog.py", "app/app_icon.py"):
         source = read(os.path.join(PROJECT, relative))
         for forbidden in ("SP_DriveDVDIcon", "SP_ComputerIcon",
@@ -427,7 +427,7 @@ def test_the_spec_carries_the_exe_icon():
     spec = read(SPEC)
 
     # EXE ikonu ŞEFFAF sürümdür; Windows kısayolunda görünen budur.
-    assert "icon='assets/mlc-player-icon-transparent.ico'" in spec or \
+    assert "icon=_from_root('assets/mlc-player-icon-transparent.ico')" in spec or \
         'icon="assets/mlc-player-icon-transparent.ico"' in spec
 
 
@@ -453,7 +453,7 @@ def test_the_existing_packaging_contract_is_untouched():
 
 
 def test_the_plan_records_the_setup_icon_decision():
-    plan = read(os.path.join(PROJECT, "docs", "PACKAGING_PLAN.md"))
+    plan = read(os.path.join(PROJECT, "docs", "release", "PACKAGING_PLAN.md"))
 
     assert "SetupIconFile" in plan
     assert "UninstallDisplayIcon" in plan

@@ -45,6 +45,7 @@ from PyQt6.QtWidgets import (
 
 from app.config import SUBTITLE_DEFAULTS, UI_ACCENT
 from app.i18n import tr, tr_mark, translate_marked
+from app.number_text import localize_decimal, percent_text
 from app.subtitle_style import (BORDER_PRESETS, COLOR_KEYS, DELAY_PRESETS,
                                 SCALE_PRESETS, mpv_argb_to_qcolor,
                                 normalise_subtitle_numeric,
@@ -98,7 +99,7 @@ BORDER_LABELS = {0.0: tr_mark("Yok"), 3.0: tr_mark("Varsayılan"),
 
 
 def _turkish_number(value, decimals):
-    return f"{value:.{decimals}f}".replace(".", ",")
+    return localize_decimal(f"{value:.{decimals}f}")
 
 
 def delay_label(value):
@@ -734,7 +735,7 @@ class ColorSwatch(QPushButton):
             state = tr("tamamen saydam")
         elif alpha < 255:
             state = (f"{tr('kısmen saydam')} "
-                     f"(%{round(alpha / 255 * 100)} {tr('opak')})")
+                     f"({percent_text(alpha / 255 * 100)} {tr('opak')})")
         else:
             state = tr("opak")
         marked = COLOR_LABELS.get(self.key, "")
@@ -871,11 +872,11 @@ class SubtitleAppearanceDialog(QDialog):
         # pencere AÇILIRKEN düşüyordu (TypeError/ValueError/OverflowError).
         # `sub_pos` da diğer sayılar gibi merkezî sınırdan geçer.
         self.position_slider.setValue(int(round(initial("sub_pos"))))
-        self.position_value = QLabel(f"%{self.position_slider.value()}")
+        self.position_value = QLabel(percent_text(self.position_slider.value()))
         self.position_value.setObjectName("subtitlePositionValue")
         self.position_value.setMinimumWidth(40)
         self.position_slider.valueChanged.connect(
-            lambda value: (self.position_value.setText(f"%{value}"),
+            lambda value: (self.position_value.setText(percent_text(value)),
                            self._refresh_preview()))
         position_row.addWidget(self.position_slider, 1)
         position_row.addWidget(self.position_value, 0)

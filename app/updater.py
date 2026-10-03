@@ -196,10 +196,24 @@ class VerificationError(Exception):
 # ── Sürüm karşılaştırma ──────────────────────────────────────────────────
 
 def _version_parts(value):
-    numbers = [int(part) for part in re.findall(r"\d+", value or "")]
-    while len(numbers) < 3:
-        numbers.append(0)
-    return tuple(numbers)
+    # Sürüm çekirdeği ilk noktalı sayı grubudur; sondaki sıfırlar anlam
+    # taşımaz (`v0.41.0.0` == `v0.41`). `+` sonrası derleme üst verisidir
+    # ve yok sayılır (semver). Kalan son ek (`-rc1`, `-beta`) ön sürümdür ve
+    # aynı çekirdeğin kararlısından ESKİDİR; son ekteki sayılar yalnız ön
+    # sürümleri kendi arasında sıralar. Çekirdek ayrı bir demet olduğu için
+    # kararlılık işaretçisi dördüncü sürüm sayısıyla karışmaz.
+    text = (value or "").split("+", 1)[0]
+    match = re.search(r"\d+(?:\.\d+)*", text)
+    if match is None:
+        return ((), 1, ())
+    numbers = [int(part) for part in match.group().split(".")]
+    while numbers and numbers[-1] == 0:
+        numbers.pop()
+    suffix = text[match.end():].strip().strip(".")
+    if not suffix:
+        return (tuple(numbers), 1, ())
+    return (tuple(numbers), 0,
+            tuple(int(part) for part in re.findall(r"\d+", suffix)))
 
 
 def is_newer_version(latest, current=None):

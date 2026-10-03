@@ -92,7 +92,7 @@ jobs:
         with:
           python-version: '3.13.15'
           cache: pip
-          cache-dependency-path: requirements-lock.txt
+          cache-dependency-path: requirements/lock.txt
 
       - name: Install documentation-check dependencies
         if: steps.classify.outputs.docs_only == 'true'
@@ -100,12 +100,12 @@ jobs:
         env:
           MLC_CI: '0'
           PYTHONPATH: ''
-        run: python -m pip install -r requirements-ci-docs.txt --disable-pip-version-check
+        run: python -m pip install -r requirements/ci-docs.txt --disable-pip-version-check
 
       - name: Install locked dependencies
         if: steps.classify.outputs.docs_only != 'true'
         shell: pwsh
-        run: python -m pip install -r requirements-lock.txt --disable-pip-version-check
+        run: python -m pip install -r requirements/lock.txt --disable-pip-version-check
 
       - name: Verify ledger append-only history
         if: github.event_name == 'pull_request'
@@ -117,12 +117,12 @@ jobs:
       - name: Verify locked environment
         if: steps.classify.outputs.docs_only != 'true'
         shell: pwsh
-        run: python packaging/verify_dependencies.py requirements-lock.txt
+        run: python packaging/verify_dependencies.py requirements/lock.txt
 
       - name: Compile Python sources
         if: steps.classify.outputs.docs_only != 'true'
         shell: pwsh
-        run: python -m compileall -q main.py app tests packaging
+        run: python -m compileall -q app tests packaging
 
       - name: Verify translations and whitespace
         if: steps.classify.outputs.docs_only != 'true'
@@ -147,7 +147,9 @@ jobs:
             tests/test_readme_user_guidance_regressions.py `
             tests/test_release_documentation_regressions.py `
             tests/test_signpath_readiness_regressions.py `
-            tests/test_video_format_acceptance_plan_regressions.py
+            tests/test_video_format_acceptance_plan_regressions.py `
+            tests/test_docs_index_regressions.py `
+            tests/test_repository_privacy_regressions.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m json.tool docs/VERIFICATION_LEDGER.json > $null
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -16,6 +16,7 @@ from app.app_icon import application_icon
 from app.config import UI_ACCENT, UI_FONT_FAMILY
 from app.ui_icons import make_media_icon
 from app.i18n import tr
+from app.number_text import percent_text
 
 TITLE_BAR_HEIGHT = 40
 # Baslik cubugu yuksekligini BUYUTMEYEN logo olcusu.
@@ -277,7 +278,7 @@ class TitleBar(QWidget):
 
     def _transparency_value_changed(self, value):
         value = int(value)
-        self.transparency_value_label.setText(f"%{value}")
+        self.transparency_value_label.setText(percent_text(value))
         self.player.set_window_opacity_percent(value)
 
     def show_transparency_control(self):
@@ -289,7 +290,7 @@ class TitleBar(QWidget):
         self.transparency_slider.blockSignals(True)
         self.transparency_slider.setValue(value)
         self.transparency_slider.blockSignals(False)
-        self.transparency_value_label.setText(f"%{value}")
+        self.transparency_value_label.setText(percent_text(value))
         popup.adjustSize()
         origin_global = self.transparency_button.mapToGlobal(
             QPoint(self.transparency_button.width() - popup.width(),
@@ -478,7 +479,7 @@ class TitleBar(QWidget):
     def update_window_mode_state(self):
         """Şeffaflık/PiP erişilebilir adlarını gerçek durumla eşitler."""
         percent = int(getattr(self.player, "window_opacity_percent", 100))
-        transparency_label = f"{tr('Şeffaflık')}: %{percent}"
+        transparency_label = f"{tr('Şeffaflık')}: {percent_text(percent)}"
         self.transparency_button.setAccessibleName(transparency_label)
         self.transparency_button.setToolTip(transparency_label)
 

@@ -6,7 +6,7 @@ Butun kullanici hareketleri gercek Win32 girdisiyle uretilir
 (`SetCursorPos` + `SendInput`). Urun metodlari kullanici hareketi taklidi
 icin CAGRILMAZ; yalnizca sonuc DOGRULAMASI icin urun durumu okunur.
 
-Urun, main.py ile ayni sekilde (`MPVPlayer()`) bu surecte olusturulur; boylece
+Urun, app/main.py ile ayni sekilde (`MPVPlayer()`) bu surecte olusturulur; boylece
 gercek pencereye fiziksel girdi gonderilirken ic durum da olculebilir.
 
 Her calistirma TEK grup kosar ve MARK_DONE ile biter. Bir grup kilitlenirse
@@ -3128,7 +3128,7 @@ def run_group_body(args, original_cursor, original_foreground):
     return 0
 
 
-# URUN CIKIS POLITIKASI: `main.py` gibi, butun sonuc satirlari ve marker'lar
+# URUN CIKIS POLITIKASI: `app/main.py` gibi, butun sonuc satirlari ve marker'lar
 # flush edildikten SONRA `os._exit`. Python yorumlayici finalizasyonu bu
 # kabulun parcasi degildir (Qt + libmpv + `audio-device-list` icin ayri bir
 # tani riskidir). Urun kodunda os._exit KULLANILMAZ.

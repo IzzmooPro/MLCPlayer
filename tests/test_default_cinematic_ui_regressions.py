@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Sinematik arayüzün ürünün VARSAYILANI olduğunu doğrulayan testler.
 
-Normal `python main.py` çalıştırmasında hiçbir ortam değişkeni gerekmemeli.
+Normal `python app/main.py` çalıştırmasında hiçbir ortam değişkeni gerekmemeli.
 Klasik görünüm yalnızca açık teşhis anahtarı MLCPLAYER_CLASSIC_UI=1 ile gelir.
 """
 import json
@@ -156,14 +156,14 @@ def test_product_code_no_longer_reads_the_legacy_variable():
 
 
 def test_main_entry_does_not_inject_ui_environment():
-    with open(os.path.join(PROJECT_ROOT, "main.py"), encoding="utf-8") as handle:
+    with open(os.path.join(PROJECT_ROOT, "app/main.py"), encoding="utf-8") as handle:
         source = handle.read()
     for name in UI_ENV_VARS:
         assert f'environ["{name}"]' not in source
         assert f"environ['{name}']" not in source
 
 
-# --- 4. Gerçek main.py giriş noktası ---
+# --- 4. Gerçek app/main.py giriş noktası ---
 
 @pytest.mark.skipif(HOSTED_CI, reason="main entry acceptance requires mpv-2.dll")
 def test_main_entry_starts_with_cinematic_ui(main_entry):

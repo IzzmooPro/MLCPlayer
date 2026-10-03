@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Video acilisinda ayni klasordeki eslesen SRT'yi SESSIZ etkinlestirme (2B).
 
-Sozlesme kaynagi: `docs/PROJECT_STATUS.md` (14 Agustos 2026 arastirmasi).
+Sozlesme kaynagi: `docs/history/PROJECT_STATUS.md` (14 Agustos 2026 arastirmasi).
 
 - `MPV_CONFIG` genis `sub_auto="fuzzy"` yerine `exact` kullanir; global
   `sub_visibility="no"` KALIR ve yalniz DOGRULANMIS yerel SRT bulununca acilir.

@@ -38,7 +38,9 @@ from app.i18n import (SOURCE_LANGUAGE, SUPPORTED_LANGUAGES,  # noqa: E402
 #: Sources that are scanned. Tests and packaging scripts are NOT visible
 #: to the user.
 SOURCE_DIRECTORIES = ("app",)
-SOURCE_FILES = ("main.py",)
+#: Extra files outside SOURCE_DIRECTORIES. The entry point moved to
+#: `app/main.py` and is already covered by the `app` directory scan.
+SOURCE_FILES = ()
 
 
 #: Calls that PUT text into the translation files. `tr()` translates right

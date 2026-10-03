@@ -14,7 +14,7 @@ TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(TESTS_DIR)
 CHILD = os.path.join(TESTS_DIR, "native_sdr_probe_child.py")
 VERIFIER = os.path.join(ROOT, "scripts", "verify_video_format_media.py")
-MANIFEST = os.path.join(ROOT, "docs", "VIDEO_FORMAT_MEDIA_MANIFEST.json")
+MANIFEST = os.path.join(ROOT, "docs", "video-format", "VIDEO_FORMAT_MEDIA_MANIFEST.json")
 sys.path.insert(0, TESTS_DIR)
 
 from hdr_probe_contract import parse_dxdiag_bytes  # noqa: E402

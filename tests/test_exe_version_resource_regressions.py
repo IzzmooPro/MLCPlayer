@@ -18,7 +18,7 @@ import pytest
 from app.config import APP_VERSION, WINDOWS_VERSION
 
 ROOT = Path(__file__).resolve().parent.parent
-SPEC = ROOT / "MLCPlayer.spec"
+SPEC = ROOT / "packaging/MLCPlayer.spec"
 
 
 def _load_version_resource():

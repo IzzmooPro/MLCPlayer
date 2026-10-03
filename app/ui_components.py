@@ -5,6 +5,7 @@ import os
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel, QSizePolicy, QSlider, QStyle
 from PyQt6.QtCore import Qt, QSize, QRectF
 from PyQt6.QtGui import QColor, QPainter
+from app.number_text import percent_text
 from app.utils import create_colored_icon, format_time
 from app.config import (UI_ACCENT, cinematic_ui_enabled, DEFAULT_VOLUME,
                         MAX_VOLUME)
@@ -244,7 +245,7 @@ def setup_controls(player):
 
     # Ses seviyesi etiketi - volume_slider'dan ÖNCE oluşturulmalı ki
     # setValue yoluyla tetiklenen set_volume etikete erişebilsin
-    player.volume_label = QLabel(f"%{int(DEFAULT_VOLUME)}")
+    player.volume_label = QLabel(percent_text(DEFAULT_VOLUME))
     player.volume_label.setObjectName("volumeLabel")
     player.volume_label.setStyleSheet("font-size: 12px; color: #9AA7B3;")
     # Sabit genişlik/yükseklik: metin boyutu değişince etiket yukarı/aşağı kaymasın

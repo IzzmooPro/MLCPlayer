@@ -196,5 +196,5 @@ if __name__ == "__main__":
         sys.stdout.flush()
         sys.stderr.flush()
         # libmpv yükleyen child'lar normal finalizasyona GİRMEZ
-        # (bkz. main.py:130 ve test_child_shutdown_contract_regressions).
+        # (bkz. app/main.py:130 ve test_child_shutdown_contract_regressions).
         os._exit(code)

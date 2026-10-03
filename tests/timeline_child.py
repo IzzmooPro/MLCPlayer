@@ -50,7 +50,7 @@ player.close()
 QTimer.singleShot(100, app.quit)
 app.exec()
 
-# ÜRÜNLE AYNI KAPANIŞ (`main.py` -> `os._exit(ret)`): libmpv yüklendikten
+# ÜRÜNLE AYNI KAPANIŞ (`app/main.py` -> `os._exit(ret)`): libmpv yüklendikten
 # sonra normal Python finalizasyonu takılabiliyor. Buraya ulaşmak bütün
 # assert'lerin geçtiği anlamına gelir; başarısızlıkta zaten istisna ile
 # non-zero exit üretilir.

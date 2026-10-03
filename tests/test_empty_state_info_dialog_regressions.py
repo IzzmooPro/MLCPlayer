@@ -46,6 +46,7 @@ def test_empty_state_matches_the_approved_layout():
         surface.open_folder_button.styleSheet()
     assert surface.open_file_button.icon().isNull()
     assert surface.open_folder_button.icon().isNull()
+    assert surface.findChild(QLabel, "emptyStateLogo") is None
     assert surface.parentWidget() is frame
     assert surface.isWindow() is False
     assert surface.testAttribute(Qt.WidgetAttribute.WA_NativeWindow)

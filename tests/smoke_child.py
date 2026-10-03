@@ -29,7 +29,7 @@ app.exec()
 if player.mpv_player is not None:
     raise SystemExit("MPV temiz kapanmadı")
 
-# ÜRÜNLE AYNI KAPANIŞ (`main.py` -> `os._exit(ret)`): libmpv yüklendikten
+# ÜRÜNLE AYNI KAPANIŞ (`app/main.py` -> `os._exit(ret)`): libmpv yüklendikten
 # sonra normal Python finalizasyonu thread-safe olmayan DLL yıkımında
 # takılabiliyor. Başarısızlık yolu YUKARIDA ve DEĞİŞMEDEN kalır; yalnız
 # başarı yolu asılı kalmadan kapanır.

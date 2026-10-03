@@ -28,14 +28,14 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def licence_section(name):
-    text = (ROOT / name).read_text(encoding="utf-8")
+    text = (ROOT / ".github" / name).read_text(encoding="utf-8")
     marker = "## Licence" if name == "README.md" else "## Lisans"
     assert marker in text, f"{name}: lisans bölümü yok"
     return text.split(marker, 1)[1]
 
 
 def open_items_section():
-    text = (ROOT / "README.tr.md").read_text(encoding="utf-8")
+    text = (ROOT / ".github" / "README.tr.md").read_text(encoding="utf-8")
     marker = "### Yayın öncesi açık maddeler"
     assert marker in text, "açık maddeler bölümü yok"
     body = text.split(marker, 1)[1]
@@ -73,7 +73,7 @@ def test_the_list_does_not_claim_these_block_distribution():
 
 def test_the_closed_items_are_recorded_as_closed():
     """Kapananlar sessizce SİLİNMEZ; neyin ne zaman kapandığı kalmalı."""
-    text = (ROOT / "README.tr.md").read_text(encoding="utf-8")
+    text = (ROOT / ".github" / "README.tr.md").read_text(encoding="utf-8")
     assert "**Kapanan maddeler:**" in text
     closed = text.split("**Kapanan maddeler:**", 1)[1].lower()
     for topic in ("dosya başı", "hakkında penceresi", "binary köken kaydı"):

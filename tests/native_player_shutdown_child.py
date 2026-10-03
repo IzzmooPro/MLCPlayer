@@ -23,7 +23,7 @@ Marker'lar:
     MARK_MAIN_RETURNED
 
 Kabul: stop=1, terminate=1, stop marker'i terminate'ten ONCE, eksik marker
-yok, exit code 0. Child, uygulamanin `main.py` giris noktasi gibi Qt event
+yok, exit code 0. Child, uygulamanin `app/main.py` giris noktasi gibi Qt event
 loop'u dondukten ve urun kapanis sozlesmesini dogruladiktan sonra
 `os._exit(ret)` kullanir. Python yorumlayici finalizasyonu bu kabulun parcasi
 degildir; Qt + libmpv + `audio-device-list` icin ayri bir tani riskidir.

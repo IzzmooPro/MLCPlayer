@@ -6,11 +6,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-PLAN = ROOT / "docs" / "VIDEO_FORMAT_ACCEPTANCE_PLAN.md"
-MATRIX = ROOT / "docs" / "VIDEO_FORMAT_ACCEPTANCE_MATRIX.json"
-MEDIA = ROOT / "docs" / "VIDEO_FORMAT_MEDIA_MANIFEST.json"
-INVENTORY = ROOT / "docs" / "VIDEO_FORMAT_CAPABILITY_INVENTORY.md"
-WINDOWS = ROOT / "docs" / "WINDOWS_ACCEPTANCE_MATRIX.md"
+PLAN = ROOT / "docs" / "video-format" / "VIDEO_FORMAT_ACCEPTANCE_PLAN.md"
+MATRIX = ROOT / "docs" / "video-format" / "VIDEO_FORMAT_ACCEPTANCE_MATRIX.json"
+MEDIA = ROOT / "docs" / "video-format" / "VIDEO_FORMAT_MEDIA_MANIFEST.json"
+# Yetenek envanteri kabul planının ek bölümüne birleştirildi.
+INVENTORY = PLAN
+WINDOWS = ROOT / "docs" / "quality" / "WINDOWS_ACCEPTANCE_MATRIX.md"
 LEDGER = ROOT / "docs" / "VERIFICATION_LEDGER.json"
 
 REQUIRED_CASES = {
@@ -52,7 +53,7 @@ def test_media_candidates_are_fail_closed_and_cover_every_case():
     assert media["native_media_opened"] is True
     assert media["latest_native_media_evidence_id"] == "EV-20260825-012"
     assert matrix["media_policy"]["manifest_document"] == (
-        "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json")
+        "docs/video-format/VIDEO_FORMAT_MEDIA_MANIFEST.json")
     assert matrix["media_policy"]["manifest_status"] == (
         "partially_fingerprinted")
     assert matrix["media_policy"]["manifest_evidence_id"] == (

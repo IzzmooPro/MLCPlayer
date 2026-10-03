@@ -3,11 +3,11 @@
 """Release zinciri YALNIZ MEVCUT SURUMUN artifact'ini secmeli.
 
 KANITLANMIS RISK (olculdu, 17 Agustos 2026):
-`installer_output` gecmisteki BIRDEN COK kurulum dosyasini yan yana
+`output/installer` gecmisteki BIRDEN COK kurulum dosyasini yan yana
 tutar; klasor birikimlidir ve eski yayinlar silinmez. Betik imzalanacak
 ve final dogrulamasi yapilacak dosyayi jokerle seciyordu:
 
-    for %%F in ("installer_output\\MLCPlayer_Setup_*.exe") do set "SETUP=..."
+    for %%F in ("output/installer\\MLCPlayer_Setup_*.exe") do set "SETUP=..."
 
 `for` eslesenleri sirayla gezer ve SON eslesme kazanir; sira dosya
 sistemine baglidir, garanti degildir. Gercek cmd ile olculdu: o an en
@@ -71,11 +71,11 @@ def test_no_artifact_wildcard_is_used(commands, forbidden):
 
 
 def test_no_installer_output_exe_wildcard(commands):
-    """`installer_output\\*.exe` bicimi de yasak."""
-    pattern = re.compile(r"installer_output\\\*", re.IGNORECASE)
+    """`output/installer\\*.exe` bicimi de yasak."""
+    pattern = re.compile(r"output\\installer\\\*", re.IGNORECASE)
     guilty = [line for line in commands if pattern.search(line)]
 
-    assert guilty == [], f"installer_output joker kullanimi: {guilty}"
+    assert guilty == [], f"output/installer joker kullanimi: {guilty}"
 
 
 def test_no_wildcard_exe_anywhere_in_commands(commands):
@@ -94,8 +94,8 @@ def test_no_wildcard_exe_anywhere_in_commands(commands):
 def test_old_versions_are_never_deleted_in_bulk(commands):
     """Eski surum artifact'leri KORUNUR; toplu silme yok."""
     bulk = re.compile(
-        r"\b(del|erase)\b.*\*|rmdir\s+/s.*installer_output|"
-        r"\bdel\b.*installer_output\\?\s*$",
+        r"\b(del|erase)\b.*\*|rmdir\s+/s.*output\\installer|"
+        r"\bdel\b.*output\\installer\\?\s*$",
         re.IGNORECASE)
     guilty = [line for line in commands if bulk.search(line)]
 
@@ -103,11 +103,11 @@ def test_old_versions_are_never_deleted_in_bulk(commands):
 
 
 def test_installer_output_folder_is_never_removed(commands):
-    """`installer_output` klasoru silinmez."""
+    """`output/installer` klasoru silinmez."""
     guilty = [line for line in commands
-              if re.search(r"rmdir.*installer_output", line, re.IGNORECASE)]
+              if re.search(r"rmdir.*output\\installer", line, re.IGNORECASE)]
 
-    assert guilty == [], f"installer_output siliniyor: {guilty}"
+    assert guilty == [], f"output/installer siliniyor: {guilty}"
 
 
 # --- 3. Surum TEK KEZ okunur ------------------------------------------
@@ -140,8 +140,8 @@ def test_exact_artifact_paths_are_defined(commands):
 
     assert len(main) == 1, f"MAIN_SETUP tanimi: {main}"
     assert len(addon) == 1, f"ADDON_SETUP tanimi: {addon}"
-    assert "installer_output\\MLCPlayer_Setup_" in main[0]
-    assert "installer_output\\MLCPlayer_InternetVideo_" in addon[0]
+    assert "output\\installer\\MLCPlayer_Setup_" in main[0]
+    assert "output\\installer\\MLCPlayer_InternetVideo_" in addon[0]
     # Surum DEGISKENDEN gelir; sabit yazilmaz.
     assert "APP_VER" in main[0]
     assert "APP_VER" in addon[0]
@@ -210,7 +210,7 @@ def test_the_chain_stops_when_a_stale_output_cannot_be_removed(script):
 
 # --- 5b. build/dist temizligi DOGRULANMALI ----------------------------
 
-@pytest.mark.parametrize("folder", ["build", "dist"])
+@pytest.mark.parametrize("folder", ["output\\build", "output\\dist"])
 def test_the_chain_stops_when_a_stale_tree_cannot_be_removed(script, folder):
     """`rmdir` sessizce basarisiz olabilir; sonuc DENETLENMELI.
 
@@ -221,7 +221,7 @@ def test_the_chain_stops_when_a_stale_tree_cannot_be_removed(script, folder):
     """
     section = script[script.find("STEP 2"):script.find("STEP 3")]
     guard = re.search(
-        rf'if exist "{folder}"[\s\S]{{0,200}}?goto :fail', section)
+        rf'if exist "{re.escape(folder)}"[\s\S]{{0,200}}?goto :fail', section)
 
     assert guard, f"`{folder}` silinemediginde zincir durmuyor"
 
@@ -232,9 +232,9 @@ def test_the_success_message_comes_after_both_guards(script):
     success = section.find("OK  build")
     assert success != -1, "temizlik basari mesaji bulunamadi"
 
-    for folder in ("build", "dist"):
+    for folder in ("output\\build", "output\\dist"):
         guard = re.search(
-            rf'if exist "{folder}"[\s\S]{{0,200}}?goto :fail', section)
+            rf'if exist "{re.escape(folder)}"[\s\S]{{0,200}}?goto :fail', section)
         assert guard, f"{folder} korumasi yok"
         assert guard.end() < success, (
             f"basari mesaji {folder} denetiminden ONCE geliyor")
@@ -248,18 +248,18 @@ def test_only_build_and_dist_trees_are_removed(commands):
     assert removals, "build/dist temizligi kayboldu"
     for line in removals:
         assert "*" not in line, f"rmdir jokeri: {line}"
-        assert ('"build"' in line or '"dist"' in line), (
+        assert ('"output\\build"' in line or '"output\\dist"' in line), (
             f"beklenmeyen rmdir hedefi: {line}")
 
 
 def test_installer_output_cleanup_is_unchanged(script):
-    """`installer_output` davranisi bu turda DEGISMEDI."""
+    """`output/installer` davranisi bu turda DEGISMEDI."""
     section = script[script.find("STEP 2"):script.find("STEP 3")]
 
     assert 'for %%T in ("!MAIN_SETUP!"' in section, (
         "kesin dort hedef temizligi kayboldu")
     assert "rmdir" not in section.split('for %%T in')[1], (
-        "installer_output agaci siliniyor")
+        "output/installer agaci siliniyor")
 
 
 # --- 6. Her Inno adimindan sonra KESIN EXE denetimi -------------------
@@ -326,8 +326,8 @@ def test_both_installers_write_to_installer_output(commands):
     """Kesin yollar ISS'in OutputDir'i ile ayni klasoru gosterir."""
     for path in (MAIN_ISS, ADDON_ISS):
         with open(path, encoding="utf-8") as handle:
-            assert "OutputDir=..\\installer_output" in handle.read(), path
+            assert "OutputDir=..\\output\\installer" in handle.read(), path
 
     for prefix in ('set "MAIN_SETUP=', 'set "ADDON_SETUP='):
         line = next(item for item in commands if item.startswith(prefix))
-        assert "installer_output\\" in line, line
+        assert "output\\installer\\" in line, line

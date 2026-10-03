@@ -29,7 +29,7 @@ def test_thumbnail_cache_key_tracks_file_identity_and_metadata(tmp_path):
 def test_worker_command_is_source_and_frozen_safe(monkeypatch, tmp_path):
     source_program, source_args = build_worker_command("in.mkv", "out.jpg")
     assert source_program == sys.executable
-    assert source_args[0].endswith("main.py")
+    assert source_args[0].endswith("app/main.py")
     assert source_args[1:] == ["--thumbnail-worker", "in.mkv", "out.jpg"]
 
     monkeypatch.setattr(sys, "frozen", True, raising=False)

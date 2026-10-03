@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 MAIN_ISS = ROOT / "packaging" / "MLCPlayer.iss"
 ADDON_ISS = ROOT / "packaging" / "MLCPlayer_InternetVideo.iss"
 SINGLE_INSTANCE = ROOT / "app" / "single_instance.py"
-PACKAGING_PLAN = ROOT / "docs" / "PACKAGING_PLAN.md"
+PACKAGING_PLAN = ROOT / "docs" / "release" / "PACKAGING_PLAN.md"
 
 
 def read(path):

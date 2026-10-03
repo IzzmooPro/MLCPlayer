@@ -3,12 +3,12 @@
 """Yayin sureci TEK RESMI BELGEDE tutulur.
 
 OLCULEN SORUN (17 Agustos 2026): kesin yayin sirasi UC yerde birden
-yaziliydi -- `CLAUDE.md`, `docs/PACKAGING_PLAN.md` ve
+yaziliydi -- `.claude/CLAUDE.md`, `docs/release/PACKAGING_PLAN.md` ve
 `packaging/prepublish.py` docstring'i. Uc kopya elle esit tutuluyordu;
 birini degistiren digerlerini unutabilirdi ve hangisinin dogru oldugu
 belirsiz kalirdi.
 
-SOZLESME: ayrintili a-j sirasi YALNIZ `docs/RELEASE_PROCESS.md`
+SOZLESME: ayrintili a-j sirasi YALNIZ `docs/release/RELEASE_PROCESS.md`
 icindedir. Digerleri kritik degismezleri OZETLER ve ona BAGLANIR.
 
 Bu dosya belgeleri OLCER; urun davranisini olcmez.
@@ -20,15 +20,15 @@ import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-RELEASE_DOC = os.path.join(ROOT, "docs", "RELEASE_PROCESS.md")
-AUDIT_DOC = os.path.join(ROOT, "docs", "ENGINEERING_AUDIT.md")
-ROADMAP_DOC = os.path.join(ROOT, "docs", "ROADMAP.md")
-PROJECT_STATUS_DOC = os.path.join(ROOT, "docs", "PROJECT_STATUS.md")
-CLAUDE_DOC = os.path.join(ROOT, "CLAUDE.md")
-PACKAGING_DOC = os.path.join(ROOT, "docs", "PACKAGING_PLAN.md")
+RELEASE_DOC = os.path.join(ROOT, "docs", "release", "RELEASE_PROCESS.md")
+AUDIT_DOC = os.path.join(ROOT, "docs", "history", "ENGINEERING_AUDIT.md")
+ROADMAP_DOC = os.path.join(ROOT, "docs", "history", "ROADMAP.md")
+PROJECT_STATUS_DOC = os.path.join(ROOT, "docs", "history", "PROJECT_STATUS.md")
+CLAUDE_DOC = os.path.join(ROOT, ".claude", "CLAUDE.md")
+PACKAGING_DOC = os.path.join(ROOT, "docs", "release", "PACKAGING_PLAN.md")
 PREPUBLISH = os.path.join(ROOT, "packaging", "prepublish.py")
-README_EN = os.path.join(ROOT, "README.md")
-README_TR = os.path.join(ROOT, "README.tr.md")
+README_EN = os.path.join(ROOT, ".github", "README.md")
+README_TR = os.path.join(ROOT, ".github", "README.tr.md")
 
 #: Ayrintili sira isareti: satir basinda `a)` ... `j)`.
 STEP_MARKER = re.compile(r"^\s*[a-j]\)", re.MULTILINE)
@@ -63,7 +63,7 @@ def read(path):
 # --- 1. Resmi kaynak var ve kendini oyle tanimliyor --------------------
 
 def test_the_release_process_document_exists():
-    assert os.path.isfile(RELEASE_DOC), "docs/RELEASE_PROCESS.md yok"
+    assert os.path.isfile(RELEASE_DOC), "docs/release/RELEASE_PROCESS.md yok"
 
 
 def test_it_declares_itself_the_single_official_source():
@@ -232,7 +232,7 @@ def test_the_dynamic_asset_contract_is_recorded():
     assert "dinamik varlik sozlesmesi" in packaging_contract
     assert "sekiz varlik sozlesmesi" not in packaging_contract
     for name in ("MLCPlayer_Setup", "MLCPlayer_InternetVideo",
-                 ".sig", "source_mirror"):
+                 ".sig", "output/source_mirror"):
         assert name.lower() in text, f"varlik sozlesmesinde eksik: {name}"
 
 
@@ -295,17 +295,17 @@ def test_historical_tags_are_declared_untouched():
 # --- 6b. Release komutu GERCEKTEN calistirilabilir olmali -------------
 
 LEGACY_NOT_SOURCE_PATHS = (
-    "source_mirror/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z",
-    "source_mirror/yt-dlp.exe",
-    "source_mirror/deno-x86_64-pc-windows-msvc.zip",
-    "source_mirror/yt-dlp-THIRD_PARTY_LICENSES.txt",
+    "output/source_mirror/mpv-dev-x86_64-20260814-git-7b8915bc1d.7z",
+    "output/source_mirror/yt-dlp.exe",
+    "output/source_mirror/deno-x86_64-pc-windows-msvc.zip",
+    "output/source_mirror/yt-dlp-THIRD_PARTY_LICENSES.txt",
 )
 
 INSTALLER_PATHS = (
-    "installer_output/MLCPlayer_Setup_vX.Y.exe",
-    "installer_output/MLCPlayer_Setup_vX.Y.exe.sig",
-    "installer_output/MLCPlayer_InternetVideo_vX.Y.exe",
-    "installer_output/MLCPlayer_InternetVideo_vX.Y.exe.sig",
+    "output/installer/MLCPlayer_Setup_vX.Y.exe",
+    "output/installer/MLCPlayer_Setup_vX.Y.exe.sig",
+    "output/installer/MLCPlayer_InternetVideo_vX.Y.exe",
+    "output/installer/MLCPlayer_InternetVideo_vX.Y.exe.sig",
 )
 
 
@@ -317,7 +317,7 @@ def test_the_release_example_lists_all_installer_paths(path):
 def test_source_paths_are_derived_and_legacy_binaries_are_not_sources():
     text = read(RELEASE_DOC)
     assert "fetch_sources.plan()" in text
-    assert "source_mirror/" in text
+    assert "output/source_mirror/" in text
     for path in LEGACY_NOT_SOURCE_PATHS:
         assert path not in text, f"binary yeniden kaynak sayildi: {path}"
 
@@ -338,7 +338,7 @@ def test_the_release_command_uses_no_backslash_continuation():
     text = read(RELEASE_DOC)
     guilty = [line for line in text.splitlines()
               if line.rstrip().endswith("\\") and "gh release" not in line
-              and ("installer_output" in line or "source_mirror" in line
+              and ("output/installer" in line or "output/source_mirror" in line
                    or "--" in line)]
 
     assert guilty == [], f"ters bolu satir devami kullanilmis: {guilty}"
@@ -457,7 +457,7 @@ def test_the_no_network_behaviour_is_split_by_phase():
 # --- 7. Denetim kaydi -------------------------------------------------
 
 def test_the_audit_document_exists():
-    assert os.path.isfile(AUDIT_DOC), "docs/ENGINEERING_AUDIT.md yok"
+    assert os.path.isfile(AUDIT_DOC), "docs/history/ENGINEERING_AUDIT.md yok"
 
 
 @pytest.mark.parametrize("record", ["REL-001", "REL-002", "REL-003",
@@ -683,7 +683,7 @@ def test_the_cover_art_fatal_exception_is_recorded_as_open_risk():
 # --- 8. Yol haritasi --------------------------------------------------
 
 def test_the_roadmap_exists():
-    assert os.path.isfile(ROADMAP_DOC), "docs/ROADMAP.md yok"
+    assert os.path.isfile(ROADMAP_DOC), "docs/history/ROADMAP.md yok"
 
 
 @pytest.mark.parametrize("section", [
@@ -978,6 +978,8 @@ def test_script_ablation_phase_records_the_latest_deterministic_result():
         assert "583BB3D" in flattened, label
 
 
+# Tarihsel kayıtlar dosyaları O GÜNKÜ yollarıyla anar; arşiv dondurulduğu için
+# beklenen değerler eski `docs/` yollarıdır (dosyalar şimdi docs/history/).
 @pytest.mark.parametrize("path", [
     "docs/ENGINEERING_AUDIT.md",
     "docs/PROJECT_STATUS.md",

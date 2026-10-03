@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
-"""Gerçek `python main.py` giriş noktasını taklit eden ölçüm child'ı.
+"""Gerçek `python app/main.py` giriş noktasını taklit eden ölçüm child'ı.
 
-main.py'nin bağımlılık kurulum adımını (check_dependencies) aynen çalıştırır,
-ardından MPVPlayer'ı main.py ile birebir aynı şekilde oluşturur ve varsayılan
+app/main.py'nin bağımlılık kurulum adımını (check_dependencies) aynen çalıştırır,
+ardından MPVPlayer'ı app/main.py ile birebir aynı şekilde oluşturur ve varsayılan
 arayüz durumunu raporlar. Hiçbir UI ortam değişkeni ayarlamaz.
 """
 import json
@@ -17,7 +17,7 @@ sys.path.insert(0, project_root)
 from PyQt6.QtCore import QSettings, Qt
 from PyQt6.QtWidgets import QApplication
 
-import main as main_module
+from app import main as main_module
 
 
 def run():
@@ -64,7 +64,7 @@ def run():
 
 
 if __name__ == "__main__":
-    # ÜRÜNLE AYNI KAPANIŞ (`main.py` -> `os._exit(ret)`): libmpv yüklendikten
+    # ÜRÜNLE AYNI KAPANIŞ (`app/main.py` -> `os._exit(ret)`): libmpv yüklendikten
     # sonra normal Python finalizasyonu thread-safe olmayan DLL yıkımında
     # takılabiliyor. Ölçüm JSON'u bu noktadan ÖNCE basıldığı için veri
     # kaybı olmaz; kapanış artık asılı kalmaz.

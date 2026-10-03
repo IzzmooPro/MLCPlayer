@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKAGING = ROOT / "packaging"
 POLICY_PATH = PACKAGING / "pyinstaller_binary_policy.py"
 RUNNER_PATH = PACKAGING / "run_pyinstaller.py"
-SPEC_PATH = ROOT / "MLCPlayer.spec"
+SPEC_PATH = ROOT / "packaging/MLCPlayer.spec"
 
 sys.path.insert(0, str(PACKAGING))
 import verify_build  # noqa: E402
@@ -139,7 +139,7 @@ def test_unknown_root_icu_provenance_fails_closed(source):
 
 def test_project_or_python_root_icu_requires_explicit_review():
     policy = load_policy()
-    source = ROOT / "README.md"
+    source = ROOT / ".github" / "README.md"
 
     with pytest.raises(policy.BinaryPolicyError):
         policy.sanitize_binaries(
@@ -290,7 +290,7 @@ def test_clean_runner_preserves_command_and_return_code(tmp_path):
         return SimpleNamespace(returncode=7)
 
     code = runner.run_pyinstaller(
-        ["MLCPlayer.spec", "--clean"],
+        ["packaging/MLCPlayer.spec", "--clean"],
         environ={"SystemRoot": str(system_root)},
         executable=executable,
         base_prefix=python_dir,
@@ -300,7 +300,7 @@ def test_clean_runner_preserves_command_and_return_code(tmp_path):
     assert code == 7
     assert captured["command"] == [
         str(executable.resolve()), "-m", "PyInstaller",
-        "MLCPlayer.spec", "--clean"]
+        "packaging/MLCPlayer.spec", "--clean"]
     assert captured["cwd"] == str(ROOT)
     assert captured["check"] is False
 
@@ -316,4 +316,5 @@ def test_build_chains_use_the_clean_runner(relative):
 
     assert build_lines == [
         'python "packaging\\run_pyinstaller.py" "%SPEC%" '
-        '--noconfirm --clean --log-level WARN']
+        '--noconfirm --clean --log-level WARN '
+        '--distpath "output\\dist" --workpath "output\\build"']

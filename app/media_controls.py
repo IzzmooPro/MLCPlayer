@@ -12,8 +12,9 @@ from PyQt6.QtGui import QColor
 
 import mpv
 from app.config import MEDIA_EXTENSIONS, SUBTITLE_EXTENSIONS, DEFAULT_VOLUME, MAX_VOLUME
+from app.number_text import percent_text
 from app.utils import format_time, time_to_seconds
-from app.errors import show_user_error, safe_console
+from app.errors import show_user_error, safe_console, log
 from app.media_info import sanitize_media_url
 from app.runtime_binaries import (INTERNET_VIDEO_MISSING_MESSAGE,
                                   INTERNET_VIDEO_MISSING_TITLE)
@@ -50,8 +51,8 @@ def _reset_subtitle_timing_for_new_media(player):
     """Dosyaya özel altyazı gecikmesini yeni medyaya taşımayı önler."""
     try:
         player.mpv_player.sub_delay = 0.0
-    except Exception:
-        pass
+    except Exception as exc:
+        log(f"Subtitle delay reset failed: {type(exc).__name__}", "WARNING")
     settings = getattr(player, "settings", None)
     if settings is not None:
         settings.setValue("subtitle/sub_delay", 0.0)
@@ -94,8 +95,9 @@ def _hide_subtitles_for_new_media(player):
     """Yeni medya otomatik bulunan altyazıyla başlasa bile görünürlüğü kapatır."""
     try:
         player.mpv_player.sub_visibility = False
-    except Exception:
-        pass
+    except Exception as exc:
+        log(f"Subtitle hide for new media failed: {type(exc).__name__}",
+            "WARNING")
 
 
 def reset_picture_in_picture_media_availability(player):
@@ -793,24 +795,33 @@ def open_subtitle(player):
         player.video_frame.show_osd(tr("Altyazı yükleniyor..."))
         return
 
-    try:
-        player.mpv_player.sub_add(subtitle_path)
-        _refresh_overlay_subtitle_state(player)
-        safe_console(f"Subtitle added: {subtitle_path}")
-        player.video_frame.show_osd(tr("Altyazı eklendi"))
-    except Exception as e:
-        safe_console(f"Open subtitle error: {e}")
-        show_user_error(player, tr("Altyazı Eklenemedi"),
-                        tr("Altyazı eklenemedi. Dosyanın hasarlı veya "
-                           "desteklenmeyen bir format olması mümkün."),
-                        exc=e)
+    # Sürükle-bırakla AYNI yaşam döngüsü: iz doğrulanır, seçilir ve görünür
+    # yapılır. Ham `sub_add` görünürlüğü açmaz (gerçek libmpv ölçümü); yeni
+    # medya açılışında görünürlük kapatıldığı için altyazı görünmüyordu.
+    # Başarı OSD'si ve hata penceresi o yolun içindedir.
+    player._activate_dropped_subtitle(subtitle_path)
+    _refresh_overlay_subtitle_state(player)
 
 def select_subtitle_language(player, sid):
+    previous_sid = getattr(player.mpv_player, "sid", None)
+    sid_written = False
     try:
         player.mpv_player.sid = sid
+        sid_written = True
+        # Açıkça seçilen parça gösterilir. `sid` yazımı görünürlüğü
+        # değiştirmez (gerçek libmpv ölçümü) ve yeni medya açılışında
+        # görünürlük kapatıldığı için seçim ekranda hiçbir şey göstermiyordu.
+        player.mpv_player.sub_visibility = True
         _refresh_overlay_subtitle_state(player)
         safe_console(f"Selected subtitle ID: {sid}")
     except Exception as e:
+        if sid_written:
+            # Görünürlük yazılamadıysa seçim yarım kalmasın.
+            try:
+                player.mpv_player.sid = previous_sid
+            except Exception:
+                pass
+        _refresh_overlay_subtitle_state(player)
         safe_console(f"Subtitle selection error: {e}")
         show_user_error(player, tr("Altyazı Seçilemedi"),
                         tr("Altyazı seçilemedi. Lütfen başka bir altyazı "
@@ -1077,12 +1088,20 @@ def natural_end_should_rewind(player):
 def handle_natural_end(player):
     """Doğal bitişte sıradaki öğeye geç, sar veya mevcut öğeyi başta tut."""
     if (getattr(player, "_eof_rewound", False)
+            or getattr(player, "_natural_end_active", False)
             or not natural_end_should_rewind(player)):
         return False
-    if getattr(player, "playlist", None):
-        if _play_playlist_step(player, 1, notify=False):
-            return True
-    return finish_media_at_start(player)
+    # Yükleme hatası modal pencere açar ve bu timer onun döngüsünde de
+    # çalışır; durum "sonda" geri alındığı için koruma olmadan her tik aynı
+    # yüklemeyi yeniden deneyip yeni bir hata penceresi açardı.
+    player._natural_end_active = True
+    try:
+        if getattr(player, "playlist", None):
+            if _play_playlist_step(player, 1, notify=False):
+                return True
+        return finish_media_at_start(player)
+    finally:
+        player._natural_end_active = False
 
 def _restore_slider(slider, value):
     """Kontrolü yeni ürün işlemi üretmeden ölçülen değere döndürür."""
@@ -1136,16 +1155,16 @@ def set_volume(player, volume):
 
     _restore_volume_sliders(player, volume)
     try:
-        player.volume_label.setText(f"%{int(volume)}")
+        player.volume_label.setText(percent_text(volume))
         if volume == 0:
             player.volume_icon.setIcon(player.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolumeMuted))
             player.is_muted = True
-            osd_text = "Sessiz"
+            osd_text = tr("Sessiz")
         else:
             player.volume_icon.setIcon(player.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolume))
             player.is_muted = False
             player.last_volume = volume
-            osd_text = f"Ses: %{int(volume)}"
+            osd_text = tr("Ses: %{volume}").format(volume=int(volume))
         if getattr(player, '_ui_ready', False):
             player.video_frame.show_osd(osd_text)
     except Exception as e:

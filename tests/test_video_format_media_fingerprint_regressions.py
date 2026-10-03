@@ -14,7 +14,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parent.parent
-MANIFEST = ROOT / "docs" / "VIDEO_FORMAT_MEDIA_MANIFEST.json"
+MANIFEST = ROOT / "docs" / "video-format" / "VIDEO_FORMAT_MEDIA_MANIFEST.json"
 sys.path.insert(0, str(ROOT / "scripts"))
 import verify_video_format_media as guard  # noqa: E402
 

@@ -40,6 +40,7 @@ from PyQt6.QtCore import Qt
 # aktarilir ve i18n `app.settings_store` uzerinden ek bir zincir getirir.
 # Cekirdek Qt'yi cagri aninda yukler (bkz. o modulun gerekcesi).
 from app.translate import tr, tr_mark, translate_marked
+from app.number_text import byte_count_text, localize_decimal
 
 # Maskeleme işaretleri ve kayıt numarası biçimi.
 MASK = "<gizli>"
@@ -485,13 +486,13 @@ def format_bytes(size):
     try:
         value = float(size)
     except (TypeError, ValueError):
-        return "0 bayt"
+        return byte_count_text(0)
     if value < 1024:
-        return f"{int(value)} bayt"
+        return byte_count_text(value)
     for unit in ("KB", "MB", "GB"):
         value /= 1024.0
         if value < 1024 or unit == "GB":
-            return f"{value:.1f}".replace(".", ",") + f" {unit}"
+            return localize_decimal(f"{value:.1f}") + f" {unit}"
     return f"{value:.1f} GB"
 
 
@@ -695,7 +696,7 @@ def log_error_event(event):
 def safe_console(message):
     """Üretim konsol çıktısının TEK güvenli sınırı.
 
-    `main.py` ve `app/**/*.py` içindeki bütün konsol yazımları buradan
+    `app/main.py` ve `app/**/*.py` içindeki bütün konsol yazımları buradan
     geçer; stdout'a yazmadan hemen önce merkezi `redact()` uygulanır.
     Böylece ham yol, URL token'ı, `Authorization` değeri veya ham
     `str(exception)` konsola ULAŞMAZ ve yeni bir çağıran güvenlik

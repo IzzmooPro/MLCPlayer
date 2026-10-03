@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LICENCES = ROOT / "licenses"
-SPEC = ROOT / "MLCPlayer.spec"
+SPEC = ROOT / "packaging/MLCPlayer.spec"
 VERIFY = ROOT / "packaging" / "verify_build.py"
 
 REQUIRED = (

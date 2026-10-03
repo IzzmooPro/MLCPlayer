@@ -133,7 +133,7 @@ def test_classic_control_panel_is_never_visible(request, fixture_name):
 
 @pytest.mark.skipif(HOSTED_CI, reason="main entry acceptance requires mpv-2.dll")
 def test_main_entry_is_cinematic_even_with_legacy_env(main_entry_with_legacy):
-    """`python main.py` legacy env ile bile modern kabuğu kullanmalı."""
+    """`python app/main.py` legacy env ile bile modern kabuğu kullanmalı."""
     report = main_entry_with_legacy
 
     assert report["cinematic_ui_enabled"] is True

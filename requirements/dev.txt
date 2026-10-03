@@ -1,0 +1,33 @@
+# MLC Player - developer and contributor tooling
+# Install: pip install -r requirements/runtime.txt -r requirements/dev.txt
+#
+# These are NOT needed to run the player. `requirements/runtime.txt` alone is
+# enough for that, and `scripts/bootstrap.ps1` installs only that file so
+# someone who just wants to watch a video does not pull a second Qt
+# binding.
+
+# Test suite.
+pytest==9.0.3
+
+# Image/icon regression tests. It stays development-only and is excluded from
+# the packaged player.
+Pillow==12.3.0
+
+# Qt translation tooling. `pyside6-lrelease` compiles translations/*.ts
+# into the .qm files the package ships, and `pyside6-linguist` is the
+# editor a translator uses.
+#
+# MEASURED: PyQt6 ships `pylupdate6` but NOT `lrelease`, so this really is
+# a separate dependency rather than an oversight. The product itself runs
+# on PyQt6; PySide6 is build tooling only and is excluded from the
+# packaged application (see packaging/MLCPlayer.spec).
+#
+# NOTE: do not run `pyside6-lupdate` on our .ts files. It only recognises
+# `QCoreApplication.translate(...)` and cannot see the `app/i18n.tr()`
+# wrapper, so it would rewrite them without most of our strings.
+# Extraction is done by `packaging/extract_translations.py` over the AST.
+PySide6==6.11.1
+
+# Release packaging. The build script checks this exact toolchain before it
+# removes any previous output.
+pyinstaller==6.19.0

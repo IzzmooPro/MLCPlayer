@@ -14,7 +14,7 @@
 KAPSAM NOTU: bu testler native `0xC0000005` hatasının kök nedenini
 kanıtlamaz ve ölçmez. Bu turda izole edilen tek kesin tetikleyici,
 Qt + libmpv + `audio-device-list` okumasının ardından gelen DOĞAL Python
-finalizasyonudur; ürünün `main.py` yolu o faza girmez. Buradaki ölçüm
+finalizasyonudur; ürünün `app/main.py` yolu o faza girmez. Buradaki ölçüm
 yalnızca ürünün kapanış çağrı SIRASI ve SAYISIDIR; kaynak metni veya AST
 kontrolü yapılmaz.
 """
@@ -760,3 +760,23 @@ def test_native_shutdown_child_uses_the_product_exit_policy():
         encoding="utf-8")
 
     assert "os._exit(exit_code)" in child_source
+
+
+def test_close_in_picture_in_picture_keeps_the_previous_window_size(close_bench):
+    # PiP küçük ve köşeye yapışık geçici bir moddur; o anki geometri
+    # kaydedilirse sonraki açılış küçük pencereyle başlar.
+    env = close_bench()
+    env.player.picture_in_picture_enabled = True
+
+    env.close()
+
+    assert "settings.geometry" not in env.calls
+    assert "settings.last_dir" in env.calls
+
+
+def test_normal_close_still_saves_the_window_geometry(close_bench):
+    env = close_bench()
+
+    env.close()
+
+    assert "settings.geometry" in env.calls

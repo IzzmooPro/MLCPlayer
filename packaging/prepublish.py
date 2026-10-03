@@ -4,7 +4,7 @@
 
 KESIN YAYIN SIRASI BURADA TEKRARLANMAZ. Tek resmi kaynak:
 
-    docs/RELEASE_PROCESS.md
+    docs/release/RELEASE_PROCESS.md
 
 Bu kapi o siradaki (e) adimidir: build BITTIKTEN ve yerel ANNOTATED tag
 atildiktan SONRA, push ve release'den ONCE calisir.
@@ -48,8 +48,8 @@ import fetch_sources                                   # noqa: E402
 import verify_release_ref                              # noqa: E402
 from app import release_signature                      # noqa: E402
 
-INSTALLER_DIR = "installer_output"
-MIRROR_DIR = "source_mirror"
+INSTALLER_DIR = os.path.join("output", "installer")
+MIRROR_DIR = os.path.join("output", "source_mirror")
 SOURCE_CONTRACT = os.path.join("packaging", "corresponding_sources.json")
 
 #: Surumlu installer govdeleri. Her birinin `.sig`i de zorunludur.
@@ -97,7 +97,7 @@ def working_tree_is_clean(root=None, log=print):
     """Staged, tracked ve IGNORE EDILMEYEN untracked degisiklik olmamali.
 
     `git status --porcelain` ignore edilen dosyalari zaten disarida
-    birakir; `installer_output` ve `source_mirror` bu yuzden kapiyi
+    birakir; `output/installer` ve `output/source_mirror` bu yuzden kapiyi
     kapatmaz.
     """
     ok, output = verify_release_ref.run_git(["status", "--porcelain"], root)

@@ -68,7 +68,7 @@ def next_step():
 
 def main():
     context = (
-        "MLC Player oturum acilisi (AGENTS.md sozlesmesi, otomatik):\n\n"
+        "MLC Player oturum acilisi (docs/process/AGENTS.md sozlesmesi, otomatik):\n\n"
         "### git rev-parse --show-toplevel\n"
         f"{git_query(['rev-parse', '--show-toplevel'])}\n\n"
         "### git status --short --branch\n"

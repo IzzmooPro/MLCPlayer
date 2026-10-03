@@ -25,7 +25,7 @@ DefaultDirName={autopf}\MLC Player
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 PrivilegesRequired=admin
-OutputDir=..\installer_output
+OutputDir=..\output\installer
 OutputBaseFilename=MLCPlayer_Setup_{#MyAppVersion}
 ; LisansFile BİLEREK YOK — "kabul ediyorum" sayfası KALDIRILDI.
 ; GPL bir EULA değildir: GPLv3 madde 9 açıkça programı almak veya
@@ -418,6 +418,86 @@ brazilianportuguese.OpenDefaultApps=Abrir as configurações de aplicativos padr
 ClosePlayerBeforeUninstall=MLC Player is still running. Close it completely, then start uninstall again.
 turkish.ClosePlayerBeforeUninstall=MLC Player hâlâ çalışıyor. Programı tamamen kapatıp kaldırmayı yeniden başlatın.
 
+english.UninstallCleanupTitle=Remove MLC Player
+english.UninstallCleanupBody=Choose the optional data to remove with the program.
+english.UninstallCleanupAccount=The data choices apply to the uninstall account and the registered MLC accounts listed here: %1
+english.UninstallRemoveAddon=Also remove the Internet Video add-on
+english.UninstallDeleteSettings=Delete settings, history and saved subtitle credentials
+english.UninstallDeleteCache=Delete logs, thumbnail cache and temporary update files
+english.UninstallCleanupNote=Unchecked user data is preserved. Select both data choices to remove all MLC Player data owned by the listed accounts.
+english.UninstallAddonFailed=The Internet Video add-on could not be removed safely. MLC Player removal stopped before deleting the main program.
+english.UninstallCleanupFailed=MLC Player was removed, but some selected user data could not be deleted. No path outside MLC Player ownership was touched.
+
+turkish.UninstallCleanupTitle=MLC Player kaldırma yardımcısı
+turkish.UninstallCleanupBody=Programla birlikte silinecek isteğe bağlı verileri seçin.
+turkish.UninstallCleanupAccount=Veri seçenekleri kaldırma hesabına ve burada listelenen kayıtlı MLC hesaplarına uygulanır: %1
+turkish.UninstallRemoveAddon=Internet Video eklentisini de kaldır
+turkish.UninstallDeleteSettings=Ayarları, geçmişi ve kayıtlı altyazı kimliklerini sil
+turkish.UninstallDeleteCache=Günlükleri, küçük resim önbelleğini ve geçici güncelleme dosyalarını sil
+turkish.UninstallCleanupNote=İşaretlenmeyen kullanıcı verileri korunur. Listelenen hesaplara ait tüm MLC Player verilerini silmek için iki veri seçeneğini de işaretleyin.
+turkish.UninstallAddonFailed=Internet Video eklentisi güvenli biçimde kaldırılamadı. Ana program silinmeden MLC Player kaldırma işlemi durduruldu.
+turkish.UninstallCleanupFailed=MLC Player kaldırıldı ancak seçilen kullanıcı verilerinin bir bölümü silinemedi. MLC Player sahipliği dışındaki hiçbir yola dokunulmadı.
+
+german.UninstallCleanupTitle=MLC Player entfernen
+german.UninstallCleanupBody=Wählen Sie die optionalen Daten aus, die mit dem Programm entfernt werden sollen.
+german.UninstallCleanupAccount=Die Datenoptionen gelten für das Deinstallationskonto und die hier aufgeführten registrierten MLC-Konten: %1
+german.UninstallRemoveAddon=Internet-Video-Erweiterung ebenfalls entfernen
+german.UninstallDeleteSettings=Einstellungen, Verlauf und gespeicherte Untertitel-Anmeldedaten löschen
+german.UninstallDeleteCache=Protokolle, Vorschaubild-Cache und temporäre Update-Dateien löschen
+german.UninstallCleanupNote=Nicht ausgewählte Benutzerdaten bleiben erhalten. Wählen Sie beide Datenoptionen, um alle MLC-Player-Daten der aufgeführten Konten zu entfernen.
+german.UninstallAddonFailed=Die Internet-Video-Erweiterung konnte nicht sicher entfernt werden. Die Entfernung von MLC Player wurde vor dem Löschen des Hauptprogramms beendet.
+german.UninstallCleanupFailed=MLC Player wurde entfernt, aber einige ausgewählte Benutzerdaten konnten nicht gelöscht werden. Pfade außerhalb des Besitzes von MLC Player wurden nicht verändert.
+
+spanish.UninstallCleanupTitle=Quitar MLC Player
+spanish.UninstallCleanupBody=Elija los datos opcionales que se eliminarán con el programa.
+spanish.UninstallCleanupAccount=Las opciones se aplican a la cuenta de desinstalación y a las cuentas MLC registradas que aparecen aquí: %1
+spanish.UninstallRemoveAddon=Quitar también el complemento de vídeo de Internet
+spanish.UninstallDeleteSettings=Eliminar ajustes, historial y credenciales de subtítulos guardadas
+spanish.UninstallDeleteCache=Eliminar registros, caché de miniaturas y archivos temporales de actualización
+spanish.UninstallCleanupNote=Los datos no seleccionados se conservan. Seleccione ambas opciones para eliminar todos los datos de MLC Player de las cuentas indicadas.
+spanish.UninstallAddonFailed=El complemento de vídeo de Internet no se pudo quitar de forma segura. La eliminación de MLC Player se detuvo antes de borrar el programa principal.
+spanish.UninstallCleanupFailed=MLC Player se quitó, pero no se pudieron eliminar algunos datos seleccionados. No se modificó ninguna ruta ajena a MLC Player.
+
+french.UninstallCleanupTitle=Supprimer MLC Player
+french.UninstallCleanupBody=Choisissez les données facultatives à supprimer avec le programme.
+french.UninstallCleanupAccount=Les choix s'appliquent au compte de désinstallation et aux comptes MLC enregistrés affichés ici : %1
+french.UninstallRemoveAddon=Supprimer aussi l'extension Vidéo Internet
+french.UninstallDeleteSettings=Supprimer les paramètres, l'historique et les identifiants de sous-titres enregistrés
+french.UninstallDeleteCache=Supprimer les journaux, le cache des miniatures et les fichiers temporaires de mise à jour
+french.UninstallCleanupNote=Les données non sélectionnées sont conservées. Sélectionnez les deux options pour supprimer toutes les données MLC Player des comptes affichés.
+french.UninstallAddonFailed=L'extension Vidéo Internet n'a pas pu être supprimée en toute sécurité. La suppression de MLC Player s'est arrêtée avant celle du programme principal.
+french.UninstallCleanupFailed=MLC Player a été supprimé, mais certaines données sélectionnées n'ont pas pu l'être. Aucun chemin extérieur à MLC Player n'a été modifié.
+
+italian.UninstallCleanupTitle=Rimuovi MLC Player
+italian.UninstallCleanupBody=Scegli i dati facoltativi da rimuovere insieme al programma.
+italian.UninstallCleanupAccount=Le opzioni si applicano all'account di disinstallazione e agli account MLC registrati elencati qui: %1
+italian.UninstallRemoveAddon=Rimuovi anche il componente Video Internet
+italian.UninstallDeleteSettings=Elimina impostazioni, cronologia e credenziali dei sottotitoli salvate
+italian.UninstallDeleteCache=Elimina registri, cache delle miniature e file temporanei di aggiornamento
+italian.UninstallCleanupNote=I dati non selezionati vengono conservati. Seleziona entrambe le opzioni per rimuovere tutti i dati di MLC Player degli account elencati.
+italian.UninstallAddonFailed=Impossibile rimuovere in sicurezza il componente Video Internet. La rimozione di MLC Player è stata interrotta prima di eliminare il programma principale.
+italian.UninstallCleanupFailed=MLC Player è stato rimosso, ma non è stato possibile eliminare alcuni dati selezionati. Nessun percorso esterno a MLC Player è stato modificato.
+
+russian.UninstallCleanupTitle=Удаление MLC Player
+russian.UninstallCleanupBody=Выберите дополнительные данные, которые следует удалить вместе с программой.
+russian.UninstallCleanupAccount=Параметры применяются к учетной записи удаления и перечисленным здесь зарегистрированным учетным записям MLC: %1
+russian.UninstallRemoveAddon=Также удалить дополнение для интернет-видео
+russian.UninstallDeleteSettings=Удалить настройки, историю и сохраненные учетные данные субтитров
+russian.UninstallDeleteCache=Удалить журналы, кэш миниатюр и временные файлы обновления
+russian.UninstallCleanupNote=Неотмеченные данные сохраняются. Отметьте оба варианта, чтобы удалить все данные MLC Player перечисленных учетных записей.
+russian.UninstallAddonFailed=Не удалось безопасно удалить дополнение для интернет-видео. Удаление MLC Player остановлено до удаления основной программы.
+russian.UninstallCleanupFailed=MLC Player удален, но некоторые выбранные данные удалить не удалось. Пути вне владения MLC Player не изменялись.
+
+brazilianportuguese.UninstallCleanupTitle=Remover o MLC Player
+brazilianportuguese.UninstallCleanupBody=Escolha os dados opcionais que serão removidos com o programa.
+brazilianportuguese.UninstallCleanupAccount=As opções se aplicam à conta de desinstalação e às contas MLC registradas listadas aqui: %1
+brazilianportuguese.UninstallRemoveAddon=Remover também o complemento de vídeo da Internet
+brazilianportuguese.UninstallDeleteSettings=Excluir configurações, histórico e credenciais de legendas salvas
+brazilianportuguese.UninstallDeleteCache=Excluir logs, cache de miniaturas e arquivos temporários de atualização
+brazilianportuguese.UninstallCleanupNote=Os dados não selecionados são preservados. Selecione as duas opções para remover todos os dados do MLC Player das contas listadas.
+brazilianportuguese.UninstallAddonFailed=O complemento de vídeo da Internet não pôde ser removido com segurança. A remoção do MLC Player parou antes de excluir o programa principal.
+brazilianportuguese.UninstallCleanupFailed=O MLC Player foi removido, mas alguns dados selecionados não puderam ser excluídos. Nenhum caminho fora da propriedade do MLC Player foi alterado.
+
 [Tasks]
 ; Varsayılan İŞARETLİ; kullanıcı istemezse kaldırır.
 Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -478,13 +558,14 @@ Type: files; Name: "{app}\_internal\api-ms-win-crt-utility-l1-1-0.dll"; Check: I
 ; `_internal\bin` içindeki mpv-2.dll çekirdek runtime'dır. yt-dlp ve deno
 ; bilinçli olarak ana pakette yoktur; yalnız Internet Videosu ek paketindedir.
 #ifndef MLCCompilePreflight
-Source: "..\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: BeforeInstallMainPayload
+Source: "..\output\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: BeforeInstallMainPayload
+Source: "..\output\dist\MLCUserCleanup.exe"; DestDir: "{app}"; Flags: ignoreversion
 #endif
 ; GPLv3 metni ve README kurulum KÖKÜNDE de dursun: kullanıcı `_internal`
 ; içine bakmak zorunda kalmadan lisansa ulaşabilmelidir.
 Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\README.tr.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\.github\README.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\.github\README.tr.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
 ; ÖLÇÜLEN KUSUR: EXE sürüm kaynağı düzeltildikten SONRA bile Windows
@@ -500,6 +581,10 @@ Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}"; ValueType: s
 ; bırakabiliyordu. Yalnız TAM ürün anahtarı varsa uninstall loguna al; kurulumda
 ; anahtarı oluşturma/değiştirme ve paylaşılan `Applications` üst ağacına dokunma.
 Root: HKCU; Subkey: "Software\Classes\Applications\{#MyAppExeName}"; Flags: dontcreatekey uninsdeletekey
+; Ana ürün kayıt alanı yalnız MLC Player'a aittir. Alt cleanup kaydı ters sırada
+; kaldırıldıktan sonra boş üst anahtar da uninstall günlüğünden silinir.
+Root: HKLM; Subkey: "Software\MLCPlayer"; Flags: dontcreatekey uninsdeletekey
+Root: HKLM; Subkey: "Software\MLCPlayer\UninstallCleanup"; Flags: dontcreatekey uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
 ; Desteklenen türler: "Birlikte aç" listesinde program bu uzantılarda önerilir.
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".mkv"; ValueData: ""
@@ -531,6 +616,14 @@ const
   InstallModeReinstall = 1;
   InstallModeUpgrade = 2;
   CInstallerAccent = $002050F0;
+  AddonUninstallKey = 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{7C4F2A61-9B3D-4E58-9C2A-5D8E1F0B7A34}_is1';
+  CleanupRegistryKey = 'Software\MLCPlayer\UninstallCleanup';
+  UserSettingsKey = 'Software\MLCPlayer';
+  SubtitleSettingsKey = 'Software\MLCPlayer\MLCPlayer\subtitle_center';
+  CredentialTypeGeneric = 1;
+  ErrorNotFound = 1168;
+  FileAttributeReparsePoint = $400;
+  InvalidFileAttributes = $FFFFFFFF;
 
 var
   CurrentInstallMode: Integer;
@@ -542,6 +635,28 @@ var
   InstallAccentBar: TPanel;
   CurrentInstallPhase: String;
   LegacyCleanupVerified: Boolean;
+  RemoveAddonSelected: Boolean;
+  DeleteSettingsSelected: Boolean;
+  DeleteCacheSelected: Boolean;
+  CleanupFailed: Boolean;
+  StoredSubtitleUsername: String;
+  CleanupUserSid: String;
+  CleanupTaskName: String;
+  CleanupHelperPath: String;
+  CleanupHelperHash: String;
+  CleanupIdentityValid: Boolean;
+  CleanupInstallId: String;
+  CleanupMarkerKey: String;
+  CleanupUserSids, CleanupTaskNames, CleanupHelperPaths,
+    CleanupHelperHashes, CleanupMarkerKeys: TArrayOfString;
+  CleanupIdentityCount: Integer;
+  CleanupAccountDisplay: String;
+  CleanupIdentityProblems: Boolean;
+
+function CredDeleteW(TargetName: String; CredentialType, Flags: Cardinal): Boolean;
+  external 'CredDeleteW@advapi32.dll stdcall';
+function GetFileAttributesW(FileName: String): Cardinal;
+  external 'GetFileAttributesW@kernel32.dll stdcall';
 
 function InitializeSetup(): Boolean;
 var
@@ -979,10 +1094,885 @@ begin
   end;
 end;
 
-// Inno Setup 7 BUG ATLATMASI — SİLME!
-// [Code] bölümü OLMAYAN kurulumlarda kaldırıcı "PathRedir: Not initialized"
-// iç hatası veriyor. Bu zararsız fonksiyon bölümün var olmasını garanti eder.
+function IsReparsePoint(Path: String): Boolean; forward;
+
+function IsCanonicalSid(Value: String): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  if (Length(Value) < 5) or (Copy(Value, 1, 2) <> 'S-') then
+    Exit;
+  for I := 3 to Length(Value) do
+    if not (((Value[I] >= '0') and (Value[I] <= '9')) or
+            (Value[I] = '-')) then
+      Exit;
+  Result := Pos('--', Value) = 0;
+end;
+
+function ExpectedCleanupTaskName(Sid: String): String;
+begin
+  Result := '\MLCPlayer_UninstallCleanup_' + Sid;
+end;
+
+function HasExpectedCleanupHelperSuffix(FileName: String): Boolean;
+var
+  CurrentSuffix, LegacySuffix: String;
+begin
+  CurrentSuffix := '\Programs\MLC Player\UninstallCleanup\v1\MLCUserCleanup.exe';
+  LegacySuffix := '\MLCPlayer\UninstallCleanup\v1\MLCUserCleanup.exe';
+  Result := ((Length(FileName) > Length(CurrentSuffix)) and
+    (CompareText(Copy(FileName, Length(FileName) - Length(CurrentSuffix) + 1,
+      Length(CurrentSuffix)), CurrentSuffix) = 0)) or
+    ((Length(FileName) > Length(LegacySuffix)) and
+    (CompareText(Copy(FileName, Length(FileName) - Length(LegacySuffix) + 1,
+      Length(LegacySuffix)), LegacySuffix) = 0));
+end;
+
+function CleanupHelperPathIsSafe(FileName: String): Boolean;
+var
+  V1Directory, CleanupDirectory, ProductDirectory, ProgramsDirectory,
+    LocalDirectory, AppDataDirectory, ProfileDirectory: String;
+begin
+  Result := False;
+  if not HasExpectedCleanupHelperSuffix(FileName) or
+     not FileExists(FileName) or IsReparsePoint(FileName) then
+    Exit;
+  V1Directory := ExtractFileDir(FileName);
+  CleanupDirectory := ExtractFileDir(V1Directory);
+  ProductDirectory := ExtractFileDir(CleanupDirectory);
+  ProgramsDirectory := ExtractFileDir(ProductDirectory);
+  LocalDirectory := ExtractFileDir(ProgramsDirectory);
+  AppDataDirectory := ExtractFileDir(LocalDirectory);
+  ProfileDirectory := ExtractFileDir(AppDataDirectory);
+  if IsReparsePoint(V1Directory) or IsReparsePoint(CleanupDirectory) or
+     IsReparsePoint(ProductDirectory) or IsReparsePoint(ProgramsDirectory) or
+     IsReparsePoint(LocalDirectory) or IsReparsePoint(AppDataDirectory) or
+     IsReparsePoint(ProfileDirectory) then
+    Exit;
+  Result := True;
+end;
+
+function IsCleanupId(Value: String): Boolean;
+var
+  I: Integer;
+begin
+  Result := Length(Value) = 32;
+  if not Result then
+    Exit;
+  for I := 1 to Length(Value) do
+    if not (((Value[I] >= '0') and (Value[I] <= '9')) or
+            ((Value[I] >= 'a') and (Value[I] <= 'f'))) then
+    begin
+      Result := False;
+      Exit;
+    end;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+  begin
+    if not RegQueryStringValue(HKLM, CleanupRegistryKey, 'InstallId',
+        CleanupInstallId) or not IsCleanupId(CleanupInstallId) then
+      CleanupInstallId := Lowercase(Copy(GetSHA256OfUnicodeString(
+        GetDateTimeString('yyyymmddhhnnsszzz', '-', ':') + '|' +
+        IntToStr(Random(2147483647)) + '|' + ExpandConstant('{app}')), 1, 32));
+    if not RegWriteStringValue(HKLM, CleanupRegistryKey, 'InstallId',
+        CleanupInstallId) then
+      RaiseException('MLC Player uninstall cleanup identity could not be saved.');
+  end;
+end;
+
+function AddonIsInstalled: Boolean;
+begin
+  Result := RegKeyExists(HKLM, AddonUninstallKey);
+end;
+
+procedure InitializeUninstallCleanupChoices;
+begin
+  // Program bileşeni varsayılan kaldırılır; kullanıcı verisi açık seçim
+  // olmadan asla silinmez. Sessiz kaldırmada da aynı koruma geçerlidir.
+  RemoveAddonSelected := AddonIsInstalled;
+  DeleteSettingsSelected := False;
+  DeleteCacheSelected := False;
+  if CompareText(ExpandConstant('{param:KEEPADDON|0}'), '1') = 0 then
+    RemoveAddonSelected := False;
+end;
+
+function ShowUninstallCleanupChoices: Boolean;
+var
+  Form: TSetupForm;
+  BodyLabel, AccountLabel, NoteLabel: TNewStaticText;
+  RemoveAddonCheckBox, DeleteSettingsCheckBox,
+    DeleteCacheCheckBox: TNewCheckBox;
+  ContinueButton, CancelButton: TNewButton;
+  ButtonSeparator: TBevel;
+  ButtonWidth: Integer;
+begin
+  Form := CreateCustomForm(ScaleX(470), ScaleY(292), False, True);
+  try
+    Form.Caption := CustomMessage('UninstallCleanupTitle');
+
+    BodyLabel := TNewStaticText.Create(Form);
+    BodyLabel.Parent := Form;
+    BodyLabel.Left := ScaleX(16);
+    BodyLabel.Top := ScaleY(14);
+    BodyLabel.Width := Form.ClientWidth - ScaleX(32);
+    BodyLabel.Height := ScaleY(22);
+    BodyLabel.AutoSize := False;
+    BodyLabel.WordWrap := True;
+    BodyLabel.Caption := CustomMessage('UninstallCleanupBody');
+    BodyLabel.Font.Style := [fsBold];
+
+    AccountLabel := TNewStaticText.Create(Form);
+    AccountLabel.Parent := Form;
+    AccountLabel.Left := BodyLabel.Left;
+    AccountLabel.Top := BodyLabel.Top + BodyLabel.Height + ScaleY(6);
+    AccountLabel.Width := BodyLabel.Width;
+    AccountLabel.Height := ScaleY(34);
+    AccountLabel.AutoSize := False;
+    AccountLabel.WordWrap := True;
+    AccountLabel.Caption := FmtMessage(
+      CustomMessage('UninstallCleanupAccount'), [CleanupAccountDisplay]);
+
+    RemoveAddonCheckBox := TNewCheckBox.Create(Form);
+    RemoveAddonCheckBox.Parent := Form;
+    RemoveAddonCheckBox.Left := BodyLabel.Left;
+    RemoveAddonCheckBox.Top := AccountLabel.Top + AccountLabel.Height + ScaleY(8);
+    RemoveAddonCheckBox.Width := BodyLabel.Width;
+    RemoveAddonCheckBox.Height := ScaleY(20);
+    RemoveAddonCheckBox.Caption := CustomMessage('UninstallRemoveAddon');
+    RemoveAddonCheckBox.Checked := RemoveAddonSelected;
+    RemoveAddonCheckBox.Visible := AddonIsInstalled;
+
+    DeleteSettingsCheckBox := TNewCheckBox.Create(Form);
+    DeleteSettingsCheckBox.Parent := Form;
+    DeleteSettingsCheckBox.Left := BodyLabel.Left;
+    DeleteSettingsCheckBox.Top := RemoveAddonCheckBox.Top + ScaleY(28);
+    DeleteSettingsCheckBox.Width := BodyLabel.Width;
+    DeleteSettingsCheckBox.Height := ScaleY(20);
+    DeleteSettingsCheckBox.Caption := CustomMessage('UninstallDeleteSettings');
+    DeleteSettingsCheckBox.Checked := DeleteSettingsSelected;
+    DeleteSettingsCheckBox.Enabled := True;
+
+    DeleteCacheCheckBox := TNewCheckBox.Create(Form);
+    DeleteCacheCheckBox.Parent := Form;
+    DeleteCacheCheckBox.Left := BodyLabel.Left;
+    DeleteCacheCheckBox.Top := DeleteSettingsCheckBox.Top + ScaleY(28);
+    DeleteCacheCheckBox.Width := BodyLabel.Width;
+    DeleteCacheCheckBox.Height := ScaleY(20);
+    DeleteCacheCheckBox.Caption := CustomMessage('UninstallDeleteCache');
+    DeleteCacheCheckBox.Checked := DeleteCacheSelected;
+    DeleteCacheCheckBox.Enabled := True;
+
+    NoteLabel := TNewStaticText.Create(Form);
+    NoteLabel.Parent := Form;
+    NoteLabel.Left := BodyLabel.Left;
+    NoteLabel.Top := DeleteCacheCheckBox.Top + DeleteCacheCheckBox.Height + ScaleY(8);
+    NoteLabel.Width := BodyLabel.Width;
+    NoteLabel.Height := ScaleY(48);
+    NoteLabel.AutoSize := False;
+    NoteLabel.WordWrap := True;
+    NoteLabel.Caption := CustomMessage('UninstallCleanupNote');
+
+    ButtonSeparator := TBevel.Create(Form);
+    ButtonSeparator.Parent := Form;
+    ButtonSeparator.Left := 0;
+    ButtonSeparator.Top := Form.ClientHeight - ScaleY(47);
+    ButtonSeparator.Width := Form.ClientWidth;
+    ButtonSeparator.Height := ScaleY(2);
+    ButtonSeparator.Shape := bsTopLine;
+    ButtonSeparator.Anchors := [akLeft, akRight, akBottom];
+
+    ContinueButton := TNewButton.Create(Form);
+    ContinueButton.Parent := Form;
+    ContinueButton.Caption := SetupMessage(msgButtonNext);
+    ContinueButton.Height := ScaleY(23);
+    ContinueButton.Top := Form.ClientHeight - ScaleY(33);
+    ContinueButton.ModalResult := mrOk;
+    ContinueButton.Default := True;
+
+    CancelButton := TNewButton.Create(Form);
+    CancelButton.Parent := Form;
+    CancelButton.Caption := SetupMessage(msgButtonCancel);
+    CancelButton.Height := ContinueButton.Height;
+    CancelButton.Top := ContinueButton.Top;
+    CancelButton.ModalResult := mrCancel;
+    CancelButton.Cancel := True;
+
+    ButtonWidth := Form.CalculateButtonWidth([ContinueButton.Caption,
+      CancelButton.Caption]);
+    ContinueButton.Width := ButtonWidth;
+    CancelButton.Width := ButtonWidth;
+    CancelButton.Left := Form.ClientWidth - ScaleX(16) - ButtonWidth;
+    ContinueButton.Left := CancelButton.Left - ScaleX(8) - ButtonWidth;
+
+    if RemoveAddonCheckBox.Visible and RemoveAddonCheckBox.Enabled then
+      Form.ActiveControl := RemoveAddonCheckBox
+    else if DeleteSettingsCheckBox.Enabled then
+      Form.ActiveControl := DeleteSettingsCheckBox
+    else
+      Form.ActiveControl := ContinueButton;
+
+    Result := Form.ShowModal() = mrOk;
+    if Result then
+    begin
+      RemoveAddonSelected := RemoveAddonCheckBox.Visible and
+        RemoveAddonCheckBox.Checked;
+      DeleteSettingsSelected := DeleteSettingsCheckBox.Checked;
+      DeleteCacheSelected := DeleteCacheCheckBox.Checked;
+    end;
+  finally
+    Form.Free;
+  end;
+end;
+
+function ReadValidatedAddonUninstaller(var UninstallerPath: String): Boolean;
+var
+  RegisteredPath: String;
+  RegisteredInstallDirectory: String;
+  FileName: String;
+begin
+  Result := False;
+  if not RegQueryStringValue(HKLM, AddonUninstallKey,
+      'InstallLocation', RegisteredInstallDirectory) then
+    Exit;
+  if not PathSame(RemoveBackslashUnlessRoot(Trim(RegisteredInstallDirectory)),
+      ExpandConstant('{app}')) then
+    Exit;
+  if not RegQueryStringValue(HKLM, AddonUninstallKey,
+      'UninstallString', RegisteredPath) then
+    Exit;
+  UninstallerPath := RemoveQuotes(Trim(RegisteredPath));
+  if not FileExists(UninstallerPath) then
+    Exit;
+  if not PathSame(ExtractFileDir(UninstallerPath), ExpandConstant('{app}')) then
+    Exit;
+  if PathSame(UninstallerPath, ExpandConstant('{uninstallexe}')) then
+    Exit;
+  FileName := Lowercase(ExtractFileName(UninstallerPath));
+  if (Length(FileName) < 10) or
+     (Copy(FileName, 1, 5) <> 'unins') or
+     (Copy(FileName, Length(FileName) - 3, 4) <> '.exe') then
+    Exit;
+  Result := True;
+end;
+
+procedure RemoveSelectedAddon;
+var
+  UninstallerPath: String;
+  ExitCode: Integer;
+begin
+  if not RemoveAddonSelected or not AddonIsInstalled then
+    Exit;
+  if not ReadValidatedAddonUninstaller(UninstallerPath) then
+    RaiseException(CustomMessage('UninstallAddonFailed'));
+  if not Exec(UninstallerPath, '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART',
+      '', SW_HIDE, ewWaitUntilTerminated, ExitCode) then
+    RaiseException(CustomMessage('UninstallAddonFailed'));
+  if ExitCode <> 0 then
+    RaiseException(CustomMessage('UninstallAddonFailed'));
+  if RegKeyExists(HKLM, AddonUninstallKey) then
+    RaiseException(CustomMessage('UninstallAddonFailed'));
+  if FileExists(ExpandConstant('{app}\_internal\bin\yt-dlp.exe')) or
+     FileExists(ExpandConstant('{app}\_internal\bin\deno.exe')) or
+     FileExists(ExpandConstant('{app}\_internal\licenses\yt-dlp-LICENSE.txt')) or
+     FileExists(ExpandConstant('{app}\_internal\licenses\yt-dlp-THIRD_PARTY_LICENSES.txt')) or
+     FileExists(ExpandConstant('{app}\_internal\licenses\deno-LICENSE.txt')) then
+    RaiseException(CustomMessage('UninstallAddonFailed'));
+end;
+
+procedure MarkCleanupFailure(Subject: String);
+begin
+  CleanupFailed := True;
+  Log('MLC cleanup retained an unsafe or undeletable entry: ' + Subject);
+end;
+
+function IsReparsePoint(Path: String): Boolean;
+var
+  Attributes: Cardinal;
+begin
+  Attributes := GetFileAttributesW(Path);
+  Result := (Attributes <> InvalidFileAttributes) and
+    ((Attributes and FileAttributeReparsePoint) <> 0);
+end;
+
+function PathAncestorsAreSafe(Path: String): Boolean;
+var
+  CurrentPath, ParentPath: String;
+begin
+  Result := False;
+  CurrentPath := RemoveBackslashUnlessRoot(Path);
+  if CurrentPath = '' then
+    Exit;
+  while True do
+  begin
+    if IsReparsePoint(CurrentPath) then
+      Exit;
+    ParentPath := RemoveBackslashUnlessRoot(ExtractFileDir(CurrentPath));
+    if (ParentPath = '') or
+       (CompareText(ParentPath, CurrentPath) = 0) then
+      Break;
+    CurrentPath := ParentPath;
+  end;
+  Result := True;
+end;
+
+procedure DeleteOwnedFile(FileName: String);
+begin
+  if IsReparsePoint(FileName) or DirExists(FileName) then
+  begin
+    MarkCleanupFailure(FileName);
+    Exit;
+  end;
+  if FileExists(FileName) and not DeleteFile(FileName) then
+    MarkCleanupFailure(FileName);
+end;
+
+procedure RemoveEmptyOwnedDirectory(Directory: String);
+begin
+  if IsReparsePoint(Directory) then
+  begin
+    MarkCleanupFailure(Directory);
+    Exit;
+  end;
+  if DirExists(Directory) and not DirectoryHasEntries(Directory) and
+     not RemoveDir(Directory) then
+    MarkCleanupFailure(Directory);
+end;
+
+function IsHexCharacter(Character: Char): Boolean;
+begin
+  Result := ((Character >= '0') and (Character <= '9')) or
+    ((Character >= 'a') and (Character <= 'f')) or
+    ((Character >= 'A') and (Character <= 'F'));
+end;
+
+function IsOwnedThumbnailName(FileName: String): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  if Length(FileName) <> 68 then
+    Exit;
+  if CompareText(Copy(FileName, 65, 4), '.jpg') <> 0 then
+    Exit;
+  for I := 1 to 64 do
+    if not IsHexCharacter(FileName[I]) then
+      Exit;
+  Result := True;
+end;
+
+function IsOwnedUpdateFileName(FileName: String): Boolean;
+var
+  LowerName: String;
+begin
+  LowerName := Lowercase(FileName);
+  Result := (Length(LowerName) >= 22) and
+    (Copy(LowerName, 1, 17) = 'mlcplayer_setup_v') and
+    ((Copy(LowerName, Length(LowerName) - 3, 4) = '.exe') or
+     (Copy(LowerName, Length(LowerName) - 7, 8) = '.exe.sig'));
+end;
+
+function IsOwnedIpcFileName(FileName: String): Boolean;
+var
+  I: Integer;
+  Suffix: String;
+begin
+  Result := False;
+  if Length(FileName) = 45 then
+    Suffix := Copy(FileName, 33, 13)
+  else if Length(FileName) = 44 then
+    Suffix := Copy(FileName, 33, 12)
+  else
+    Exit;
+  if (CompareText(Suffix, '.request.json') <> 0) and
+     (CompareText(Suffix, '.result.json') <> 0) then
+    Exit;
+  for I := 1 to 32 do
+    if not IsHexCharacter(FileName[I]) then
+      Exit;
+  Result := True;
+end;
+
+procedure DeleteAllowedFiles(Directory: String; Kind: Integer);
+var
+  FindRec: TFindRec;
+  Candidate: String;
+  Owned: Boolean;
+begin
+  if not DirExists(Directory) then
+    Exit;
+  if IsReparsePoint(Directory) then
+  begin
+    MarkCleanupFailure(Directory);
+    Exit;
+  end;
+  if not FindFirst(AddBackslash(Directory) + '*', FindRec) then
+  begin
+    RemoveEmptyOwnedDirectory(Directory);
+    Exit;
+  end;
+  try
+    repeat
+      if (FindRec.Name <> '.') and (FindRec.Name <> '..') then
+      begin
+      Candidate := AddBackslash(Directory) + FindRec.Name;
+      if IsReparsePoint(Candidate) or DirExists(Candidate) then
+          MarkCleanupFailure(Candidate)
+        else
+        begin
+          Owned := ((Kind = 1) and IsOwnedThumbnailName(FindRec.Name)) or
+            ((Kind = 2) and IsOwnedUpdateFileName(FindRec.Name)) or
+            ((Kind = 3) and IsOwnedIpcFileName(FindRec.Name));
+          if Owned then
+            DeleteOwnedFile(Candidate)
+          else
+            MarkCleanupFailure(Candidate);
+        end;
+      end;
+    until not FindNext(FindRec);
+  finally
+    FindClose(FindRec);
+  end;
+  if DirectoryHasEntries(Directory) then
+    MarkCleanupFailure(Directory);
+  RemoveEmptyOwnedDirectory(Directory);
+end;
+
+procedure DeleteUpdateDirectories;
+var
+  BaseDirectory, Candidate: String;
+  FindRec: TFindRec;
+begin
+  BaseDirectory := ExpandConstant('{localappdata}');
+  if not PathAncestorsAreSafe(BaseDirectory) then
+  begin
+    MarkCleanupFailure(BaseDirectory);
+    Exit;
+  end;
+  if not FindFirst(AddBackslash(BaseDirectory) + 'MLCPlayerUpdate_*', FindRec) then
+    Exit;
+  try
+    repeat
+      Candidate := AddBackslash(BaseDirectory) + FindRec.Name;
+      if DirExists(Candidate) and
+         (CompareText(Copy(FindRec.Name, 1, 16),
+           'MLCPlayerUpdate_') = 0) then
+      begin
+        if IsReparsePoint(Candidate) then
+          MarkCleanupFailure(Candidate)
+        else
+        begin
+          DeleteAllowedFiles(Candidate, 2);
+          RemoveEmptyOwnedDirectory(Candidate);
+        end;
+      end;
+    until not FindNext(FindRec);
+  finally
+    FindClose(FindRec);
+  end;
+end;
+
+function DeleteCredential(TargetName: String): Boolean;
+begin
+  if CredDeleteW(TargetName, CredentialTypeGeneric, 0) then
+    Result := True
+  else
+    Result := DLLGetLastError = ErrorNotFound;
+end;
+
+procedure DeleteOwnedUserData;
+var
+  RoamingRoot, LocalRoot, LogDirectory,
+    CacheDirectory, ThumbnailDirectory: String;
+begin
+  RoamingRoot := ExpandConstant('{userappdata}\MLCPlayer');
+  LocalRoot := ExpandConstant('{localappdata}\MLCPlayer');
+  LogDirectory := AddBackslash(RoamingRoot) + 'logs';
+  CacheDirectory := AddBackslash(LocalRoot) + 'cache';
+  ThumbnailDirectory := AddBackslash(CacheDirectory) + 'thumbnails';
+
+  if DeleteSettingsSelected and
+     not PathAncestorsAreSafe(RoamingRoot) then
+  begin
+    MarkCleanupFailure('user settings profile path');
+    Exit;
+  end;
+  if DeleteCacheSelected and
+     (not PathAncestorsAreSafe(RoamingRoot) or
+      not PathAncestorsAreSafe(LogDirectory) or
+      not PathAncestorsAreSafe(LocalRoot) or
+      not PathAncestorsAreSafe(CacheDirectory) or
+      not PathAncestorsAreSafe(ThumbnailDirectory)) then
+  begin
+    MarkCleanupFailure('user cache profile path');
+    Exit;
+  end;
+
+  if DeleteSettingsSelected then
+  begin
+    if not DeleteCredential('MLCPlayer/OpenSubtitles/default') then
+      MarkCleanupFailure('OpenSubtitles default credential');
+    if (StoredSubtitleUsername <> '') and
+       (CompareText(StoredSubtitleUsername, 'default') <> 0) and
+       (not DeleteCredential('MLCPlayer/OpenSubtitles/' +
+         StoredSubtitleUsername)) then
+      MarkCleanupFailure('OpenSubtitles user credential');
+    if not DeleteCredential('MLCPlayer/OpenSubtitles.ApiKey/default') then
+      MarkCleanupFailure('OpenSubtitles API credential');
+    if RegKeyExists(HKCU, UserSettingsKey) and
+       not RegDeleteKeyIncludingSubkeys(HKCU, UserSettingsKey) then
+      MarkCleanupFailure(UserSettingsKey);
+    if RegKeyExists(HKCU, UserSettingsKey) then
+      MarkCleanupFailure(UserSettingsKey);
+    DeleteOwnedFile(AddBackslash(RoamingRoot) + 'MLCPlayer.ini');
+  end;
+
+  if DeleteCacheSelected then
+  begin
+    DeleteOwnedFile(AddBackslash(LogDirectory) + 'uygulama.log');
+    DeleteOwnedFile(AddBackslash(LogDirectory) + 'uygulama.log.1');
+    RemoveEmptyOwnedDirectory(LogDirectory);
+    DeleteAllowedFiles(ThumbnailDirectory, 1);
+    RemoveEmptyOwnedDirectory(CacheDirectory);
+    DeleteUpdateDirectories;
+  end;
+
+  if DeleteSettingsSelected or DeleteCacheSelected then
+    RemoveEmptyOwnedDirectory(RoamingRoot);
+  if DeleteCacheSelected then
+    RemoveEmptyOwnedDirectory(LocalRoot);
+  if DeleteSettingsSelected and DeleteCacheSelected then
+  begin
+    if DirectoryHasEntries(RoamingRoot) then
+      MarkCleanupFailure(RoamingRoot);
+    if DirectoryHasEntries(LocalRoot) then
+      MarkCleanupFailure(LocalRoot);
+  end;
+end;
+
+procedure AppendCleanupIdentity(Sid, TaskName, HelperPath, HelperHash,
+  MarkerKey: String);
+var
+  Index: Integer;
+begin
+  Index := CleanupIdentityCount;
+  SetArrayLength(CleanupUserSids, Index + 1);
+  SetArrayLength(CleanupTaskNames, Index + 1);
+  SetArrayLength(CleanupHelperPaths, Index + 1);
+  SetArrayLength(CleanupHelperHashes, Index + 1);
+  SetArrayLength(CleanupMarkerKeys, Index + 1);
+  CleanupUserSids[Index] := Sid;
+  CleanupTaskNames[Index] := TaskName;
+  CleanupHelperPaths[Index] := HelperPath;
+  CleanupHelperHashes[Index] := HelperHash;
+  CleanupMarkerKeys[Index] := MarkerKey;
+  CleanupIdentityCount := Index + 1;
+end;
+
+function ExpectedCleanupHelperForSid(Sid: String;
+  var ExpectedHelper: String): Boolean;
+var
+  ProfilePath: String;
+begin
+  Result := False;
+  if not IsCanonicalSid(Sid) or
+     not RegQueryStringValue(HKLM,
+      'SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\' + Sid,
+      'ProfileImagePath', ProfilePath) then
+    Exit;
+  StringChangeEx(ProfilePath, '%SystemDrive%', ExpandConstant('{sd}'), True);
+  if Pos('%', ProfilePath) <> 0 then
+    Exit;
+  ExpectedHelper := AddBackslash(ProfilePath) +
+    'AppData\Local\Programs\MLC Player\UninstallCleanup\v1\MLCUserCleanup.exe';
+  Result := True;
+end;
+
+function ExpectedLegacyCleanupHelperForSid(Sid: String;
+  var ExpectedHelper: String): Boolean;
+var
+  ProfilePath: String;
+begin
+  Result := False;
+  if not IsCanonicalSid(Sid) or
+     not RegQueryStringValue(HKLM,
+      'SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\' + Sid,
+      'ProfileImagePath', ProfilePath) then
+    Exit;
+  StringChangeEx(ProfilePath, '%SystemDrive%', ExpandConstant('{sd}'), True);
+  if Pos('%', ProfilePath) <> 0 then
+    Exit;
+  ExpectedHelper := AddBackslash(ProfilePath) +
+    'AppData\Local\MLCPlayer\UninstallCleanup\v1\MLCUserCleanup.exe';
+  Result := True;
+end;
+
+function CleanupSidWasLoaded(Sid: String): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to CleanupIdentityCount - 1 do
+    if CompareText(CleanupUserSids[I], Sid) = 0 then
+    begin
+      Result := True;
+      Exit;
+    end;
+end;
+
+function LoadCleanupIdentities: Boolean;
+var
+  UserSids, ProfileSids: TArrayOfString;
+  I: Integer;
+  CandidateKey, CandidateInstallId, CandidateSid, CandidateTask,
+  CandidateHelper, CandidateHash, ExpectedHelper, ExpectedLegacyHelper: String;
+  CandidateValid: Boolean;
+begin
+  Result := False;
+  CleanupIdentityCount := 0;
+  CleanupIdentityProblems := False;
+  if not RegQueryStringValue(HKLM, CleanupRegistryKey, 'InstallId',
+      CleanupInstallId) or not IsCleanupId(CleanupInstallId) then
+    Exit;
+  if not RegGetSubkeyNames(HKU, '', UserSids) then
+    Exit;
+  for I := 0 to GetArrayLength(UserSids) - 1 do
+    if IsCanonicalSid(UserSids[I]) then
+    begin
+      CandidateKey := UserSids[I] + '\Software\MLCPlayer\UninstallCleanup';
+      if RegQueryStringValue(HKU, CandidateKey, 'InstallId',
+          CandidateInstallId) and
+         (CompareText(CandidateInstallId, CleanupInstallId) = 0) then
+      begin
+        CandidateValid := RegQueryStringValue(HKU, CandidateKey, 'UserSid',
+          CandidateSid);
+        CandidateValid := RegQueryStringValue(HKU, CandidateKey, 'TaskName',
+          CandidateTask) and CandidateValid;
+        CandidateValid := RegQueryStringValue(HKU, CandidateKey, 'HelperPath',
+          CandidateHelper) and CandidateValid;
+        CandidateValid := RegQueryStringValue(HKU, CandidateKey,
+          'HelperSha256', CandidateHash) and CandidateValid;
+        CandidateValid := ExpectedCleanupHelperForSid(UserSids[I],
+          ExpectedHelper) and CandidateValid;
+        CandidateValid := ExpectedLegacyCleanupHelperForSid(UserSids[I],
+          ExpectedLegacyHelper) and CandidateValid;
+        CandidateValid := CandidateValid and
+          (CompareText(CandidateSid, UserSids[I]) = 0) and
+          (CompareText(CandidateTask,
+            ExpectedCleanupTaskName(UserSids[I])) = 0) and
+          (PathSame(CandidateHelper, ExpectedHelper) or
+           PathSame(CandidateHelper, ExpectedLegacyHelper)) and
+          CleanupHelperPathIsSafe(CandidateHelper) and
+          (CandidateHash <> '') and
+          (CompareText(GetSHA256OfFile(CandidateHelper), CandidateHash) = 0);
+        if CandidateValid then
+          AppendCleanupIdentity(CandidateSid, CandidateTask, CandidateHelper,
+            CandidateHash, CandidateKey)
+        else
+          CleanupIdentityProblems := True;
+      end;
+    end;
+  if RegGetSubkeyNames(HKLM,
+      'SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList',
+      ProfileSids) then
+    for I := 0 to GetArrayLength(ProfileSids) - 1 do
+      if ExpectedCleanupHelperForSid(ProfileSids[I], ExpectedHelper) and
+         ExpectedLegacyCleanupHelperForSid(ProfileSids[I],
+           ExpectedLegacyHelper) and
+         (FileExists(ExpectedHelper) or FileExists(ExpectedLegacyHelper)) and
+         not CleanupSidWasLoaded(ProfileSids[I]) then
+        CleanupIdentityProblems := True;
+  Result := True;
+end;
+
+procedure SelectCleanupIdentity(Index: Integer);
+begin
+  CleanupUserSid := CleanupUserSids[Index];
+  CleanupTaskName := CleanupTaskNames[Index];
+  CleanupHelperPath := CleanupHelperPaths[Index];
+  CleanupHelperHash := CleanupHelperHashes[Index];
+  CleanupMarkerKey := CleanupMarkerKeys[Index];
+end;
+
+function NewCleanupNonce: String;
+begin
+  Result := Lowercase(Copy(GetSHA256OfUnicodeString(
+    GetDateTimeString('yyyymmddhhnnsszzz', '-', ':') + '|' +
+    IntToStr(Random(2147483647)) + '|' + CleanupUserSid), 1, 32));
+end;
+
+function JsonBoolean(Value: Boolean): String;
+begin
+  if Value then
+    Result := 'true'
+  else
+    Result := 'false';
+end;
+
+procedure RemoveCleanupInfrastructure;
+var
+  ExitCode, I: Integer;
+  V1Directory, CleanupDirectory, ProductDirectory, IpcDirectory: String;
+begin
+  if not CleanupIdentityValid then
+    Exit;
+  Exec(ExpandConstant('{sys}\schtasks.exe'),
+    '/End /TN "' + CleanupTaskName + '"', '', SW_HIDE,
+    ewWaitUntilTerminated, ExitCode);
+  Exec(ExpandConstant('{sys}\schtasks.exe'),
+    '/Delete /TN "' + CleanupTaskName + '" /F', '', SW_HIDE,
+    ewWaitUntilTerminated, ExitCode);
+  if Exec(ExpandConstant('{sys}\schtasks.exe'),
+      '/Query /TN "' + CleanupTaskName + '"', '', SW_HIDE,
+      ewWaitUntilTerminated, ExitCode) and (ExitCode = 0) then
+    MarkCleanupFailure('user cleanup task');
+  if CleanupHelperPathIsSafe(CleanupHelperPath) then
+  begin
+    IpcDirectory := AddBackslash(ExtractFileDir(CleanupHelperPath)) + 'ipc';
+    DeleteAllowedFiles(IpcDirectory, 3);
+    for I := 1 to 50 do
+    begin
+      if not FileExists(CleanupHelperPath) then
+        Break;
+      DeleteFile(CleanupHelperPath);
+      if FileExists(CleanupHelperPath) then
+        Sleep(100);
+    end;
+    if FileExists(CleanupHelperPath) then
+      MarkCleanupFailure('user cleanup helper');
+    V1Directory := ExtractFileDir(CleanupHelperPath);
+    CleanupDirectory := ExtractFileDir(V1Directory);
+    ProductDirectory := ExtractFileDir(CleanupDirectory);
+    RemoveEmptyOwnedDirectory(V1Directory);
+    RemoveEmptyOwnedDirectory(CleanupDirectory);
+    RemoveEmptyOwnedDirectory(ProductDirectory);
+  end
+  else
+    MarkCleanupFailure('user cleanup helper path');
+  if RegKeyExists(HKU, CleanupMarkerKey) and
+     not RegDeleteKeyIncludingSubkeys(HKU, CleanupMarkerKey) then
+    MarkCleanupFailure('user cleanup registration');
+end;
+
+procedure DeleteOwnedUserDataInRegisteredSession;
+var
+  Nonce, RequestFileName, ResultFileName, RequestText,
+    UserRegistryKey: String;
+  ResultText: AnsiString;
+  ExitCode, I: Integer;
+begin
+  if not CleanupIdentityValid then
+  begin
+    MarkCleanupFailure('registered user cleanup identity');
+    Exit;
+  end;
+  Nonce := NewCleanupNonce;
+  RequestFileName := AddBackslash(ExtractFileDir(CleanupHelperPath)) +
+    'ipc\' + Nonce + '.request.json';
+  ResultFileName := AddBackslash(ExtractFileDir(CleanupHelperPath)) +
+    'ipc\' + Nonce + '.result.json';
+  if not DirExists(ExtractFileDir(RequestFileName)) or
+     IsReparsePoint(ExtractFileDir(RequestFileName)) then
+  begin
+    MarkCleanupFailure('user cleanup IPC directory');
+    RemoveCleanupInfrastructure;
+    Exit;
+  end;
+  DeleteFile(RequestFileName);
+  DeleteFile(ResultFileName);
+  RequestText := '{"nonce":"' + Nonce + '","sid":"' +
+    CleanupUserSid + '","delete_settings":' +
+    JsonBoolean(DeleteSettingsSelected) + ',"delete_cache":' +
+    JsonBoolean(DeleteCacheSelected) + '}';
+  if not SaveStringToFile(RequestFileName, RequestText, False) then
+  begin
+    MarkCleanupFailure('user cleanup request');
+    RemoveCleanupInfrastructure;
+    Exit;
+  end;
+  if not Exec(ExpandConstant('{sys}\schtasks.exe'),
+      '/Run /TN "' + CleanupTaskName + '"', '', SW_HIDE,
+      ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
+  begin
+    MarkCleanupFailure('user cleanup task start');
+    RemoveCleanupInfrastructure;
+    Exit;
+  end;
+  ResultText := '';
+  for I := 1 to 3000 do
+  begin
+    if LoadStringFromFile(ResultFileName, ResultText) then
+      Break;
+    Sleep(100);
+  end;
+  if ResultText = '' then
+  begin
+    MarkCleanupFailure('user cleanup timeout');
+    RemoveCleanupInfrastructure;
+    Exit;
+  end;
+  if ResultText <> '{"failure_count":0,"nonce":"' + Nonce +
+     '","succeeded":true}' then
+    MarkCleanupFailure('user cleanup result');
+  DeleteFile(RequestFileName);
+  DeleteFile(ResultFileName);
+  RemoveCleanupInfrastructure;
+  if DeleteSettingsSelected then
+  begin
+    UserRegistryKey := CleanupUserSid + '\' + UserSettingsKey;
+    if RegKeyExists(HKU, UserRegistryKey) and
+       not RegDeleteKeyIncludingSubkeys(HKU, UserRegistryKey) then
+      MarkCleanupFailure(UserRegistryKey);
+    if RegKeyExists(HKU, UserRegistryKey) then
+      MarkCleanupFailure(UserRegistryKey);
+  end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  I: Integer;
+begin
+  // Eklenti ana dosya silinmeden önce tamamlanır. Kullanıcı verisi ise ancak
+  // ana kaldırma başarılı post-uninstall aşamasına ulaştığında değişir.
+  if CurUninstallStep = usUninstall then
+    RemoveSelectedAddon
+  else if CurUninstallStep = usPostUninstall then
+  begin
+    if DeleteSettingsSelected or DeleteCacheSelected then
+    begin
+      if not CleanupIdentityValid then
+        MarkCleanupFailure('registered user cleanup identity')
+      else
+        for I := 0 to CleanupIdentityCount - 1 do
+        begin
+          SelectCleanupIdentity(I);
+          DeleteOwnedUserDataInRegisteredSession;
+        end;
+      { The uninstaller's current HKCU and profile may have no helper yet when
+        Player has never run. The bounded direct path still removes only the
+        exact stores selected for this Windows account. }
+      DeleteOwnedUserData;
+    end
+    else if CleanupIdentityValid then
+      for I := 0 to CleanupIdentityCount - 1 do
+      begin
+        SelectCleanupIdentity(I);
+        RemoveCleanupInfrastructure;
+      end;
+    if CleanupIdentityProblems then
+      MarkCleanupFailure('unloaded or invalid user cleanup registration');
+  end
+  else if (CurUninstallStep = usDone) and CleanupFailed and
+          (not UninstallSilent) then
+    MsgBox(CustomMessage('UninstallCleanupFailed'), mbCriticalError, MB_OK);
+end;
+
 function InitializeUninstall(): Boolean;
+var
+  I: Integer;
 begin
   // CloseApplications yalnız Setup/upgrade Restart Manager yoludur. Uninstall
   // açık ürünün image kilitlerini temizlemeyi garanti etmez. Ürünün sabit
@@ -990,6 +1980,31 @@ begin
   // fail-closed dururuz; kayıt/kısayolları silip binary bırakmayız.
   Result := not CheckForMutexes('{#PlayerLifecycleMutex}');
   if not Result then
+  begin
     MsgBox(ExpandConstant('{cm:ClosePlayerBeforeUninstall}'),
       mbCriticalError, MB_OK);
+    Exit;
+  end;
+
+  CleanupFailed := False;
+  CleanupUserSid := '';
+  CleanupTaskName := '';
+  CleanupHelperPath := '';
+  CleanupHelperHash := '';
+  CleanupAccountDisplay := ExpandConstant('{username}');
+  CleanupIdentityValid := LoadCleanupIdentities;
+  if CleanupIdentityValid then
+    for I := 0 to CleanupIdentityCount - 1 do
+    begin
+      CleanupAccountDisplay := CleanupAccountDisplay + ', ' +
+        CleanupUserSids[I];
+    end;
+  StoredSubtitleUsername := '';
+  RegQueryStringValue(HKCU, SubtitleSettingsKey, 'username',
+    StoredSubtitleUsername);
+  InitializeUninstallCleanupChoices;
+  if UninstallSilent then
+    Result := True
+  else
+    Result := ShowUninstallCleanupChoices;
 end;

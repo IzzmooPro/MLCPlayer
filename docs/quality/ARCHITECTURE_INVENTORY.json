@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "status": "analyzed",
+  "measured_product_commit": "95246d19ebac75e651e4970f5ebbc7473cc0f418",
+  "working_tree_state": "uncommitted AUD-20260905 PiP lifecycle, observed-video gate and M3U URL roundtrip remediation",
+  "measured_at_utc": "2026-09-05T00:00:00Z",
+  "hash_contract": "sha256 of UTF-8 source normalized to LF",
+  "modules": [
+    {
+      "path": "app/video_frame.py",
+      "sha256": "346ac5b1c44968ed11d4998579a78ebaff6b73f29fdf0a52c0b6e8770b3c8544",
+      "lines": 2811,
+      "classes": 3,
+      "top_functions": 5,
+      "indented_functions": 112,
+      "self_state": 66
+    },
+    {
+      "path": "app/media_controls.py",
+      "sha256": "949e822c23cb4f8c0e3e3a12c0b4581a2eac4f6638caa61072385793155f2c1d",
+      "lines": 1717,
+      "classes": 0,
+      "top_functions": 74,
+      "indented_functions": 2,
+      "self_state": 0
+    },
+    {
+      "path": "app/player.py",
+      "sha256": "2eba14bba6fc07714f8ab38fdbee46c8dcaaedd6d66dbcd0c6a4690813c1bfa5",
+      "lines": 1524,
+      "classes": 1,
+      "top_functions": 3,
+      "indented_functions": 86,
+      "self_state": 60
+    },
+    {
+      "path": "app/playlist_panel.py",
+      "sha256": "930d662a48ce5af5ecd134df72065c8f704017a75860105f72296adc43c6b490",
+      "lines": 1147,
+      "classes": 5,
+      "top_functions": 0,
+      "indented_functions": 72,
+      "self_state": 41
+    },
+    {
+      "path": "app/menu_actions.py",
+      "sha256": "37c8274259d7485cd077f645a1a9232a89575764669167198a436822871606b3",
+      "lines": 1170,
+      "classes": 0,
+      "top_functions": 39,
+      "indented_functions": 5,
+      "self_state": 0
+    },
+    {
+      "path": "app/updater.py",
+      "sha256": "54074fed5e4bb44dbc105e9b87b7d6c024180b6e9812613b098a1911c0a61b2c",
+      "lines": 1046,
+      "classes": 4,
+      "top_functions": 19,
+      "indented_functions": 27,
+      "self_state": 19
+    }
+  ]
+}

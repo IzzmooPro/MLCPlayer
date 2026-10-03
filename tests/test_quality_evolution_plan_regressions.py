@@ -10,12 +10,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-AGENTS = ROOT / "AGENTS.md"
+AGENTS = ROOT / "docs/process/AGENTS.md"
 CONTINUITY = ROOT / "docs" / "CONTINUITY.md"
-QUALITY_PLAN = ROOT / "docs" / "QUALITY_EVOLUTION_PLAN.md"
-ARCHITECTURE = ROOT / "docs" / "ARCHITECTURE_INVENTORY.md"
-ARCHITECTURE_DATA = ROOT / "docs" / "ARCHITECTURE_INVENTORY.json"
-WINDOWS_ACCEPTANCE = ROOT / "docs" / "WINDOWS_ACCEPTANCE_MATRIX.md"
+QUALITY_PLAN = ROOT / "docs" / "quality" / "QUALITY_EVOLUTION_PLAN.md"
+ARCHITECTURE = ROOT / "docs" / "quality" / "ARCHITECTURE_INVENTORY.md"
+ARCHITECTURE_DATA = ROOT / "docs" / "quality" / "ARCHITECTURE_INVENTORY.json"
+WINDOWS_ACCEPTANCE = ROOT / "docs" / "quality" / "WINDOWS_ACCEPTANCE_MATRIX.md"
 
 
 def read(path):
@@ -32,10 +32,10 @@ def test_quality_documents_are_wired_into_the_current_handoff():
     continuity = read(CONTINUITY)
     plan = read(QUALITY_PLAN)
     for path in (
-            "docs/QUALITY_EVOLUTION_PLAN.md",
-            "docs/ARCHITECTURE_INVENTORY.md",
-            "docs/ARCHITECTURE_INVENTORY.json",
-            "docs/WINDOWS_ACCEPTANCE_MATRIX.md"):
+            "docs/quality/QUALITY_EVOLUTION_PLAN.md",
+            "docs/quality/ARCHITECTURE_INVENTORY.md",
+            "docs/quality/ARCHITECTURE_INVENTORY.json",
+            "docs/quality/WINDOWS_ACCEPTANCE_MATRIX.md"):
         assert path in agents
         assert path in continuity
     assert "ARCHITECTURE_INVENTORY.md" in plan

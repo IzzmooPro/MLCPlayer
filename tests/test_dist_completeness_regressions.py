@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """The post-build gate must verify every user- and licence-critical file.
 
-Static references in ``MLCPlayer.spec`` are not sufficient: a collection or
+Static references in ``packaging/MLCPlayer.spec`` are not sufficient: a collection or
 translation-build regression can still produce a runnable but incomplete
 ``dist`` tree.  These checks make the actual post-build inventory fail closed.
 """

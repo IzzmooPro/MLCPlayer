@@ -12,14 +12,14 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-AGENTS = ROOT / "AGENTS.md"
-CLAUDE = ROOT / "CLAUDE.md"
+AGENTS = ROOT / "docs/process/AGENTS.md"
+CLAUDE = ROOT / ".claude/CLAUDE.md"
 CONTINUITY = ROOT / "docs" / "CONTINUITY.md"
-CONTINUITY_HISTORY = ROOT / "docs" / "CONTINUITY_HISTORY.md"
+CONTINUITY_HISTORY = ROOT / "docs" / "history" / "CONTINUITY_HISTORY.md"
 LEDGER = ROOT / "docs" / "VERIFICATION_LEDGER.json"
-PROJECT_HISTORY = ROOT / "docs" / "PROJECT_STATUS.md"
-ROADMAP_HISTORY = ROOT / "docs" / "ROADMAP.md"
-ENGINEERING_HISTORY = ROOT / "docs" / "ENGINEERING_AUDIT.md"
+PROJECT_HISTORY = ROOT / "docs" / "history" / "PROJECT_STATUS.md"
+ROADMAP_HISTORY = ROOT / "docs" / "history" / "ROADMAP.md"
+ENGINEERING_HISTORY = ROOT / "docs" / "history" / "ENGINEERING_AUDIT.md"
 SESSION_HOOK = ROOT / ".claude" / "hooks" / "session_start.py"
 
 PROOF_LAYERS = {
@@ -56,7 +56,7 @@ def test_every_agent_has_one_current_starting_point():
     agents = read(AGENTS)
     assert "docs/CONTINUITY.md" in agents
     assert "docs/VERIFICATION_LEDGER.json" in agents
-    assert "docs/RELEASE_PROCESS.md" in agents
+    assert "docs/release/RELEASE_PROCESS.md" in agents
     assert "ayrı ayrı açık" in agents
 
 
@@ -67,15 +67,23 @@ def test_continuity_is_compact_and_history_is_losslessly_routed():
     history_ids = set(re.findall(r"EV-[0-9]{8}-[0-9]{3}", history))
 
     assert len(current.splitlines()) <= 200
+    # Satır sınırı tek başına yetmez: 24 Eylül 2026'da sınır, metin tek
+    # satıra yığılarak aşılıyordu (8137 karakterlik "sıradaki adım" satırı,
+    # aynı maddenin beş kümülatif kopyası). Uzunluk da sınırlıdır.
+    longest = max(len(line) for line in current.splitlines())
+    assert longest <= 120, f"CONTINUITY satırı çok uzun: {longest}"
+    assert len(current) <= 16000, "CONTINUITY şişti; kapanan işi arşivle"
     assert "CONTINUITY_HISTORY.md" in current
     assert "TARİHSEL ARŞİV" in history
     assert "## Sıradaki tek adım" not in history
     assert history_ids
-    assert len(history_ids) == 170
+    # 3 Ekim 2026: kapanmış canlı bloklar kelimesi kelimesine arşive eklendi
+    # (170 -> 247 kimlik). Özet, arşivin kazara değişmesini yakalar.
+    assert len(history_ids) == 247
     assert history_ids <= ledger_ids
     normalized_history = "\n".join(history.splitlines()) + "\n"
     assert sha256(normalized_history.encode("utf-8")).hexdigest() == (
-        "8bf29c2f732dd105a9e231bd820fe7f49623ce8e2ff508c5759a225ce60c8ed1"
+        "de38d5cac30f23f3ceb6db583b3506703da31a1c7ac169882cf6019445581d6f"
     )
 
 
@@ -92,7 +100,7 @@ def test_legacy_agent_guide_points_to_current_dynamic_contracts():
     text = read(CLAUDE)
     assert "docs/CONTINUITY.md" in text
     assert "docs/VERIFICATION_LEDGER.json" in text
-    assert "docs/RELEASE_PROCESS.md" in text
+    assert "docs/release/RELEASE_PROCESS.md" in text
     assert "Release varlık sayısı sabit değildir" in text
     assert "Her release'e SEKİZ dosya" not in text
     assert "fetch_sources.py::FETCHABLE" not in text
@@ -235,5 +243,5 @@ def test_session_start_injects_the_current_next_step_not_stale_history():
     assert "git rev-list --left-right --count HEAD...origin/master" in context
     assert "Son kanıt" in context
     assert current_next_step() in context
-    assert "docs/PROJECT_STATUS.md ->" not in context
+    assert "docs/history/PROJECT_STATUS.md ->" not in context
     assert "SIRADAKİ PLAN (17 Ağustos 2026" not in context

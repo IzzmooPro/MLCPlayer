@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Üretim konsol çıktısının TEK güvenli sınırı: `safe_console()`.
 
-Envanter (AST): `main.py` + `app/**/*.py` içinde 74 doğrudan `print()`
+Envanter (AST): `app/main.py` + `app/**/*.py` içinde 74 doğrudan `print()`
 vardı; 54'ü ham dosya/klasör yolu, URL veya ham `str(exception)`
 taşıyabiliyordu. Dosya logu yazma sınırında maskeleniyordu ama konsol
 çıkışı bu sınırı ATLIYORDU.
@@ -164,7 +164,7 @@ def test_console_write_failure_does_not_raise(monkeypatch):
 # =====================================================================
 
 def test_main_dependency_check_masks_the_bin_directory(capsys, monkeypatch):
-    import main
+    from app import main
 
     monkeypatch.setattr(main.os.path, "exists", lambda path: False)
     monkeypatch.setattr(main.os, "getcwd",
@@ -175,7 +175,7 @@ def test_main_dependency_check_masks_the_bin_directory(capsys, monkeypatch):
 
 
 def test_main_dll_error_path_is_masked(capsys, monkeypatch):
-    import main
+    from app import main
 
     def explode(_path):
         raise OSError(f"yuklenemedi: {WIN_PATH}")
@@ -207,7 +207,7 @@ def test_media_controls_url_path_is_masked(capsys):
     assert hasattr(media_controls, "safe_console")
 
 
-@pytest.mark.parametrize("module_name", ["main", "app.media_controls",
+@pytest.mark.parametrize("module_name", ["app.main", "app.media_controls",
                                          "app.menu_actions", "app.player",
                                          "app.video_frame", "app.errors"])
 def test_every_production_module_uses_the_central_boundary(module_name):
@@ -305,7 +305,7 @@ def test_menu_and_video_frame_error_paths_are_masked(capsys):
 # =====================================================================
 
 def production_files():
-    yield os.path.join(ROOT, "main.py")
+    yield os.path.join(ROOT, "app/main.py")
     for base, _dirs, names in os.walk(os.path.join(ROOT, "app")):
         if "__pycache__" in base:
             continue

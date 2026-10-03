@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-WORKFLOW = ROOT / "docs" / "CHANGE_WORKFLOW.md"
+WORKFLOW = ROOT / "docs" / "process" / "CHANGE_WORKFLOW.md"
 
 
 def workflow_text():
@@ -65,7 +65,7 @@ def test_change_workflow_uses_one_automatic_ci_run_per_change():
 
 def test_change_workflow_requires_independent_dual_filter_without_test_repeats():
     text = workflow_text()
-    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    agents = (ROOT / "docs/process/AGENTS.md").read_text(encoding="utf-8")
 
     for contract in (text, agents):
         normalized = " ".join(contract.split()).casefold()
@@ -85,16 +85,16 @@ def test_change_workflow_requires_independent_dual_filter_without_test_repeats()
 
 
 def test_agent_entrypoint_links_to_the_change_workflow():
-    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
-    assert "docs/CHANGE_WORKFLOW.md" in agents
+    agents = (ROOT / "docs/process/AGENTS.md").read_text(encoding="utf-8")
+    assert "docs/process/CHANGE_WORKFLOW.md" in agents
     assert "PR oluşturma, PR birleştirme" in agents
     assert "Force-push ve GitHub protection bypass yapılmaz" in agents
 
 
 def test_release_process_uses_the_pr_merge_commit_as_build_identity():
-    release = (ROOT / "docs" / "RELEASE_PROCESS.md").read_text(
+    release = (ROOT / "docs" / "release" / "RELEASE_PROCESS.md").read_text(
         encoding="utf-8")
-    assert "docs/CHANGE_WORKFLOW.md" in release
+    assert "docs/process/CHANGE_WORKFLOW.md" in release
     assert "**merge commit**" in release
     assert "git rev-parse origin/master" in release
     assert "master'a ikinci kez push yapılmaz" in release
@@ -104,5 +104,5 @@ def test_release_process_uses_the_pr_merge_commit_as_build_identity():
 
 def test_public_readmes_link_to_the_change_workflow():
     for name in ("README.md", "README.tr.md"):
-        text = (ROOT / name).read_text(encoding="utf-8")
-        assert "docs/CHANGE_WORKFLOW.md" in text
+        text = (ROOT / ".github" / name).read_text(encoding="utf-8")
+        assert "docs/process/CHANGE_WORKFLOW.md" in text

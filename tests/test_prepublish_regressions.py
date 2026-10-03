@@ -109,8 +109,8 @@ def release(tmp_path, signing_key):
         repo = tmp_path / "depo"
         (repo / "app").mkdir(parents=True)
         (repo / "packaging").mkdir(parents=True)
-        (repo / "installer_output").mkdir(parents=True)
-        (repo / "source_mirror").mkdir(parents=True)
+        (repo / "output/installer").mkdir(parents=True)
+        (repo / "output/source_mirror").mkdir(parents=True)
         (repo / "bin").mkdir(parents=True)
         git(str(repo), "init", "-q")
 
@@ -125,11 +125,11 @@ def release(tmp_path, signing_key):
         # Artifact ve mirror dosyalari izlenmez; aksi halde calisma agaci
         # kirli sayilirdi.
         (repo / ".gitignore").write_text(
-            "installer_output/\nsource_mirror/\nbin/\n", encoding="utf-8")
+            "output/\nbin/\n", encoding="utf-8")
 
         sources = []
         for name, data in MIRROR_CONTENTS.items():
-            (repo / "source_mirror" / name).write_bytes(data)
+            (repo / "output/source_mirror" / name).write_bytes(data)
             sources.append({
                 "name": name,
                 "url": f"https://github.com/example/source/{name}",
@@ -156,7 +156,7 @@ def release(tmp_path, signing_key):
             git(str(repo), "tag", chosen_tag)
 
         for stem in ("MLCPlayer_Setup", "MLCPlayer_InternetVideo"):
-            exe = repo / "installer_output" / f"{stem}_{version}.exe"
+            exe = repo / "output/installer" / f"{stem}_{version}.exe"
             exe.write_bytes(f"{stem} {version} govdesi".encode("utf-8"))
             write_signature(signing_key, exe)
         return str(repo)
@@ -224,7 +224,7 @@ def test_an_unignored_untracked_file_is_rejected(release):
 
 
 def test_ignored_files_do_not_make_the_tree_dirty(release):
-    """`installer_output` ve `source_mirror` ignore'dur; kapiyi kapatmaz."""
+    """`output/installer` ve `output/source_mirror` ignore'dur; kapiyi kapatmaz."""
     repo = release()
 
     assert prepublish.run("v0.37", repo) is True
@@ -240,7 +240,7 @@ def test_ignored_files_do_not_make_the_tree_dirty(release):
 ])
 def test_each_missing_installer_artifact_fails(release, capsys, missing):
     repo = release()
-    os.remove(os.path.join(repo, "installer_output", missing))
+    os.remove(os.path.join(repo, "output/installer", missing))
 
     assert prepublish.run("v0.37", repo) is False
     assert missing in capsys.readouterr().out
@@ -249,7 +249,7 @@ def test_each_missing_installer_artifact_fails(release, capsys, missing):
 @pytest.mark.parametrize("missing", sorted(MIRROR_CONTENTS))
 def test_each_missing_mirror_asset_fails(release, capsys, missing):
     repo = release()
-    os.remove(os.path.join(repo, "source_mirror", missing))
+    os.remove(os.path.join(repo, "output/source_mirror", missing))
 
     assert prepublish.run("v0.37", repo) is False
     assert missing in capsys.readouterr().out
@@ -265,7 +265,7 @@ def test_a_same_size_corrupt_mirror_asset_fails_on_the_hash(release, capsys):
     kabul ediyordu ve boyut kisayolundan gecilse bile YESIL kalirdi.
     """
     repo = release()
-    target = os.path.join(repo, "source_mirror", "ffmpeg-source.tar.xz")
+    target = os.path.join(repo, "output/source_mirror", "ffmpeg-source.tar.xz")
     original = open(target, "rb").read()
     flipped = bytes([original[0] ^ 0xFF]) + original[1:]
     open(target, "wb").write(flipped)
@@ -290,7 +290,7 @@ def test_a_signature_with_non_ascii_bytes_is_fail_closed(release, capsys):
     surum burada traceback ile duserdi.
     """
     repo = release()
-    sig = os.path.join(repo, "installer_output",
+    sig = os.path.join(repo, "output/installer",
                        "MLCPlayer_Setup_v0.37.exe.sig")
     with open(sig, "wb") as handle:
         handle.write(b"\xff\xfe bozuk bayt \x9e")
@@ -306,7 +306,7 @@ def test_a_signature_with_non_ascii_bytes_is_fail_closed(release, capsys):
 def test_a_signature_with_non_ascii_bytes_exits_one(release):
     """Ayni durum giris noktasinda exit 1 uretir."""
     repo = release()
-    sig = os.path.join(repo, "installer_output",
+    sig = os.path.join(repo, "output/installer",
                        "MLCPlayer_InternetVideo_v0.37.exe.sig")
     with open(sig, "wb") as handle:
         handle.write(b"\xc3\x28 gecersiz")
@@ -361,7 +361,7 @@ def test_a_missing_source_contract_is_fail_closed(release, capsys):
 
 def test_a_wrong_size_mirror_asset_fails(release, capsys):
     repo = release()
-    target = os.path.join(repo, "source_mirror", "ffmpeg-source.tar.xz")
+    target = os.path.join(repo, "output/source_mirror", "ffmpeg-source.tar.xz")
     open(target, "ab").write(b"fazladan")
 
     assert prepublish.run("v0.37", repo) is False
@@ -372,7 +372,7 @@ def test_a_wrong_size_mirror_asset_fails(release, capsys):
 
 def test_a_corrupt_signature_is_rejected(release, capsys):
     repo = release()
-    sig = os.path.join(repo, "installer_output",
+    sig = os.path.join(repo, "output/installer",
                        "MLCPlayer_Setup_v0.37.exe.sig")
     open(sig, "w", encoding="ascii").write("Ym96dWsgaW16YQ==")
 
@@ -390,7 +390,7 @@ def test_a_signature_for_a_different_exe_is_rejected(release, signing_key,
     repo = release()
     other_digest = sha256_of(b"tamamen baska bir kurulum")
     signature = signing_key.sign(other_digest.encode("ascii"))
-    sig = os.path.join(repo, "installer_output",
+    sig = os.path.join(repo, "output/installer",
                        "MLCPlayer_Setup_v0.37.exe.sig")
     open(sig, "w", encoding="ascii").write(
         base64.b64encode(signature).decode())
@@ -402,7 +402,7 @@ def test_a_signature_for_a_different_exe_is_rejected(release, signing_key,
 def test_a_modified_exe_invalidates_its_signature(release):
     """EXE degisirse imza artik tutmaz."""
     repo = release()
-    exe = os.path.join(repo, "installer_output", "MLCPlayer_Setup_v0.37.exe")
+    exe = os.path.join(repo, "output/installer", "MLCPlayer_Setup_v0.37.exe")
     open(exe, "ab").write(b"sonradan eklendi")
 
     assert prepublish.run("v0.37", repo) is False
@@ -486,7 +486,7 @@ def test_main_returns_zero_when_everything_is_in_place(release):
 
 def test_main_returns_one_on_any_failure(release):
     repo = release()
-    os.remove(os.path.join(repo, "installer_output",
+    os.remove(os.path.join(repo, "output/installer",
                            "MLCPlayer_Setup_v0.37.exe.sig"))
 
     assert prepublish.main(["--tag", "v0.37"], repo) == 1

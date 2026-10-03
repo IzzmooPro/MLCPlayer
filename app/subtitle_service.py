@@ -21,6 +21,8 @@ import struct
 import tempfile
 import time
 
+from app.errors import log
+
 SUBTITLE_EXTENSION = ".srt"
 
 # `apply()` track_list'in güncellenmesini beklerken kullanılan VARSAYILAN
@@ -362,8 +364,9 @@ class SubtitleSession:
                 continue
             try:
                 remover(sid)
-            except Exception:
-                pass
+            except Exception as exc:
+                log("Previous subtitle track removal failed: "
+                    f"{type(exc).__name__}", "WARNING")
         self._sid = None
 
     def _add_subtitle(self, mpv, target, language=None, title=None):

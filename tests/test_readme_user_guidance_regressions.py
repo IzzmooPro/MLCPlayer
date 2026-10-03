@@ -12,8 +12,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-EN = (ROOT / "README.md").read_text(encoding="utf-8")
-TR = (ROOT / "README.tr.md").read_text(encoding="utf-8")
+EN = (ROOT / ".github" / "README.md").read_text(encoding="utf-8")
+TR = (ROOT / ".github" / "README.tr.md").read_text(encoding="utf-8")
 
 
 def test_both_readmes_explain_the_two_installer_contract():
@@ -77,8 +77,10 @@ def test_both_readmes_have_a_user_quick_start_and_data_retention_note():
     assert "log management" in EN.lower()
     assert "günlük yönetimi" in TR.lower()
 
-    assert "keeps your settings and logs" in EN.lower()
-    assert "ayarlarınızı ve günlüklerinizi korur" in TR.lower()
+    assert "by default, uninstalling either package keeps your settings and logs" in EN.lower()
+    assert "varsayılan olarak paketlerden birini kaldırmak" in TR.lower()
+    assert "separate unchecked choices" in EN.lower()
+    assert "varsayılan boş seçenekler" in TR.lower()
     assert "%APPDATA%\\MLCPlayer\\logs" in EN
     assert "%APPDATA%\\MLCPlayer\\logs" in TR
 

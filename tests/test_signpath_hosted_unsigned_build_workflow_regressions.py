@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "build-unsigned-main.yml"
 CHAIN = ROOT / "packaging" / "build_unsigned_main.bat"
-HASH_LOCK = ROOT / "requirements-build-windows.txt"
+HASH_LOCK = ROOT / "requirements/build-windows.txt"
 RUNTIME_LOCK = ROOT / "packaging" / "libmpv_runtime_lock.json"
 GIT_ATTRIBUTES = ROOT / ".gitattributes"
 
@@ -41,10 +41,10 @@ def test_hosted_unsigned_build_pins_actions_python_inno_and_wheels():
     assert "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a" in text
     assert "python-version: '3.13.15'" in text
     assert "6.7.1" in text
-    assert "requirements-build-windows.txt" in text
+    assert "requirements/build-windows.txt" in text
     assert "--require-hashes" in text
     assert "--only-binary=:all:" in text
-    assert "verify_dependencies.py requirements-lock.txt" in text
+    assert "verify_dependencies.py requirements/lock.txt" in text
 
 
 def test_hosted_unsigned_build_reads_inno_engine_version_from_the_compiler():
@@ -134,7 +134,7 @@ def test_unsigned_main_chain_is_isolated_from_release_signing_and_addon():
 
 def test_windows_build_hash_lock_matches_every_exact_dependency_pin():
     source_pins = {}
-    for raw in (ROOT / "requirements-lock.txt").read_text(encoding="utf-8").splitlines():
+    for raw in (ROOT / "requirements/lock.txt").read_text(encoding="utf-8").splitlines():
         line = raw.strip()
         if line and not line.startswith("#"):
             name, version = line.split("==", 1)

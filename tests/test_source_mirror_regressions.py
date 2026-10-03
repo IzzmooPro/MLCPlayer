@@ -178,7 +178,8 @@ def test_a_size_mismatch_is_rejected(tmp_path):
 def test_the_mirror_folder_is_ignored_by_git():
     fetch = module()
     ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
-    assert fetch.OUTPUT_DIR_NAME in ignore
+    # The mirror lives under output/ (3 October 2026); .gitignore uses "/".
+    assert fetch.OUTPUT_DIR_NAME.replace("\\", "/") in ignore
 
 
 def test_import_does_not_download_anything():
@@ -196,7 +197,7 @@ def test_default_cli_accepts_a_ready_verified_contract(
     contract = tmp_path / "sources.json"
     write_contract(contract, sources=[source_row(payload=payload)])
     folder = tmp_path / fetch.OUTPUT_DIR_NAME
-    folder.mkdir()
+    folder.mkdir(parents=True)
     (folder / "mpv-source.tar.gz").write_bytes(payload)
     real_blockers = fetch.blockers
     real_plan = fetch.plan

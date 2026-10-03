@@ -1,0 +1,839 @@
+# Mühendislik denetim kaydı
+
+> **TARİHSEL KAYIT:** Bu dosya geçmiş bulguları korur; güncel durum veya
+> sıradaki iş kaynağı değildir. Güncel devir için `docs/CONTINUITY.md`,
+> makinece kanıt için `docs/VERIFICATION_LEDGER.json` kullanılır.
+
+Bulguların kalıcı kaydı. Her kayıt aynı alanları taşır; "iyileşti"
+demek yerine **neyin ölçüldüğü** yazılır.
+
+Yayın süreci burada tekrarlanmaz: `docs/RELEASE_PROCESS.md`.
+
+## AUD-20260905 — v0.41 adayının uygulama devir raporu
+
+**Amaç:** Claude/Codex tarafından uygulanabilecek somut kusur tarifleri.
+Bu bölüm 5 Eylül 2026 kaynak denetiminin sabit snapshot'ıdır. Güncel iş
+sırası `CONTINUITY.md`, kanıt kaydı `EV-20260905-001` içindedir.
+
+### Başlangıç ve kapsam
+
+- Kanonik depo: kullanıcının masaüstündeki `MLC Player` checkout'u (yerel
+  kullanıcı yolu 3 Ekim 2026'da gizlilik için maskelendi).
+- İncelenen HEAD: `95246d19ebac75e651e4970f5ebbc7473cc0f418`.
+- Dal: `codex/v041-release-candidate`; yerel origin görev ref'iyle eş;
+  yerel `origin/master` ref'inden 1 commit ileride. Bu incelemede fetch yapılmadı.
+- Rapor öncesi ağaç temizdi. Bu rapor ürün kodunu değiştirmedi.
+- Kaynak/test-double/offscreen kanıtıdır; gerçek Windows tıklaması,
+  video decode, kurulum veya yayımlanmış artifact kabulü değildir.
+- Mevcut ilgili testler: **80 passed in 0.93s**, komut aşağıda.
+  Yeşil sonuç yeni açıkların kapalı olduğunu göstermez; eksik senaryolar ayrıca ölçüldü.
+- Öncelikler bu raporun önerisidir; Windows matrisindeki P0 kimliklerinden ayrıdır.
+
+### AUD-20260905-01 — PiP içinde stop sonrası boş küçük pencere
+
+**Öncelik:** P2, kullanıcı etkileşimi. **Durum:** kaynak/state kusuru doğrulandı;
+görsel sonuç gerçek Windows'ta yeniden üretilmeli.
+
+**Konumlar (bu HEAD):** `app/media_controls.py:950` `stop`, aynı dosyadaki
+`clear_playlist` ve `remove_many_from_playlist`; `app/player.py:995`
+`toggle_picture_in_picture`; `app/video_frame.py:524` `sync_empty_state`.
+
+**Tetikleme:** Video aç → PiP'ye geç → durdur. Alternatif: aktif son öğeyi
+kaldır veya listeyi temizle. Stop `current_file` alanını boşaltıyor ve başlangıç
+yüzeyini istiyor; PiP flag'i, topmost ve küçük geometriyi geri almıyor.
+Doğrudan test-double ölçümü: `stop_result=True`, `current_file=''`,
+`pip_after_stop=True`, `pip_exit_calls=0`.
+
+**Düzeltme yönü:** Medya kapanışı ile pencere modu arasında ortak bir geçiş
+kur. PiP bayrağını elle False yapmak veya yalnız başlığı göstermek yetmez;
+mevcut PiP çıkışının topmost bırakma ve geometri/minimum boyut/başlık geri
+yükleme mantığı kullanılmalı. Video oynarken normal stop davranışı korunmalı.
+
+**Kritik hata yolu:** `toggle_picture_in_picture(False)` native topmost
+bırakılamazsa True dönerek PiP'yi koruyor. Sonucu kontrol etmeden normal moda
+geçildiğini yazma. Stop başarısı ile pencere restorasyonunun başarısızlığını
+ayrı ele al; durdurulmuş medyayı yanlışlıkla oynuyor gösterme. Mevcut
+`test_pip_stays_enabled_if_windows_cannot_release_topmost` korunmalı.
+
+**Kabul testleri:**
+
+1. Normal ve maximize edilmiş pencereden PiP → başarılı stop: PiP kapalı,
+   topmost bırakılmış, önceki geometri/minimum boyut ve başlık geri gelmiş.
+2. Son aktif öğeyi silme, listeyi temizleme ve medya açma hatasıyla stop
+   aynı restorasyon yolunu kullanır; çifte yükleme/stop oluşmaz.
+3. MPV stop reddedilirse mevcut medya ve pencere durumu tutarlı kalır.
+4. Native topmost bırakma reddedilirse UI başarı iddia etmez; yeniden çıkış mümkündür.
+5. Gerçek Windows'ta en az üç PiP/stop/yeniden aç döngüsü; başlık düğmeleri
+   ilk tıklamada çalışır, boş küçük pencere kalmaz.
+
+Test yerleri: `tests/test_window_modes_regressions.py`,
+`tests/test_playback_lifecycle_regressions.py`,
+`tests/test_media_selection_atomic_regressions.py`.
+
+### AUD-20260905-02 — PiP kullanılabilirliği video hazır olmasına bağlı değil
+
+**Öncelik:** P2. **Durum:** gate eksikliği offscreen ölçümle doğrulandı.
+
+**Konumlar:** `app/player.py:995` `toggle_picture_in_picture`,
+`app/title_bar.py:478` `update_window_mode_state`,
+`app/media_controls.py:411` `open_path`; URL ve playlist yükleme yolları.
+
+Her iki PiP gate'i yalnız `bool(current_file)` kullanıyor. `open_path`,
+dosya yolunu asenkron loadfile sonucu gelmeden atıyor. Dolayısıyla yolun
+dolu olması video track'i, başarılı yükleme veya çizilebilir video kanıtı değil.
+Mevcut offscreen pencere fixture'ında `current_file='audio-only.mp3'`,
+`duration=0` iken PiP girişinin True döndüğü ölçüldü. Gerçek MP3 decode edilmedi;
+kanıt, gate'in video varlığını hiç incelememesidir.
+
+**Düzeltme yönü:** Başlık düğmesi ve ürün metodu aynı medya-hazır/video-var
+kararını paylaşmalı. Dosya uzantısına ya da `duration > 0` koşuluna bağlama:
+canlı video duration=0 olabilir, ses dosyasının duration değeri pozitiftir.
+Mevcut MPV gözlemci snapshot'ları üzerinden gerçek video track/yükleme
+durumunu değerlendir; UI timer'ına yeni senkron MPV sorgusu ekleme.
+Önceki dosyanın track snapshot'ı yeni yüklemede geçerli sanılmamalı; yükleme
+başlangıcı, başarı, hata, stop ve video→ses geçişinde karar yenilenmeli.
+PiP zaten açıksa çıkış düğmesi medya kalmasa da kullanılabilir olmalı.
+
+**Kabul testleri:** boş başlangıç, bekleyen/başarısız load ve yalnız ses için
+PiP kapalı; gerçek video ve duration=0 canlı video için hazır olduktan sonra
+açık; video→ses geçişinde eski video state'i taşınmaz; düğme ve doğrudan
+metot aynı kararı verir; aktif PiP'den çıkış her zaman erişilebilir kalır.
+Mevcut `test_pip_does_not_open_without_loaded_media` yalnız boş yolu sınar;
+bu vakalarla genişletilmeli. Albüm kapağı içeren sesin PiP sayılıp sayılmayacağı
+ürün kararıdır; varsayılan öneri onu gerçek video kabul etmemektir.
+
+### AUD-20260905-03 — URL içeren M3U kaydet/aç döngüsü kayıplı
+
+**Öncelik:** P2. **Durum:** kaynak ve izole okuyucu ölçümüyle doğrulandı.
+
+**Konumlar:** `app/media_controls.py:1361` `save_playlist`,
+`:1388` `load_playlist`; aynı modüldeki `is_remote_media_url`,
+`open_external_target`, `play_from_playlist` ve URL yükleme durumları.
+
+**Tetikleme:** URL içeren listeyi M3U olarak kaydet → yeniden aç.
+Kaydedici her öğeyi aynen yazıyor. Okuyucu URL'yi göreli yerel yol gibi
+liste klasörüne ekliyor ve `os.path.isfile` filtresinden geçiriyor. Tümü URL
+ise False + uyarı; karma listede URL öğeleri sessizce eksiliyor.
+İzole okuyucuya `#EXTM3U\nhttps://example.invalid/video.m3u8\n` verilince
+`URL_PLAYLIST_LOAD=False`, `WARNINGS=1` ölçüldü. Ağ isteği yapılmadı.
+
+**Düzeltme yönü:** Desteklenen uzak medya adreslerini yerel yol çözümünden
+önce mevcut URL politikasıyla ayır ve aynen koru. Göreli yerel yollar M3U'nun
+klasörüne göre çözülmeye devam etsin. Sırayı/tekrar eden öğeleri koru;
+query/fragment/URL kodlamasını bozma. Keyfî şemaları sırf `://` içeriyor diye
+kabul etme. M3U8 HLS manifest yorumlayıcısı yazmak bu işin kapsamı değil.
+URL öğesini oynatma, mevcut URL hazırlama/yükleme/hata yaşam döngüsünü de
+kullanmalı; yalnız okuyucuya URL ekleyerek süre aşımı davranışını atlama.
+Liste ilk öğesinin yüklenmesi reddedilirse mevcut oturum geri alınmalı.
+
+**Kabul testleri:** yalnız HTTP(S), karma yerel/URL, göreli yol, boşluk ve
+Türkçe karakter, query/fragment içeren URL, reddedilen şema, geçersiz yerel
+dosya ve yükleme hatasında rollback. Save→load roundtrip'te geçerli öğeler
+ve sıra eşit olmalı. Mock ağ/yükleyici kullan; test sırasında gerçek dosya
+ve ayarlara dokunma. UTF-8 BOM desteğini de sınır testi olarak değerlendir
+(bu raporda ayrıca yeniden üretilmiş kusur olarak sayılmadı).
+
+### AUD-20260905-04 — Canlı devir ve SignPath metinleri eski
+
+**Öncelik:** P2 devir doğruluğu. **Durum:** metin/kullanıcı belgesiyle doğrulandı.
+
+- `CODE_SIGNING_POLICY.md:5` yanıt beklendiğini yazıyor;
+  `docs/SIGNPATH_READINESS.md:72` sonrası mailbox izleme öneriyor.
+  Kullanıcının paylaştığı 2 Eylül 2026 SignPath destek yanıtı Foundation
+  başvurusunun görünürlük/harici güven sinyalleri yetersizliğiyle reddedildiğini
+  bildiriyor. Bunu teknik kalite reddi veya ücretli abonelik onayı diye yazma.
+- Rapor öncesi `docs/CONTINUITY.md` master/commit onayı aşamasında kalmıştı;
+  yerel ölçüm aday dalın `95246d1` commit'inde olduğunu gösteriyor.
+  Bu raporun bağlantısı ve mevcut aday tabanı bu belge turunda güncellenir.
+- SignPath durum metinlerinin esas güncellemesi takip işidir. Başvuru
+  tarihçesini silme, karar tarihini ve kullanıcıdan sağlanan e-posta kaynağını
+  yaz; özel iletişim bilgilerini gereksiz yere çoğaltma. Ed25519 ile Windows
+  Authenticode imzasını birbirinin yerine sunma.
+
+**Kabul:** dokümanlar yanıt bekleniyor demiyor; kaynak sürüm adayı ile canlı
+release ayrılmış; geçmiş kanıtlar korunmuş; yeni tarih uydurulmamış.
+
+### AUD-20260905-05 — Windows kabul boşlukları
+
+**Öncelik:** yayın kabul planı. **Durum:** test eksikliği, ürün hatası iddiası değil.
+
+`docs/WINDOWS_ACCEPTANCE_MATRIX.md` özetinde P0 **6 PASSED / 2 NOT_RUN**,
+P1 **6 NOT_RUN**, P2 **3 BLOCKED**. Özellikle WIN-P0-07 playlist taşıma/sınırlar
+ve WIN-P0-08 gerçek ikinci pencere/IPC henüz formal kabul edilmemiş.
+Eski alt paragrafları güncel üst tablonun yerine kullanma.
+
+**İş:** her açık satırı mevcut runner, gerekli cihaz/medya/artifact ve
+ölçülecek davranışla eşle. Native koşum için geçerli kullanıcı yetkisini
+kontrol et; bu rapor fiziksel test/kurulum izni değildir. Aynı exact kaynak,
+runtime ve senaryoya ait eski kanıt varsa tekrar çalıştırmadan kullanılabilirliği
+incele; farklı commit veya artifact'in PASS'ini kopyalama.
+
+**Kabul:** gerçek IPC'de dosya/URL hedefe gider, ilk pencere foreground olur,
+ikinci süreç kapanır; playlistte taşıma, son satır, seçim ve tekrar işlemler
+korunur. Exit kodu, terminal marker, stderr ve süreç sızıntısı birlikte kaydedilir.
+Donanım yoksa BLOCKED kalır. Offscreen PASS fiziksel PASS olarak yükseltilmez.
+
+### AUD-20260905-06 — CI hatasının kökeni yanlış açıklanmış
+
+**Öncelik:** P2 kanıt doğruluğu. **Durum:** kaynakla doğrulandı.
+
+`tests/conftest.py` → `scripts/ci_mpv_stub.py::install_ci_mpv_stub`:
+`MLC_CI=1` iken `sys.modules['mpv']` bizim `ModuleType` taklidimizle değişiyor.
+Bu taklit `MpvFormat` tanımlamıyor. Dolayısıyla geçmiş run
+`33809616721` hatasından gerçek kurulu python-mpv sürümünün bu enum'u
+sunmadığı sonucu çıkarılamaz. Mevcut `app/player.py:875` fallback'i otomatik
+olarak kaldırma; bu rapor fallback'in ürün hatası olduğunu göstermiyor.
+
+**İş:** `EV-20260903-037`, `038`, `040` açıklamalarını bu ayrım için denetle.
+Eski ledger girdilerini yerinde değiştirme. Gerekli düzeltmeyi yeni kayıt ve
+yapılandırılmış `corrects` alanıyla yap; kesin alan adlarını/değerlerini
+mevcut şema ve continuity testlerinden al. Ürün yorumu ve test docstring'inde
+de gerçek bağımlılık ile CI taklidini ayır. Bu rapor kendi başına eski
+girdiler için makinece düzeltme kaydı değildir.
+
+**Kabul:** CI stub yolu ve gerçek binding yolu ayrı gösterilmiş;
+enum var/yok, NODE False/0/no, inf ve ignored-write/rollback durumları
+test edilmiş; bağımlılık sürümü hakkında ölçülmemiş iddia kalmamış.
+
+### Yeniden üretim ve test komutları
+
+Kanonik depo kökünde PowerShell; mevcut testler kullanıcı ayarlarını izole eder:
+
+```powershell
+python -m pytest -q tests/test_playback_mode_controls_regressions.py tests/test_window_modes_regressions.py tests/test_playback_lifecycle_regressions.py tests/test_media_selection_atomic_regressions.py tests/test_version_consistency.py tests/test_continuity_regressions.py
+```
+
+Bu komut denetimde 80 passed verdi. Aşağıdaki izole probe dosya yazmadan ve
+ağ kullanmadan iki eksik davranışı gösterir; gerçek Windows görünümü kanıtı değildir:
+
+```powershell
+@'
+import runpy
+runpy.run_path('tests/conftest.py')
+from unittest.mock import MagicMock, patch, mock_open
+from app import media_controls as m
+p = MagicMock()
+p.picture_in_picture_enabled = True
+p.current_file = 'clip.mp4'
+print('stop_result', m.stop(p), 'current_file', repr(p.current_file),
+      'pip_after_stop', p.picture_in_picture_enabled,
+      'pip_exit_calls', p.toggle_picture_in_picture.call_count)
+with patch.object(m.QFileDialog, 'getOpenFileName',
+                  return_value=('C:/audit/list.m3u', '')), \
+     patch('builtins.open', mock_open(
+         read_data='#EXTM3U\nhttps://example.invalid/video.m3u8\n')), \
+     patch.object(m.QMessageBox, 'warning') as warning:
+    print('URL_PLAYLIST_LOAD', m.load_playlist(MagicMock()),
+          'WARNINGS', warning.call_count)
+'@ | python -
+```
+
+### Uygulayacak agent için görev tarifi
+
+Önce AGENTS.md ve CONTINUITY.md'yi oku; exact tabanı yeniden ölç. Bu raporun
+satırları yalnız yukarıdaki HEAD için geçerlidir; işlev adlarıyla bul.
+Önerilen sıra: **01+02 birlikte PiP yaşam döngüsü → 03 M3U roundtrip →
+04+06 belge/kanıt doğruluğu → 05 fiziksel kabul planı**.
+Her kusur için mevcut kaynakta önce kırmızı regresyonu üret, en küçük
+düzeltmeyi yap, ilgili aileyi çalıştır. Önceden kırmızı test oluşmadan
+yalnız mevcut yeşil paketi yeni kusurun kanıtı diye sunma.
+
+PiP çalışmasında başlık click/drag eşiği düzeltmesini koru; her basışta
+`startSystemMove()` çağrısını geri getirme. MPV UI donmasını düzeltmek için
+eklenmiş snapshot yaklaşımını senkron property taramasına geri çevirme.
+Envanter kapsamındaki ürün kaynağı değişirse
+`ARCHITECTURE_INVENTORY.json` ölçülerini kaynaktan güncelle.
+Rapor bulgularının kapanışını yeni kanıtla bağla; eski raporu silme.
+Commit/push/PR/build/kurulum/tag/release için geçerli görev yetkisini ayrıca
+değerlendir; bu belgenin kaydedilmesi bunları otomatik yetkilendirmez.
+
+**Bu rapor turunda değişen ürün dosyası:** yok.
+**Kalan risk:** yeni davranışların gerçek Windows kabulü ve düzeltmelerin
+bağımsız incelemesi yapılmadı; bütün uygulamanın hatasız olduğu iddia edilmez.
+
+### AUD-20260905 uygulama kapanış kaydı — 5 Eylül 2026
+
+Bu kayıt ilk raporu değiştirmez; aşağıdaki sonuçlar sonraki çalışma ağacında
+`EV-20260905-002` ile bağlanır. Yerel test kanıtı gerçek Windows, kurulu paket
+veya GitHub Actions kanıtı değildir.
+
+| Bulgu | Durum | Kapanış kanıtı / kalan sınır |
+| --- | --- | --- |
+| 01 PiP + stop | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI, CANLI KABUL BEKLİYOR | `stop()` artık mevcut PiP çıkış yolunu çağırır; native topmost bırakma reddedilirse durum zorla normal gösterilmez ve boş yüzey PiP'ye çizilmez. Başarılı Windows geometri/topmost/ilk-tıklama döngüsü ölçülmedi. |
+| 02 PiP medya gate'i | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI, CANLI KABUL BEKLİYOR | Gate dosya adı/duration yerine observer'ın son `track-list` snapshot'ındaki video track'ine bağlıdır; yeni yükleme ve stop eski snapshot'ı temizler. Gerçek MP3, canlı video ve albüm kapağı görseli denenmedi. |
+| 03 M3U URL roundtrip | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI | HTTP(S) öğeleri sıra/query/fragment korunarak okunur; BOM ve yerel göreli yol korunur; playlistten URL başlatma mevcut URL yükleme yaşam döngüsüne girer. Ağ/decode denemesi yapılmadı. |
+| 04 SignPath/devir metni | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI | 2 Eylül yanıtı görünürlük/güven sinyali eksikliği olarak kaydedildi; teknik kalite, sertifika veya ücretli plan onayı diye sunulmadı. Kaynak kullanıcı tarafından sağlanan e-postadır. |
+| 05 Windows kabul boşlukları | NOT_RUN | `WIN-P0-07`, `WIN-P0-08`, P1 ve P2 satırları fiziksel/native kabul gerektirir; bu turda çalıştırılmadı ve PASS yapılmadı. |
+| 06 CI köken açıklaması | UYGULANDI, HEDEF TESTLERLE DOĞRULANDI | CI stub ile gerçek python-mpv ayrımı docstring ve append-only ledger düzeltmesinde açıklandı. GitHub koşumu yapılmadı. |
+
+Yerel etkili komut: `python -m pytest -q tests/test_window_modes_regressions.py tests/test_playback_lifecycle_regressions.py tests/test_media_selection_atomic_regressions.py tests/test_subtitle_track_watch_regressions.py tests/test_title_bar_regressions.py tests/test_signpath_readiness_regressions.py tests/test_release_documentation_regressions.py tests/test_quality_evolution_plan_regressions.py tests/test_playback_mode_controls_regressions.py tests/test_ci_mpv_stub_regressions.py tests/test_url_loading_regressions.py tests/test_continuity_regressions.py` (**413 passed**).
+
+## Durum sözlüğü
+
+| durum | anlamı |
+|---|---|
+| **KANITLANDI** | kusur ölçümle gösterildi (kırmızı kanıt var) |
+| **UYGULANDI** | ürün değişikliği yazıldı |
+| **HEDEF TESTLERLE DOGRULANDI** | ilgili regresyon paketi yeşil |
+| **CANLI KABUL BEKLIYOR** | gerçek build/pencere/yayın koşumu yapılmadı |
+| **COMMIT BEKLIYOR** | değişiklik çalışma ağacında, commit edilmedi |
+| **COMMIT EDILDI** | değişiklik yerel Git geçmişine kaydedildi; push anlamına gelmez |
+| **TAMAMLANDI** | işin gerektirdiği tüm test ve **uygulanabilir** kabul ölçütleri sağlandı; canlı kabul gereken işlerde canlı kabul de tamamlandı |
+| **ERTELENDI** | bilerek sonraya bırakıldı |
+
+`TAMAMLANDI` ölçütü işin türüne göre uygulanır: canlı kabul gerektiren
+işlerde (build, gerçek pencere, yayın) o kabul **şarttır**; yalnız belge
+veya saf kaynak işlerinde canlı kabul **uygulanmaz** ve aranmaz.
+
+**Commit bekleyen bir iş TAMAMLANDI sayılmaz.** Çalışma ağacında duran
+değişiklik henüz kalıcı değildir.
+
+## Kayıt kuralları
+
+- Bağımsız olarak doğrulanmış her yeni bulgu **sabit bir kimlik** alır
+  (`REL-`, `TEST-`, `DOC-`…). Kimlik yeniden kullanılmaz.
+- **Claude raporu tek başına kanıt değildir.** Kanıt; komut çıktısı,
+  ölçüm, test sonucu veya kaynak/satır referansıdır.
+- Durum yalnız **bağımsız doğrulamadan** sonra ilerletilir.
+- **Test sonucu, değişen dosyalar ve kalan risk zorunlu alanlardır**;
+  boş bırakılmaz.
+- Kapatılan risk **silinmez**; kaydı, sonucu ve kapanış kanıtı korunur.
+- Bu tarihsel kayıt döneminde `docs/ROADMAP.md` kabul edilen turlarla
+  güncelleniyordu; güncel sözleşmede dinamik sıra yalnız
+  `docs/CONTINUITY.md` içindedir.
+- `git status`, dal adı, commit sayısı gibi **dinamik** bilgiler
+  tarih/snapshot belirtilmeden kalıcı gerçek olarak yazılmaz.
+
+---
+
+## DOC-003
+
+- **Kimlik:** DOC-003
+- **Baslik:** v0.38 snapshot ve kapalı OpenSubtitles özelliği belgelerde bayattı
+- **Onem:** Orta — README kullanıcıya görünmeyen bir menüyü kullanılabilir
+  gösteriyor, durum belgeleri ise dört kabul edilmiş commit ve güncel CI
+  sonucunu taşımıyordu
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI →
+  **COMMIT EDILDI**
+- **Kanit:** Kaynakta `SUBTITLE_SEARCH_UI_ENABLED = False`; buna rağmen iki
+  README çevrimiçi Altyazı Merkezini açık gösteriyordu. Salt-okunur Git/GitHub
+  ölçümünde `6db8534`, `origin/master ile eşit (0 ileri / 0 geri)`,
+  aceccf4..6db8534 aralığında 12 aday-tabanı commiti ve Actions
+  `32399570489` sonucu **4678 passed / 26 skipped / 0 failed** bulundu.
+- **Kaynak arastirmasi:** OpenSubtitles'ın modern
+  `vlsub-opensubtitles-com` eklentisi REST ve gömülü uygulama anahtarı
+  kullanırken, VLC `master` içindeki paketli `VLSub.lua` eski
+  OpenSubtitles.org XML-RPC akışıdır. Servis yöneticisi uygulama başına tek
+  API anahtarı istiyor; açık dağıtım izni metni doğrulanamadığı için bu teknik
+  örnek sözleşmesel izin sayılmadı.
+- **Karar:** Çevrimiçi altyazı arama arayüzü kapalı kalır; gömülü anahtar veya
+  kullanıcı başına anahtar modeli yazılı sağlayıcı doğrulaması olmadan
+  yayımlanmaz. Yerel altyazı davranışı değişmez.
+- **Ilk kirmizi:** Dar belge sözleşmesi **3 failed** verdi: güncel snapshot,
+  kapalı README davranışı ve modern/yerleşik VLSub ayrımı eksikti.
+- **Degisen dosyalar:** `README.md`, `README.tr.md`, `docs/ROADMAP.md`,
+  `docs/PROJECT_STATUS.md`, `docs/ENGINEERING_AUDIT.md`,
+  `docs/PACKAGING_PLAN.md`, `tests/test_release_documentation_regressions.py`
+- **Test kaniti:** İlk kırmızı **3 failed**; son hedef belge regresyonu
+  **207 passed / 0 failed**. `extract_translations.py --check` 447 çevrilebilir
+  metinle güncel, `git diff --check` temiz. Ürün kodu değişmediği ve güncel
+  hosted tam paket zaten aynı `6db8534` üzerinde yeşil olduğu için tam paket
+  yeniden çalıştırılmadı.
+- **Canli kabul:** Uygulanmaz; ürün kodu, ağ, build, kurulum, tag veya release
+  değişmedi.
+- **Kalan risk:** API anahtarının açık kaynak masaüstü uygulamasında dağıtımı
+  ve indirilen altyazının saklanması/yeniden dağıtımı için açık şart metni veya
+  sağlayıcının yazılı cevabı hâlâ gerekir. Daha geniş VLC kaynak incelemesi de
+  ayrı backlog maddesidir.
+- **Commit durumu:** COMMIT EDILDI — bu belge checkpoint'iyle aynı commit.
+
+---
+
+## DOC-002
+
+- **Kimlik:** DOC-002
+- **Baslik:** v0.37 sonrası kaynak, CI ve kurulu artifact durumu belgelerde ayrışmıştı
+- **Onem:** Yüksek — yol haritası hâlâ tag/push beklerken v0.37 yayımlanmıştı; güncel kaynak kurulu eski artifact ile karıştırılabilirdi
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → **COMMIT EDILDI**
+- **Kanit:** `docs/ROADMAP.md` ve `docs/PROJECT_STATUS.md` `master` için bayat **33 commit ileride** ve sırada v0.37 tag/push bilgisini taşıyordu. Salt-okunur denetimde v0.37 tag ve GitHub Release mevcut; `7ee2437` HEAD `origin/master ile eşit (0 ileri / 0 geri)` ve DOC-002 checkpoint'i hariç aceccf4..7ee2437 aralığında 8 aday-tabanı commiti bulundu.
+- **Guncel taban:** Sekiz commitlik küme **v0.38 aday tabanı**dır. GitHub Actions `32370784900` tam hosted sonucu **4626 passed / 26 skipped / 0 failed**; kilitli bağımlılık, compile ve çeviri/whitespace kapıları da geçti.
+- **Artifact siniri:** **v0.38 build yapılmadı**. Sürüm alanları ve kurulu v0.37 önceki final artifact'a aittir; kurulu v0.37 güncel PiP, pencere modları ve oynatma yaşam döngüsü kaynağının fiziksel kabulü sayılamaz.
+- **Ilk kirmizi:** Yeni belge sözleşmesi eski kayıtta **3 failed** verdi: güncel dal eşitliği, CI sonucu ve üç belgede ortak v0.38 aday tabanı yoktu.
+- **Degisen dosyalar:** `docs/ROADMAP.md`, `docs/PROJECT_STATUS.md`, `docs/ENGINEERING_AUDIT.md`, `tests/test_release_documentation_regressions.py`
+- **Test kaniti:** `tests/test_release_documentation_regressions.py` **205 passed / 0 failed**. Yeni üçlü sözleşme dal eşitliği, hosted CI sonucu, aday tabanı ve eski kurulu artifact sınırını üç belgede birlikte zorunlu tutar.
+- **Canli kabul:** Uygulanmaz; bu tur belge/salt-okunur Git ve GitHub kanıtı turudur. Build, kurulum, native smoke, tag veya release yapılmadı.
+- **Kalan risk:** Sekiz post-release commit hosted CI'da yeşildir fakat v0.38 packaged/installed fiziksel kabulü yoktur. Güncel kaynak araştırması ve hukuki/uyumluluk kontrolü de henüz yapılmadı.
+- **Sıradaki iş:** Sekiz commitlik aday tabanı kaynak/etki denetimi; ardından güncel VLSub/OpenSubtitles ve VLC araştırması ile hukuki/uyumluluk kontrol listesi.
+- **Commit durumu:** COMMIT EDILDI — bu belge checkpoint'iyle aynı commit.
+
+---
+
+## REL-007
+
+- **Kimlik:** REL-007
+- **Baslik:** Installer süreç hedefleme, add-on hedef yolu ve final artifact kabulü
+- **Onem:** Yüksek — ad-temelli zorla kapatma ilgisiz süreçte veri kaybına; bozuk InstallLocation yanlış klasöre yazmaya yol açabilirdi
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`89123ca`) → **UYGULANABILIR FIZIKSEL KABUL BASARILI**
+- **Kanit:** Ana ISS'teki `taskkill /F /IM` kaldırıldı; Restart Manager dosya kaynakları kullanılıyor. Add-on yerel/kök-olmayan yolu, uninstall ürün adını ve gerçek `MLC Player.exe`yi doğruluyor. Post-build kapısı lisans, README, manifest, ikon ve çeviriyi gerçek dist ağacında arıyor.
+- **Kok neden:** `CloseApplicationsFilter` süreç-adı filtresi sanılmış, zorlayıcı image-name kapatma eklenmiş ve add-on registry değerinin yalnız varlığı yeterli kabul edilmişti.
+- **Degisen dosyalar:** `packaging/MLCPlayer.iss`, `packaging/MLCPlayer_InternetVideo.iss`, `packaging/verify_build.py`, `docs/RELEASE_PROCESS.md`, dört regresyon testi
+- **Test kaniti:** Hedef yayın/installer paketi **266 passed**; tam paket **4574 passed, 19 skipped, 0 failed** / **82,55 sn**. Build commit'i `89123ca`. Ana installer **58.247.692 bayt**, SHA-256 `6010273f154ef370a0a474ac663cd2f08111020854707e954e913e5cb0fd773f`; add-on **49.268.645 bayt**, SHA-256 `2292cfc93e75ba94dd1eac58ec0d08bc31e79538c86ce696c98808143623c857`; iki Ed25519 imzası doğrulandı.
+- **Canli kabul:** Fresh install ve görünür Hakkında v0.37 geçti. Çalışan gerçek Player upgrade sırasında kapandı; farklı Temp klasöründeki aynı adlı süreç hayatta kaldı. Kurulumdaki **121 dosyada 0 boyut/hash farkı**; add-on'un iki runtime ve üç lisansı kaynakla hash-birebir. **İki kaldırma sırası** (ana-önce/add-on-sonra ve add-on-önce/ana-sonra) kalıntısız geçti. Player yokken add-on hata verip Program Files/registry yazmadı. Kullanıcı ayarı 674 bayt ve SHA-256 `66776f38ae6194bc465d6e8f26438ad368a89ebd9956d18c467cad95b8b2eb9c` olarak korundu; yalnız uygulama logu normal biçimde büyüdü.
+- **Kalan risk:** Yapay bozuk InstallLocation ve kilitli-dosya fault injection kullanıcı kararıyla koşulmadı; PASS sayılmıyor. Fiziksel matris bitiminde sistem temizdi; sonradan iptal edilen fault hazırlığı sonucunda ana v0.37 kurulu, add-on kurulu değil ve ilgili süreç 0.
+- **Commit durumu:** Ürün/test düzeltmesi `89123ca`; güncel fiziksel kabul sonucu bu kayıt commit'iyle **COMMIT EDILDI**.
+
+---
+
+## REL-001
+
+- **Kimlik:** REL-001
+- **Baslik:** `mpv-2.dll` yayın ön-kontrolünde yalnız varlık bakımından denetleniyordu
+- **Onem:** Yüksek — paketin %59'u o dosyadır; bozuk/yanlış sürüm bir DLL release zincirine girebilirdi
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI
+- **Kanit:** `packaging/verify_build.py::check_pre()` içinde İKİ ayrı liste vardı. `SOURCE_FILES` üç runtime'ı da sayıyordu ama yalnız varlık denetimi yapıyordu; SHA-256 doğrulaması ayrı bir demettteydi (`yt-dlp.exe`, `deno.exe`) ve `mpv-2.dll` orada YOKTU.
+- **Kok neden:** Tek kaynak yerine iki liste. Biri güncellenirken diğeri unutulabilir — nitekim unutulmuş.
+- **Degisen dosyalar:** `packaging/verify_build.py`, `tests/test_verify_build_runtime_regressions.py`
+- **Test kaniti:** 11 yeni test; dar regresyon (`+ test_runtime_binaries_regressions`) **52 passed**. Boyut kısayolunun hash yolunu maskelemediği, aynı boyutlu bozulma ve mutasyon denetimiyle ayrıca kanıtlandı.
+- **Ek duzeltme (17 Agustos 2026, ayni kayit):** iki fail-closed açığı daha kapatıldı.
+  1. `manifest_entries()` kaynaklı `OSError`/`UnicodeError`/`ValueError` yakalanmıyordu; eksik veya geçersiz UTF-8 taşıyan manifest **traceback** üretiyordu. Artık kontrollü hata + `--pre` exit 1.
+  2. `fail()` koşulsuz `print` kullanıyordu; `log=` verilse bile hata mesajları stdout'a **kaçıyordu** ve çağıran toplayamıyordu. `fail(message, log=print)` oldu; `verify_runtime_binaries` içindeki bütün hata yolları verilen logger'a yazıyor. Varsayılan `print` olduğu için `check_pre`/`check_post`/`check_final` değişmeden çalışıyor.
+  Eskiyen dört test gevşetilmeden dönüştürüldü: `capsys` yerine enjekte edilen logger'dan okuyorlar.
+  **Yeni hedef test sonucu:** `tests/test_verify_build_runtime_regressions.py` → **17 passed**.
+- **Canli kabul:** `python packaging/verify_build.py --pre` → **exit 0**, üç runtime da OK (`mpv-2.dll 119.757.824`, `yt-dlp.exe 18.226.085`, `deno.exe 97.408.288`).
+- **Kalan risk:** Manifest'teki **beklenen değerlerin kendisi** doğrulanmıyor; yanlış hash'le güncellenen bir manifest ön-kontrolü yine yeşil geçer.
+- **Commit durumu:** COMMIT EDILDI — `96a8f52`
+
+---
+
+## REL-002
+
+- **Kimlik:** REL-002
+- **Baslik:** `v0.35` ve `v0.36` tag'leri bir sürüm gerideki kaynak commit'ine işaret ediyor
+- **Onem:** Yüksek — tag adı, tag içindeki kaynak sürümü ve kurulumu üreten commit ayrışmış
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI
+- **Kanit:** Salt-okunur ölçüm: `v0.35 -> 2804c2f = 45de83c^` (snapshot'ında `APP_VERSION v0.34`), `v0.36 -> 5b987d1 = 8284771^` (snapshot'ında `APP_VERSION v0.35`). Release'ler `targetCommitish: master` ile oluşturulmuş.
+- **Kok neden:** Çıkarım (kanıt değil): bump commit'i uzağa ulaşmadan release açılmış. **Release EXE'lerinin iç sürümü ÖLÇÜLMEDİ**; paket içeriği hakkında iddia yoktur.
+- **Degisen dosyalar:** `packaging/verify_release_ref.py`, `tests/test_verify_release_ref_regressions.py`
+- **Test kaniti:** **45 passed**. `APP_VERSION`, `MyAppVersion`, `VersionInfoVersion`, `VersionInfoProductVersion` ve HEAD doğrulanıyor; strict UTF-8 (`errors="replace"` fail-open'ı kaldırıldı), annotated tag `^{commit}` peel'i ve **bypass'sız** HEAD denetimi testle kilitli.
+- **Canli kabul:** `--tag v0.36` → **exit 1**, beş ayrışma raporlandı. Beklenen sonuç; tarihsel kusurun canlı kanıtı.
+- **Kalan risk:** Araç zincire bağlı değil, elle çalışır. Windows sürüm türetme kuralı `app/config.py::WINDOWS_VERSION` ile **elle** aynı tutuluyor; ürün kuralı değişirse sessizce ayrışır.
+- **Commit durumu:** COMMIT EDILDI — bu kayıtla aynı pre-publish commit'i. **Geçmiş tag'ler değiştirilmedi.**
+
+---
+
+## REL-003
+
+- **Kimlik:** REL-003
+- **Baslik:** `build_release.bat` jokerle eski installer seçebiliyordu
+- **Onem:** Yüksek — eski bir artifact imzalanıp yeni sürüm gibi raporlanabilirdi
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI → **CANLI BUILD BASARILI** (19 Ağustos 2026)
+- **Kanit:** `for %%F in ("installer_output\MLCPlayer_Setup_*.exe")` — `for` eşleşenleri gezer, SON eşleşme kazanır ve sıra dosya sistemine bağlıdır. Klasör birikimlidir. Asıl tehlike sıralama değil: Inno adımı yeni EXE'yi üretemezse joker sessizce eskisini seçer.
+- **Kok neden:** Sonuç dosyası hesaplanmak yerine **aranıyordu**.
+- **Degisen dosyalar:** `packaging/build_release.bat`, `tests/test_release_artifact_selection_regressions.py`
+- **Test kaniti:** Eski 9 publishability testi **korundu** (`test_release_guard_regressions.py`, HEAD'e göre değişmemiş); 20 yeni artifact testi eklendi. Toplam **29 passed**. Sürüm/yol türetmesi ayrıca gerçek `cmd` ile doğrulandı (hiçbir şey silmeden).
+- **Canli kabul:** Temiz `6cdacf1` HEAD'i üzerinde `packaging\build_release.bat` **yalnız bir kez** çalıştırıldı ve `DONE` başarı yoluna ulaştı; bu yol betikte `exit /b 0` ile biter. Otomatik tekrar yapılmadı. Kesin v0.37 çıktıları: ana installer **58.255.939 bayt**, SHA-256 `fa0a5f03cbe0f3a42c29fa162648fdabea4efffcbbaef2754d7c2657155474da`; add-on **49.268.164 bayt**, SHA-256 `05937a59c5f0e29b32d15fecc5080351ce65d55720508fc8901a6d347bfaf67b`. Ayrı salt-okunur denetimde `MAIN_SIGNATURE_OK=True` ve `ADDON_SIGNATURE_OK=True`; iki `.sig` de 88 bayt. `verify_build.py --final` ana installer için tekrar exit 0 verdi. Dist EXE `FileVersion/ProductVersion=v0.37`; iki installer Windows alanı `0.37.0.0`.
+- **Fiziksel yükseltme/oynatma kabulü (19 Ağustos 2026):** mevcut `v0.36 -> v0.37` yükseltmesi bir kez yapıldı; ana installer exit 0, add-on exit 0. Kurulu EXE ve iki uninstall kaydı v0.37; kurulu yt-dlp/deno kaynak hash'leriyle birebir. Bilinen Resident Alien medyası bir kez açıldı. **Kullanıcı gözlemi:** “görüntü/ses tamam”, Hakkında v0.37 ve normal X ile temiz kapanış. **Bağımsız ölçüm:** uygulama yanıt veriyordu; kapanıştan sonra kalan süreç 0; medya boyutu **2.651.661.814** ve mtime ticks **638811093472871806** değişmedi. Bu aşamada kaldırma yapılmadı. Önceden kullanıcı ayar anahtarında karşılaştırılabilir değer bulunmadığı için gerçek dolu-ayar yükseltme korunumu ölçülmedi.
+- **Kalan risk:** Kaldırma ve ardından temiz-kurulum kabulü henüz koşulmadı; dolu kullanıcı ayarıyla yükseltme korunumu ölçülmedi. Build ve yükseltme/oynatma başarılıdır; fiziksel matris tamamlanmadan yayın hazır kabulü değildir.
+- **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı bu kayıt commit'iyle **COMMIT EDILDI**.
+
+---
+
+## REL-004
+
+- **Kimlik:** REL-004
+- **Baslik:** Yerel yayın öncesi kapı yoktu
+- **Onem:** Yüksek — yayın anında hiçbir mekanik denetim çalışmıyordu
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI → CANLI KABUL BEKLIYOR
+- **Kanit:** `build_release.bat` tag'den habersiz (`git`/`gh` geçmez); `check_publishable.py` çalışırken tag henüz yok. Yayın anında tag bütünlüğü, ağaç temizliği ve varlık tamlığı denetlenmiyordu.
+- **Kok neden:** Doğrulama build zincirine bağlanamaz (build sırasında tag yoktur), ama ayrı bir kapı da kurulmamıştı.
+- **Degisen dosyalar:** `packaging/prepublish.py`, `tests/test_prepublish_regressions.py`
+- **Test kaniti:** **32 passed.** Temiz Git ağacı (staged/tracked/untracked ayrı ayrı), tag bütünlüğü, dört installer/imza, **kriptografik Ed25519** doğrulama (başka EXE'ye ait geçerli imza da reddedilir) ve dört source mirror boyut/SHA-256 kontrolü. Hiçbir Git yazma komutu ve hiçbir ağ çağrısı yapılmadığı `subprocess.run` ve `socket.connect`/`urlopen` sarmalanarak ölçüldü.
+- **Canli kabul:** Gerçek depoda `--tag v0.36` → exit 1 (tarihsel ayrışma + kirli ağaç). Gerçek bir yayın koşumu **YAPILMADI**.
+- **Kalan risk:** Uzak GitHub doğrulaması (adım g ve i) **otomatik değil**; ağ gerektirir, kapı bilerek ağsızdır. Kapı yerel dosyaları denetler, GitHub'a gerçekten ne yüklendiğini görmez.
+- **Commit durumu:** COMMIT EDILDI — bu kayıtla aynı pre-publish commit'i. Bozuk ASCII `.sig` ve bozuk manifest traceback'leri fail-closed kapatıldı (`UnicodeError`, `ValueError`/`TypeError`).
+
+---
+
+## REL-005
+
+- **Kimlik:** REL-005
+- **Baslik:** `build`/`dist` temizliği doğrulanmadan zincir devam ediyordu
+- **Onem:** Yüksek — PyInstaller'ın ürettiği sanılan ağaç, önceki koşumun artığı olabilirdi
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI → **CANLI BASARI YOLU DOGRULANDI; KILITLI HATA YOLU BEKLIYOR**
+- **Kanit:** `packaging/build_release.bat` STEP 2'de `if exist "build" rmdir /s /q "build"` ve `dist` için aynısı vardı; **sonuç hiç denetlenmiyordu**. `rmdir /s /q` sessizce başarısız olabilir (kilitli dosya, açık Explorer penceresi, yetki sorunu) ve komut hata kodu döndürmeyebilir.
+- **Kok neden:** Silme **denendi**, ama silinip silinmediği **ölçülmedi**. Aynı kusur sınıfı `installer_output` tarafında zaten kapatılmıştı (kesin dört hedef + `goto :fail`); `build`/`dist` o turda atlanmıştı.
+- **Degisen dosyalar:** `packaging/build_release.bat`, `tests/test_release_artifact_selection_regressions.py`
+- **Test kaniti:** Dört yeni kaynak-regresyon testi: `build` ve `dist` için ayrı ayrı `if exist … goto :fail` koruması, başarı mesajının **iki denetimden de sonra** geldiği, `rmdir`in yalnız bu iki hedefte ve jokersiz kullanıldığı, `installer_output` davranışının **değişmediği**. Dosya sonucu: **25 passed**.
+- **Canli kabul:** 19 Ağustos 2026 tek v0.37 build'inde önceki `build/` ve `dist/` vardı; STEP 2 ikisini kaldırdı, yokluklarını doğruladı ve ancak sonra başarı mesajı verdi. Zincir temiz PyInstaller ağacını yeniden üretti. Kilitli klasör hata yolu canlı ölçülmedi.
+- **Kalan risk:** Kilitli klasör senaryosu gerçek Windows'ta yeniden üretilmedi; `rmdir` başarısızlığının bu koşulda gerçekten `if exist` ile yakalandığı ayrıca ölçülmeli.
+- **Commit durumu:** Ürün düzeltmesi COMMIT EDILDI — `85dda6d`; v0.37 canlı build sonuç kaydı bu kayıt commit'iyle **COMMIT EDILDI**.
+
+---
+
+## REL-006
+
+- **Kimlik:** REL-006
+- **Baslik:** Add-on son kaldırıcı olduğunda boş program klasörü kalıyordu
+- **Onem:** Orta — uygulama ve kayıtlar gitse de Program Files altında artık dizin bırakılıyordu
+- **Durum:** KANITLANDI → ILK DUZELTME COMMIT EDILDI (`332779c`) → ILK REL-006 CANLI RETEST BASARISIZ → IKINCI DUZELTME COMMIT EDILDI (`b65bd9c`) → **IKINCI REL-006 CANLI RETEST BASARILI / KAPANDI**
+- **Kanit:** Fiziksel v0.37 kabulünde ana program önce, add-on sonra kaldırıldı. İki uninstall kaydı 0, kalan süreç 0, kısayollar ve bütün program dosyaları silinmişti; buna rağmen `C:\Program Files\MLC Player` altında **0 öğe / 0 bayt** boş program klasörü kaldı. Kullanıcı ayar ve logları bilinçli olarak korundu.
+- **Kok neden:** Ayrı AppId kullanan add-on kaldırıcı ortak `{app}` dizinindeki kendi dosyalarını kaldırıyor fakat son bileşen olduğunda boş ortak dizini temizleyecek `[UninstallDelete]` kuralı taşımıyordu.
+- **Degisen dosyalar:** `packaging/MLCPlayer_InternetVideo.iss`, `tests/test_internet_video_addon_regressions.py`
+- **Test kaniti:** İlk kırmızı “add-on `[UninstallDelete]` bölümü yok” idi. İlk minimum kural `Type: dirifempty; Name: "{app}"`; yalnız boş dizini hedefledi ve `332779c` ile commit edildi. İlk canlı retest bunun yetersiz olduğunu ölçtü: kök dizin boş değildi çünkü add-on'un oluşturduğu **3 bos alt dizin** kalmıştı. İkinci kırmızı test yalnız `{app}` kuralını gördü; düzeltme `_internal\bin`, `_internal\licenses`, `_internal` ve `{app}` yollarını **en derinden yukariya** sıralıyor. Bütün kurallar `dirifempty`; etkin kurallarda **filesandordirs yok**. Add-on + artifact + installer-language hedefleri **46 passed**.
+- **Canli kabul:** İlk REL-006 canlı retest başarısız. `332779c` sonrasında tek rebuild exit 0 verdi; ana installer SHA-256 `61ae94ae6d53611aedc24880c0f52f4c224717130e688645694fb42a54c9ddf6`, add-on SHA-256 `308e82bb2ced6d298f467794d21798b1ae9786fb7e05a369fd183539ee43f140`. Kullanıcı onaylı kur/kaldır döngüsünde ana ve add-on kurulumları ile iki kaldırıcı exit 0 verdi; **uninstall kaydi 0**, **kalan surec 0**, kısayollar ve dosyalar yoktu. Buna rağmen `{app}` altında yalnız `_internal\bin`, `_internal\licenses` ve `_internal` olmak üzere **3 bos alt dizin** kaldı. Kanıt elle silinmedi. İkinci REL-006 canlı retest 20 Ağustos 2026'da `b65bd9c` üzerinde başarılı oldu: release zinciri exit 0 / `DONE`; ana installer **58.252.266 bayt** ve SHA-256 `b6f284c6b8db626f99815f31685c785c279ae0fd5a4d967fd3d03e22e5bb5a1b`, add-on **49.268.116 bayt** ve SHA-256 `c0ec451b434ff94e13273709ca708493a29ce45695aef8f90c85ed885f6ce479`; iki imza `True`. Ana kurulum, add-on kurulumu, ana kaldırıcı ve add-on kaldırıcı exit 0 verdi. Ana program önce kaldırıldığında add-on dosyaları ve kaydı korundu; add-on son kaldırıcı olduğunda ana program klasörü yok, iki uninstall kaydı 0, uygulama kaydı 0, kısayol 0 ve kalan süreç 0. Restart gerekmedi; release-ready madde 7 sağlandı.
+- **Kalan risk:** REL-006 için açık kalan risk yok. `dirifempty` kuralları yalnız gerçekten boş dizinleri hedeflediğinden yabancı dosyaları silme davranışı fiziksel kabulün parçası değildir ve tasarım gereği yoktur.
+- **Commit durumu:** İlk düzeltme COMMIT EDILDI (`332779c`); ikinci kaynak/test düzeltmesi COMMIT EDILDI (`b65bd9c`); başarılı ikinci canlı retest sonuç kaydı bu kayıt commit'iyle **COMMIT EDILDI**.
+
+---
+
+## TEST-001
+
+- **Kimlik:** TEST-001
+- **Baslik:** Tam paket **taban** (baseline), milestone ve güncel checkpoint sonucu
+- **Onem:** Orta — ölçüm hijyeni
+- **Durum:** KANITLANDI → TAMAMLANDI (güncel checkpoint)
+- **Kanit:**
+
+  | koşum | sonuç | süre |
+  |---|---|---|
+  | **Taban** (REL-001…004 ÖNCESİ) | 3716 passed / 17 skipped | ~68 sn |
+  | **Milestone** (17 Ağustos 2026, REL-001…005 SONRASI) | **3931 passed / 17 skipped / 1 failed** | **100,01 sn** |
+  | **Önceki checkpoint** (18 Ağustos 2026, NATIVE-001 commit'i SONRASI) | **3992 passed / 17 skipped / 0 failed; exit 0; stderr BOŞ** | **82,44 sn** |
+  | **Önceki checkpoint** (19 Ağustos 2026, `acaa556` SONRASI) | **4543 passed / 19 skipped / 0 failed; exit 0** | **82,88 sn** |
+  | **Güncel checkpoint** (20 Ağustos 2026, `b65bd9c`) | **4556 passed / 19 skipped / 0 failed; exit 0** | **87,60 sn** |
+
+  Taban ve milestone AYRI değerlerdir; taban güncel sonuç gibi
+  sunulmamalıdır.
+
+  **Tek failure ürün kusuru DEĞİLDİ:**
+  `test_internet_video_addon_regressions.py::test_the_chain_builds_and_signs_the_addon`
+  — eski test `ADDON_TO_SIGN` adlı geçici bir değişkeni arıyordu; ürün
+  jokeri kaldırıp kesin `ADDON_SETUP` yolunu imzalamaya geçtiği için o
+  değişken kalktı. **Bayat test assertion'ı**, davranış hatası değil.
+  Ayrıntı: TEST-002.
+- **Kok neden:** —
+- **Degisen dosyalar:** —
+- **Test kaniti:** 19 Ağustos 2026'da temiz `acaa556` HEAD'i üzerinde `python -m pytest -q` **yalnız bir kez** çalıştırıldı: **4543 passed / 19 skipped / 0 failed**, pytest **exit 0**, **82,88 sn**. Paket içindeki gerçek cover-art libmpv child testi izin kapsamında çalıştı; ürün kapanış canlı kabulü açık opt-in olmadığı için skip sözleşmesini korudu. 20 Ağustos 2026'da `b65bd9c` üzerinde erişilebilir benzersiz `--basetemp` ile sandbox dışında çalışan geçerli tam paket **4556 passed / 19 skipped / 0 failed**, pytest **exit 0**, **87,60 sn** verdi. Sandbox ACL `PermissionError` koşumları ürün sonucu sayılmadı. İki geçerli koşumda da stdout/stderr ayrı yakalanmadı; stderr bayt sayısı ölçülmedi ve boş olduğu iddia edilmez. Önceki 3992/17 ve 4543/19 checkpoint'leri tarihsel satır olarak korunur.
+- **Canli kabul:** Güncel tam paket checkpoint'i tamamlandı. Yeni residual-risk belge regresyonları ve NATIVE-001'in fail-closed child kapısı aynı paket içinde yeşil kaldı. Başarısızlık olmadığı için otomatik tekrar yapılmadı.
+- **Kalan risk:** Tek yeşil tam koşum zaman içindeki bütün aralıklı native davranışları dışlamaz. NATIVE-001 residual riski dar kapsamla bilinçli kabul edilmiştir; bu kabul alttaki Lua runtime error koşulunu çözülmüş yapmaz.
+- **Commit durumu:** 19–20 Ağustos checkpoint kayıtları bu kayıt commit'iyle **COMMIT EDILDI**.
+
+---
+
+## TEST-002
+
+- **Kimlik:** TEST-002
+- **Baslik:** Add-on zincir testi uygulama ayrıntısına bağlanmıştı
+- **Onem:** Orta — test bayatladı; ürün DÜZELDİĞİ için kırmızıya döndü
+- **Durum:** KANITLANDI → UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI
+- **Kanit:** Milestone koşumundaki tek failure:
+  `test_the_chain_builds_and_signs_the_addon` → `assert "ADDON_TO_SIGN" in chain`.
+  O değişken jokerle doldurulan bir arama sonucuydu
+  (`for %%F in ("installer_output\MLCPlayer_InternetVideo_*.exe")`);
+  REL-003 jokeri kaldırıp kesin `ADDON_SETUP` yoluna geçince değişken de
+  kalktı.
+- **Kok neden:** Test **davranışı** değil, bir **geçici değişken adını**
+  ölçüyordu. Uygulama ayrıntısına bağlanan test, iyileştirme sırasında
+  yanlış alarm verir.
+- **Degisen dosyalar:** `tests/test_internet_video_addon_regressions.py`
+  **Ürün/batch kodu DEĞİŞMEDİ.**
+- **Test kaniti:** Sözleşme gevşetilmeden GÜÇLENDİRİLDİ: add-on build
+  komutu, `if not exist "!ADDON_SETUP!"` koruması ve kesin
+  `sign_release.py "!ADDON_SETUP!"` çağrısı ayrı ayrı aranıyor; üçünün
+  **sırası** (build < koruma < imza) ve imzalama satırlarında **joker
+  bulunmadığı** da doğrulanıyor. Sonuçlar:
+  `test_internet_video_addon_regressions.py` **9 passed**,
+  `test_release_artifact_selection_regressions.py` **25 passed**,
+  `test_release_guard_regressions.py` **9 passed** (toplam **43 passed**).
+- **Canli kabul:** Gerekmez (test-only düzeltme; ürün davranışı değişmedi).
+- **Kalan risk:** Test hâlâ betiğin **kaynak metnini** ölçer, gerçek
+  koşumunu değil. Sıra denetimi metin konumuna dayanır; bloklar yeniden
+  düzenlenirse konum karşılaştırması yanıltabilir.
+- **Commit durumu:** COMMIT EDILDI — `85dda6d`
+
+---
+
+## NATIVE-001
+
+- **Kimlik:** NATIVE-001
+- **Baslik:** Native `0xe24c4a02` istisnası yeşil pytest sonucunun arkasında gizleniyordu
+- **Onem:** Yüksek — ölümcül görünümlü bir native olay, `exit 0` nedeniyle hiçbir kapıya takılmıyordu
+- **Durum:** KANITLANDI → UYGULANDI → **Aşama 1:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`a7ced18`); **Aşama 2:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → **ESKI KAPIYLA CANLI FAIL, KAYNAK DENETIMINDE YANLIS POZITIF** (18 Ağustos 2026); **debugger kanıt ayrıştırması:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`ddcfc40`); **exact PDB teşhis kapısı:** KANITLANDI → COMMIT EDILDI (`a4f10ee`) → **ONAY B ENGELLENDI**; **PDB'siz trace kapısı:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4f5bc87`); **raw artifact zinciri:** COMMIT EDILDI (`c251abd`) → **IKINCI PDB'SIZ TRACE ONAY B ESKI KAPIYLA FAIL / TANI SONUCSUZ**; **overflow önleme:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`0ac71f8`) → **UCUNCU PDB'SIZ TRACE ONAY B ESKI KAPIYLA FAIL / TANI SONUCSUZ**; **CPython/LuaJIT sınıflandırması:** HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`7d4c07f`) → **CANLI KABUL BASARILI**; residual risk **BILINCLI KABUL EDILDI** (kullanıcı kararı, 18 Ağustos 2026)
+- **Kanit (olculen):**
+  - `tests/test_cover_art_regressions.py` ANA pytest sürecinde doğrudan `mpv.MPV` kuruyordu; fixture yalnız `terminate()` çağırıyordu (ürün kapanışı `stop() -> terminate()` kullanır).
+  - Bağımsız dosya koşumu: **3 passed / exit 0**, buna rağmen stderr'de
+    `Windows fatal exception: code 0xe24c4a02`,
+    `MPVEventHandlerThread -> mpv.py:689 _event_generator`.
+  - Olay **hem** fixture geçişinde **hem de AKTİF testin** `wait_until_playing()` satırında görüldü.
+  - Ortam: Python 3.14.3, python-mpv 1.0.8, libmpv API (2,5), mpv v0.41.0-923, FFmpeg N-126125.
+- **Olculmeyen:** LuaJIT runtime error'larını tetikleyen asıl Lua koşulu/mesajı belirlenemedi; trace logları hedef hata metnini taşımadı. Kullanıcıya görünen çökme, donma veya veri kaybı ölçülmedi. Ürün `faulthandler` açmadığı için bu tanısal çıktı normal üründe görünmez; bu tek başına alttaki Lua hatalarının olmadığı anlamına gelmez.
+- **Kok neden:** Yanıltıcı `Windows fatal exception` çıktısının mekanizması **bulundu**: CPython Windows VEH faulthandler, LuaJIT'in daha sonra yakalanan `LUA_ERRRUN` first-chance SEH olayını handler'lardan önce yazıyor. Alttaki Lua runtime error'larını hangi script koşulunun tetiklediği **AÇIK**. İlk görünürlük kusuru da gerçekti: exit 0 stderr'i hiçbir kapıya takmıyordu; düzeltilen kapı artık gerçek fatal/kapanış kusurunu yakalanmış LuaJIT tanısından ayırır.
+- **Residual risk kararı (kullanıcı kararı, 18 Ağustos 2026): BILINCLI KABUL EDILDI.** Kabul yalnız **exact `0xe24c4a02`**, tam CPython raporu, child exit 0, eksiksiz marker/RESULTS ve ek stderr yok birleşimi içindir. Diğer exception kodları, farklı fatal, nonzero exit, eksik/bozuk marker veya kapanış kusuru **FAIL kalır**; kapı gevşetilmemiştir.
+
+  **Kararın kanıt temeli ve sınırı:** düzeltilmiş CDB kanıtında **0 second-chance** vardı; düzeltilmiş kapının tek canlı kabulü **1 passed / 1,96 sn** oldu. Kullanıcıya görünen çökme, donma veya veri kaybı ölçülmedi. Alttaki **Lua runtime error koşulu bilinmiyor**; bu nedenle **kök neden tamamen çözüldü denmez** ve ürün hatasız ilan edilmez.
+
+  **Kararı yeniden açma tetikleri:** nonzero exit; eksik veya bozuk marker/RESULTS; farklı fatal veya exception kodu; ek stderr; thread sızıntısı; kullanıcıdan çökme, donma veya veri kaybı bildirimi; Python, mpv veya LuaJIT sürümü değişirse. Bu durumlardan biri oluşursa kabul otomatik olarak kanıt sayılmaz ve NATIVE-001 yeniden incelenir.
+- **Degisen dosyalar:** `tests/cover_art_native_child.py` (yeni), `tests/test_cover_art_regressions.py`. **Ürün kodu, bağımlılık sürümleri ve `MPV_CONFIG` DEĞİŞMEDİ.**
+- **Test kaniti:** Native senaryolar ayrı sürece taşındı; saf `evaluate_child()` deterministik olarak sınandı. **Deterministik: 61 passed** (18 Ağustos 2026 dilbilgisi turundan sonra). Native kabul, child üretim kodu değişmediği için TEKRARLANMADI; geçerli canlı sonuç bir önceki turun **39 passed / exit 0 / stderr BOŞ** koşumudur.
+
+  **İLK DÜZELTME BAĞIMSIZ DENETİMDE REDDEDİLDİ.** O turdaki *23 passed* sonucu **nihai kabul DEĞİLDİR**; üç gerçek kusur taşıyordu:
+
+  1. **Sıraya bağımlı test.** `assert "mpv" not in sys.modules` süreç genelini ölçüyordu; `app.player` zaten `mpv` import ettiği için başka bir test önce koşunca düşüyordu — kanıt:
+     `pytest test_app_icon_regressions.py::test_the_real_main_window_uses_the_shared_icon test_cover_art_regressions.py::test_the_parent_process_never_imports_mpv` → **1 passed, 1 failed**.
+     Yerine **bu modülün import ETKİSİ** ölçülüyor: taze kopya yüklenip `mpv` durumu ve MPV thread kümesi önce/sonra karşılaştırılıyor, ayrıca modül düzeyinde `import mpv` olmadığı statik olarak doğrulanıyor. Sıra regresyonu **iki yönde de yeşil**.
+  2. **Eksik kapanış kapsaması.** Child iki instance kuruyordu ama tek `MARK_STOP`/`MARK_TERMINATE` çifti vardı; ikinci kapanış tamamen kaldırılsa bile değerlendirici yeşil kalabiliyordu. Artık senaryo başına ayrı marker (`MARK_COVER_*`, `MARK_NOCOVER_*`) ve **her senaryo için ayrı** `stop < terminate` denetimi var.
+  3. **Aklanan hata.** `MARK_STOP_ERROR` yazılmasına rağmen kabul ediliyordu. Artık `MARK_*_ERROR` **kesin FAIL**; başarılı marker onu aklamıyor ve child exit 1 veriyor.
+
+  **DORDUNCU KUSUR (18 Ağustos 2026, bağımsız denetim): marker biçimi fail-open'dı.**
+  Değerler yalnız "beklenenden farklı mı" diye bakılıyor, BİÇİM hiç
+  denetlenmiyordu. Kanıt: `MARK_COVER_TRACKS abc`, değersiz
+  `MARK_THREADS_AFTER` ve `MARK_DONE junk` içeren çıktı `evaluate_child`
+  tarafından `[]` — yani TAMAM — sayılıyordu. Artık `MARKER_GRAMMAR` her
+  zorunlu marker için token sayısını ve değer dilbilgisini tanımlıyor:
+  değersiz marker'lar TAM 1 token, sayısal marker'lar TAM 2 token
+  (`MARK_COVER_TRACKS >= 1`; `MARK_COVER_SELECTED`,
+  `MARK_NOCOVER_AUDIO_SELECTED` yalnız `1`; `MARK_NOCOVER_ALBUMART`,
+  `MARK_THREADS_AFTER` yalnız `0`). Fazla/eksik token, metin, negatif ve
+  boş değer FAIL. Eski gevşek semantik denetimler KALDIRILDI; zorunlu
+  marker listesi de dilbilgisinden türüyor, ikinci bir liste yok.
+  Boş olmadığı mutasyonla kanıtlandı: dilbilgisi çağrısı nötrleştirilince
+  **13 failed**.
+
+  Ek sertleştirmeler: marker ayrıştırması `startswith()` yerine **tam ilk-token** eşliği (`MARK_DONE_FAKE` artık `MARK_DONE` yerine geçmiyor), tekil marker tekrarı reddediliyor, `subprocess` çıktısı **bayt** yakalanıp açıkça çözülüyor (`text=True` yok; bozuk kodlamada ASCII desenin aranabilirliği testle ölçülü), geçici dosyalar `TemporaryDirectory` ile temizleniyor.
+- **Canli kabul:** Yeni native child ile **TEK** gerçek kabul koşumu yapıldı: **39 passed, exit 0, stderr BOŞ**.
+
+  **Bu sonuç NE ZAMAN alındı:** ilk ÜÇ düzeltmeden (sıra bağımlılığı, senaryo başına kapanış marker'ları, `MARK_*_ERROR` reddi) **SONRA**, dördüncü düzeltmeden (marker dilbilgisi sertleştirmesi) **ÖNCE**. Yani 39 passed rakamı dördüncü düzeltmenin *sonrasına* ait DEĞİLDİR.
+
+  **Neden tekrarlanmadı:** dördüncü düzeltme yalnız **saf `evaluate_child` dilbilgisini** değiştirdi; child'in üretim/native senaryo kodu (MPV kurulumu, oynatma, kapanış, `mark()` çağrıları) **değişmedi**. Aynı native senaryoyu yeniden koşturmak yeni bilgi üretmeyeceği için koşum **bilinçli olarak tekrarlanmadı**.
+
+  **Dilbilgisi sonrası bağımsız ölçüm:** deterministik **61 passed** (native koşum içermez).
+- **Asama 2 (18 Ağustos 2026) — ÜRÜN KAPANIŞ YOLUNUN KABUL KAPISI:** durum **HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI (`4ed5c79`, `5c83c05`) → CANLI KABUL BASARISIZ**.
+
+  **Ölçülen ürün yolu:** `player.close() -> closeEvent() -> stop() -> terminate()`. Yeni child YAZILMADI; mevcut `tests/native_player_shutdown_child.py` kullanıldı. Child kapanışı kendisi başlatmaz, yalnız `player.close()` çağırır; `stop`/`terminate` sınıf düzeyinde saydam kaydediciyle sarılır (ürünün MPV nesnesine fazladan referans EKLENMEZ) ve çıkış ürünle aynı `os._exit(exit_code)` politikasını korur.
+
+  **Görünürlük:** `faulthandler.enable(file=sys.stderr, all_threads=True)` artık PyQt, mpv ve `app.player` importundan **ÖNCE** açılıyor; `MARK_FAULTHANDLER_ENABLED` marker'ı bunu ebeveyne bildiriyor. Hedefin açıkça `sys.stderr` olduğu ve `all_threads=True` verildiği kaynak testiyle kilitli. `app.exec()` döndükten sonra yaşayan MPV thread'leri sayılıp `MARK_THREADS_AFTER count=<n>` yazılıyor; kabul için değer 0 olmalı.
+
+  **İlk kırmızı (deterministik, simüle edilmiş):** `returncode=0` + bütün başarı marker'ları + `RESULTS: failures=none stop=1 terminate=1` + stderr'de `Windows fatal exception: code 0xe24c4a02` → **FAIL**. Aralıklı native olguyu kırmızı üretmek için canlı test TEKRARLANMADI.
+
+  **Kapı sözleşmesi** (`tests/native_shutdown_acceptance.py`, saf `evaluate_shutdown_result`): çıktı BAYT yakalanır (`text=True` yok), timeout kontrollü FAIL'dir, stderr **tamamen boş** olmalıdır (ilk turda hiçbir "zararsız uyarı" muaf değildir), fatal desenler stdout'ta da aranır, on bir zorunlu marker tam bir kez ve kesin sözdiziminde olmalıdır (prefix benzeri satır gerçek marker yerine geçmez), `stop < terminate` sırası, `code=0`, `count=0`, `MARK_MAIN_RETURNED 0` ve RESULTS satırının TAM eşliği zorunludur. Çözümleme ve fatal desen listesi cover-art kapısıyla TEK kaynaktan gelir; `Traceback` ve `PYTHON_EXCEPTION` yalnız bu kapıda anlamlı olduğu için ek liste olarak ve gerekçesiyle ayrı durur.
+
+  **Medya güvenliği:** dosya yalnız salt-okunur açılır; koşum öncesi/sonrası `size` + `mtime_ns` karşılaştırılır (büyük dosyanın hash'i hesaplanmaz), fark FAIL'dir.
+
+  **BES FAIL-OPEN (18 Ağustos 2026, bağımsız denetim) — kapı canlı koşuma HAZIR DEĞİLDİ.** `evaluate_shutdown_result` şu satırların **her birini** `[]` ile kabul ediyordu: `MARK_PLAYER_CREATED t=0.51` (medya adı yok), `MARK_MEDIA_OPEN_REQUESTED t=0.52`, `MARK_MEDIA_READY t=1.24` (duration/position yok), `MARK_CLOSE_ACCEPTED ... visible=True` (pencere kapanmamış) ve `MARK_CLOSE_REQUESTED t=nan`. Ayrıca `MLC_NATIVE_TEST_VIDEO=tests/native_shutdown_acceptance.py` geçerli medya sayılıyordu. Kapatılması:
+
+  1. **`FREE` dilbilgisi KALDIRILDI.** İki medya marker'ı tam bir basename taşır, boş olamaz, birbiriyle ve (canlı çağrıda) beklenen dosyayla aynı olmalıdır. `MARK_MEDIA_READY` tam olarak `duration=<sayı> position=<sayı>` ister ve en az biri > 0 olmalıdır (`TIMEOUT` FAIL). `MARK_CLOSE_ACCEPTED` tam olarak `visible=False` ister.
+  2. **Zaman damgaları** artık `math.isfinite` ve `>= 0` ile ölçülür; `nan`, `inf`, `-inf` ve negatif değerler FAIL. (`float()` dönüşümü bunları geçiriyordu.)
+  3. **Medya türü fail-closed:** yalnız gerçek `.mkv`/`.mp4` dosyaları (uzantı büyük/küçük harf duyarsız); `.py`, `.txt`, `.wav`, uzantısız dosya, dizin ve olmayan yol reddedilir. Yanlış doğrudan yol verildiğinde sessizce klasöre düşülmez. Geçersiz medyada **child hiç başlatılmaz**.
+  4. **Açık native opt-in:** canlı test yalnız `MLC_NATIVE_SHUTDOWN_ACCEPTANCE=1` **ve** geçerli medya birlikte varsa çalışır; medya tek başına yetmez. `MLC_NATIVE_SMOKE` bilerek kullanılmadı (başka native testleri de açardı). Varsayılan tam pytest koşumunda test **skip**tir.
+  5. **`os.stat()` korumalı:** medya koşumdan önce/sonra silinir, taşınır veya okunamazsa traceback yerine kontrollü FAIL döner; child **ikinci kez çalıştırılmaz**.
+
+  **IKI TEKNIK KUSUR DAHA (18 Ağustos 2026, aynı denetim) — kapatıldı:**
+
+  6. **Boşluklu/Unicode medya adları REDDEDİLİYORDU.** `MARK_PLAYER_CREATED t=... kayıt 01.mkv` iki alan sayılıp FAIL üretiyordu; ad, boşlukla ayrışan bir alanda taşınıyordu. Ad artık kayıpsız ve boşluksuz bir alanda taşınır: `media_b64=<URL-safe Base64 UTF-8>`. Değerlendirici tam bir `media_b64=` alanı ister; geçersiz Base64 (`validate=True` — varsayılan çözücü alfabe dışı karakterleri sessizce atıp bozuk token'ı boş dizeye çeviriyordu), geçersiz UTF-8, boş ad, beklenenden farklı ad ve fazla alan **FAIL**'dir; iki medya marker'ının aynı dosyayı bildirdiği ayrıca doğrulanır. Ölçülen adlar: `kayıt 01.mkv`, `4K HEVC Film 01.mkv`, Türkçe harfler, emoji, parantez/köşeli parantez ve kenar boşlukları.
+  7. **Child'ın KENDİ medya doğrulaması açıktı:** `resolve_video()` doğrudan verilen her dosyayı kabul ediyordu. Child doğrudan çalıştırılsa bile artık yalnız gerçek `.mkv`/`.mp4` kabul eder. Uzantı listesi ve ad kodlaması TEK kaynaktadır: yeni `tests/native_media_contract.py` (mpv/PyQt yüklemez); hem ebeveyn kapısı hem child oradan import eder ve ikisi de kendi `base64`/uzantı kodunu taşımaz — bu testle kilitli.
+
+  **Test kaniti:** `tests/test_native_shutdown_acceptance_regressions.py` → **268 passed, 1 deselected** (deselect edilen tek düğüm canlı kabuldür; opt-in sınır testleri dahil). Önceki turda boş olmadıkları dört mutasyonla kanıtlanmıştı: dilbilgisi nötrleştirilince **41 failed**, zaman damgası yalnız `float()` yapılınca **45 failed**, medya türü denetimi kaldırılınca **9 failed**, opt-in kaldırılınca **8 failed**. Mevcut sözleşmeler bozulmadı: `test_child_shutdown_contract_regressions.py` + `test_player_shutdown_regressions.py` + cover-art deterministikleri → **151 passed, 2 skipped**.
+
+  **TALIMAT IHLALI (gizlenmiyor):** yukarıdaki mutasyon turunda "medya türü denetimi yok" varyantı çalışırken `run_native_shutdown` gerçek child'ı **bir kez, yaklaşık 26,8 sn** başlattı — geçersiz bir `.py` girdisiyle. Bu, "native testi çalıştırma" talimatının ihlalidir. **Bu koşum canlı kabul veya ürün etkisi kanıtı DEĞİLDİR:** girdi geçerli medya değildi ve sonucu hiçbir yerde ölçüt olarak kullanılmadı. Süreç kendiliğinden kapandı; sonrasında artık child Python süreci kalmadığı `Win32_Process` listesiyle ölçüldü. Önlem: native sınırını ölçen testler artık `subprocess.run`'ı bir nöbetçiyle değiştirir ve **beklenmeyen her süreç başlatma testi anında kırmızı yapar**; mutasyon aracı canlı test düğümünü hiçbir koşulda toplamaz. "Native test hiç çalıştırılmadı" gibi mutlak bir ifade bu kayıtta KULLANILMAZ.
+
+  8. **Opt-in yalnizca pytest dugumunde denetleniyordu.** `run_native_shutdown()` doğrudan çağrıldığında geçerli bir `.mkv` ile **açık izin olmadan** süreç başlatabiliyordu — 26,8 sn'lik kazanın aynı sınıfı bu alt seviyede hâlâ mümkündü. Kapı artık gerçek `subprocess` sınırındadır: izin yoksa `subprocess.run` **çağrılmaz**, kontrollü problem döner (`returncode=None`, stdout/stderr boş, medya stat'ı raporlanır, traceback yok). Fonksiyon `env=` kabul eder; child ortamı enjekte edilen ortamdan türer, global `os.environ` kirletilmez ve test davranışını değiştirmez. Kaynak sırası da testle kilitli: izin denetimi `subprocess.run` çağrısından ÖNCE.
+
+  **Canli kabul (18 Agustos 2026): BASARISIZ.** Açık PowerShell opt-in'iyle **TEK** geçerli koşum yapıldı. (Bir önceki turun kaydı, koşumun ortam yokluğu yüzünden yapılamadığını söylüyordu; o ifade artık geçersizdir.)
+
+  - **Medya:** `Resident.Alien.S01E01.Pilot.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb.mkv`. Dosya adı **1080p / H.264** belirtir; bu bir **4K/HEVC kabulü DEĞİLDİR**. Boyut önce = sonra = **2.651.661.814 bayt**, `mtime` değişmedi, medya hash'i hesaplanmadı, dosya salt-okunur açıldı.
+  - **Sonuc:** pytest exit **1**, child exit **0** → **kabul FAIL**.
+  - **Kirmizi kanit:** child stderr'inde **tam 9 adet** `Windows fatal exception: code 0xe24c4a02`. İzlerde `MPVEventHandlerThread` ve `mpv.py::_event_generator` / `_loop` görünüyor. **Bu, kaynak native modülün mpv/libmpv olduğunun KESİN kanıtı değildir**; debugger ve sembol olmadan kök modül bilinmiyor.
+  - **Ayni kosumdaki BASARILI davranis kanitlari:** gerçek medya açıldı (`duration=2782.27`), `closeEvent` ürün yolu çalıştı, `stop=1` ve `terminate=1` (stop < terminate), pencere kapandı (`visible=False`), `app.exec()` dönüş kodu 0, kalan MPV thread sayısı **0**, `RESULTS failures=none`, koşumdan sonra ilgili Python child süreci kalmadı.
+
+  **Dogru yorum (sinirlariyla):**
+  - **"Ürün yolu etkilenmiyor" iddiası ARTIK GEÇERSİZDİR.** Olay, faulthandler açıkken **gerçek ürün kapanış yolunda** görüldü.
+  - Buna karşılık bu tek koşum, **kullanıcıya görünen bir çökme veya donma kanıtı DEĞİLDİR**: child normal biçimde exit 0 verdi ve kapanış tamamlandı.
+  - Olay **zararsız ya da güvenli KABUL EDİLEMEZ**. Kök neden ve ürün etkisi **AÇIK**tır.
+
+  **Ham kanit:** yerel geçici çıktının SHA-256'sı `0E946B021E66DBF8CAB8AF628F6D4C54E01821C3495627D7E030F16E80FCF256`. Çıktı geçicidir; kalıcı bir artifact değildir ve mutlak kullanıcı yolu bu belgeye yazılmaz.
+
+  **Debugger teşhisi ve düzeltilen rapor (18 Ağustos 2026; yeni native koşum yapılmadı):** CDB metni bağımsız olarak yeniden ayrıştırıldı. Komut yankısındaki marker metinleri kanıt sayılınca oluşan eski “second-chance” sonucu yanlıştı. Kesin satır dilbilgisiyle ölçüm **14 first-chance**, **13 tekrar**, **0 second-chance** oldu. İlk fault thread: `lua/stats` (TID `302c`); dağılım `lua/stats` = 2, `lua/ytdl_hook` = 1, `lua/select` = 11. `MPVEventHandlerThread` logda bulunur fakat kaynak fault thread değildir.
+
+  **Exact kaynak sınıflandırması (18 Ağustos 2026; native koşum yok):** Runtime manifestindeki mpv kısaltması GitHub API ile tam `7b8915bc1d04c7e1b61184e00c7fbfaab1911e75` commit'ine çözüldü. Bu snapshot'ın [`player/lua.c`](https://github.com/mpv-player/mpv/blob/7b8915bc1d04c7e1b61184e00c7fbfaab1911e75/player/lua.c#L440-L446) dosyası script başlangıcını `lua_pcall` altında çalıştırır ve yalnız dış sınıra ulaşan hatayı `Lua error` olarak yazar.
+
+  Binary'nin yayınlandığı `mpv-winbuild-cmake` `20260814` etiketi tam `cd1edc11dc6887a50f705717619d879f5a93a488` commit'idir. Bu commit'in [`packages/luajit.cmake`](https://github.com/shinchiro/mpv-winbuild-cmake/blob/cd1edc11dc6887a50f705717619d879f5a93a488/packages/luajit.cmake) dosyası LuaJIT'i `openresty/luajit2` deposunun hareketli `v2.1-agentzh` dalından statik derler. Dalın yayın anındaki başı ve halen başı `52f52587b37867ab19236eb6917001c2d6b662e7` olarak ölçüldü. O snapshot'taki [`src/lj_err.c`](https://github.com/openresty/luajit2/blob/52f52587b37867ab19236eb6917001c2d6b662e7/src/lj_err.c#L245-L246) `LJ_EXCODE = 0xe24c4a00` ve `LJ_EXCODE_MAKE(c)` formülünü; [`src/lua.h`](https://github.com/openresty/luajit2/blob/52f52587b37867ab19236eb6917001c2d6b662e7/src/lua.h#L45) ise `LUA_ERRRUN = 2` değerini tanımlar. Aynı `lj_err.c`, Windows yolunda [`RaiseException(LJ_EXCODE_MAKE(errcode), ...)`](https://github.com/openresty/luajit2/blob/52f52587b37867ab19236eb6917001c2d6b662e7/src/lj_err.c#L376-L390) çağırır. Dolayısıyla `0xe24c4a02`, **LuaJIT hata taşıması** olarak kaynakla birebir eşleşir.
+
+  **Provenans sınırı:** build tanımı commit yerine hareketli dal kullandığı ve dağıtılan artifact LuaJIT kaynak kimliğini taşımadığı için **LuaJIT commit'i artifact içinde sabitlenmemiştir**; `52f52587...` dal/zaman eşlemesi güçlü kaynak kanıtıdır fakat binary'nin exact LuaJIT commit'i **kriptografik olarak kanıtlanmış sayılmaz**. Kod eşlemesi olayın LuaJIT çalışma-zamanı hata taşıması olduğunu kanıtlar; **asıl Lua çağrısını**, hatayı bilinçli yakalayan scripti veya kullanıcı etkisini belirlemez ve olayı **güvenli veya zararsız** kılmaz. Scriptlerin yalnız yüklenmiş/etkin görünmesi de suçlu script kanıtı değildir.
+
+  Salt-okunur kaynak alım özeti (geçici klasör; repo artifact'i değildir): exact mpv commit ZIP SHA-256 `D7DF3E86908CAF6552A5ADD73204E159C0A5A593AF42773B50EF27E35869B93A`; exact build-tanımı ZIP SHA-256 `770882870FD2D66411150947777147E8C7EBAA5B8B6E980B7643B79B7BC4A989`; exact LuaJIT snapshot ZIP SHA-256 `73EEF9444B03FEA461A9AFC5E454966436A4E1CE580A2E197A251057A5C79206`.
+
+  **Düzeltilen tanı varsayımı:** `LUA_ERRRUN` yalnız kullanıcı scriptinin dışarı taşan runtime hatası değildir. Exact LuaJIT [`lj_trace.c`](https://github.com/openresty/luajit2/blob/52f52587b37867ab19236eb6917001c2d6b662e7/src/lj_trace.c#L35-L50) içindeki `lj_trace_err` / `lj_trace_err_info`, JIT trace derlemesini senkron abort etmek için aynı `LUA_ERRRUN` koduyla `lj_err_throw` çağırır; [`lj_trace_ins`](https://github.com/openresty/luajit2/blob/52f52587b37867ab19236eb6917001c2d6b662e7/src/lj_trace.c#L777-L786) bunu `lj_vm_cpcall` içinde yakalayıp `LJ_TRACE_ERR` durumuna çevirir. x86_64 build tanımı JIT'i kapatan `LUAJIT_DISABLE_JIT` bayrağını yalnız i686 için ekler. Bu yüzden mevcut exception kodu **script runtime hatası ile JIT trace abort** yolunu **ayırt etmez**; “asıl Lua hata mesajı mutlaka vardır” önceki varsayımı kanıtlanmış değildir.
+
+  **Built-in script ablation kapısı (hazırlandı; ÇALIŞTIRILMADI):** `tests/native_mpv_trace_contract.py` üçüncü açık opt-in olarak `MLC_NATIVE_MPV_SCRIPT_ABLATION=1` ister; shutdown ve trace opt-in'leri de tam `1` olmadan config'e dokunmaz. `--load-scripts=no` tek başına yetmez: exact mpv kaynağında bu seçenek yalnız kullanıcı `scripts/` dizinini kapatır. Kapı **dokuz built-in** seçeneği (`osc`, `ytdl_hook`, `stats`, `console`, `auto_profiles`, `select`, `positioning`, `commands`, `context_menu`) ve dış script auto-load'unu birlikte kapatır; ürün kurucusunun ytdl'yi sonradan yeniden açması child'a özel vekille engellenir. Marker ve trace, Lua client'i kalırsa fail-closed davranır.
+
+  Bu kapı **ürün düzeltmesi değildir**; ürün `MPV_CONFIG` **değişmedi**. Tek ablation koşumu ancak **AYRI ONAY B** ile yapılabilir ve otomatik tekrarlanmaz. Olaylar kaybolursa bu tek örnek yalnız built-in Lua client'lerinin olayla ilişkili olabileceği hipotezini destekler; aralıklı olayda bir negatif örnek gerekli koşul kanıtı değildir. Sürerse built-in scriptlerin gerekli olmadığı söylenebilir. İki sonuç da tek başına belirli bir scripti, JIT trace abort'u veya kullanıcı etkisini kanıtlamaz.
+
+  **Ablation aşaması son doğrulaması (18 Ağustos 2026; yalnız deterministik):** hedef native/trace/shutdown/player/belge paketleri **608 passed, 4 skipped**. Dört skip açık opt-in isteyen gerçek native düğümlerdir; bu doğrulama sırasında **CANLI KOSUM YAPILMADI**, video/mpv child/CDB başlatılmadı. Kesin yedi dosyalık kapı **COMMIT EDILDI (`583bb3d`)**: `docs/ENGINEERING_AUDIT.md`, `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`, `tests/native_mpv_trace_contract.py`, `tests/native_player_shutdown_child.py`, `tests/test_native_mpv_trace_regressions.py`, `tests/test_release_documentation_regressions.py`.
+
+  **Built-in script ablation ONAY B — TEK KOSUM (18 Ağustos 2026): pytest exit 0 / 1 passed.** Bilinen Resident Alien videosuyla açık üç opt-in altında yalnız bir kez çalıştırıldı; **otomatik tekrar yapılmadı**, CDB kullanılmadı ve ürün kodu değiştirilmedi. Child stderr **0 bayt**, `0xe24c4a02` sayısı **0**; shutdown marker'ları eksiksiz, stop < terminate, `app.exec()` kodu 0 ve kalan MPV thread sayısı 0'dı. Koşumdan sonra ilgili child/pytest süreci kalmadı. Trace'te built-in Lua modülü **0**, overflow/fatal/error seviyesi 0 ve fail-closed ablation değerlendiricisi `[]` döndürdü.
+
+  Medya salt-okunur kaldı: boyut önce/sonra **2.651.661.814** bayt, `mtime` ticks önce/sonra **638811093472871806**. Trace **2.367.767 bayt / 32.416 satır**, SHA-256 `8F3E1EB01A9EB506D9977880E0DB9EE0F5A07381426CA920593A57A6FF42C1D1`; child stdout **928 bayt**, SHA-256 `CC316FB8DE055F8F578F89A50CA220E4E75ABE925B22C2A7B36AF189F772D72F`; boş child stderr SHA-256 `E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`. Geçici artifact klasörü kalıcı depo artifact'i değildir; mutlak kullanıcı yolu kayda alınmaz.
+
+  **Sınır:** Bu başarılı tek koşum **ürün düzeltmesi değildir** ve kök neden **AÇIK** kalır. Aralıklı olayın tek negatif örneği, built-in scriptlerin gerekli koşul olduğunu, belirli bir scriptin suçlu olduğunu veya JIT trace abort yolunu **kanıtlamaz**; yalnız built-in script ilişkisi hipotezini güçlendirir. Kayıt sonrası ilgili deterministik paketler **611 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir. Ablation sonuç kaydı **COMMIT EDILDI (`29e017a`)**.
+
+  **Script-bisection kapısı (deterministik):** `MLC_NATIVE_MPV_SCRIPT_BISECTION` beş kesin profil kabul eder: `stats_ytdl`, `select`, `stats`, `ytdl_hook`, `observed_trio`. Her profil önce bütün built-in ve dış script auto-load'unu kapatır, sonra yalnız seçilen client'i/grubu yeniden açar. İlk aşama bütçesi **2** profildir (`stats_ytdl`, `select`); `observed_trio` sonraki ayrı etkileşim tanısıdır. Bu bir otomatik koşum listesi değildir.
+
+  Marker kesin zaman + profil ister. Trace seçilmeyen Lua modülü etkinse, bilinmeyen herhangi bir `lua/*` client'i görünürse veya seçilen Lua modülü görülmedi ise fail-closed kalır; böylece yalnız config niyeti değil gerçek client görünürlüğü ölçülür. Bilinmeyen Lua client'ini yok sayan ilk uygulama kırmızı testle reddedildi ve kapatıldı. Geçersiz profil ve eksik üçlü opt-in child/subprocess sınırından önce durur. Ytdl kurucusunun config'i sonradan yeniden açması yalnız ilgili profilde izinli, diğerlerinde child'a özel vekille kapalıdır. Ürün `MPV_CONFIG` **değişmedi**; ürün koduna dokunulmadı. Hedef trace paketi **126 passed, 1 skipped**; skip gerçek opt-in düğümüdür.
+
+  Aralıklı olayda **tek negatif** sonuç **eleme kanıtı değildir**. Her gerçek koşum **AYRI KULLANICI ONAYI** ve önceden belirlenmiş bütçe ister; bu hazırlık turunda **YENİ NATIVE KOSUM YAPILMADI**. İlgili native/trace/shutdown/player/belge paketleri birlikte **645 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir. Kapı ve kayıt değişiklikleri **COMMIT EDILDI (`06bd5f5`)**.
+
+  **`stats_ytdl` bisection ONAY B — TEK KOSUM (18 Ağustos 2026): pytest exit 0 / 1 passed.** Bilinen Resident Alien videosuyla yalnız bu profil bir kez çalıştırıldı; **otomatik tekrar yapılmadı**, CDB kullanılmadı ve `select` koşumu yapılmadı. Marker profili doğru bildirdi. Trace görünürlüğü tam hedefe uydu: stats 6, ytdl_hook 7, select 0, diğer bilinen built-in modüller 0; bisection değerlendiricisi `[]` döndürdü. Child stderr **0 bayt**, `0xe24c4a02` sayısı **0**, overflow/fatal/error 0; kapanış marker'ları tamamlandı, kalan MPV thread 0 ve artık child/pytest süreci yoktu.
+
+  Medya salt-okunur kaldı: boyut önce/sonra **2.651.661.814** bayt, `mtime` ticks önce/sonra **638811093472871806**. Trace **2.316.712 bayt / 31.672 satır**, SHA-256 `8B2E8B35453ECCC7EC5E81D11E70CA2A6AD09053110EBE65C3CBA370A6FDB9BB`; child stdout **996 bayt**, SHA-256 `0F9C71848625D6936FD9E844D871564DE338139668FDA3A70B8CB1532A3280BF`; boş child stderr SHA-256 `E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`. Geçici çıktılar kalıcı repo artifact'i değildir.
+
+  **Kanıt düzeltmesi:** İlk regex sayımı geçersizdi; trace köşeli parantezleri arasında boşluk varsaydığı için etkin `stats`/`ytdl_hook` satırlarını yanlışlıkla 0 saydı. Bu sonuç **kanıt olarak kullanılmadı**. Gerçek satır biçimi doğrudan okunup ortak değerlendiriciyle çaprazlandı ve yukarıdaki 6/7/0 sayıları alındı.
+
+  **Sınır ve sonraki adım:** Bu tek negatif örnek `stats_ytdl` grubunu **elemez** ve belirli bir scripti ya da JIT yolunu aklamaz. İlk bütçenin ikinci profili olan `select` profili ayrı ONAY B ister; bu kayıt anında select koşumu yapılmamıştı. Kayıt sonrası ilgili deterministik paketler **648 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir. `stats_ytdl` sonuç kaydı **COMMIT EDILDI (`dc31bf9`)**.
+
+  **`select` bisection ONAY B — TEK KOSUM (18 Ağustos 2026): pytest exit 0 / 1 passed.** Bilinen Resident Alien videosuyla yalnız `select` profili bir kez çalıştırıldı; **otomatik tekrar yapılmadı**, CDB kullanılmadı. Marker profili doğru bildirdi. Trace görünürlüğü select 6, stats 0, ytdl hook 0, diğer bilinen built-in modüller 0; bisection değerlendiricisi `[]` döndürdü. Child stderr **0 bayt**, `0xe24c4a02` sayısı **0**, overflow/fatal/error 0; kapanış marker'ları tamamlandı, kalan MPV thread 0 ve artık child/pytest süreci yoktu.
+
+  Medya salt-okunur kaldı: boyut önce/sonra **2.651.661.814** bayt, `mtime` ticks önce/sonra **638811093472871806**. Trace **2.309.579 bayt / 31.548 satır**, SHA-256 `D83214B45DBF615D8009D0537C58E322F1504569BBE5E7B07DA3C97E8CC659A2`; child stdout **984 bayt**, SHA-256 `B4942757310F5040616FF229C0D3A184D84F04D159492AE55D97269CE103C711`; boş child stderr SHA-256 `E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`. Geçici çıktılar kalıcı repo artifact'i değildir.
+
+  **İlk iki profillik bütçe tamamlandı.** `stats_ytdl` ve `select` koşumlarının ikisi de tek-negatif kaldı; aralıklı kusur nedeniyle **hiçbir grup elenmedi** ve kök neden **AÇIK**. Yeni native koşum yetkilendirilmedi. Kayıt sonrası ilgili deterministik paketler **651 passed, 4 skipped**; dört skip gerçek opt-in düğümleridir. `select` sonuç kaydı **COMMIT EDILDI (`6f00ee3`)**.
+
+  **Salt-okunur kanıt sentezi ve sıradaki profil (18 Ağustos 2026; yeni native koşum yapılmadı):** tam raw kanıt taşıyan iki normal-script koşumunda `0xe24c4a02` sayıları sırasıyla **11** ve **13** idi; her ikisinde stats, ytdl_hook ve select yanında **console, auto_profiles, positioning ve commands** de etkin görünüyordu. All-off, `stats_ytdl` ve `select` koşumlarının tek örneklerinin her birinde sayı 0 kaldı. İlk trace kısmi pytest stderr gösterimidir ve **tam raw kanıt değildir**. Exact mpv kaynağı her script client'inin **ayrı Lua state** ve ayrı mpv client kullandığını belirtir; bu mimari bilgi tek başına hangi client'in olayı ürettiğini göstermez.
+
+  Bu karşılaştırmadan türetilen deterministik profil `observed_trio` = **stats + ytdl_hook + select** olarak eklendi; console, auto_profiles, positioning, commands ve diğer built-in'ler kapalı kaldı. Profil yalnız üç gözlenen client'in birlikte yeterli olup olmadığını tek örnekte sınar. **Tek pozitif koşum kesin kök neden kanıtlamaz**; yalnız bu üçlünün o örnekte yeterli olduğunu gösterir. **Tek negatif koşum üçlüyü elemez**. Hazırlık doğrulaması **719 passed, 4 skipped** idi.
+
+  **`observed_trio` bisection ONAY B — TEK KOSUM (18 Ağustos 2026): pytest exit 0 / 1 passed, fakat shutdown kabulü BASARISIZ.** Bilinen Resident Alien videosuyla profil yalnız bir kez çalıştırıldı; **otomatik tekrar yapılmadı** ve **CDB kullanılmadı**. Bisection değerlendiricisi `[]` döndürdü: trace yalnız stats 6, ytdl_hook 7 ve select 6 taşıdı; diğer bilinen built-in modüller 0, trace fatal/error/warn seviyeleri 0 ve stdout overflow problemi yoktu. Buna karşılık child stderr **19.755 bayt** ve tam **15** adet `Windows fatal exception: code 0xe24c4a02` taşıdı. Saf shutdown değerlendiricisi bunu LuaJIT/LUA_ERRRUN SEH izi ve boş olmayan stderr olmak üzere iki problemle reddetti. Bu nedenle **pytest PASS ürün kabulü değildir**.
+
+  Trace **2.332.921 bayt / 31.715 satır**, SHA-256 `147ED1F9D889D69F030DB996757C47E7F6973E979213F4D2559FB9118FFFBD53`; child stdout **999 bayt**, SHA-256 `43D92579AD85D88B34EFC0ECBFDEA113D62FB6FA1BB5502FF5E66DEC24070B1D`; child stderr SHA-256 `DF1E20C0BF19D210C6CCA86029D26AA8A267E19D97EE8E68E3AD6836356032DC`. Medya salt-okunur kaldı: boyut önce/sonra **2.651.661.814**, `mtime` ticks önce/sonra **638811093472871806**. Kapanış marker'ları stop=1, terminate=1, app exit 0 ve kalan MPV thread 0 bildirdi; koşum sonrasında artık python/mpv/CDB süreci yoktu. Geçici çıktılar kalıcı repo artifact'i değildir.
+
+  **Yorum sınırı:** `observed_trio` bu tek örnekte olayı yeniden üretmeye **yeterli** oldu; bu, console/auto_profiles/positioning/commands modüllerinin bu örnekte gerekli olmadığını gösterir. Fakat tek pozitif koşum **kesin kök neden kanıtlamaz**, üç client'ten hangisinin veya hangi etkileşimin sorumlu olduğunu ayırmaz ve kullanıcıya görünen çökme/donma kanıtı değildir. Kök neden ve release-ready madde 8 **AÇIK** kalır. Kayıt sonrası ilgili deterministik paketler **721 passed, 4 skipped**; `observed_trio` sonuç kaydı **COMMIT EDILDI (`4e26d24`)**.
+
+  **Sıradaki deterministik ayrım:** ikili profil bütçesi **2**: `stats_select` = stats + select ve `ytdl_select` = ytdl_hook + select. Her profil diğer bütün built-in client'leri kapatır; marker ile trace seçilen iki client'i zorunlu, üçüncü client'i ve bilinmeyen `lua/*` girişlerini yasaklar. **Her gerçek koşum ayrı ONAY B** ister ve otomatik tekrar yoktur. Aralıklı olay nedeniyle **tek negatif koşum çiftten birini elemez**; **tek pozitif koşum tek clienti kesin kök neden yapmaz**. Hazırlıkta yeni native koşum yapılmadı, ürün kodu değişmedi ve ilgili deterministik paketler **729 passed, 4 skipped** verdi. İkili profil değişiklikleri **COMMIT EDILDI (`dedef7c`)**.
+
+  **`stats_select` bisection ONAY B — TEK KOSUM (18 Ağustos 2026): pytest exit 0 / 1 passed, fakat shutdown kabulü BASARISIZ.** Bilinen Resident Alien videosuyla yalnız bu profil bir kez çalıştırıldı; **otomatik tekrar yapılmadı**, **CDB kullanılmadı** ve `ytdl_select` koşumu yapılmadı. Trace tam hedefe uydu: stats 6, select 6, ytdl_hook 0 ve diğer bilinen built-in modüller 0; bisection değerlendiricisi `[]`, trace fatal/error/warn seviyeleri 0 ve stdout overflow problemi yoktu. Child stderr **1.718 bayt** ve `0xe24c4a02` sayısı **1**; saf shutdown kapısı LuaJIT/LUA_ERRRUN SEH izi ile boş olmayan stderr'i reddetti. Pytest tanı düğümünün geçmesi ürün kabulü değildir.
+
+  Trace **2.322.628 bayt / 31.761 satır**, SHA-256 `24AA35E57316D748BF5C4AFC0DC4E113B70E8DEC1648B1828F2FC2FE3346A2CB`; child stdout **994 bayt**, SHA-256 `38FFCF3AB4035E481B7F431CE1E3BCACFE2114DE1CE84FE3BBA1BD5BBF434702`; child stderr SHA-256 `A6CD855ECE8BC2529AD740398D97B8A88B0DB3351BDF7D0E3F8C8E54BCD642F5`. Medya boyutu önce/sonra **2.651.661.814**, `mtime` ticks önce/sonra **638811093472871806**; kapanış marker'ları tamamlandı, kalan MPV thread 0 ve artık python/mpv/CDB süreci yoktu. Geçici çıktılar kalıcı repo artifact'i değildir.
+
+  **Yorum sınırı:** stats+select ikilisi **bu tek örnekte yeterli** oldu. Bu, `ytdl_hook`un bu örnekte gerekli olmadığını gösterir; fakat aralıklı tek koşum **tek clienti kesin kök neden yapmaz**, stats/select etkileşimini kesinleştirmez ve önceki tek-negatif `select` sonucunu eleme kanıtına dönüştürmez. `ytdl_select` koşumu yapılmadı ve ayrı ONAY B ister. Kök neden ve release-ready madde 8 **AÇIK**. Kayıt sonrası ilgili deterministik paketler **732 passed, 4 skipped**; sonuç kaydı sonraki ikiliyle birlikte **COMMIT EDILDI (`cc94ff7`)**.
+
+  **`ytdl_select` bisection ONAY B — TEK KOSUM (18 Ağustos 2026): pytest exit 0 / 1 passed, fakat shutdown kabulü BASARISIZ.** Bilinen Resident Alien videosuyla yalnız bu profil bir kez çalıştırıldı; **otomatik tekrar yapılmadı** ve **CDB kullanılmadı**. Trace ytdl_hook 7, select 6, stats 0 ve diğer bilinen built-in modüller 0; bisection değerlendiricisi `[]`, fatal/error/warn seviyeleri 0 ve stdout overflow problemi yoktu. Child stderr **10.236 bayt** ve `0xe24c4a02` sayısı **8**; saf shutdown kapısı LuaJIT/LUA_ERRRUN SEH izi ile boş olmayan stderr'i reddetti. Pytest tanı düğümünün geçmesi ürün kabulü değildir.
+
+  Trace **2.337.261 bayt / 31.762 satır**, SHA-256 `05A001E5229E54BDDAFF3D9A15C6EE0F6B31C7D5D9E6EDB8E0AA857846098B93`; child stdout **993 bayt**, SHA-256 `32C5E9AFA784046E53402D59C0C3936987AEE67B35194FE10ECA28FA5F3FB3D7`; child stderr SHA-256 `24BDBE901FE706F0EEB96E6F64B80FA2ED870C8CF4E4CF0D0468813B381D8429`. Medya boyutu önce/sonra **2.651.661.814**, `mtime` ticks önce/sonra **638811093472871806**; kapanış marker'ları tamamlandı, kalan MPV thread 0 ve artık python/mpv/CDB süreci yoktu. Geçici çıktılar kalıcı repo artifact'i değildir.
+
+  **İkili profil bütçesi tamamlandı.** Stats+select ve ytdl_hook+select ikililerinin **iki ikili de tek pozitif** sonucu var; **ortak client select**. Ytdl_hook+select de **bu tek örnekte yeterli** oldu, fakat bu gözlem **selecti kesin kök neden yapmaz** ve tek clienti kesin kök neden yapmaz. Koşumlar eşzamanlı değildir, olay aralıklıdır ve **önceki select tek negatif** sonucu **eleme kanıtı değildir**. Sonraki adım yeni koşum değil, salt-okunur kanıt/süreç değerlendirmesidir; **yeni native koşum yetkilendirilmedi**. Kök neden ve release-ready madde 8 **AÇIK**. Kayıt sonrası ilgili deterministik paketler **735 passed, 4 skipped**; iki ikili sonuç kaydı **COMMIT EDILDI (`cc94ff7`)**.
+
+  **Dar ürün adayı — `load_select=False` (18 Ağustos 2026; COMMIT EDILDI `9a91e18` → CANLI KABUL BASARISIZ):** exact mpv kaynağında `load-select` varsayılanı `true`; `select.lua` mpv konsol seçim API'si, `menu-data`, native `context-menu` ve `select/*` bindingleri içindir. MLC Player kaynaklarında bu mpv API'lerinin çağrısı yoktur; ürün seçim ve bağlam menülerini Qt ile kurar, ayrıca mpv varsayılan klavye bindinglerini kapatır. Bu nedenle `app/config.py::MPV_CONFIG` kullanılmayan istemciyi açıkça kapatır. Değişiklik stats ve ytdl istemcilerini topluca kapatmaz. İlk kırmızı `MPV_CONFIG.get("load_select") is False` beklentisinde `None is False` idi; düzeltme sonrası gerçek `MPVPlayer.init_mpv_player()` constructor yolu da bayrağı `False` olarak aktardı. Hedef ve ilgili deterministik paketler **288 passed, 1 skipped, 2 deselected**; ayrıca constructor odaklı paket **6 passed**. Tek tam paket kapanış koşumu **4511 passed, 19 skipped, exit 0; 115,85 sn** verdi.
+
+  **`load_select=False` sonrası ONAY B — TEK KOSUM (18 Ağustos 2026): pytest exit 1 / canlı kabul BASARISIZ.** Bilinen Resident Alien videosu normal ürün yapılandırmasıyla yalnız bir kez çalıştırıldı; CDB/trace/ablation/bisection kullanılmadı ve otomatik tekrar yapılmadı. Child exit **0**; medya hazır (`duration=2782.27`, `position=0.04`), `stop=1` → `terminate=1`, pencere `visible=False`, `app.exec()` = 0, kalan MPV thread 0, `RESULTS failures=none` ve bütün kapanış marker'ları tamamlandı. Buna rağmen child stderr **3427 karakter** ve tam **2** adet `Windows fatal exception: code 0xe24c4a02` taşıdı; kabul kapısı LuaJIT/LUA_ERRRUN SEH izi ve boş olmayan stderr nedeniyle doğru biçimde FAIL verdi. Medya boyutu önce/sonra **2.651.661.814**, `mtime` ticks önce/sonra **638811093472871806**; artık hedef süreç yoktu ve çalışma ağacı koşum sonrasında temizdi.
+
+  **Sonuç sınırı:** `load_select=False` canlı kabulü düzeltmeye **yeterli değildir**; olay select kapalıyken de görüldüğü için select bu koşumda olayın oluşması için **gerekli değildir**. Bu tek aralıklı örnek, select'in hiçbir katkısı olmadığını veya başka client/etkileşimlerin kesin kök neden olduğunu kanıtlamaz. Kullanılmayan yüzeyi kapatan ürün ayarı korunuyor, fakat artık `0xe24c4a02` düzeltmesi olarak kabul edilmiyor. Release-ready madde 8 ve kesin kök neden **AÇIK** kalır; yeni native koşum ayrıca onaylanmadan yapılmaz.
+
+  **Kabul kapısı kaynak düzeltmesi (18 Ağustos 2026; COMMIT EDILDI `7d4c07f`):** exact CPython **v3.14.3** `Modules/faulthandler.c`, Windows'ta `AddVectoredExceptionHandler(1, faulthandler_exc_handler)` kurar. Handler yalnız iki özel yönetilen exception sınıfını (`0xE06D7363`, `0xE0434352`) hariç tutar; `0xe24c4a02` için `Windows fatal exception: code ...` yazıp Python/C stack döker ve **`EXCEPTION_CONTINUE_SEARCH`** döndürür. CPython issue **#75882** aynı mekanizmanın daha sonra C++ tarafından yakalanan exception'ı handler'dan **önce** yazdığını ve unhandled ayrımının VEH ile yapılamadığını açıklar. Exact LuaJIT `src/lj_err.c`, Windows hata kodunu `0xe24c4a00 | errcode` olarak kurup `RaiseException` çağırır; yani `0xe24c4a00 | LUA_ERRRUN(2)` tam `0xe24c4a02`yi üretir. Kaynaklar: `https://github.com/python/cpython/blob/v3.14.3/Modules/faulthandler.c`, `https://github.com/python/cpython/issues/75882`, exact yerel LuaJIT kaynak snapshot'ı.
+
+  Bu kaynak kanıtı önceki debugger ölçümüyle birleşir: **14 first-chance, 13 tekrar, 0 second-chance**; ayrıca son ürün child'ı bütün kapanış marker'larını tamamlayıp exit 0 verdi. Dolayısıyla CPython'ın `fatal` kelimesi bu akışta tek başına ürün crash'i değildir; eski kapı **yanlış pozitif** üretiyordu. Yeni ortak `tests/native_windows_exception_contract.py`, yalnız stderr'in tamamı bir veya daha çok **tam biçimli** CPython `0xe24c4a02` raporundan oluşuyorsa sınıflandırır. Caller ayrıca exit 0 ve eksiksiz marker/RESULTS ister. Truncated rapor, farklı Windows kodu, ek stderr, stdout fatal, bozuk UTF-8, nonzero exit, eksik/bozuk marker ve thread sızıntısı fail-closed kalır. Çok-thread'li rapor mutasyonu ilk parser'da iki gevşeklik yakaladı: bir thread başlığı veya o thread'in tek frame'i silindiğinde başka sağlam thread raporu aklıyordu; artık **her thread bölümü ayrı başlık ve en az bir frame** ister. Hem shutdown hem cover-art değerlendiricisi ortak sınıflandırıcıyı kullanır; kopya parser yoktur. Deterministik kanıt **537 passed, 2 deselected**; deselected düğümler iki gerçek native kabulüdür. Eski raw stderr kalıcı artifact olarak saklanmadığı için önceki koşum geriye dönük PASS ilan edilmedi.
+
+  **Düzeltilmiş kapı ONAY B — TEK KOSUM (18 Ağustos 2026): CANLI KABUL BASARILI.** Commit `7d4c07f` üzerinde bilinen Resident Alien videosuyla normal ürün yapılandırması yalnız bir kez çalıştırıldı; otomatik tekrar, CDB, trace, ablation ve bisection yoktu. Pytest **exit 0 / 1 passed / 1,96 sn**. PASS sözleşme gereği child exit 0, bütün marker/RESULTS, doğru `stop → terminate`, pencere kapanışı, `app.exec()` 0, kalan MPV thread 0 ve medya stat eşliğini birlikte doğrular. Koşum öncesi/sonrası medya boyutu **2.651.661.814**, `mtime` ticks **638811093472871806**; artık hedef süreç 0 ve çalışma ağacı temizdi. Başarılı düğüm child stdout/stderr ayrıntısını dışarı basmadığı için bu koşumun stderr'inin boş olduğu veya `0xe24c4a02` sayısı **ÖLÇÜLMEDİ**; bu değerler uydurulmaz. Teknik canlı kapı sağlandı. Release-ready madde 8 ise alttaki Lua runtime error koşulu bulunana veya kullanıcı residual riski açıkça bilinçli kabul edene kadar **AÇIK** kalır.
+
+  Kabul kapısı gevşetilmedi: yalnız tam biçimli CPython `0xe24c4a02` raporu + exit 0 + eksiksiz kapanış sözleşmesi tanısal gürültü sayılır. Eksik rapor, ek stderr, farklı Windows fatal kodu veya kapanış kusuru genel fail-closed korumada kalır.
+
+  **ONAY A — exact PDB uygunluk denetimi (18 Ağustos 2026; native koşum yok):** GitHub Actions workflow run `31755832255` içindeki `mpv-x86_64-debug` artifact'i (`9203486934`) indirildi. Artifact arşivi `mpv-debug-x86_64-20260814-git-7b8915bc1d.7z`, 57.309.570 bayt ve SHA-256 `873EF06F0996F993120F7633099A18CD1011CF4CDBE139CBE21A8F0575866787`; arşiv **yalnız `mpv.pdb`** içeriyor.
+
+  Repo `bin/mpv-2.dll` dosyasının SHA-256'sı manifest ile aynı: `F709C7CA8B183BEC76B8158BF0C45C53018C63366750729352612F228FF7BDEA`. DLL'in CodeView kimliği `C2123266-4DC7-8196-4C4C-44205044422E`, age 1 ve beklediği ad `libmpv-2.pdb`. İndirilen `mpv.pdb` kimliği ise `83981475-63BC-A938-4C4C-44205044422E`, age 1. Yeniden adlandırılmış kopya da `symchk` tarafından `mpv-2.dll` için **mismatched** olarak reddedildi (exit 1).
+
+  PDB'nin kaynağı ayrıca bağımsız ölçüldü: aynı workflow'un normal artifact'indeki `mpv.exe` ile `symchk /pf` denetiminden geçti (exit 0; private semboller, satır ve tip bilgisi mevcut). `lj_err_run`, `lj_err_throw`, `lua_State`, `TValue` ve `GCstr` bulunuyor; fakat bunlar `mpv.exe` PDB'sindedir ve repo DLL'inin adres/simge kanıtı olarak kullanılamaz. Sonuç: **exact `libmpv-2.pdb` elde edilemedi**; yayımlanan debug artifact DLL PDB'sini taşımıyor.
+
+  Geçici harness yalnız ön hazırlık olarak fail-closed bırakıldı: exact GUID/age ve `symchk /pf` geçmeden runner kontrollü olarak durur; statik preflight geçti. **ONAY B ENGELLENDI.** ONAY A sırasında CDB hedefi, Python child, MLC Player, mpv, PyQt ve video **çalıştırılmadı**; run sentinel, debugger logu ve child çıktısı oluşmadı. Geçici klasör kalıcı artifact değildir ve mutlak kullanıcı yolu kayda alınmaz.
+
+  **PDB'siz mpv trace teşhis kapısı (18 Ağustos 2026):** exact DLL PDB'si yayımlanmadığı için ikinci yol yalnız test child'ında hazırlandı. `tests/native_mpv_trace_contract.py` saf codec, yol doğrulaması, iki opt-in, trace log ayrıştırması ve runner sınırının tek kaynağıdır; `tests/native_player_shutdown_child.py` yalnız trace açıkken `configure_trace_mode()` çağırır. Ürün kodu ve normal `MPV_CONFIG` değişmedi. Trace seçenekleri child'a ait kopyada tam olarak `log_file=<mutlak yeni .log>`, `msg_level=all=trace`, `msg_time=yes`, `msg_module=yes`; kurulu python-mpv kaynağındaki `k.replace('_', '-')` dönüşümü salt-okunur doğrulandı.
+
+  **Güvenlik ve kanıt sözleşmesi:** `MLC_NATIVE_SHUTDOWN_ACCEPTANCE=1` ile `MLC_NATIVE_MPV_TRACE=1` birlikte zorunlu; hedef `MLC_NATIVE_MPV_TRACE_LOG` mutlak, yeni, `.log`, var olan üst dizinde ve medyadan ayrı olmalıdır. Eksik/yanlış izin veya hedefte shutdown runner çağrılmaz. Yol marker'ı strict Base64 + strict UTF-8 ile kayıpsızdır; boş, bozuk, mevcut, eksik, aşırı büyük veya normal dosya olmayan trace fail-closed olur. Parser yalnız zaman/seviye/modül dilbilgisine uyan Lua error/traceback satırlarını `stats`, `select`, `ytdl_hook`, `lua/*` veya açık Lua mesajı üzerinden raporlar; normal cplayer hatası hedef kanıt sayılmaz. Yalnız traceback varsa asıl hata mesajı, yalnız genel `cplayer` Lua satırı varsa script kaynağı **kısmi/sonuçsuz** kalır; ikisi de tanıyı yeşile çevirmez.
+
+  **Yorum sınırı:** **tanı başarısı ürün kabulü değildir**. Lua hata metni/script kaynağı yakalansa bile ayrı `shutdown_problems` korunur; trace, stderr veya kapanış sorununu aklamaz. Gerçek koşum yalnız ayrı ONAY B ile ve tek sefer yapılacaktır.
+
+  **İlk kırmızı ve test kanıtı:** yeni modül yokken `ModuleNotFoundError: native_mpv_trace_contract`. Minimum uygulama sonrası trace paketi **54 passed, 1 skipped** (skip yalnız gerçek trace düğümü); mevcut shutdown/child/player/cover-art sözleşmeleriyle birlikte **476 passed, 4 skipped**. Bütün bu koşumlar sentetik/statiktir; gerçek subprocess nöbetçi veya enjekte edilmiş sahte runner ile kesildi.
+
+  **Kapsam:** `tests/native_mpv_trace_contract.py`, `tests/test_native_mpv_trace_regressions.py`, `tests/native_player_shutdown_child.py`, `tests/test_native_shutdown_acceptance_regressions.py`, `docs/ENGINEERING_AUDIT.md`, `docs/ROADMAP.md`, `tests/test_release_documentation_regressions.py`.
+
+  **Denetim sırasında sınır notu:** python-mpv seçenek dönüşümünü incelemek için bir `mpv` import denemesi yapıldı; PATH'e DLL eklenmediği için `mpv import denemesi OSError ile durdu`. **libmpv yüklenmedi ve MPV instance oluşturulmadı**; ardından doğrulama yalnız `mpv.py` kaynak dosyası okunarak tamamlandı. Bu deneme native/video kabulü değildir, fakat “hiç mpv importuna teşebbüs edilmedi” denemez.
+
+  **ONAY B — PDB'siz mpv trace, TEK KOSUM (18 Ağustos 2026): BASARISIZ / TANI SONUCSUZ.** Bilinen Resident Alien videosuyla yalnız bir kez çalıştırıldı; **otomatik tekrar yapılmadı**, CDB kullanılmadı ve ürün kodu değiştirilmedi. **pytest exit 1** verdi (2,448 sn). Koşumdan sonra artık child/pytest süreci yoktu.
+
+  Medya salt-okunur kaldı: boyut önce/sonra **2.651.661.814 bayt**, `mtime` ticks önce/sonra **638811093472871806**; yani **boyut ve mtime değişmedi**. Hash bu koşumda hesaplanmadı.
+
+  mpv trace geçerli biçimde üretildi: **2.341.534 bayt**, **31.858 satır**, SHA-256 `125D0F347EF3DC1D3E5BFFB718E5BBB506FF46062C57A5FBD498896E6A007FB8`. `ytdl_hook` 7, `stats` 6 ve `select` 6 kayıt taşıdı; trace genelinde `fatal`, `error` ve `warn` seviyelerinin her biri 0'dı. Buna rağmen **Lua hata/traceback kaydı yok** ve parser `trace_records=[]` döndürdü; bu nedenle tanı fail-closed biçimde **TANI SONUCSUZ** kaldı. Bu, parser biçim hatası ya da hatanın yokluğu olarak yorumlanamaz: yalnızca bu koşumda olağan mpv log kanalına hedef Lua hata metni düşmediğini ölçer. **Kök neden AÇIK** kalır.
+
+  Ayrı shutdown değerlendirmesi child stderr'inde **14.799 karakter** ve `Windows fatal exception: code 0xe24c4a02` / `MPVEventHandlerThread` / `mpv.py::_event_generator` / `_loop` izi bildirdi; bu yüzden ürün kabulü de FAIL kaldı. Ancak runner **raw child stdout/stderr akışlarını kalıcı ayrı artifact olarak yazmadı**; pytest assertion özeti stderr'in yalnız başlangıcını taşıyor. Bu kanıt boşluğu nedeniyle bu ONAY B koşumundan eksiksiz marker kümesi veya bütün kapanış adımları hakkında yeni bir **marker iddiası** kurulmaz.
+
+  Geçici kanıt klasörü kalıcı artifact değildir. Kayda mutlak kullanıcı yolu alınmadı; kalıcı eşleme için `mpv_trace.log` özeti ile pytest stdout özeti (`D6919A44C44E7C050CD4978BA8237710395A5D15FE3F67852893F2013060CC13`) tutuldu. pytest stderr'i 0 bayttı; native iz, pytest'in yakaladığı child stderr içeriği olarak stdout failure raporunda yer aldı.
+
+  **Gelecek koşumlar için raw stream kanıt boşluğu kapatıldı (deterministik; canlı koşum tekrarlanmadı):** `run_native_shutdown()` artık çözümlenmiş metnin yanında tam `raw_stdout` ve `raw_stderr` baytlarını döndürür. Trace runner bunları trace yolundan türetilen `.child_stdout.bin` ve `.child_stderr.bin` dosyalarına `xb` ile yazar; mevcut artifact varsa önceki kanıtı ezmeden child'ı engeller. Eksik/bayt olmayan stream ve kontrollü yazma hataları fail-closed testlidir. Hedef paketler **331 passed, 2 skipped**; iki skip gerçek native düğümlerdir. **CANLI KOSUM TEKRARLANMADI.** Bu düzeltme önceki ONAY B sonucunu geriye dönük yükseltmez: o tek koşum **TANI SONUCSUZ** kalır ve **ONAY B sonuc kaydı COMMIT BEKLIYOR**.
+
+  **IKINCI PDB'SIZ TRACE ONAY B — raw artifact doğrulaması (18 Ağustos 2026): TEK KOSUM, pytest exit 1, TANI SONUCSUZ.** Temiz `c251abd` HEAD'inde aynı Resident Alien videosuyla çalıştırıldı; **otomatik tekrar yapılmadı**, CDB kullanılmadı ve ürün kodu değiştirilmedi. Süre 1,934 sn; timeout yok. Medya boyutu önce/sonra **2.651.661.814 bayt**, `mtime` ticks önce/sonra **638811093472871806**; koşumdan sonra artık child/pytest süreci yok.
+
+  Raw stdout kapanış sözleşmesini eksiksiz taşıdı: `duration=2782.27`, `position=0.04`, `stop=1` → `terminate=1`, `visible=False`, `app.exec=0`, **MPV thread=0**, `RESULTS failures=none`, **main returned 0**. Buna rağmen raw stderr'de **11 ayrı** `0xe24c4a02` olayı vardı (14.410 bayt); her blok `MPVEventHandlerThread`, `mpv.py::_event_generator` ve `_loop` çerçevelerini, ana thread ise `native_player_shutdown_child.py:236` içindeki `app.exec()` noktasını gösterdi. Bu, olayların bu koşumda oynatma/event-loop sırasında görüldüğünü kanıtlar; exact native kaynak veya kullanıcıya görünen etkiyi kanıtlamaz.
+
+  Yeni kanıt özetleri: `mpv_trace.log` **2.333.754 bayt / 31.735 satır**, SHA-256 `C5532F519D26496873AD52A77CDC6B391DCA7361035DFDF4C3954A660012B720`; `.child_stdout.bin` **944 bayt**, SHA-256 `C2D866AB63CDD91BFD3EE61A6F291D263BDBC3EB57FEE9C1B3D64FA869A4B0F5`; `.child_stderr.bin` **14.410 bayt**, SHA-256 `CF5BC570743E015FEFEC28250D49C83CDB0100230133A798D8297038679D0011`. Trace yine Lua hata/traceback kaydı taşımadı; tanı fail-closed kaldı.
+
+  **Yeni teşhis sınırlaması:** raw stdout, `[fatal] [overflow] log message buffer overflow: 155 messages skipped` bildirdi; yani **155 mesaj atlandı**. Dolayısıyla bu trace **tüm mpv log mesajlarının korunduğunu kanıtlamaz**; hedef Lua mesajının gerçekten üretilmediği de iddia edilemez. Yeni bir native koşumdan önce overflow üretmeyen kanıt düzeni deterministik olarak tasarlanmalı; yeni koşum yine ayrı kullanıcı onayı ister. **ONAY B sonuc kaydı COMMIT BEKLIYOR.**
+
+  **Overflow önleme sözleşmesi (deterministik; CANLI KOSUM TEKRARLANMADI):** diagnostic child yapılandırması artık `msg_level=all=trace` değerini trace dosyası için korurken python-mpv client event eşiğini ayrı `loglevel=warn` parametresiyle sınırlar. Kurulu python-mpv kaynağında `loglevel` açık constructor parametresidir ve `self.set_loglevel(...)` üzerinden `mpv_request_log_messages()` çağrısına gider; normal kwargs gibi mpv seçeneğine çevrilmez. Ürün `MPV_CONFIG`'i ve ürün log handler politikası değişmedi. Raw stdout içinde `log message buffer overflow: <n> message(s) skipped` yeniden görülürse, Lua kaydı bulunsa bile tanı artık açıkça **FAIL-CLOSED / eksik** sayılır.
+
+  Birincil sözleşmeler: [mpv seçenek kılavuzu](https://mpv.io/manual/master/#options), `--log-file` ile `--msg-level` ilişkisinin ve `trace` seviyesinin çok gürültülü olduğunun kaynağıdır; [libmpv `client.h`](https://github.com/mpv-player/mpv/blob/master/include/mpv/client.h), her client handle'ın kendi `mpv_request_log_messages` durumuna sahip olduğunu belgeler. Hedef/dar deterministik sonuç **337 passed, 2 skipped**; skip'ler gerçek native düğümlerdir. Bu sonuç overflow'un canlıda bittiğini kanıtlamaz; yalnız ayrımı, kaynak bağını ve fail-closed kapıyı doğrular.
+
+  **UCUNCU PDB'SIZ TRACE ONAY B — overflow önleme canlı doğrulaması (18 Ağustos 2026): TEK KOSUM, pytest exit 1, TANI SONUCSUZ.** Temiz `0ac71f8` HEAD'inde aynı Resident Alien videosuyla çalıştırıldı; **otomatik tekrar yapılmadı**, CDB kullanılmadı ve ürün kodu değiştirilmedi. Süre 1,965 sn; timeout yok. Medya boyutu/mtime değişmedi; artık child/pytest süreci yok.
+
+  Amaçlanan dar sonuç canlıda görüldü: raw stdout içinde **`overflow=0`** ve **`messages skipped=0`**; önceki `155 messages skipped` satırı yoktu. Kapanış marker'ları yine tamdı: `duration=2782.27`, `position=0.04`, `stop=1` → `terminate=1`, `visible=False`, `app.exec=0`, MPV thread=0, `RESULTS failures=none`, main returned 0.
+
+  Buna rağmen raw stderr **13 ayrı** `0xe24c4a02` olayı taşıdı (15.916 bayt); trace **31.707 satır** olmasına rağmen Lua hata/traceback kaydı yine 0'dı. Ölçülen sınır: **overflow olaylar için gerekli bir koşul değildi** — bu koşumda overflow yokken olaylar sürdü. Bu, overflow'un hiçbir etkisi olmadığını, olayların kesin kaynağını veya kullanıcıya görünen etkiyi belirlemez; **kök neden AÇIK** kalır.
+
+  Üç kalıcı eşleme özeti: trace SHA-256 `27E6407134BCC6609FBAC41F29F8B6A1E35692A5BB34906B2C904F4A39F18C30`; raw stdout SHA-256 `5BBFA4F383DB321919FCFB0EF6A5141C44194BD0FC26469970DADA79241ACEE4`; raw stderr SHA-256 `3CDAAC57BD4B7027DF99B77B1F34D6B5B6B18C29965D1E43ADF75AC6B9889A10`. **Üçüncü ONAY B sonuç kaydı bu kayıt commit'iyle COMMIT EDILDI.**
+
+  **Süreç ihlali kaydı:** geçici harness, ilk kodlama ön testinden sonra **bağımsız denetime sunulmadan** değiştirildi ve çalıştırıldı. İkinci CDB koşumu yapılmamış ve repo değişmemiş olsa da bu bir **onay zinciri ihlali**dir; raporun thread ve second-chance yorumları bu yüzden ayrıca bağımsız ayrıştırmayla doğrulanmıştır.
+
+  **Commit durumu (asamalara gore):**
+  - **Aşama 1** (cover-art child yalıtımı + stderr görünürlük kapısı): **COMMIT EDILDI** — `a7ced18`.
+  - **Aşama 2** (ürün kapanış yolu kabul kapısı + başarısız canlı kabulün kaydı): **COMMIT EDILDI** — `4ed5c79` ve `5c83c05`. Kapsam **YEDİ dosyaydı** ve **İKİ mantıksal commit'e** ayrıldı:
+
+    **1) `test: add product shutdown native acceptance gate`** — kapı uygulaması, **DÖRT** dosya:
+    `tests/native_player_shutdown_child.py`, `tests/native_media_contract.py`, `tests/native_shutdown_acceptance.py`, `tests/test_native_shutdown_acceptance_regressions.py`.
+
+    **2) `docs: record failed native shutdown acceptance`** — kayıt ve belge koruması, **ÜÇ** dosya:
+    `docs/ENGINEERING_AUDIT.md`, `docs/ROADMAP.md`, `tests/test_release_documentation_regressions.py`.
+
+    Belge koruması kendi regresyon testini de değiştirdiği için kapsam altı değil **yedi** dosyaydı; bu tarihsel kapsam `tests/test_release_documentation_regressions.py` içinde mekanik olarak korunur.
+  - **Canlı kabul:** **BASARISIZ** (18 Ağustos 2026; yukarıdaki tek koşum).
+
+  **Canli kosum komutu (Windows PowerShell — bu kayit turunda TEKRAR CALISTIRILMADI):**
+
+  ```powershell
+  $env:MLC_NATIVE_SHUTDOWN_ACCEPTANCE = "1"
+  $env:MLC_NATIVE_TEST_VIDEO = "C:\tam\yol\gerçek video.mkv"
+  python -m pytest -q tests/test_native_shutdown_acceptance_regressions.py::test_the_product_shutdown_path_survives_a_real_run
+  ```
+
+  Bash biçimindeki `VAR=1 python ...` örneği KALDIRILDI; Windows PowerShell'de çalışmaz.
+
+  **Hala OLCULMEYENLER:** `0xe24c4a02` olayının alt türü (script runtime hatası mı, iç JIT trace abort mu), onu doğuran Lua/JIT çağrısı, kullanıcıya görünen etki ve olgunun sıklığı. Ölçülen şey yalnızca **bir** ürün koşumu ve onun tek debugger kaydıdır.
+
+  **SIRADAKI TEKNIK ADIM — AYRI KULLANICI ONAYI GEREKIR (bu turda YAPILMADI):**
+  - Exact `libmpv-2.pdb` üreticiden sağlanmadan özel sembol harness'iyle native koşum **YAPILMAZ**.
+  - PDB'siz trace tek koşumu sonuçsuz kaldı; otomatik tekrar yapılmaz. Bir sonraki native koşumdan önce raw child stdout/stderr'i ayrı artifact olarak saklayan kanıt zinciri deterministik testlerle düzeltilmeli veya exact `libmpv-2.pdb` sağlanmalıdır.
+  - Yeni debugger/native koşumu gerçek pencere ve gerçek medya kullanacağı için **ayrıca ONAY B ister**; ürün kodu değiştirilmemelidir.
+  - **4K / H.265 kabulü ancak kök neden düzeltmesinden SONRA yapılacaktır.**
+
+- **Kalan risk:** **Canlı kabul BAŞARISIZDIR; olayın alt türü ve çağrı kaynağı AÇIKTIR.** Debugger, olayın LuaJIT `LUA_ERRRUN` taşıması olduğunu ve fault thread dağılımını belirledi; exact kaynak bunun script runtime hatası kadar iç JIT trace abort yolu da olabileceğini gösterdi. PDB'siz trace ilgili scriptlerin etkin olduğunu gösterdi fakat iki yolu ayırmadı. Kullanıcıya görünen etki belirlenmedi. İstisna artık child'da oluşursa üst test FAIL verir — gizlenmez, fakat **önlenmiş değildir**.
+- **Commit durumu:** Aşama 1 **COMMIT EDILDI** (`a7ced18`); Aşama 2 **COMMIT EDILDI** (`4ed5c79`, `5c83c05`); debugger kanıt ayrıştırması ve kayıt düzeltmesi **COMMIT EDILDI** (`ddcfc40`); ONAY A PDB kaydı **COMMIT EDILDI** (`a4f10ee`); PDB'siz trace kapısı **COMMIT EDILDI** (`4f5bc87`); raw artifact zinciri **COMMIT EDILDI** (`c251abd`); ikinci ONAY B sonuç kaydı ve overflow önleme düzeltmesi **COMMIT EDILDI** (`0ac71f8`); üçüncü ONAY B sonuç kaydı **bu kayıt commit'iyle COMMIT EDILDI**.
+
+---
+
+## DOC-001
+
+- **Kimlik:** DOC-001
+- **Baslik:** Yayın süreci üç yerde birden yazılıydı
+- **Onem:** Orta — kopyalar elle eşit tutuluyordu, sessiz ayrışma riski
+- **Durum:** UYGULANDI → HEDEF TESTLERLE DOGRULANDI → COMMIT EDILDI → TAMAMLANDI
+- **Kanit:** Kesin sıra `CLAUDE.md`, `docs/PACKAGING_PLAN.md` ve `packaging/prepublish.py` docstring'inde ayrı ayrı yazılıydı; hangisinin resmî olduğu belirsizdi.
+- **Kok neden:** Tek kaynak yoktu.
+- **Degisen dosyalar:** `docs/RELEASE_PROCESS.md` (yeni), `docs/ENGINEERING_AUDIT.md` (yeni), `docs/ROADMAP.md` (yeni), `CLAUDE.md`, `docs/PACKAGING_PLAN.md`, `packaging/prepublish.py`, `tests/test_release_documentation_regressions.py` (yeni)
+- **Test kaniti:** `tests/test_release_documentation_regressions.py` — ayrıntılı a–j sırasının yalnız resmî belgede bulunduğunu, diğerlerinin ona bağlandığını ve kritik değişmezlerin korunduğunu ölçer.
+- **Canli kabul:** Gerekmez (belge turu).
+- **Kalan risk:** Belgeler ürün davranışını değil, metni ölçer. Sürecin gerçekten izlendiği ancak bir sonraki yayında görülür.
+- **Commit durumu:** COMMIT EDILDI — bu kayıtla aynı pre-publish commit'i

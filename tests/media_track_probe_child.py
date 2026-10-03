@@ -20,7 +20,7 @@ import time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-# libmpv, urunun kullandigi `bin/` dizininden yuklenir (bkz. main.py).
+# libmpv, urunun kullandigi `bin/` dizininden yuklenir (bkz. app/main.py).
 _BIN = os.path.join(ROOT, "bin")
 os.environ["PATH"] = _BIN + os.pathsep + os.environ.get("PATH", "")
 try:
