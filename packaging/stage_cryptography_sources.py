@@ -7,7 +7,7 @@ for the OpenSSL archive and crates actually distributed in ``_rust.pyd``.
 The cryptography sdist's Cargo.lock is used as an independent cross-check.
 
 This helper never builds, installs, tags or releases anything.  ``--download``
-only fetches missing immutable ``.crate`` source archives into source_mirror.
+only fetches missing immutable ``.crate`` source archives into output/source_mirror.
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_MIRROR = ROOT / "source_mirror"
+SOURCE_MIRROR = ROOT / "output" / "source_mirror"
 CONTRACT_PATH = ROOT / "packaging" / "corresponding_sources.json"
 EXPECTED_CRYPTOGRAPHY_VERSION = "50.0.0"
 EXPECTED_OPENSSL_VERSION = "4.0.1"

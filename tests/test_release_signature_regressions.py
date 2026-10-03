@@ -122,8 +122,8 @@ def test_the_build_chain_signs_the_installer():
 
 
 def test_the_signing_rules_are_written_where_they_are_read():
-    """Devralan kişi/asistan kuralı görmeli: CLAUDE.md her oturumda okunur."""
-    rules = (_root() / "CLAUDE.md").read_text(encoding="utf-8")
+    """Devralan kişi/asistan kuralı görmeli: .claude/CLAUDE.md her oturumda okunur."""
+    rules = (_root() / ".claude/CLAUDE.md").read_text(encoding="utf-8")
     for expected in ("sign_release.py", ".sig", "RELEASE_PUBLIC_KEY",
                      "MLC_SIGNING_KEY"):
         assert expected in rules, f"kural eksik: {expected}"

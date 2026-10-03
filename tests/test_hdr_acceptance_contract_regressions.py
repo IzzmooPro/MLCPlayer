@@ -19,7 +19,7 @@ from hdr_probe_contract import (
 ROOT = Path(__file__).resolve().parent.parent
 RUNNER = ROOT / "tests" / "run_hdr_acceptance.py"
 CHILD = ROOT / "tests" / "native_hdr_probe_child.py"
-MATRIX = ROOT / "docs" / "WINDOWS_ACCEPTANCE_MATRIX.md"
+MATRIX = ROOT / "docs" / "quality" / "WINDOWS_ACCEPTANCE_MATRIX.md"
 
 
 def read(path):

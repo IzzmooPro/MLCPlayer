@@ -2,7 +2,7 @@ MLC Player third-party notices
 ================================
 
 This file describes the third-party runtime families included in the Windows
-package built from requirements-lock.txt.  The exact corresponding-source
+package built from requirements/lock.txt.  The exact corresponding-source
 archives, sizes and SHA-256 values are declared in
 packaging/corresponding_sources.json and are published beside each MLC Player
 release.  The accompanying licence texts are installed in this directory.

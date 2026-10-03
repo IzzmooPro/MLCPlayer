@@ -9,9 +9,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-RUNTIME = ROOT / "requirements.txt"
-DEV = ROOT / "requirements-dev.txt"
-LOCK = ROOT / "requirements-lock.txt"
+RUNTIME = ROOT / "requirements/runtime.txt"
+DEV = ROOT / "requirements/dev.txt"
+LOCK = ROOT / "requirements/lock.txt"
 
 ADVISORY_FIXED_MINIMUMS = {
     "pillow": (12, 3, 0),
@@ -72,7 +72,7 @@ def test_advisory_affected_developer_tools_stay_at_fixed_versions():
 def test_advisory_affected_tools_are_not_shipped_as_player_runtime():
     runtime = exact_pins(RUNTIME)
     assert not ({"pillow", "pytest", "setuptools"} & runtime.keys())
-    spec = (ROOT / "MLCPlayer.spec").read_text(encoding="utf-8")
+    spec = (ROOT / "packaging/MLCPlayer.spec").read_text(encoding="utf-8")
     excludes = spec.split("excludes=", 1)[1].split("]", 1)[0].lower()
     for name in ("pil", "pillow", "pytest", "setuptools"):
         assert repr(name) in excludes
@@ -82,7 +82,7 @@ def test_bootstrap_checks_versions_instead_of_only_import_presence():
     bootstrap = (ROOT / "scripts" / "bootstrap.ps1").read_text(
         encoding="utf-8")
     assert "verify_dependencies.py" in bootstrap
-    assert "requirements.txt" in bootstrap
+    assert "requirements/runtime.txt" in bootstrap
     assert 'MaximumPythonExclusive = [Version]"3.15"' in bootstrap
 
 
@@ -92,7 +92,7 @@ def test_release_build_fails_before_cleanup_on_an_unlocked_environment():
     check = build.index("verify_dependencies.py")
     cleanup = build.index("STEP 2/8  Cleaning previous output")
     assert check < cleanup
-    assert "requirements-lock.txt" in build
+    assert "requirements/lock.txt" in build
 
 
 def test_dependency_verifier_fails_closed_for_a_missing_package(tmp_path):

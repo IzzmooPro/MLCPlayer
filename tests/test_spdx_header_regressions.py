@@ -41,7 +41,7 @@ LICENCE_LINE = "# SPDX-License-Identifier: GPL-3.0-only"
 
 #: Taranan ağaçlar. `build/`, `dist/` ve `bin/` bizim kaynağımız değildir.
 SOURCE_TREES = ("app", "tests", "packaging")
-SOURCE_FILES = ("main.py", "second_launch.py", "MLCPlayer.spec")
+SOURCE_FILES = ("app/main.py", "packaging/MLCPlayer.spec")
 
 
 def python_sources():
@@ -78,7 +78,7 @@ def test_every_python_source_carries_the_spdx_header(path):
 
 def test_the_identifier_matches_what_the_readme_declares():
     """Depo kendi içinde çelişmemeli: `only` ise README de öyle demeli."""
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (ROOT / ".github" / "README.md").read_text(encoding="utf-8")
     assert "GNU GPL version 3" in readme
     # "or later" DEMİYORUZ; kimlik de `-only`.
     assert "GPL-3.0-only" in LICENCE_LINE

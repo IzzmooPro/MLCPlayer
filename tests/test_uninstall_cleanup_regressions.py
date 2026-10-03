@@ -149,14 +149,14 @@ def test_user_cleanup_helper_is_packaged_and_removed_for_every_uninstall_mode():
     build = (ROOT / "packaging" / "build_release.bat").read_text(
         encoding="utf-8-sig")
 
-    assert 'Source: "..\\dist\\MLCUserCleanup.exe"' in text
+    assert 'Source: "..\\output\\dist\\MLCUserCleanup.exe"' in text
     assert "AppData\\Local\\Programs\\MLC Player\\UninstallCleanup" in code
     assert "ExpectedLegacyCleanupHelperForSid" in code
     assert "AppData\\Local\\MLCPlayer\\UninstallCleanup" in code
     assert "{commonappdata}\\MLCPlayer\\UninstallCleanup" not in text
     assert "Permissions: users-modify" not in text
     assert "'ipc\\' + Nonce + '.request.json'" in code
-    assert "MLCUserCleanup.spec" in build
+    assert "packaging/MLCUserCleanup.spec" in build
     assert "RemoveCleanupInfrastructure" in code
     assert "DeleteOwnedUserDataInRegisteredSession" in code
     assert "RemoveCleanupInfrastructure" in code

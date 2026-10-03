@@ -3,7 +3,7 @@
 **A cinematic media player for Windows, built on libmpv.**
 
 [![Latest release](https://img.shields.io/github/v/release/IzzmooPro/MLCPlayer)](https://github.com/IzzmooPro/MLCPlayer/releases/latest)
-[![Licence: GPL v3](https://img.shields.io/badge/licence-GPLv3-blue)](LICENSE)
+[![Licence: GPL v3](https://img.shields.io/badge/licence-GPLv3-blue)](../LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-informational)](https://github.com/IzzmooPro/MLCPlayer/releases/latest)
 
 MLC Player has one interface and commits to it: a frameless window, an
@@ -100,9 +100,9 @@ does not match is deleted. You do not run the `.sig` file yourself.
 The installer is not yet code-signed, so Windows SmartScreen will warn about
 an unknown publisher on first run.
 
-See the project's [Code signing policy](CODE_SIGNING_POLICY.md),
-[Privacy policy](PRIVACY.md), [SignPath readiness record](docs/SIGNPATH_READINESS.md)
-and [application record](docs/SIGNPATH_FOUNDATION_APPLICATION.md). An
+See the project's [Code signing policy](../docs/policies/CODE_SIGNING_POLICY.md),
+[Privacy policy](../docs/policies/PRIVACY.md) and
+[SignPath application and readiness record](../docs/release/SIGNPATH.md). An
 application was submitted on 23 August 2026 and was not approved by the
 Foundation on 2 September 2026 because public visibility/trust signals were
 not yet sufficient; the current installer remains unsigned.
@@ -133,15 +133,15 @@ player.
 ## Build and run from source
 
 The quickest path is `Start.bat`: it locates Python 3.12-3.14, installs it only
-if missing, installs the packages from `requirements.txt` only if they are
+if missing, installs the packages from `requirements/runtime.txt` only if they are
 absent, verifies all three runtime binaries and starts the player.
 `Start.bat -CheckOnly` verifies everything without launching.
 
 Manually:
 
 ```bash
-pip install -r requirements.txt
-python main.py
+pip install -r requirements/runtime.txt
+python app/main.py
 ```
 
 Manual local media playback requires Windows, Python 3.12-3.14 and
@@ -168,7 +168,7 @@ The release chain lives in `packaging/`: `build_release.bat` drives
 PyInstaller, Inno Setup, the publisher signature and the verification steps in
 `verify_build.py`. It refuses to build a version that installed clients could
 not see as an update, and it stops if the installer cannot be signed. The
-reasoning behind the packaging decisions is in `docs/PACKAGING_PLAN.md`.
+reasoning behind the packaging decisions is in `docs/release/PACKAGING_PLAN.md`.
 
 ---
 
@@ -177,7 +177,7 @@ reasoning behind the packaging decisions is in `docs/PACKAGING_PLAN.md`.
 Issues and pull requests are welcome at
 [github.com/IzzmooPro/MLCPlayer](https://github.com/IzzmooPro/MLCPlayer).
 The maintainer workflow, required CI check and evidence-preserving merge policy
-are documented in [`docs/CHANGE_WORKFLOW.md`](docs/CHANGE_WORKFLOW.md).
+are documented in [`docs/process/CHANGE_WORKFLOW.md`](../docs/process/CHANGE_WORKFLOW.md).
 
 Two things are worth knowing before you send a change:
 
@@ -187,19 +187,19 @@ Two things are worth knowing before you send a change:
   interface, the playlist stays in an owned window beside the main window,
   mpv and the subtitle workers are shut down cooperatively rather than
   terminated, and no new always-on-top flags or timers are introduced.
-  `CLAUDE.md` records these invariants and the reasons behind them.
+  `.claude/CLAUDE.md` records these invariants and the reasons behind them.
 
 ### Developer setup
 
-`requirements.txt` is enough to run the player. To run the tests or build a
+`requirements/runtime.txt` is enough to run the player. To run the tests or build a
 release you also need the tooling:
 
 ```
-pip install -r requirements-lock.txt
+pip install -r requirements/lock.txt
 ```
 
 The lock file is the reproducible Windows test/release environment.
-`requirements.txt` and `requirements-dev.txt` document the smaller direct
+`requirements/runtime.txt` and `requirements/dev.txt` document the smaller direct
 runtime and developer dependency sets; their versions must match the lock.
 
 The developer set brings pytest, Pillow, PyInstaller and PySide6. PySide6 is
@@ -241,7 +241,7 @@ Copyright (C) 2026 MLC Player contributors.
 
 MLC Player is licensed under the **GNU General Public License v3.0**, SPDX
 identifier **`GPL-3.0-only`**. Every source file carries that identifier in a
-two-line SPDX header, and the full licence text is in [`LICENSE`](LICENSE) —
+two-line SPDX header, and the full licence text is in [`LICENSE`](../LICENSE) —
 the canonical gnu.org text, byte for byte, which a test keeps pinned by its
 SHA-256.
 
@@ -270,20 +270,20 @@ a binary it ships are not the same thing.
 
 For MLC Player itself the corresponding source is this repository. For the
 third-party binaries we redistribute, every component is recorded in
-[`bin/RUNTIME_MANIFEST.txt`](bin/RUNTIME_MANIFEST.txt) with its exact version,
+[`bin/RUNTIME_MANIFEST.txt`](../bin/RUNTIME_MANIFEST.txt) with its exact version,
 the upstream URL it came from and its SHA-256, and
-[`licenses/mpv-NOTICE.txt`](licenses/mpv-NOTICE.txt) names the upstream
+[`licenses/mpv-NOTICE.txt`](../licenses/mpv-NOTICE.txt) names the upstream
 repositories for mpv, FFmpeg and the build recipe. Both files ship inside the
 installed package, not only here. We do not modify any of those sources.
 
 The runtime manifest records binary provenance; a binary, installer archive,
 or development archive is **not** corresponding source. The separate
-[`packaging/corresponding_sources.json`](packaging/corresponding_sources.json)
+[`packaging/corresponding_sources.json`](../packaging/corresponding_sources.json)
 contract lists rebuildable source archives. The release gate stays closed
 while that contract has any blocker. Once the exact build inventory and
 source bundles are verified, `python packaging/fetch_sources.py` will fetch
 only those source archives, verify their size and SHA-256, and place them in
-`source_mirror/` for publication beside the installers.
+`output/source_mirror/` for publication beside the installers.
 
 The verified subset can be collected during remediation with
 `python packaging/fetch_sources.py --allow-incomplete`; this does not open the

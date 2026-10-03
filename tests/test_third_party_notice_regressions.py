@@ -31,7 +31,7 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 NOTICE = ROOT / "licenses" / "mpv-NOTICE.txt"
 MANIFEST = ROOT / "bin" / "RUNTIME_MANIFEST.txt"
-SPEC = ROOT / "MLCPlayer.spec"
+SPEC = ROOT / "packaging/MLCPlayer.spec"
 
 
 def _manifest_row(name):

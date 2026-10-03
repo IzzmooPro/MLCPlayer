@@ -17,7 +17,7 @@ from pathlib import Path
 from app import runtime_binaries as runtime
 
 ROOT = Path(__file__).resolve().parent.parent
-SPEC = ROOT / "MLCPlayer.spec"
+SPEC = ROOT / "packaging/MLCPlayer.spec"
 ADDON_ISS = ROOT / "packaging" / "MLCPlayer_InternetVideo.iss"
 CHAIN = ROOT / "packaging" / "build_release.bat"
 
@@ -195,7 +195,7 @@ def test_the_chain_builds_and_signs_the_addon():
     — bu bir DAVRANIŞ değil, uygulama ayrıntısıdır. O değişken jokerle
     doldurulan bir arama sonucuydu:
 
-        for %%F in ("installer_output\\MLCPlayer_InternetVideo_*.exe") ...
+        for %%F in ("output/installer\\MLCPlayer_InternetVideo_*.exe") ...
 
     Ürün artık kesin `ADDON_SETUP` yolunu doğrudan imzalıyor; joker
     kaldırıldığı için değişken de kalktı ve test ürün DÜZELDİĞİ için

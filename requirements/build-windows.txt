@@ -1,7 +1,7 @@
 # MLC Player hosted unsigned-build wheels
 #
 # Exact CPython 3.13 / Windows x86-64 wheel set selected from the same pins as
-# requirements-lock.txt on 23 August 2026. The hosted workflow uses
+# requirements/lock.txt on 23 August 2026. The hosted workflow uses
 # --require-hashes, --only-binary=:all: and --no-deps, so an unlisted archive
 # or a byte-different replacement fails closed.
 altgraph==0.17.5 \

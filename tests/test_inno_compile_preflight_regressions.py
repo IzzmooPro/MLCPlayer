@@ -111,12 +111,12 @@ def test_preflight_skips_only_the_generated_payload_and_normal_build_does_not():
     unsigned = (ROOT / "packaging" / "build_unsigned_main.bat").read_text(
         encoding="utf-8")
     payload = (
-        'Source: "..\\dist\\MLC Player\\*"; DestDir: "{app}"; '
+        'Source: "..\\output\\dist\\MLC Player\\*"; DestDir: "{app}"; '
         'Flags: ignoreversion recursesubdirs createallsubdirs; '
         'BeforeInstall: BeforeInstallMainPayload'
     )
     cleanup_helper = (
-        'Source: "..\\dist\\MLCUserCleanup.exe"; DestDir: "{app}"; '
+        'Source: "..\\output\\dist\\MLCUserCleanup.exe"; DestDir: "{app}"; '
         'Flags: ignoreversion'
     )
     guarded = installer.split("#ifndef MLCCompilePreflight", 1)[1].split(

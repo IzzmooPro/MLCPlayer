@@ -1342,7 +1342,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>Clear Playlist</translation>
         </message>
         <message>
-            <location filename="main.py" line="134" />
+            <location filename="app/main.py" line="146" />
             <source>MLC Player Yanıt Vermiyor</source>
             <translation>MLC Player Is Not Responding</translation>
         </message>
@@ -1362,7 +1362,7 @@ Solution: unlock the file or copy it to another folder.</translation>
             <translation>MLC Player {version} is ready to download.</translation>
         </message>
         <message>
-            <location filename="main.py" line="188" />
+            <location filename="app/main.py" line="200" />
             <source>MPV Bileşeni Bulunamadı</source>
             <translation>MPV Component Not Found</translation>
         </message>
@@ -1704,7 +1704,7 @@ This operation tried to use a feature that is not present in this version of mpv
             <translation>Profile</translation>
         </message>
         <message>
-            <location filename="main.py" line="189" />
+            <location filename="app/main.py" line="201" />
             <source>Program çalıştırılamadı: gerekli MPV bileşeni (mpv-2.dll) bulunamadı.
 
 Çözüm: Programın yanındaki 'bin' klasörünün eksiksiz olduğundan emin olun. Programı kurulum klasöründen başlatın.
@@ -2382,7 +2382,7 @@ That folder may have been deleted, or the program may have been moved elsewhere.
             <translation>{whole}.{fraction}</translation>
         </message>
         <message>
-            <location filename="main.py" line="135" />
+            <location filename="app/main.py" line="147" />
             <source>Çalışan MLC Player isteği alamadı. Açık pencereyi kapatıp tekrar deneyin.</source>
             <translation>The running MLC Player could not receive the request. Close the open window and try again.</translation>
         </message>

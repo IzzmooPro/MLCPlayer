@@ -16,7 +16,7 @@ ve her seferinde child'in KENDISI saglikliydi: dogrudan calistirildiginda
 
 KOK NEDEN (urunun kendi belgesi)
 --------------------------------
-`main.py` satir 130:
+`app/main.py` satir 130:
 
     # NOT: mpv DLL'leri bu yapida interpreter kapanisinda TAKILIYOR
     # (thread-safe olmayan DLL yikimi). Normal Python finalizasyonu
@@ -110,7 +110,7 @@ def test_a_libmpv_child_never_relies_on_normal_interpreter_finalisation(name):
     assert "os._exit(" in source, (
         f"{name} libmpv yukluyor ama `os._exit()` ile kapanmiyor; "
         "normal finalizasyon thread-safe olmayan DLL yikiminda takilabilir "
-        "(bkz. main.py satir 130).")
+        "(bkz. app/main.py satir 130).")
 
 
 @pytest.mark.parametrize("name", default_suite_libmpv_children())
@@ -119,7 +119,7 @@ def test_a_libmpv_child_flushes_before_the_hard_exit(name):
     if name in DELIBERATE_FINALISERS:
         pytest.skip("bu child finalizasyon tehlikesini BILEREK olcuyor")
     source = read(os.path.join(TESTS, name))
-    # NOT: ilk gecis ARAMAZ. Gerekce dizeleri `main.py -> os._exit(ret)`
+    # NOT: ilk gecis ARAMAZ. Gerekce dizeleri `app/main.py -> os._exit(ret)`
     # seklinde yorum icinde de gecebiliyor; olculmesi gereken GERCEK cagri
     # en sondakidir.
     exit_at = source.rindex("os._exit(")
@@ -144,6 +144,6 @@ def test_the_deliberate_finaliser_is_still_deliberate():
 
 def test_the_product_still_documents_and_uses_the_hard_exit():
     """Sozlesmenin kaynagi urundur; urun degisirse bu test uyarir."""
-    main_py = read(os.path.join(os.path.dirname(TESTS), "main.py"))
+    main_py = read(os.path.join(os.path.dirname(TESTS), "app/main.py"))
     assert "os._exit(ret)" in main_py
     assert "takılıyor" in main_py or "takiliyor" in main_py

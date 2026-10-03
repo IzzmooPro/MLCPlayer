@@ -137,7 +137,7 @@ def test_a_second_install_does_not_stack_translators(qt_app, translations):
 
 def test_apply_language_reports_the_chain_was_loaded(qt_app, translations,
                                                      monkeypatch):
-    """Açılış yolu (`main.py`) aynı zinciri kurar."""
+    """Açılış yolu (`app/main.py`) aynı zinciri kurar."""
     monkeypatch.setattr(i18n, "stored_language", lambda: "de")
     code, loaded = i18n.apply_language(qt_app)
     assert (code, loaded) == ("de", True)

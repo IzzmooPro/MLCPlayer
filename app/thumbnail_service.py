@@ -87,11 +87,11 @@ def thumbnail_cache_path(media_path, cache_dir=None):
 
 
 def build_worker_command(media_path, output_path):
-    """Kaynak çalıştırmada main.py'yi, frozen pakette aynı EXE'yi kullanır."""
+    """Kaynak çalıştırmada app/main.py'yi, frozen pakette aynı EXE'yi kullanır."""
     args = ["--thumbnail-worker", media_path, output_path]
     if getattr(sys, "frozen", False):
         return sys.executable, args
-    main_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "main.py")
+    main_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "app/main.py")
     return sys.executable, [main_path, *args]
 
 

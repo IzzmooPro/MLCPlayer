@@ -12,7 +12,7 @@
   "capability_inventory": {
     "measured_commit": "419d6c7cede0b6fad37425b28c375fc89e61b141",
     "evidence_id": "EV-20260824-026",
-    "document": "docs/VIDEO_FORMAT_CAPABILITY_INVENTORY.md",
+    "document": "docs/video-format/VIDEO_FORMAT_ACCEPTANCE_PLAN.md",
     "active_gpu": "NVIDIA GeForce RTX 4070 Ti",
     "driver": "610.88",
     "active_display": "MSI G274QPF E2",
@@ -74,7 +74,7 @@
     }
   },
   "media_policy": {
-    "manifest_document": "docs/VIDEO_FORMAT_MEDIA_MANIFEST.json",
+    "manifest_document": "docs/video-format/VIDEO_FORMAT_MEDIA_MANIFEST.json",
     "manifest_evidence_id": "EV-20260824-041",
     "manifest_status": "partially_fingerprinted",
     "acquisition_or_generation_performed": true,

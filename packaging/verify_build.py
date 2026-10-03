@@ -17,7 +17,7 @@ import sys
 from pyinstaller_binary_policy import is_forbidden_root_destination
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DIST = os.path.join(ROOT, "dist", "MLC Player")
+DIST = os.path.join(ROOT, "output", "dist", "MLC Player")
 MANIFEST = os.path.join(ROOT, "bin", "RUNTIME_MANIFEST.txt")
 
 # Paketlenen runtime ikilileri -- TEK kaynak.
@@ -52,12 +52,12 @@ MAIN_SOURCE_FILES = tuple(
     os.path.join("assets", "mlc-player-icon.ico"),
     os.path.join("assets", "mlc-player-icon-transparent.ico"),
     "LICENSE",
-    "README.md",
-    "README.tr.md",
-    "MLCPlayer.spec",
+    os.path.join(".github", "README.md"),
+    os.path.join(".github", "README.tr.md"),
+    os.path.join("packaging", "MLCPlayer.spec"),
     os.path.join("packaging", "pyinstaller_binary_policy.py"),
     os.path.join("packaging", "run_pyinstaller.py"),
-    "main.py",
+    "app/main.py",
 )
 
 # Optional add-on inputs. The established full release preflight remains the
@@ -233,7 +233,7 @@ def check_post():
     ok = True
     print("[2/3] dist tree")
     if not os.path.isdir(DIST):
-        return fail("dist\\MLC Player was not created")
+        return fail("output\\dist\\MLC Player was not created")
     for relative in REQUIRED_IN_DIST:
         path = os.path.join(DIST, relative)
         if not os.path.exists(path):

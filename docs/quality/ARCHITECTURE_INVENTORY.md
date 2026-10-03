@@ -14,7 +14,7 @@ sahipliği, yaşam döngüsü, bağımlılık ve test sınırı birlikte incelen
 kodunda davranış değişikliği yapılmaz.
 
 Altı kaynak dosyanın normalize SHA-256 ve yapı sayıları
-`docs/ARCHITECTURE_INVENTORY.json` içindedir. Regresyon testi bu değerleri canlı
+`docs/quality/ARCHITECTURE_INVENTORY.json` içindedir. Regresyon testi bu değerleri canlı
 kaynakla karşılaştırır; bu dosyalardan biri değişip envanter güncellenmezse CI
 fail-closed durur.
 
@@ -188,7 +188,7 @@ ve çeviri metni değişmez.
 
 Uygulama kapısı:
 
-1. `docs/WINDOWS_ACCEPTANCE_MATRIX.md` P0 senaryolarını mevcut runner'larla
+1. `docs/quality/WINDOWS_ACCEPTANCE_MATRIX.md` P0 senaryolarını mevcut runner'larla
    eşleştir ve eksik başlangıç kanıtını belirle.
 2. Yeni yaprak modül için geçerli/geçersiz URL, Windows/UNC yol, klasör
    sıralama ve güvenli host doğrudan regresyonlarını önce kırmızı çalıştır.

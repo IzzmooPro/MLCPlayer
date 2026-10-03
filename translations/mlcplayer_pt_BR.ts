@@ -1332,7 +1332,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="main.py" line="134" />
+            <location filename="app/main.py" line="146" />
             <source>MLC Player Yanıt Vermiyor</source>
             <translation type="unfinished" />
         </message>
@@ -1352,7 +1352,7 @@ Hassas bilgiler otomatik olarak gizlenmiştir.</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="main.py" line="188" />
+            <location filename="app/main.py" line="200" />
             <source>MPV Bileşeni Bulunamadı</source>
             <translation type="unfinished" />
         </message>
@@ -1689,7 +1689,7 @@ Bu işlem mpv'nin bu sürümünde bulunmayan bir özellik kullanmaya çalıştı
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="main.py" line="189" />
+            <location filename="app/main.py" line="201" />
             <source>Program çalıştırılamadı: gerekli MPV bileşeni (mpv-2.dll) bulunamadı.
 
 Çözüm: Programın yanındaki 'bin' klasörünün eksiksiz olduğundan emin olun. Programı kurulum klasöründen başlatın.
@@ -2363,7 +2363,7 @@ Bu klasör silinmiş veya program başka bir yere taşınmış olabilir.</source
             <translation type="unfinished" />
         </message>
         <message>
-            <location filename="main.py" line="135" />
+            <location filename="app/main.py" line="147" />
             <source>Çalışan MLC Player isteği alamadı. Açık pencereyi kapatıp tekrar deneyin.</source>
             <translation type="unfinished" />
         </message>

@@ -25,7 +25,7 @@ def module():
 
 def source_archive(name):
     """Return a staged release artifact or mark the deep check unavailable."""
-    path = ROOT / "source_mirror" / name
+    path = ROOT / "output/source_mirror" / name
     if not path.is_file():
         pytest.skip(f"requires staged corresponding-source artifact: {name}")
     return path

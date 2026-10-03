@@ -80,9 +80,9 @@ silinir. `.sig` dosyasını kendiniz çalıştırmazsınız.
 Kurulum henüz kod imzalı değildir; Windows SmartScreen ilk çalıştırmada
 “bilinmeyen yayıncı” uyarısı gösterebilir.
 
-Projenin [Kod imzalama politikası](CODE_SIGNING_POLICY.md),
-[Gizlilik politikası](PRIVACY.md), [SignPath hazırlık kaydı](docs/SIGNPATH_READINESS.md)
-ve [başvuru kaydı](docs/SIGNPATH_FOUNDATION_APPLICATION.md) herkese açıktır.
+Projenin [Kod imzalama politikası](../docs/policies/CODE_SIGNING_POLICY.md),
+[Gizlilik politikası](../docs/policies/PRIVACY.md) ve
+[SignPath başvuru ve hazırlık kaydı](../docs/release/SIGNPATH.md) herkese açıktır.
 Başvuru 23 Ağustos 2026 tarihinde gönderildi; Foundation başvuruyu 2 Eylül
 2026'da projenin henüz yeterli kamu görünürlüğü/güven sinyali olmadığı
 gerekçesiyle onaylamadı. Mevcut kurulum imzasızdır.
@@ -111,7 +111,7 @@ eklenti kendi kaldırıcısıyla ana oynatıcıyı silmeden de kaldırılabilir.
 ## Çalıştırma (kaynaktan)
 
 En kolay yol `Start.bat` dosyasına çift tıklamaktır: Python 3.12-3.14 yoksa
-kurar, eksik paketleri `requirements.txt` üzerinden yükler ve programı açar.
+kurar, eksik paketleri `requirements/runtime.txt` üzerinden yükler ve programı açar.
 Başlatmadan önce üç çalışma zamanı ikilisini de doğrular. Her şey hazırsa
 hiçbir kurulum yapmadan doğrudan başlatır. Yalnızca kontrol için
 `Start.bat -CheckOnly` kullanın; program açılmaz.
@@ -122,11 +122,11 @@ gerekir. İnternet videosu site çıkarımı ayrıca `bin/yt-dlp.exe` ve
 Mevcut `Start.bat` üç ikiliyi de zorunlu tutar.
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements/runtime.txt
 ```
 
 ```bash
-python main.py
+python app/main.py
 ```
 
 Bu çalışma zamanı ikilileri boyutları nedeniyle depoda tutulmaz; sağlamaları
@@ -147,14 +147,14 @@ pakete dahil değildir.
 
 Release zinciri `packaging/` altındadır: `build_release.bat`,
 `MLCPlayer.iss` ve ölçümlü doğrulama adımlarıyla `verify_build.py`.
-Kararların gerekçesi `docs/PACKAGING_PLAN.md` içindedir.
+Kararların gerekçesi `docs/release/PACKAGING_PLAN.md` içindedir.
 
 ## Lisans
 
 Copyright (C) 2026 MLC Player katkıcıları.
 
 MLC Player **GNU General Public License v3.0** ile lisanslanmıştır; tam metin
-[`LICENSE`](LICENSE) dosyasındadır (gnu.org kanonik metni, 35 149 bayt,
+[`LICENSE`](../LICENSE) dosyasındadır (gnu.org kanonik metni, 35 149 bayt,
 değiştirilmeden).
 
 Bu program özgür yazılımdır: GNU GPL sürüm 3 şartları altında
@@ -180,7 +180,7 @@ lisansı aynı şey değildir.
 ### Değişiklik katkısı
 
 Bakımcı dal/PR sırası, zorunlu CI kontrolü ve kanıt commit'lerini koruyan
-birleştirme yöntemi [`docs/CHANGE_WORKFLOW.md`](docs/CHANGE_WORKFLOW.md)
+birleştirme yöntemi [`docs/process/CHANGE_WORKFLOW.md`](../docs/process/CHANGE_WORKFLOW.md)
 dosyasındadır.
 
 ### Yayın öncesi açık maddeler

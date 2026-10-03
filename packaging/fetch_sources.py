@@ -26,7 +26,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCE_MANIFEST_NAME = "corresponding_sources.json"
 SOURCE_MANIFEST_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), SOURCE_MANIFEST_NAME)
-OUTPUT_DIR_NAME = "source_mirror"
+OUTPUT_DIR_NAME = os.path.join("output", "source_mirror")
 
 TRUSTED_HOSTS = frozenset({
     "github.com",

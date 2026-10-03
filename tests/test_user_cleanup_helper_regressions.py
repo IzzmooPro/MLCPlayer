@@ -321,13 +321,13 @@ def test_startup_registration_reports_instead_of_raising():
 
 
 def test_main_starts_registration_after_the_window_and_handler():
-    """main.py kaydı senkron çağırmaz; hata yakalayıcı ondan önce kurulur
+    """app/main.py kaydı senkron çağırmaz; hata yakalayıcı ondan önce kurulur
     ve pencere `show()` edildikten sonra başlatılır."""
     import ast
     from pathlib import Path
 
     tree = ast.parse(Path(__file__).resolve().parents[1].joinpath(
-        "main.py").read_text(encoding="utf-8"))
+        "app/main.py").read_text(encoding="utf-8"))
     calls = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):

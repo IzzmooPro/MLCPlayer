@@ -14,7 +14,7 @@ Bu child:
 
 Urun metodlari kullanici hareketi taklidi icin CAGRILMAZ; yalniz sonuc
 dogrulamasi icin durum okunur. Kapanis yalnizca `PLAYER.close()` ile
-baslar; `os._exit` main.py politikasiyla en sonda kullanilir.
+baslar; `os._exit` app/main.py politikasiyla en sonda kullanilir.
 
     MLC_NATIVE_SMOKE=1 MLC_NATIVE_TEST_VIDEO=<mkv> \
         python tests/native_overlay_input_zorder_child.py

@@ -1,5 +1,5 @@
 # Minimal deterministic environment for documentation-only hosted CI.
-# Every pin must remain an exact subset of requirements-lock.txt.
+# Every pin must remain an exact subset of requirements/lock.txt.
 colorama==0.4.6
 iniconfig==2.3.0
 packaging==26.0

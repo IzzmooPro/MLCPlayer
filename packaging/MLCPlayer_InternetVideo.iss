@@ -34,7 +34,7 @@ DisableWelcomePage=no
 ; Dil Windows'tan secilir; kullaniciya sorulmaz.
 ShowLanguageDialog=no
 PrivilegesRequired=admin
-OutputDir=..\installer_output
+OutputDir=..\output\installer
 OutputBaseFilename=MLCPlayer_InternetVideo_{#AddonVersion}
 SetupIconFile=..\assets\mlc-player-icon.ico
 UninstallDisplayIcon={app}\MLC Player.exe

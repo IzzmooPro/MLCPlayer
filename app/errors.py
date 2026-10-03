@@ -696,7 +696,7 @@ def log_error_event(event):
 def safe_console(message):
     """Üretim konsol çıktısının TEK güvenli sınırı.
 
-    `main.py` ve `app/**/*.py` içindeki bütün konsol yazımları buradan
+    `app/main.py` ve `app/**/*.py` içindeki bütün konsol yazımları buradan
     geçer; stdout'a yazmadan hemen önce merkezi `redact()` uygulanır.
     Böylece ham yol, URL token'ı, `Authorization` değeri veya ham
     `str(exception)` konsola ULAŞMAZ ve yeni bir çağıran güvenlik

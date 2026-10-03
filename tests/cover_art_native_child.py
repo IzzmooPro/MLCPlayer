@@ -365,5 +365,5 @@ if __name__ == "__main__":
         sys.stdout.flush()
         sys.stderr.flush()
         # libmpv yukleyen child'lar normal finalizasyona GIRMEZ
-        # (bkz. main.py ve test_child_shutdown_contract_regressions).
+        # (bkz. app/main.py ve test_child_shutdown_contract_regressions).
         os._exit(code)

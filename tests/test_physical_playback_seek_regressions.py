@@ -9,7 +9,7 @@ from physical_buttons_contract import PLAYBACK_SEEK_GROUP_TIMEOUT_SECONDS
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHILD = os.path.join(ROOT, "tests", "native_physical_acceptance_child.py")
 RUNNER = os.path.join(ROOT, "tests", "run_physical_acceptance.py")
-MATRIX = os.path.join(ROOT, "docs", "WINDOWS_ACCEPTANCE_MATRIX.md")
+MATRIX = os.path.join(ROOT, "docs", "quality", "WINDOWS_ACCEPTANCE_MATRIX.md")
 
 
 def read(path):

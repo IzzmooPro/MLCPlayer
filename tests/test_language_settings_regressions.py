@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 @pytest.fixture(autouse=True)
 def isolated_settings(tmp_path, monkeypatch):
-    """Gerçek kullanıcı ayarına dokunulmaz (CLAUDE.md kuralı)."""
+    """Gerçek kullanıcı ayarına dokunulmaz (.claude/CLAUDE.md kuralı)."""
     from PyQt6.QtCore import QSettings
     store = QSettings(str(tmp_path / "dil.ini"), QSettings.Format.IniFormat)
     monkeypatch.setattr(i18n, "_settings", lambda: store)
@@ -177,7 +177,7 @@ def test_the_menu_marks_the_current_choice(qt_app_for_menu, isolated_settings):
 
 def test_the_startup_path_applies_the_language():
     """Dil, pencereler kurulmadan ÖNCE uygulanmalı; sonra menüler geç kalır."""
-    source = (ROOT / "main.py").read_text(encoding="utf-8")
+    source = (ROOT / "app/main.py").read_text(encoding="utf-8")
     assert "apply_language(app)" in source
     assert source.index("apply_language(app)") < source.index("MPVPlayer()")
 

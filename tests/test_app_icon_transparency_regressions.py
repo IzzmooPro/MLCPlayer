@@ -121,8 +121,8 @@ def test_the_application_loads_the_transparent_icon():
 
 
 def test_the_packaged_exe_uses_the_transparent_icon():
-    spec = (ROOT / "MLCPlayer.spec").read_text(encoding="utf-8")
-    assert "icon='assets/mlc-player-icon-transparent.ico'" in spec
+    spec = (ROOT / "packaging/MLCPlayer.spec").read_text(encoding="utf-8")
+    assert "icon=_from_root('assets/mlc-player-icon-transparent.ico')" in spec
     assert "('assets/mlc-player-icon-transparent.ico', 'assets')" in spec, (
         "şeffaf ikon pakete kopyalanmıyor; kurulu sürümde ikon kaybolur")
 

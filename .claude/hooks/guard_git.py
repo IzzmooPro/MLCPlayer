@@ -1,4 +1,4 @@
-"""CLAUDE.md kuralini mekanik bariyere cevirir.
+""".claude/CLAUDE.md kuralini mekanik bariyere cevirir.
 
 Kural: "Kirli calisma agacini koru; stash, reset, checkout veya kullanici
 degisikliklerini geri alan komutlar kullanma."
@@ -58,7 +58,7 @@ def main():
     reason = (
         f"ENGELLENDI: `git {verb}` calisma agacindaki degisiklikleri geri "
         "alabilir.\n"
-        "CLAUDE.md kurali: kirli calisma agacini koru; stash/reset/checkout/"
+        ".claude/CLAUDE.md kurali: kirli calisma agacini koru; stash/reset/checkout/"
         "restore kullanma.\n"
         "Gercekten gerekiyorsa kullaniciya sor ve komutu KULLANICI calistirsin."
     )

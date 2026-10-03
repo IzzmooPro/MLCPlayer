@@ -17,7 +17,8 @@ sırası `CONTINUITY.md`, kanıt kaydı `EV-20260905-001` içindedir.
 
 ### Başlangıç ve kapsam
 
-- Kanonik depo: `C:\Users\Universe\Desktop\Programlar TEST\2026 YENİLER\MLC Player`.
+- Kanonik depo: kullanıcının masaüstündeki `MLC Player` checkout'u (yerel
+  kullanıcı yolu 3 Ekim 2026'da gizlilik için maskelendi).
 - İncelenen HEAD: `95246d19ebac75e651e4970f5ebbc7473cc0f418`.
 - Dal: `codex/v041-release-candidate`; yerel origin görev ref'iyle eş;
   yerel `origin/master` ref'inden 1 commit ileride. Bu incelemede fetch yapılmadı.

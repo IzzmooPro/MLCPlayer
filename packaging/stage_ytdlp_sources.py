@@ -7,7 +7,7 @@ the yt-dlp build commit's hashed requirements, CPython's Windows dependency
 pins and curl-impersonate's CMake source pins form one fail-closed inventory.
 
 This helper never builds or installs anything.  ``--download`` only fetches
-missing immutable source archives into ``source_mirror`` and verifies SHA-256
+missing immutable source archives into ``output/source_mirror`` and verifies SHA-256
 before replacing a target.
 """
 
@@ -28,7 +28,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_MIRROR = ROOT / "source_mirror"
+SOURCE_MIRROR = ROOT / "output" / "source_mirror"
 EXE = ROOT / "bin" / "yt-dlp.exe"
 NOTICE = ROOT / "licenses" / "yt-dlp-THIRD_PARTY_LICENSES.txt"
 EXPECTED_EXE_SHA256 = (

@@ -9,8 +9,8 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOWS = ROOT / ".github" / "workflows"
-CHANGE_WORKFLOW = ROOT / "docs" / "CHANGE_WORKFLOW.md"
-RELEASE_PROCESS = ROOT / "docs" / "RELEASE_PROCESS.md"
+CHANGE_WORKFLOW = ROOT / "docs" / "process" / "CHANGE_WORKFLOW.md"
+RELEASE_PROCESS = ROOT / "docs" / "release" / "RELEASE_PROCESS.md"
 MANUAL = (
     "ci.yml",
     "build-unsigned-main.yml",

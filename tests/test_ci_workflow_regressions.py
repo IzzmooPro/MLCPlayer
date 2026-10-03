@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
-DOCS_REQUIREMENTS = ROOT / "requirements-ci-docs.txt"
+DOCS_REQUIREMENTS = ROOT / "requirements/ci-docs.txt"
 
 
 def workflow_text():
@@ -38,13 +38,13 @@ def test_ci_installs_and_verifies_the_locked_environment():
     assert "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803" in text
     assert "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1" in text
     assert "python-version: '3.13.15'" in text
-    assert "pip install -r requirements-lock.txt" in text
-    assert "verify_dependencies.py requirements-lock.txt" in text
+    assert "pip install -r requirements/lock.txt" in text
+    assert "verify_dependencies.py requirements/lock.txt" in text
 
 
 def test_ci_runs_static_translation_and_default_pytest_gates():
     text = workflow_text()
-    assert "python -m compileall -q main.py app tests packaging" in text
+    assert "python -m compileall -q app tests packaging" in text
     assert "python packaging/extract_translations.py --check" in text
     assert "git diff --check" in text
     assert "python -m pytest -q tests" in text
@@ -63,7 +63,7 @@ def test_ci_classifies_documentation_only_changes_before_running_jobs():
 
 def test_documentation_only_ci_uses_the_small_deterministic_gate():
     text = workflow_text()
-    assert "python -m pip install -r requirements-ci-docs.txt" in text
+    assert "python -m pip install -r requirements/ci-docs.txt" in text
     for path in (
             "tests/test_continuity_regressions.py",
             "tests/test_change_workflow_regressions.py",
@@ -71,7 +71,9 @@ def test_documentation_only_ci_uses_the_small_deterministic_gate():
             "tests/test_readme_user_guidance_regressions.py",
             "tests/test_release_documentation_regressions.py",
             "tests/test_signpath_readiness_regressions.py",
-            "tests/test_video_format_acceptance_plan_regressions.py"):
+            "tests/test_video_format_acceptance_plan_regressions.py",
+            "tests/test_docs_index_regressions.py",
+            "tests/test_repository_privacy_regressions.py"):
         assert path in text
     assert "python -m pytest -q --noconftest" in text
     assert "python -m json.tool docs/VERIFICATION_LEDGER.json" in text
@@ -99,7 +101,7 @@ def test_documentation_ci_requirements_are_pinned_and_match_the_full_lock():
     }
     locked = {
         line.strip().lower()
-        for line in (ROOT / "requirements-lock.txt")
+        for line in (ROOT / "requirements/lock.txt")
         .read_text(encoding="utf-8")
         .splitlines()
         if "==" in line

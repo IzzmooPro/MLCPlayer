@@ -28,16 +28,19 @@ yapmadan bulabilmesini sağlamaktır.
 
 ## Tek kaynak ve güncellik düzeni
 
+Bu tablo yalnız kalite programının kaynaklarını listeler; projenin bütün
+belge haritası `docs/README.md` içindedir.
+
 | Bilgi | Tek resmî kaynak | Ne zaman güncellenir |
 | --- | --- | --- |
 | Güncel durum ve sıradaki tek adım | `docs/CONTINUITY.md` | Her karar/kanıt turunun sonunda |
 | Makinece okunabilir sonuç | `docs/VERIFICATION_LEDGER.json` | Sonraki kararda kullanılacak her sonuçta |
-| Bu programın faz ve kapıları | `docs/QUALITY_EVOLUTION_PLAN.md` | Faz başlarken veya kapanırken |
-| Modül sahipliği ve ayrıştırma adayları | `docs/ARCHITECTURE_INVENTORY.md` | Ölçüm veya sahiplik değiştiğinde |
-| Altı büyük modülün hash/yapı güncellik kapısı | `docs/ARCHITECTURE_INVENTORY.json` | Bu altı kaynaktan biri değiştiğinde |
-| Gerçek Windows senaryoları | `docs/WINDOWS_ACCEPTANCE_MATRIX.md` | Senaryo/ortam/artifact sonucu değiştiğinde |
-| Yayın sırası | `docs/RELEASE_PROCESS.md` | Yalnız yayın sözleşmesi değiştiğinde |
-| Tarihsel anlatı | `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`, `docs/ENGINEERING_AUDIT.md` | Tarihsel checkpoint gerektiğinde |
+| Bu programın faz ve kapıları | `docs/quality/QUALITY_EVOLUTION_PLAN.md` | Faz başlarken veya kapanırken |
+| Modül sahipliği ve ayrıştırma adayları | `docs/quality/ARCHITECTURE_INVENTORY.md` | Ölçüm veya sahiplik değiştiğinde |
+| Altı büyük modülün hash/yapı güncellik kapısı | `docs/quality/ARCHITECTURE_INVENTORY.json` | Bu altı kaynaktan biri değiştiğinde |
+| Gerçek Windows senaryoları | `docs/quality/WINDOWS_ACCEPTANCE_MATRIX.md` | Senaryo/ortam/artifact sonucu değiştiğinde |
+| Yayın sırası | `docs/release/RELEASE_PROCESS.md` | Yalnız yayın sözleşmesi değiştiğinde |
+| Tarihsel anlatı | `docs/history/PROJECT_STATUS.md`, `docs/history/ROADMAP.md`, `docs/history/ENGINEERING_AUDIT.md` | Tarihsel checkpoint gerektiğinde |
 
 Tarihsel belgeler güncel karar kaynağı değildir. Güncel kaynakla çelişen eski
 yorum sessizce düzeltilmez veya karar olarak kullanılmaz; yeni ölçüm ve gerekirse
@@ -64,7 +67,7 @@ adıma işaret ediyor ve ürün kodunda değişiklik yok.
 
 **Durum:** TAMAMLANDI
 
-Önce `docs/ARCHITECTURE_INVENTORY.md` tamamlanır. Her büyük modül için:
+Önce `docs/quality/ARCHITECTURE_INVENTORY.md` tamamlanır. Her büyük modül için:
 
 - kullanıcıya görünen sorumluluklar;
 - state, timer, thread, process ve native kaynak sahipliği;
@@ -83,7 +86,7 @@ göre seçilmiş ve kapsam kullanıcıya sunulmuş olmalıdır.
 
 **Durum:** AKTİF — P0 EŞLEMESİ TAMAM, 6 PASS / 0 FAIL / 2 NOT_RUN
 
-`docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindeki P0 senaryoları exact commit,
+`docs/quality/WINDOWS_ACCEPTANCE_MATRIX.md` içindeki P0 senaryoları exact commit,
 runtime ve mümkünse artifact SHA-256 kimliğiyle çalıştırılır. Var olan native
 runner'lar yeniden kullanılır; aynı davranış için ikinci bir test sistemi
 yazılmaz. Donanım yoksa sonuç `BLOCKED` kalır, PASS yapılmaz.

@@ -12,7 +12,7 @@ Gercek indirme AYRI ve acik izin ister (kota tuketir):
     $env:MLC_OPENSUBTITLES_LIVE_DOWNLOAD='1'
 
 Degisken yoksa "SKIPPED: OPT_IN_REQUIRED" yazip 0 doner. Normal pytest ve
-normal `python main.py` bu harness'i ASLA calistirmaz.
+normal `python app/main.py` bu harness'i ASLA calistirmaz.
 
 GUVENLIK
 --------

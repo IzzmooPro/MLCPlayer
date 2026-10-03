@@ -25,7 +25,7 @@ DefaultDirName={autopf}\MLC Player
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 PrivilegesRequired=admin
-OutputDir=..\installer_output
+OutputDir=..\output\installer
 OutputBaseFilename=MLCPlayer_Setup_{#MyAppVersion}
 ; LisansFile BİLEREK YOK — "kabul ediyorum" sayfası KALDIRILDI.
 ; GPL bir EULA değildir: GPLv3 madde 9 açıkça programı almak veya
@@ -558,14 +558,14 @@ Type: files; Name: "{app}\_internal\api-ms-win-crt-utility-l1-1-0.dll"; Check: I
 ; `_internal\bin` içindeki mpv-2.dll çekirdek runtime'dır. yt-dlp ve deno
 ; bilinçli olarak ana pakette yoktur; yalnız Internet Videosu ek paketindedir.
 #ifndef MLCCompilePreflight
-Source: "..\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: BeforeInstallMainPayload
-Source: "..\dist\MLCUserCleanup.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\output\dist\MLC Player\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: BeforeInstallMainPayload
+Source: "..\output\dist\MLCUserCleanup.exe"; DestDir: "{app}"; Flags: ignoreversion
 #endif
 ; GPLv3 metni ve README kurulum KÖKÜNDE de dursun: kullanıcı `_internal`
 ; içine bakmak zorunda kalmadan lisansa ulaşabilmelidir.
 Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\README.tr.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\.github\README.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\.github\README.tr.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
 ; ÖLÇÜLEN KUSUR: EXE sürüm kaynağı düzeltildikten SONRA bile Windows

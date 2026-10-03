@@ -2,6 +2,18 @@
 # SPDX-License-Identifier: GPL-3.0-only
 import os
 import sys
+
+# `python app/main.py` puts app/ itself first on sys.path; the package
+# imports below need the project root instead. A frozen build and
+# `python -m app.main` already resolve `app` correctly.
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if not getattr(sys, 'frozen', False) and not __package__:
+    _APP_DIR = os.path.dirname(os.path.abspath(__file__))
+    sys.path[:] = [entry for entry in sys.path
+                   if os.path.abspath(entry or os.curdir) != _APP_DIR]
+    if _PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, _PROJECT_ROOT)
+
 from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtCore import QTimer
 
@@ -17,7 +29,7 @@ def get_bin_dir():
     Adım adım arar (ilk bulunan geçerli):
       1. PyInstaller paketlemesi  -> sys._MEIPASS/bin  (--add-data ile gömülü)
       2. EXE'nin yanındaki klasör -> <exe_dir>/bin     (exe ile birlikte taşınan)
-      3. Geliştirme dizini        -> <main.py>/bin     (kaynak koddan çalıştırma)
+      3. Geliştirme dizini        -> <proje kökü>/bin  (kaynak koddan çalıştırma)
     """
     candidates = []
 
@@ -30,8 +42,8 @@ def get_bin_dir():
     if getattr(sys, 'frozen', False) and sys.executable:
         candidates.append(os.path.join(os.path.dirname(sys.executable), 'bin'))
 
-    # 3. Kaynak koddan çalışırken main.py'nin yanı
-    candidates.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bin'))
+    # 3. Kaynak koddan çalışırken proje kökü (app/ klasörünün bir üstü)
+    candidates.append(os.path.join(_PROJECT_ROOT, 'bin'))
 
     for candidate in candidates:
         if os.path.isdir(candidate):
@@ -171,7 +183,7 @@ if __name__ == "__main__":
             from app.updater import start_startup_check
             # Referans çöp toplayıcı tarafından alınmasın diye tutulur.
             player._update_checker = start_startup_check(player)
-        # Komut satırından dosya/URL argümanı: python main.py video.mp4
+        # Komut satırından dosya/URL argümanı: python app/main.py video.mp4
         if len(sys.argv) > 1:
             QTimer.singleShot(
                 0, lambda: player.open_external_target(sys.argv[1]))

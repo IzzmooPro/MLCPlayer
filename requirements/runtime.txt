@@ -1,5 +1,5 @@
 # MLC Player - bağımlılıklar
-# Kurulum: pip install -r requirements.txt
+# Kurulum: pip install -r requirements/runtime.txt
 PyQt6==6.10.2
 python-mpv==1.0.8
 # Guncelleme imzasi (Ed25519) dogrulamasi icin. Kendi kripto kodumuzu
@@ -8,5 +8,5 @@ cryptography==50.0.0
 # NOT: Python `yt-dlp` paketi ARTIK ürün bağımlılığı DEĞİLDİR.
 # mpv site çıkarımını HARİCİ bir çalıştırılabilir üzerinden yapar; MLC Player
 # resmî `bin/yt-dlp.exe` ve `bin/deno.exe` dosyalarını kendi kurulumunda
-# taşır (bkz. bin/RUNTIME_MANIFEST.txt ve docs/PACKAGING_PLAN.md).
+# taşır (bkz. bin/RUNTIME_MANIFEST.txt ve docs/release/PACKAGING_PLAN.md).
 # Kullanıcıdan `pip install yt-dlp` İSTENMEZ.

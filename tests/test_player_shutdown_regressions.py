@@ -14,7 +14,7 @@
 KAPSAM NOTU: bu testler native `0xC0000005` hatasının kök nedenini
 kanıtlamaz ve ölçmez. Bu turda izole edilen tek kesin tetikleyici,
 Qt + libmpv + `audio-device-list` okumasının ardından gelen DOĞAL Python
-finalizasyonudur; ürünün `main.py` yolu o faza girmez. Buradaki ölçüm
+finalizasyonudur; ürünün `app/main.py` yolu o faza girmez. Buradaki ölçüm
 yalnızca ürünün kapanış çağrı SIRASI ve SAYISIDIR; kaynak metni veya AST
 kontrolü yapılmaz.
 """

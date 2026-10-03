@@ -1,9 +1,13 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
+import hashlib
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# Bakıcının başvuruda gizli tutulan adının SHA-256 özeti (küçük harf).
+_PRIVATE_NAME_SHA256 = (
+    "03c89ce8d8791b5dbd38378749b2fa9db008ca4dc09d3ab0f339815fe3d8edff")
 
 
 def _read(relative_path):
@@ -11,8 +15,8 @@ def _read(relative_path):
 
 
 def test_home_pages_link_the_code_signing_and_privacy_policies():
-    readme = _read("README.md")
-    readme_tr = _read("README.tr.md")
+    readme = _read(".github/README.md")
+    readme_tr = _read(".github/README.tr.md")
 
     for text in (readme, readme_tr):
         assert "CODE_SIGNING_POLICY.md" in text
@@ -23,7 +27,7 @@ def test_home_pages_link_the_code_signing_and_privacy_policies():
 
 
 def test_code_signing_policy_is_truthful_about_current_status_and_roles():
-    policy = _read("CODE_SIGNING_POLICY.md")
+    policy = _read("docs/policies/CODE_SIGNING_POLICY.md")
     policy_flat = " ".join(policy.split())
 
     assert "Free code signing provided by SignPath.io" in policy
@@ -39,7 +43,7 @@ def test_code_signing_policy_is_truthful_about_current_status_and_roles():
 
 
 def test_privacy_policy_discloses_every_current_network_category():
-    policy = _read("PRIVACY.md")
+    policy = _read("docs/policies/PRIVACY.md")
 
     assert "api.github.com/repos/IzzmooPro/MLCPlayer/releases/latest" in policy
     assert "No telemetry or analytics" in policy
@@ -50,8 +54,8 @@ def test_privacy_policy_discloses_every_current_network_category():
 
 
 def test_readiness_record_keeps_signpath_out_of_the_active_release_chain():
-    readiness = _read("docs/SIGNPATH_READINESS.md")
-    release_process = _read("docs/RELEASE_PROCESS.md")
+    readiness = _read("docs/release/SIGNPATH.md")
+    release_process = _read("docs/release/RELEASE_PROCESS.md")
 
     assert "Submission status: SUBMITTED - NOT APPROVED (2 September 2026)" in readiness
     assert "NOT SUBMITTED" not in readiness
@@ -67,7 +71,7 @@ def test_readiness_record_keeps_signpath_out_of_the_active_release_chain():
 
 
 def test_signpath_foundation_application_is_submitted_but_not_accepted():
-    application = _read("docs/SIGNPATH_FOUNDATION_APPLICATION.md")
+    application = _read("docs/release/SIGNPATH.md")
     application_flat = " ".join(application.split())
     workflow = _read(".github/workflows/build-unsigned-main.yml")
 
@@ -91,7 +95,10 @@ def test_signpath_foundation_application_is_submitted_but_not_accepted():
     assert "provided privately in the submitted form" in application
     assert "[TO BE PROVIDED AT SUBMISSION]" not in application
     assert "gmail.com" not in application.lower()
-    assert "Murat" not in application
+    # Kişisel ad açık metinle aranmaz; aramanın kendisi adı yayımlardı.
+    words = {word.strip(".,;:()[]`*").lower() for word in application.split()}
+    assert not any(hashlib.sha256(word.encode("utf-8")).hexdigest() == _PRIVATE_NAME_SHA256
+                   for word in words)
     assert "Only SignPath Foundation can decide eligibility" in application_flat
 
     assert "signpath/" not in workflow.lower()

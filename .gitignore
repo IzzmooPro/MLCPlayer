@@ -7,10 +7,14 @@ __pycache__/
 .venv/
 venv/
 
-# Build outputs
+# Build outputs: everything generated lives under output/ (build, dist,
+# installer, source_mirror). The pre-3-October-2026 root locations stay
+# ignored so an old tree left on disk can never be added by accident.
+output/
 build/
 dist/
 installer_output/
+source_mirror/
 
 # Temporary test/runtime folders
 tmp/
@@ -59,4 +63,4 @@ assets/icon-concepts/
 # Mirrored upstream source archives (GPLv3 corresponding source). Build
 # output: fetched by packaging/fetch_sources.py and uploaded to the
 # release, never tracked here.
-source_mirror/
+output/source_mirror/

@@ -585,7 +585,7 @@ finally:
 
 # exit_code 90: harness tarafında yakalanmamış Python istisnası (ürün crash'i değil).
 # Windows'ta libmpv'nin normal Python finalizasyonu thread-safe değildir.
-# Marker'ları kaybetmeden ürünün main.py kapanış sözleşmesiyle aynı yolu kullan.
+# Marker'ları kaybetmeden ürünün app/main.py kapanış sözleşmesiyle aynı yolu kullan.
 sys.stdout.flush()
 sys.stderr.flush()
 os._exit(exit_code)

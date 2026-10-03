@@ -37,7 +37,7 @@ def test_oversized_window_keeps_its_title_bar_on_the_screen():
 
 
 def test_main_centers_the_window_before_showing_it():
-    source = (ROOT / "main.py").read_text(encoding="utf-8")
+    source = (ROOT / "app/main.py").read_text(encoding="utf-8")
     center = source.index("player.center_on_active_screen()")
     show = source.index("player.show()", center)
     assert center < show

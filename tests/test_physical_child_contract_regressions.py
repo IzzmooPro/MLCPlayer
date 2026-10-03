@@ -113,7 +113,7 @@ def test_child_closes_only_through_the_product_path():
 
 
 def test_child_exit_uses_product_policy_after_results():
-    """`os._exit` yalnizca sonuc satirlarindan SONRA (main.py politikasi)."""
+    """`os._exit` yalnizca sonuc satirlarindan SONRA (app/main.py politikasi)."""
     source = read_child_source()
     done = source.index('print(f"MARK_DONE group={GROUP}"')
     exit_call = source.index("os._exit(main())")

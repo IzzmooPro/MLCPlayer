@@ -1,6 +1,6 @@
 """Duzenlenen Python dosyasini ANINDA derler.
 
-CLAUDE.md tur sonunda `python -m compileall -q main.py app tests` istiyor.
+.claude/CLAUDE.md tur sonunda `python -m compileall -q app tests` istiyor.
 Tur sonu cok gec: sozdizimi hatasi o ana kadar yapilan butun koşumları
 bozabiliyor. Bu hook her Edit/Write sonrasi YALNIZ degisen dosyayi derler,
 bu yuzden maliyeti milisaniyedir.

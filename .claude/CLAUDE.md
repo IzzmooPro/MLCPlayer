@@ -1,9 +1,13 @@
 # MLC Player çalışma kuralları
 
-Bu dosya yalnız kalıcı kuralları içerir. Güncel durum ve sıradaki iş için
-`docs/CONTINUITY.md`, doğrulanmış sonuç için
-`docs/VERIFICATION_LEDGER.json` dosyasını oku. Ortak agent başlangıç
-sözleşmesi kökteki `AGENTS.md` dosyasıdır.
+Bu dosya yalnız Claude'a özgü kalıcı kuralları içerir. Güncel durum ve
+sıradaki iş için `docs/CONTINUITY.md`, doğrulanmış sonuç için
+`docs/VERIFICATION_LEDGER.json` dosyasını oku. Belge haritası
+`docs/README.md` içindedir. Ortak agent başlangıç sözleşmesi
+`docs/process/AGENTS.md` dosyasıdır ve aşağıdaki satırla her oturumda
+otomatik yüklenir; orada yazan kural burada tekrarlanmaz:
+
+@../docs/process/AGENTS.md
 
 Aşağıdaki kuralların üçü `.claude/settings.json` içindeki hook'larla
 mekanik olarak da uygulanır: `git stash/reset/checkout/restore/clean` ile
@@ -14,14 +18,13 @@ kapatır.
 
 ## Başlangıç
 
-1. `AGENTS.md`, `CLAUDE.md`, `docs/CONTINUITY.md` ve ilgili ledger kaydını oku.
+1. `docs/process/AGENTS.md`, `.claude/CLAUDE.md`, `docs/CONTINUITY.md` ve ilgili ledger kaydını oku.
 2. `git status --short --branch` çalıştır (oturum hook'u bunu zaten sunar).
 3. Yalnız görevle ilgili kaynak, test ve diff bölümlerini incele. Tüm depoyu veya eski raporları baştan okuma.
 4. Kaynak ile rapor çelişirse kaynak ve yeniden üretilen davranış esas alınır.
 
 ## Çalışma yöntemi
 
-- Kullanıcıyla Türkçe ve açık konuş.
 - Hata düzeltmesinde önce gerçek davranışı ölçen başarısız test yaz; sonra minimum ürün değişikliğini yap.
 - Tek turda tek bağımsız sorunu çöz. İlgisiz refaktör veya görsel değişiklik yapma.
 - Kirli çalışma ağacını koru; `stash`, `reset`, `checkout`, `restore`, `clean`
@@ -69,7 +72,7 @@ imzası olmayan release REDDEDİLİR. Bu yüzden:
   Manifest `ready` değilse veya blocker listesi doluysa yayın kapısı kapalıdır.
   Dinamik listeyi `packaging/fetch_sources.py`, bütünlüğü
   `python packaging/prepublish.py --tag vX.Y` denetler. Kesin varlık ve komut
-  sözleşmesi yalnız `docs/RELEASE_PROCESS.md` içindedir.
+  sözleşmesi yalnız `docs/release/RELEASE_PROCESS.md` içindedir.
 - Installer imzaları `packaging/sign_release.py` ve `.sig` zinciriyle
   üretilir; bu uygulama imzası Windows Authenticode yerine geçmez.
 - **Özel anahtar depoya GİRMEZ.** Konum: `%USERPROFILE%\.mlcplayer\release_ed25519.key`
@@ -85,7 +88,7 @@ imzası olmayan release REDDEDİLİR. Bu yüzden:
   `v0.31` varken `v0.4` yayımlanamaz (`31 > 4`, istemciler göremez); büyük
   adım için `v0.40`. `packaging/check_publishable.py` bunu zincirde durdurur.
 
-- **YAYIN SÜRECİNİN TEK RESMÎ KAYNAĞI `docs/RELEASE_PROCESS.md`'DİR.**
+- **YAYIN SÜRECİNİN TEK RESMÎ KAYNAĞI `docs/release/RELEASE_PROCESS.md`'DİR.**
   Kesin sıra, her adımın giriş/çıkış şartı, dinamik varlık sözleşmesi ve
   hata hâlinde nerede durulacağı ORADADIR; burada tekrarlanmaz.
 
@@ -171,7 +174,7 @@ Test kapsamı etki alanına göre nokta atışıdır.
 - Native testler yalnız kendi başlattığı kesin PID'i `try/finally` ile temizlemeli; Notepad/Explorer veya kullanıcının Python/Qt süreçlerini hedeflememeli.
 - Native crash assertion geçse bile yok sayılmaz; son marker ve gerçek exit code raporlanır.
 - Görsel değişiklik yalnız offscreen testle kabul edilmez; gerçek Windows penceresi ve mümkünse gerçek video gerekir.
-- **Kayıt defteri ölçümü ve düzeltmesi yalnız `python -c "import winreg..."` ile yapılır.** `Get-ItemProperty`, `Set-ItemProperty` ve `reg.exe` bu ortamda GÜVENİLİR DEĞİLDİR: ajanın PowerShell'inden yapılan yazmalar sanal katmanda kalır, gerçek hive'a ulaşmaz. Çapraz test: `reg.exe`'nin yazdığını python GÖREMEZ, python'un yazdığını `reg.exe` GÖRÜR. Bu yüzden "düzelttim" raporları üç tur boyunca yanlıştı (bkz. docs/PROJECT_STATUS.md, ölçüm aracı tuzağı).
+- **Kayıt defteri ölçümü ve düzeltmesi yalnız `python -c "import winreg..."` ile yapılır.** `Get-ItemProperty`, `Set-ItemProperty` ve `reg.exe` bu ortamda GÜVENİLİR DEĞİLDİR: ajanın PowerShell'inden yapılan yazmalar sanal katmanda kalır, gerçek hive'a ulaşmaz. Çapraz test: `reg.exe`'nin yazdığını python GÖREMEZ, python'un yazdığını `reg.exe` GÖRÜR. Bu yüzden "düzelttim" raporları üç tur boyunca yanlıştı (bkz. docs/history/PROJECT_STATUS.md, ölçüm aracı tuzağı).
 - Windows kabuk davranışı (ör. "Birlikte aç" adı) yalnız dosya meta verisiyle doğrulanmaz; Explorer adı çıkarımla bulup ÖNBELLEĞE alır. Kabul, kullanıcının gerçek menüsünde görülmesidir.
 
 ## Tur sonu
@@ -179,7 +182,7 @@ Test kapsamı etki alanına göre nokta atışıdır.
 İlgili testlerden sonra çalıştır:
 
 ```powershell
-python -m compileall -q main.py app tests
+python -m compileall -q app tests
 git diff --check
 ```
 

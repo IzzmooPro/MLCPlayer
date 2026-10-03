@@ -17707,6 +17707,63 @@
         "Source and evidence changes remain uncommitted; no installer contains EV-20260924-001..004."
       ],
       "next_action": "With separate build approval, produce a fresh exact v0.41 installer from this source; then separately approve visible installation and check: first-launch time, oversized saved window, full-screen/PiP close-reopen, minimized-maximized second launch, menu subtitle add/select, a failing file, English percent/decimal texts; then separately approve uninstall with both data choices and repeat the zero-residue audit."
+    },
+    {
+      "id": "EV-20261003-001",
+      "recorded_at_utc": "2026-10-03T12:00:00Z",
+      "proof_layer": "deterministic",
+      "result": "passed",
+      "commit": "33b19bcc4c28ba3d3a3dbf9c991f1d434ef520db",
+      "baseline_commit": "33b19bcc4c28ba3d3a3dbf9c991f1d434ef520db",
+      "working_tree_state": "uncommitted: four product fixes, repository/docs reorganization (root holds only Start.bat and LICENSE), output/ consolidation; renames staged with git mv",
+      "changed_files": [
+        "app/main.py (moved from main.py; sys.path bootstrap, bin/ from project root, cleanup registration after show())",
+        "app/user_cleanup_main.py (moved)",
+        "app/user_cleanup_helper.py (start_user_cleanup_registration, provision named mutex)",
+        "app/updater.py (_version_parts prerelease/build/trailing-zero handling)",
+        "app/media_controls.py, app/subtitle_service.py (three silent failures logged)",
+        "app/player.py (from app.main import get_bin_dir)",
+        "packaging/MLCPlayer.spec, packaging/MLCUserCleanup.spec (moved; SPECPATH-rooted absolute inputs)",
+        "packaging/build_release.bat, packaging/build_unsigned_main.bat, packaging/*.iss, packaging/verify_build.py, packaging/prepublish.py, packaging/fetch_sources.py, packaging/stage_*_sources.py, packaging/sign_release.py, packaging/extract_translations.py",
+        ".github/workflows/ci.yml, .github/workflows/build-unsigned-main.yml",
+        "requirements/{runtime,lock,dev,ci-docs,build-windows}.txt (moved from requirements*.txt)",
+        ".github/README.md, .github/README.tr.md (moved)",
+        ".claude/CLAUDE.md (moved; imports docs/process/AGENTS.md), .claude/hooks/*",
+        "docs/README.md (new index); docs/process, docs/release, docs/policies, docs/quality, docs/video-format, docs/history (moved)",
+        "docs/release/SIGNPATH.md (merged SIGNPATH_READINESS + SIGNPATH_FOUNDATION_APPLICATION)",
+        "docs/video-format/VIDEO_FORMAT_ACCEPTANCE_PLAN.md (absorbed VIDEO_FORMAT_CAPABILITY_INVENTORY)",
+        "docs/history/PACKAGING_HISTORY.md (historical sections split verbatim from PACKAGING_PLAN)",
+        "docs/CONTINUITY.md (rewritten compact), docs/history/CONTINUITY_HISTORY.md (closed blocks appended verbatim)",
+        "docs/history/ENGINEERING_AUDIT.md (local profile path masked)",
+        "second_launch.py (deleted: committed test artifact with a personal absolute path)",
+        ".gitignore (output/), docs/quality/ARCHITECTURE_INVENTORY.json (refreshed), translations/mlcplayer_*.ts (line refresh)",
+        "tests: new test_silent_failure_logging, test_docs_index, test_spec_paths, test_repository_privacy; path updates across the suite",
+        "docs/VERIFICATION_LEDGER.json"
+      ],
+      "subject": "Startup/version/logging/provision fixes plus repository and documentation reorganization",
+      "commands": [
+        "Each product defect: one deterministic red test, minimal fix, same test green",
+        "Red proofs: blocking registration (elapsed check), v0.41-rc1 > v0.41, silent failures unlogged, concurrent provision, old spec raising ModuleNotFoundError from packaging/, HEAD containing the local profile path in two tracked files",
+        "python app/main.py --thumbnail-worker and python -m app.main --thumbnail-worker from another cwd: exit 64 (imports resolve, no window)",
+        "python packaging/extract_translations.py; --check",
+        "python -m pytest -q tests -p no:cacheprovider",
+        "python -m compileall -q app tests packaging",
+        "git diff --check; git diff --cached --check"
+      ],
+      "evidence": [
+        "Full deterministic suite after the final changes: 5404 passed, 11 skipped, 0 failed",
+        "Independent adversarial review of the code fixes: GO, P0/P1 = 0 (two P2 findings fixed: concurrent provision mutex, version marker collision)",
+        "Independent adversarial review of the reorganization: GO, P0 = 0. P1 placeholder ledger entry resolved by this entry; P1 Codex no longer auto-loading AGENTS.md accepted as the user's explicit decision (AGENTS.md moved). P2 fixed: shipped THIRD_PARTY_NOTICES lock path, spec usage line, docs-only CI gate now runs the index and privacy tests, archive now keeps old CONTINUITY lines 43-46 verbatim, ABBB updater detail restored, policy names carry full paths. P2 accepted: old root policy URLs now 404; personal path remains in pre-existing Git history (rewrite is the user's decision)."
+      ],
+      "summary": "Four product fixes, each test-first: the uninstall-cleanup registration (up to 30 s child process) no longer blocks startup and now runs in a daemon thread after the window is shown, with the exception handler installed first; concurrent provisions are serialised by a per-user named mutex released by the OS on process death; prerelease tags, trailing zeros and +build metadata no longer sort above the stable release; three user-visible silent failures are logged by exception type only. The repository root now holds only Start.bat and LICENSE: entry points live in app/, specs in packaging/, dependency lists in requirements/, READMEs in .github/, agent rules in .claude/ and docs/process/, and every generated output (build, dist, installer, source mirror) under the ignored output/ folder; the user's existing local output folders were moved, not deleted. Documentation was split into process/release/policies/quality/video-format/history with a tested index; duplicated SignPath records were merged; the stale PACKAGING_PLAN history and checklist moved to the archive; CONTINUITY shrank from 200 lines with an 8137-character line and five cumulative copies of one bullet to 137 lines of at most 81 characters, with every removed block archived verbatim.",
+      "limitations": [
+        "Deterministic/offscreen evidence only. No PyInstaller or Inno build ran: the moved specs, --distpath/--workpath and output/ paths are verified by a stubbed spec execution and tests, not by a real build.",
+        "No installed artifact contains EV-20260924-001..004 or this entry's changes.",
+        "AGENTS.md is no longer at the repository root; tools that only auto-read a root AGENTS.md (e.g. Codex) must be pointed to docs/process/AGENTS.md.",
+        "24 historical ledger entries still contain the local profile path; the ledger is append-only and the user chose not to rewrite it. Git history before this change also still contains second_launch.py.",
+        "Deferred by decision: event-driven EOF detection (needs native libmpv measurement), multi-file open (single-instance protocol bump), ruff in CI (lock change), converting source-text tests."
+      ],
+      "next_action": "With separate build approval, run packaging/build_release.bat once from this source; it is the first real build through the moved specs and output/ paths and must not be retried without inspecting a failure. Then, with separate approval, a visible install check (no startup wait, oversized saved window, full-screen/PiP close-reopen, minimized second launch, menu subtitle add/select, failing file, English percent/decimal text). Commit, push/PR, tag and release each need separate approval."
     }
   ]
 }

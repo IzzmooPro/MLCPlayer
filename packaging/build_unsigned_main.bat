@@ -12,7 +12,7 @@ if /I not "%MLC_HOSTED_UNSIGNED_BUILD%"=="1" (
 )
 
 cd /d "%~dp0.."
-set "SPEC=MLCPlayer.spec"
+set "SPEC=packaging/MLCPlayer.spec"
 set "ISS=packaging\MLCPlayer.iss"
 set "VERIFY=packaging\verify_build.py"
 
@@ -24,7 +24,7 @@ where python >nul 2>&1
 if errorlevel 1 goto :fail
 python -m PyInstaller --version >nul 2>&1
 if errorlevel 1 goto :fail
-python "packaging\verify_dependencies.py" "requirements-lock.txt"
+python "packaging\verify_dependencies.py" "requirements/lock.txt"
 if errorlevel 1 goto :fail
 
 set "ISCC="
@@ -42,7 +42,7 @@ if not defined ISCC (
 set "APP_VER="
 for /f "usebackq delims=" %%V in (`python -c "import sys; sys.path.insert(0,'.'); from app.config import APP_VERSION; print(APP_VERSION)"`) do set "APP_VER=%%V"
 if not defined APP_VER goto :fail
-set "MAIN_SETUP=installer_output\MLCPlayer_Setup_!APP_VER!.exe"
+set "MAIN_SETUP=output\installer\MLCPlayer_Setup_!APP_VER!.exe"
 
 echo STEP 1/6  Main-package source and runtime verification
 python "%VERIFY%" --pre-main
@@ -51,13 +51,13 @@ python "packaging\verify_inno.py" main --iscc "%ISCC%"
 if errorlevel 1 goto :fail
 
 echo STEP 2/6  Clean exact build outputs
-if exist "build" (
-    rmdir /s /q "build"
-    if exist "build" goto :fail
+if exist "output\build" (
+    rmdir /s /q "output\build"
+    if exist "output\build" goto :fail
 )
-if exist "dist" (
-    rmdir /s /q "dist"
-    if exist "dist" goto :fail
+if exist "output\dist" (
+    rmdir /s /q "output\dist"
+    if exist "output\dist" goto :fail
 )
 if exist "!MAIN_SETUP!" (
     del /f /q "!MAIN_SETUP!"
@@ -73,7 +73,7 @@ python "packaging\compile_translations.py"
 if errorlevel 1 goto :fail
 
 echo STEP 4/6  PyInstaller main package
-python "packaging\run_pyinstaller.py" "%SPEC%" --noconfirm --clean --log-level WARN
+python "packaging\run_pyinstaller.py" "%SPEC%" --noconfirm --clean --log-level WARN --distpath "output\dist" --workpath "output\build"
 if errorlevel 1 goto :fail
 python "%VERIFY%" --post
 if errorlevel 1 goto :fail

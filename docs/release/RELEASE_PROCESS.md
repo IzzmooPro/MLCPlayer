@@ -1,7 +1,7 @@
 # MLC Player yayın süreci
 
-**Bu dosya yayın sürecinin TEK RESMÎ KAYNAĞIDIR.** `CLAUDE.md`,
-`docs/PACKAGING_PLAN.md` ve `packaging/prepublish.py` yalnız kritik
+**Bu dosya yayın sürecinin TEK RESMÎ KAYNAĞIDIR.** `.claude/CLAUDE.md`,
+`docs/release/PACKAGING_PLAN.md` ve `packaging/prepublish.py` yalnız kritik
 değişmezleri özetler ve buraya bağlanır. Sıra burada değişir, başka
 yerde tekrarlanmaz.
 
@@ -36,7 +36,7 @@ değiştirmedikleridir**.
 ## Kod imzalama katmanları
 
 SignPath is not currently part of the active release chain. Mevcut kurulumlar
-Windows Authenticode imzası taşımaz; `CODE_SIGNING_POLICY.md` yalnız ücretsiz
+Windows Authenticode imzası taşımaz; `docs/policies/CODE_SIGNING_POLICY.md` yalnız ücretsiz
 SignPath başvurusu için hazırlık durumunu açıklar.
 
 SignPath kabulü alınır ve ayrıca süreç değişikliği onaylanırsa Authenticode must happen before the existing detached Ed25519 signature is created.
@@ -68,7 +68,7 @@ yerel Ed25519 imzası ve mevcut fiziksel installer kabul kapıları yine zorunlu
 ## Kesin yayın sırası
 
 `master` PR kapısı aktifse sürüm alanı commit'i önce
-`docs/CHANGE_WORKFLOW.md` sırasıyla PR üzerinden **merge commit** olarak
+`docs/process/CHANGE_WORKFLOW.md` sırasıyla PR üzerinden **merge commit** olarak
 origin/master'a ulaşır. PR üzerindeki hosted `test` yeşil olmadan merge
 yapılmaz. Rutin merge push'u otomatik CI başlatmadığı için sürüm adayında
 ayrıca `workflow_dispatch` ile `master` üzerindeki exact merge commit tam
@@ -145,7 +145,7 @@ doğrular. Bu koşum yeşil olmadan build başlamaz. Yerel
 
     c) python packaging/fetch_sources.py
        GİRİŞ  : corresponding_sources.json `ready`, engel listesi boş
-       ÇIKIŞ  : source_mirror içinde sözleşmedeki gerçek kaynak arşivleri,
+       ÇIKIŞ  : output/source_mirror içinde sözleşmedeki gerçek kaynak arşivleri,
                 boyut + SHA-256 ile doğrulanmış
 
     d) Build BAŞARIYLA bittikten SONRA, test edilen HEAD üzerinde
@@ -197,12 +197,12 @@ Adım (h) komutu — Windows PowerShell'de kopyalanıp çalıştırılabilir:
 
 ```powershell
 $assets = @(
-  "installer_output/MLCPlayer_Setup_vX.Y.exe"
-  "installer_output/MLCPlayer_Setup_vX.Y.exe.sig"
-  "installer_output/MLCPlayer_InternetVideo_vX.Y.exe"
-  "installer_output/MLCPlayer_InternetVideo_vX.Y.exe.sig"
+  "output/installer/MLCPlayer_Setup_vX.Y.exe"
+  "output/installer/MLCPlayer_Setup_vX.Y.exe.sig"
+  "output/installer/MLCPlayer_InternetVideo_vX.Y.exe"
+  "output/installer/MLCPlayer_InternetVideo_vX.Y.exe.sig"
 )
-$sourceAssets = python -c "import sys; sys.path.insert(0, 'packaging'); import fetch_sources; [print('source_mirror/' + x.name) for x in fetch_sources.plan()]"
+$sourceAssets = python -c "import sys; sys.path.insert(0, 'packaging'); import fetch_sources; [print('output/source_mirror/' + x.name) for x in fetch_sources.plan()]"
 if ($LASTEXITCODE -ne 0) { throw "kaynak listesi okunamadi" }
 $assets += @($sourceAssets)
 
@@ -226,7 +226,7 @@ python packaging/stage_libmpv_source.py --source "<artifact-root>\source\parts\l
 
 Araç ağ, build, Git, tag veya release işlemi yapmaz. Kaynağı sözleşmedeki
 `557940716` bayt ve SHA-256 değeriyle doğrular, geçici dosyaya yazar ve yalnız
-tam eşleşmede `source_mirror/` hedefine atomik geçirir. Doğrulanmış hedef zaten
+tam eşleşmede `output/source_mirror/` hedefine atomik geçirir. Doğrulanmış hedef zaten
 varsa kaynak dosyası veya yeni build gerektirmeden başarıyla döner. Kalıcı URL
 v0.38 release yayımlandığında canlı olur; draft aşamasında aynı dosyanın uzak
 ad/boyut/SHA-256 eşliği doğrulanmadan yayın yapılmaz.
@@ -314,7 +314,7 @@ push etmez, release açmaz.
 | 2 | `MLCPlayer_Setup_vX.Y.exe.sig` | build (b) |
 | 3 | `MLCPlayer_InternetVideo_vX.Y.exe` | build (b) |
 | 4 | `MLCPlayer_InternetVideo_vX.Y.exe.sig` | build (b) |
-| 5+ | `source_mirror/` gerçek kaynak arşivleri | fetch (c) |
+| 5+ | `output/source_mirror/` gerçek kaynak arşivleri | fetch (c) |
 
 Kaynak varlıkları `packaging/corresponding_sources.json` dosyasından türer.
 EXE, binary ZIP veya yalnız header/DLL taşıyan geliştirme paketi bu listeye

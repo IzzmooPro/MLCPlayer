@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Depoyu klonlayan biri testleri ve yayın zincirini KOŞABİLMELİDİR.
 
-KIRMIZI KANIT (17 Ağustos 2026, ölçüldü). `requirements.txt` yalnız
+KIRMIZI KANIT (17 Ağustos 2026, ölçüldü). `requirements/runtime.txt` yalnız
 `PyQt6`, `python-mpv` ve `cryptography` beyan ediyor. Ama depo şunları
 ADIYLA çağırıyor:
 
@@ -13,24 +13,24 @@ ADIYLA çağırıyor:
 
 `pyside6-lrelease` **PySide6** ile gelir. Ölçüldü: PyQt6 `pylupdate6`
 sağlıyor ama `lrelease` SAĞLAMIYOR — yani bağımlılık gerçek, tesadüf
-değil. Temiz bir kopyada `pip install -r requirements.txt` yapan biri
+değil. Temiz bir kopyada `pip install -r requirements/runtime.txt` yapan biri
 testleri koşamaz ve `build_release.bat` 3. adımda durur.
 
-NEDEN `requirements.txt`E EKLENMEZ: o dosyayı `scripts/bootstrap.ps1`
+NEDEN `requirements/runtime.txt`E EKLENMEZ: o dosyayı `scripts/bootstrap.ps1`
 SON KULLANICI için kuruyor. Programı kaynaktan çalıştırmak isteyen birine
 ikinci bir Qt bağlaması indirtmek doğru değil. Geliştirici araçları ayrı
 dosyada durur.
 
 PAKETE DE GİRMEMELİDİR: ürün PyQt6 ile çalışır; PySide6 yalnız derleme
-aracıdır ve `MLCPlayer.spec` `excludes` listesinde olmalıdır.
+aracıdır ve `packaging/MLCPlayer.spec` `excludes` listesinde olmalıdır.
 """
 
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RUNTIME = ROOT / "requirements.txt"
-DEV = ROOT / "requirements-dev.txt"
+RUNTIME = ROOT / "requirements/runtime.txt"
+DEV = ROOT / "requirements/dev.txt"
 
 
 def read(path):
@@ -79,7 +79,7 @@ def test_the_runtime_file_stays_lean():
 
 def test_pyside6_is_excluded_from_the_package():
     """Ürün PyQt6 ile çalışır; PySide6 derleme aracıdır."""
-    spec = (ROOT / "MLCPlayer.spec").read_text(encoding="utf-8")
+    spec = (ROOT / "packaging/MLCPlayer.spec").read_text(encoding="utf-8")
     excludes = spec.split("excludes=", 1)[1].split("]", 1)[0]
     assert "PySide6" in excludes
 
@@ -101,9 +101,9 @@ def test_every_externally_invoked_tool_is_declared():
 
 def test_the_readme_documents_the_translation_workflow():
     """`.ts` dosyaları hazır ama nasıl çevrileceği yazılı değildi."""
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (ROOT / ".github" / "README.md").read_text(encoding="utf-8")
     section = readme.split("## Contributing", 1)[1].split("\n## ", 1)[0]
-    assert "requirements-dev.txt" in section
+    assert "requirements/dev.txt" in section
     assert "linguist" in section.lower()
     assert "translations/" in section
 
@@ -111,7 +111,7 @@ def test_the_readme_documents_the_translation_workflow():
 def test_the_readme_warns_against_the_wrong_extractor():
     """TUZAK: `pyside6-lupdate` bizim `tr()` sarmalayıcımızı GÖREMEZ ve
     `.ts` dosyalarını eksik yeniden yazar. Çıkarma bize aittir."""
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (ROOT / ".github" / "README.md").read_text(encoding="utf-8")
     section = readme.split("## Contributing", 1)[1].split("\n## ", 1)[0]
     assert "lupdate" in section, "yanlış araç uyarısı yok"
     assert "extract_translations.py" in section

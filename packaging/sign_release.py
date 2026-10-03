@@ -7,7 +7,7 @@
         the repository; the public key is printed and embedded by hand into
         `app/release_signature.py`.
 
-    python packaging/sign_release.py installer_output/MLCPlayer_Setup_vX.exe
+    python packaging/sign_release.py output/installer/MLCPlayer_Setup_vX.exe
         Signs the file's SHA-256 digest and writes `<file>.sig`. That file
         MUST be uploaded to the release as an asset; the updater downloads
         it and verifies it against the embedded public key.

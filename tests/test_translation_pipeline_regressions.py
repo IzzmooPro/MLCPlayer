@@ -186,7 +186,7 @@ def test_the_release_chain_compiles_the_translations():
     """`.qm` ÜRETİLMEZSE paket çevirisiz çıkar — sessizce.
 
     KIRMIZI KANIT: `.qm` `.gitignore` içindedir (üretilmiş dosyadır) ve
-    `MLCPlayer.spec` onları `translations/` içinden TOPLAR, ama zinciri
+    `packaging/MLCPlayer.spec` onları `translations/` içinden TOPLAR, ama zinciri
     kuran hiçbir adım onları DERLEMİYORDU. Temiz bir kopyada
     `build_release.bat` çalıştırıldığında klasör boş olur; kullanıcı hiçbir
     uyarı almadan yalnız Türkçe görür ve `available_languages()` İngilizceyi
@@ -215,7 +215,7 @@ def test_the_compiler_skips_untranslated_languages(tmp_path):
 
 def test_compiled_translations_are_packaged():
     """`.qm` pakete girmezse kurulu sürüm hep Türkçe açılır."""
-    spec = (ROOT / "MLCPlayer.spec").read_text(encoding="utf-8")
+    spec = (ROOT / "packaging/MLCPlayer.spec").read_text(encoding="utf-8")
     assert "'translations'" in spec and ".qm" in spec
 
 

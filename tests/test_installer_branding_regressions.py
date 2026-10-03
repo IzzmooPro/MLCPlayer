@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ISS = ROOT / "packaging" / "MLCPlayer.iss"
 WIZARD_DIR = ROOT / "packaging" / "wizard"
-PACKAGING_PLAN = ROOT / "docs" / "PACKAGING_PLAN.md"
+PACKAGING_PLAN = ROOT / "docs" / "release" / "PACKAGING_PLAN.md"
 SEPARATE_UX_PLAN = ROOT / "docs" / "INSTALLER_UX_PLAN.md"
 REPO_URL = "https://github.com/IzzmooPro/MLCPlayer"
 

@@ -3,7 +3,7 @@
 """Compiles the `.ts` translation sources into `.qm` binaries.
 
 WHY IT IS A SEPARATE STEP. `.qm` files are BUILD OUTPUT and live in
-`.gitignore`; `MLCPlayer.spec` collects them from the `translations/`
+`.gitignore`; `packaging/MLCPlayer.spec` collects them from the `translations/`
 folder. But nothing in the chain compiled them: on a clean checkout
 `packaging/build_release.bat` left that folder empty, the package shipped
 with no translations, and the user silently got Turkish only. This script

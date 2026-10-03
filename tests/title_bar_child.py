@@ -135,7 +135,7 @@ def main():
 
 
 if __name__ == "__main__":
-    # ÜRÜNLE AYNI KAPANIŞ (`main.py` -> `os._exit(ret)`): libmpv yüklendikten
+    # ÜRÜNLE AYNI KAPANIŞ (`app/main.py` -> `os._exit(ret)`): libmpv yüklendikten
     # sonra normal Python finalizasyonu takılabiliyor. Ölçüm JSON'u bu
     # noktadan ÖNCE basılır.
     _code = main()

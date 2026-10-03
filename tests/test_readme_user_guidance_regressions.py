@@ -12,8 +12,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-EN = (ROOT / "README.md").read_text(encoding="utf-8")
-TR = (ROOT / "README.tr.md").read_text(encoding="utf-8")
+EN = (ROOT / ".github" / "README.md").read_text(encoding="utf-8")
+TR = (ROOT / ".github" / "README.tr.md").read_text(encoding="utf-8")
 
 
 def test_both_readmes_explain_the_two_installer_contract():

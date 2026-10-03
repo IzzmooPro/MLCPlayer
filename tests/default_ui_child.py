@@ -157,7 +157,7 @@ def main():
 
 
 if __name__ == "__main__":
-    # ÜRÜNLE AYNI KAPANIŞ. `main.py` bunu şöyle belgeliyor: "mpv DLL'leri bu
+    # ÜRÜNLE AYNI KAPANIŞ. `app/main.py` bunu şöyle belgeliyor: "mpv DLL'leri bu
     # yapıda interpreter kapanışında takılıyor (thread-safe olmayan DLL
     # yıkımı)" ve bu yüzden `os._exit(ret)` kullanıyor. Bu child libmpv
     # yüklediği hâlde normal finalizasyona giriyordu; ölçüm (JSON) çoktan

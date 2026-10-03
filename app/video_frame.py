@@ -2164,7 +2164,7 @@ class VideoFrame(QWidget):
         hatasının kök nedeninin bu yüzeyler olduğu KANITLANMADI; ölçülen
         tek kesin tetikleyici Qt + libmpv + `audio-device-list` okumasının
         ardından gelen DOĞAL Python finalizasyonudur ve ürün (bkz.
-        `main.py`) o faza hiç girmez.
+        `app/main.py`) o faza hiç girmez.
 
         Yalnız yüzen yüzeyler bırakılır; mpv `wid` yüzeyi (bu widget) ve
         gömülü playlist paneli DOKUNULMAZ. Çağrı idempotenttir ve bırakma

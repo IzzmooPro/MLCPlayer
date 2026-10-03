@@ -1,7 +1,10 @@
 # SPDX-FileCopyrightText: 2026 MLC Player contributors
 # SPDX-License-Identifier: GPL-3.0-only
 # PyInstaller spec dosyası - MLC Player
-# Kullanım: pyinstaller MLCPlayer.spec
+# Kullanım: packaging\build_release.bat (önerilen; temizler ve doğrular).
+# Elle çalıştırılacaksa çıktı Inno'nun okuduğu klasöre gitmelidir:
+#   python packaging/run_pyinstaller.py packaging/MLCPlayer.spec --noconfirm
+#     --clean --distpath output/dist --workpath output/build
 # Not: python-mpv mpv-2.dll'i dışarıdan yükler (add_dll_directory ile),
 # bu yüzden DLL'i datalar ile birlikte paketlemek yeterlidir.
 
@@ -16,7 +19,20 @@ block_cipher = None
 # Windows sürüm kaynağı (VS_VERSION_INFO). Olmadığında Windows "Birlikte aç"
 # listesinde programı DOSYA ADIYLA ("MLC Player.exe") gösteriyordu.
 # Değerler app/config.py'deki tek sürüm kaynağından türer.
-_project_root = os.path.abspath(os.getcwd())
+# The spec lives in packaging/; PyInstaller resolves relative script and
+# data paths against the spec directory, so every repository path is made
+# absolute from the project root (independent of the current directory).
+_project_root = os.path.dirname(os.path.abspath(SPECPATH))
+
+
+def _from_root(relative):
+    return os.path.join(_project_root, *relative.split('/'))
+
+
+def _datas(entries):
+    return [(_from_root(source), target) for source, target in entries]
+
+
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 from app.config import APP_VERSION, WINDOWS_VERSION      # noqa: E402
@@ -34,15 +50,16 @@ _policy_spec = importlib.util.spec_from_file_location(
 binary_policy = importlib.util.module_from_spec(_policy_spec)
 _policy_spec.loader.exec_module(binary_policy)
 
-VERSION_FILE = os.path.join(_project_root, 'build', 'file_version_info.txt')
+VERSION_FILE = os.path.join(_project_root, 'output', 'build',
+                            'file_version_info.txt')
 os.makedirs(os.path.dirname(VERSION_FILE), exist_ok=True)
 version_resource.write(VERSION_FILE, APP_VERSION, WINDOWS_VERSION)
 
 a = Analysis(
-    ['main.py'],
-    pathex=[],
+    [_from_root('app/main.py')],
+    pathex=[_project_root],
     binaries=[],
-    datas=[
+    datas=_datas([
         # Calisma zamani ikilileri `_internal\bin` altinda toplanir.
         ('bin/mpv-2.dll', 'bin'),                  # mpv + ffmpeg runtime DLL
         # yt-dlp.exe ve deno.exe BILEREK YOK: birlikte 110 MB tutuyorlar
@@ -86,9 +103,9 @@ a = Analysis(
           for name in sorted(os.listdir(os.path.join(_project_root,
                                                      'translations')))
           if name.endswith('.qm')],
-        ('README.md', '.'),
-        ('README.tr.md', '.'),
-    ],
+        ('.github/README.md', '.'),
+        ('.github/README.tr.md', '.'),
+    ]),
     hiddenimports=[
         'mpv',
     ],
@@ -96,7 +113,7 @@ a = Analysis(
     hooksconfig={},
     runtime_hooks=[],
     # URUNDE HIC KULLANILMAYAN paketler (kaynak taramasiyla dogrulandi):
-    # `numpy` ve `PIL` app/ ve main.py icinde import EDILMIYOR; PyInstaller
+    # `numpy` ve `PIL` app/ ve app/main.py icinde import EDILMIYOR; PyInstaller
     # onlari gecisli olarak topluyordu (~38 MB).
     # `PySide6` YALNIZ gelistirici aracidir (ceviri derleyicisi ve
     # Linguist). Urun PyQt6 ile calisir; ikinci bir Qt baglamasi
@@ -148,13 +165,13 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     # UPX bu turda ZORLA acilmaz; karar gercek antivirus/baslatma
-    # kabulunden sonra verilir (bkz. docs/PACKAGING_PLAN.md).
+    # kabulunden sonra verilir (bkz. docs/release/PACKAGING_PLAN.md).
     upx=False,
     upx_exclude=[],
     # Destek dosyalari klasoru ACIKCA sabitlenir; PyInstaller surum
     # varsayimina birakilmaz.
     contents_directory='_internal',
-    icon='assets/mlc-player-icon-transparent.ico',
+    icon=_from_root('assets/mlc-player-icon-transparent.ico'),
     # Windows'un gösterdiği ad ve sürüm alanları buradan gelir.
     version=VERSION_FILE,
     console=False,                # GUI uygulaması - konsol penceresi açmasın

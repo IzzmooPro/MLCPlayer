@@ -1,6 +1,11 @@
 # MLC Player agent başlangıç sözleşmesi
 
-Bu dosya, projeyi devralan her agentın ilk giriş noktasıdır.
+Bu dosya, projeyi devralan her agentın ilk giriş noktasıdır. Depo kökünde
+yalnız `Start.bat` ve `LICENSE` tutulduğu için dosya `docs/process/`
+altındadır: Claude onu `.claude/CLAUDE.md` üzerinden otomatik yükler; kök
+dizinde `AGENTS.md` arayan araçlara (ör. Codex) oturum başında bu yol
+verilmelidir. Hangi bilginin hangi belgede tutulduğu `docs/README.md`
+içindedir.
 
 ## Her oturumun başında
 
@@ -11,17 +16,17 @@ Bu dosya, projeyi devralan her agentın ilk giriş noktasıdır.
    adım yalnız oradadır.
 3. İlgili kanıtı `docs/VERIFICATION_LEDGER.json` içinde kimliğiyle bul.
 4. Yalnız görev gerektiriyorsa tarihsel ayrıntı için
-   `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md` veya
-   `docs/ENGINEERING_AUDIT.md` dosyasına git. Tarihçeden güncel durum çıkarma.
+   `docs/history/PROJECT_STATUS.md`, `docs/history/ROADMAP.md` veya
+   `docs/history/ENGINEERING_AUDIT.md` dosyasına git. Tarihçeden güncel durum çıkarma.
 5. Kaynak, güncel durum ve eski rapor çelişirse yeniden ölçülen kaynak
    davranışı esas alınır; çelişki kayda geçirilir.
-6. `docs/CHANGE_WORKFLOW.md` içindeki etkinlik kapısını kontrol et. PR kapısı
+6. `docs/process/CHANGE_WORKFLOW.md` içindeki etkinlik kapısını kontrol et. PR kapısı
    aktifse doğrudan `master` değişikliği/push'u yapma; `codex/<kısa-konu>` dalı,
    zorunlu `test` check'i ve merge-commit sırasını kullan.
-7. Mimari veya gerçek Windows kalite işi `docs/QUALITY_EVOLUTION_PLAN.md`
-   üzerinden yürür. Güncel modül yorumu `docs/ARCHITECTURE_INVENTORY.md`,
-   makinece güncellik kapısı `docs/ARCHITECTURE_INVENTORY.json`, gerçek cihaz
-   senaryosu `docs/WINDOWS_ACCEPTANCE_MATRIX.md` içindedir; eksik/eskimiş
+7. Mimari veya gerçek Windows kalite işi `docs/quality/QUALITY_EVOLUTION_PLAN.md`
+   üzerinden yürür. Güncel modül yorumu `docs/quality/ARCHITECTURE_INVENTORY.md`,
+   makinece güncellik kapısı `docs/quality/ARCHITECTURE_INVENTORY.json`, gerçek cihaz
+   senaryosu `docs/quality/WINDOWS_ACCEPTANCE_MATRIX.md` içindedir; eksik/eskimiş
    satır sessizce PASS yapılmaz.
 
 ## Kanıt sınırları
@@ -111,4 +116,4 @@ yazma yapılmaz.
 - Build, kurulum/kaldırma, commit, push, PR oluşturma, PR birleştirme, tag ve
   release ayrı ayrı açık kullanıcı onayı ister.
 - Force-push ve GitHub protection bypass yapılmaz.
-- Yayın sırasının tek resmî kaynağı `docs/RELEASE_PROCESS.md` dosyasıdır.
+- Yayın sırasının tek resmî kaynağı `docs/release/RELEASE_PROCESS.md` dosyasıdır.

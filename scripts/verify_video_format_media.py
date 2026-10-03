@@ -35,7 +35,7 @@ if os.name == "nt":
 
 
 ROOT = Path(__file__).resolve().parent.parent
-CANONICAL_MANIFEST = (ROOT / "docs" / "VIDEO_FORMAT_MEDIA_MANIFEST.json").resolve()
+CANONICAL_MANIFEST = (ROOT / "docs" / "video-format" / "VIDEO_FORMAT_MEDIA_MANIFEST.json").resolve()
 FFPROBE_ARGV = (
     "-v", "error", "-show_format", "-show_streams", "-show_frames",
     "-select_streams", "v:0", "-of", "json", "$MEDIA",

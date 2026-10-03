@@ -2,7 +2,7 @@
 
 Bu dosya, `master` için PR + zorunlu GitHub Actions kontrolü etkin olduğunda
 kullanılacak **tek değişiklik-akışı sözleşmesidir**. Yayın artifact sırası
-yalnız `docs/RELEASE_PROCESS.md` içindedir.
+yalnız `docs/release/RELEASE_PROCESS.md` içindedir.
 
 ## Etkinlik kapısı
 
@@ -130,7 +130,7 @@ yerel annotated tag bu **exact merge commit** üzerinde yürür.
 
 Bu durumda yayın sürecindeki `git push origin master` bir değişiklik taşımaz;
 yalnız yerel HEAD ile origin/master eşliğini doğrular. Tag push'u ve release
-yine `docs/RELEASE_PROCESS.md` sırasına ve ayrı onaylara tabidir.
+yine `docs/release/RELEASE_PROCESS.md` sırasına ve ayrı onaylara tabidir.
 
 ## Planlanan GitHub koruması
 

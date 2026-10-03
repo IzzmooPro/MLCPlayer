@@ -3,7 +3,7 @@
 # Verified with CPython 3.14 on Windows. Package metadata for every direct
 # dependency supports the project's Python 3.12 <= version < 3.15 contract.
 # CI and release builds install this complete graph; source users install the
-# smaller requirements.txt file.
+# smaller requirements/runtime.txt file.
 altgraph==0.17.5
 cffi==2.1.1
 colorama==0.4.6

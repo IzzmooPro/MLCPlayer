@@ -319,9 +319,9 @@ def test_stale_server_name_is_reclaimed(qt_app, name):
 
 
 @pytest.mark.parametrize("argv,expected", [
-    (["main.py", "--thumbnail-worker", "video.mkv", "out.jpg"], True),
-    (["main.py", "video.mkv"], False),
-    (["main.py"], False),
+    (["app/main.py", "--thumbnail-worker", "video.mkv", "out.jpg"], True),
+    (["app/main.py", "video.mkv"], False),
+    (["app/main.py"], False),
     ([], False),
 ])
 def test_thumbnail_workers_are_outside_the_guard(argv, expected):
@@ -387,13 +387,13 @@ def test_activation_without_a_file_only_raises():
 
 def test_initial_cli_target_uses_the_same_safe_router():
     """İlk süreç ile IPC aynı dosya/URL karar noktasından geçmelidir."""
-    source = (ROOT / "main.py").read_text(encoding="utf-8")
+    source = (ROOT / "app/main.py").read_text(encoding="utf-8")
     assert "player.open_external_target(sys.argv[1])" in source
     assert "player.open_path(sys.argv[1])" not in source
 
 
 def test_failed_delivery_is_visible_and_returns_an_error():
-    source = (ROOT / "main.py").read_text(encoding="utf-8")
+    source = (ROOT / "app/main.py").read_text(encoding="utf-8")
     assert "instance_guard.handoff_failed" in source
     assert "QMessageBox.warning" in source
     assert "sys.exit(2)" in source

@@ -17,8 +17,8 @@ import pytest
 import app.runtime_binaries as runtime
 
 PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SPEC = os.path.join(PROJECT, "MLCPlayer.spec")
-REQUIREMENTS = os.path.join(PROJECT, "requirements.txt")
+SPEC = os.path.join(PROJECT, "packaging/MLCPlayer.spec")
+REQUIREMENTS = os.path.join(PROJECT, "requirements/runtime.txt")
 MANIFEST = os.path.join(PROJECT, "bin", "RUNTIME_MANIFEST.txt")
 TRICKY_DIR = "Program Files (x86)\\MLC Player Türkçe Sürüm"
 
@@ -161,7 +161,7 @@ def test_the_runtime_module_never_shells_out_or_self_updates():
 # =====================================================================
 
 def test_the_process_path_gains_the_bin_dir_only_once(monkeypatch, bundle):
-    import main
+    from app import main
 
     bin_dir = bundle("yt-dlp.exe", "deno.exe")
     monkeypatch.setenv("PATH", "C:\\Windows\\system32")
@@ -175,7 +175,7 @@ def test_the_process_path_gains_the_bin_dir_only_once(monkeypatch, bundle):
 
 
 def test_no_permanent_environment_write_exists():
-    source = read(os.path.join(PROJECT, "main.py"))
+    source = read(os.path.join(PROJECT, "app/main.py"))
 
     for forbidden in ("winreg", "setx", "SetEnvironmentVariable",
                       "HKEY_CURRENT_USER", "HKEY_LOCAL_MACHINE"):
@@ -187,7 +187,7 @@ def test_no_permanent_environment_write_exists():
 # =====================================================================
 
 def test_a_missing_runtime_never_blocks_local_playback():
-    source = read(os.path.join(PROJECT, "main.py"))
+    source = read(os.path.join(PROJECT, "app/main.py"))
     start = source.index("def check_dependencies")
     block = source[start:source.index("\nif __name__", start)]
 
@@ -289,7 +289,7 @@ def test_the_manifest_records_version_url_size_and_hash():
 
 
 def test_the_youtube_403_runtime_repair_is_recorded_without_install_claims():
-    status = read(os.path.join(PROJECT, "docs", "PROJECT_STATUS.md"))
+    status = read(os.path.join(PROJECT, "docs", "history", "PROJECT_STATUS.md"))
     for evidence in (
         "yt-dlp `2026.08.19`",
         "player_client=web_safari",
@@ -593,7 +593,7 @@ def test_the_manifest_records_the_third_party_license():
 
 
 def test_the_plan_states_the_combined_executable_licence_correctly():
-    plan = read(os.path.join(PROJECT, "docs", "PACKAGING_PLAN.md"))
+    plan = read(os.path.join(PROJECT, "docs", "release", "PACKAGING_PLAN.md"))
 
     assert "GPL-3.0 DEGILDIR" not in plan and "GPL-3.0 değildir" not in plan
     assert "GPLv3+" in plan
@@ -612,7 +612,7 @@ def test_the_spec_pins_the_contents_directory():
 
 
 @pytest.mark.parametrize("relative", (
-    os.path.join("docs", "PACKAGING_PLAN.md"),
+    os.path.join("docs", "release", "PACKAGING_PLAN.md"),
     os.path.join("bin", "RUNTIME_MANIFEST.txt"),
     os.path.join("bin", "SHA256SUMS.txt"),
 ))
@@ -626,7 +626,7 @@ def test_no_control_characters_in_the_tracked_texts(relative):
 
 
 def test_the_plan_shows_the_runtime_paths_as_plain_text():
-    plan = read(os.path.join(PROJECT, "docs", "PACKAGING_PLAN.md"))
+    plan = read(os.path.join(PROJECT, "docs", "release", "PACKAGING_PLAN.md"))
 
     for name in ("mpv-2.dll", "yt-dlp.exe", "deno.exe"):
         assert f"_internal\\bin\\{name}" in plan, f"duz metin yol yok: {name}"

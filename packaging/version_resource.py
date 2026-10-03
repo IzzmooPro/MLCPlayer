@@ -9,7 +9,7 @@ properties; because that field was empty, the program showed up as
 `dist\\MLC Player\\MLC Player.exe` -> ProductVersion empty.
 
 The values derive from the single source in `app/config.py`
-(`APP_VERSION` / `WINDOWS_VERSION`); `MLCPlayer.spec` writes this text at
+(`APP_VERSION` / `WINDOWS_VERSION`); `packaging/MLCPlayer.spec` writes this text at
 build time and hands it to PyInstaller through `version=`.
 """
 

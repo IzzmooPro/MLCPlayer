@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Opt-in GERCEK urun kabugu Altyazi Merkezi smoke'u.
 
-Gercek `MPVPlayer` penceresi (main.py ile ayni kabuk), gercek menu eylemi,
+Gercek `MPVPlayer` penceresi (app/main.py ile ayni kabuk), gercek menu eylemi,
 gercek libmpv. Yalnizca OpenSubtitles ISTEMCISI sahtedir.
 
 GUVENLIK KURALI

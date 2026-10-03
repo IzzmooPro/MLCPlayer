@@ -26,7 +26,7 @@ from app.local_subtitle import activate_local_subtitle, suppress_local_subtitle
 from app.app_icon import apply_window_icon
 from app.runtime_binaries import (YOUTUBE_YTDL_RAW_OPTIONS,
                                   internet_video_ready, ytdl_script_opt)
-from main import get_bin_dir
+from app.main import get_bin_dir
 from app.subtitle_service import (SubtitleSession, TRACK_WAIT_ATTEMPTS,
                                   TRACK_WAIT_INTERVAL_S)
 from app.subtitle_center_composition import (
